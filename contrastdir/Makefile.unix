@@ -1,0 +1,182 @@
+#
+# Generic Linux/Unix Makefile for PHYLIP 3.7.
+#
+# You should not need to change anything, though if you want you could
+# change the first (noncomment) statement -- the one that sets the
+# folder (directory) in which the executables will be placed -- to some
+# directory location that might be more useful.
+#
+# The compressed tar archive phylip.tar.Z when uncompressed and extracted
+# puts the source code into a directory ./src, and also makes two other
+# directories ./exe and ./doc for the final executables and the documentation
+# files.  Only change the EXEDIR settings if you want something different
+# from that structure.
+#
+# If it causes trouble in compiling, the CFLAGS statement below may also need
+# to be changed.
+#
+#  To use the PHYLIP v3.7 Makefile, type
+#      make install       to compile the whole package and install
+#                           the executables in $(EXEDIR), and then
+#                           remove the object files to save space
+#      make all           to compile the whole package but not install it
+#                           or remove the object files
+#      make put           to copy the executables into $(EXEDIR)
+#      make clean         to remove all object files and executables from the
+#                           current directory
+#      make dnaml         to compile and link one program, (in this example,
+#                           DnaML) and leave the executable and object files
+#                           in the current directory (where the source code is).
+#                           You will have to move the executable in to the
+#                           executables directory (e.g. "mv dnaml ../exe")
+#                           Note that the program name should be lower case.
+# 
+# ----------------------------------------------------------------------------
+#  (Starting here is the section where you may want to change things)
+# ----------------------------------------------------------------------------
+#
+# these are the statements we have been talking about:
+# one of the reasons for changing them would be to put the executables
+# on a different file system.
+# The default configuration is to have within the overall PHYLIP
+# directory three subdirectories:  "src" for source code, "exe" for the
+# executables, and "doc" for the documentation files.
+#
+# the following specifies the directory where the executables will be placed
+EXEDIR  = ../exe
+#
+# ----------------------------------------------------------------------------
+#
+# In the following statements (the ones that set CFLAGS, DFLAGS, LIBS
+# and DLIBS, CC and DC) you should make sure each is set properly.
+# Usually this will simply involve making sure that the proper statement
+# has no "#" as its first character and that all other possibilities
+# have "#" for their first character.
+#
+# ----------------------------------------------------------------------------
+#
+# This is the CFLAGS statement:
+#
+# Here are some possible CFLAGS statements:
+#
+#
+#A minimal one
+#CFLAGS = 
+#
+# A basic one for debugging
+#CFLAGS  = -g 
+#
+# An optimized one for gcc
+#CFLAGS  = -O3 -fomit-frame-pointer
+#
+# For some serious debugging using Gnu gcc
+#
+CFLAGS=-g -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment 
+#
+# For Digital Alpha systems with Compaq Tru64 Unix
+# (however, be aware that this may cause floating-point problems in programs
+#  like Dnaml owing to not using IEEE floating point standards).
+#CFLAGS = -fast
+#
+# Optimized one for the IBM Visualage compiler for Linux or AIX on IBM pSeries
+#CFLAGS = -O -qmaxmem=-1 -qarch=auto -qtune=auto
+#
+# ----------------------------------------------------------------------------
+#
+# and here are some possible DFLAGS statements:
+#
+# A minimal one
+#DFLAGS  = -DX $(CFLAGS)
+#
+# A basic one for debugging
+#DFLAGS  = -g -DX
+#
+#
+# For Gnu C++ for runs
+#DFLAGS  = -I/usr/X11R6/include -O3 -DX -fomit-frame-pointer
+#
+# For Digital Alpha systems with Compaq Tru64 Unix
+#DFLAGS = -DX -fast 
+#
+# for Linux with X Windows development packages installed
+# or for MacOS X with X Windows installed
+DFLAGS = $(CFLAGS) -DX -I/usr/X11R6/include
+#
+# For IBM Visualage compiler on Linux or AIX for the IBM pSeries
+#DFLAGS  = -DX $(CFLAGS)
+#
+# ----------------------------------------------------------------------------
+#
+# These are the libraries for the CC and DC compiles, respectively
+#
+LIBS    = Slist.o phylip.o 
+LDADD   = -lm 
+#
+# if the Xlib library for the X windowing system is somewhere
+# unexpected, you may have to change the path /usr/X11R6/lib in this one
+#
+# For gcc for Linux with X windows development packages installed
+#  or for MacOS X with X windows installed
+#  or for IBM pSeries with Linux
+DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt
+#
+# For IBM Visualage compiler for AIX
+#
+#DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt -lXmu -lXext
+#
+# ----------------------------------------------------------------------------
+#
+# The next two assignments are the invocations of the compiler for the
+# ordinary compiles and the tree-drawing programs, CC and DC
+#
+# This one specifies the "cc" C compiler
+CC        = gcc $(CFLAGS)
+#
+#  To use GCC instead, if it is not the compiler that "cc" invokes
+#CC        = gcc $(CFLAGS)
+#
+# For IBM compiler for Linux or AIX on IBM pSeries
+#CC        = xlc $(CFLAGS)
+#
+# This one specifies the "cc" C compiler for the Draw programs
+DC        = cc $(DFLAGS)
+#
+# To use GCC instead, if it is not the compiler that "cc" invokes
+#DC        = gcc $(DFLAGS)
+#
+# For IBM compiler for Linux or AIX on IBM pSeries
+#DC        = xlc $(DFLAGS)
+#
+# ----------------------------------------------------------------------------
+#  (After this point there should not be any reason to change anything)
+# ----------------------------------------------------------------------------
+#
+#
+# the list of programs
+#
+#
+# compile the shared stuff
+#
+
+Slist.o:      Slist.c Slist.h
+	$(CC) -c Slist.c
+
+phylip.o:     phylip.c phylip.h Slist.h
+	$(CC) -c phylip.c
+
+cont.o:       cont.c cont.h phylip.h
+	$(CC) -c cont.c
+
+#
+# compile program object files
+#
+
+contrast.o:   contrast.c cont.h phylip.h
+	$(CC) -c contrast.c
+
+contrast:     contrast.o cont.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnacomp:      dnacomp.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+

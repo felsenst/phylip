@@ -1,0 +1,98 @@
+
+
+Estimates when VarA is in the model
+
+Estimate of VarA
+-------- -- ----
+
+     0.751355     -0.185653 
+    -0.185653      0.534626 
+
+Estimate of VarE
+-------- -- ----
+
+     0.115101      0.009386 
+     0.009386      0.082703 
+
+VarA Regressions (columns on rows)
+---- ----------- -------- -- -----
+
+    1.0000   -0.2471
+   -0.3473    1.0000
+
+VarA Correlations
+---- ------------
+
+    1.0000   -0.2929
+   -0.2929    1.0000
+
+VarE Regressions (columns on rows)
+---- ----------- -------- -- -----
+
+    1.0000    0.0816
+    0.1135    1.0000
+
+
+VarE Correlations
+---- ------------
+
+    1.0000    0.0962
+    0.0962    1.0000
+
+
+
+
+Estimates when the two sets of characters are phylogenetically uncorrelated
+
+Estimate of VarA
+-------- -- ----
+
+     0.754249             0 
+            0      0.541865 
+
+Estimate of VarE
+-------- -- ----
+
+     0.114841      0.008738 
+     0.008738      0.082444 
+
+VarA Regressions (columns on rows)
+---- ----------- -------- -- -----
+
+    1.0000    0.0000
+    0.0000    1.0000
+
+VarA Correlations
+---- ------------
+
+    1.0000    0.0000
+    0.0000    1.0000
+
+VarE Regressions (columns on rows)
+---- ----------- -------- -- -----
+
+    1.0000    0.0761
+    0.1060    1.0000
+
+
+VarE Correlations
+---- ------------
+
+    1.0000    0.0898
+    0.0898    1.0000
+
+
+
+
+
+    Likelihood Ratio Test of no correlation
+    ---------- ----- ---- -- -- -----------
+
+    Log likelihood with correlation       =      87.33841,  6 parameters
+
+    Log likelihood without correlation    =      85.91352,  5 parameters
+
+                     difference    =       1.42489
+
+                Chi-square value =       2.84977,  1  degree of freedom
+
