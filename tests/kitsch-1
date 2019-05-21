@@ -1,0 +1,204 @@
+#!/bin/sh
+
+: ${EXEDIR:=.}
+: ${VERSION:=3.7}
+: ${PROG:=kitsch}
+: ${DIFF:=diff -u}
+
+if [ ! -x ${EXEDIR}/${PROG} ] ; then
+  echo "Cannot execute ${EXEDIR}/${PROG}!"
+  exit 1
+fi
+
+tmpfiles="infile intree weights categories factors outfile outfile.ok stdout stdout.ok stderr stderr.ok"
+trap "rm -fr $tmpfiles" 1 2 3 15
+
+# Remove files that change how the interface responds
+rm -f outfile outtree
+
+# Console input
+
+cat <<EOF > stdin
+p
+0
+y
+EOF
+
+# Input files
+
+cat <<EOF > infile
+10
+001_Midsl 0 235277 245318 266313 142874 144386 316231 223646 269832 295112
+002_West- 235277 0 332145 331110 262728 258768 293040 109680 221009 242546
+003_Oost- 245318 332145 0 133139 236973 234490 378788 342673 351712 375555
+004_Den_B 266313 331110 133139 0 256222 246583 352735 342234 375050 392589
+005_Hollu 142874 262728 236973 256222 0 51216 268598 250296 233625 251615
+005_Nes   144386 258768 234490 246583 51216 0 256594 247808 236098 254533
+007_Schie 316231 293040 378788 352735 268598 256594 0 290674 255752 261266
+008_Ooste 223646 109680 342673 342234 250296 247808 290674 0 207438 213701
+009_Ferwe 269832 221009 351712 375050 233625 236098 255752 207438 0 71100
+010_Holwe 295112 242546 375555 392589 251615 254533 261266 213701 71100 0
+EOF
+
+cat <<EOF > intree
+EOF
+
+cat <<EOF > weights
+EOF
+
+cat <<EOF > categories
+EOF
+
+cat <<EOF > factors
+EOF
+
+# Expected output
+
+cat <<EOF > outfile.ok
+
+  10 Populations
+
+Fitch-Margoliash method with contemporary tips, version $VERSION
+
+                  __ __             2
+                  \  \   (Obs - Exp)
+Sum of squares =  /_ /_  ------------
+                                0
+                   i  j      Obs
+
+negative branch lengths not allowed
+
+
+                                     +------------------------004_Den_B 
+  +----------------------------------3 
+  !                                  +------------------------003_Oost- 
+  ! 
+--4      +----------------------------------------------------007_Schie 
+  !      ! 
+  !      !                        +--------------------------001_Midsl 
+  +------6    +-------------------2 
+         !    !                   !                 +---------005_Nes   
+         !    !                   +-----------------5 
+         !    !                                     +---------005_Hollu 
+         +----7 
+              !                          +--------------------002_West- 
+              !     +--------------------1 
+              !     !                    +--------------------008_Ooste 
+              +-----8 
+                    !                           +------------009_Ferwe 
+                    +---------------------------9 
+                                                +------------010_Holwe 
+
+
+Sum of squares = 116014783906.357
+
+From     To            Length          Height
+----     --            ------          ------
+
+   3   004_Den_B   66569.50000    158140.31250
+   4      3        91570.81250     91570.81250
+   3   003_Oost-   66569.50000    158140.31250
+   6   007_Schie  138725.35714    158140.31250
+   4      6        19414.95536     19414.95536
+   2   001_Midsl   71815.00000    158140.31250
+   7      2        53990.75000     86325.31250
+   5   005_Nes     25608.00000    158140.31250
+   2      5        46207.00000    132532.31250
+   5   005_Hollu   25608.00000    158140.31250
+   6      7        12919.60714     32334.56250
+   1   002_West-   54840.00000    158140.31250
+   8      1        55746.75000    103300.31250
+   1   008_Ooste   54840.00000    158140.31250
+   7      8        15219.00000     47553.56250
+   9   009_Ferwe   35550.00000    158140.31250
+   8      9        75036.75000    122590.31250
+   9   010_Holwe   35550.00000    158140.31250
+
+EOF
+
+cat <<EOF > stdout.ok
+[2J[H
+Fitch-Margoliash method with contemporary tips, version $VERSION
+
+Settings for this run:
+  D      Method (F-M, Minimum Evolution)?  Fitch-Margoliash
+  U                 Search for best tree?  Yes
+  P                                Power?  2.00000
+  -      Negative branch lengths allowed?  No
+  L         Lower-triangular data matrix?  No
+  R         Upper-triangular data matrix?  No
+  S                        Subreplicates?  No
+  J     Randomize input order of species?  No. Use input order
+  M           Analyze multiple data sets?  No
+  0   Terminal type (IBM PC, ANSI, none)?  ANSI
+  1    Print out the data at start of run  No
+  2  Print indications of progress of run  Yes
+  3                        Print out tree  Yes
+  4       Write out trees onto tree file?  Yes
+
+  Y to accept these or type the letter for one to change
+New power?
+[2J[H
+Fitch-Margoliash method with contemporary tips, version 3.7
+
+Settings for this run:
+  D      Method (F-M, Minimum Evolution)?  Fitch-Margoliash
+  U                 Search for best tree?  Yes
+  P                                Power?  0.00000
+  -      Negative branch lengths allowed?  No
+  L         Lower-triangular data matrix?  No
+  R         Upper-triangular data matrix?  No
+  S                        Subreplicates?  No
+  J     Randomize input order of species?  No. Use input order
+  M           Analyze multiple data sets?  No
+  0   Terminal type (IBM PC, ANSI, none)?  ANSI
+  1    Print out the data at start of run  No
+  2  Print indications of progress of run  Yes
+  3                        Print out tree  Yes
+  4       Write out trees onto tree file?  Yes
+
+  Y to accept these or type the letter for one to change
+Adding species:
+   1. 001_Midsl 
+   2. 002_West- 
+   3. 003_Oost- 
+   4. 004_Den_B 
+   5. 005_Hollu 
+   6. 005_Nes   
+   7. 007_Schie 
+   8. 008_Ooste 
+   9. 009_Ferwe 
+  10. 010_Holwe 
+
+Doing global rearrangements
+  !-------------------!
+   ...................
+   ...................
+
+Output written to file "outfile"
+
+Tree also written onto file "outtree"
+
+Done.
+
+EOF
+
+cat <<EOF > stderr.ok
+EOF
+
+# Run the program
+
+${EXEDIR}/${PROG} < stdin > stdout 2>stderr || exit 1
+
+# Compare the results to expected 
+${DIFF} outfile.ok outfile
+result=$?
+${DIFF} stdout.ok stdout
+result=`expr $result \| $?`
+${DIFF} stderr.ok stderr
+result=`expr $result \| $?`
+
+
+#rm -f $tmpfiles
+
+exit $result

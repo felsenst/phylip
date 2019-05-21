@@ -1,0 +1,171 @@
+#!/bin/sh
+
+: ${EXEDIR:=.}
+: ${VERSION:=3.7}
+: ${PROG:=neighbor}
+: ${DIFF:=diff -u}
+
+if [ ! -x ${EXEDIR}/${PROG} ] ; then
+  echo "Cannot execute ${EXEDIR}/${PROG}!"
+  exit 1
+fi
+
+tmpfiles="infile intree weights categories factors outfile outfile.ok stdout stdout.ok stderr stderr.ok"
+trap "rm -fr $tmpfiles" 1 2 3 15
+
+# Remove files that change how the interface responds
+rm -f outfile outtree
+
+# Console input
+
+cat <<EOF > stdin
+y
+EOF
+
+# Input files
+
+cat <<EOF > infile
+10
+001_Midsl 0 235277 245318 266313 142874 144386 316231 223646 269832 295112
+002_West- 235277 0 332145 331110 262728 258768 293040 109680 221009 242546
+003_Oost- 245318 332145 0 133139 236973 234490 378788 342673 351712 375555
+004_Den_B 266313 331110 133139 0 256222 246583 352735 342234 375050 392589
+005_Hollu 142874 262728 236973 256222 0 51216 268598 250296 233625 251615
+005_Nes   144386 258768 234490 246583 51216 0 256594 247808 236098 254533
+007_Schie 316231 293040 378788 352735 268598 256594 0 290674 255752 261266
+008_Ooste 223646 109680 342673 342234 250296 247808 290674 0 207438 213701
+009_Ferwe 269832 221009 351712 375050 233625 236098 255752 207438 0 71100
+010_Holwe 295112 242546 375555 392589 251615 254533 261266 213701 71100 0
+EOF
+
+cat <<EOF > intree
+EOF
+
+cat <<EOF > weights
+EOF
+
+cat <<EOF > categories
+EOF
+
+cat <<EOF > factors
+EOF
+
+# Expected output
+
+cat <<EOF > outfile.ok
+
+  10 Populations
+
+Neighbor-Joining/UPGMA method version $VERSION
+
+
+ Neighbor-joining method
+
+ Negative branch lengths allowed
+
+
+                                   +---------------002_West- 
+                   +---------------3 
+                   !               +-------------008_Ooste 
+    +--------------6 
+    !              !   +--------------------------------------007_Schie 
+    !              +---5 
+    !                  !                     +------009_Ferwe 
+  +-7                  +---------------------2 
+  ! !                                        +-----------010_Holwe 
+  ! ! 
+  ! !                            +----------------003_Oost- 
+  ! +----------------------------1 
+  !                              +------------------004_Den_B 
+  ! 
+  !          +------005_Hollu 
+  8----------4 
+  !          +------005_Nes   
+  ! 
+  +--------------------001_Midsl 
+
+
+remember: this is an unrooted tree!
+
+Between        And            Length
+-------        ---            ------
+   8             7         5958.85938
+   7             6        53217.23438
+   6             3        56588.39583
+   3          002_West-   58820.91667
+   3          008_Ooste   50859.08333
+   6             5        15832.35417
+   5          007_Schie  143642.71875
+   5             2        79316.28125
+   2          009_Ferwe   27285.00000
+   2          010_Holwe   43815.00000
+   7             1       105347.89062
+   1          003_Oost-   62495.62500
+   1          004_Den_B   70643.37500
+   8             4        40565.98438
+   4          005_Hollu   27316.15000
+   4          005_Nes     23899.85000
+   8          001_Midsl   77456.01562
+
+
+EOF
+
+cat <<EOF > stdout.ok
+
+[2J[H
+Neighbor-Joining/UPGMA method version 3.7
+
+Settings for this run:
+  N       Neighbor-joining or UPGMA tree?  Neighbor-joining
+  O                        Outgroup root?  No, use as outgroup species  1
+  L         Lower-triangular data matrix?  No
+  R         Upper-triangular data matrix?  No
+  S                        Subreplicates?  No
+  J     Randomize input order of species?  No. Use input order
+  M           Analyze multiple data sets?  No
+  0   Terminal type (IBM PC, ANSI, none)?  ANSI
+  1    Print out the data at start of run  No
+  2  Print indications of progress of run  Yes
+  3                        Print out tree  Yes
+  4       Write out trees onto tree file?  Yes
+
+
+  Y to accept these or type the letter for one to change
+
+Cycle   7: species 3 (62495.62500) joins species 4 (70643.37500)
+Cycle   6: species 9 (27285.00000) joins species 10 (43815.00000)
+Cycle   5: species 2 (58820.91667) joins species 8 (50859.08333)
+Cycle   4: species 5 (27316.15000) joins species 6 (23899.85000)
+Cycle   3: species 7 (143642.71875) joins node 9 (79316.28125)
+Cycle   2: node 2 (56588.39583) joins node 7 (15832.35417)
+Cycle   1: node 2 (53217.23438) joins node 3 (105347.89062)
+last cycle:
+ species 1  (77456.01562) joins node 2  (5958.85938) joins node 5  (40565.98438)
+
+Output written on file "outfile"
+
+Tree written on file "outtree"
+
+Done.
+
+EOF
+
+cat <<EOF > stderr.ok
+EOF
+
+# Run the program
+
+${EXEDIR}/${PROG} < stdin > stdout 2>stderr || exit 1
+
+# Compare the results to expected 
+${DIFF} outfile.ok outfile
+result=$?
+${DIFF} stdout.ok stdout
+result=`expr $result \| $?`
+${DIFF} stderr.ok stderr
+result=`expr $result \| $?`
+
+
+rm -f $tmpfiles
+
+exit $result
