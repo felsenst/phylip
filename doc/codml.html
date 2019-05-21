@@ -1,0 +1,677 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>codml</TITLE>
+<META NAME="description" CONTENT="codml">
+<META NAME="keywords" CONTENT="codml">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY BGCOLOR="#ccffff">
+<DIV ALIGN=RIGHT>
+version 3.7
+</DIV>
+<P>
+<DIV ALIGN=CENTER>
+<H1>CodML -- Codon model Maximum Likelihood program</H1>
+</DIV>
+<P>
+&#169; Copyright 2009 - 2013 by the University of
+Washington.  Written by Joseph Felsenstein.  Permission is granted to copy 
+this document provided that no fee is charged for it and that this copyright 
+notice is not removed. 
+<P>
+<! ??? Put in citations to Yang omega method too>
+This program implements the maximum likelihood method for a codon
+model (Muse and Gaut, 1994; Goldman and Yang, 1994).  For an overview
+of the codon model and variations on it see Yang (2006).
+The codon model assumes that we have a coding sequence, and
+there is an underlying model of DNA base change, except that
+changes to stop codons are not allowed, and changes that
+result in a change of amino acids are allowed only a fraction
+&omega; (omega) of the time.
+The assumptions of these present models are:
+<OL>
+<LI>Each position in the sequence evolves independently.
+<LI>Different lineages evolve independently.
+<LI>Each amino acid position undergoes substitution at a rate controlled by
+a value of &omega;
+chosen from a series of values (each with a probability of occurrence)
+which we specify.
+<LI>All relevant amino acid positions are included in the sequence, not just
+those that have changed or those that are "phylogenetically informative".
+</OL>
+<P>
+One of the main uses of this model is used to make inferences about the
+parameter &omega;, the relative rate of nonsynonymous to synonymous
+substitutions.  A value of 1 is expected if evolution in the sequence
+is neutral, a value less than 1 indicates "purifying" natural selection
+which eliminates a fraction &nbsp;1-&omega;&nbsp; of the substitutions
+that change amino acids.  A value of &omega; greater than 1 indicates
+that positive natural selection favors change of the amino acid.
+<P>
+Detection of positive natural selection by this method was initiated,
+using parsimony and distance methods, by Nei and Gojobori (1986).  The
+use of codon models to make likelihood-based inferences about &omega;
+was pioneered by Ziheng Yang and Rasmus Nielsen (Yang, 1998;
+Yang and Nielsen, 1998; Nielsen and Yang, 1998).
+<P>
+Another use of the codon model will be to infer a phylogeny from both
+DNA and protein sequences in an integrated way.  However This program does not
+yet allow both types of sequences to be used in the same run.
+<P>
+Note the assumption that we are looking at all positions, including those
+that have not changed at all.  It is important not to restrict attention
+to some positions based on whether or not they have changed; doing that
+would bias branch lengths by making them too long, and that in turn
+would cause the method to misinterpret the meaning of those positions that
+had changed.
+<P>
+<H3>The Hidden Markov Model</H3>
+<P>
+For the case in which the values of &omega; can differ among them,
+this program uses a Hidden Markov Model (HMM)
+method of inferring different values of &omega; at different amino acid
+positions.  This
+was described (for nucleotides in DNA) in a paper by me and
+Gary Churchill (1996).  A version of the HMM was independently introduced
+by Yang (1995).  It allows us to
+specify to the program that there will be
+a number of different possible values of &omega;, what the prior
+probability of occurrence of each is, and what is the average length of a
+patch of amino acid positions that all having the same value of &omega;.
+The program computes the
+the likelihood by summing it over all possible assignments of values of
+&omega; to amino acid positions,
+weighting each by its prior probability of occurrence.
+<P>
+The Hidden Markov Model framework for rate variation among amino acid positions
+was independently developed by Yang (1993, 1994, 1995).  We have
+implemented a general scheme for a Hidden Markov Model of 
+rates; we allow the rates and their prior probabilities to be specified
+arbitrarily  by the user.
+<P>
+This feature effectively removes the artificial assumption that all
+amino acid positions
+have the same value of &omega; and also means that we need not know in
+advance the
+identities of the positions that have a particular rate of evolution.
+<P>
+In the codon model literature it is not common to use an HMM which has
+correlations among adjacent amino acid positions.  Instead it is used
+without these autocorrelations, to allow different values of &omega; at
+different positions.  CodML can allow either independence or autocorrelation.
+Molecular evolutionists have tended to think of positive selection as
+something specific to a particular position, rather than to a stretch of
+positions.  There is considerable common sense in that view, but when it
+comes to negative selection, autocorrelation may be of interest.  In
+particular, function in proteins may be clustered in active sites, and
+may be less present in secondary structures such as alpha helices.  You
+should think about this and decide for yourself whether you want to allow
+the &omega; values to be autocorrelated.
+<P>
+<p>
+With the release of Phylip 4.0, CodML gained a modern <A HREF="#javaint">Java GUI</a>. 
+The <A HREF="#cmdline">command line</a> interface still exists, should you have need of it for scripting. 
+</p>
+<H2> <A NAME="javaint"> Java Interface </a></H2>
+<p>
+The Java CodML Interface is a modern GUI. It will run only on a machine that
+has a recent version of Oracle Java installed. This is not a serious limitation because Java is freeware that is universally available. 
+</p>
+<p>
+When you start the CodML Java interface it looks similar to the following:
+</p>
+<p>
+<img src="images/CodmlControls.png" alt="Codml Main Control Screen"/>
+</p>
+<p>
+It has all the usual GUI functionality: input and output file selectors, drop
+down menu options, data entry boxes and toggles. 
+</p>
+<p>
+To simplify transition from the 
+traditional command line interface to the Java GUI all of the functionality
+found in the command line interface exist and are described using similar terms.
+</p>
+<H2><A NAME="cmdline">INPUT FORMAT AND OPTIONS</a></H2>
+<P>
+Subject to these assumptions, the program is a
+correct maximum likelihood method.  The
+input is fairly standard, with one addition.  As usual the first line of the 
+file gives the number of species and the number of amino acid positions or
+the number of sites in the DNA.  The program can either read in either amino
+acid sequences or nucleotide sequences.  It defaults to the assumption
+that the data are nuceltide sequences; you can change this to the
+assumption that they are amino acid sequences by using the program menu.
+<P>
+Next come the species data.  Each
+sequence starts on a new line, has a ten-character species name
+that must be blank-filled to be of that length, followed immediately
+by the species data in the one-letter amino acid code.  The sequences must
+either be in the "interleaved" or "sequential" formats
+described in the Molecular Sequence Programs document.  The I option
+selects between them.  The sequences can have internal 
+blanks in the sequence but there must be no extra blanks at the end of the 
+terminated line.  Note that a blank is not a valid symbol for a deletion.
+<P>
+The options are selected using an interactive menu.  The menu looks like this:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+
+Codon Maximum Likelihood method, version 3.7a
+
+Settings for this run:
+  U  Search for best tree (yes, no, rearrange)?  Yes
+  K              Nucleotide substitution model:  F84
+  T              Transition/transversion ratio:  2.0000
+  Z     Nonsynonymous/synonymous ratio (omega):  1.0000
+  D                               Input data as  nucleotides
+  N                         One value of omega?  Yes
+  W                            Codons weighted?  No
+  S              Speedier but rougher analysis?  Yes
+  G                      Global rearrangements?  No
+  J         Randomize input order of sequences?  No. Use input order
+  O                              Outgroup root?  No, use species  1
+  M                 Analyze multiple data sets?  No
+  I                Input sequences interleaved?  Yes
+  0         Terminal type (IBM PC, ANSI, none)?  ANSI
+  1          Print out the data at start of run  No
+  2        Print indications of progress of run  Yes
+  3                              Print out tree  Yes
+  4             Write out trees onto tree file?  Yes
+  5         Reconstruct hypothetical sequences?  No
+
+  Y to accept these or type the letter for one to change
+
+</PRE>
+</TD></TR></TABLE>
+<P>
+The user either types "Y" (followed, of course, by a carriage-return)
+if the settings shown are to be accepted, or the letter or digit corresponding
+to an option that is to be changed.
+<P>
+The options U, W, J, O, M, and 0 are the usual ones.  They are described in the
+main documentation file of this package.  Option I is the same as in
+other molecular sequence programs and is described in the documentation file
+for the sequence programs.
+<P>
+The K option chooses the underlying DNA model.  This defaults to the
+F84 model, but by repeatedly choosing K one can choose the HKY model, the
+Kimura 2-parameter (K2P) model, and the Jukes-Cantor (JC) model.
+<P>
+The T option sets the transition/transversion ratio for the nucleotide
+substitution models.  The default value is 2.0, a reasonable value for
+mammalian DNA, but not for mitochondrial DNA.  If you choose T you will
+be asked for a new value of the transition/transversion ratio.  If the
+Jukes-Cantor nucleotide substitution model is chosen the
+transition-transversion ratio parameter is not used (as it is
+always 0.5 for that model).  The value that
+you had for that parameter is retained in case you return to another
+model, but it is not used if the Jukes-Cantor model is your final choice.
+<P>
+The R (Hidden Markov Model rates) option allows the user to 
+switch between the assumption of a single &omega; value for the whole
+sequence, and the assumption that
+substitution rates there will be determined by a Hidden Markov Model of rate
+variation, and what are the rates and probabilities
+for each.
+<P>
+If you use the general Hidden Markov Model option,
+you are first asked how many HMM categories there
+will be for &omega; (for the moment there is an upper limit of 9,
+which should not be restrictive).  Then
+the program asks for the values of &omega; for each category.
+Note that an HMM &omega; category
+can have a value of &omega; of 0, so that this allows us to take into account
+that
+there may be a category of amino acid positions that cannot change the
+amino acid.  Note that the run time
+of the program will be proportional to the number of HMM categories:
+twice as
+many categories means twice as long a run.  Finally the program will ask for
+the probabilities of a random amino acid position falling into each of these
+regional rate categories.  These probabilities must be nonnegative and sum to
+1.  The default
+for the program is one category, with an &omega; of 1.0 and probability 1.0.
+<P>
+<H3>Patches of values of &omega;</H3>
+<P>
+If more than one HMM rate category is specified, then another
+option, A, becomes
+visible in the menu.  This allows us to specify that we want to assume that
+amino aicd positions that have the same HMM category are expected to be
+clustered
+so that there is autocorrelation of values of &omega;.  The
+program asks for the value of the average patch length.  This is an expected
+length of patches that have the same value.  If it is 1, the rates of
+successive positions will be independent.  If it is, say, 2.25, then the
+chance of changing to a new value of &omega; will be 1/2.25 after every
+amino acid position.  However
+the new value of &omega; is randomly drawn from the mix of values,
+and hence could
+even turn out to be the same.  So the actual average observed length of patches
+with the same
+value of &omega; will be a bit larger than 2.25.  Note below that if you
+choose to allow values of &omega; to vary among amino acid positions,
+by choosing the HMM option,
+there will be an estimate in the output file as to
+which combination of rate categories contributed most to the likelihood.
+<P>
+<H3>Likelihood Ratio Tests</H3>
+<P>
+Note that Likelihood Ratio
+Tests can be used to test whether one model for the values of &omega; is
+significantly better than another, provided that one scheme for
+values of &omega; represents
+a restriction of another with fewer parameters.  The number of parameters
+needed for variation of &omega; is the number of categories used
+in the HMM (in the R option)
+less 1, and then also plus 1 if the
+regional rate categories have a nonzero autocorrelation.
+<P>
+There is no machinery for conducting the test inside the program;
+you have to do the test yourself by doing two runs, one for the
+null hypothesis and one for the laternative.  Thus if you want to
+test whether there is autocorrelation of values of &omega;, for example,
+you should do a series of runs with different autocorrelation values,
+finding the value that gives the highest likelihood.  Then
+do one more run without autocorrelation and get the likelihood
+for that case (which is the null hypothesis).  The likelihood
+ratio test is them done by looking up&nbsp; -2 ln(L1/L0)&nbsp; on
+a chi-square distribution with one degree of freedom.
+<P>
+One interesting complication to the test is that if the null
+hypothesis is at one end of the allowed range of values under the
+alternative hypothesis (as is the case for the autocorrelation,
+or as is the case if you set &omega; to zero),
+you should halve the value of the tail probability that you
+get from the chi-square table.  Thus if you get a value of 0.03,
+the corrected value of the tail probability is 0.015, as the
+value of the correlation is allowed to be greater than 0, but
+not less than 0.  (In the model we use here for the HMM, the
+value of the correlation is a probability of change, which cannot
+be negative).
+<P>
+<H3>Other menu options</H3>
+<P>
+The G (global search) option causes, after the last species is added to
+the tree, each possible group to be removed and re-added.  This improves the
+result, since the position of every species is reconsidered.  It
+approximately triples the run-time of the program.
+<P>
+The User tree (option U) is read from a file whose default name is
+<TT>intree</TT>.  The trees can be multifurcating. They must be
+preceded in the file by a line giving the number of trees in the file.
+<P>
+If the setting of the U (user tree) option that does not allow
+rearrangement of the user-defined tree is chosen, another option appears in
+the menu, the L option.  If it is selected,
+it signals the program that it
+should take any branch lengths that are in the user tree and
+simply evaluate the likelihood of that tree, without further altering
+those branch lengths.   This means that if some branches have lengths
+and others do not, the program will estimate the lengths of those that
+do not have lengths given in the user tree.  Note that the program Retree
+can be used to add and remove branch lengths from a tree.
+<P>
+The U option can read a multifurcating tree.  This allows us to
+test the hypothesis that a certain branch has zero length (we can also
+do this by using program Retree to set the length of that branch to 0.0 when
+it is present in the tree).  By
+doing a series of runs with different specified lengths for a branch we
+can plot a likelihood curve for its branch length while allowing all
+other branches to adjust their lengths to it.  If all branches have
+lengths specified, none of them will be iterated.  This is useful to allow
+a tree produced by another method to have its likelihood
+evaluated.  The L option has no effect and does not appear in the
+menu if the U option is not used.
+<P>
+As with many of the programs that search in tree space, you can
+use the U option to carry out a variant on Nixon's (1999) search strategy.
+It uses
+multiple resampling (by partial bootstrap or jackknifes), infers trees from
+the resampled data, and then uses the original data to find best trees by
+rearranging those.  The U option asks "Search for best tree?" and toggles among three settings, "Yes", "No", and
+"Rearrange".  With the latter setting the program not only reads a user-defined
+tree, but it then rearranges it to find a better tree. If there are multiple
+user-defined trees, it keeps track of the best trees
+found among all of these results.  Thus it does not produce a separate
+result for each of these user-defined trees.  The "No" option simply
+evaluates the user-defined trees, does not rearrange them, and shows results
+for each user-defined tree.
+<P>
+The W (Weights) option is invoked in the usual way, with only weights 0
+and 1 allowed.  It selects a set of amino acid positions to be analyzed,
+ignoring the
+others.  The amino acid positions selected are those with weight 1.
+If the W option is
+not invoked, all positions are analyzed.
+The Weights (W) option
+takes the weights from a file whose default name is "weights".  The weights
+follow the format described in the main documentation file.
+<P>
+The M (multiple data sets) option will ask you whether you want to
+use multiple sets of weights (from the weights file) or multiple data sets
+from the input file.
+The ability to use a single data set with multiple weights means that
+much less disk space will be used for this input data.  The bootstrapping
+and jackknifing program Seqboot has the ability to create a weights file with
+multiple weights.  Note also that when we use multiple weights for
+bootstrapping we can also then maintain different &omega; categories for
+different sites in a meaningful way.  If you use the multiple
+data sets option rather than multiple weights, you should not at the
+same time use the user-defined rate categories option (option C), because
+the user-defined categories of &omega; could then be associated with the
+wrong amino acid positions.  This is not a concern when the M option is used
+by using multiple weights.
+<P>
+The algorithm used for searching among trees uses
+a technique invented by David Swofford
+and J. S. Rogers.  This involves not iterating most branch lengths on most
+trees when searching among tree topologies,  This is of necessity a
+"quick-and-dirty" search but it saves much time.  There is a menu option
+(option S) which can turn off this search and revert to the earlier
+search method which iterated branch lengths in all topologies.  This will
+be substantially slower but will also be a bit more likely to find the
+tree topology of highest likelihood.  If the Swofford/Rogers search
+finds the best tree topology, the branch lengths inferred will
+be almost precisely the same as they would be with the more thorough
+search, as the maximization of likelihood with respect to branch
+lengths for the final tree is not different in the two kinds of search.
+<P>
+<H2>OUTPUT FORMAT</H2>
+<P>
+The output starts by giving the number of species and the number of amino acid
+positions.
+<P>
+If the R (HMM rates) option is used a table of the values of &omega;
+for each category of values is printed, as
+well as the probabilities of each of those values of &omega;.
+<P>
+There then follow the data sequences, if the user has selected the menu
+option to print them, with the sequences printed in
+groups of ten amino acids.  The 
+trees found are printed as an unrooted
+tree topology (possibly rooted by outgroup if so requested).  The
+internal nodes are numbered arbitrarily for the sake of 
+identification.  The number of trees evaluated so far and the log-likelihood
+of the tree are also given.  Note that the trees printed out
+have a trifurcation at the base.  The branch lengths in the diagram are
+roughly proportional to the estimated branch lengths, except that very short
+branches are printed out at least three characters in length so that the
+connections can be seen.  The unit of branch length is the expected
+fraction of amino acids changed (so that 1.0 is 100 PAMs).
+<P>
+A table is printed
+showing the length of each tree segment (in units of expected amino acid
+substitutions per position), as well as (very) rough confidence
+limits on their lengths.  If a confidence limit is
+negative, this indicates that rearrangement of the tree in that region
+is not excluded, while if both limits are positive, rearrangement is
+still not necessarily excluded because the variance calculation on which
+the confidence limits are based results in an underestimate, which makes
+the confidence limits too narrow.
+<P>
+In addition to the confidence limits,
+the program performs a crude Likelihood Ratio Test (LRT) for each
+branch of the tree.  The program computes the ratio of likelihoods with and
+without this branch length forced to zero length.  This done by comparing the
+likelihoods changing only that branch length.  A truly correct LRT would
+force that branch length to zero and also allow the other branch lengths to
+adjust to that.  The result would be a likelihood ratio closer to 1.  Therefore
+the present LRT will err on the side of being too significant.  YOU ARE
+WARNED AGAINST TAKING IT TOO SERIOUSLY.  If you want to get a better
+likelihood curve for a branch length you can do multiple runs with
+different prespecified lengths for that branch, as discussed above in the
+discussion of the L option.
+<P>
+One should also
+realize that if you are looking not at a previously-chosen branch but at all
+branches, that you are seeing the results of multiple tests.  With 20 tests,
+one is expected to reach significance at the P = .05 level purely by 
+chance.  You should therefore use a much more conservative significance level, 
+such as .05 divided by the number of tests.  The significance of these tests 
+is shown by printing asterisks next to
+the confidence interval on each branch length.  It is important to keep 
+in mind that both the confidence limits and the tests
+are very rough and approximate, and probably indicate more significance than
+they should.  Nevertheless, maximum likelihood is one of the few methods that
+can give you any indication of its own error; most other methods simply fail to
+warn the user that there is any error!  (In fact, whole philosophical schools
+of taxonomists exist whose main point seems to be that there isn't any
+error, that the "most parsimonious" tree is the best tree by definition and 
+that's all you need to think about).
+<P>
+The log likelihood printed out with the final tree can be used to perform
+various likelihood ratio tests.  One can, for example, compare runs with
+different values of &omega; in the active site of the protein and in
+the rest of the protein to determine 
+which value is the maximum likelihood estimate, and what is the allowable range 
+of values (using a likelihood ratio test, which you will find described in
+mathematical statistics books).  One could also estimate the DNA
+base frequencies (option F)
+in the same way.  Both of these, particularly the latter, require multiple runs
+of the program to evaluate different possible values, and this might get
+expensive.
+<P>
+If the setting of the U (User Tree) option which does not allow rearrangement
+of user-defined trees is used and more than one tree is supplied,
+and the program is not told to assume autocorrelation between the
+rates at different sites, the
+program also performs a statistical test of each of these trees against the
+one with highest likelihood.   If there are two user trees, the test
+done is one which is due to Kishino and Hasegawa (1989), a version
+of a test originally introduced by Templeton (1983).  In this
+implementation it uses the mean and variance of 
+log-likelihood differences between trees, taken across amino acid
+positions.  If the two
+trees' means are more than 1.96 standard deviations different
+then the trees are 
+declared significantly different.  This use of the empirical variance of
+log-likelihood differences is more robust and nonparametric than the
+classical likelihood ratio test, and may to some extent compensate for the
+any lack of realism in the model underlying this program.
+<P>
+If there are more than two trees, the test done is an extension of
+the KHT test, due to Shimodaira and Hasegawa (1999).  They pointed out
+that a correction for the number of trees was necessary, and they
+introduced a resampling method to make this correction.  In the version
+used here the variances and covariances of the sum of log likelihoods across
+amino acid positions are computed for all pairs of trees.  To test whether the
+difference between each tree and the best one is larger than could have
+been expected if they all had the same expected log-likelihood,
+log-likelihoods for all trees are sampled with these covariances and equal
+means (Shimodaira and Hasegawa's "least favorable hypothesis"),
+and a P value is computed from the fraction of times the difference between
+the tree's value and the highest log-likelihood exceeds that actually
+observed.  Note that this sampling needs random numbers, and so the
+program will prompt the user for a random number seed if one has not
+already been supplied.  With the two-tree KHT test no random numbers
+are used.
+<P>
+In either the KHT or the SH test the program
+prints out a table of the log-likelihoods of each tree, the differences of
+each from the highest one, the variance of that quantity as determined by
+the log-likelihood differences at individual amino acid positions, and a
+conclusion as to
+whether that tree is or is not significantly worse than the best one.  However
+the test is not available if we assume that there
+is autocorrelation of rates at neighboring positions (option A) and is not
+done in those cases.
+<P>
+The branch lengths printed out are scaled as
+expected numbers of
+substitutions per nucleotide site.  This means that whether or not
+there are multiple categories of positions, the expected percentage of change
+for very small branches is equal to the branch length. 
+Of course,
+when a branch is twice as
+long this does not mean that there will be twice as much net change expected
+along it, since some of the changes occur in the same position and overlie or
+even reverse each
+other.
+underlying numbers of changes.  That means that a branch of length 26
+is 26 times as long as one which would show a 1% difference between
+the DNA sequences at the beginning and end of the branch, but we
+would not expect the sequences at the beginning and end of the branch to be
+26% different, as there would be some overlaying of changes.
+However, that is changes at the DNA level, and the values of &omega;
+will alter those by decreasing or increasing the rate of change.
+<P>
+Confidence limits on the branch lengths are
+also given.  Of course a 
+negative value of the branch length is meaningless, and a confidence 
+limit overlapping zero simply means that the branch length is not necessarily
+significantly different from zero.  Because of limitations of the numerical
+algorithm, branch length estimates of zero will often print out as small
+numbers such as 0.00001.  If you see a branch length that small, it is really
+estimated to be of zero length.
+<P>
+Another possible source of confusion is the existence of negative values for
+the log likelihood.  This is not really a problem; the log likelihood is not a
+probability but the logarithm of a probability.  When it is
+negative it simply means that the corresponding probability is less
+than one (since we are seeing its logarithm).   A small probability
+leads to a large negative log-likelihood.  This should not be
+worrisome: data sets with many long sequences will have smaller
+probabilities than those with fewer, shorter sequences.  A large negative
+log-likelihood simply means that you have lots of data.  It is
+only a problem if there is some other tree which achieves a much
+higher log-likelihood.
+The log likelihood is
+maximized by being made more positive: -30.23 is worse than -29.14.
+<P>
+At the end of the output, if the R option is in effect with multiple
+HMM &omega; values, the program will print a list of what amino acid position
+categories contributed the most to the final likelihood.  This combination of
+HMM &omega; categories need not have contributed a majority of the likelihood,
+just a plurality, maybe a small plurality.  Still, it will be helpful as
+a view of where the
+program infers that the higher and lower &omega;s are.  Note that the
+use in this calculations of the prior probabilities of values of &omega;,
+and the average patch length, gives this inference a "smoothed"
+appearance: some other combination of values &omega; might make a greater
+contribution to the likelihood, but be discounted because it conflicts
+with this prior information.  See the example output below to see
+what this printout of &omega; categories looks like.
+<P>
+Second and third lists will also be printed out, showing for each position
+which
+value of &omega; accounted for the highest fraction of the likelihood.
+The second list will often be nearly the same as the first list, but its
+interpretation is different.  Rarely, the single combination of &omega;
+values that contributed the most to the likelihood will involve some
+values that are not the same as the ones that individually contribute the
+most to the likelihood at that position.   There might be many such
+combinations, all having &omega; = 0.2 at amino acid position 138, that
+cause that value of &omega; to contribute more to than any other to the
+likelihood at position 138.  And yet, it might be true that the one
+combination of &omega; values across sites that contributes the most
+to the overall likelihood is &omega; = 1,   If you find this confusing,
+keep thinking about it, it does make sense.
+<p>
+The third list is the same as the second list, except that if
+the fraction
+of the likelihood accounted for is less than 95%, a dot is printed instead.
+This helps you get a sense of at which positions the &omega; value is
+strongly statistically supported.
+<P>
+Option 3 in the menu controls whether the tree is printed out into
+the output file.  This is on by default, and usually you will want to
+leave it this way.  However for runs with multiple data sets such as
+bootstrapping runs, you will primarily be interested in the trees
+which are written onto the output tree file, rather than the trees
+printed on the output file.  To keep the output file from becoming too
+large, it may be wisest to use option 3 to prevent trees being
+printed onto the output file.
+<P>
+Option 4 in the menu controls whether the tree estimated by the program
+is written onto a tree file.  The default name of this output tree file
+is "outtree".  If the U option is in effect, all the user-defined
+trees are written to the output tree file.
+<P>
+Option 5 in the menu controls whether ancestral states are estimated
+at each node in the tree.  If it is in effect, a table of ancestral
+amino acid sequences is printed out (including the sequences in the tip
+species which
+are the input sequences).
+The symbol printed out is for the amino acid which accounts for the
+largest fraction of the likelihood at that position.
+In that table, if a position has an amino acid which
+accounts for more than 95% of the likelihood, its symbol printed in capital
+letters (it would be P rather than p).  One limitation of the current
+version of the program is that when there are multiple HMM rates
+(option R) the reconstructed amino acids are based on only the single
+assignment of rates to positions which accounts for the largest amount of the
+likelihood.  Thus the assessment of 95% of the likelihood, in tabulating
+the ancestral states, refers to 95% of the likelihood that is accounted
+for by that particular combination of values of &omega;.
+<P>
+<H2>SPEED OF THE PROGRAM</H2>
+<P>
+(or rather, we should say, lack of speed).  The running time of a likelihood
+program should roughly scale as the square of the number of states.
+DNA sequences have 4 states per site, protein sequences have 20 states
+per amino acid position, and codon models have 61 states per amino
+acid position.  Thus, if the lengths of the sequences are the same,
+we should expect their running times to be in the ratio 16 : 400 : 3721
+(if we instead note that there are 3 base sites per codon, so that the
+DNA sequences are 3 times longer than the protein
+sequences, the running times should be in the ratio 48 : 400 : 3721).
+A codon model program will be expected to run roughly 9.3 times as slow as
+a program such as Proml that uses amino acids as states.
+The program spends most of its time doing real arithmetic.
+The algorithm, with separate and independent computations
+occurring for each pattern, lends itself readily to parallel processing.
+<P>
+<H2>PAST AND FUTURE OF THE PROGRAM</H2>
+<P>
+This program was derived by Elizabeth Walkup and Lucas Mix
+in version 3.7 from Proml.
+That in turn was derived in version 3.6 by Lucas Mix from Dnaml,
+with which it shares
+some of its data structures and much of its strategy.
+We hope to expand it to allow values of &omega; to vary among
+branches of the tree, as testing for this is a major interest of
+users of the codon model.  For now the program cannot do this.
+<P>
+<HR>
+<P>
+<H3>TEST DATA SET</H3>
+<P>
+(Note that although these may look like DNA sequences, they are being
+treated as protein sequences consisting entirely of alanine, cystine,
+glycine, and threonine).
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+   5   13
+Alpha     AACGTGGCCAAAT
+Beta      AAGGTCGCCAAAC
+Gamma     CATTTCGTCACAA
+Delta     GGTATTTCGGCCT
+Epsilon   GGGATCTCGGCCC
+</PRE>
+</TD></TR></TABLE>
+<P>
+<HR>
+<H3>CONTENTS OF OUTPUT FILE (with all numerical options on)</H3>
+<P>
+(It was run with HMM rates having gamma-distributed rates
+approximated by 5 rate categories,
+with coefficient of variation of rates 1.0, and with patch length
+parameter = 1.5.  Two user-defined rate categories were used, one for
+the first 6 positions, the other for the last 7, with rates 1.0 : 2.0.
+Weights were used, with sites 1 and 13 given weight 0, and all others
+weight 1.)
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+<! ??? (put example output here)>
+</PRE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>

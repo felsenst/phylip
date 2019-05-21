@@ -1,0 +1,562 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>Threshml</TITLE>
+<META NAME="description" CONTENT="contml">
+<META NAME="keywords" CONTENT="contml">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY BGCOLOR="#ccffff">
+<DIV ALIGN=RIGHT>
+version 3.7
+</DIV>
+<P>
+<DIV ALIGN=CENTER>
+<H1>ThreshML - Infers underlying continuous variables for</H1>
+<H1>0/1 characters and continuous characters evolving on a known tree</H1>
+
+</DIV>
+<P>
+&#169; Copyright 2009-2010 by the University of
+Washington.  Written by Joseph Felsenstein.  Permission is granted to copy 
+this document provided that no fee is charged for it and that this copyright 
+notice is not removed. 
+<P>
+This is a highly experimental program that takes a set of 0/1 characters and
+a known phylogeny having branch lengths, and fits to it a model in which each
+observed 0/1 character is assumed to be the result of a threshold applied
+to an underlying continuous character (called "liability").  This is the
+"threshold model" of Sewall Wright (1934).  The purpose of the present program
+is to infer the covariances (for evolutionary change along the phylogeny) of
+the Brownian motions corresponding to the liability characters, and to infer
+a set of new variables that they can be transformed to, that show independent
+evolution.
+<P>
+This is done by a Markov Chain Monte Carlo (MCMC) sampling procedure
+which assigns liability values to individual tips and interior nodes in the
+tree.  The details of the computations are discussed in my recent paper
+(Felsenstein, 2005).  The MCMC used in this program is as described there,
+except that the sampling at the tips is not done in the complicated way
+described there, but by a simpler Metropolis algorithm (kindly suggested by
+Charlie Geyer).
+<P>
+The program can also read a data set of continuous characters, and
+compute covariances between them on the tree using MCMC.  This by itself
+is not very useful, as we can get more accurate estimates of those
+covariances in a fraction of the time using program Contrast.   But if both
+a discrete characters data set and a continuous characters data set are
+read in, the program infers covariances between all of the continuous
+characters and also between them and the liability characters for each of
+the discrete characters (as well as, of course, the covariances among
+the liability characters).   This enables a seamless analysis of data sets
+that have 0/1 characters and also continuous characters.
+<P>
+</P>
+<H2> <A NAME="javaint"> Java Interface </a></H2>
+<p>
+[No Java Interface has yet been created for Threshml]
+</p>
+<H2><A NAME="cmdline">The Input data file and input tree</H2>
+<P>
+In the menu for the program (see below) the settings intially indicate
+that there is a discrete characters data set but not a continuous
+characters data set.  If there are both, these must be the continuous
+characters data set followed by the discrete characters data set.
+<P>
+For the continuous characters data set the program takes it in the
+format described in <`a href="contchar.html">the continuous characters
+documentation web page</a>.
+For the discrete characters the program takes a 0/1 discrete characters data
+set, in the
+format given in <a href="discrete.html">the discrete characters documentation
+web page</a>.
+<P>It also takes a user-defined tree.  This can be either rooted
+or unrooted, but must have a full set of branch lengths.  One important
+restriction of this version is that the outermost parentheses must have
+a branch length of ":0.0000" after them and before the closing semicolon for
+the tree, so that it is like this:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<pre>
+((A:0.1,C:0.023):0.0456,(B:0.014,D:056):0.3330):0.0000;
+</pre>
+</TD></TR></TABLE>
+<P>
+but not like this:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<pre>
+((A:0.1,C:0.023):0.0456,(B:0.014,D:056):0.3330);
+</pre>
+</TD></TR></TABLE>
+<P>
+Admittedly this is a silly restriction -- I hope to eliminate it soon.
+<P>
+<H2>The MCMC strategy</H2>
+<P>
+The program works by reconstructing the liabilities at all nodes of the
+tree, consistent with the observed phenotypes.  There is a distribution
+of liabilities rather than a single set of values, and this distribution
+is assessed by randomly sampling points from it.  This is done by
+Markov Chain Monte Carlo (MCMC) methods.  For those familiar with
+MCMC methods, the liabilities at the interior nodes are sampled by a
+Gibbs Sampler, and the liabilities at the tip species from a Metropolis
+sampler.  The latter is an acceptance-rejection sampler, and we keep
+track of its behavior by noting the fraction of acceptances.
+<P>
+For each Markov chain, the program uses its current estimate of the
+covariances among the characters to transform them (the continuous
+characters and the liabilities of the discrete characters) to a set of new
+coordinates that are believed to evolve by independent Brownian motions.
+Then the samplers choose new values at the interior nodes of the tree,
+as well as at the tips for the discrete characters.  These are
+accepted or rejected according to how they affect the probability of the
+observed data, and according to whether they result in liability
+values on the wrong sides of the thresholds.
+<P>
+These samplers use random numbers, and the user is asked for a random
+number seed.
+The random number seed is used to start the random number generator.  The seed
+should be an integer between 1 and 2<sup>32</sup>-3 (which is 4,294,967,293),
+and should be of form 4<i>n</i>+1, which means that it must give a remainder of
+1 when divided by 4.  This can be judged by looking at the last two digits of
+the integer (for instance 7651 is not of form 4<i>n</i>+1 as 51, when divided
+by 4, leaves the remainder 3).  Each different seed leads to a different
+set of random events when doing the MCMC sampling.
+By simply changing the random number seed and
+re-running the programs one can do an independent run of the MCMC sampling.
+If the seed
+entered is not odd, the program will not proceed, but will request another
+seed.  Any odd number can be used, but if it is not of the form 4<i>n</i>+1, it
+may result in a random number sequence that repeats itself after less than the
+full one billion numbers.  Usually this is not a problem.  As the random
+numbers appear to be unpredictable, there is no such thing as a "good" seed --
+the numbers produced from one seed are statistically indistinguishable from
+those produced by another, and it is not true that the numbers produced from
+one seed (say 4533) are similar to those produced from a nearby seed (say
+4537).
+<P>
+The model used has a set of independent variables, undergoing Brownian
+motion along the tree without any correlations between them.  The
+actual liabilities are a linear transformation of these independent
+variables.  The MCMC sampling on the independent variable (x) can be done
+separately for each variable.  The objective of the MCMC machinery is
+to estimate the transform from the independent variables to the liabilities (z).
+The method used is to run an Markov chain (a sequence of assignments of
+liabilities in the tree) on the x's, and the covariances of the x's is
+then estimated.  This is then used to modify the estimate of the
+transformation from x's to z's.
+<P>
+Each such chain modifies the estimate of the transformation.  It is necessary
+to run a number of chains, until the transformation settles down.
+The input file is as described in the discrete characters documentation
+file, containing a data set whose characters are "0", "1" and "?".
+<P>
+<H2>The menu and options</H2>
+<P>
+The options are selected using a menu:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+
+Threshold character Maximum Likelihood method version 3.7a
+
+Settings for this run:
+  D                     Discrete characters?  Yes
+  C                   Continuous characters?  No
+  B                           Burn-in steps?  1000
+  N                   How many chains to run  20
+  S            Length in steps of each chain  100000
+  P    Size of proposal in Metropolis update  0.100000
+  T  LRT test of independence of characters?  No
+  M     Multiple trees?  Multiple data sets?  One data set, one tree
+  0      Terminal type (IBM PC, ANSI, none)?  ANSI
+  1       Print out the data at start of run  No
+  2             Show progress of each chain?  Yes
+
+  Y to accept these or type the letter for one to change
+
+</PRE>
+</TD></TR></TABLE>
+<P>
+The options have to do with the number and length of the chains, the length
+of the preliminary "burn-in" chain, and the size of the proposed changes in
+the tip species liabilities.
+<P>
+Options D and C are to be set to tell the program whether to expect
+a discrete characters data set, and whether to expect a continuous characters
+data set.  If both are present, the continuous characters data set must
+come first (in spite of the order of these two menu items).
+<P>
+Option B is the length of the preliminary "burn-in" Markov chain.  This
+sets up the initial liabilities used by subsequent chains.  The length of this
+burn-in is not very important -- 1000 steps should be more than enough.
+<P>
+Option N is the number of chains.  As each chain is run, the transformation
+(from x's to z's) is modified, and a norm of the change in the transformation
+is printed out.  This is the sum of squares of the differences between the
+coefficients of the two transformation matrices (before and after).  Thus
+if there are (say) 10 characters, since the two matrices are each
+lower-triangular, they have 10 x 11 / 2 = 55 nonzero elements.  The norm is
+the sum of squares of the differences in these 55 quantities.  As the
+transformation settles down to a coherent estimate, we expect and hope that
+the norm will decline.  One wants to have enough chains to allow this to
+happen.  You may have to run some test cases to get a feel for this.  I suspect
+that 10-20 chains will often be enough.
+<P>
+Option S is the number of steps in each chain.  Larger is always better, but
+your patience may be limited.  100,000 steps is our default -- you may want to
+try cases with 1,000,000 steps per chain, if you can wait long enough.
+A short chain will lead to a noisy estimate of the transformation.  The
+pattern that we expect to see is that the norm of the change in the
+transformation will decline until it reaches a plateau, whose level will be
+controlled by the number of steps.  The fewer steps (the shorter the chains)
+the more random error there will be in the transformation.  The norm will be
+expected to level out at a higher value, the shorter the chains are.  As
+there is no advantage to a less accurate assessment of the transformation,
+lare values of S are desirable.  What number of steps your patience can
+tolerate will be up to you.
+<P>
+Option P is the size of the proposal of changes in the tip liabilities.  If
+this number is made larger, the chance that the proposal is rejected
+becomes greater.  If all proposals are rejected, the tip liabilities do not
+change, and their initial values remain and no moves are made to new
+values.  On the other hand, if all proposals are accepted, this means that
+the liabilities never wander close enough to the character thresholds to
+run the risk of rejection.  You should experiment with P to see what
+value gives you some, but not too much, rejection.  I suggest that a value
+of the acceptance fraction between 0.5 and 0.1 is about right -- the
+steps are big enough to run some risk of rejection but small enough to
+allow many acceptances of new values.
+<P>
+The M option allows you to analyze either multiple data sets, or multiple
+trees, or both.   It is very flexible.   Here is a detailed discussion (if
+you are not going to use these options you might want to skip it).
+As you toggle the choices of the M option you encounter these settings:
+<dl>
+<dt>One data set, one tree</dt><dd>This is the default setting and
+analyzes one data set with one input tree.</dd>
+<dt>One data set, multiple trees</dt><dd>This analyzes the one data set
+a number of times, once with each of the trees in the input tree file.  Thus
+you could analyze the same data set with each of 100 trees that were produced
+by bootstrapping (or by sampling from a Bayesian poterior).  You will be
+asked for the number of trees when the program runs.</dd>
+<dt>Multiple data sets, same tree</dt> <dd>This takes an input file
+containing a number of data sets and analyzes each of them with the
+same tree.   You will be asked for the number of data sets when the program
+runs.</dd>
+<dt>Data sets x trees</dt><dd>For a number <i>d</i> of data sets and a number
+<i>t</i> of trees, the program will do &nbsp;<i>d</i> x <i>t</i>&nbsp; analyses, analyzing 
+each of the <i>d</i> data sets with each of the <i>t</i> trees.  The analyses 
+will be all
+<i>t</i>  trees with the first data set, then all of the same <i>t</i> trees 
+with the second data set, and so on.   You will be asked for the number of 
+data sets and the number of trees.</dd>
+<dt>Trees x data sets</dt><dd>For a number <i>d</i> of data sets and a number
+<i>t</i> of
+trees, the program will do &nbsp;<i>d</i> x <i>t</i>&nbsp; analyses, analyzing each
+of the  <i>d</i>  data sets with each of the <i>t</i> trees.   The analyses 
+will be all <i>d</i>  data sets with the first tree, then all of the same
+<i>d</i>  data sets with the 
+second tree, and so on.   You will be asked for the number of data sets
+and the number of trees.</dd>
+<dt>Multiple trees per data set</dt> <dd>This requires a number of trees in
+the input tree file which is a multiple (say <i>n</i>) of the number of data 
+sets.   The first data set is analyzed with the first <i>n</i> trees, the
+second data set is analyzed with the second <i>n</i> trees, and so on.  Note
+that this can be used to analyze each data set with a different single tree,
+by having exactly as many trees as there are data sets.   You will be asked for
+the number of data sets and the number of trees, and the program will complain
+if the number of trees is not a whole multiple of the number of data sets.</dd>
+<dt>Multiple data sets per tree</dt> <dd>This requires a number of data sets
+that is a multiple (say <i>n</i>) of the number of trees.  The first <i>n</i>
+data sets are analyzed with the first tree, the next <i>n</i> data sets are
+analyzed with the second tree, and so on.   This too can also be used to
+analyze each data set with a different single tree, and in fact in that
+case there is no difference in the set of analyses that will be done with
+this option and with the previous one.  You will be asked for the number of
+data sets and the number of trees, and the program will complain if the number
+of data sets is not a whole multiple of the number of trees.</dd>
+</dl>
+These options give you enormous flexibility.   Not all of them are
+going to be of interest.   Note that in all these cases the different data
+sets must all be in the same input data file, end-to-end.   Note also
+that by one data set we might mean the combination of continuous character
+data and discrete characters data, one before the other.   The multiple input
+trees are also in a single input tree file.
+<P>
+One important limitation is that, when there are multiple
+data sets being read, all of them must have the same number
+of species and the same number of characters.
+<P>
+<P>
+One important problem is that if there are more than about twice as many
+characters as species, there seems to be an indeterminacy of the
+transformation.  It wanders endlessly, and the norm does not decrease.
+If this happens, you may want to consider analyzing fewer characters.
+<P>
+<H2>The input tree file</H2>
+<P>
+Note that the program always reads an input tree file.  This must
+have all the same species as in the data set, must have a full set of
+branch lengths, and must have a length such as ":0.000" at the end of
+the tree.  What number this is makes no difference, and I hope to
+eliminate this requirement in the next version of the program.
+<P>
+The program can tolerate multifurcating trees, but closely-spaced
+zero-length branches may cause numerical problems.
+<P>
+<H2>The input data sets</H2>
+<P>
+??? something about multiple data sets and multiple trees
+<P>
+One important limitation is that, when there are multiple
+data sets being read, all of them must have the same number
+of species and the same number of characters.
+<P>
+<H2>The output file</H2>
+<P>
+The output file shows three summaries of the estimate of the transformation.
+The first is a lower-triangular matrix of the coefficients of the linear
+transformation.  The second is the covariance matrix of the evolutionary
+changes in the character liabilities.  The third table printed is probably
+the one that will be the most meaningful.  It shows the coefficients of
+a transformation from the liabilities of the individual characters (the z's) to
+new variables (the x's) that are independent.  Each row in the table gives
+the coefficients for one new variable.  The coefficients are for the
+character liabilites in numerical order, so that the coefficient in column
+2 is for the liability for character 2.  The rows are printed in order of the
+variance of evolutionary change of the new character.  Thus the first row
+shows the transform to the new character that changes the most along the
+tree.  The second changes the next most, and so on.  A table showing the
+variances of the changes for each new character is given after the
+table of coefficients.
+<P>
+The hope is that some of the first few variables will have biological
+meaning.  This will help understand which combinations of the observable
+characters have undergone natural selection.  Thus, for example, if the
+first row of the table has coefficients that are small, except for
+0.76 for character 3, -0.21 for character 6 and -0.29 for character 7,
+we infer that natural selection has acted to move character 3 in opposite
+directions from a (weighted) average of characters 6 and 7.  The
+different rows of the table show independent change across the tree,
+showing directions in which natural selection has been acting separately.
+The later rows will typically be mostly the result of noise of estimation
+and will be unlikely to have any sensible biological interpretation.
+<P>
+One limitation of the program is that, <em>if there are more than about
+twice as many characters as species, the estimation of the covariances
+may be confounded</em>.  Thus we have, not one covariance matrix to estimate,
+but a space of such matrices, all of which are equal in their expected
+log-likelihood.  Then the empirical matrices of successive chains will
+wander among these tied matrices (or rather, near them all).  The norm
+then never converges but remains large.  This may leave you
+uncertain as to whether convergence into the space of nearly-tied matrices
+has occurred.  We do not at present have any machinery in the program to
+detect this subspace or to make a report that characterizes it and
+reports on it.
+<P>
+<H2>Future of the program</H2>
+<P>
+We need to have some way in Threshml to test for covariance between two
+characters by a likelihood ratio test or its equivalent.  In the longer
+run we also need to take into account individual within-species variation,
+since the model can cope with this too.  We also need machinery to detect
+when inference of the covariances is confounded, detect when the MCMC
+chains have converged into the subspace of solutions, and to report on the
+properties of the space of (nearly-)tied covariances rather than just
+to give one estimated covariance matrix.
+<P>
+<H3>TEST DATA SET</H3>
+<P>
+This data set is a binary recoding of Camin and Sokal's (1965) fossil
+horse data.  Of course, we have no independent estimate of the phylogeny,
+but I have run the data set in our parsimony program Pars and used the
+resulting branch lengths (you are not encouraged to do this with your
+own data as you should have a tree and branch lengths from some independent
+source, such as a molecular phylogeny).
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+   10  7
+Mesohippus0000000
+Hypohippus0001111
+Archaeohip1000000
+Parahippus1000100
+Merychippu1100110
+M. secundu1100110
+Nannipus  1100110
+Neohippari1100111
+Calippus  1100110
+Pliohippus1110111
+</PRE>
+</TD></TR></TABLE>
+<P>
+The input tree is:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+(Archaeohip:1.00,(Parahippus:0.50,(((Pliohippus:3.00,Calippus:1.00,
+M._secundu:0.00):2.00,(Neohippari:2.00,Nannipus:1.00,
+Merychippu:0.00):2.00):5.50,Hypohippus:4.50):2.00):2.50,Mesohippus:2.00):0.00;
+</PRE>
+</TD></TR></TABLE>
+<P>
+and the parameters are the default ones, except with 1,000,000 steps per
+chain, Metropolis step size 0.4, and random number seed 4321.   The full
+binary encoding of the Camin-Sokal
+data set had 20 characters, but this proved too many for Threshml when tried,
+and the transform did not converge.
+<P>
+<HR>
+<P>
+<H3>TEST SET OUTPUT</H3>
+<P>
+The screen output while running the program was:
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+
+Threshold character Maximum Likelihood method version 3.7a
+
+Settings for this run:
+  D                     Discrete characters?  Yes
+  C                   Continuous characters?  No
+  B                           Burn-in steps?  1000
+  N                   How many chains to run  20
+  S            Length in steps of each chain  1000000
+  P    Size of proposal in Metropolis update  0.600000
+  T  LRT test of independence of characters?  No
+  M     Multiple trees?  Multiple data sets?  One data set, one tree
+  0      Terminal type (IBM PC, ANSI, none)?  ANSI
+  1       Print out the data at start of run  No
+  2             Show progress of each chain?  Yes
+
+  Y to accept these or type the letter for one to change
+y
+Random number seed (must be odd)?
+4321
+
+Markov chain Monte Carlo (MCMC) estimation of covariances:
+
+                                                 Acceptance    Norm of change
+Chains (20)                                        rate        in transform
+------                                           ----------    --------------
+
+Burn-in: 1000 updates
+Chain 1: 1000000 updates  .........................  0.2951         0.489605
+Chain 2: 1000000 updates  .........................  0.3303         0.383365
+Chain 3: 1000000 updates  .........................  0.3537         0.311822
+Chain 4: 1000000 updates  .........................  0.3713         0.272194
+Chain 5: 1000000 updates  .........................  0.3826         0.245036
+Chain 6: 1000000 updates  .........................  0.3902         0.235995
+Chain 7: 1000000 updates  .........................  0.3951         0.223889
+Chain 8: 1000000 updates  .........................  0.3980         0.213781
+Chain 9: 1000000 updates  .........................  0.4005         0.192476
+Chain 10: 1000000 updates .........................  0.4021         0.185156
+Chain 11: 1000000 updates .........................  0.4039         0.167148
+Chain 12: 1000000 updates .........................  0.4049         0.152037
+Chain 13: 1000000 updates .........................  0.4049         0.145297
+Chain 14: 1000000 updates .........................  0.4057         0.128652
+Chain 15: 1000000 updates .........................  0.4064         0.114952
+Chain 16: 1000000 updates .........................  0.4070         0.106161
+Chain 17: 1000000 updates .........................  0.4077         0.098768
+Chain 18: 1000000 updates .........................  0.4077         0.087897
+Chain 19: 1000000 updates .........................  0.4085         0.079954
+Chain 20: 1000000 updates .........................  0.4087         0.072138
+
+Output written on output file "outfile".
+
+Done.
+
+</PRE>
+</TD></TR></TABLE>
+<P>
+and the output file was:
+<P>
+<TABLE><TR><TD BGCOLOR=white>
+<PRE>
+
+Threshold character Maximum Likelihood method version 3.7a
+
+ Covariance matrix of liabilities of discrete characters
+
+             1          2          3          4          5          6    
+              7    
+
+  1       1.00000    0.79532    0.52710   -0.74891    0.19123    0.18328
+          -0.14980
+  2       0.79532    1.00000    0.91534   -0.22887    0.71876    0.72437
+           0.45257
+  3       0.52710    0.91534    1.00000    0.13241    0.90563    0.91115
+           0.73978
+  4      -0.74891   -0.22887    0.13241    1.00000    0.48596    0.49034
+           0.74817
+  5       0.19123    0.71876    0.90563    0.48596    1.00000    0.98682
+           0.92928
+  6       0.18328    0.72437    0.91115    0.49034    0.98682    1.00000
+           0.93316
+  7      -0.14980    0.45257    0.73978    0.74817    0.92928    0.93316
+           1.00000
+
+
+ Transform from independent variables (columns)
+ to liabilities (rows)
+
+             1          2          3          4          5          6    
+              7    
+
+  1       1.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+           0.00000
+  2       0.79532    0.60619    0.00000    0.00000    0.00000    0.00000
+           0.00000
+  3       0.52710    0.81844    0.22876    0.00000    0.00000    0.00000
+           0.00000
+  4      -0.74891    0.60500    0.13991    0.23136    0.00000    0.00000
+           0.00000
+  5       0.19123    0.93480    0.17380    0.16983    0.17473    0.00000
+           0.00000
+  6       0.18328    0.95448    0.14585    0.12849    0.07069    0.11222
+           0.00000
+  7      -0.14980    0.94312    0.20485    0.15877    0.07860    0.04087
+           0.11430
+
+
+   For            Variance of
+   variable       its change
+   --------       -----------
+       1            4.545492
+       2            2.378412
+       3            0.027452
+       4            0.018284
+       5            0.013142
+       6            0.009876
+       7            0.007342
+
+ Transform from liabilities or characters (columns)
+ to continuous variables or liabilities (rows)
+
+             1          2          3          4          5          6    
+              7    
+
+  1       0.14583    0.37892    0.45003    0.17679    0.46194    0.46323
+           0.41641
+  2      -0.61280   -0.37655   -0.16056    0.59775    0.08158    0.08396
+           0.29308
+  3       0.38138   -0.05393   -0.72209    0.09758    0.56085    0.06645
+          -0.04161
+  4      -0.34334    0.65366   -0.39368    0.03942   -0.28251    0.41532
+          -0.21447
+  5       0.47956    0.13344    0.08945    0.76080   -0.33004   -0.12867
+          -0.19979
+  6      -0.29519    0.09642    0.27761    0.13989    0.50991   -0.17066
+          -0.71958
+  7       0.15088   -0.50728    0.10112   -0.04450   -0.12906    0.74551
+          -0.36777
+
+
+</PRE>
+</TD></TR></TABLE>
+</BODY>
+</HTML>

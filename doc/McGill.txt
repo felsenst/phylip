@@ -1,0 +1,63 @@
+<P>
+<H3>Compiling the Java interfaces</H3>
+<P>
+The ONLY reason you should be here is if you want to add functionality to the Java interface.
+In all other cases, the .jar files int the <TT>javajars</TT> directory will run on your 
+Mac / MS / Linux / Unix system and you should not be here.
+<P>
+OK, welcome to a fairly complex process. Unless you are an experienced Java programmer
+this will cause you headaches.
+<P>
+The general overview is there is a Java interface that gathers and validates input from the 
+user, there is a call from the Java code to a dynamic C library that contains the Phylip 
+functionality, and there is feedback to the user from the Java interface as to the status 
+of the underlying C code. Because one has two very different kinds of software running, 
+the feedback is not a elegant as one would expect from a single integrated environment.
+<P>
+Now the specifics. We develop using the <a href="www.eclipse.org/">Eclipse</a> environment. Go there and
+check out the version appropriate to your operating system. 
+<P> 
+<P> 
+In the distribution there is a <TT>javasrc</TT> directory containing folders that match 
+the programs and contain their 
+Java interfaces. For example <TT>drawgram</TT> contains <TT>DrawgramInterface.java</TT> and 
+<TT>DrawgramUserInterface.java</TT>. The former does the interaction with the compiled C library, 
+the latter contains the user interface. Open Eclipse, create a project called Phylip4.0, 
+create a folder under it called drawgram and import the two java files. You will also need to
+create a folder called util and import all the items in the <TT>javasrc/util</TT> directory. 
+Open DrawgramUserInterface.java with the Eclipse WindowBuilderEditor and you can edit however 
+you want. Remember that you'll need to add ActionListeners to anything you want to change 
+things on the screen, but you can clone those from the existing code and edit to fit.
+<P>
+Once you have added the new data to the user interface, you will need to pass it through to 
+the underlying C code. This is a bit tricky because C and Java are very different kinds 
+of languages. Luckily Sun provided the Java Native Access / Java Native Interface (JNA/JNI) 
+interface package to take care of it. We used JNA (which is a cover on JNI) because it is simpler 
+to use and our needs were basic enough we could live within its confines. In order to use 
+it you will also need to get two public jars off the web: 
+<ul>
+<li> jna.jar - the Java Native Access tools to hook the Java interface to the C code
+<li> platform.jar - some tools that jna.jar needs
+</ul>
+<p>
+JNA passes everything via an enormous list of variables. Simple but very hard to keep track
+of, as you have to keep things exactly parallel in the Java and C code and there is no debugger
+that will help you. We have found it best to build a public class in Java that contains everything 
+that is going to the C code, create an instance when the user hits execute in the Java interface, 
+copy all the data off the screen into the members of the class, and then put these directly into 
+the JNA call to the underlying C code. 
+<p>
+In the existing underlying C code there is an entry point that is the name of the program (for 
+example <TT>drawgram</TT>) which is followed by every one of those variables you passed, in the same order. 
+If you have weird bugs, most likely you messed this up. Make a copy of the Java class definition, paste it into 
+the C code and check everything. Another wrinkle that can bite you  - booleans come though as integers and 
+Java and C do not agree as to what that means. False is 0 in both languages. True is "not 0" in Java and 
+often set to all bits on (which is a very big negative number). C has problems with this so you need to 
+explicitly fix things before you execute any C code. There are a lot of other odd quirks, but you 
+have two working examples so you can probably figure them out.
+<p>
+Feedback from C to Java can be difficult. In Drawgram and Drawtree it is fairly easy, since the plotting is 
+done (to <TT>JavaPreview.ps</TT> in case you need to know) and the program exits. Java waits until the C code 
+returns and does the preview.  In cases where one needs progress indicators, one needs to multithread 
+the Java code and display a progress file. But that won't be released until 4.0.
+<P>
