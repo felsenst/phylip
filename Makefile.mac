@@ -1,0 +1,545 @@
+#
+# Generic Mac OS X Makefile for PHYLIP Version 4.0 .
+#
+# You should not need to change anything, though if you want you could change the first (noncomment) statement -- the one that sets the
+# folder (directory) in which the executables will be placed -- to some directory location that might be more useful.
+#
+# The compressed tar archive phylip.tar.Z when uncompressed and extracted puts the source code into a directory ./src, and also makes two other directories
+# "./exe" and "./doc" for the final executables and the documentation files.  Only change the EXEDIR settings if you want something different from that structure.
+#
+# If it causes trouble in compiling, the CFLAGS statement below may also need to be changed.
+#
+# To use the PHYLIP v4.0 Makefile, type:
+#
+#      make install         to compile the whole package, install the executables in $(EXEDIR), and then remove the object files to save space.
+#
+#      make all             to compile the whole package and leave object and executable files for use by GDB.
+#
+#      make put             to move the executables into $(EXEDIR).
+#
+#      make clean           to remove all object files and executables from the current directory.
+#
+#      make cleanall        to remove all object files and executables from the current directory AND from the executables directory ${EXEDIR}.
+#
+#      make dnaml           to compile, link, and make an executable for one program (leaving files in the main directory).
+#
+# ----------------------------------------------------------------------------
+# Starting here is the section where you may want to change things.
+# ----------------------------------------------------------------------------
+#
+# These are the statements we have been talking about:
+#
+# One of the reasons for changing them would be to put the executables on a different file system.  The default configuration is to have within the overall PHYLIP directory three subdirectories:
+#   "src" for source code, "exe" for the executables, and "doc" for the documentation files.
+#
+# The following specifies the directory where the executables will be placed:
+EXEDIR = PhylipExec
+#
+# ----------------------------------------------------------------------------
+#
+# The following statements set these variables:
+#
+#    CFLAGS -- compiler directives needed to compile most programs
+#    DFLAGS -- compiler directives needed to compile draw programs
+#    LIBS   -- non-default system libraries needed to compile most programs
+#    DLIBS  -- non-default system libraries needed to compile draw programs
+#    CC     -- the name (and, optionally, location) of your C compiler
+#    DC     -- the name (and, optionally, location) of your C compiler for draw programs
+#
+# We've provided a set of possible values for each variable.
+#
+# The value used is the one without a "#" at the beginning of the line.
+#
+# To try an alternate value, make sure the one you want has no "#" as its first character and that all other possibilities have "#" for their first character.
+#
+# Advanced users may need to further edit one of the alternatives in order to correctly compile on their system.
+#
+# ----------------------------------------------------------------------------
+#
+# In the following statements (the ones that set CFLAGS, DFLAGS, LIBS and DLIBS, CC and DC) you should make sure each is set properly.
+# Usually this will simply involve making sure that the proper statement has no "#" as its first character and that all other possibilities have "#" for their first character.
+#
+# ----------------------------------------------------------------------------
+#
+# This is the CFLAGS statement:
+#
+# If these statements say "-g"  and that causes trouble, remove the "-g".  If the "-lX11" does not work (X compiling not working), you may want to remove that switch or fix it.
+#
+# Here are some possible CFLAGS statements:
+#
+# A minimal one:
+#CFLAGS  = -g
+#
+# A basic one for debugging:
+#CFLAGS  = -g -Wall
+#
+# An optimized one for gcc:
+#CFLAGS  = -O3 -fomit-frame-pointer
+#
+# For some serious debugging using GNU GCC.  This raises debug warning reporting to highest level possible.
+ifeq ($(MODE), GDB)
+  # No optimization; intended for debugging with GDB.  Debug level is "-ggdb3", maximal for GDB.  Originally was "-g".  Maximal debug information preserved (at cost of "-Wuninitialized" warning).
+  CFLAGS=-ggdb3 -std=c99 -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+else
+  # Minimal optimization; intended for debugging via compilation but not using GDB.  Debug level is "-g", good for debugging but not maximal for GDB.
+  CFLAGS=-g -std=c99 -O -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wuninitialized -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+  # In case value is not defined (or bogus), give MODE a value to indicate "NORMAL" compilation; used only for display.
+  MODE=NORMAL
+endif
+#
+# For doing code coverage with gcov:
+#CFLAGS	=	-ggdb -fprofile-arcs -ftest-coverage
+#CFLAGS	=	-pg
+#
+# For Digital Alpha systems with Compaq Tru64 Unix (however, be aware that this may cause floating-point problems in programs like Dnaml owing to not using IEEE floating point standards):
+#CFLAGS = -fast
+#
+# For making universal binaries:
+#CFLAGS = -g -Wall -arch ppc -arch i386
+#CFLAGS = -O3 -Wall -arch ppc -arch i386 -mmacosx-version-min=10.1
+#
+# For making non-universal binaries in case your system can't handle UBs:
+#CFLAGS = -g -Wall
+#
+# ----------------------------------------------------------------------------
+#
+# This is the DFLAGS statement.  It specifies compiler behavior for the programs drawgram and drawtree.  It adds additional information to the $(CFLAGS) value so these programs can use X11 graphics.
+#
+# A minimal one -- drawing programs will run, but will not use X11 graphics.  If you use this one, you must also use the minimal value for $(DLIBS).
+#DFLAGS  = -DX $(CFLAGS)
+#
+# A basic one for debugging:
+#DFLAGS  = -g -DX
+#
+# For Linux with X Windows development packages installed or for MacOS X with X Windows installed.  You should also use the corresponding value for $(DLIBS). If the Xlib library
+# for the X windowing system is somewhere unexpected, you may have to change the path /usr/X11/lib in this one.
+#DFLAGS = $(CFLAGS) -DX -I/usr/X11/include
+#
+# For Gnu C++ for runs:
+#DFLAGS  = -I/usr/X11R6/include -O3 -DX -fomit-frame-pointer
+#
+# For Digital Alpha systems with Compaq Tru64 Unix:
+#DFLAGS = -DX -fast
+#
+# For Linux with X Windows development packages installed:
+DFLAGS = -DX $(CFLAGS) -I/usr/X11R6/include
+#
+# For Mac OS X with X Windows installed:
+#DFLAGS =  -DMAC -DOSX_CARBON $(CFLAGS)
+#CARBON_LIBS=-framework Carbon #-framework AppKit -framework ApplicationServices
+#
+# ----------------------------------------------------------------------------
+#
+# These are the libraries for the CC and DC compiles, respectively:
+#
+# Use this one to include debugging facility.
+LIBS    = Slist.o phylip.o debug.o
+LDADD   = -lm
+#
+# If the Xlib library for the X windowing system is somewhere unexpected, you may have to change the path /usr/X11R6/lib in this one.
+#
+# For gcc for Linux with X windows development packages installed or for MacOS X with X windows installed:
+DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt
+#
+# ----------------------------------------------------------------------------
+#
+# The next two assignments are the invocations of the compiler for the ordinary compiles and the tree-drawing programs, CC and DC:
+#
+# This one specifies the "cc" C compiler:
+#CC        = cc $(CFLAGS)
+#
+#  To use GCC instead, if it is not the compiler that "cc" invokes:
+CC         = gcc $(CFLAGS)
+#
+# This one specifies the "cc" C compiler for the Draw programs:
+#DC        = cc $(DFLAGS)
+#
+# To use GCC instead, if it is not the compiler that "cc" invokes:
+DC         = gcc $(DFLAGS)
+#
+# ----------------------------------------------------------------------------
+# After this point there should not be any reason to change anything.
+# ----------------------------------------------------------------------------
+#
+# The list of programs.
+#
+PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml dnamlk dnamove dnapars dnapenny dolmove dollop dolpenny drawgram drawtree \
+        factor fitch gendist kitsch mix move neighbor pars penny proml promlk protdist protpars restdist restml retree seqboot threshml treedist
+
+#
+# General commands.
+#
+
+#
+#  The first target it executed if you just type "make".  It tells you how to use the Makefile.
+#
+help:
+	@echo ""
+	@echo " To use the PHYLIP v4.0 Makefile, type:"
+	@echo ""
+	@echo "     make install           to compile the whole package, install the executables in $(EXEDIR), and then remove the object files to save space."
+	@echo ""
+	@echo "     make all               to compile the whole package and leave object and executable files for use by GDB."
+	@echo ""
+	@echo "     make put               to move the executables into $(EXEDIR)."
+	@echo ""
+	@echo "     make clean             to remove all object files and executables from the current directory."
+	@echo ""
+	@echo "     make cleanall          to remove all object files and executables from the current directory AND from the executables directory ${EXEDIR}."
+	@echo ""
+	@echo "     make dnaml             to compile, link, and make an executable for one program."
+
+all:    introduce $(PROGS)
+	@echo ""
+	@echo "Finished compiling."
+
+introduce:
+	@echo ""
+	@echo "MODE: $(MODE)"
+	@echo ""
+	@echo "CFLAGS: $(CFLAGS)"
+	@echo "DFLAGS: $(DFLAGS)"
+	@echo ""
+	@echo "CC: $(CC)"
+	@echo "DC: $(DC)"
+	@echo ""
+	@echo "Building PHYLIP version 4.0 ."
+
+install: pre-clean all put clean
+	@echo ""
+	@echo "Done."
+
+pre-clean:
+	@echo ""
+	@echo "Removing preexisting executables."
+	@/bin/rm -rf $(EXEDIR)/*
+	@echo "Ready for new executables."
+
+put:
+	@echo ""
+	@echo "Installing PHYLIP v4.0 binaries in $(EXEDIR)."
+	@/bin/mkdir -p $(EXEDIR)
+	@/bin/mv $(PROGS) $(EXEDIR)
+	@echo "Installing font files in $(EXEDIR)."
+	@/bin/cp font* $(EXEDIR)
+	@echo "Finished installation."
+
+clean:
+	@echo ""
+	@echo "Removing object files from current and parent directories."
+	@/bin/rm -f *.o
+	@/bin/rm -f ../*.o
+	@echo "Finished removing object files.  Will now remove executables from current directory but not from executables directory."
+	@echo "Removing executables from this directory."
+	@/bin/rm -f $(PROGS)
+	@echo "Finished cleanup."
+
+cleanall: pre-clean clean
+	@echo ""
+	@echo "ALL executables and object files now removed from CURRENT directory and $(EXEDIR)."
+
+#
+# Compile the shared stuff.
+#
+
+Slist.o:      Slist.c Slist.h
+	$(CC) -c Slist.c
+
+phylip.o:     phylip.c phylip.h Slist.h
+	$(CC) -c phylip.c
+
+# Add this to include debugging facility.
+debug.o:      debug.c debug.h phylip.h Slist.h
+	$(CC) -c debug.c
+
+seq.o:        seq.c phylip.h seq.h
+	$(CC) -c seq.c
+
+ml.o:         ml.c phylip.h ml.h
+	$(CC) -c ml.c
+
+rest_common.o:  rest_common.c rest_common.h phylip.h
+	$(CC) -c rest_common.c
+
+prom_common.o:  prom_common.c prom_common.h phylip.h
+	$(CC) -c prom_common.c
+
+parsimony.o:  parsimony.c phylip.h parsimony.h
+	$(CC) -c parsimony.c
+
+dnaparsimony.o:  dnaparsimony.c phylip.h parsimony.h dnaparsimony.h
+	$(CC) -c dnaparsimony.c
+
+disc.o:       disc.c phylip.h disc.h
+	$(CC) -c disc.c
+
+discrete.o:   discrete.c discrete.h phylip.h parsimony.h
+	$(CC) -c discrete.c
+
+dollo.o:      dollo.c phylip.h dollo.h
+	$(CC) -c dollo.c
+
+wagner.o:     wagner.c phylip.h wagner.h
+	$(CC) -c wagner.c
+
+dist.o:       dist.c phylip.h dist.h
+	$(CC) -c dist.c
+
+cont.o:       cont.c cont.h phylip.h
+	$(CC) -c cont.c
+
+moves.o:      moves.c phylip.h moves.h
+	$(CC) -c moves.c
+
+cons.o:       cons.c cons.h phylip.h
+	$(CC) -c cons.c
+
+pmatrix.o:    pmatrix.c pmatrix.h
+	$(CC) -c pmatrix.c
+
+matrixd.o:    matrixd.c matrixd.h
+	$(CC) -c matrixd.c
+
+#
+# Compile the individual programs.
+#
+
+clique.o:     clique.c disc.h phylip.h
+	$(CC) -c clique.c
+
+codml.o:      codml.c ml.h seq.h phylip.h
+	$(CC) -c codml.c
+
+consense.o:   consense.c cons.h phylip.h
+	$(CC) -c consense.c
+
+contml.o:     contml.c cont.h phylip.h ml.h
+	$(CC) -c contml.c
+
+contrast.o:   contrast.c cont.h phylip.h
+	$(CC) -c contrast.c
+
+dnacomp.o:    dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
+	$(CC) -c dnacomp.c
+
+dnadist.o:    dnadist.c pmatrix.h seq.h phylip.h
+	$(CC) -c dnadist.c
+
+dnainvar.o:   dnainvar.c seq.h phylip.h
+	$(CC) -c dnainvar.c
+
+dnaml.o:      dnaml.c seq.h ml.h phylip.h
+	$(CC) -c dnaml.c
+
+dnamlk.o:     dnamlk.c seq.h ml.h phylip.h
+	$(CC) -c dnamlk.c
+
+dnamove.o:    dnamove.c seq.h moves.h phylip.h parsimony.h dnaparsimony.h
+	$(CC) -c dnamove.c
+
+dnapenny.o:   dnapenny.c seq.h phylip.h parsimony.h dnaparsimony.h
+	$(CC) -c dnapenny.c
+
+dnapars.o:    dnapars.c seq.h phylip.h parsimony.h dnaparsimony.h
+	$(CC) -c dnapars.c
+
+dolmove.o:    dolmove.c disc.h moves.h dollo.h phylip.h
+	$(CC) -c dolmove.c
+
+dollop.o:     dollop.c disc.h dollo.h phylip.h
+	$(CC) -c dollop.c
+
+dolpenny.o:   dolpenny.c disc.h dollo.h phylip.h
+	$(CC) -c dolpenny.c
+
+draw.o:       draw.c draw.h phylip.h
+	$(DC) -c draw.c
+
+draw2.o:      draw2.c draw.h phylip.h
+	$(DC) -c draw2.c
+
+drawgram.o:   drawinit.c drawgram.c draw.h phylip.h
+	$(DC) -c drawgram.c
+
+drawinit.o:  drawinit.c draw.h
+	$(DC) -c drawinit.c
+
+libdrawgram.dylib: gcc -o libdrawgram.dylib -shared drawgram.c drawinit.c draw.c draw2.c Slist.c phylip.c
+
+drawtree.o:   drawinit.c drawtree.c draw.h phylip.h
+	$(DC) -c drawtree.c
+
+factor.o:     factor.c phylip.h
+	$(CC) -c factor.c
+
+fitch.o:      fitch.c dist.h phylip.h ml.h
+	$(CC) -c fitch.c
+
+gendist.o:    gendist.c phylip.h pmatrix.c pmatrix.h
+	$(CC) -c gendist.c
+
+kitsch.o:     kitsch.c dist.h phylip.h
+	$(CC) -c kitsch.c
+
+mix.o:        mix.c disc.h wagner.h phylip.h
+	$(CC) -c mix.c
+
+move.o:       move.c disc.h moves.h wagner.h phylip.h
+	$(CC) -c move.c
+
+neighbor.o:   neighbor.c dist.h phylip.h
+	$(CC) -c neighbor.c
+
+pars.o:       pars.c discrete.h phylip.h parsimony.h
+	$(CC) -c pars.c
+
+penny.o:      penny.c disc.h wagner.h phylip.h
+	$(CC) -c penny.c
+
+proml.o:      proml.c seq.h ml.h phylip.h prom_common.h prom_common.c
+	$(CC) -c proml.c
+
+promlk.o:     promlk.c seq.h ml.h phylip.h prom_common.h prom_common.c
+	$(CC) -c promlk.c
+
+protdist.o:   protdist.c seq.h phylip.h pmatrix.c pmatrix.h
+	$(CC) -c protdist.c
+
+protpars.o:   protpars.c seq.h phylip.h parsimony.h
+	$(CC) -c protpars.c
+
+restdist.o:   restdist.c rest_common.h seq.h phylip.h pmatrix.c pmatrix.h
+	$(CC) -c restdist.c
+
+restml.o:     restml.c rest_common.h seq.h ml.h phylip.h
+	$(CC) -c restml.c
+
+retree.o:     retree.c moves.h phylip.h
+	$(CC) -c retree.c
+
+seqboot.o:    seqboot.c phylip.h
+	$(CC) -c seqboot.c
+
+threshml.o:   threshml.c cont.h phylip.h Slist.h
+	$(CC) -c threshml.c
+
+treedist.o:   treedist.c cons.h phylip.h
+	$(CC) -c treedist.c
+
+#
+# Link the individual programs.
+#
+
+clique:       clique.o disc.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+codml:        codml.o ml.o seq.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+consense:     consense.o cons.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+contml:       contml.o cont.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+contrast:     contrast.o cont.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnacomp:      dnacomp.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnadist:      dnadist.o pmatrix.o matrixd.o seq.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnainvar:     dnainvar.o seq.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnaml:        dnaml.o seq.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnamlk:       dnamlk.o seq.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnamove:      dnamove.o seq.o moves.o parsimony.o dnaparsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnapenny:     dnapenny.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dnapars:      dnapars.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dolmove:      dolmove.o disc.o moves.o dollo.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dollop:       dollop.o disc.o dollo.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+dolpenny:     dolpenny.o disc.o dollo.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+drawgram:     drawgram.o draw.o draw2.o drawinit.o $(LIBS)
+	$(DC) $(DLIBS) $? $(LDADD) -o $@
+
+drawtree:     drawtree.o draw.o draw2.o drawinit.o $(LIBS)
+	$(DC) $(DLIBS) $? $(LDADD) -o $@
+
+factor:       factor.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+fitch:        fitch.o dist.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+gendist:      gendist.o pmatrix.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+kitsch:       kitsch.o dist.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+mix:          mix.o disc.o wagner.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+move:         move.o disc.o moves.o wagner.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+neighbor:     neighbor.o dist.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+pars:         pars.o discrete.o parsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+penny:        penny.o disc.o wagner.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+proml:        proml.o prom_common.o seq.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+promlk:       promlk.o prom_common.o seq.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+protdist:     protdist.o seq.o pmatrix.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+protpars:     protpars.o seq.o parsimony.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+restdist:     restdist.o rest_common.o seq.o pmatrix.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+restml:       restml.o rest_common.o seq.o ml.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+retree:       retree.o moves.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+seqboot:      seqboot.o seq.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+threshml:     threshml.o cont.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+treedist:     treedist.o cons.o $(LIBS)
+	$(CC) $? $(LDADD) -o $@
+
+
+# End.

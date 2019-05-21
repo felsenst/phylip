@@ -1,0 +1,12 @@
+
+Working on:
+   Treedist.c:  put in a non-verbose FULL_MATRIX option for computer-reading.  See cons.h too
+For contrast:
+   When ML sizes inferred, write out in outfile whether 21st character for size
+      is added to analysis
+   When Procrustes size inference is made, do *not* write out that size is
+      inferred by ML versus linear -- it's Procrustes size that is used
+
+For contml    currently  generic_tree_get_forknode
+               fails to assign a correct "index" to the forknode.
+               Should this be done in  contml.c, in ml.c, in phylip.c ?

@@ -1,0 +1,10 @@
+
+Covariance matrix of liabilities (including the actual continuous characters)
+is calculated and is in matrix CC.  
+
+In function "correcttransform"
+    square-root CC in-place
+    take its inverse (in-place)
+    transform all multivariate liabilities to independence (and equal
+      variance using this).
+    

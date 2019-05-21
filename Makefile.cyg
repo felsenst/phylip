@@ -1,0 +1,1052 @@
+#
+# Gnu Cygwin Makefile for PHYLIP 4.0.
+# This builds the Windows executables
+
+PACKAGE=phylip
+VERSION=4.0
+#
+# You should not need to change anything, though if you want you could
+# change one of first two (noncomment) statements to some directory locations
+# that might be more useful.
+# The archives when extracted put the source code into a directory ./src,
+# and also puts the documentation web pages into ./exe, and makes a directory
+# ./exe for the final executables.  Only change the definition of EXEDIR
+# if you want something different from that structure.
+#
+# If it causes trouble in compiling, the CFLAGS statement below may alse need
+# to be changed.
+#
+# To use the PHYLIP v3.6 Makefile, type
+#   make install       to compile the whole package and then install
+#                        the executables in $(EXEDIR), then remove the object
+#                        files to save space
+#   make all           to compile the whole package but not install it
+#                        or remove the object files
+#   make put           to move the executables into $(EXEDIR)
+#   make clean         to remove all object files and executables from the
+#                        current directory
+#   make dnaml         to compile and link one program, (in this example,
+#                        DnaML) and leave the executable and object files
+#                        in the current directory (where the source code is).
+#                        You will have to move the executable into the
+#                        executables directory (e.g. "mv dnaml")
+#                        Note that the program name should be lower case.
+#
+# ----------------------------------------------------------------------------
+#  (Starting here is the section where you may want to change things)
+# ----------------------------------------------------------------------------
+#
+# these are the two statements we have been talking about:
+# one of the reasons for changing them would be to put the executables and/or
+# the documentation on a different file system.
+# The default configuration is to have within the overall PHYLIP
+# directory three subdirectories:  "src" for source code, "exe" for the
+# executables, and "doc" for the documentation files.
+#
+# the following specifies the directory where the executables will be placed
+EXEDIR  = ../exe
+#
+# ----------------------------------------------------------------------------
+#
+# The next two assignments are the invocations of the compiler
+#
+# This one specifies the default cygwin "cc" C compiler
+# It requires cygwin1.dll to be in the execution directory
+#CC		= cc
+#
+# This one uses the mingw w64 compiler which does not require any extra dll's
+# The full path makes this a bit touchy, so if the compile crashes you'll need
+# to find where the mingw32 compiler had been moved
+#CC		= /usr/bin/i686-w64-mingw32-gcc-4.5.3.exe
+CC		= /usr/bin/i686-w64-mingw64-gcc-4.5.3.exe
+#
+#  To use GCC instead:
+#CC        = gcc
+#
+# ----------------------------------------------------------------------------
+#
+# This is the CFLAGS statement:
+#
+# if these next statement say "-g"  and that causes trouble, remove the "-g"
+# if the "-lX11" does not work (X compiling not working), you may want to
+# remove that switch or fix it.
+#CFLAGS  = -g -w0
+#CFLAGS  = -MNO-CYGWIN  -DWIN32 -O3 -fomit-frame-pointer -ffast-math -lgdi32
+CFLAGS  = -MNO-CYGWIN  -DWIN64 -O3 -fomit-frame-pointer -ffast-math -lgdi64
+#
+# For some serious debugging using GNU GCC.  This raises debug warning reporting to highest level possible.
+# ifeq ($(MODE), GDB)
+#   # No optimization; intended for debugging with GDB.  Debug level is "-ggdb3", maximal for GDB.  Originally was "-g".  Maximal debug information preserved (at cost of "-Wuninitialized" warning).
+#   CFLAGS=-ggdb3 -std=c99 -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+# else
+#   # Minimal optimization; intended for debugging via compilation but not using GDB.  Debug level is "-g", good for debugging but not maximal for GDB.
+#   CFLAGS=-g -std=c99 -O -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wuninitialized -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+#   # In case value is not defined (or bogus), give MODE a value to indicate "NORMAL" compilation; used only for display.
+#   MODE=NORMAL
+# endif
+#
+# Flags for compiles of executables that are to be in the dynamic libraries
+#
+DYFLAGS  = -MNO-CYGWIN -lgdi64
+#
+#
+# ----------------------------------------------------------------------------
+#
+# The cygwin compile automatically pics up the libraries we need, so
+# the $(LIBS) variable is empty
+LIBS    =
+# Use this one to include debugging facility.
+#LIBS    = Slist.o phylip.o debug.o
+#
+# ----------------------------------------------------------------------------
+#  (After this point there should not be any reason to change anything)
+# ----------------------------------------------------------------------------
+#
+#
+# the list of programs
+#
+PROGS   =          clique.exe \
+                   consense.exe \
+                   codml.exe \
+                   contml.exe \
+                   contrast.exe \
+                   dnacomp.exe \
+                   dnadist.exe \
+                   dnainvar.exe \
+                   dnaml.exe \
+                   dnamlk.exe \
+                   dnamove.exe \
+                   dnapars.exe \
+                   dnapenny.exe \
+                   dolmove.exe \
+                   dollop.exe \
+                   dolpenny.exe \
+                   drawgram.exe \
+                   drawtree.exe \
+                   factor.exe \
+                   fitch.exe \
+                   gendist.exe \
+                   kitsch.exe \
+                   mix.exe \
+                   move.exe \
+                   neighbor.exe \
+                   pars.exe \
+                   penny.exe \
+                   proml.exe \
+                   protdist.exe \
+                   protpars.exe \
+                   restdist.exe \
+                   restml.exe \
+                   retree.exe \
+                   seqboot.exe \
+                   treedist.exe \
+                   promlk.exe
+
+DYLIBS  =       libclique.dll \
+                libcodml.dll \
+                libconsense.dll \
+                libcontml.dll \
+                libdnacomp.dll \
+                libdnadist.dll \
+                libdnainvar.dll \
+                libdnaml.dll \
+                libdnamlk.dll \
+                libdnapars.dll \
+                libdnapenny.dll \
+                libdollop.dll \
+                libdolpenny.dll \
+                libdrawgram.dll \
+                libdrawtree.dll \
+                libfactor.dll \
+                libfitch.dll \
+                libgendist.dll \
+                libkitsch.dll \
+                libmix.dll \
+                libneighbor.dll \
+                libpars.dll \
+                libpenny.dll \
+                libproml.dll \
+                libpromlk.dll \
+                libprotdist.dll \
+                libprotpars.dll \
+                librestdist.dll \
+                libseqboot.dll \
+                libtreedist.dll
+
+JARS    =       javajars/Clique.jar \
+                javajars/CodML.jar \
+                javajars/Consense.jar \
+                javajars/ContML.jar \
+                javajars/DnaComp.jar \
+                javajars/DnaDist.jar \
+                javajars/DnaInvar.jar \
+                javajars/DnaML.jar \
+                javajars/DnaMLK.jar \
+                javajars/DnaPars.jar \
+                javajars/DnaPenny.jar \
+                javajars/DolPenny.jar \
+                javajars/Dollop.jar \
+                javajars/DrawGram.jar \
+                javajars/DrawTree.jar \
+                javajars/Factor.jar \
+                javajars/Fitch.jar \
+                javajars/GenDist.jar \
+                javajars/Kitsch.jar \
+                javajars/Mix.jar \
+                javajars/Neighbor.jar \
+                javajars/Pars.jar \
+                javajars/Penny.jar \
+                javajars/Phylip.jar \
+                javajars/ProML.jar \
+                javajars/ProMLK.jar \
+                javajars/ProtDist.jar \
+                javajars/ProtPars.jar \
+                javajars/RestDist.jar \
+                javajars/SeqBoot.jar \
+                javajars/TreeDist.jar
+
+BATS    =       javajars/CliqueJava.bat \
+                javajars/CodMLJava.bat \
+                javajars/ConsenseJava.bat \
+                javajars/ContMLJava.bat \
+                javajars/DnaCompJava.bat \
+                javajars/DnaDistJava.bat \
+                javajars/DnaInvarJava.bat \
+                javajars/DnaMLJava.bat \
+                javajars/DnaMLKJava.bat \
+                javajars/DnaParsJava.bat \
+                javajars/DnaPennyJava.bat \
+                javajars/DolPennyJava.bat \
+                javajars/DollopJava.bat \
+                javajars/DrawGramJava.bat \
+                javajars/DrawTreeJava.bat \
+                javajars/FactorJava.bat \
+                javajars/FitchJava.bat \
+                javajars/GenDistJava.bat \
+                javajars/KitschJava.bat \
+                javajars/MixJava.bat \
+                javajars/NeighborJava.bat \
+                javajars/ParsJava.bat \
+                javajars/PennyJava.bat \
+                javajars/PhilipJava.bat \
+                javajars/ProMLJava.bat \
+                javajars/ProMLKJava.bat \
+                javajars/ProtDistJava.bat \
+                javajars/ProtParsJava.bat \
+                javajars/RestDistJava.bat \
+                javajars/RetreeJava.bat \
+                javajars/SeqBootJava.bat \
+                javajars/TreeDistJava.bat
+
+EXES    =       javajars/CliqueJava.exe \
+                javajars/CodMLJava.exe \
+                javajars/ConsenseJava.exe \
+                javajars/ContMLJava.exe \
+                javajars/DnaCompJava.exe \
+                javajars/DnaDistJava.exe \
+                javajars/DnaInvarJava.exe \
+                javajars/DnaMLJava.exe \
+                javajars/DnaMLKJava.exe \
+                javajars/DnaParsJava.exe \
+                javajars/DnaPennyJava.exe \
+                javajars/DolPennyJava.exe \
+                javajars/DollopJava.exe \
+                javajars/DrawGramJava.exe \
+                javajars/DrawTreeJava.exe \
+                javajars/FactorJava.exe \
+                javajars/FitchJava.exe \
+                javajars/GenDistJava.exe \
+                javajars/KitschJava.exe \
+                javajars/MixJava.exe \
+                javajars/NeighborJava.exe \
+                javajars/ParsJava.exe \
+                javajars/PennyJava.exe \
+                javajars/PhilipJava.exe \
+                javajars/ProMLJava.exe \
+                javajars/ProMLKJava.exe \
+                javajars/ProtDistJava.exe \
+                javajars/ProtParsJava.exe \
+                javajars/RestDistJava.exe \
+                javajars/RetreeJava.exe \
+                javajars/SeqBootJava.exe \
+                javajars/TreeDistJava.exe
+
+#
+# general commands
+#
+
+#
+#  The first uses a symbol you are unlikely to type.  It is the one that
+#  is executed if you just type "make".  It tells you how to use the
+#  Makefile.
+#
+help:
+	@echo ""
+	@echo " To use the PHYLIP v$(VERSION) Makefile, type"
+	@echo "     make install       to compile the whole package and then install"
+	@echo "                          the executables in $(EXEDIR), then remove the object"
+	@echo "                          files to save space"
+	@echo "     make all           to compile the whole package but not install it"
+	@echo "                          or remove the object files"
+	@echo "     make put           to move the executables into $(EXEDIR)"
+	@echo "     make clean         to remove all object files and executables from the"
+	@echo "                          current directory"
+	@echo "     make dnaml         to compile and link one program, (in this example,"
+	@echo "                          DnaML) and leave the executable and object files"
+	@echo "                          in the current directory (where the source code is)."
+	@echo "                          You will have to move the executable into the"
+	@echo "                          executables directory (e.g. \"mv dnaml.exe ../exe\")"
+	@echo "                          Note that the program name should be lower case."
+	@echo " "
+
+# The following is so that a command like
+# make dnaml
+# will actually do something useful
+.PHONY :    clique codml consense contml contrast dnacomp dnadist \
+                   dnainvar dnaml dnamlk dnamove dnapars dnapenny \
+                   dolmove dollop dolpenny factor fitch gendist kitsch \
+                   mix move neighbor pars penny proml promlk protdist \
+                   protpars restdist restml retree seqboot treedist \
+                   drawgram drawtree
+
+clique: clique.exe
+codml: codml.exe
+consense: consense.exe
+contml: contml.exe
+contrast: contrast.exe
+dnacomp: dnacomp.exe
+dnadist: dnadist.exe
+dnaml: dnaml.exe
+dnainvar: dnainvar.exe
+dnamove: dnamove.exe
+dnapars: dnapars.exe
+dnapenny: dnapenny.exe
+dolmove: dolmove.exe
+dollop: dollop.exe
+dolpenny: dolpenny.exe
+drawgram: drawgram.exe
+drawtree: drawtree.exe
+factor: factor.exe
+fitch: fitch.exe
+gendist: gendist.exe
+kitsch: kitsch.exe
+mix: mix.exe
+move: move.exe
+neighbor: neighbor.exe
+pars: pars.exe
+penny: penny.exe
+proml: proml.exe
+promlk: promlk.exe
+protdist: protdist.exe
+protpars: protpars.exe
+restdist: restdist.exe
+restml: restml.exe
+retree: retree.exe
+seqboot: seqboot.exe
+treedist: treedist.exe
+
+introduce:
+	@echo "Building PHYLIP version $(VERSION)"
+
+all:        introduce $(PROGS) $(DYLIBS)
+	@echo "Finished compiling."
+
+install:        all put clean
+	@echo "Done."
+
+put:
+	@echo "Stripping executables to save space"
+	strip --strip-all *.exe
+	@echo "Installing PHYLIP v$(VERSION) binaries in $(EXEDIR)"
+	@mkdir -p $(EXEDIR)
+	@cp $(PROGS) $(EXEDIR)
+	@echo "Installing dynamic libraries in $(EXEDIR)"
+	@cp $(DYLIBS) $(EXEDIR)
+	@echo "Installing jar files in $(EXEDIR)"
+	@cp $(JARS) $(EXEDIR)
+	@echo "Installing font files in $(EXEDIR)"
+	@cp font* $(EXEDIR)
+	mkdir $(EXEDIR)/testdata
+	@echo "Copying testdata files to $(EXEDIR)/testdata..."
+	for i in $(TESTDIR); do \
+      mkdir $(EXEDIR)/testdata/$$i; \
+      cp src/testdata/$$i/*.txt $(EXEDIR)/testdata/$$i; \
+    done
+	@echo "Finished installation."
+
+clean:
+	@echo "Removing object files to save space"
+	@rm -f *.o
+	@rm -f *.res
+	@rm -f *.dll
+	@echo "Finished removing object files.  Now will remove"
+	@echo "executable files from the current directory, but not from the"
+	@echo "executables directory.  (If some are not here, the makefile"
+	@echo "will terminate with an error message but this is not a problem)"
+	@echo ""
+	@echo "Removing executables from this directory"
+	@rm -f $(PROGS) *.exe
+	@echo "Finished cleanup."
+
+#
+# compile the support files with the shared functions
+#
+
+Slist.o:      Slist.c Slist.h
+	$(CC) $(CFLAGS) -c Slist.c
+
+phylip.o:        phylip.h Slist.h
+	$(CC) $(CFLAGS) -c phylip.c
+
+# Add this to include debugging facility.
+# debug.o:      debug.c debug.h phylip.h Slist.h
+#	$(CC) -c debug.c
+
+seq.o:        seq.c phylip.h seq.h
+	$(CC) $(CFLAGS) -c seq.c
+
+ml.o:     ml.c phylip.h ml.h
+	$(CC) $(CFLAGS) -c ml.c
+	
+rest_common.o:  rest_common.c rest_common.h phylip.h
+	$(CC) -c rest_common.c
+
+prom_common.o:  prom_common.c prom_common.h phylip.h
+	$(CC) -c prom_common.c
+
+parsimony.o:  parsimony.c phylip.h parsimony.h
+	$(CC) -c parsimony.c
+
+disc.o:   disc.c phylip.h disc.h
+	$(CC) $(CFLAGS) -c disc.c
+
+discrete.o:        discrete.c discrete.h phylip.h
+	$(CC) $(CFLAGS) -c discrete.c
+
+dollo.o:        dollo.c phylip.h dollo.h
+	$(CC) $(CFLAGS) -c dollo.c
+
+wagner.o:        wagner.c phylip.h wagner.h
+	$(CC) $(CFLAGS) -c wagner.c
+
+dist.o:   dist.c phylip.h dist.h
+	$(CC) $(CFLAGS) -c dist.c
+
+cont.o:       cont.c cont.h phylip.h
+	$(CC) $(CFLAGS) -c cont.c
+
+moves.o:   moves.c phylip.h moves.h
+	$(CC) $(CFLAGS) -c moves.c
+
+pmatrix.o:    pmatrix.c pmatrix.h
+	$(CC) -c pmatrix.c
+
+matrixd.o:    matrixd.c matrixd.h
+	$(CC) -c matrixd.c
+
+#
+# Compile libraries
+#
+libclique.dll:  clique.o disc.o Slist.o phylip.o
+	$(CC)  -shared clique.o disc.o Slist.o phylip.o  -o libclique.dll
+
+libcodml.dll:  codml.o ml.o seq.o Slist.o phylip.o
+	$(CC)  -shared codml.o ml.o seq.o Slist.o phylip.o -o libcodml.dll
+
+libconsense.dll:  phylip.o Slist.o cons.o consense.o
+	$(CC)  -shared  phylip.o Slist.o cons.o consense.o  -o libconsense.dll
+
+libcontml.dll:  phylip.o Slist.o ml.o cont.o contml.o
+	$(CC)  -shared  phylip.o Slist.o ml.o cont.o contml.o  -o libcontml.dll
+
+libdnacomp.dll:  phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnacomp.o
+	$(CC)  -shared phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnacomp.o  -o libdnacomp.dll
+
+libdnadist.dll:   phylip.o seq.o Slist.o pmatrix.o matrixd.o dnadist.o
+	$(CC)  -shared phylip.o seq.o Slist.o pmatrix.o matrixd.o dnadist.o  -o libdnadist.dll
+
+libdnainvar.dll:  phylip.o seq.o Slist.o dnainvar.o
+	$(CC)  -shared phylip.o seq.o Slist.o dnainvar.o  -o libdnainvar.dll
+
+libdnaml.dll:  phylip.o seq.o ml.o Slist.o dnaml.o
+	$(CC)  -shared phylip.o seq.o ml.o Slist.o dnaml.o  -o libdnaml.dll
+
+libdnamlk.dll:  phylip.o seq.o ml.o Slist.o dnamlk.o
+	$(CC)  -shared phylip.o seq.o ml.o Slist.o dnamlk.o  -o libdnamlk.dll
+
+libdnapars.dll:  phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnapars.o
+	$(CC)  -shared phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnapars.o  -o libdnapars.dll
+
+libdnapenny.dll:  phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnapenny.o
+	$(CC)  -shared phylip.o seq.o parsimony.o dnaparsimony.o Slist.o dnapenny.o  -o libdnapenny.dll
+
+libdollop.dll:   phylip.o Slist.o dollo.o disc.o dollop.o
+	$(CC)  -shared phylip.o Slist.o dollo.o disc.o dollop.o  -o libdollop.dll
+
+libdolpenny.dll:  phylip.o Slist.o dollo.o disc.o dolpenny.o
+	$(CC)  -shared phylip.o Slist.o dollo.o disc.o dolpenny.o  -o libdolpenny.dll
+
+libdrawgram.dll:  drawgram.o drawinit.o draw.o draw2.o Slist.o phylip.o
+	$(CC)  -shared drawgram.o drawinit.o draw.o draw2.o Slist.o phylip.o  -o libdrawgram.dll
+
+libdrawtree.dll:  drawtree.o drawinit.o draw.o draw2.o Slist.o phylip.o
+	$(CC)  -shared drawtree.o drawinit.o draw.o draw2.o Slist.o phylip.o  -o libdrawtree.dll
+
+libfactor.dll:   phylip.o Slist.o factor.o
+	$(CC)  -shared phylip.o Slist.o factor.o   -o libfactor.dll
+
+libfitch.dll:  phylip.o Slist.o ml.o dist.o fitch.o
+	$(CC)  -shared phylip.o Slist.o ml.o dist.o fitch.o  -o libfitch.dll
+
+libgendist.dll:  phylip.o Slist.o pmatrix.o gendist.o
+	$(CC)  -shared phylip.o Slist.o pmatrix.o gendist.o  -o libgendist.dll
+
+libkitsch.dll:  phylip.o Slist.o ml.o dist.o kitsch.o
+	$(CC)  -shared phylip.o Slist.o ml.o dist.o kitsch.o  -o libkitsch.dll
+
+libmix.dll:  phylip.o Slist.o wagner.o disc.o mix.o
+	$(CC)  -shared phylip.o Slist.o wagner.o disc.o mix.o  -o libmix.dll
+
+libneighbor.dll:  phylip.o Slist.o dist.o neighbor.o
+	$(CC)  -shared phylip.o Slist.o dist.o neighbor.o  -o libneighbor.dll
+
+libpars.dll:  phylip.o Slist.o parsimony.o discrete.o pars.o
+	$(CC)  -shared phylip.o Slist.o parsimony.o discrete.o pars.o  -o libpars.dll
+
+libpenny.dll:  phylip.o Slist.o wagner.o disc.o penny.o
+	$(CC)  -shared phylip.o Slist.o wagner.o disc.o penny.o  -o libpenny.dll
+
+libproml.dll:  phylip.o seq.o ml.o Slist.o prom_common.o proml.o
+	$(CC)  -shared phylip.o seq.o ml.o Slist.o prom_common.o proml.o  -o libproml.dll
+
+libpromlk.dll:  phylip.o seq.o ml.o Slist.o prom_common.o promlk.o
+	$(CC)  -shared phylip.o seq.o ml.o Slist.o prom_common.o promlk.o  -o libpromlk.dll
+
+libprotdist.dll:  phylip.o seq.o Slist.o pmatrix.o protdist.o
+	$(CC)  -shared phylip.o seq.o Slist.o pmatrix.o protdist.o  -o libprotdist.dll
+
+libprotpars.dll:  phylip.o seq.o Slist.o parsimony.o protpars.o
+	$(CC)   -shared phylip.o seq.o Slist.o parsimony.o protpars.o  -o libprotpars.dll
+
+librestdist.dll:  phylip.o Slist.o pmatrix.o seq.o rest_common.o restdist.o
+	$(CC)  -shared phylip.o Slist.o pmatrix.o seq.o rest_common.o restdist.o  -o librestdist.dll
+
+libseqboot.dll:  phylip.o seq.o Slist.o seqboot.o
+	$(CC)  -shared phylip.o seq.o Slist.o seqboot.o  -o libseqboot.dll
+
+libtreedist.dll:  phylip.o Slist.o cons.o treedist.o
+	$(CC)  -shared phylip.o Slist.o cons.o treedist.o  -o libtreedist.dll
+
+#
+# compile, but do not yet link, the individual programs
+#
+
+clique.o:       clique.c disc.h phylip.h
+	$(CC) $(CFLAGS) -c clique.c
+
+codml.o:      codml.c ml.h seq.h phylip.h
+	$(CC) $(CFLAGS) -c codml.c
+
+cons.o:          cons.c cons.h phylip.h
+	$(CC) $(CFLAGS) -c cons.c
+
+consense.o:     consense.c cons.c cons.h phylip.h
+	$(CC) $(CFLAGS) -c consense.c
+
+contml.o:       contml.c cont.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c contml.c
+
+contrast.o:       contrast.c cont.h phylip.h
+	$(CC) $(CFLAGS) -c contrast.c
+
+dnacomp.o:      dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
+	$(CC) $(CFLAGS) -c dnacomp.c
+
+dnadist.o:      dnadist.c seq.h phylip.h matrixd.h pmatrix.h
+	$(CC) $(CFLAGS) -c dnadist.c
+
+dnainvar.o:      dnainvar.c seq.h phylip.h
+	$(CC) $(CFLAGS) -c dnainvar.c
+
+dnaml.o:      dnaml.c seq.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c dnaml.c
+
+dnamlk.o:      dnamlk.c seq.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c dnamlk.c
+
+dnamove.o:      dnamove.c seq.h moves.h phylip.h dnaparsimony.h parsimony.h
+	$(CC) $(CFLAGS) -c dnamove.c
+
+dnapars.o:      dnapars.c seq.h phylip.h dnaparsimony.h parsimony.h
+	$(CC) $(CFLAGS) -c dnapars.c
+
+dnapenny.o:      dnapenny.c seq.h phylip.h dnaparsimony.h parsimony.h
+	$(CC) $(CFLAGS) -c dnapenny.c
+
+dolmove.o:       dolmove.c disc.h moves.h dollo.h phylip.h
+	$(CC) $(CFLAGS) -c dolmove.c
+
+dollop.o:       dollop.c disc.h dollo.h phylip.h
+	$(CC) $(CFLAGS) -c dollop.c
+
+dolpenny.o:       dolpenny.c disc.h dollo.h phylip.h
+	$(CC) $(CFLAGS) -c dolpenny.c
+
+draw.o:   draw.c draw.h phylip.h
+	$(CC) $(CFLAGS) -c -DWIN64 draw.c
+
+draw2.o:   draw2.c draw.h phylip.h
+	$(CC) $(CFLAGS) -c -DWIN64 draw2.c
+
+drawinit.o:  drawinit.c draw.h
+	$(CC) -c drawinit.c
+
+drawtree.o:     drawtree.c drawinit.c draw.h phylip.h
+	$(CC) $(CFLAGS) -c -DWIN64 drawtree.c
+
+factor.o:       factor.c phylip.h
+	$(CC) $(CFLAGS) -c factor.c
+
+fitch.o:        fitch.c dist.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c fitch.c
+
+gendist.o:      gendist.c phylip.h pmatrix.h
+	$(CC) $(CFLAGS) -c gendist.c
+
+kitsch.o:        kitsch.c dist.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c kitsch.c
+
+mix.o:        mix.c disc.h wagner.h phylip.h
+	$(CC) $(CFLAGS) -c mix.c
+
+move.o:        move.c disc.h moves.h wagner.h phylip.h
+	$(CC) $(CFLAGS) -c move.c
+
+neighbor.o:        neighbor.c dist.h phylip.h
+	$(CC) $(CFLAGS) -c neighbor.c
+
+pars.o:   pars.c discrete.c discrete.h phylip.h parsimony.h
+	$(CC) $(CFLAGS) -c pars.c
+
+penny.o:  penny.c disc.h wagner.h phylip.h
+	$(CC) $(CFLAGS) -c penny.c
+
+promlk.o: promlk.c prom_common.c seq.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c promlk.c
+
+proml.o:      proml.c prom_common.c seq.h ml.h phylip.h
+	$(CC) $(CFLAGS) -c proml.c
+
+protdist.o:      protdist.c pmatrix.h seq.h phylip.h
+	$(CC) $(CFLAGS) -c protdist.c
+
+protpars.o: protpars.c seq.h phylip.h parsimony.h
+	$(CC) $(CFLAGS) -c protpars.c
+
+restdist.o: restdist.c rest_common.c seq.h phylip.h pmatrix.h
+	 $(CC) $(CFLAGS) -c restdist.c
+
+restml.o: restml.c rest_common.c seq.h ml.h phylip.h
+	 $(CC) $(CFLAGS) -c restml.c
+
+retree.o:       retree.c moves.h phylip.h
+	$(CC) $(CFLAGS) -c retree.c
+
+seqboot.o:      seqboot.c phylip.h
+	$(CC) $(CFLAGS) -c seqboot.c
+
+threshml:     threshml.c cont.h phylip.h
+	$(CC) $(CFLAGS) -c threshml.c
+
+treedist.o:     treedist.c cons.c cons.h phylip.h
+	$(CC) $(CFLAGS) -c treedist.c
+
+%.res: icons/%.rc
+	windres $< -O coff -o $@
+
+#
+# Linking the executables
+#
+
+clique.exe:       clique.o clique.res disc.o phylip.o Slist.o
+	$(CC) $(CFLAGS) clique.o disc.o phylip.o Slist.o clique.res -o clique $(LIBS)
+
+codml.exe: codml.o seq.o ml.o phylip.o codml.res Slist.o
+	$(CC) $(CFLAGS) codml.o seq.o Slist.o ml.o phylip.o codml.res -o codml $(LIBS)
+
+consense.exe:     consense.o consense.res phylip.o cons.o Slist.o
+	$(CC) $(CFLAGS) consense.o cons.o phylip.o Slist.o consense.res -o consense $(LIBS)
+
+contml.exe:       contml.o contml.res cont.o ml.o phylip.o Slist.o
+	$(CC) $(CFLAGS) contml.o cont.o ml.o phylip.o Slist.o contml.res -o contml $(LIBS)
+
+contrast.exe:       contrast.o contrast.res cont.o phylip.o Slist.o
+	$(CC) $(CFLAGS) contrast.o cont.o phylip.o Slist.o contrast.res -o contrast $(LIBS)
+
+dnacomp.exe:      dnacomp.o seq.o parsimony.o dnaparsimony.o phylip.o dnacomp.res Slist.o
+	$(CC) $(CFLAGS) dnacomp.o parsimony.o dnaparsimony.o seq.o Slist.o phylip.o dnacomp.res -o dnacomp $(LIBS)
+
+dnadist.exe:      dnadist.o seq.o matrixd.o pmatrix.o phylip.o dnadist.res Slist.o
+	$(CC) $(CFLAGS) dnadist.o matrixd.o pmatrix.o seq.o Slist.o phylip.o dnadist.res -o dnadist $(LIBS)
+
+dnainvar.exe:      dnainvar.o seq.o phylip.o dnainvar.res Slist.o
+	$(CC) $(CFLAGS) dnainvar.o seq.o Slist.o phylip.o dnainvar.res -o dnainvar $(LIBS)
+
+dnaml.exe:      dnaml.o seq.o ml.o phylip.o dnaml.res Slist.o
+	$(CC) $(CFLAGS) dnaml.o seq.o Slist.o ml.o phylip.o dnaml.res -o dnaml $(LIBS)
+
+dnamlk.exe:      dnamlk.o seq.o ml.o phylip.o dnamlk.res Slist.o
+	$(CC) $(CFLAGS) dnamlk.o seq.o Slist.o ml.o phylip.o dnamlk.res -o dnamlk $(LIBS)
+
+dnamove.exe:      dnamove.o seq.o parsimony.o dnaparsimony.o moves.o phylip.o dnamove.res Slist.o
+	$(CC) $(CFLAGS) dnamove.o seq.o parsimony.o dnaparsimony.o moves.o Slist.o phylip.o dnamove.res -o dnamove $(LIBS)
+
+dnapars.exe:      dnapars.o seq.o parsimony.o dnaparsimony.o phylip.o dnapars.res Slist.o
+	$(CC) $(CFLAGS) dnapars.o seq.o parsimony.o dnaparsimony.o Slist.o phylip.o dnapars.res -o dnapars $(LIBS)
+
+dnapenny.exe:      dnapenny.o seq.o parsimony.o dnaparsimony.o phylip.o dnapenny.res Slist.o
+	$(CC) $(CFLAGS) dnapenny.o parsimony.o dnaparsimony.o seq.o Slist.o phylip.o dnapenny.res -o dnapenny $(LIBS)
+
+dolmove.exe:       dolmove.o disc.o moves.o dollo.o phylip.o dolmove.res Slist.o
+	$(CC) $(CFLAGS) dolmove.o disc.o moves.o dollo.o Slist.o phylip.o dolmove.res -o dolmove $(LIBS)
+
+dollop.exe:       dollop.o disc.o dollo.o phylip.o dollop.res Slist.o
+	$(CC) $(CFLAGS) dollop.o disc.o dollo.o Slist.o phylip.o dollop.res -o dollop $(LIBS)
+
+dolpenny.exe:       dolpenny.o disc.o dollo.o phylip.o dolpenny.res Slist.o
+	$(CC) $(CFLAGS) dolpenny.o disc.o dollo.o Slist.o phylip.o dolpenny.res -o dolpenny $(LIBS)
+
+drawgram.exe:     drawgram.o drawinit.o draw.o draw2.o phylip.o drawgram.res Slist.o
+	$(CC) $(CFLAGS) -DWIN64 draw.o draw2.o drawinit.o drawgram.o Slist.o phylip.o drawgram.res $(LIBS) -luser64 -lgdi64 -o drawgram
+
+drawtree.exe:     drawtree.o draw.o draw2.o drawinit.o phylip.o drawtree.res Slist.o
+	$(CC) $(CFLAGS) -DWIN64 draw.o draw2.o drawinit.o drawtree.o Slist.o phylip.o drawtree.res $(LIBS) -luser64 -lgdi64 -o drawtree
+
+factor.exe:       factor.o phylip.o factor.c factor.res Slist.o
+	$(CC) $(CFLAGS) factor.o Slist.o phylip.o factor.res -o factor $(LIBS)
+
+fitch.exe:        fitch.o dist.o ml.o phylip.o fitch.res Slist.o
+	$(CC) $(CFLAGS) fitch.o dist.o ml.o Slist.o phylip.o fitch.res -o fitch $(LIBS)
+
+gendist.exe:      gendist.o phylip.o gendist.res Slist.o
+	$(CC) $(CFLAGS) gendist.o Slist.o phylip.o gendist.res -o gendist $(LIBS)
+
+kitsch.exe:        kitsch.o dist.o ml.o phylip.o kitsch.res Slist.o
+	$(CC) $(CFLAGS) kitsch.o dist.o Slist.o ml.o phylip.o kitsch.res -o kitsch $(LIBS)
+
+mix.exe:        mix.o disc.o wagner.o phylip.o mix.res Slist.o
+	$(CC) $(CFLAGS) mix.o disc.o wagner.o Slist.o phylip.o mix.res -o mix $(LIBS)
+
+move.exe:        move.o disc.o moves.o wagner.o phylip.o move.c move.res Slist.o
+	$(CC) $(CFLAGS) move.o disc.o moves.o wagner.o Slist.o phylip.o move.res -o move $(LIBS)
+
+neighbor.exe:        neighbor.o dist.o phylip.o neighbor.res Slist.o
+	$(CC) $(CFLAGS) neighbor.o dist.o Slist.o phylip.o neighbor.res -o neighbor $(LIBS)
+
+pars.exe: pars.o pars.c discrete.o parsimony.o pars.res phylip.o Slist.o
+	$(CC) $(CFLAGS) pars.o discrete.o Slist.o phylip.o pars.res -o pars $(LIBS)
+
+penny.exe:  penny.o disc.o wagner.o phylip.o penny.res Slist.o
+	$(CC) $(CFLAGS) penny.o disc.o wagner.o  Slist.o phylip.o penny.res -o penny $(LIBS)
+
+promlk.exe: promlk.o prom_common.o seq.o ml.o phylip.o promlk.res Slist.o
+	$(CC) $(CFLAGS) promlk.o prom_common.o ml.o seq.o Slist.o phylip.o promlk.res -o promlk $(LIBS)
+
+proml.exe:      proml.o prom_common.o seq.o phylip.o ml.o proml.res Slist.o
+	$(CC) $(CFLAGS) proml.o prom_common.o seq.o Slist.o ml.o phylip.o proml.res -o proml $(LIBS)
+
+protdist.exe:      protdist.o seq.o pmatrix.o phylip.o protdist.res Slist.o
+	$(CC) $(CFLAGS) protdist.o seq.o pmatrix.o Slist.o phylip.o protdist.res -o protdist $(LIBS)
+
+protpars.exe: protpars.o seq.o parsimony.o phylip.o protpars.res Slist.o
+	$(CC) $(CFLAGS) protpars.o seq.o parsimony.o Slist.o phylip.o protpars.res -o protpars $(LIBS)
+
+restdist.exe: restdist.o rest_common.o seq.o pmatrix.o phylip.o restdist.res Slist.o
+	$(CC) $(CFLAGS) restdist.o rest_common.o seq.o Slist.o phylip.o restdist.res -o restdist $(LIBS)
+
+restml.exe: restml.o rest_common.o seq.o ml.o phylip.o restml.res Slist.o
+	$(CC) $(CFLAGS) restml.o rest_common.o ml.o seq.o Slist.o phylip.o restml.res -o restml $(LIBS)
+
+retree.exe:       retree.o moves.o phylip.o retree.res Slist.o
+	$(CC) $(CFLAGS) retree.o moves.o Slist.o phylip.o retree.res -o retree $(LIBS)
+
+seqboot.exe:      seqboot.o seq.o phylip.o seqboot.res Slist.o
+	$(CC) $(CFLAGS) seqboot.o seq.o Slist.o phylip.o seqboot.res -o seqboot $(LIBS)
+
+threshml.exe:     threshml.o cont.o phylip.o threshml.res Slist.o
+	$(CC) $(CFLAGS) threshml.o seq.o Slist.o phylip.o threshml.res -o threshml $(LIBS)
+
+treedist.exe:     treedist.o phylip.o cons.o treedist.res Slist.o
+	$(CC) $(CFLAGS) treedist.o cons.o Slist.o phylip.o treedist.res -o treedist $(LIBS)
+
+# End.
+
+	@echo ""
+	@echo ""
+	@echo " To use the PHYLIP $(VERSION) Makefile, type:"
+	@echo ""
+	@echo "     make install           to compile the whole package and install"
+	@echo "                            the executables in $(EXEDIR), and then"
+	@echo "                            remove the object files to save space."
+	@echo ""
+	@echo "     make all               to compile the whole package but not install it"
+	@echo "                            or remove the object files."
+	@echo ""
+	@echo ""
+	@echo "     make dylibs            to compile the dynamic libraries used by the"
+	@echo "                            Java interface."
+	@echo ""
+	@echo "     make progs             to compile the command line executables"
+	@echo "                            (this differs from apps in that it makes"
+	@echo "                            drawgram and drawtree)."
+	@echo ""
+	@echo "     make put               to move the executables into $(EXEDIR)."
+	@echo ""
+	@echo "     make clean             to remove all object files and executables from the"
+	@echo "                            current directory."
+	@echo ""
+	@echo "     make dnaml             to compile, link, and make a clickable executable"
+	@echo "                            for one program (in this example, dnaml)."
+	@echo "                            The executables will stay in the src directory."
+	@echo ""
+	@echo "     make dnaml.install     to compile, link, make a clickable executable,"
+	@echo "                            for one program and move the executable"
+	@echo "                            to the executables directory."
+	@echo ""
+	@echo "     make libdnaml.dylib    to compile and link a specific dynamic library "
+	@echo "                            needed by a Java interface."
+	@echo "                            The library will stay in the src directory."
+
+all:  introduce $(PROGS) $(DYLIBS)
+	@echo ""
+	@echo "Finished compiling."
+
+introduce:
+	@echo ""
+	@echo "Building PHYLIP version $(VERSION)."
+
+install: pre-clean apps put clean
+	@echo ""
+	@echo "Done."
+
+# For making clickable executables.
+apps:  $(APPS) $(DYLIBS)
+
+# make some other subsets
+progs: $(PROGS)
+
+dylibs: $(DYLIBS)
+
+put:
+	@echo ""
+	@echo "Installing PHYLIP $(VERSION) binaries in $(EXEDIR)."
+	@mkdir -p $(EXEDIR)
+	@mv $(APPS) $(EXEDIR)
+	@echo "Installing dynamic libraries in $(EXEDIR)."
+	@cp $(DYLIBS) $(EXEDIR)
+	@echo "Installing jar files in $(EXEDIR)."
+	@cp $(JARS) $(EXEDIR)
+	@echo "Installing font files in $(EXEDIR)."
+	@cp font* $(EXEDIR)
+	@echo "Copying testdata to $(EXEDIR)/testdata."
+	mkdir $(EXEDIR)/testdata
+	for i in $(TESTDIR); do \
+          mkdir $(EXEDIR)/testdata/$$i; \
+          cp testdata/$$i/*.txt $(EXEDIR)/testdata/$$i; \
+        done
+	@echo ""
+	@echo "Finished installation."
+
+pre-clean:
+	@echo ""
+	@echo "Removing preexisting executables."
+	@rm -rf $(EXEDIR)/*.app
+	@echo "Removing preexisting testdata."
+	@rm -rf $(EXEDIR)/testdata
+	@echo "Ready for new executables."
+
+clean:
+	@echo ""
+	@echo "Removing object files to save space."
+	@rm -f *.o
+	@echo ""
+	@echo "Finished removing object files.  Now will remove"
+	@echo "executable files from the current directory, but not from the"
+	@echo "executables directory.  (If some are not here, the makefile"
+	@echo "will terminate with an error message but this is not a problem.)"
+	@echo ""
+	@echo "Removing executables from this directory."
+	@rm -f $(PROGS)
+	@rm -rf $(APPS)
+	@echo ""
+	@echo "Finished cleanup."
+
+# ----------------------------------------------------------------------------
+#  The following section is used to build a PHYLIP distribution. All sources
+#  and other files except the documentation files must be placed in the
+#  current directory.  The HTML documentation files must be in folder "doc"
+#  within this, the Mac icons in folder "mac", and the Windows icons and
+#  resource files must be in folder "icons"
+#
+#  Usage:
+#  	make distdir	- Build the distribution dir phylip-<vers>/
+#  	make dist	- Make a tarred and gzipped phylip-<vers>.tar.gz
+# ----------------------------------------------------------------------------
+
+DIST_COMMON = phylip.html
+
+DOCS= doc/clique.html doc/consense.html doc/contchar.html doc/contml.html \
+      doc/contrast.html doc/discrete.html doc/distance.html doc/dnacomp.html \
+      doc/dnadist.html doc/dnainvar.html doc/dnaml.html doc/dnamlk.html \
+      doc/dnamove.html doc/dnapars.html doc/dnapenny.html doc/dollop.html \
+      doc/dolmove.html doc/dolpenny.html doc/drawgram.html doc/draw.html \
+      doc/drawtree.html doc/factor.html doc/fitch.html doc/gendist.html \
+      doc/kitsch.html doc/main.html doc/mix.html doc/move.html \
+      doc/neighbor.html doc/pars.html doc/penny.html doc/proml.html \
+      doc/promlk.html doc/protdist.html doc/protpars.html doc/restdist.html \
+      doc/restml.html doc/retree.html doc/seqboot.html doc/sequence.html \
+      doc/treedist.html doc/phylip.gif
+
+IMAGES= doc/images/DrawGramCat.png doc/images/DrawGramControls.png \
+     doc/images/DrawTreeCat.png doc/images/DrawTreeControls.png \
+     doc/images/InputTree.png
+
+SOURCES= COPYRIGHT Makefile.cyg Makefile.osx Makefile.unx linkmac \
+     clique.c cons.c consense.c cons.h cont.c \
+     cont.h contml.c contrast.c disc.c disc.h discrete.c discrete.h dist.c \
+	 dist.h dnacomp.c dnadist.c dnainvar.c dnaml.c dnamlk.c dnamove.c \
+	 dnapars.c dnapenny.c dollo.c dollo.h dollop.c dolmove.c dolpenny.c \
+	 draw2.c draw.c drawgram.c draw.h drawtree.c \
+	 factor.c fitch.c gendist.c \
+	 interface.c interface.h io.h kitsch.c macface.c macface.h mix.c move.c \
+	 moves.c moves.h neighbor.c newmove.c pars.c penny.c \
+	 phylip.c phylip.h proml.c promlk.c protdist.c protpars.c restdist.c \
+	 restml.c retree.c seqboot.c seq.c seq.h treedist.c wagner.c wagner.h \
+	 mlclock.c mlclock.h printree.c printree.h
+
+MAC= \
+		Info.plist.in boot.icns clique.icns command.in consense.icns \
+	contml.icns contrast.icns disc.icns dist.icns dna.icns dnacomp.icns \
+	dnadist.icns dnainvar.icns dnaml.icns dnamlk.icns dnamove.icns \
+	dnapars.icns dnapenny.icns dollo.icns dollop.icns dolmove.icns \
+	dolpenny.icns drawgram.icns drawtree.icns factor.icns fitch.icns \
+	gendist.icns kitsch.icns mac.sit mix.icns move.icns neighbor.icns \
+	pars.icns penny.icns proml.icns promlk.icns protdist.icns protein.icns \
+	protpars.icns restdist.icns restml.icns restrict.icns retree.icns \
+	seqboot.icns treedist.icns
+
+ICONS= 		boot.ico clique.ico clique.rc clique.rcb consense.ico \
+		consense.rc consense.rcb contml.ico contml.rc contml.rcb \
+		contrast.ico contrast.rc contrast.rcb disc.ico dist.ico dna.ico \
+		dnacomp.rc dnacomp.rcb dnadist.rc dnadist.rcb dnainvar.rc \
+		dnainvar.rcb dnaml.rc dnaml.rcb dnamlk.rc dnamlk.rcb dnamove.rc \
+		dnamove.rcb dnapars.rc dnapars.rcb dnapenny.rc dnapenny.rcb \
+		dollo.ico dollop.rc dollop.rcb dolmove.rc dolmove.rcb \
+		dolpenny.rc dolpenny.rcb drawgram.ico drawgram.rc drawgram.rcb \
+		drawtree.ico drawtree.rc drawtree.rcb factor.rc factor.rcb \
+		fitch.rc fitch.rcb gendist.ico gendist.rc gendist.rcb kitsch.rc \
+		kitsch.rcb mix.rc mix.rcb move.rc move.rcb neighbor.rc \
+		neighbor.rcb pars.rc pars.rcb penny.rc penny.rcb proml.rc \
+		proml.rcb promlk.rc promlk.rcb protdist.rc protdist.rcb \
+		protein.ico protpars.rc protpars.rcb restdist.rc restdist.rcb \
+		restml.rc restml.rcb restrict.ico retree.ico retree.rc \
+		retree.rcb seqboot.rc seqboot.rcb treedist.ico treedist.rc \
+		treedist.rcb
+
+FONTS= font1 font2 font3 font4 font5 font6
+
+TESTDIR=   clique consense contml contrast dnacomp \
+      dnadist dnainvar dnaml dnamlk dnamove dnapars dnapenny dollop \
+      dolmove dolpenny drawgram drawtree factor fitch gendist \
+      kitsch mix move neighbor pars penny proml promlk \
+      protdist protpars restdist restml retree seqboot  treedist
+
+JARAJAR=    javajars/DrawGram.jar javajars/DrawTree.jar \
+        javajars/DrawGramJava.bat javajars/DrawTreeJava.bat \
+        javajars/DrawGramJava.exe javajars/DrawTreeJava.exe \
+        javajars/DrawGramJava.unx javajars/DrawTreeJava.unx
+
+
+DISTDIR=$(PACKAGE)-$(VERSION)-osx
+dist_SRCDIR=$(DISTDIR)/source
+dist_DOCDIR=$(DISTDIR)/doc
+dist_IMGDIR=$(DISTDIR)/doc/images
+dist_EXEDIR=$(DISTDIR)/exe
+dist_JAVADIR=$(DISTDIR)/source/javajars
+
+SHELL=bash
+
+# We can use this target to create a tarred and gzipped distribution of PHYLIP
+dist: distdir
+	-chmod -R a+r $(DISTDIR)
+	tar chozf $(DISTDIR).tar.gz $(DISTDIR)
+	-rm -rf $(DISTDIR)
+
+# This target creates the distribution directory which buildDmg.sh uses to build install "disk"
+distdir: $(DIST_COMMON) $(DOCS) $(SOURCES)
+	-rm -rf $(DISTDIR)
+	mkdir $(DISTDIR) && \
+	mkdir $(dist_EXEDIR) && \
+	mkdir $(dist_DOCDIR) && \
+	mkdir $(dist_IMGDIR) && \
+	mkdir $(dist_SRCDIR) && \
+	mkdir $(dist_JAVADIR)
+	mkdir $(dist_SRCDIR)/mac
+	mkdir $(dist_SRCDIR)/icons
+	mkdir $(dist_SRCDIR)/testdata
+	mkdir $(dist_EXEDIR)/testdata
+	for i in $(TESTDIR); do \
+      mkdir $(dist_SRCDIR)/testdata/$$i; \
+      cp testdata/$$i/*.txt $(dist_SRCDIR)/testdata/$$i; \
+    done
+	for i in $(TESTDIR); do \
+      mkdir $(dist_EXEDIR)/testdata/$$i; \
+      cp testdata/$$i/*.txt $(dist_EXEDIR)/testdata/$$i; \
+    done
+	for i in $(DIST_COMMON) ; do \
+	  cp -r $$i $(DISTDIR) ; \
+	done
+	cp $(DISTDIR)/phylip.html $(DISTDIR)/help.html
+	for i in $(DOCS) ; do \
+	  cp -r $$i $(dist_DOCDIR) ; \
+	done
+	for i in $(IMAGES) ; do \
+	  cp -r $$i $(dist_IMGDIR) ; \
+	done
+	for i in $(SOURCES) ; do \
+	  cp -r $$i $(dist_SRCDIR) ; \
+	done
+	for i in $(MAC) ; do \
+	  cp -r mac/$$i $(dist_SRCDIR)/mac ; \
+	done
+	for i in $(ICONS) ; do \
+	  cp -r icons/$$i $(dist_SRCDIR)/icons ; \
+	done
+	for i in $(FONTS) ; do \
+	  cp -r $$i $(dist_SRCDIR) ; \
+	done
+	for i in $(JARAJAR) ; do \
+	  cp $$i $(dist_JAVADIR) ; \
+	done
+	for i in $(APPS) ; do \
+	  cp -r $(EXEDIR)/$$i $(dist_EXEDIR); \
+	done
+	for i in $(FONTS) ; do \
+	  cp -r $$i $(dist_EXEDIR) ; \
+	done
+	cp $(DYLIBS) $(dist_EXEDIR)
+	cp $(JARS) $(dist_EXEDIR)
+	cp buildDmg.sh $(dist_SRCDIR)
+	cp SFXWiz64.exe $(dist_SRCDIR)
+
+# This target untars the dist and checks that it can be compiled and remade
+distcheck: dist
+	-rm -rf $(DISTDIR)
+	tar xzf $(DISTDIR).tar.gz
+	cd $(DISTDIR)/$(SRCDIR) \
+	  && make all
+	-rm -rf $(DISTDIR)
+	@echo "$(DISTDIR).tar.gz is ready for distribution"
+
+
+# End.
