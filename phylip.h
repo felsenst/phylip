@@ -4,6 +4,7 @@
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
 
+/* test 2 */
 
 #ifndef _PHYLIP_H_
 #define _PHYLIP_H_
