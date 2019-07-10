@@ -4,10 +4,16 @@ To use git here:
 git pull remote origin master
 git push remote origin master   (?)
 
-(how to use  "git commit" with these?
- also syntax for assigning "remote"? )
+note also:
+    git config --global user.name "Joe Felsenstein"
+    git config --global user.email joe@gs.washington.edu
+
+how to use  "git commit" with these?
+
 
 Working on:
+   dnapars.c   Fixing forknode machinery with save/load of saved trees,
+         also in initialization of trees
    Treedist.c:  put in a non-verbose FULL_MATRIX option for computer-reading.  See cons.h too
 For contrast:
    When ML sizes inferred, write out in outfile whether 21st character for size
