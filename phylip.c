@@ -992,6 +992,7 @@ double normrand(longer seed)
   return(x);
 } /* normrand */
 
+
 /************* User configuration **************/
 
 void initseed(long *inseed, long *inseed0, longer seed)
