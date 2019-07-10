@@ -1,4 +1,12 @@
 
+To use git here:
+
+git pull remote origin master
+git push remote origin master   (?)
+
+(how to use  "git commit" with these?
+ also syntax for assigning "remote"? )
+
 Working on:
    Treedist.c:  put in a non-verbose FULL_MATRIX option for computer-reading.  See cons.h too
 For contrast:
