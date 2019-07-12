@@ -2,7 +2,7 @@
 To use git here:
 
 git pull remote origin master
-git push remote origin master   (?)
+git push remote master   (?)
 
 note also:
     git config --global user.name "Joe Felsenstein"
