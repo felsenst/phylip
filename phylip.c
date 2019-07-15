@@ -847,7 +847,7 @@ char menu_getchar(void)
   line = fgetline(stdin);       /* abort on EOF */
   result = sscanf(line, " %c", &ch);
   if ( result == 1 )
-    return toupper(ch);
+    return (Char)(toupper(ch));
 
   return '\0';
 } /* menu_getchar */
@@ -922,7 +922,7 @@ long readlong(const char *prompt)
 
 void uppercase(Char *ch)
 { /* convert ch to upper case */
-  *ch = (islower (*ch) ? toupper(*ch) : (*ch));
+  *ch = (islower (*ch) ? (Char)(toupper(*ch)) : (Char)(*ch));
 }  /* uppercase */
 
 
@@ -2096,10 +2096,10 @@ void inputweights(long chars, steptr weight, boolean *weights)
     } while (ch == ' ');
     weight[i] = 1;
     if (isdigit(ch))
-      weight[i] = ch - '0';
+      weight[i] = (long)ch - (long)('0');
     else if (isalpha(ch)) {
       uppercase(&ch);
-      weight[i] = ch - 'A' + 10;
+      weight[i] = (long)ch - (long)'A' + 10;
     }
     else
     {
@@ -4279,7 +4279,8 @@ node* generic_tree_get_fork(tree* t)
 { /* 
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
    * false on all, and return.
-   * changed so always pulls forknodes off their list, never circles off their list
+   * changed so always pulls forknodes off their list, never pulls 
+   * circles of nodes off their list
    */
   node* retval;
 
@@ -4354,7 +4355,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
                           boolean multf)
-{ /* generic version of inserting tip  p  near tip  q */
+{ /* generic version of inserting tip  p  near node or tip  q */
   node *newnode;
 
   if ( !multf ) {
