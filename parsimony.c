@@ -394,9 +394,9 @@ void savetree(tree* t, long *place)     // RSGbugfix
 
 void oldsavetree(tree* t, long *place)
 { /* record in place where each species has to be
-     added to reconstruct this tree this code assumes a root*/
-  /* this is the older function,  a new function roots the tree* and calls this
-   * function to save the tree*/
+     added to reconstruct this tree this code assumes a root
+     this is the older function,  a new function roots the tree and calls this
+     function to save the tree */
   long i, j, nextnode, nvisited;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
   boolean done, newfork;
