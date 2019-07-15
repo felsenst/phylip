@@ -3063,7 +3063,7 @@ node* contrast_node_make(tree * treep, node_type type, long index)
 { /* either create a new contrast_node or obtain it from the garbage */
   node* n;
 
-  n = treep->get_forknode(treep,index);
+  n = treep->get_forknode(treep, index);
   contrast_node_init(n, type, index);
   return (node *)n;
 } /* contrast_node_make */
