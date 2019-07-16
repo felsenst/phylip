@@ -31,6 +31,19 @@ void phyFillScreenColor(void);
 #include "Slist.h"
 
 #ifndef OLDC
+void no_op(void)
+void even_sibs(tree*, node*, node*);
+node* where_in_dest (tree*, tree*, node*);
+void generic_tree_copy(tree*, tree*);
+void generic_node_copy(node*, node*);
+void generic_fork_print(node*);
+void generic_node_print(node*);
+void generic_node_free(node**);
+void generic_node_init(node*, node_type, long);
+void generic_node_reinit(node*);
+node* generic_new_node(node_type, long);
+void gnu(node**, node**);
+void chuck(node**, node*);
 static void crash_handler(int signum);
 boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree);
 static void rooted_repreorder(tree* t, node *p, boolean *success);
@@ -234,13 +247,11 @@ void generic_node_free(node **n)
 } /* generic_node_free */
 
 
-/* generic_node_init
- *
- * Assign default node data. tip is set false when type is FORK_NODE (0)
- * otherwise true. Index is assigned as given.
- */
 void generic_node_init(node* n, node_type type, long index)
 {
+ /* Assign default node data. tip is set false when type is FORK_NODE (0)
+  * otherwise true. Index is assigned as given.
+  */
   if ( type == TIP_NODE )
     n->tip = true;
   else if ( type == FORK_NODE )
@@ -267,6 +278,7 @@ void generic_node_init(node* n, node_type type, long index)
 
 void generic_node_reinit(node * n)
 {
+  /*  re-initialize node (?) */
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
@@ -308,14 +320,14 @@ void gnu(node **grbg, node **p)
 
 #if 0
 void chuck(node **grbg, node *p)
-{ // collect garbage on p -- put it on front of garbage list
+{ /* collect garbage on p -- put it on front of garbage list */
   p->back = NULL;
   p->next = *grbg;
   *grbg = p;
 }  // chuck
 #endif
 
-
+/* ?? GOT TO HERE */
 #if 0
 void chucktreenode(node **grbg, node *p)
 { // collect garbage on p -- put it on front of garbage list
