@@ -1,14 +1,23 @@
 
 To use git here:
 
-git pull remote origin master
-git push remote master   (?)
+git push https://github.com/felsenst/phylip/ master
+
+
+after changing local stuff (which seems by default to be branch "master")
+do  "git commit filename" on it.  Then to merge with master branch on
+github do
+git push remote master
+where "remote" is a location like "https://github.com/felsenst/phylip/"
+This tries to merge files at github with those locally
+
+Not sure how one uses
+
+  git pull remote origin master
 
 note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
-
-how to use  "git commit" with these?
 
 
 Working on:
