@@ -11,6 +11,10 @@ git push remote master
 where "remote" is a location like "https://github.com/felsenst/phylip/"
 This tries to merge files at github with those locally
 
+When it asks for username use "felsenst"
+When it asks for password, usual with 2
+
+
 Not sure how one uses
 
   git pull remote origin master
