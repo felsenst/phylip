@@ -31,23 +31,6 @@ void phyFillScreenColor(void);
 #include "Slist.h"
 
 #ifndef OLDC
-void no_op(void)
-void even_sibs(tree*, node*, node*);
-node* where_in_dest (tree*, tree*, node*);
-void generic_tree_copy(tree*, tree*);
-void generic_node_copy(node*, node*);
-void generic_fork_print(node*);
-void generic_node_print(node*);
-void generic_node_free(node**);
-void generic_node_init(node*, node_type, long);
-void generic_node_reinit(node*);
-node* generic_new_node(node_type, long);
-void gnu(node**, node**);
-void chuck(node**, node*);
-static void crash_handler(int signum);
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree);
-static void rooted_repreorder(tree* t, node *p, boolean *success);
-static void rooted_tryrearr(tree*t, node *p, boolean *success);
 static void _fgetline_finalize(void);
 #endif /* OLDC */
 
@@ -65,6 +48,7 @@ struct node_vtable node_vtable = {
 void no_op(void)
 { /* Do nothing. Used as a dummy pointer to a function that */
 } /* doesn't need to do anything (e.g. smooth for parsimony)*/
+
 
 /********* Tree and node functions ***********/
 
@@ -327,7 +311,7 @@ void chuck(node **grbg, node *p)
 }  // chuck
 #endif
 
-/* ?? GOT TO HERE */
+
 #if 0
 void chucktreenode(node **grbg, node *p)
 { // collect garbage on p -- put it on front of garbage list
@@ -652,10 +636,6 @@ boolean filexists(const char *filename)
 
 
 void openfile(
-  /* Attempt to open a file.
-   *
-   * If file cannot be opened or already exists, the user is asked what to do.
-   */
   FILE **fp,                  /* where to return FILE* */
   const char *filename,       /* file name to open */
   const char *filedesc,       /* description of file ("Input tree file") */
@@ -665,6 +645,10 @@ void openfile(
                                  granted (may be NULL) */
   )
 {
+  /* Attempt to open a file.
+   *
+   * If file cannot be opened or already exists, the user is asked what to do.
+   */
   FILE *of;
   char file[FNMLNGTH];
   char filemode[3];
@@ -859,7 +843,7 @@ char menu_getchar(void)
   line = fgetline(stdin);       /* abort on EOF */
   result = sscanf(line, " %c", &ch);
   if ( result == 1 )
-    return (Char)(toupper(ch));
+    return (Char)toupper(ch);
 
   return '\0';
 } /* menu_getchar */
