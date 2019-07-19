@@ -31,10 +31,6 @@ void phyFillScreenColor(void);
 #include "Slist.h"
 
 #ifndef OLDC
-static void crash_handler(int signum);
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree);
-static void rooted_repreorder(tree* t, node *p, boolean *success);
-static void rooted_tryrearr(tree*t, node *p, boolean *success);
 static void _fgetline_finalize(void);
 #endif /* OLDC */
 
@@ -52,6 +48,7 @@ struct node_vtable node_vtable = {
 void no_op(void)
 { /* Do nothing. Used as a dummy pointer to a function that */
 } /* doesn't need to do anything (e.g. smooth for parsimony)*/
+
 
 /********* Tree and node functions ***********/
 
@@ -234,13 +231,11 @@ void generic_node_free(node **n)
 } /* generic_node_free */
 
 
-/* generic_node_init
- *
- * Assign default node data. tip is set false when type is FORK_NODE (0)
- * otherwise true. Index is assigned as given.
- */
 void generic_node_init(node* n, node_type type, long index)
 {
+ /* Assign default node data. tip is set false when type is FORK_NODE (0)
+  * otherwise true. Index is assigned as given.
+  */
   if ( type == TIP_NODE )
     n->tip = true;
   else if ( type == FORK_NODE )
@@ -267,6 +262,7 @@ void generic_node_init(node* n, node_type type, long index)
 
 void generic_node_reinit(node * n)
 {
+  /*  re-initialize node (?) */
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
@@ -308,7 +304,7 @@ void gnu(node **grbg, node **p)
 
 #if 0
 void chuck(node **grbg, node *p)
-{ // collect garbage on p -- put it on front of garbage list
+{ /* collect garbage on p -- put it on front of garbage list */
   p->back = NULL;
   p->next = *grbg;
   *grbg = p;
@@ -640,10 +636,6 @@ boolean filexists(const char *filename)
 
 
 void openfile(
-  /* Attempt to open a file.
-   *
-   * If file cannot be opened or already exists, the user is asked what to do.
-   */
   FILE **fp,                  /* where to return FILE* */
   const char *filename,       /* file name to open */
   const char *filedesc,       /* description of file ("Input tree file") */
@@ -653,6 +645,10 @@ void openfile(
                                  granted (may be NULL) */
   )
 {
+  /* Attempt to open a file.
+   *
+   * If file cannot be opened or already exists, the user is asked what to do.
+   */
   FILE *of;
   char file[FNMLNGTH];
   char filemode[3];
@@ -847,7 +843,7 @@ char menu_getchar(void)
   line = fgetline(stdin);       /* abort on EOF */
   result = sscanf(line, " %c", &ch);
   if ( result == 1 )
-    return (Char)(toupper(ch));
+    return (Char)toupper(ch);
 
   return '\0';
 } /* menu_getchar */

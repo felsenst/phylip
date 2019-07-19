@@ -1,28 +1,37 @@
 
+USING GIT
+
 To use git here:
+
+To put some changed files up on the github master copy of "phylip"
+after changing local stuff (which seems by default to be branch "master")
+by "git commit filename"
 
 git push https://github.com/felsenst/phylip/ master
 
-
-after changing local stuff (which seems by default to be branch "master")
-do  "git commit filename" on it.  Then to merge with master branch on
-github do
+to merge with master branch on github.  This is of form
 git push remote master
 where "remote" is a location like "https://github.com/felsenst/phylip/"
-This tries to merge files at github with those locally
+This tries to merge files at github with those recently modified locally
 
 When it asks for username use "felsenst"
 When it asks for password, usual with 2
 
 
-Not sure how one uses
+To bring recent changes that were put on  github.com  down to this local machine when they were changed on another machine and already pushed up,
 
   git pull remote origin master
+
+or maybe its
+  git pull https://github.com/felsenst/phylip master
 
 note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
 
+-----------------------------------------------------------------
+
+WHAT'S BEING WORKED ON
 
 Working on:
    dnapars.c   Fixing forknode machinery with save/load of saved trees,
