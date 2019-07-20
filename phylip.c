@@ -4294,7 +4294,8 @@ stack* push(stack* oldstack, void* newdata)
   return newstack;
 } /* push */
 
-
+/* ??? Need to add another argument (k) as number of new node, also set
+ * retval->index to k, also set  t->nodep[k-1] to retval */
 node* generic_tree_get_fork(tree* t)
 { /* 
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
