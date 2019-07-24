@@ -4099,6 +4099,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bes
   return succeeded;
 } /* unrooted_tree_locrearrange_recurs */
 
+
 void generic_tree_save_traverses(tree* t, node * p, node* q)
 {
  /* Saves the branch lengths for p and q (args to insert_) in t
@@ -4174,7 +4175,7 @@ static void rooted_tryrearr(tree *t, node *p, boolean *success)
     (*success) = true;
     t->smoothall(t, t->root);
   }
-}  /* tryrearr */
+}  /* rooted_tryrearr */
 
 
 static void rooted_repreorder(tree* t, node *p, boolean *success)
@@ -4211,7 +4212,7 @@ void rooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree
     success = false;
     rooted_repreorder(t, start, &success);
   }
-}  /* rearrange */
+}  /* rooted_locrearrange */
 
 
 void rooted_tree_save_lr_nodes(tree* t, node* p, node* whereto)
@@ -4266,7 +4267,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 
   t->lrsaves[0]->copy(t->lrsaves[0], p->back);
   t->lrsaves[1]->copy(t->lrsaves[1], whereto);
-} /* rooted_tree_save_lr_nodes */
+} /* rooted_tree_restore_lr_nodes */
 
 
 void* pop(stack** oldstack)
@@ -4294,7 +4295,8 @@ stack* push(stack* oldstack, void* newdata)
   return newstack;
 } /* push */
 
-
+/* ??? Need to add another argument (k) as number of new node, also set
+ * retval->index to k, also set  t->nodep[k-1] to retval */
 node* generic_tree_get_fork(tree* t)
 { /* 
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
@@ -4834,6 +4836,9 @@ void print_progress(char *outstr)
     fflush(stdout);
   }
 } /* print_progress */
+
+
+/* **** debug tools **** */
 
 
 void seetree(node *p, pointarray nodep, long nonodes)

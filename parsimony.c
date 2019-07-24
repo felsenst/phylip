@@ -834,7 +834,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 
 
 static void  savetraverse(node *p)
-{
+{ /* set boolean "bottom" on each interior node to show which way is down */
   node *q;
 
   p->bottom = true;
