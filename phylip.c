@@ -4375,7 +4375,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 } /* generic_tree_evaluate */
 
 
-void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
+void generic_tree_insert_(tree* t, node* p, node* q, long n, boolean doinit,
                           boolean multf)
 { /* generic version of inserting tip  p  near node or tip  q */
   node *newnode;
@@ -4419,6 +4419,12 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
       inittrav(p);
       inittrav(p->back);
     }
+  }
+  r = newnode; 
+  t->nodep[n-1] = newnode;  /* number new interior node n, set up in nodep */
+  while (r->next != newnode) { 
+    r->index = n;
+    r = r->next;
   }
 } /* generic_tree_insert_ */
 
@@ -4562,7 +4568,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
 } /* generic_tree_try_insert_ */
 
 
-void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
+void rooted_tree_insert_(tree* t, node* newtip, node* below, long n, boolean doinit,
  boolean multf)
 {
 /* Insert node newtip into the tree above node below, adding a new fork
@@ -4576,7 +4582,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
  * It is therefore recommended that this function be called again immediately
  * with an additional tip node.
  */
-  node *newfork;
+  node *newnode, *r;
   (void)doinit;                         // RSGdebug: Parameter never used.
 
   if ( t->root == NULL ) {
@@ -4594,22 +4600,28 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 
   if ( multf == false ) {
     below = t->nodep[below->index - 1];
-    newfork = t->nodep[t->get_fork(t)->index - 1];
+    newnode = t->nodep[t->get_fork(t)->index - 1];   /* what? */
     newtip = t->nodep[newtip->index-1];
     if (below->back != NULL)
-      below->back->back = newfork;
-    newfork->back = below->back;
-    below->back = newfork->next->next;
-    newfork->next->next->back = below;
-    newfork->next->back = newtip;
-    newtip->back = newfork->next;
+      below->back->back = newnode;
+    newnode->back = below->back;
+    below->back = newnode->next->next;
+    newnode->next->next->back = below;
+    newnode->next->back = newtip;
+    newtip->back = newnode->next;
     if (t->root == below)
-      t->root = newfork;
+      t->root = newnode;
   } else {
-    newfork = t->get_forknode(t, below->index);
-    newfork->next = below->next;
-    below->next = newfork;
-    hookup(newtip, newfork);
+    newnode = t->get_forknode(t, below->index);
+    newnode->next = below->next;
+    below->next = newnode;
+    hookup(newtip, newnode);
+  }
+  r = newnode; 
+  t->nodep[n-1] = newnode;  /* number new interior node n, set up in nodep */
+  while (r->next != newnode) { 
+    r->index = n;
+    r = r->next;
   }
 } /* rooted_tree_insert_ */
 
@@ -4740,7 +4752,7 @@ void preparetree(tree* t)
   long i;
 
   while( !Slist_isempty(t->free_forks) ) {
-    p = t->get_fork(t);             /* why this?  JF */
+    p = t->get_fork(t);             /* why this? If Slist has forks?  JF */
     t->release_forknode(t, p->next->next);
     t->release_forknode(t, p->next);
     t->release_forknode(t, p);
