@@ -664,10 +664,6 @@ void            generic_node_free(node**);
 void            generic_node_init(node*, node_type, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
-#ifdef 0
-void            chuck(node**, node*);
-void            chucktreenode(node**, node*);
-#endif
 void            setupnode(node*, long);
 long            count_sibs (node*);
 void            verify_nuview(node*);
@@ -791,11 +787,14 @@ void            generic_globrearrange(tree*, boolean, boolean);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
                                           double*, tree*, tree*, boolean,
                                           boolean*);
+#ifdef WIN32
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
 void 		phyRestoreConsoleAttributes(void);
 void 		phyFillScreenColor(void);
 void 		phyClearScreen(void);
+#endif
+
 void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
 void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
 void            generic_unrooted_locrearrange(tree*, node*, boolean, tree*,
@@ -811,7 +810,7 @@ void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
 void*		pop(stack**);
 stack* 		push(stack*,void*);
-node*           generic_tree_get_fork(tree*);
+node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
