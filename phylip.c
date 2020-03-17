@@ -25,7 +25,7 @@ HANDLE  hConsoleOutput;
 #include "Slist.h"
 
 #ifndef OLDC
-static void _fgetline_finalize(void);
+void           _fgetline_finalize(void);
 #endif /* OLDC */
 
 /* Global file objects */
@@ -449,7 +449,7 @@ void EOF_error(void)
 } /* EOF-error */
 
 
-static void crash_handler(int sig_num)
+void crash_handler(int sig_num)
 { /* If (when?) we crash, print out something useful */
   boolean segorbus;
   sprintf(progbuf, "ERROR:  ");
@@ -771,7 +771,7 @@ static char *_fgetline_buffer = NULL;
 
 
 /* Only fgetline() may use this. */
-static void _fgetline_finalize(void)
+void _fgetline_finalize(void)
 {
   /* Free dynamic memory used by fgetline */
 
@@ -4139,7 +4139,7 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 } /* generic_tree_restore_traverses */
 
 
-static void rooted_tryrearr(tree *t, node *p, boolean *success)
+void rooted_tryrearr(tree *t, node *p, boolean *success)
 {
   /* evaluates one rearrangement of the tree.
      if the new tree has greater score than the old
@@ -4172,7 +4172,7 @@ static void rooted_tryrearr(tree *t, node *p, boolean *success)
 }  /* rooted_tryrearr */
 
 
-static void rooted_repreorder(tree* t, node *p, boolean *success)
+void rooted_repreorder(tree* t, node *p, boolean *success)
 {
   /* traverses a binary tree, calling function rooted_tryrearr
      at a node before calling rooted_tryrearr at its descendants */
