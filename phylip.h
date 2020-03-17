@@ -672,7 +672,7 @@ void            invalidate_traverse(node*);
 void            inittrav_all(tree*);
 void            inittrav (node*);
 void            EOF_error(void);
-static void	crash_handler(int);
+void            crash_handler(int);
 void            phylipinit(int, char**, initdata*, boolean);
 void            scan_eoln(FILE*);
 boolean         eoff(FILE*);
@@ -681,7 +681,7 @@ boolean         filexists(const char*);
 void            openfile(FILE**, const char*, const char*, const char*,
                           const char*, char*);
 const char*     get_command_name (const char*);
-static void	_fgetline_finalize(void);
+void		_fgetline_finalize(void);
 char*		fgetline(FILE*);
 char            menu_getchar(void);
 void            getstryng(char*);
@@ -803,8 +803,8 @@ boolean		unrooted_tree_locrearrange_recurs(tree*, node*, node*, double*,
                                                    boolean, tree*, tree*);
 void            generic_tree_save_traverses(tree*, node*, node*);
 void            generic_tree_restore_traverses(tree*, node*, node*);
-static void	rooted_tryrearr(tree*, node*, boolean*);
-static void	rooted_repreorder(tree*, node*, boolean*);
+void    	rooted_tryrearr(tree*, node*, boolean*);
+void		rooted_repreorder(tree*, node*, boolean*);
 void            rooted_locrearrange(tree*, node*, boolean, tree*, tree*);
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
