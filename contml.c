@@ -121,7 +121,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
     p = (cont_node_type*)(t->nodep[i]);
     for (j = 1; j <= 3; j++) {
       ((cont_node_type*)p)->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
-      p = ((node*)p)->next;
+      p = (cont_node_type*)((node*)p)->next;
     }
   }
   t->evaluate = contml_tree_evaluate;
