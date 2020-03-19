@@ -1,7 +1,13 @@
 
 USING GIT
 
+
 To use git here:
+
+To clone a git repository to here
+
+git clone https://github.com/phylip/ .
+
 
 To put some changed files up on the github master copy of "phylip"
 after changing local stuff (which seems by default to be branch "master")
@@ -28,6 +34,12 @@ or maybe its
 note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
+
+
+also: to diff with the remote master copy:
+  git diff    (?)  
+
+
 
 -----------------------------------------------------------------
 
