@@ -768,7 +768,7 @@ void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean mult
 
   (void)multf;                          // RSGnote: Parameter never used.
 
-  generic_tree_insert_(t, p, q, dooinit, false); /* no multifurcate on ml insert_ */
+  generic_tree_insert_(t, p, q, dooinit, false, 0); /* no multifurcate on ml insert_ */
 
   if ( !dooinit )
   {
