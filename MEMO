@@ -6,7 +6,7 @@ To use git here:
 
 To clone a git repository to here
 
-git clone https://github.com/phylip/ .
+git clone https://github.com/felsenst/phylip/ .
 
 
 To put some changed files up on the github master copy of "phylip"
