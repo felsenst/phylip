@@ -814,7 +814,7 @@ node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
-void            generic_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            generic_tree_insert_(tree*, node*, node*, boolean, boolean, long);
 void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*,long);
 void            generic_tree_re_move(tree*, node*, node**, boolean);
