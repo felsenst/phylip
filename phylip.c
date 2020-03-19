@@ -3384,7 +3384,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   if ( t->release_fork == NULL )
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
-    t->get_fork = generic_tree_get_fork;
+    t->get_fork = (node*)generic_tree_get_fork;  /* debug: need proper type conversion */
   if ( t->release_forknode == NULL )
     t->release_forknode = generic_tree_release_forknode;
 
@@ -4298,7 +4298,7 @@ node* generic_tree_get_fork(tree* t, long k)
    * changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
    */
-  node* retval, p;
+  node *retval, *p;
 
   retval = generic_tree_get_forknode(t, 0);
   retval->next = generic_tree_get_forknode(t, 0);
@@ -4380,7 +4380,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 
 
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
-                          boolean multf, long k);
+                          boolean multf, long k)
 { /* generic version of inserting tip  p  near node or tip  q
    * k  is index of new fork, first available slot in t->nodep
    */
