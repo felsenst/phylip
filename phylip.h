@@ -541,7 +541,7 @@ typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
 typedef void (*tree_save_traverses_t)(tree*,node*,node*);
 typedef void (*tree_restore_traverses_t)(tree*,node*,node*);
 typedef void (*tree_release_fork_t)(tree*,node*);
-typedef node* (*tree_get_fork_t)(tree*);
+typedef node* (*tree_get_fork_t)(tree*, long);
 typedef node* (*tree_get_forknode_t)(tree*,long);
 typedef void (*tree_release_forknode_t)(tree*,node*);
 typedef void (*tree_reinit_forknode_t)(tree*,node*);
@@ -823,7 +823,8 @@ void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
                                           tree*, tree*, boolean, boolean*);
-void            rooted_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            rooted_tree_insert_(tree*, node*, node*, boolean, boolean,
+		                     long);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, boolean, boolean, longer, boolean) ;

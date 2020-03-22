@@ -916,7 +916,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
 }
 
 
-void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
+void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2, long k)
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
@@ -924,7 +924,7 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   node *p, *newfork;
 
   /* first stick it in the right place */
-  rooted_tree_insert_(t, newtip, below, dummy, dummy2);
+  rooted_tree_insert_(t, newtip, below, dummy, dummy2, k);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];

@@ -84,7 +84,8 @@ void    ml_tree_re_move(tree* t, node*p, node** q, boolean);
 boolean ml_tree_try_insert_(tree* , node* , node* , node** , double*, tree *, tree*, boolean, boolean* );
 void    ml_tree_do_branchl_on_insert(tree*t, node *p, node* q);
 void    ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q);
-void    mlk_tree_insert_(tree *t, node *newtip, node *below, boolean, boolean);
+void    mlk_tree_insert_(tree *t, node *newtip, node *below, boolean,
+		          boolean, long);
 double  get_tyme(node *p);
 void    set_tyme (node* p, double tyme) ;
 void    mlk_tree_re_move(tree* t, node *item, node** where, boolean recompute);

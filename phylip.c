@@ -3293,7 +3293,7 @@ void destruct_tree(tree* t)
 
   while ( !Slist_isempty(t->free_forks) )
   {
-    t->get_fork(t); /* effect is to discard fork; probably leaks */
+    t->get_fork(t, 0); /* effect is to discard fork; probably leaks */
   }
 
   for ( j = 0; j < t->nonodes ; j++ ) {
@@ -4387,7 +4387,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
   node *newnode;
 
   if ( !multf ) {
-    newnode = t->get_fork(t);
+    newnode = t->get_fork(t, k);
 
     assert(newnode->next->next->next == newnode);
 
@@ -4569,7 +4569,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
 
 
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
- boolean multf)
+ boolean multf, long k)
 {
 /* Insert node newtip into the tree above node below, adding a new fork
  * if necessary. If multf is TRUE, newtip is added as a new child of below,
@@ -4602,7 +4602,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 
   if ( multf == false ) {
     below = t->nodep[below->index - 1];
-    newfork = t->nodep[t->get_fork(t)->index - 1];
+    newfork = t->nodep[t->get_fork(t, k)->index - 1];
     newtip = t->nodep[newtip->index-1];
     if (below->back != NULL)
       below->back->back = newfork;
@@ -4748,7 +4748,7 @@ void preparetree(tree* t)
   long i;
 
   while( !Slist_isempty(t->free_forks) ) {
-    p = t->get_fork(t);             /* why this?  JF */
+    p = t->get_fork(t, 0);             /* why this?  JF */
     t->release_forknode(t, p->next->next);
     t->release_forknode(t, p->next);
     t->release_forknode(t, p);
