@@ -113,8 +113,9 @@ void contml_tree_init(tree* t, long nonodes, long spp)
   cont_node_type* p;
 
   ml_tree_init(t, nonodes, spp);
-/*  allocview(t, nonodes2, totalleles);   debug */
-  for (i = 0; i < spp; i++) {
+ allocview(t, nonodes2, totalleles); /*  debug */
+/* debug
+ * for (i = 0; i < spp; i++) {
     ((cont_node_type*)(t->nodep[i]))->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
   }
   for (i = spp; i < nonodes; i++) {
@@ -124,6 +125,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
       p = (cont_node_type*)((node*)p)->next;
     }
   }
+debug  */
   t->evaluate = contml_tree_evaluate;
   t->nuview = contml_tree_nuview;
   ((ml_tree*)t)->makenewv = (makenewv_t)no_op;
