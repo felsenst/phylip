@@ -96,7 +96,7 @@ void setuptree(tree *a, long nonodes)
   (void)nonodes;                        // RSGnote: Parameter never used.
 
   /* initialize a tree */
-  /* used in contml, contrast, and threshml */
+  /* used in contrast and threshml */
   long i;
 
   for (i = 1; i <= spp; i++)
@@ -128,7 +128,7 @@ void allocview(tree *a, long nonodes, long totalleles)
 
   for (i = spp; i < nonodes; i++)
   {
-    /* Assumes bifurcation */
+    /* Assumes bifurcation -- might be nice to rewrite to deal with bigger node circles */
     for (j = 1; j <= 3; j++)
     {
       ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
