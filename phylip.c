@@ -3366,7 +3366,7 @@ void rooted_tree_init(tree* t, long nonodes, long spp)
   /* a few extra things for a rooted tree*/
   generic_tree_init(t, nonodes, spp);
   t->globrearrange = rooted_globrearrange;
-  t->insert_ = rooted_tree_insert_;
+  t->insert_ = (tree_insert_t)rooted_tree_insert_;
   t->re_move = rooted_tree_re_move;
   t->locrearrange = rooted_locrearrange;
   t->save_lr_nodes = rooted_tree_save_lr_nodes;
@@ -3384,7 +3384,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   if ( t->release_fork == NULL )
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
-    t->get_fork = (node*)generic_tree_get_fork;  /* debug: need proper type conversion */
+    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
   if ( t->release_forknode == NULL )
     t->release_forknode = generic_tree_release_forknode;
 
@@ -3435,7 +3435,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;
   t->evaluate = generic_tree_evaluate;
-  t->insert_ = generic_tree_insert_;
+  t->insert_ = (tree_insert_t)generic_tree_insert_;
   t->get_forknode = generic_tree_get_forknode;
   t->re_move = generic_tree_re_move;
   t->try_insert_ = generic_tree_try_insert_;
