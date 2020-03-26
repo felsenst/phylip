@@ -111,19 +111,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
 { /* initialize a contml_tree */
 
   ml_tree_init(t, nonodes, spp);
-  allocview(t, nonodes2, totalleles); /* debug */
-/* debug  (Let's try to get the above two calls to work, then can delete this stuff)
- * for (i = 0; i < spp; i++) {
-    ((cont_node_type*)(t->nodep[i]))->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
-  }
-  for (i = spp; i < nonodes; i++) {
-    p = (cont_node_type*)(t->nodep[i]);
-    for (j = 1; j <= 3; j++) {
-      ((cont_node_type*)p)->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
-      p = (cont_node_type*)((node*)p)->next;
-    }
-  }
-debug  */
+  allocview(t, nonodes2, totalleles);
   t->evaluate = contml_tree_evaluate;
   t->nuview = contml_tree_nuview;
   ((ml_tree*)t)->makenewv = (makenewv_t)no_op;
@@ -879,7 +867,7 @@ void correctv(node *p)
 
 
 void littlev(node *p)
-{ /* remove part of it that belongs to other barnches */
+{ /* remove part of it that belongs to other branches */
   long i;
 
   for (i = 1; i <= 3; i++)

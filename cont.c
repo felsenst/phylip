@@ -117,25 +117,34 @@ void allocview(tree *a, long nonodes, long totalleles)
 {
   /* allocate view */
   /* used in contml */
-  long i, j;
-  node *p;
+  long i;
+  node *p, *q;
 
   for (i = 0; i < spp; i++)
-  {
-    ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
-    ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
-  }
+    if (a->nodep[i] != NULL)
+      {
+        ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
+        ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
+      }
 
   for (i = spp; i < nonodes; i++)
   {
-    /* Assumes bifurcation -- might be nice to rewrite to deal with bigger node circles */
-    for (j = 1; j <= 3; j++)
-    {
-      ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
-      ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
-      p = p->next;
+    if (a->nodep[i] != NULL) {
+      q = (node*)(a->nodep[i]);
+      p = q;
+      do {        /* go around circle */
+        ((cont_node_type*)p)->view = (phenotype3)Malloc(totalleles * sizeof(double));
+        ((cont_node_type*)p)->totalleles = totalleles;
+        p = p->next;
+      } while (p != q);
     }
   }
+  q = (node*)(a->free_fork_nodes);     /* go along free_forknodes list as needed */
+  while (q != NULL) {
+    ((cont_node_type*)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
+    ((cont_node_type*)q)->totalleles = totalleles;
+    q = q->next;
+  };
 }  /* allocview */
 
 

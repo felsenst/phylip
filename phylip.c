@@ -4340,7 +4340,7 @@ void generic_tree_release_fork(tree* t, node* n)
 } /* generic_tree_release_fork */
 
 
-void generic_tree_nuview(tree* t, node*p )
+void generic_tree_nuview(tree* t, node* p)
 {
   /*  calls t->nuview on all siblings to update their parent */
   node* sib_ptr;
