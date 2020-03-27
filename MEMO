@@ -17,19 +17,19 @@ git push https://github.com/felsenst/phylip/ master
 
 to merge with master branch on github.  This is of form
 git push remote master
-where "remote" is a location like "https://github.com/felsenst/phylip/"
+where "remote" is a location like 
+ http://felsenst@github.com/felsenst/phylip/ 
 This tries to merge files at github with those recently modified locally
 
 When it asks for username use "felsenst"
 When it asks for password, usual with 2
 
 
-To bring recent changes that were put on  github.com  down to this local machine when they were changed on another machine and already pushed up,
+To bring recent changes that were put on  github.com  down to this 
+local machine when they were changed on another machine and already 
+pushed up,
 
-  git pull remote origin master
-
-or maybe its
-  git pull https://github.com/felsenst/phylip master
+  git pull http://felsenst@github.com/felsenst/phylip master
 
 note also:
     git config --global user.name "Joe Felsenstein"
