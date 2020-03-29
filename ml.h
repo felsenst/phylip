@@ -79,7 +79,7 @@ void    freex_notip(long, pointarray);
 void    freex(long, pointarray);
 void    update(tree*, node *p);
 void    smooth(tree*, node *p);
-void    ml_tree_insert_(tree* t, node*p, node*q, boolean dooinit, boolean multf);
+void    ml_tree_insert_(tree* t, node*p, node*q, boolean dooinit, boolean multf, long k);
 void    ml_tree_re_move(tree* t, node*p, node** q, boolean);
 boolean ml_tree_try_insert_(tree* , node* , node* , node** , double*, tree *, tree*, boolean, boolean* );
 void    ml_tree_do_branchl_on_insert(tree*t, node *p, node* q);

@@ -40,7 +40,7 @@ void ml_tree_init(tree* t, long nonodes, long spp)
 { /* set up variables in ml_tree */
   generic_tree_init(t, nonodes, spp);
   t->smoothall = ml_tree_smoothall;
-  t->insert_ = ml_tree_insert_;
+  t->insert_ = (* insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->try_insert_ = ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
@@ -756,19 +756,20 @@ void ml_tree_do_branchl_on_insert(tree * t, node * forknode, node * q)
 
 
 
-void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf)
+void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf, long k)
 {
  /* 
   * After inserting via generic_, branch length gets initialv. If dooinit is
   * given, all branches are optimized, otherwise just those nearby.
   *
-  * Insert q near p */
+  * Insert q near p 
+  * k  is index to be assigned to new interior node */
   long i;
   node * r;
 
   (void)multf;                          // RSGnote: Parameter never used.
 
-  generic_tree_insert_(t, p, q, dooinit, false, 0); /* no multifurcate on ml insert_ */
+  generic_tree_insert_(t, p, q, dooinit, false, k); /* no multifurcate on ml insert_ */
 
   if ( !dooinit )
   {

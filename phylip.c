@@ -4300,9 +4300,9 @@ node* generic_tree_get_fork(tree* t, long k)
    */
   node *retval, *p;
 
-  retval = generic_tree_get_forknode(t, 0);
-  retval->next = generic_tree_get_forknode(t, 0);
-  retval->next->next = generic_tree_get_forknode(t, 0);
+  retval = generic_tree_get_forknode(t, k);
+  retval->next = generic_tree_get_forknode(t, k);
+  retval->next->next = generic_tree_get_forknode(t, k);
   retval->next->next->next = retval;
   retval->initialized = false;
   retval->next->initialized = false;
