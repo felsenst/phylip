@@ -40,7 +40,7 @@ void ml_tree_init(tree* t, long nonodes, long spp)
 { /* set up variables in ml_tree */
   generic_tree_init(t, nonodes, spp);
   t->smoothall = ml_tree_smoothall;
-  t->insert_ = (* insert_t)ml_tree_insert_;
+  t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->try_insert_ = ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;

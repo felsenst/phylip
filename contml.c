@@ -961,7 +961,7 @@ void contml_buildsimpletree(tree *t, long* enterorder)
   inittip(t, enterorder[1]);
   hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
   inittip(t, enterorder[2]);
-  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false);
+  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false, t->spp);
 }  /* contml_buildsimpletree */
 
 

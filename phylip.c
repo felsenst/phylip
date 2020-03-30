@@ -4548,7 +4548,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded = false;
   node* dummy;
 
-  t->insert_(t, p, q, true, false);
+  t->insert_(t, p, q, true, false);    /* DEBUG does this need an extra argument? YES, I think */
   like = t->evaluate(t, p, false);
   if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
   {
