@@ -3630,7 +3630,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
       } else {
         if ( succeeded && where != qwhere) {
-          curtree->insert_(curtree, sib_ptr, qwhere, true, multf);
+          curtree->insert_(curtree, sib_ptr, qwhere, true, multf, 0);  /* debug: need to correct last argument */
           curtree->smoothall(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
@@ -3747,7 +3747,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         {
           if (succeeded && qwhere != where && qwhere != where->back && bestyet > oldbestyet)
           {
-            curtree->insert_(curtree, removed, qwhere, true, multf);
+            curtree->insert_(curtree, removed, qwhere, true, multf, 0);  /* debug: need to correct last argument */
             curtree->smoothall(curtree, where);
             success = true;
             curtree->copy(curtree, globtree);
@@ -4043,7 +4043,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bes
     else {
       if (qwhere == q ) {
         assert(*bestyet <= oldbestyet);
-        t->insert_(t, r, qwhere, true, multf);
+        t->insert_(t, r, qwhere, true, multf, 0);  /* debug: need to correct last argument */
 
         // printf("TREECHECK: after re-insert\n");
         // t->tree_print_f(t);
@@ -4059,7 +4059,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bes
       else {
         assert(*bestyet > oldbestyet);
         succeeded = true;
-        t->insert_(t, r, qwhere, true, multf);
+        t->insert_(t, r, qwhere, true, multf, 0);  /* debug: need to correct last argument */
 
         // printf("TREECHECK: after insert of %p at %p\n",r,qwhere);
         // t->tree_print_f(t);
@@ -4160,7 +4160,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
   whereto = t->nodep[forknode->back->index - 1];
   t->save_lr_nodes(t, p, whereto);
   t->re_move(t, p, &where, false);
-  t->insert_(t, p, whereto, false, false);
+  t->insert_(t, p, whereto, false, false, 0);  /* debug: need to correct last argument */
   like = t->evaluate(t, p, false);
   if (like - oldlike < LIKE_EPSILON) {
     t->restore_lr_nodes(t, p, whereto);
@@ -4548,7 +4548,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded = false;
   node* dummy;
 
-  t->insert_(t, p, q, true, false);    /* DEBUG does this need an extra argument? YES, I think */
+  t->insert_(t, p, q, true, false, 0);    /* DEBUG does this need an extra argument? YES, I think */
   like = t->evaluate(t, p, false);
   if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
   {
@@ -4634,7 +4634,7 @@ void buildsimpletree(tree *t, long* enterorder)
   p->v = initialv;
   q->v = initialv;
 
-  t->insert_(t, r, p, false, false);
+  t->insert_(t, r, p, false, false, 0);  /* debug: need to correct last argument */
 
   t->root = p;
 
@@ -4730,7 +4730,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
                          NULL, NULL, true, &multf);
-    curtree->insert_(curtree, item, there, true, multf);
+    curtree->insert_(curtree, item, there, true, multf, 0);  /* debug: need to correct last argument */
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);
     if (progress) {
@@ -4785,7 +4785,7 @@ void arbitrary_resolve(tree* t)
     if ( count_sibs(t->nodep[i]) > 2 ) {
       item = t->nodep[i]->back;
       t->re_move(t, item, &where, false);
-      t->insert_(t, item, where, false, false);
+      t->insert_(t, item, where, false, false, 0);  /* debug: need to correct last argument */
       i--; /* do it again, just in case it still multifurcs */
     }
   }
