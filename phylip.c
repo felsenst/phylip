@@ -4294,7 +4294,7 @@ node* generic_tree_get_fork(tree* t, long k)
 { /* 
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
    * false on all, and return.
-   * The fork is assigned  k  as its value of  index
+   * The fork is assigned  k+1  as its value of  index
    * changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
    */
@@ -4307,14 +4307,14 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
-  retval->index = k;
+  retval->index = k+1;
   p = retval;
   p = p->next;
   while (p != retval) {  /* set index of nodes in right to  k */
-    p->index = k;
+    p->index = k+1;
     p = p->next;
   }
-  t->nodep[k-1] = retval;
+  t->nodep[k] = retval;
   return retval;
 } /* generic_tree_get_fork */
 
@@ -4382,7 +4382,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
                           boolean multf, long k)
 { /* generic version of inserting tip  p  near node or tip  q
-   * k  is index of new fork, first available slot in t->nodep
+   * k+1  is index of new fork, first available slot in t->nodep
    */
   node *newnode;
 

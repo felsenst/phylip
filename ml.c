@@ -894,11 +894,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
   boolean succeeded = false;
 
   t->save_traverses(t, p, q);
-<<<<<<< HEAD
-  t->insert_(t, p, q, false, false, 0);   /* debug:  need to set up last argument */
-=======
   t->insert_(t, p, q, false, false, 0);   /* debug:  need to fill in last argument for this case */
->>>>>>> 29d355d018ba15db8abd3a8e32f55dad853c00cd
   like = t->evaluate(t, p, false);
 
   if (like > *bestyet || *bestyet == UNDEFINED)
