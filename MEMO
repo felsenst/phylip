@@ -13,7 +13,7 @@ To put some changed files up on the github master copy of "phylip"
 after changing local stuff (which seems by default to be branch "master")
 by "git commit filename"
 
-git push https://github.com/felsenst/phylip/ master
+git push https://felsenst@github.com/felsenst/phylip/ master
 
 to merge with master branch on github.  This is of form
 git push remote master
