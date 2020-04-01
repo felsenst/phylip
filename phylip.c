@@ -3338,7 +3338,7 @@ void generic_tree_free(tree *t)
     Slist_pop(t->free_fork_nodes);
   Slist_delete(t->free_fork_nodes);
 
-  for ( i = 0 ; i < NLRSAVES ; i++ )
+  for ( i = 0 ; i < NLRSAVES ; i++ )      /* debug: this is something for Codml */
     t->lrsaves[i]->free(&(t->lrsaves[i]));
   free(t->lrsaves);
   t->temp_p->free(&(t->temp_p));
@@ -3406,7 +3406,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   }
 
   /* Create garbage lists */
-  t->free_forks = Slist_new();
+  t->free_forks = Slist_new();      /* debug:  Now unnecessary? */
   t->free_fork_nodes = Slist_new();
 
   /* Put all nodes on garbage lists by "releasing" them */
