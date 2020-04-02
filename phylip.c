@@ -278,45 +278,6 @@ node* generic_new_node(node_type type, long index)
 } /* generic_new_node */
 
 
-#if 0
-void gnu(node **grbg, node **p)
-{ // this and the following are do-it-yourself garbage collectors.
-  // Make a new node or pull one off the garbage list
-
-  if (*grbg != NULL) {
-    *p = *grbg;
-    *grbg = (*grbg)->next;
-  } else
-    *p = functions.node_new(false, 0);
-
-  (*p)->back       = NULL;
-  (*p)->next       = NULL;
-  (*p)->init(*p, false, 0);
-}  // gnu
-#endif
-
-
-#if 0
-void chuck(node **grbg, node *p)
-{ /* collect garbage on p -- put it on front of garbage list */
-  p->back = NULL;
-  p->next = *grbg;
-  *grbg = p;
-}  // chuck
-#endif
-
-
-#if 0
-void chucktreenode(node **grbg, node *p)
-{ // collect garbage on p -- put it on front of garbage list
-
-  p->back = NULL;
-  p->next = *grbg;
-  *grbg = p;
-}  // chucktreenode
-#endif
-
-
 void setupnode(node *p, long i)
 { /* initialization of node pointers, variables */
 
@@ -3304,7 +3265,6 @@ void destruct_tree(tree* t)
     */
     if ( j < spp ) continue;
 
-    /* Get rid of extra furcations if necessary */
     for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
       q = p->next->next;
       t->release_forknode(t, p->next);
@@ -3324,6 +3284,19 @@ void destruct_tree(tree* t)
 } /* destruct_tree */
 
 
+void rooted_tree_init(tree* t, long nonodes, long spp)
+{
+  /* a few extra things for a rooted tree*/
+  generic_tree_init(t, nonodes, spp);
+  t->globrearrange = rooted_globrearrange;
+  t->insert_ = (tree_insert_t)rooted_tree_insert_;
+  t->re_move = rooted_tree_re_move;
+  t->locrearrange = rooted_locrearrange;
+  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+} /* rooted_tree_init */
+
+
 void generic_tree_free(tree *t)
 {
   /* put tree contents back on free_fork_nodes list */
@@ -3338,7 +3311,7 @@ void generic_tree_free(tree *t)
     Slist_pop(t->free_fork_nodes);
   Slist_delete(t->free_fork_nodes);
 
-  for ( i = 0 ; i < NLRSAVES ; i++ )      /* debug: this is something for Codml */
+  for ( i = 0 ; i < NLRSAVES ; i++ )
     t->lrsaves[i]->free(&(t->lrsaves[i]));
   free(t->lrsaves);
   t->temp_p->free(&(t->temp_p));
@@ -3359,19 +3332,6 @@ void generic_tree_free(tree *t)
   free(t->nodep);
   free(t);
 } /* generic_tree_free */
-
-
-void rooted_tree_init(tree* t, long nonodes, long spp)
-{
-  /* a few extra things for a rooted tree*/
-  generic_tree_init(t, nonodes, spp);
-  t->globrearrange = rooted_globrearrange;
-  t->insert_ = (tree_insert_t)rooted_tree_insert_;
-  t->re_move = rooted_tree_re_move;
-  t->locrearrange = rooted_locrearrange;
-  t->save_lr_nodes = rooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
-} /* rooted_tree_init */
 
 
 void generic_tree_init(tree* t, long nonodes, long spp)
@@ -3409,7 +3369,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->free_forks = Slist_new();      /* debug:  Now unnecessary? */
   t->free_fork_nodes = Slist_new();
 
-  /* Put all nodes on garbage lists by "releasing" them */
+  /* Put all interior nodes on garbage lists by "releasing" them */
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
