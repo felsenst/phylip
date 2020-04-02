@@ -118,7 +118,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
   t->free = contml_tree_free;
 } /* contml_tree_init */
 
-
+ 
 void contml_tree_free(tree* t)
 { /* free a contml_node */
   freeview(t, nonodes2);
