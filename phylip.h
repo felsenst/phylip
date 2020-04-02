@@ -585,6 +585,7 @@ typedef enum {
   TREE_T_ML
 } treetype;
 
+
 struct tree {
   treetype      type;
   pointarray nodep;
@@ -611,7 +612,6 @@ struct tree {
   tree_addtraverse_t addtraverse;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
-  tree_free_t free;
   tree_globrearrange_t globrearrange;
   tree_smoothall_t smoothall;
   tree_evaluate_t evaluate;
@@ -620,6 +620,7 @@ struct tree {
   tree_restore_lr_nodes_t restore_lr_nodes;
   tree_save_traverses_t save_traverses;
   tree_restore_traverses_t restore_traverses;
+  tree_free_t free;
   tree_release_fork_t release_fork;
   tree_get_fork_t get_fork;
   tree_get_forknode_t get_forknode;
@@ -774,10 +775,10 @@ void            unroot(tree*, long);
 void            unroot_here(node*, node**, long);
 void            unroot_r(node*, node**, long);
 void            destruct_tree(tree*);
-void            generic_tree_free(tree*);
 void            rooted_tree_init(tree*, long, long);
 void            generic_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);
+void            generic_tree_free(tree*);
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
 boolean         generic_fork_good(tree*, node*);
