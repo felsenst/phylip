@@ -115,8 +115,8 @@ void setuptree(tree *a, long nonodes)
 
 void allocview(tree *a, long nonodes, long totalleles)
 {
-  /* allocate view */
-  /* used in contml */
+  /* allocate view array
+     used in contml */
   long i;
   node *p, *q;
 
