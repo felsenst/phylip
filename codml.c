@@ -3735,7 +3735,7 @@ void maketree(void)
 
     while (nextsp <= spp)
     {
-      assert(curtree->tree_good_f(curtree));
+      assert(curtree->tree_good_f(curtree));    /* debug:  tree_good functions unneeded */
 
       bestyet = UNDEFINED;
       if (smoothit)
