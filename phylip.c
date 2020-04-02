@@ -3354,7 +3354,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   for ( i = 0 ; i < spp ; i++ ) {
     t->nodep[i] = functions.node_new(true, i+1);
   }
-  for ( i = spp ; i <  nonodes ; i++ ) {
+  for ( i = spp ; i < nonodes ; i++ ) {
     q = NULL;
     for ( j = 1 ; j <= 3 ; j++ ) {
       p = functions.node_new(false, i + 1 );
@@ -4289,7 +4289,7 @@ void generic_tree_release_fork(tree* t, node* n)
 /* debug: was:  we will only change the n pointer if we really need to */
 /* debug: was:   sibs = count_sibs(n); */
 /* debug: was:  if ( sibs > 2 ) n = t->nodep[n->index  - 1];  focus on rootish */
-  m = n->index;
+  m = n->index - 1;
   n = t->nodep[n->index  - 1];  
 
 /* debug: was:  sibs initialized in the previous line */
