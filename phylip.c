@@ -4322,21 +4322,27 @@ node* generic_tree_get_fork(tree* t, long k)
 void generic_tree_release_fork(tree* t, node* n)
 { /* release the fork attached to a removed node,
    * and put its nodes back on list */
-  node *p;
-  long sibs;
+  node *p, *q;
+  long m;
+/* debug: was:   long sibs;  */
 
-  /* we will only change the n pointer if we really need to */
-  sibs = count_sibs(n);
-  if ( sibs > 2 ) n = t->nodep[n->index  - 1];
+/* debug: was:  we will only change the n pointer if we really need to */
+/* debug: was:   sibs = count_sibs(n); */
+/* debug: was:  if ( sibs > 2 ) n = t->nodep[n->index  - 1];  focus on rootish */
+  m = n->index;
+  n = t->nodep[n->index  - 1];  
 
-  /* sibs initialized in the previous line */
-  /* release forknodes until the fork is made of three forknodes */
-  for ( ; sibs > 0 ; sibs-- ) {
+/* debug: was:  sibs initialized in the previous line */
+/* debug: was: release forknodes until the fork is made of three forknodes */
+/* debug:  was:   for ( ; sibs > 0 ; sibs-- ) {   */
+  p = n;
+  q = n;
+  do {
     p = n->next;
     n->next = n->next->next;
     t->release_forknode(t, p);
-  }
-
+  } while (p != q);
+  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
 } /* generic_tree_release_fork */
 
 
