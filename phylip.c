@@ -3257,28 +3257,28 @@ void destruct_tree(tree* t)
     t->get_fork(t, 0); /* effect is to discard fork; probably leaks */
   }
 
-  for ( j = 0; j < t->nonodes ; j++ ) {
-    p = t->nodep[j];
-    p->back = NULL;
-    /* BUG.970
-       p->initialized = false;
-    */
-    if ( j < spp ) continue;
+  for ( j = t->spp; j < t->nonodes ; j++ ) {
+    if (t->nodep[j] != NULL) {
+      p = t->nodep[j];
+      p->back = NULL;
+      /* BUG.970
+         p->initialized = false;
+      */
+      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
+        q = p->next->next;
+        t->release_forknode(t, p->next);
+        p->next = q;
+      }
 
-    for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
-      q = p->next->next;
-      t->release_forknode(t, p->next);
-      p->next = q;
+      p->initialized = false;
+      p->next->initialized = false;
+      p->next->next->initialized = false;
+      p->back = NULL;
+      p->next->back = NULL;
+      p->next->next->back = NULL;
+  
+      t->release_fork(t, p);
     }
-
-    p->initialized = false;
-    p->next->initialized = false;
-    p->next->next->initialized = false;
-    p->back = NULL;
-    p->next->back = NULL;
-    p->next->next->back = NULL;
-
-    t->release_fork(t, p);
   }
 
 } /* destruct_tree */
