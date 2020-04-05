@@ -1548,7 +1548,7 @@ void contmlrun(void)
       }
     }
   }
-}
+} /* contmlrun */
 
 
 void contml(
