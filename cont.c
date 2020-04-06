@@ -117,7 +117,7 @@ void allocview(tree *a, long nonodes, long totalleles)
 {
   /* allocate view array
      used in contml */
-  long i;
+  long i, n;
   node *p, *q;
 
   for (i = 0; i < spp; i++)
@@ -140,11 +140,12 @@ void allocview(tree *a, long nonodes, long totalleles)
     }
   }
   q = (node*)(a->free_fork_nodes->first);     /* go along free_forknodes list as needed */
-  for (i = 1; i < (a->free_fork_nodes->length); i++) {
-    ((cont_node_type*)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
-    ((cont_node_type*)q)->totalleles = totalleles;
+  n = a->free_fork_nodes->length;
+  for (i = 1; i <= n; i++) {
+    ((cont_node_type *)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
+    ((cont_node_type *)q)->totalleles = totalleles;
     if (q != NULL)
-      q = q->next;
+      q = (node *)q->next;
   };
 }  /* allocview */
 
