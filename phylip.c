@@ -256,7 +256,7 @@ void generic_node_init(node* n, node_type type, long index)
 
 void generic_node_reinit(node * n)
 {
-  /*  re-initialize node (?) */
+  /*  re-initialize node */
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
@@ -4284,17 +4284,10 @@ void generic_tree_release_fork(tree* t, node* n)
    * and put its nodes back on list */
   node *p, *q;
   long m;
-/* debug: was:   long sibs;  */
 
-/* debug: was:  we will only change the n pointer if we really need to */
-/* debug: was:   sibs = count_sibs(n); */
-/* debug: was:  if ( sibs > 2 ) n = t->nodep[n->index  - 1];  focus on rootish */
   m = n->index - 1;
-  n = t->nodep[n->index  - 1];  
+  n = t->nodep[n->index  - 1];    /* the node in the circle pointed to by nodep */
 
-/* debug: was:  sibs initialized in the previous line */
-/* debug: was: release forknodes until the fork is made of three forknodes */
-/* debug:  was:   for ( ; sibs > 0 ; sibs-- ) {   */
   p = n;
   q = n;
   do {

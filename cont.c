@@ -118,7 +118,8 @@ void allocview(tree *a, long nonodes, long totalleles)
   /* allocate view array
      used in contml */
   long i, n;
-  node *p, *q;
+  node *r, *s;
+  Slist_node_ptr q;
 
   for (i = 0; i < spp; i++)
     if (a->nodep[i] != NULL)
@@ -130,22 +131,22 @@ void allocview(tree *a, long nonodes, long totalleles)
   for (i = spp; i < nonodes; i++)
   {
     if (a->nodep[i] != NULL) {
-      q = (node*)(a->nodep[i]);
-      p = q;
+      r = (node*)(a->nodep[i]);
+      s = r;
       do {        /* go around circle */
-        ((cont_node_type*)p)->view = (phenotype3)Malloc(totalleles * sizeof(double));
-        ((cont_node_type*)p)->totalleles = totalleles;
-        p = p->next;
-      } while (p != q);
+        ((cont_node_type*)s)->view = (phenotype3)Malloc(totalleles * sizeof(double));
+        ((cont_node_type*)s)->totalleles = totalleles;
+        s = s->next;
+      } while (s != r);
     }
   }
-  q = (node*)(a->free_fork_nodes->first);     /* go along free_forknodes list as needed */
+  q = (Slist_node_ptr)(a->free_fork_nodes->first); /* go along free nodes list as needed */
   n = a->free_fork_nodes->length;
   for (i = 1; i <= n; i++) {
     ((cont_node_type *)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
     ((cont_node_type *)q)->totalleles = totalleles;
     if (q != NULL)
-      q = (node *)q->next;
+      q = ((Slist_node_ptr)q)->next;
   };
 }  /* allocview */
 
