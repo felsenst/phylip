@@ -147,7 +147,7 @@ void allocview(tree *a, long nonodes, long totalleles)
   for (i = 1; i <= n; i++) {
     ((cont_node_type *)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
     ((cont_node_type *)q)->totalleles = totalleles;
-    if (i >= n) {
+    if (i < n) {
       p = p->next;
       q = p->data;
       }
