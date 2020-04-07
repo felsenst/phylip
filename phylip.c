@@ -101,14 +101,25 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
 void generic_tree_copy(tree* src, tree* dst)
 { /* copies tree src to tree dst*/
-  long i, j, num_sibs;
+  long i, j, num_sibs, maxnonodes;
   node *p, *q;
   Slist_node_ptr listnode;
 
   /* ensure that all forks in dst have same number of sibs as in src */
-  for ( i = spp ; i < src->nonodes ; i++ )
+/* debug:  replacing this code ...  for ( i = spp ; i < src->nonodes ; i++ )
     even_sibs(dst, src->nodep[i], dst->nodep[i]);
+ debug: ... by the following ... */
 
+  /* reduce or increase interior node fork circle sizes in destination tree */
+  maxnonodes = src_nonodes;
+  if (dst_nonodes > src_nonodes)
+    maxnonodes = dst_nonodes;
+  for ( i = spp; i < maxnonodes; i++) {  /* remove any extra nodes in dst forks */
+/* debug: count sibs in both, then change if  dst  number greater */
+    }
+  for ( i = spp; i < maxnonodes; i++) {  /* insert any needed nodes in dst forks */
+/* debug: count sibs in both, then change if  dst  number less */
+    }
   /* copy tip nodes and link to proper dst forks */
   for (i = 0; i < spp; i++) {
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
@@ -294,24 +305,26 @@ long count_sibs (node *p)
   node *q;
   long return_int = 0;
 
-  if (p->tip) {
-    sprintf (progbuf, "Error: the function count_sibs called on a tip.  This is a bug.\n");
-    print_progress(progbuf);
-    exxit (-1);
-  }
-
-  q = p->next;
-  while (q != p) {
-    if (q == NULL) {
-      sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
+  if (p == NULL) {  /* case where there's no destination fork there at all */
+    return_int = 0;
+  } else {           /* if there is one ... */
+    if (p->tip) {
+      sprintf (progbuf, "Error: the function count_sibs called on a tip.  This is a bug.\n");
       print_progress(progbuf);
       exxit (-1);
-    } else {
-      return_int++;
-      q = q->next;
+    }
+    q = p->next;
+    while (q != p) {   /* go around the circle and ... */
+      if (q == NULL) {
+        sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
+        print_progress(progbuf);
+        exxit (-1);
+      } else {     /* count them */
+        return_int++;
+        q = q->next;
+      }
     }
   }
-
   return return_int;
 }  /* count_sibs */
 
@@ -4421,7 +4434,7 @@ node* generic_tree_get_forknode(tree* t, long i)
 
 void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 { /* releases a fork circle (?) */
-  node *fork,*q,*p;
+  node *fork, *q, *p;
   long num_sibs;
 
   fork = item->back;
