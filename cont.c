@@ -141,17 +141,17 @@ void allocview(tree *a, long nonodes, long totalleles)
       } while (s != r);
     }
   }
-  p = (Slist_node_ptr)(a->free_fork_nodes);   /* go along free nodes list as needed */
+  p = (Slist_node_ptr)(a->free_fork_nodes->first);   /* go along free nodes list as needed */
   q = (Slist_data_ptr)(a->free_fork_nodes->first->data);
   n = a->free_fork_nodes->length;
   for (i = 1; i <= n; i++) {
     ((cont_node_type *)q)->view = (phenotype3)Malloc(totalleles * sizeof(double));
     ((cont_node_type *)q)->totalleles = totalleles;
-    if (p != NULL) {
-      p = ((Slist_node_ptr)p)->next;
-      q = ((Slist_data_ptr)p)->data;
+    if (i >= n) {
+      p = p->next;
+      q = p->data;
+      }
     }
-  };
 }  /* allocview */
 
 
