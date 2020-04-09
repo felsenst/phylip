@@ -46,35 +46,6 @@ void no_op(void)
 
 /********* Tree and node functions ***********/
 
-void even_sibs(tree* t, node* src, node* dst)
-{ /* Add or delete nodes in dst fork until it has the same number as src
-   * fork. New nodes are added or removed at dst->next.
-   * src and dst must be fork nodes in t.
-   *
-   * Nothing is done to free or initialize adjacent tips or forks.
-   */
-
-  long src_sibs, dst_sibs;
-  node* n;
-
-  src_sibs = count_sibs(src);
-  dst_sibs = count_sibs(dst);
-
-  while ( src_sibs > dst_sibs) {
-    n = t->get_forknode(t, src->index);
-    n->next = dst->next;
-    dst->next = n;
-    dst_sibs++;
-  }
-
-  while ( dst_sibs > src_sibs) {
-    n = dst->next;
-    dst->next = dst->next->next;
-    t->release_forknode(t, n);
-    dst_sibs--;
-  }
-} /* even_sibs */
-
 
 node* where_in_dest (tree* src, tree* dst, node* nsrc )
 { /* Return the node in dst that corresponds to node nsrc in src
@@ -101,24 +72,39 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
 void generic_tree_copy(tree* src, tree* dst)
 { /* copies tree src to tree dst*/
-  long i, j, num_sibs, maxnonodes;
+  long i, j, num_sibs, src_sibs, dst_sibs,  maxcircles;
   node *p, *q;
   Slist_node_ptr listnode;
 
-  /* ensure that all forks in dst have same number of sibs as in src */
-/* debug:  replacing this code ...  for ( i = spp ; i < src->nonodes ; i++ )
-    even_sibs(dst, src->nodep[i], dst->nodep[i]);
- debug: ... by the following ... */
 
   /* reduce or increase interior node fork circle sizes in destination tree */
-  maxnonodes = src_nonodes;
-  if (dst_nonodes > src_nonodes)
-    maxnonodes = dst_nonodes;
-  for ( i = spp; i < maxnonodes; i++) {  /* remove any extra nodes in dst forks */
-/* debug: count sibs in both, then change if  dst  number greater */
+  maxcircles = src->nonodes;
+  if (dst->nonodes > src->nonodes) {
+    maxcircles = dst->nonodes;
     }
-  for ( i = spp; i < maxnonodes; i++) {  /* insert any needed nodes in dst forks */
-/* debug: count sibs in both, then change if  dst  number less */
+  for ( i = spp; i < maxcircles; i++) {  /* remove any extra nodes in dst forks */
+    src_sibs = count_sibs(src->nodep[i]);
+    dst_sibs = count_sibs(dst->nodep[i]);
+    while ( dst_sibs > src_sibs) {
+      p = dst->nodep[i]->next;
+      dst->nodep[i]->next = dst->nodep[i]->next->next;
+      dst->release_forknode(dst, p);   /* they go onto free_forknodes stack */
+      dst_sibs--;
+      }
+    }
+  for ( i = spp; i < maxcircles; i++) {  /* insert any needed nodes in dst forks */
+    src_sibs = count_sibs(src->nodep[i]);
+    dst_sibs = count_sibs(dst->nodep[i]);
+    while ( src_sibs > dst_sibs) {
+      p = dst->get_forknode(dst, i);   /* taking them off of free_fork_nodes stack */
+      dst->nodep[i] = p;
+      if (p != NULL) {
+        p->next = dst->nodep[i]->next;
+        }
+      else
+        p->next = p;
+      dst_sibs++;
+      }
     }
   /* copy tip nodes and link to proper dst forks */
   for (i = 0; i < spp; i++) {
