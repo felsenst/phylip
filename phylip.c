@@ -4246,7 +4246,7 @@ node* generic_tree_get_fork(tree* t, long k)
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
    * false on all, and return.
    * The fork is assigned  k+1  as its value of  index
-   * changed so always pulls forknodes off their list, never pulls 
+   * Changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
    */
   node *retval, *p;
@@ -4494,11 +4494,16 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
                                  boolean* multf)
 {
   /* try to insert in one place, return "succeeded", then restore */
+  long k;
   double like;
   boolean succeeded = false;
   node* dummy;
 
-  t->insert_(t, p, q, true, false, 0);    /* DEBUG does this need an extra argument? YES, I think */
+  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+    if (t->nodep[k] == NULL)
+      break;
+  }
+  t->insert_(t, p, q, true, false, k);    /* DEBUG does this need an extra argument? YES, I think */
   like = t->evaluate(t, p, false);
   if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
   {
