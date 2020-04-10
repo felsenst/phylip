@@ -74,8 +74,6 @@ void generic_tree_copy(tree* src, tree* dst)
 { /* copies tree src to tree dst*/
   long i, j, num_sibs, src_sibs, dst_sibs,  maxcircles;
   node *p, *q;
-  Slist_node_ptr listnode;
-
 
   /* reduce or increase interior node fork circle sizes in destination tree */
   maxcircles = src->nonodes;
@@ -88,44 +86,50 @@ void generic_tree_copy(tree* src, tree* dst)
     while ( dst_sibs > src_sibs) {
       p = dst->nodep[i]->next;
       dst->nodep[i]->next = dst->nodep[i]->next->next;
-      dst->release_forknode(dst, p);   /* they go onto free_forknodes stack */
+      dst->release_forknode(dst, p);      /* they go onto free_forknodes list ... */
       dst_sibs--;
       }
     }
-  for ( i = spp; i < maxcircles; i++) {  /* insert any needed nodes in dst forks */
+  for ( i = spp; i < maxcircles; i++) {  /* then insert any needed nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
     while ( src_sibs > dst_sibs) {
-      p = dst->get_forknode(dst, i);   /* taking them off of free_fork_nodes stack */
-      dst->nodep[i] = p;
-      if (p != NULL) {
-        p->next = dst->nodep[i]->next;
+      if (dst->nodep[i] == NULL) {
+        p = dst->get_forknode(dst, i);   /* taking them off of free_fork_nodes list */
+	q = p;                           /* points to final node in nascent circle */
+        dst->nodep[i] = p;
         }
-      else
-        p->next = p;
-      dst_sibs++;
+      else {
+        p = dst->get_forknode(dst, i);   /* take another one off */
+	p->next = dst->nodep[i];
+	dst->nodep[i] = p;
+        dst_sibs++;
+        }
       }
+    q->next = dst->nodep[i];        /* close the circle */
     }
-  /* copy tip nodes and link to proper dst forks */
-  for (i = 0; i < spp; i++) {
+
+  for (i = 0; i < spp; i++) {  /* copy tip nodes and link to proper dst forks */
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
     if (src->nodep[i]->back != NULL) {
       dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
     }
   }
 
-  /* copy fork nodes and back links */
-  for (i = spp; i < src->nonodes; i++) {
+  for (i = spp; i < src->nonodes; i++) { /* copy fork nodes and back links */
     p = src->nodep[i];
     q = dst->nodep[i];
-
-    num_sibs = count_sibs(p);
-
-    for (j = 0; j <= num_sibs; j++) {
-      p->copy(p, q);
-      q->back = where_in_dest(src, dst, p->back);
-      p = p->next;
-      q = q->next;
+    if (p == NULL) {
+      q = NULL;
+      }
+    else {
+      num_sibs = count_sibs(p);
+      for (j = 0; j <= num_sibs; j++) {
+        p->copy(p, q);
+        q->back = where_in_dest(src, dst, p->back);
+        p = p->next;
+        q = q->next;
+      }
     }
   }
 
@@ -133,27 +137,6 @@ void generic_tree_copy(tree* src, tree* dst)
   dst->score = src->score;
   dst->root = where_in_dest(src, dst, src->root);
 
-  /* clear dst's list of free forks */
-  /* Forks are still tracked in nodep */
-  /* debug:  don't think we should do this as tree may
-   * not be full size so may still want to have nodes
-   * on free_fork_nodes listn so commenting this out ...
-  while ( !Slist_isempty(dst->free_forks) )
-    Slist_pop(dst->free_forks);
-   debug  */
-
-  /* debug: need this next stuff at all?  if all
-   * nodes in src->nodep are copied over, the roght
-   * number of nodes should be in free_fork_nodes  */
-  /* Iterate through src->free_forks, adding corresponding fork node to dst->free_forks. */
-  for ( listnode = src->free_forks->first;
-        listnode != NULL;
-        listnode = listnode->next
-    ) {
-    /* Find the corresponding (i.e. linked by nodep) node in dst */
-    p = where_in_dest(src, dst, listnode->data);
-    Slist_append(dst->free_forks, p);
-  }
 } /* generic_tree_copy */
 
 
