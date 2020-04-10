@@ -109,7 +109,9 @@ void generic_tree_copy(tree* src, tree* dst)
   /* copy tip nodes and link to proper dst forks */
   for (i = 0; i < spp; i++) {
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
-    dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    if (src->nodep[i]->back != NULL) {
+      dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    }
   }
 
   /* copy fork nodes and back links */
@@ -133,9 +135,16 @@ void generic_tree_copy(tree* src, tree* dst)
 
   /* clear dst's list of free forks */
   /* Forks are still tracked in nodep */
+  /* debug:  don't think we should do this as tree may
+   * not be full size so may still want to have nodes
+   * on free_fork_nodes listn so commenting this out ...
   while ( !Slist_isempty(dst->free_forks) )
     Slist_pop(dst->free_forks);
+   debug  */
 
+  /* debug: need this next stuff at all?  if all
+   * nodes in src->nodep are copied over, the roght
+   * number of nodes should be in free_fork_nodes  */
   /* Iterate through src->free_forks, adding corresponding fork node to dst->free_forks. */
   for ( listnode = src->free_forks->first;
         listnode != NULL;
