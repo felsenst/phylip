@@ -73,6 +73,7 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 void generic_tree_copy(tree* src, tree* dst)
 { /* copies tree src to tree dst*/
   long i, j, num_sibs, src_sibs, dst_sibs,  maxcircles;
+  boolean doingacircle;
   node *p, *q;
 
   /* reduce or increase interior node fork circle sizes in destination tree */
@@ -91,9 +92,11 @@ void generic_tree_copy(tree* src, tree* dst)
       }
     }
   for ( i = spp; i < maxcircles; i++) {  /* then insert any needed nodes in dst forks */
+    doingacircle = false;
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
     while ( src_sibs > dst_sibs) {
+      doingacircle = true;
       if (dst->nodep[i] == NULL) {
         p = dst->get_forknode(dst, i);   /* taking them off of free_fork_nodes list */
 	q = p;                           /* points to final node in nascent circle */
@@ -106,9 +109,11 @@ void generic_tree_copy(tree* src, tree* dst)
         dst_sibs++;
         }
       }
-    q->next = dst->nodep[i];        /* close the circle */
+    if (doingacircle) {
+      q->next = dst->nodep[i];        /* close the circle */
+      doingacircle = false;
+      }
     }
-
   for (i = 0; i < spp; i++) {  /* copy tip nodes and link to proper dst forks */
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
     if (src->nodep[i]->back != NULL) {
