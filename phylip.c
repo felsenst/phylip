@@ -130,10 +130,12 @@ void generic_tree_copy(tree* src, tree* dst)
     else {
       num_sibs = count_sibs(p);
       for (j = 0; j <= num_sibs; j++) {
-        p->copy(p, q);
-        q->back = where_in_dest(src, dst, p->back);
-        p = p->next;
-        q = q->next;
+	if (num_sibs > 0) {   /* not clear that this is necessary */
+          p->copy(p, q);
+          q->back = where_in_dest(src, dst, p->back);
+          p = p->next;
+          q = q->next;
+        }
       }
     }
   }
