@@ -98,12 +98,12 @@ void generic_tree_copy(tree* src, tree* dst)
     while ( src_sibs > dst_sibs) {
       doingacircle = true;
       if (dst->nodep[i] == NULL) {
-        p = dst->get_forknode(dst, i);   /* taking them off of free_fork_nodes list */
-	q = p;                           /* points to final node in nascent circle */
+        p = dst->get_forknode(dst, i+1);   /* taking them off of free_fork_nodes list */
+	q = p;                            /* points to final node in nascent circle */
         dst->nodep[i] = p;
         }
       else {
-        p = dst->get_forknode(dst, i);   /* take another one off */
+        p = dst->get_forknode(dst, i+1);   /* take another one off */
 	p->next = dst->nodep[i];
 	dst->nodep[i] = p;
         dst_sibs++;
