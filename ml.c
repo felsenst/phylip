@@ -841,7 +841,7 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   double like;
   boolean succeeded = false;
 
-  t->insert_(t, p, q, true, false, 0);   /* debug:  need to fill in last argument for this case */
+  t->insert_(t, p, q, true, false, 0);
 
   like = t->evaluate(t, p, false);
   if (like > *bestyet || *bestyet == UNDEFINED)

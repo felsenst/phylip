@@ -3574,7 +3574,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       if ( sib_ptr->back == NULL ) /* this implies unused node */
         continue; /* probably because of multifurcation */
 
-      curtree->re_move(curtree, sib_ptr,&where, true);
+      curtree->re_move(curtree, sib_ptr, &where, true);
       curtree->copy(curtree, priortree);
       qwhere = where;
 
@@ -3683,7 +3683,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
         removed = sib_ptr;
 
-        curtree->re_move(curtree, removed,&where, true);
+        curtree->re_move(curtree, removed, &where, true);
         curtree->smoothall(curtree, where);
         curtree->copy(curtree, priortree);
         qwhere = where;
@@ -4495,6 +4495,18 @@ void generic_tree_release_forknode(tree* t, node* n)
 } /* generic_tree_release_forknode */
 
 
+long generic_tree_findemptyfork(tree* t)
+{ /* go through nodep finding an empty fork slot */
+  long k;
+
+  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+    if (t->nodep[k] == NULL)
+      break;
+  }
+  return k;
+} /* findemptyfork */
+
+
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
                                  double* bestyet, tree* bestree,
                                  tree* priortree, boolean thorough,
@@ -4506,11 +4518,8 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded = false;
   node* dummy;
 
-  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
-    if (t->nodep[k] == NULL)
-      break;
-  }
-  t->insert_(t, p, q, true, false, k);    /* DEBUG does this need an extra argument? YES, I think */
+  k = generic_tree_findemptyfork(t);
+  t->insert_(t, p, q, true, false, k);
   like = t->evaluate(t, p, false);
   if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
   {
