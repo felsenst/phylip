@@ -4418,7 +4418,7 @@ node* generic_tree_get_forknode(tree* t, long i)
 
 
 void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
-{ /* releases a fork circle (?) */
+{ /* releases a fork circle */
   node *fork, *q, *p;
   long num_sibs;
 
