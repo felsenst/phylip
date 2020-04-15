@@ -377,7 +377,7 @@ void inittrav_all(tree *t)
 } /* inittrav_all */
 
 
-void inittrav (node *p)
+void inittrav (tree* t, node *p)
 { /* traverse to set pointers uninitialized on inserting */
   node *sib_ptr;
 
@@ -394,7 +394,7 @@ void inittrav (node *p)
       printf("BUG.970 -- uninit %p\n",sib_ptr);
     */
     sib_ptr->initialized = false;
-    inittrav(sib_ptr->back);
+    inittrav(t, sib_ptr->back);
   }
 } /* inittrav */
 
@@ -3911,11 +3911,11 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   p->next->next->back->v = p->next->next->v;
 
   /* BUG.970 */
-  inittrav(t->rb);
-  inittrav(t->rnb);
-  inittrav(t->rnnb);
-  inittrav(p->next);
-  inittrav(p->next->next);
+  inittrav(t, t->rb);
+  inittrav(t, t->rnb);
+  inittrav(t, t->rnnb);
+  inittrav(t, p->next);
+  inittrav(t, p->next->next);
 
 } /* unrooted_tree_restore */
 
@@ -4072,21 +4072,21 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 
   t->temp_p->copy(t->temp_p,p);
   t->temp_q->copy(t->temp_q,q);
-  inittrav(p);
-  inittrav(q);
+  inittrav(t, p);
+  inittrav(t, q);
   if ( p->back )
   {
     p->back->v = p->v;
-    inittrav(p->back);
+    inittrav(t, p->back);
   }
   if ( q->back )
   {
     q->back->v = q->v;
-    inittrav(q->back);
+    inittrav(t, q->back);
   }
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
 
-  // printf("TREECHECK restoring %p and %p\n\t",p,q);
+  // debug:  printf("TREECHECK restoring %p and %p\n\t",p,q);
   // p->node_print_f(p);
   // printf("\n\t");
   // q->node_print_f(q);
@@ -4364,8 +4364,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
     /* BUG.970
     if (doinit) {
     */
-      inittrav(p);
-      inittrav(p->back);
+      inittrav(t, p);
+      inittrav(t, p->back);
     /* BUG.970
     }
     */
@@ -4379,8 +4379,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
     assert( ! newnode->initialized );
 
     if ( doinit ) {
-      inittrav(p);
-      inittrav(p->back);
+      inittrav(t, p);
+      inittrav(t, p->back);
     }
   }
 } /* generic_tree_insert_ */
@@ -4445,9 +4445,9 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
     if ( t->root == fork )
       t->root = q;
     if ( doinit ) {
-      inittrav(q);
+      inittrav(t, q);
       for ( p = q->next ; p != q ; p = p->next )
-        inittrav(p);
+        inittrav(t, p);
     }
     (*where) = q;
 
@@ -4470,8 +4470,8 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 
     /* BUG.970 -- might be in do_branchl_on_re_move ?? */
     if ( doinit ) {
-      inittrav(*where);
-      inittrav((*where)->back);
+      inittrav(t, *where);
+      inittrav(t, (*where)->back);
     }
   }
 } /* generic_tree_re_move */
@@ -4664,8 +4664,8 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
     t->release_fork(t, fork);
     item->back = NULL;
     if  ( doinit) {
-      inittrav(whereloc);
-      inittrav(whereloc->back);
+      inittrav(t, whereloc);
+      inittrav(t, whereloc->back);
     }
   }
 } /* rooted_tree_re_move */

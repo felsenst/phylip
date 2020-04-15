@@ -645,8 +645,8 @@ void update(tree *t, node *p)
 
     if ( smoothit )
     {
-      inittrav(p);
-      inittrav(p->back);
+      inittrav(t, p);
+      inittrav(t, p->back);
     }
     else
     {
@@ -717,7 +717,7 @@ static void ml_tree_smoothall(tree* t, node* p)
 } /* ml_tree_smoothall */
 
 
-void ml_tree_do_branchl_on_insert(tree * t, node * forknode, node * q)
+void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 { /* split q->v branch length evenly beween forknode->next and forknode->next->next */
 
   double newv;
@@ -746,12 +746,12 @@ void ml_tree_do_branchl_on_insert(tree * t, node * forknode, node * q)
   forknode->next->next->back->v = newv;
 
   /* BUG.970 -- might consider invalidating views here or in generic */
-  inittrav(forknode);
-  inittrav(forknode->back);
-  inittrav(forknode->next);
-  inittrav(forknode->next->back);
-  inittrav(forknode->next->next);
-  inittrav(forknode->next->next->back);
+  inittrav(t, forknode);
+  inittrav(t, forknode->back);
+  inittrav(t, forknode->next);
+  inittrav(t, forknode->next->back);
+  inittrav(t, forknode->next->next);
+  inittrav(t, forknode->next->next->back);
 } /* ml_tree_do_branchl_on_insert */
 
 
@@ -809,8 +809,8 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
   q->back->v = combinedEdgeWeight;
 
   /* BUG.970.INIT -- might consider invalidating views here or in generic */
-  inittrav(q);
-  inittrav(q->back);
+  inittrav(t, q);
+  inittrav(t, q->back);
 }
 
 
@@ -966,8 +966,8 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
     smooth(t, newfork);
   else
   {
-    inittrav(newtip);
-    inittrav(newtip->back);
+    inittrav(t, newtip);
+    inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++)
     {
       smooth(t, newfork);
@@ -1017,8 +1017,8 @@ void mlk_tree_re_move(tree* t, node *item, node** where, boolean doinit)
 
   if ( doinit )
   {
-    inittrav(whereloc);
-    inittrav(whereloc->back);
+    inittrav(t, whereloc);
+    inittrav(t, whereloc->back);
     for ( i = 0 ;  i < smoothings ; i++)
     {
       smooth(t, whereloc);
@@ -1304,7 +1304,7 @@ void mlk_tree_makenewv(tree* t, node *p)
   for ( i = 0 ; i < num_sibs; i++ )
   {
     sib_ptr = sib_ptr->next;
-    inittrav (sib_ptr);
+    inittrav (t, sib_ptr);
   }
 
   if ( !done ) smoothed = false;
@@ -1464,13 +1464,13 @@ void mlk_tree_makenewv(tree* t, node *p)
   }
 
   if ( smoothit )
-    inittrav(p);
+    inittrav(t, p);
   p->initialized = false;
   for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
   {
     sib_ptr->initialized = false;
     if ( smoothit )
-      inittrav(sib_ptr);
+      inittrav(t, sib_ptr);
   }
   t->score = lnlike;
   smoothed = smoothed && done;

@@ -2403,7 +2403,7 @@ void codon_tree_nuview(tree* t, node *p)
   memcpy(((ml_node*)p)->underflows, temp_underflows, endsite * sizeof(double));
 
   p->initialized = true;
-  inittrav(p->back);
+  inittrav(t, p->back);
 
   for ( siteIndex = 0 ; siteIndex < endsite ; siteIndex++ )
     free(temp_codonx[siteIndex]);
@@ -2635,9 +2635,9 @@ void codon_tree_makenewv(tree* t, node *p)
   q->v = yold;
 
   /* BUG.969 -- is there a better place to make sure it's always done? */
-  inittrav(p);
+  inittrav(t, p);
   assert(q == p->back);
-  inittrav(p->back);
+  inittrav(t, p->back);
 
   ((tree*)t)->score = oldlike;
 
