@@ -813,6 +813,7 @@ void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
+long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
 void            generic_tree_insert_(tree*, node*, node*, boolean, boolean, long);
