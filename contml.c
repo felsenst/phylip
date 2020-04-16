@@ -684,13 +684,11 @@ void sumlikely(node *p, node *q, double *sum)
   else
     vee = p->v + q->v;
   vee += p->deltav + q->deltav;
-/* debug:  pretty sure we should only do this on a tip with a tip sister lineage 
   if (vee <= 1.0e-10)
   {
     printf("\nERROR:  Check for two identical species and eliminate one from the data.\n");
     exxit(-1);
   }
-debug    */
   sumsq = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
   {
