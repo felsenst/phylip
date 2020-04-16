@@ -838,10 +838,12 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
 
 static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree)
 {
+  long k;
   double like;
   boolean succeeded = false;
 
-  t->insert_(t, p, q, true, false, 0);
+  k = generic_tree_findemptyfork(t);
+  t->insert_(t, p, q, true, false, k);
 
   like = t->evaluate(t, p, false);
   if (like > *bestyet || *bestyet == UNDEFINED)
@@ -890,11 +892,13 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
 
 static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double* bestyet)
 {
+  long k;
   double like;
   boolean succeeded = false;
 
   t->save_traverses(t, p, q);
-  t->insert_(t, p, q, false, false, 0);   /* debug:  need to fill in last argument for this case */
+  k = generic_tree_findemptyfork(t);
+  t->insert_(t, p, q, false, false, k);
   like = t->evaluate(t, p, false);
 
   if (like > *bestyet || *bestyet == UNDEFINED)
