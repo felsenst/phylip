@@ -808,10 +808,7 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
   q->v       = combinedEdgeWeight;
   q->back->v = combinedEdgeWeight;
 
-  /* BUG.970.INIT -- might consider invalidating views here or in generic */
-  inittrav(t, q);
-  inittrav(t, q->back);
-}
+} /* ml_tree_do_branchl_on_re_move */
 
 
 void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
@@ -833,7 +830,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
   }
   else
     update(t, *q);
-}
+} /* ml_tree_re_move */
 
 
 static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree)
@@ -858,7 +855,7 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   priortree->copy(priortree, t);
 
   return succeeded;
-}
+} /* ml_tree_try_insert_thorough */
 
 
 /* ml_tree_try_insert_
@@ -907,7 +904,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
     *qwherein = q;
     succeeded = true;
   }
-  node * whereRemoved;
+  node* whereRemoved;
 
   t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
 

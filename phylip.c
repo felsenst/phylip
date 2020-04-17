@@ -3252,7 +3252,7 @@ void destruct_tree(tree* t)
 
   while ( !Slist_isempty(t->free_forks) )
   {
-    t->get_fork(t, 0); /* effect is to discard fork; probably leaks */
+    t->get_fork(t, 0); /* debug: effect is to discard fork; probably leaks */
   }
 
   for ( j = t->spp; j < t->nonodes ; j++ ) {
@@ -3527,7 +3527,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 {
   /* does "global" (SPR) rearrangements */
   tree *globtree, *oldtree, *priortree, *bestree;
-  int i;
+  int i, k;
   node *where,*sib_ptr,*qwhere;
   double oldbestyet;
   int success = false;
@@ -3588,7 +3588,8 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
       } else {
         if ( succeeded && where != qwhere) {
-          curtree->insert_(curtree, sib_ptr, qwhere, true, multf, 0);  /* debug: need to correct last argument */
+	  k = generic_tree_findemptyfork(curtree);
+          curtree->insert_(curtree, sib_ptr, qwhere, true, multf, k);  /* debug: need to correct last argument */
           curtree->smoothall(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
@@ -3618,7 +3619,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 { /* does global rearrangements */
   tree *globtree, *oldtree, *priortree, *bestree;
-  int i, j, k, num_sibs, num_sibs2;
+  int i, j, k, m, num_sibs, num_sibs2;
   node *where,*sib_ptr,*sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
   int success = false;
@@ -3705,7 +3706,8 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         {
           if (succeeded && qwhere != where && qwhere != where->back && bestyet > oldbestyet)
           {
-            curtree->insert_(curtree, removed, qwhere, true, multf, 0);  /* debug: need to correct last argument */
+            m = generic_tree_findemptyfork(curtree);
+            curtree->insert_(curtree, removed, qwhere, true, multf, m);  /* debug: need to correct last argument */
             curtree->smoothall(curtree, where);
             success = true;
             curtree->copy(curtree, globtree);
@@ -3745,7 +3747,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 } /* generic_globrearrange */
 
 
-boolean generic_tree_addtraverse(tree* t, node *p, node*q, boolean contin,
+boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                                  node **qwherein, double* bestyet, tree* bestree, tree* priortree,
                                  boolean thorough, boolean* multf)
 { /* try adding p at q, proceed recursively through tree */
@@ -4258,14 +4260,14 @@ node* generic_tree_get_fork(tree* t, long k)
    */
   node *retval, *p;
 
-  retval = generic_tree_get_forknode(t, k);
-  retval->next = generic_tree_get_forknode(t, k);
-  retval->next->next = generic_tree_get_forknode(t, k);
+  retval = generic_tree_get_forknode(t, k+1);
+  retval->next = generic_tree_get_forknode(t, k+1);
+  retval->next->next = generic_tree_get_forknode(t, k+1);
   retval->next->next->next = retval;
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
-  retval->index = k+1;
+  retval->index = k+1;   /* debug:   necessary?  retval node is already assigned this index */
   p = retval;
   p = p->next;
   while (p != retval) {  /* set index of nodes in right to  k */
@@ -4400,7 +4402,7 @@ void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 node* generic_tree_get_forknode(tree* t, long i)
 { /* get de novo or from a linked garbage list a circle of fork nodes
    *
-   * Return an unused node with index i.
+   * Return an unused node with index i.   (Not  i+1)
    *
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
@@ -4418,7 +4420,7 @@ node* generic_tree_get_forknode(tree* t, long i)
 
 
 void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
-{ /* releases a fork circle */
+{ /* releases a tip and the attached fork circle, reconnecting the remainder of the tree */
   node *fork, *q, *p;
   long num_sibs;
 
@@ -4436,7 +4438,7 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
     for ( q = fork ; q->next != fork ; q = q->next)
       /* nothing */;
 
-    q->next = fork->next;
+/* debug:       q->next = fork->next;      why?  */
     fork->next = NULL;
     fork->back = NULL;
     if ( t->nodep[fork->index - 1] == fork )
@@ -4451,12 +4453,12 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
     }
     (*where) = q;
 
-  } else {
-    if (fork->next->back != NULL)
+  } else {                                  /* case of a bifurcation */
+    if (fork->next->back != NULL)                    /* make where point to place it was next to */
       (*where) = fork->next->back;
     else
       (*where) = fork->next->next->back;
-    if (fork->next->back != NULL)
+    if (fork->next->back != NULL)                   /* connect where to node connected to other side */
       fork->next->back->back = fork->next->next->back;
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
@@ -4464,11 +4466,10 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
       t->root = *where;
     if (t->root->tip ) t->root = t->root->back;
 
-    t->do_branchl_on_re_move_f(t,item,*where);
+    t->do_branchl_on_re_move_f(t,item,*where);     /* adds up two branch lengths to get one */
 
     t->release_fork(t, fork);
 
-    /* BUG.970 -- might be in do_branchl_on_re_move ?? */
     if ( doinit ) {
       inittrav(t, *where);
       inittrav(t, (*where)->back);
@@ -4597,15 +4598,15 @@ void buildsimpletree(tree *t, long* enterorder)
 {
   /* build a simple three-tip tree with interior fork, by hooking
      up two tips, then inserting third tip hooked to fork, also set root */
-  node * p = t->nodep[ enterorder[0] - 1];
-  node * q = t->nodep[ enterorder[1] - 1];
-  node * r = t->nodep[ enterorder[2] - 1];
+  node* p = t->nodep[ enterorder[0] - 1];
+  node* q = t->nodep[ enterorder[1] - 1];
+  node* r = t->nodep[ enterorder[2] - 1];
 
   hookup(p,q);
   p->v = initialv;
   q->v = initialv;
 
-  t->insert_(t, r, p, false, false, 0);  /* debug: need to correct last argument */
+  t->insert_(t, r, p, false, false, r->index);  /* debug: need to correct last argument */
 
   t->root = p;
 
@@ -4673,7 +4674,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 
 void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean progress)
 { /* Heuristic Search for Best Unrooted Tree*/
-  long i;
+  long i, k;
   node* item, *there;
   long *enterorder;
   double bestyet;
@@ -4697,11 +4698,12 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
   for (i = 4; i <= spp; i++) {
     bestyet = UNDEFINED;
     item = curtree->nodep[enterorder[i - 1] - 1];
-    there = curtree->root;
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    there = curtree->root;
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
                          NULL, NULL, true, &multf);
-    curtree->insert_(curtree, item, there, true, multf, 0);  /* debug: need to correct last argument */
+    k = generic_tree_findemptyfork(curtree);
+    curtree->insert_(curtree, item, there, true, multf, k);
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);
     if (progress) {
@@ -4719,7 +4721,7 @@ void preparetree(tree* t)
   long i;
 
   while( !Slist_isempty(t->free_forks) ) {
-    p = t->get_fork(t, 0);             /* why this?  JF */
+    p = t->get_fork(t, 0);             /* debug: why this?  JF */
     t->release_forknode(t, p->next->next);
     t->release_forknode(t, p->next);
     t->release_forknode(t, p);
