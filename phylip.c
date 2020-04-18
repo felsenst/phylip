@@ -4345,7 +4345,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 { /* generic version of inserting tip  p  near node or tip  q
    * k+1  is index of new fork, first available slot in t->nodep
    */
-  node *newnode;
+  node *newnode, *r;
 
   if ( !multf ) {
     newnode = t->get_fork(t, k);
@@ -4353,12 +4353,14 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
     assert(newnode->next->next->next == newnode);
 
     hookup(newnode, p);
-    if (q->back != NULL) /* in case  q  is the root and nothing below */
+    if (q->back != NULL) { /* unless  q  is the root and nothing below */
+      r = q->back;
       hookup(newnode->next, q);
-    else
+      hookup(newnode->next->next, r);
+      }
+    else {         /* if q is the root fork */
       newnode->next->next->back = NULL;
-    hookup(newnode->next, q);             /* insert the tip and the new fork attached to it into a branch */
-    hookup(newnode->next->next, q->back);
+      };
     t->do_branchl_on_insert_f(t,newnode,q);
 
     assert( ! newnode->initialized );
