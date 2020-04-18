@@ -4354,7 +4354,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 
     hookup(newnode, p);
     if (q->back != NULL) /* in case  q  is the root and nothing below */
-      hookup(newnode->next->next, q->back);
+      hookup(newnode->next, q);
     else
       newnode->next->next->back = NULL;
     hookup(newnode->next, q);             /* insert the tip and the new fork attached to it into a branch */
