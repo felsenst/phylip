@@ -172,7 +172,7 @@ void generic_fork_print(node * n)
 {
   boolean firstTime = true;
   boolean nulledOut = false;
-  node * p = n;
+  node* p = n;
   while((firstTime || (p != n)) && !nulledOut)
   {
     if(p == NULL)
@@ -3571,7 +3571,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
       if (sib_ptr->index == curtree->root->index)
         continue;
-      if ( sib_ptr->back == NULL ) /* this implies unused node */
+      if ( sib_ptr->back == NULL )   /* this implies unused node */
         continue; /* probably because of multifurcation */
 
       curtree->re_move(curtree, sib_ptr, &where, true);
@@ -3589,7 +3589,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       } else {
         if ( succeeded && where != qwhere) {
 	  k = generic_tree_findemptyfork(curtree);
-          curtree->insert_(curtree, sib_ptr, qwhere, true, multf, k);  /* debug: need to correct last argument */
+          curtree->insert_(curtree, sib_ptr, qwhere, true, multf, k);
           curtree->smoothall(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
@@ -3939,6 +3939,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bes
 {
   /* rearranges the tree locally moving pp around near p  */
   /* this function doesn't handle multifurcations */
+  long k;
   node *q, *r, *qwhere;
   boolean succeeded = false;
   boolean multf = false;
@@ -4003,7 +4004,8 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bes
     else {
       if (qwhere == q ) {
         assert(*bestyet <= oldbestyet);
-        t->insert_(t, r, qwhere, true, multf, 0);  /* debug: need to correct last argument */
+        k = generic_tree_findemptyfork(t);
+        t->insert_(t, r, qwhere, true, multf, k);  /* debug: need to correct last argument */
 
         // printf("TREECHECK: after re-insert\n");
         // t->tree_print_f(t);
@@ -4355,8 +4357,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
       hookup(newnode->next->next, q->back);
     else
       newnode->next->next->back = NULL;
-    hookup(newnode->next, q);
-
+    hookup(newnode->next, q);             /* insert the tip and the new fork attached to it into a branch */
+    hookup(newnode->next->next, q->back);
     t->do_branchl_on_insert_f(t,newnode,q);
 
     assert( ! newnode->initialized );
@@ -4531,8 +4533,10 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
     if (thorough)
       t->copy(t, bestree);
   }
-  if ( thorough )
+  if ( thorough ) {
+    t->re_move(t, p, &dummy, false);
     priortree->copy(priortree, t);
+    }
   else
     t->re_move(t, p, &dummy, false);
 

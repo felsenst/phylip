@@ -718,7 +718,7 @@ static void ml_tree_smoothall(tree* t, node* p)
 
 
 void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
-{ /* split q->v branch length evenly beween forknode->next and forknode->next->next */
+{ /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
 
   double newv;
   (void)t;                              // RSGnote: Parameter never used.
@@ -731,7 +731,7 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   newv = q->v * 0.5;
 
   /*
-   * forknode should be where node was inserted
+   * forknode should be where tip was hooked to
    * set to initial v for *both* directions
    */
   forknode->v = initialv;
@@ -852,7 +852,6 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
       *qwherein = q;
     succeeded = true;
   }
-  priortree->copy(priortree, t);
 
   return succeeded;
 } /* ml_tree_try_insert_thorough */
