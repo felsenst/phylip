@@ -4898,7 +4898,7 @@ void seetree2(tree * curtree)
     else
     {
       if (qq == NULL) {
-        printf(" node: %ld is (nil)\n", i);
+        printf(" node: %ld is (nil)\n", i+1);
       } else {
         printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
         pp = qq;

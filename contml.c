@@ -1409,8 +1409,6 @@ void maketree(void)
       numtrees = 1;
     nextsp = 4;
 
-/* debug */ seetree2(curtree);
-
     if (progress)
     {
       sprintf(progbuf, "\nAdding species:\n");
