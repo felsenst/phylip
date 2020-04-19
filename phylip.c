@@ -4897,28 +4897,32 @@ void seetree2(tree * curtree)
     }
     else
     {
-      printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
-      pp = qq;
+      if (qq == NULL) {
+        printf(" node: %ld is (nil)\n", i);
+      } else {
+        printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
+        pp = qq;
 
-      do
-      {
-        if (qq->back == NULL)
+        do
         {
-          printf(" (nil), ");
-        }
-        else
-        {
-          printf(" %p index:%ld", (void *)qq->back, qq->back->index);
-        }
+          if (qq->back == NULL)
+          {
+            printf(" (nil), ");
+          }
+          else
+          {
+            printf(" %p index:%ld", (void *)qq->back, qq->back->index);
+          }
 
-        qq = qq->next;
-        if (qq != pp)
-        {
-          printf(",");
-        }
-      } while (qq != pp);
+          qq = qq->next;
+          if (qq != pp)
+          {
+            printf(",");
+          }
+        } while (qq != pp);
 
-      printf("\n");
+        printf("\n");
+      }
     }
   }
 } /* seetree2 */
