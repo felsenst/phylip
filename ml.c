@@ -838,6 +838,7 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   long k;
   double like;
   boolean succeeded = false;
+  node* dummy;
 
   k = generic_tree_findemptyfork(t);
   t->insert_(t, p, q, true, false, k);
@@ -852,6 +853,9 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
       *qwherein = q;
     succeeded = true;
   }
+
+  t->re_move(t, p, &dummy, false);
+  priortree->copy(priortree, t);
 
   return succeeded;
 } /* ml_tree_try_insert_thorough */
@@ -877,7 +881,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
     succeeded = ml_tree_try_insert_notthorough(t, p, q, qwherein, bestyet);
 
   return succeeded;
-}
+} /* ml_tree_try_insert_ */
 
 
 /* ml_tree_try_insert_notthorough
@@ -914,7 +918,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
   t->evaluate(t, q, 0);
 
   return succeeded;
-}
+} /* ml_tree_try_insert_notthorough */
 
 
 void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2, long k)

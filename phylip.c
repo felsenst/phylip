@@ -3754,13 +3754,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded= false;
 
-/* debug */ printf(" (before insert_) of %ld \n", p->index);
-/* debug */ seetree2(t);
-
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree, priortree, thorough, multf);
-
-/* debug */ printf(" (after insert_) of %ld\n", p->index);
-/* debug */ seetree2(t);
 
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
@@ -4529,7 +4523,6 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded = false;
   node* dummy;
 
-
   k = generic_tree_findemptyfork(t);
   t->insert_(t, p, q, true, false, k);
 
@@ -4543,6 +4536,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
     if (thorough)
       t->copy(t, bestree);
   }
+
   if ( thorough ) {
     t->re_move(t, p, &dummy, false);
     priortree->copy(priortree, t);
