@@ -947,7 +947,7 @@ void contml_node_copy(node *src, node *dst)
 
 
 void inittip(tree* t, long m)
-{ /* initialize and hook up a new tip */
+{ /* initialize and hook up a new tip;  m is the index of the tip */
   node *tmp;
 
   tmp = t->nodep[m - 1];
@@ -959,11 +959,20 @@ void inittip(tree* t, long m)
 
 void contml_buildsimpletree(tree *t, long* enterorder)
 { /* make and initialize a three-species tree */
+
   inittip(t, enterorder[0]);
   inittip(t, enterorder[1]);
   hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
   inittip(t, enterorder[2]);
+
+/* debug */ printf(" (before insert_ of %ld)\n", enterorder[2]);
+/* debug */ seetree2(t);
+
   t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false, t->spp);
+
+/* debug */ printf(" (after insert_ of %ld)\n", enterorder[2]);
+/* debug */ seetree2(t);
+
 }  /* contml_buildsimpletree */
 
 
@@ -1423,7 +1432,7 @@ void maketree(void)
       curtree->copy(curtree, priortree);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, NULL, &bestyet, bestree, priortree, true, NULL);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1], curtree->root, true, NULL, &bestyet, bestree, priortree, true, NULL);
       bestree->copy(bestree, curtree);
 
       if (progress)

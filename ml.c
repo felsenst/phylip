@@ -769,13 +769,7 @@ void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean mult
 
   (void)multf;                          // RSGnote: Parameter never used.
 
-/* debug */ printf(" (before insert_) of %ld \n", p->index);
-/* debug */ seetree2(t);
-
   generic_tree_insert_(t, p, q, dooinit, false, k); /* no multifurcate on ml insert_ */
-
-/* debug */ printf(" (after insert_) of %ld\n", p->index);
-/* debug */ seetree2(t);
 
   if ( !dooinit )
   {

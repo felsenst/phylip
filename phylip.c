@@ -3754,7 +3754,13 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded= false;
 
+/* debug */ printf(" (before insert_) of %ld \n", p->index);
+/* debug */ seetree2(t);
+
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree, priortree, thorough, multf);
+
+/* debug */ printf(" (after insert_) of %ld\n", p->index);
+/* debug */ seetree2(t);
 
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
@@ -4523,8 +4529,10 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded = false;
   node* dummy;
 
+
   k = generic_tree_findemptyfork(t);
   t->insert_(t, p, q, true, false, k);
+
   like = t->evaluate(t, p, false);
   if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
   {
@@ -4706,6 +4714,9 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     item = curtree->nodep[enterorder[i - 1] - 1];
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     there = curtree->root;
+/* debug */ printf(" (before insert_) of %ld\n", enterorder[i-1]);
+/* debug */ seetree2(curtree);
+
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
                          NULL, NULL, true, &multf);
     k = generic_tree_findemptyfork(curtree);
