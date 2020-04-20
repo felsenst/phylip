@@ -3699,7 +3699,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
-          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere,&bestyet, bestree, priortree, thorough,&multf) || succeeded;
+          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere, &bestyet, bestree, priortree, thorough,&multf) || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
