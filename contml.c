@@ -1409,7 +1409,7 @@ void maketree(void)
 
     nextsp = 3;
 
-    // RSGdebug: destruct_tree() is ALWAYS called in all the other programs; doing same thing
+    // debug: RGS: destruct_tree() is ALWAYS called in all the other programs; doing same thing
     // here fixes SegFault bug due to something not getting initialized properly when using jumbling.
     destruct_tree(curtree);
     contml_buildsimpletree(curtree, enterorder);

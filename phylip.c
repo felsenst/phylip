@@ -3954,7 +3954,7 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree*
 } /* generic_unrooted_locrearrange */
 
 
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
+boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
 {
   /* rearranges the tree locally moving pp around near p  */
   /* this function doesn't handle multifurcations */
