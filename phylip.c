@@ -3754,7 +3754,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded= false;
 
-  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree, priortree, thorough, multf);
+  succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree, priortree, thorough, multf);
 
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
