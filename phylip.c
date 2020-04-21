@@ -81,25 +81,25 @@ void generic_tree_copy(tree* src, tree* dst)
   if (dst->nonodes > src->nonodes) {
     maxcircles = dst->nonodes;
     }
-  for ( i = spp; i < maxcircles; i++) {  /* remove any extra nodes in dst forks */
+  for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
     while ( dst_sibs > src_sibs) {
       p = dst->nodep[i]->next;
       dst->nodep[i]->next = dst->nodep[i]->next->next;
-      dst->release_forknode(dst, p);      /* they go onto free_forknodes list ... */
+      dst->release_forknode(dst, p);    /* they go onto free_forknodes list */
       dst_sibs--;
       }
     }
-  for ( i = spp; i < maxcircles; i++) {  /* then insert any needed nodes in dst forks */
+  for ( i = spp; i < maxcircles; i++) {  /* insert needed nodes in dst forks */
     doingacircle = false;
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
     while ( src_sibs > dst_sibs) {
       doingacircle = true;
       if (dst->nodep[i] == NULL) {
-        p = dst->get_forknode(dst, i+1);   /* taking them off of free_fork_nodes list */
-	q = p;                            /* points to final node in nascent circle */
+        p = dst->get_forknode(dst, i+1);   /* ... from free_fork_nodes list */
+	q = p;                    /* points to final node in nascent circle */
         dst->nodep[i] = p;
         }
       else {
@@ -114,7 +114,7 @@ void generic_tree_copy(tree* src, tree* dst)
       doingacircle = false;
       }
     }
-  for (i = 0; i < spp; i++) {  /* copy tip nodes and link to proper dst forks */
+  for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
     if (src->nodep[i]->back != NULL) {
       dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
@@ -130,7 +130,7 @@ void generic_tree_copy(tree* src, tree* dst)
     else {
       num_sibs = count_sibs(p);
       for (j = 0; j <= num_sibs; j++) {
-	if (num_sibs > 0) {   /* not clear that this is necessary */
+	if (num_sibs > 0) {   /* debug: not clear that this is necessary */
           p->copy(p, q);
           q->back = where_in_dest(src, dst, p->back);
           p = p->next;
@@ -3379,6 +3379,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->temp_q = functions.node_new(false,0);
 
   t->addtraverse = generic_tree_addtraverse;
+  t->addtraverse_1way = generic_tree_addtraverse_1way;
   t->globrearrange = generic_globrearrange;
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
@@ -3748,9 +3749,35 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                                 node **qwherein, double* bestyet, tree* bestree, tree* priortree,
-                                 boolean thorough, boolean* multf)
+                              node **qwherein, double* bestyet, tree* bestree,
+                              tree* priortree, boolean thorough, boolean* multf)
 { /* try adding p at q, proceed recursively through tree */
+  node *sib_ptr;
+  boolean succeeded = false;
+
+  succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree, priortree, thorough, multf);
+
+  if (!q->tip && contin) {
+    for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
+    {
+      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
+    }
+  }
+  if (contin && !q->back->tip) {
+    /* we need to go both ways, if start in an interior branch of an unrooted tree */
+    for ( sib_ptr = q->back->next ; sib_ptr != q->back ; sib_ptr = sib_ptr->next)
+    {
+      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
+    }
+  }
+  return succeeded;
+} /* generic_tree_addtraverse */
+
+
+boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
+                              node **qwherein, double* bestyet, tree* bestree,
+                              tree* priortree, boolean thorough, boolean* multf)
+{ /* try adding p at q, then recursively through tree from one end of that branch */
   node *sib_ptr;
   boolean succeeded= false;
 
@@ -3759,19 +3786,11 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
-      succeeded = generic_tree_addtraverse(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
-    }
-  }
-  if (contin && q == t->root && t->root->back && (t->root->back->tip == false))
-  {
-    /* we need to go both ways, in an unrooted tree */
-    for ( sib_ptr = t->root->back->next ; t->root->back != sib_ptr ; sib_ptr = sib_ptr->next)
-    {
-      succeeded = generic_tree_addtraverse(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
+      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
     }
   }
   return succeeded;
-} /* generic_tree_addtraverse */
+} /* generic_tree_addtraverse_1way */
 
 
 #ifdef WIN32
@@ -4708,9 +4727,6 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     item = curtree->nodep[enterorder[i - 1] - 1];
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     there = curtree->root;
-/* debug */ printf(" (before insert_) of %ld\n", enterorder[i-1]);
-/* debug */ seetree2(curtree);
-
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
                          NULL, NULL, true, &multf);
     k = generic_tree_findemptyfork(curtree);
