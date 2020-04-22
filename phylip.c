@@ -3967,13 +3967,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
 
   if (!p->tip && !p->back->tip)
   {
-    /* Why are we setting t->score here? */
-    /*    oldbestyet = t->score = *bestyet;  */
-
-    /* Do we want to use the current tree instead? */
-    /* oldbestyet = t->evaluate(t, t->root, 0);
-     *
-     * ...or use the former value of bestyet?  -IDR */
     oldbestyet = *bestyet;
 
     if (p->back->next != pp)
@@ -3981,20 +3974,11 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
     else
       r = p->back->next->next->back;
 
-    // printf("TREECHECK: before attempt\n");
-    // printf(" p : %p ; pp : %p ; r : %p\n",p,pp,r);
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
-
     if (!thorough)
       t->save_lr_nodes(t, p, r);
     else
       t->copy(t, bestree);
     t->re_move(t, r, &q, false);
-
-    // printf("TREECHECK: after re_move\n");
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
 
     if (thorough)
       t->copy(t, priortree);
@@ -4003,19 +3987,10 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
 
     t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree, priortree, thorough, &multf);
 
-    // printf("TREECHECK: after addtraverse\n");
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
-
     if(qwhere == q)
       // don't continue if we've already got a better tree
     {
-
       t->addtraverse(t, r, p->next->next, false, &qwhere, bestyet, bestree, priortree, thorough, &multf);
-
-      // printf("TREECHECK: after second addtraverse\n");
-      // t->tree_print_f(t);
-      // assert(t->tree_good_f(t));
     }
 
     if (thorough)
@@ -4025,38 +4000,16 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
         assert(*bestyet <= oldbestyet);
         k = generic_tree_findemptyfork(t);
         t->insert_(t, r, qwhere, true, multf, k);  /* debug: need to correct last argument */
-
-        // printf("TREECHECK: after re-insert\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
-
-        // printf("TREECHECK: after restore\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
       }
       else {
         assert(*bestyet > oldbestyet);
         succeeded = true;
         t->insert_(t, r, qwhere, true, multf, 0);  /* debug: need to correct last argument */
-
-        // printf("TREECHECK: after insert of %p at %p\n",r,qwhere);
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p,0);
-
-        // printf("TREECHECK: after smooth and evaluate\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
         /* debug        double otherbest = *bestyet;      JF:  is this needed? */
-        assert(*bestyet = t->evaluate(t,t->root,0));
-        /* BUG.970 -- how different do we expect these two to be? */
-
       }
     }
     assert(oldbestyet <= *bestyet );
