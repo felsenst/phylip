@@ -3954,26 +3954,22 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree*
 } /* generic_unrooted_locrearrange */
 
 
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
+boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
 {
-  /* rearranges the tree locally moving pp around near p  */
-  /* this function doesn't handle multifurcations */
+  /* rearranges the tree locally by moving p around recursively */
+  /* (this function doesn't handle multifurcations) */
   long k;
   node *q, *r, *qwhere;
   boolean succeeded = false;
   boolean multf = false;
   double oldbestyet;
+
   qwhere = NULL;
 
-  if (!p->tip && !p->back->tip)
+  if (!p->tip && !p->back->tip)   /* is this an interior branch? */
   {
     oldbestyet = *bestyet;
-
-    if (p->back->next != pp)
-      r = p->back->next->back;
-    else
-      r = p->back->next->next->back;
-
+    r = p->back->next->next->back;
     if (!thorough)
       t->save_lr_nodes(t, p, r);
     else
@@ -3983,7 +3979,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
     if (thorough)
       t->copy(t, priortree);
     else
-      qwhere = q;
+      qwhere = p;
 
     t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree, priortree, thorough, &multf);
 
@@ -4013,16 +4009,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node *pp, double* be
       }
     }
     assert(oldbestyet <= *bestyet );
-  }
-
-  /* If rearrangements failed here, try subtrees, but stop when we find
-   * one that improves the score. */
-  if ( !p->tip && !succeeded )
-  {
-    if ( unrooted_tree_locrearrange_recurs(t, p->next->back, p, bestyet, thorough, priortree, bestree) )
-      return true;
-    if ( unrooted_tree_locrearrange_recurs(t, p->next->next->back, p, bestyet, thorough, priortree, bestree) )
-      return true;
+  } else {
+    if(!succeeded) {
+      /* If rearrangements failed here, try subtrees, but stop when we find
+       * one that improves the score. */
+      succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back, bestyet, thorough, priortree, bestree);
+      if (!succeeded)
+        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back, bestyet, thorough, priortree, bestree);
+    }
   }
   return succeeded;
 } /* unrooted_tree_locrearrange_recurs */
@@ -4396,12 +4390,14 @@ node* generic_tree_get_forknode(tree* t, long i)
 
 
 void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
-{ /* releases a tip and the attached fork circle, reconnecting the remainder of the tree */
+{ /* disconnects an interior node circle with the subtree connected to it
+   * at node item, setting *where to the node at one end
+   * of branch that was disrupted.  Reheal that branch  */
+
   node *fork, *q, *p;
   long num_sibs;
 
   fork = item->back;
-  item->back = NULL;
 
   if ( item->tip && fork->tip ) {
     item->back = NULL;
@@ -4410,16 +4406,12 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
   }
   num_sibs = count_sibs(fork);
 
-  if ( num_sibs > 2 ) {
+  if ( num_sibs > 2 ) {   /* multifurcation case: may not be used a lot */
     for ( q = fork ; q->next != fork ; q = q->next)
-      /* nothing */;
+      /* do nothing */;
 
-/* debug:       q->next = fork->next;      why?  */
+    q->next = fork->next;   /* heal up circle */
     fork->next = NULL;
-    fork->back = NULL;
-    if ( t->nodep[fork->index - 1] == fork )
-      t->nodep[fork->index - 1] = q;
-    t->release_forknode(t, fork);
     if ( t->root == fork )
       t->root = q;
     if ( doinit ) {
@@ -4429,22 +4421,20 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
     }
     (*where) = q;
 
-  } else {                                  /* case of a bifurcation */
+  } else {                                        /* case of a bifurcation */
     if (fork->next->back != NULL)                    /* make where point to place it was next to */
       (*where) = fork->next->back;
     else
       (*where) = fork->next->next->back;
-    if (fork->next->back != NULL)                   /* connect where to node connected to other side */
+    if (fork->next->back != NULL)                   /* connect remaining neighbors to each other */
       fork->next->back->back = fork->next->next->back;
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
-    if ((fork->next == t->root) || (fork->next->next == t->root))
+    if ((fork->next == t->root) || (fork->next->next == t->root))  /* set root */
       t->root = *where;
     if (t->root->tip ) t->root = t->root->back;
 
     t->do_branchl_on_re_move_f(t,item,*where);     /* adds up two branch lengths to get one */
-
-    t->release_fork(t, fork);
 
     if ( doinit ) {
       inittrav(t, *where);
