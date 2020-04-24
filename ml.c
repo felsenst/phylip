@@ -723,18 +723,13 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   double newv;
   (void)t;                              // RSGnote: Parameter never used.
 
-#if 0
-  // This function currently does nothing; must be for future use.
-  generic_do_branchl_on_insert(t, forknode, q);
-#endif
-
   newv = q->v * 0.5;
 
   /*
    * forknode should be where tip was hooked to
    * set to initial v for *both* directions
    */
-  forknode->v = initialv;
+  forknode->v = initialv;   /* debug: these may already exist */
   forknode->back->v = initialv;
 
   /* forknode->next for both directions */
