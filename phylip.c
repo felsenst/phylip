@@ -4372,33 +4372,25 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
       hookup(p->next, q);
       p->next->next->back = NULL;
       };
-    t->do_branchl_on_insert_f(t,newnode,q);
+    t->do_branchl_on_insert_f(t, p, q);
 
-    assert( ! newnode->initialized );
-    assert( ! newnode->next->initialized );
-    assert( ! newnode->next->next->initialized );
+    assert( ! p->initialized );
+    assert( ! p->next->initialized );
+    assert( ! p->next->next->initialized );
 
-    /* BUG.970
-    if (doinit) {
-    */
-      inittrav(t, p);
-      inittrav(t, p->back);
-    /* BUG.970
-    }
-    */
   }
   else {
-    newnode = t->get_forknode(t, q->index);  /* debug: used?  correct? */
+    newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
     newnode->next = q->next;
     q->next = newnode;
     hookup(newnode, p);
 
     assert( ! newnode->initialized );
+  }
 
-    if ( doinit ) {
-      inittrav(t, p);
-      inittrav(t, p->back);
-    }
+  if (doinit) {
+    inittrav(t, p);
+    inittrav(t, p->back);
   }
 } /* generic_tree_insert_ */
 
@@ -4419,6 +4411,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
  *
  * NOTE:  need to add new index if new fork
  */
+  long k;
   node *newfork;
   (void)doinit;                         // RSGdebug: Parameter never used.
 
@@ -4437,6 +4430,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 
   if ( multf == false ) {
     below = t->nodep[below->index - 1];
+    k = generic_tree_findemptyfork(t);
     newfork = t->nodep[t->get_fork(t, k)->index - 1];
     newtip = t->nodep[newtip->index-1];
     if (below->back != NULL)
@@ -4502,7 +4496,7 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
       t->root = *where;
     if (t->root->tip ) t->root = t->root->back;
 
-    t->do_branchl_on_re_move_f(t,item,*where);     /* adds up two branch lengths to get one */
+    t->do_branchl_on_re_move_f(t, item, *where);  /* adds up branch lengths */
 
     if ( doinit ) {
       inittrav(t, *where);
@@ -4548,7 +4542,6 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
                                  boolean* multf)
 {
   /* try to insert in one place, return "succeeded", then restore */
-  long k;
   double like;
   boolean succeeded = false;
   node* dummy;
@@ -4663,7 +4656,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean progress)
 { /* Heuristic Search for Best Unrooted Tree*/
   long i, k;
-  node* item, there, p;
+  node *item, *there, *p;
   long *enterorder;
   double bestyet;
   boolean multf;
@@ -4690,7 +4683,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     there = curtree->root;
     k = generic_tree_findemptyfork(curtree);
     p = curtree->nodep[enterorder[i-1]-1];
-    item = t->get_fork(t, k);
+    item = curtree->get_fork(curtree, k);
     hookup(item, p);
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
                          NULL, NULL, true, &multf);
