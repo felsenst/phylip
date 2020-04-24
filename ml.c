@@ -756,7 +756,7 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 
 
 
-void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf, long k)
+void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf)
 {
  /* 
   * After inserting via generic_, branch length gets initialv. If dooinit is
@@ -769,7 +769,7 @@ void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean mult
 
   (void)multf;                          // RSGnote: Parameter never used.
 
-  generic_tree_insert_(t, p, q, dooinit, false, k); /* no multifurcate on ml insert_ */
+  generic_tree_insert_(t, p, q, dooinit, false); /* no multifurcate on ml insert_ */
 
   if ( !dooinit )
   {
@@ -841,7 +841,7 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   node* dummy;
 
   k = generic_tree_findemptyfork(t);
-  t->insert_(t, p, q, true, false, k);
+  t->insert_(t, p, q, true, false);
 
   like = t->evaluate(t, p, false);
   if (like > *bestyet || *bestyet == UNDEFINED)
@@ -890,7 +890,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
  * updates bestyet and returns true.
  */
 
-static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double* bestyet)
+static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double *bestyet)
 {
   long k;
   double like;
@@ -898,7 +898,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
 
   t->save_traverses(t, p, q);
   k = generic_tree_findemptyfork(t);
-  t->insert_(t, p, q, false, false, k);
+  t->insert_(t, p, q, false, false);
   like = t->evaluate(t, p, false);
 
   if (like > *bestyet || *bestyet == UNDEFINED)
@@ -921,7 +921,7 @@ static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** 
 } /* ml_tree_try_insert_notthorough */
 
 
-void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2, long k)
+void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
@@ -929,7 +929,7 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   node *p, *newfork;
 
   /* first stick it in the right place */
-  rooted_tree_insert_(t, newtip, below, dummy, dummy2, k);
+  rooted_tree_insert_(t, newtip, below, dummy, dummy2);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];

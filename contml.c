@@ -959,19 +959,19 @@ void inittip(tree* t, long m)
 
 void contml_buildsimpletree(tree *t, long* enterorder)
 { /* make and initialize a three-species tree */
+  long k;
+  node* r;
+  node* newnode;
 
   inittip(t, enterorder[0]);
   inittip(t, enterorder[1]);
+  k = generic_tree_findemptyfork(t);
+  newnode = t->get_fork(t, k);
+  hookup(r, newnode);      /* connect third tip to new fork */
   hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
   inittip(t, enterorder[2]);
 
-/* debug */ printf(" (before insert_ of %ld)\n", enterorder[2]);
-/* debug */ seetree2(t);
-
-  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false, t->spp);
-
-/* debug */ printf(" (after insert_ of %ld)\n", enterorder[2]);
-/* debug */ seetree2(t);
+  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false);
 
 }  /* contml_buildsimpletree */
 
@@ -1432,7 +1432,10 @@ void maketree(void)
       curtree->copy(curtree, priortree);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1], curtree->root, true, NULL, &bestyet, bestree, priortree, true, NULL);
+/* debug:  find empty fork, hook it to this species, have it as argument here */
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1],
+                           curtree->root, true, NULL, &bestyet, bestree,
+                           priortree, true, NULL);
       bestree->copy(bestree, curtree);
 
       if (progress)
@@ -1444,8 +1447,8 @@ void maketree(void)
       if ( global && nextsp == spp )
         curtree->globrearrange(curtree, progress, true);
       else
-        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true, priortree, bestree);
-
+        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
+                              true, priortree, bestree);
       if (global && nextsp == spp)
         putc('\n', outfile);
       if (global && nextsp == spp && progress)
