@@ -4792,69 +4792,14 @@ void print_progress(char *outstr)
 /* **** debug tools **** */
 
 
-void seetree(node *p, pointarray nodep, long nonodes)
-{  /* prints out list of who connects to who.  For debugging */
-   /* Original function. */
-  node *pp, *qq;
-  long int i;
-  (void)p;                              // RSGdebug: Parameter never used.
-
-  for (i = 0; i < nonodes; ++i)
-  {
-    qq = nodep[i];
-
-    if (i < spp)
-    {
-      if (qq->back == NULL)
-      {
-        sprintf(progbuf, " node: %ld connects to (nil) \n", qq->index);
-      }
-      else
-      {
-        sprintf(progbuf, " node: %p index:%ld  connects to node: %p index: %ld \n", (void *)qq, qq->index, (void *)qq->back, qq->back->index);
-      }
-      print_progress(progbuf);
-    }
-    else
-    {
-      sprintf(progbuf, " node: %p index:%ld connects to nodes:", (void *)qq, qq->index);
-      print_progress(progbuf);
-      pp = qq;
-
-      do
-      {
-        if (qq->back == NULL)
-        {
-          sprintf(progbuf, " (nil), ");
-        }
-        else
-        {
-          sprintf(progbuf, " %p index:%ld", (void *)qq->back, qq->back->index);
-        }
-        print_progress(progbuf);
-
-        qq = qq->next;
-        if (qq != pp)
-        {
-          sprintf(progbuf, ",");
-          print_progress(progbuf);
-        }
-      } while (qq != pp);
-
-      sprintf(progbuf, "\n");
-      print_progress(progbuf);
-    }
-  }
-} /* seetree */
-
-
-void seetree2(tree * curtree)
+void seetree(tree * curtree)
 {
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
   node *pp, *qq;
   long int i;
   long int nonodes = curtree->nonodes;
+  boolean malformed;
 
   for (i = 0; i < nonodes; ++i)
   {
@@ -4880,6 +4825,7 @@ void seetree2(tree * curtree)
       } else {
         printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
         pp = qq;
+        malformed = false;
 
         do
         {
@@ -4897,13 +4843,18 @@ void seetree2(tree * curtree)
           {
             printf(",");
           }
-        } while (qq != pp);
+          malformed = (qq->next == qq);
+          if (malformed)
+          {
+            printf(" (->next is %p: same node)", qq->next);
+          }
+        } while ((qq != pp) && (qq->index == pp->index) && !malformed);
 
         printf("\n");
       }
     }
   }
-} /* seetree2 */
+} /* seetree */
 
 
 void dumpnodelinks(node *p, pointarray nodep, long nonodes)
