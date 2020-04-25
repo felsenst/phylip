@@ -11,7 +11,11 @@ git clone https://github.com/felsenst/phylip/ .
 
 To put some changed files up on the github master copy of "phylip"
 after changing local stuff (which seems by default to be branch "master")
-by "git commit filename"
+by "git commit filename" or more generally  "git commit filename1 filename2"
+(It will ask you then to edit the first line of a file
+that describes the commit.  Be obedient and do that).
+
+Use:
 
 git push https://felsenst@github.com/felsenst/phylip/ master
 
@@ -35,9 +39,18 @@ note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
 
+also: to diff of your local changes with the files you
+pulled down to the local system
+  git diff
 
-also: to diff with the remote master copy:
-  git diff    (?)  
+if remote and local branched get out of synch and cannot
+use ordinary commits to resolve this, pull down the
+remote branch with
+    git fetch https://felsenst@github.com/felsenst/phylip master
+and then do a 
+    git commit 
+(with no list of files)
+and then do a push to the remote, as above
 
 
 
