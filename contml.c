@@ -965,11 +965,12 @@ void contml_buildsimpletree(tree *t, long* enterorder)
 
   inittip(t, enterorder[0]);
   inittip(t, enterorder[1]);
+  inittip(t, enterorder[2]);
   k = generic_tree_findemptyfork(t);
   newnode = t->get_fork(t, k);
+  r = t->nodep[enterorder[2]-1];
   hookup(r, newnode);      /* connect third tip to new fork */
   hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
-  inittip(t, enterorder[2]);
 
   t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false);
 
