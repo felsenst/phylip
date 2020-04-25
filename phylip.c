@@ -4451,18 +4451,16 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 } /* rooted_tree_insert_ */
 
 
-void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
+void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
 { /* disconnects an interior node circle with the subtree connected to it
    * at node item, setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
 
-  node *fork, *q, *p;
+  node *q, *p;
   long num_sibs;
 
-  fork = item->back;
-
-  if ( item->tip && fork->tip ) {
-    item->back = NULL;
+  if ( fork->back->tip && fork->tip ) {
+    fork->back = NULL;
     fork->back = NULL;
     return;
   }
@@ -4494,9 +4492,11 @@ void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
       fork->next->next->back->back = fork->next->back;
     if ((fork->next == t->root) || (fork->next->next == t->root))  /* set root */
       t->root = *where;
+    fork->next->back = NULL;
+    fork->next->next->back = NULL;
     if (t->root->tip ) t->root = t->root->back;
 
-    t->do_branchl_on_re_move_f(t, item, *where);  /* adds up branch lengths */
+    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
 
     if ( doinit ) {
       inittrav(t, *where);

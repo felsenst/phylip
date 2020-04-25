@@ -1322,7 +1322,8 @@ void treevaluate(void)
 
 void maketree(void)
 { /* construct the tree */
-  long i;
+  long i, k;
+  node *p;
   double bestyet;
 
   if (usertree)
@@ -1411,9 +1412,10 @@ void maketree(void)
       curtree->copy(curtree, priortree);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-/* debug:  find empty fork, hook it to this species, have it as argument here */
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1],
-                           curtree->root, true, NULL, &bestyet, bestree,
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
+      curtree->addtraverse(curtree, p, curtree->root, true, NULL, &bestyet, bestree,
                            priortree, true, NULL);
       bestree->copy(bestree, curtree);
 

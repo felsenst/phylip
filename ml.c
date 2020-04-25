@@ -777,7 +777,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit, boolean multf)
     for ( i = 0 ; i < smoothings ; i++)
     {
       smooth(t, p->back);
-      for ( r = p->back->next ; r != p->back ; r = r->next )
+      for ( r = p->next ; r != p ; r = r->next )
         smooth(t, r);
     }
   }
