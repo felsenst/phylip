@@ -721,7 +721,6 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 { /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
 
   double newv;
-  (void)t;                              // RSGnote: Parameter never used.
 
   newv = q->v * 0.5;
 
@@ -751,18 +750,17 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 
 
 
-void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf)
+void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit, boolean multf)
 {
  /* 
-  * After inserting via generic_, branch length gets initialv. If dooinit is
-  * given, all branches are optimized, otherwise just those nearby.
+  * After inserting via generic_tree_insert, branch length gets initialv. If
+  * dooinit is given, all branches optimized, otherwise just those nearby.
   *
   * Insert q near p 
-  * k  is index to be assigned to new interior node */
+  * p is the interior fork connected to the inserted subtree or tip
+  */
   long i;
-  node * r;
-
-  (void)multf;                          // RSGnote: Parameter never used.
+  node *r;
 
   generic_tree_insert_(t, p, q, dooinit, false); /* no multifurcate on ml insert_ */
 
@@ -770,8 +768,8 @@ void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean mult
   {
     inserting = true;
     update(t, p->back);
-    update(t, p->back->next);
-    update(t, p->back->next->next);
+    update(t, p->next->back);
+    update(t, p->next->next->back);
     inserting = false;
   }
   else
@@ -779,7 +777,7 @@ void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean mult
     for ( i = 0 ; i < smoothings ; i++)
     {
       smooth(t, p->back);
-      for ( r = p->back->next ; r != p->back ; r = r->next )
+      for ( r = p->next ; r != p ; r = r->next )
         smooth(t, r);
     }
   }
@@ -830,12 +828,10 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
 
 static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree)
 {
-  long k;
   double like;
   boolean succeeded = false;
   node* dummy;
 
-  k = generic_tree_findemptyfork(t);
   t->insert_(t, p, q, true, false);
 
   like = t->evaluate(t, p, false);
@@ -843,7 +839,7 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   {
     *bestyet = like;
     t->copy(t, bestree);
-    bestree->score = like;              /* This shouldn't be necessary */
+    bestree->score = like;           /* debug: This shouldn't be necessary */
     if ( qwherein != NULL )
       *qwherein = q;
     succeeded = true;
@@ -862,7 +858,6 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
  * depending on the value of thorough. If multf is given, sets to
  * false.
  */
-
 boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree, boolean thorough, boolean* multf)
 {
   boolean succeeded;
@@ -887,12 +882,10 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
 
 static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double *bestyet)
 {
-  long k;
   double like;
   boolean succeeded = false;
 
   t->save_traverses(t, p, q);
-  k = generic_tree_findemptyfork(t);
   t->insert_(t, p, q, false, false);
   like = t->evaluate(t, p, false);
 

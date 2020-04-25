@@ -60,7 +60,6 @@ tree*  contml_tree_new(long, long);
 void   contml_tree_init(tree*, long, long);
 void   contml_tree_free(tree*);
 void   contml_tree_nuview(tree*, node*);
-void   contml_buildsimpletree(tree*, long*);
 void   contmlrun(void);
 void   contml(char * infilename, char * intreename, char * OutfileName, char * outfileopt,
               char * OuttreeName, char * outtreeopt, int BestTree, int UseLengths, int GeneFreq,
@@ -957,26 +956,6 @@ void inittip(tree* t, long m)
 }  /* inittip */
 
 
-void contml_buildsimpletree(tree *t, long* enterorder)
-{ /* make and initialize a three-species tree */
-  long k;
-  node* r;
-  node* newnode;
-
-  inittip(t, enterorder[0]);
-  inittip(t, enterorder[1]);
-  inittip(t, enterorder[2]);
-  k = generic_tree_findemptyfork(t);
-  newnode = t->get_fork(t, k);
-  r = t->nodep[enterorder[2]-1];
-  hookup(r, newnode);      /* connect third tip to new fork */
-  hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
-
-  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false);
-
-}  /* contml_buildsimpletree */
-
-
 void coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
 { /* establishes coordinates of nodes */
   node *q, *first, *last;
@@ -1343,7 +1322,8 @@ void treevaluate(void)
 
 void maketree(void)
 { /* construct the tree */
-  long i;
+  long i, k;
+  node *p;
   double bestyet;
 
   if (usertree)
@@ -1413,8 +1393,7 @@ void maketree(void)
     // debug: RGS: destruct_tree() is ALWAYS called in all the other programs; doing same thing
     // here fixes SegFault bug due to something not getting initialized properly when using jumbling.
     destruct_tree(curtree);
-    contml_buildsimpletree(curtree, enterorder);
-    curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    buildsimpletree(curtree, enterorder);
     if (jumb == 1)
       numtrees = 1;
     nextsp = 4;
@@ -1433,9 +1412,10 @@ void maketree(void)
       curtree->copy(curtree, priortree);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-/* debug:  find empty fork, hook it to this species, have it as argument here */
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1],
-                           curtree->root, true, NULL, &bestyet, bestree,
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
+      curtree->addtraverse(curtree, p, curtree->root, true, NULL, &bestyet, bestree,
                            priortree, true, NULL);
       bestree->copy(bestree, curtree);
 
