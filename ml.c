@@ -846,7 +846,6 @@ static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwh
   }
 
   t->re_move(t, p, &dummy, false);
-  priortree->copy(priortree, t);
 
   return succeeded;
 } /* ml_tree_try_insert_thorough */

@@ -3973,7 +3973,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
    * two connected to interior node  p.  
    * (this function doesn't handle multifurcations)
    */
-  long k;
   node *q, *r, *qwhere;
   boolean succeeded = false;
   boolean multf = false;
@@ -4008,7 +4007,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     else {                 /* for case where one is rearranging only locally */
       if (qwhere == q ) {
         assert(*bestyet <= oldbestyet);
-        k = generic_tree_findemptyfork(t);    /* debug:  need work here: fork? */
         t->insert_(t, r, qwhere, true, multf);
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
@@ -4027,11 +4025,13 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     if(!succeeded) {
       /* If rearrangements failed here, try subtrees, but stop when we find
        * one that improves the score. */
-      succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back, bestyet,
-                                                    thorough, priortree, bestree);
-      if (!succeeded)
-        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back,
-                                           bestyet, thorough, priortree, bestree);
+      if (!p->tip) {
+       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back, bestyet,
+                                                      thorough, priortree, bestree);
+        if (!succeeded)
+          succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back,
+                                             bestyet, thorough, priortree, bestree);
+      }
     }
   }
   return succeeded;
@@ -4453,7 +4453,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 
 void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
 { /* disconnects an interior node circle with the subtree connected to it
-   * at node item, setting *where to the node at one end
+   * at node "fork", setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
 
   node *q, *p;
@@ -4482,7 +4482,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
     (*where) = q;
 
   } else {                                      /* case of a bifurcation */
-    if (fork->next->back != NULL)  /* set where to place it was next to */
+    if (fork->next->back != NULL)  /* set where to the place it was next to */
       (*where) = fork->next->back;
     else
       (*where) = fork->next->next->back;
@@ -4561,7 +4561,6 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
 
   if ( thorough ) {
     t->re_move(t, p, &dummy, false);
-    priortree->copy(priortree, t);
     }
   else
     t->re_move(t, p, &dummy, false);

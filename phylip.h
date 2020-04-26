@@ -842,8 +842,7 @@ void            arbitrary_resolve(tree*) ;
 void            writename(long, long, long*);
 void            print_progress(char*);
 
-void 		seetree(node *p, pointarray nodep, long nonodes);
-void 		seetree2(tree * curtree);
+void 		seetree(tree * curtree);
 void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);
 
 /* following not in phylip.c */
