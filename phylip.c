@@ -3951,9 +3951,10 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 
 void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree, tree* bestree)
 { /* generic form of local rearrangement, keep doing until does not succeed */
-  double bestyet = t->evaluate(t, start, 0);
+  double bestyet;
   boolean succeeded = true;
 
+  bestyet = t->evaluate(t, start, 0);
   while(succeeded)
   {
     succeeded = unrooted_tree_locrearrange_recurs(t, start->back, &bestyet, thorough, priortree, bestree);
@@ -3980,10 +3981,10 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
 
   qwhere = NULL;
 
-  if (!p->tip && !p->back->tip)   /* is this an interior branch? */
+  if ((!p->tip) && !p->back->tip)   /* is this an interior branch? */
   {
     oldbestyet = *bestyet;
-    r = p->back->next->next->back;
+    r = p->back->next->next;
     if (!thorough)
       t->save_lr_nodes(t, p, r);
     else
@@ -4830,7 +4831,7 @@ void seetree(tree * curtree)
         {
           if (qq->back == NULL)
           {
-            printf(" (nil), ");
+            printf(" (nil)");
           }
           else
           {
