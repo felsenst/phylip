@@ -44,6 +44,9 @@
 
 #endif /* WIN32 */
 
+#define true    1
+#define false   0
+
 #ifdef  GNUDOS
 #define DJGPP
 #define DOS
@@ -239,9 +242,6 @@ typedef void *Anyptr;
 #ifndef WIN32
 typedef unsigned int boolean;
 #endif
-
-#define true    1
-#define false   0
 
 /* Number of items per machine word in set.
  * Used in consensus programs and clique */
@@ -833,7 +833,7 @@ void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
                                           tree*, tree*, boolean, boolean*);
-void            rooted_tree_insert_(tree*, node*, node*, boolean,
+boolean         rooted_tree_insert_(tree*, node*, node*, boolean,
                                      boolean, boolean*);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
