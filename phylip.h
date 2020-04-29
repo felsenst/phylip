@@ -530,9 +530,9 @@ typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, tree*, boolean, boolean*);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, tree*, boolean, boolean*);
-typedef void (*tree_insert_t)(tree*,node*,node*,boolean,boolean,boolean*);
+typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*,node*,node*,node**, double*,
-    tree*, tree*,boolean,boolean*);
+    tree*,boolean,boolean);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
@@ -823,8 +823,7 @@ void            generic_tree_release_fork(tree*, node*);
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
-void            generic_tree_insert_(tree*, node*, node*, boolean,
-                                      boolean, boolean*);
+void            generic_tree_insert_(tree*, node*, node*);
 void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*, long);
 void            generic_tree_re_move(tree*, node*, node**, boolean);
@@ -832,9 +831,8 @@ void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
-                                          tree*, tree*, boolean, boolean*);
-boolean         rooted_tree_insert_(tree*, node*, node*, boolean,
-                                     boolean, boolean*);
+                                          tree*, tree*, boolean, boolean);
+boolean         rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, boolean, boolean, longer, boolean) ;

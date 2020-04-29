@@ -32,7 +32,7 @@ boolean inserting;
 
 /* prototypes for unexported functions */
 static void ml_tree_smoothall(tree* t, node* p);
-static boolean ml_tree_try_insert_notthorough(tree *, node *, node *, node**, double*, boolean*);
+static boolean ml_tree_try_insert_thorough(tree *, node *, node *, node**, double*, boolean);
 void ml_node_reinit(node * n);
 
 
@@ -42,7 +42,7 @@ void ml_tree_init(tree* t, long nonodes, long spp)
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
-  t->try_insert_ = ml_tree_try_insert_;
+  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* ml_tree_init */
@@ -750,7 +750,7 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 
 
 
-void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit, boolean multf, boolean *atstart)
+void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
@@ -763,7 +763,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit, boolean multf, 
   node *r;
 
 
-  generic_tree_insert_(t, p, q, dooinit, false, atstart); /* no multifurcate on ml insert_ */
+  generic_tree_insert_(t, p, q);
 
   if ( !dooinit )
   {
@@ -833,7 +833,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
  * depending on the value of thorough. If multf is given, sets to
  * false.
  */
-boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree, boolean thorough, boolean* multf, boolean *atstart)
+boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, boolean thorough, boolean* multf, boolean atstart)
 {
   boolean succeeded;
 
@@ -841,44 +841,48 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
     *multf = false;
 
   if ( thorough )
-    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
-                                            bestree, priortree, *atstart);
-  else
-    succeeded = generic_tree_insert_(t, p, q, qwherein, bestyet, atstart);
+    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet, atstart);
+  else  /* debug:  need to have a _notthorough function here instead? */
+    succeeded = generic_tree_insert_(t, p, q);
 
   return succeeded;
 } /* ml_tree_try_insert_ */
 
 
-/* ml_tree_try_insert_notthorough
+/* ml_tree_try_insert_thorough
  *
  * Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
  * updates bestyet and returns true.
  */
-static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double *bestyet)
+static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node** qwherein, double *bestyet, boolean atstart)
 {
   double like;
-  boolean succeeded, atstart;
+  boolean succeeded, bettertree;
   node* whereRemoved;
 
   succeeded = false;
   t->save_traverses(t, p, q);
-  t->insert_(t, p, q, false, false, atstart);
+  t->insert_(t, p, q, false);
   like = t->evaluate(t, p, false);
 
-  if (like > *bestyet || *bestyet == UNDEFINED)
-  {
+  if (atstart)
+    bettertree = true;
+  else {
+    bettertree = (like > *bestree);
+    succeeded = bettertree;
+    }
+  if (bettertree) {
     *bestyet = like;
     *qwherein = q;
-    succeeded = true;
+    if (thorough)
+      t->copy(t, bestree);
   }
-
   t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
 
   assert(whereRemoved == q);
   t->restore_traverses(t, p, q);
 
-  /* Update t->score */
+  /* Update t->score */      /* debug:  check this stuff: necessary? */
   like = t->evaluate(t, q, 0);
 
   return succeeded;
@@ -889,11 +893,11 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
-  boolean done, atstart;
+  boolean done;
   node *p, *newfork;
 
   /* first stick it in the right place */
-  rooted_tree_insert_(t, newtip, below, dummy, dummy2, atstart);
+  rooted_tree_insert_(t, newtip, below, dummy);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];
