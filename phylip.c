@@ -3527,7 +3527,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 {
   /* does "global" (SPR) rearrangements */
   tree *globtree, *oldtree, *priortree, *bestree;
-  int i, k;
+  int i;
   node *where,*sib_ptr,*qwhere;
   double oldbestyet;
   int success = false;
@@ -3578,7 +3578,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, priortree, thorough, &multf);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, contin);
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3588,7 +3588,6 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
       } else {
         if ( succeeded && where != qwhere) {
-	  k = generic_tree_findemptyfork(curtree);
           curtree->insert_(curtree, sib_ptr, qwhere, true);
           curtree->smoothall(curtree, where);
           success = true;
@@ -3619,7 +3618,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 { /* does global rearrangements */
   tree *globtree, *oldtree, *priortree, *bestree;
-  int i, j, k, m, num_sibs, num_sibs2;
+  int i, j, k, num_sibs, num_sibs2;
   node *where,*sib_ptr,*sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
   int success = false;
@@ -3699,14 +3698,13 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
-          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere, &bestyet, bestree, priortree, thorough, &multf) || succeeded;
+          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere, &bestyet, bestree, thorough) || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
         {
           if (succeeded && qwhere != where && qwhere != where->back && bestyet > oldbestyet)
           {
-            m = generic_tree_findemptyfork(curtree);
             curtree->insert_(curtree, removed, qwhere, true);
             curtree->smoothall(curtree, where);
             success = true;
@@ -3749,7 +3747,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                               node **qwherein, double* bestyet, tree* bestree,
-                              tree* priortree, boolean thorough, boolean* multf)
+                              boolean thorough)
 { /* try adding p at q, proceed recursively through tree */
   node *sib_ptr;
   boolean succeeded, atstart;
@@ -4000,8 +3998,8 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     else
       qwhere = p;
 
-    t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree, priortree,
-                   thorough, &multf);
+    t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree,
+                   thorough);
 
     if(qwhere == q)     /* don't continue if we've already got a better tree */
     {
@@ -4542,8 +4540,7 @@ long generic_tree_findemptyfork(tree* t)
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
                                  double* bestyet, tree* bestree,
-                                 boolean thorough, boolean* multf, 
-                                 boolean atstart)
+                                 boolean thorough, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
   double like;
