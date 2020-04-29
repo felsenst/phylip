@@ -21,7 +21,6 @@ boolean    savecsbi_valid = false;
 HANDLE  hConsoleOutput;
 #endif /* WIN32 */
 
-#include "phylip.h"
 #include "Slist.h"
 
 #ifndef OLDC
@@ -3761,7 +3760,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   succeeded = false;
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              priortree, thorough, multf, *atstart);
-
+  atstart = false;
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
@@ -3776,7 +3775,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree, priortree,
-                           thorough, multf) || succeeded;
+                           thorough, multf, atstart) || succeeded;
     }
   }
   return succeeded;
@@ -3785,7 +3784,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
                               node **qwherein, double* bestyet, tree* bestree,
-                              tree* priortree, boolean thorough, boolean* multf)
+                              tree* priortree, boolean thorough, boolean* multf,
+                              boolean atstart)
 { /* try adding p at q, then recursively through tree from one end of that branch */
   node *sib_ptr;
   boolean succeeded= false;
@@ -4553,17 +4553,19 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   boolean succeeded, bettertree;
   node* dummy;
 
-  succeeded = false;
+  succeeded = false;    /* debug:  when does this first get set false? */
+                        /* debug:  should it instead be passed in? */
   t->insert_(t, p, q, true, false);
 
   if (atstart)
     bettertree = true;
-  else
+  else {
     bettertree = (like > *bestree);
+    succeeded = bettertree;
+    }
   if (bettertree) {
     *bestyet = like;
     *qwherein = q;
-    succeeded = true;
     *multf = false;
     if (thorough)
       t->copy(t, bestree);
