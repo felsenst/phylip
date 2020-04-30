@@ -81,7 +81,7 @@ void    update(tree*, node *p);
 void    smooth(tree*, node *p);
 void    ml_tree_insert_(tree*, node*, node*, boolean);
 void    ml_tree_re_move(tree* t, node*p, node** q, boolean);
-boolean ml_tree_try_insert_(tree* , node* , node* , node** , double*, tree*, boolean, boolean*, boolean);
+boolean ml_tree_try_insert_(tree* , node* , node* , node** , double*, tree*, boolean, boolean);
 void    ml_tree_do_branchl_on_insert(tree*t, node *p, node* q);
 void    ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q);
 void    mlk_tree_insert_(tree*, node *, node *, boolean, boolean);

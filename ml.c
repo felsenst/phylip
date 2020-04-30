@@ -762,7 +762,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
   node *r;
 
 
-  generic_tree_insert_(t, p, q);
+  generic_tree_insert_(t, p, q, dooinit);  /* debug:  maybe "multif"? */
 
   if ( !dooinit )
   {
@@ -878,7 +878,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* 
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet, bestree, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
-    generic_tree_insert_(t, p, q);
+    generic_tree_insert_(t, p, q, false);
 
   return succeeded;
 } /* ml_tree_try_insert_ */

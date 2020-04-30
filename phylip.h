@@ -527,12 +527,12 @@ typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, tree*, boolean, boolean*);
+    double*, tree*, boolean);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, tree*, boolean, boolean*);
+    double*, tree*, boolean);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
-typedef boolean (*tree_try_insert_t)(tree*,node*,node*,node**, double*,
-    tree*,boolean,boolean);
+typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node**, double*,
+    tree*, boolean, boolean);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
@@ -613,7 +613,7 @@ struct tree {
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
-  tree_addtraverse_t addtraverse_1way;
+  tree_addtraverse_1way_t addtraverse_1way;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
   tree_globrearrange_t globrearrange;
@@ -790,11 +790,9 @@ boolean         generic_node_good(tree*, node*);
 void            rooted_globrearrange(tree*, boolean, boolean);
 void            generic_globrearrange(tree*, boolean, boolean);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
-                                          double*, tree*, tree*, boolean,
-                                          boolean*);
+                                          double*, tree*, boolean);
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node**,
-                                          double*, tree*, tree*, boolean,
-                                          boolean*);
+                                          double*, tree*, boolean, boolean);
 #ifdef WIN32
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
@@ -823,7 +821,7 @@ void            generic_tree_release_fork(tree*, node*);
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
-void            generic_tree_insert_(tree*, node*, node*);
+void            generic_tree_insert_(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*, long);
 void            generic_tree_re_move(tree*, node*, node**, boolean);
@@ -832,7 +830,7 @@ void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
                                           tree*, boolean, boolean);
-boolean         rooted_tree_insert_(tree*, node*, node*, boolean);
+void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, boolean, boolean, longer, boolean) ;

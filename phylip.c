@@ -3377,8 +3377,8 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->temp_p = functions.node_new(false,0);
   t->temp_q = functions.node_new(false,0);
 
-  t->addtraverse = generic_tree_addtraverse;
-  t->addtraverse_1way = generic_tree_addtraverse_1way;
+  t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
+  t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
   t->globrearrange = generic_globrearrange;
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
@@ -3531,9 +3531,8 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
   node *where,*sib_ptr,*qwhere;
   double oldbestyet;
   int success = false;
-  boolean succeeded = true;
+  boolean succeeded;
   double bestyet;
-  boolean multf;
 
   /* FIXME should do the "Doing global rearrangements" printf here instead of
    * outside of this function in every program */
@@ -3545,6 +3544,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
   priortree = functions.tree_new(curtree->nonodes, curtree->spp);
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
 
+  succeeded = true;
   while ( succeeded ) {
     if (progress) {
       sprintf(progbuf, "   ");
@@ -3578,7 +3578,8 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, contin);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, thorough);
+/* debug:  in above call --  "thorough"? "contin"? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3619,11 +3620,10 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 { /* does global rearrangements */
   tree *globtree, *oldtree, *priortree, *bestree;
   int i, j, k, num_sibs, num_sibs2;
-  node *where,*sib_ptr,*sib_ptr2, *qwhere;
+  node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
   int success = false;
   boolean succeeded = true;
-  boolean multf;
   node* removed;
 
   if ( progress ) {
@@ -3751,7 +3751,6 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 { /* try adding p at q, proceed recursively through tree */
   node *sib_ptr;
   boolean succeeded, atstart;
-  double oldbestyet;
 
   
   atstart = false;
@@ -3763,8 +3762,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                           contin, qwherein, bestyet, bestree, priortree,
-                           thorough, multf, atstart) || succeeded;
+                           contin, qwherein, bestyet, bestree, 
+                           thorough, atstart) || succeeded;
     }
   }
   if (contin && !q->back->tip) {
@@ -3772,8 +3771,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     for ( sib_ptr = q->back->next ; sib_ptr != q->back ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                           contin, qwherein, bestyet, bestree, priortree,
-                           thorough, multf, atstart) || succeeded;
+                           contin, qwherein, bestyet, bestree,
+                           thorough, atstart) || succeeded;
     }
   }
   return succeeded;
@@ -3782,8 +3781,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
                               node **qwherein, double* bestyet, tree* bestree,
-                              tree* priortree, boolean thorough, boolean* multf,
-                              boolean atstart)
+                              boolean thorough, boolean atstart)
 { /* try adding p at q, then recursively through tree from one end of that branch */
   node *sib_ptr;
   boolean succeeded= false;
@@ -3795,8 +3793,8 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree, priortree,
-                          thorough, multf, atstart) || succeeded;
+                          contin, qwherein, bestyet, bestree,
+                          thorough, atstart) || succeeded;
     }
   }
   return succeeded;
@@ -3978,7 +3976,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
    */
   node *q, *r, *qwhere;
   boolean succeeded = false;
-  boolean multf = false;
   double oldbestyet;
 
   qwhere = NULL;
@@ -4004,7 +4001,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     if(qwhere == q)     /* don't continue if we've already got a better tree */
     {
       t->addtraverse(t, r, p->next->next, false, &qwhere, bestyet, bestree,
-                     priortree, thorough, &multf);
+                     thorough);
     }
 
     if (thorough)
@@ -4109,7 +4106,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
   whereto = t->nodep[forknode->back->index - 1];
   t->save_lr_nodes(t, p, whereto);
   t->re_move(t, p, &where, false);
-  t->insert_(t, p, whereto, false, false);
+  t->insert_(t, p, whereto, false);
   like = t->evaluate(t, p, false);
   if (like - oldlike < LIKE_EPSILON) {
     t->restore_lr_nodes(t, p, whereto);
@@ -4362,6 +4359,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 { /* generic version of inserting fork with attached subtree
      where fork is pointed to by  p,   near node or tip  q  */
   node *newnode, *r;
+  boolean thorough = true;  /* debug: needed at all? */
 
   if ( !multf ) {
 
@@ -4392,7 +4390,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! newnode->initialized );
   }
 
-  if (doinit) {
+  if (thorough) {   /* debug:  what boolean needed here? */
     inittrav(t, p);
     inittrav(t, p->back);
   }
@@ -4548,18 +4546,17 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   node* dummy;
 
   succeeded = false;
-  t->insert_(t, p, q, true, false);
+  t->insert_(t, p, q, false);
 
   if (atstart)
     bettertree = true;
   else {
-    bettertree = (like > *bestree);
+    bettertree = (like > *bestyet);
     succeeded = bettertree;
     }
   if (bettertree) {
     *bestyet = like;
     *qwherein = q;
-    *multf = false;
     if (thorough)
       t->copy(t, bestree);
   }
@@ -4585,7 +4582,7 @@ void buildsimpletree(tree *t, long* enterorder)
   p->v = initialv;
   q->v = initialv;
 
-  t->insert_(t, newnode, q, false, false, true);  /* connect all of them */
+  t->insert_(t, newnode, q, false);  /* connect all of them */
 
   t->root = p;
 
@@ -4657,7 +4654,6 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
   node *item, *there, *p;
   long *enterorder;
   double bestyet;
-  boolean multf;
   (void)thorough;                       // RSGdebug: Parameter never used.
 
   enterorder = (long *)Malloc(spp * sizeof(long));
@@ -4684,8 +4680,8 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     item = curtree->get_fork(curtree, k);
     hookup(item, p);
     curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
-                         NULL, NULL, true, &multf);
-    curtree->insert_(curtree, item, there, true, multf, true);
+                         curtree, true);
+    curtree->insert_(curtree, item, there, false);
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);
     if (progress) {
@@ -4740,7 +4736,7 @@ void arbitrary_resolve(tree* t)
     if ( count_sibs(t->nodep[i]) > 2 ) {
       item = t->nodep[i]->back;
       t->re_move(t, item, &where, false);
-      t->insert_(t, item, where, false, false);  /* debug: need to correct last argument */
+      t->insert_(t, item, where, false);  /* debug: need to correct last argument */
       i--; /* do it again, just in case it still multifurcs */
     }
   }

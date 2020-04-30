@@ -1416,7 +1416,7 @@ void maketree(void)
       p = curtree->get_fork(curtree, k);
       hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
       curtree->addtraverse(curtree, p, curtree->root, true, NULL, &bestyet, bestree,
-                           priortree, true, NULL);
+                           true);
       bestree->copy(bestree, curtree);
 
       if (progress)
