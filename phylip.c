@@ -3909,7 +3909,7 @@ void phyClearScreen(void)
 
 void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
-  /* save left and right nodes near root (?) */
+  /* save left and right nodes */
 
   r->back->copy(r->back, t->lrsaves[0]);
   r->back->next->copy(r->back->next, t->lrsaves[1]);
@@ -3924,7 +3924,7 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
-  /* restore L and R nodes (near root?) in unrooted tree case */
+  /* restore L and R nodes in unrooted tree case */
   (void)r;                              // RSGdebug: Parameter never used.
 
   t->lrsaves[0]->copy(t->lrsaves[0], t->rb);
