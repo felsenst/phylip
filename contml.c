@@ -32,6 +32,7 @@ void   getalleles(void);
 void   inputdata(void);
 void   transformgfs(void);
 void   getinput(void);
+void   contml_hookup(node *, node *);
 void   sumlikely(node *, node *, double *);
 double contml_tree_evaluate(tree *, node *, boolean);
 double distance(node *, node *);
@@ -668,6 +669,16 @@ void getinput(void)
 }  /* getinput */
 
 
+void contml_hookup(node* p, node* q){
+/* hook up two nodes, set branch length to initial value
+   (one of the nodes may be in a fork circle) */
+
+  hookup(p, q);
+  p->v = 0.1;
+  q->v = 0.1;
+} /* contml_hookup */
+
+
 void sumlikely(node *p, node *q, double *sum)
 { /* sum contribution to likelihood over forks in tree */
   long i, j, m;
@@ -952,7 +963,6 @@ void inittip(tree* t, long m)
   tmp = t->nodep[m - 1];
   memcpy(((cont_node_type*)tmp)->view, x[m - 1], totalleles * sizeof(double));
   tmp->deltav = 0.0;
-  tmp->v = 0.0;
 }  /* inittip */
 
 
@@ -1414,7 +1424,7 @@ void maketree(void)
       bestyet = UNDEFINED;
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
-      hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
+      contml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
       curtree->addtraverse(curtree, p, curtree->root, true, NULL, &bestyet, bestree,
                            true);
       bestree->copy(bestree, curtree);
