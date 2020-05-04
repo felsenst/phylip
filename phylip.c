@@ -3754,7 +3754,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   boolean succeeded, atstart;
 
   
-  atstart = false;
+  atstart = true;
   succeeded = false;
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              thorough, atstart);

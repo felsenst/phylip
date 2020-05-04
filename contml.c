@@ -776,7 +776,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
 
 
 double distance(node *p, node *q)
-{ /* distance between two nodes */
+{ /* distance-squared between two nodes */
   long i, j, m;
   double sum, temp;
 
@@ -1403,6 +1403,9 @@ void maketree(void)
     // debug: RGS: destruct_tree() is ALWAYS called in all the other programs; doing same thing
     // here fixes SegFault bug due to something not getting initialized properly when using jumbling.
     destruct_tree(curtree);
+    inittip(curtree, enterorder[1]);
+    inittip(curtree, enterorder[2]);
+    inittip(curtree, enterorder[3]);
     buildsimpletree(curtree, enterorder);
     if (jumb == 1)
       numtrees = 1;

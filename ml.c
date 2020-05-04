@@ -827,13 +827,11 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
 } /* ml_tree_re_move */
 
 
-/* ml_tree_try_insert_thorough
- *
- * Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
- * updates bestyet and returns true.
- */
 static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node** qwherein, double *bestyet, tree *bestree, boolean atstart)
 {
+ /* Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
+ *  updates bestyet and returns true.
+ */
   double like;
   boolean succeeded, bettertree;
   node* whereRemoved;
@@ -851,7 +849,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node** qwh
     }
   if (bettertree) {
     *bestyet = like;
-    *qwherein = q;
+    **qwherein = *q;
     t->copy(t, bestree);
   }
   t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
