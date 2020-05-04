@@ -262,7 +262,7 @@ void ml_node_init(node *n, node_type type, long index)
   n->node_print_f = ml_node_print;
   mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
   mln->node.tyme = 0;
-}
+} /* ml_node_init */
 
 
 void ml_node_reinit(node * n)
@@ -272,7 +272,7 @@ void ml_node_reinit(node * n)
   // BUG.970 -- does freex need refreshing ?
   // BUG.970 -- leave for dna_node and prot_node ?
   generic_node_reinit(n);
-}
+} /* ml_node_reinit */
 
 
 void ml_node_print(node * n)
@@ -280,7 +280,7 @@ void ml_node_print(node * n)
   generic_node_print(n);
   ml_node * mn = (ml_node*)n;
   printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
-}
+} /* ml_node_print */
 
 
 void allocx(long nonodes, long endsite, long param, ml_node** treenode)
@@ -321,7 +321,7 @@ void dna_node_freex(ml_node* n)
   dn->x = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* dna_node_freex */
 
 
 void prot_node_freex(ml_node* n)
@@ -339,7 +339,7 @@ void prot_node_freex(ml_node* n)
   pn->x = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* prot_node_freex */
 
 
 void codon_node_freex(ml_node* n)
@@ -357,7 +357,7 @@ void codon_node_freex(ml_node* n)
   pn->codonx = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* codon_node_freex */
 
 
 void dna_node_allocx(ml_node* n, long endsite, long rcategs)
@@ -372,7 +372,7 @@ void dna_node_allocx(ml_node* n, long endsite, long rcategs)
   n->categs = rcategs;
   n->endsite = endsite;
   n->underflows = Malloc(endsite * sizeof(double));
-}
+} /* dna_node_allocx */
 
 
 void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
@@ -387,7 +387,7 @@ void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
   for ( i = 0 ; i < endsite ; i++ )
     n->x[i] = (pratelike)Malloc(rcategs * sizeof(psitelike));
   n->ml_node.underflows= Malloc(endsite * sizeof(double));
-}
+} /* prot_node_allocx */
 
 
 void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
@@ -402,7 +402,7 @@ void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
   for ( i = 0 ; i < endsite ; i++ )
     n->codonx[i] = (cratelike)Malloc(rcategs * sizeof(csitelike));
   n->ml_node.underflows= Malloc(endsite * sizeof(double));
-}
+} /* codon_node_allocx */
 
 
 void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence y, steptr alias)
@@ -727,7 +727,7 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
    * forknode should be where tip was hooked to
    * set to initial v for *both* directions
    */
-  forknode->v = initialv;   /* debug: these may already exist */
+  forknode->v = initialv; 
   forknode->back->v = initialv;
 
   /* forknode->next for both directions */
@@ -739,6 +739,7 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   forknode->next->next->back->v = newv;
 
   /* BUG.970 -- might consider invalidating views here or in generic */
+  /* debug:  do values of ->v get set earlier anyway?  */
   inittrav(t, forknode);
   inittrav(t, forknode->back);
   inittrav(t, forknode->next);

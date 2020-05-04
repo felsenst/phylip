@@ -2663,6 +2663,7 @@ void hookup(node *p, node *q)
 void link_trees(long local_nextnum, long nodenum, long local_nodenum,
                 pointarray nodep)
 {
+/* debug: does not seem to be used by anything.  Why is it here? */
   if(local_nextnum == 0)
     hookup(nodep[nodenum], nodep[local_nodenum]);
   else if(local_nextnum == 1)
@@ -4579,8 +4580,6 @@ void buildsimpletree(tree *t, long* enterorder)
   newnode = t->get_fork(t, k);
   hookup(r, newnode);      /* connect third tip to new fork */
   hookup(p,q);             /* connect first and second tips */
-  p->v = initialv;
-  q->v = initialv;
 
   t->insert_(t, newnode, q, false);  /* connect all of them */
 
