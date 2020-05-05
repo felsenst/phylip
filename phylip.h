@@ -526,12 +526,12 @@ typedef node **pointarray;
 typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
-typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node**,
+typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
     double*, tree*, boolean);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, boolean);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
-typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node**, double*,
+typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
@@ -789,9 +789,9 @@ boolean         generic_fork_good(tree*, node*);
 boolean         generic_node_good(tree*, node*);
 void            rooted_globrearrange(tree*, boolean, boolean);
 void            generic_globrearrange(tree*, boolean, boolean);
-boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
+boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean);
-boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node**,
+boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean, boolean);
 #ifdef WIN32
 void 		phySaveConsoleAttributes(void);
@@ -828,7 +828,7 @@ void            generic_tree_re_move(tree*, node*, node**, boolean);
 void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
-boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
+boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
                                           tree*, boolean, boolean);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
