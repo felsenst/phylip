@@ -3579,7 +3579,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, thorough);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, qwhere, &bestyet, bestree, thorough);
 /* debug:  in above call --  "thorough"? "contin"? */
       if ( thorough )
       {
@@ -3699,7 +3699,9 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
-          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere, &bestyet, bestree, thorough) || succeeded;
+          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
+                                            true, qwhere, &bestyet, bestree,
+                                            thorough) || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
@@ -3747,7 +3749,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                              node **qwherein, double* bestyet, tree* bestree,
+                              node* qwherein, double* bestyet, tree* bestree,
                               boolean thorough)
 { /* try adding p at q, proceed recursively through tree */
   node *sib_ptr;
@@ -3781,7 +3783,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
-                              node **qwherein, double* bestyet, tree* bestree,
+                              node *qwherein, double* bestyet, tree* bestree,
                               boolean thorough, boolean atstart)
 { /* try adding p at q, then recursively through tree from one end of that branch */
   node *sib_ptr;
@@ -3996,12 +3998,12 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     else
       qwhere = p;
 
-    t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree,
+    t->addtraverse(t, r, p->next, false, qwhere, bestyet, bestree,
                    thorough);
 
     if(qwhere == q)     /* don't continue if we've already got a better tree */
     {
-      t->addtraverse(t, r, p->next->next, false, &qwhere, bestyet, bestree,
+      t->addtraverse(t, r, p->next->next, false, qwhere, bestyet, bestree,
                      thorough);
     }
 
@@ -4023,7 +4025,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
         /* debug        double otherbest = *bestyet;      JF:  is this needed? */
       }
     }
-    assert(oldbestyet <= *bestyet );
+/* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
   } else {
     if(!succeeded) {
       /* If rearrangements failed here, try subtrees, but stop when we find
@@ -4537,7 +4539,7 @@ long generic_tree_findemptyfork(tree* t)
 } /* findemptyfork */
 
 
-boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
+boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                                  double* bestyet, tree* bestree,
                                  boolean thorough, boolean atstart)
 {
@@ -4557,7 +4559,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
     }
   if (bettertree) {
     *bestyet = like;
-    *qwherein = q;
+    qwherein = q;
     if (thorough)
       t->copy(t, bestree);
   }
@@ -4678,7 +4680,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
     p = curtree->nodep[enterorder[i-1]-1];
     item = curtree->get_fork(curtree, k);
     hookup(item, p);
-    curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
+    curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                          curtree, true);
     curtree->insert_(curtree, item, there, false);
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,

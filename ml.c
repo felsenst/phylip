@@ -31,7 +31,9 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 /* prototypes for unexported functions */
-static void ml_tree_smoothall(tree* t, node* p);
+static void ml_tree_smoothall(tree*, node*);
+static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
+                                            double*, tree*, boolean);
 void ml_node_reinit(node * n);
 
 
@@ -827,10 +829,11 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
 } /* ml_tree_re_move */
 
 
-static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node** qwherein, double *bestyet, tree *bestree, boolean atstart)
+static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean atstart)
 {
  /* Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
- *  updates bestyet and returns true.
+ *  updates bestyet and returns true.  If this is the first place to insert, set
+ *  bestyet  to the current likelihood and set  qwhere  to the current place  q
  */
   double like;
   boolean succeeded, bettertree;
@@ -849,29 +852,29 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node** qwh
     }
   if (bettertree) {
     *bestyet = like;
-    **qwherein = *q;
+    qwherein = q;
     t->copy(t, bestree);
   }
   t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
 
   assert(whereRemoved == q);
-  t->restore_traverses(t, p, q);
+/* debug:  necessary?   t->restore_traverses(t, p, q);    debug */
 
-  /* Update t->score */      /* debug:  check this stuff: necessary? */
+  /* Update t->score */
   like = t->evaluate(t, q, 0);
 
   return succeeded;
-} /* ml_tree_try_insert_notthorough */
+} /* ml_tree_try_insert_thorough */
 
 
-/* ml_tree_try_insert_
- *
- * Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
- * depending on the value of thorough. If multf is given, sets to
- * false.
- */
-boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, boolean thorough, boolean atstart)
+boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
+                             double* bestyet, tree* bestree,
+                             boolean thorough, boolean atstart)
 {
+ /* Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
+ *  depending on the value of thorough. If multf is given, sets to
+ *  false.
+ */
   boolean succeeded;
 
   if ( thorough )

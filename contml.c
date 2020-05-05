@@ -1333,7 +1333,7 @@ void treevaluate(void)
 void maketree(void)
 { /* construct the tree */
   long i, k;
-  node *p;
+  node *p, *qwhere;
   double bestyet;
 
   if (usertree)
@@ -1428,8 +1428,9 @@ void maketree(void)
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
       contml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
-      curtree->addtraverse(curtree, p, curtree->root, true, NULL, &bestyet, bestree,
-                           true);
+      qwhere = NULL;
+      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+                           &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
 
       if (progress)
