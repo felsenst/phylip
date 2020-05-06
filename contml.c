@@ -744,9 +744,6 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
   long i;
   double sum;
 
-  (void)p;                              // RSGnote: Parameter never used.
-  (void)saveit;                         // RSGnote: Parameter never used.
-
   sum = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
   {
@@ -754,7 +751,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
       l0gf[which - 1][i] = 0.0;
   }
 
-  sumlikely(t->root->back, t->root, &sum);
+  sumlikely(p, p->back, &sum);
   if (usertree && which <= MAXSHIMOTREES)
   {
     l0gl[which - 1] = sum;
@@ -1357,20 +1354,29 @@ void maketree(void)
     for (which = 1; which <= spp; which++)
       inittip(curtree, which);
     which = 1;
+    inittrees();
     while (which <= numtrees)
     {
+/* debug:  comment out for now
       for (i = 0 ; i < nonodes2 ; i++)
       {
-        if ( i > spp)
+        if ( i >= spp)
         {
-          /* must do this since not all nodes may be used if an unrooted tree is read in after a rooted one */
+debug */
+          /* must do this since not all nodes may be used if
+           * an unrooted tree is read in after a rooted one */
+/* debug:  comment out for now
           curtree->nodep[i]->back = NULL;
           curtree->nodep[i]->next->back = NULL;
           curtree->nodep[i]->next->next->back = NULL;
         }
-        else curtree->nodep[i]->back = NULL;
+        else {
+          curtree->nodep[i]->back = NULL;
+        }
       }
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes2);
+debug */
+      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes2);
       treevaluate();
       if (treeprint)
       {

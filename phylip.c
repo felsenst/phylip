@@ -1614,10 +1614,9 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 // modification of addelement method to just read file and know number of nodes
 {
   long i;
-  // long len = 0, nodei = 0;  /* RSGdebug: unused */
   boolean notlast;
   Char str[MAXNCH+1];
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(')
   {
@@ -1629,7 +1628,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
-      furs++;
+      furcs++;
 
       // initnode call with "nonbottom" --> remaining forknodes hooked up
 
@@ -1658,7 +1657,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
       }
     }
 
-    if ( furs <= 1 && !unifok ) {
+    if ( furcs <= 1 && !unifok ) {
       sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
       sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
@@ -2257,8 +2256,6 @@ void addtree(long pos, long *nextree, boolean collapse, long *place, bestelm *be
   /* used by dnacomp, dnapars, dollop, mix, & protpars */
   long i;
 
-  (void)collapse;                       // RSGdebug: Currently unused.  Needed in future?
-
   for (i = *nextree - 1; i >= pos; i--)
   {
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
@@ -2772,7 +2769,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
   boolean notlast;
   Char str[MAXNCH+1];
   node *r;
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(') {
     (*nextnode)++;          /* get ready to use new interior node */
@@ -2794,7 +2791,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     pfirst      = (*p);
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
-      furs++;
+      furcs++;
       (*initnode)(treep, &(*p)->next, len, nodei, ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
       r = (*p)->next;
@@ -2829,7 +2826,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
                  (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
       }
     }
-    if ( furs <= 1 && !unifok ) {
+    if ( furcs <= 1 && !unifok ) {
       sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
       sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
@@ -2942,7 +2939,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
   boolean notlast, minusread;
   Char str[MAXNCH];
   double valyew, divisor;
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(') {
 
@@ -2965,7 +2962,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     pfirst = p;
     notlast = true;
     while (notlast) {
-      furs++;
+      furcs++;
       /* This while loop goes through a circle (triad for
          bifurcations) of nodes */
       p = p->next;
@@ -2985,7 +2982,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
                  (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
       }
     }
-    if ( furs <= 1 && !unifok ) {
+    if ( furcs <= 1 && !unifok ) {
       sprintf(progbuf, "ERROR in intree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
       sprintf(progbuf, "To use this intree with this program, use Retree to read and\n");
@@ -3348,7 +3345,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes* sizeof(node *));
+  t->nodep = Malloc(nonodes * sizeof(node *));
   for ( i = 0 ; i < spp ; i++ ) {
     t->nodep[i] = functions.node_new(true, i+1);
   }
@@ -3968,8 +3965,8 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree*
 boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
 {
   /* rearranges the tree locally by removing a subtree
-   * connected to an inerior node, keeping those 
-   * together and trying them on two neighboring
+   * connected to an interior node, keeping it
+   * together and trying to insert it in two neighboring
    * branches.  p  points to the end of the interior
    * branch, the other end of which is connected to
    * the moved subtree, at p->back->next->next.
@@ -4341,7 +4338,7 @@ void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 node* generic_tree_get_forknode(tree* t, long i)
 { /* get de novo or from a linked garbage list a circle of fork nodes
    *
-   * Return an unused node with index i.   (Not  i+1)
+   * Return an unused node with index i (not  i+1)
    *
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.

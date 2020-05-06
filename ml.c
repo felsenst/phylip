@@ -858,7 +858,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
   t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
 
   assert(whereRemoved == q);
-/* debug:  necessary?   t->restore_traverses(t, p, q);    debug */
+/* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
 
   /* Update t->score */
   like = t->evaluate(t, q, 0);
