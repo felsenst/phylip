@@ -1323,7 +1323,7 @@ void treevaluate(void)
   initrav(curtree->root->back);
   for (i = 1; i <= smoothings * 4; i++)
     smooth(curtree, curtree->root);
-  curtree->evaluate(curtree, NULL, false);
+  curtree->evaluate(curtree, curtree->root, false);
 }  /* treevaluate */
 
 
@@ -1355,6 +1355,10 @@ void maketree(void)
       inittip(curtree, which);
     which = 1;
     inittrees();
+    for (i = spp; i < nonodes2; i++) {
+      p = curtree->get_fork(curtree, i);
+      curtree->nodep[i] = p;
+    }
     while (which <= numtrees)
     {
 /* debug:  comment out for now

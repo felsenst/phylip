@@ -1610,8 +1610,9 @@ void newline(FILE *filename, long i, long j, long k)
 
 void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first,
-                        long *nexttip, long *nextnode, boolean *haslengths, boolean unifok)
-// modification of addelement method to just read file and know number of nodes
+                        long *nexttip, long *nextnode, boolean *haslengths,
+                        boolean unifok)
+// modification of addelement method to just read file, count number of nodes
 {
   long i;
   boolean notlast;
@@ -1621,7 +1622,6 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   if ((*ch) == '(')
   {
     (*nextnode)++;          /* get ready to use new interior node */
-    // nodei = *nextnode;      /* do what needs to be done at bottom */  /* RSGdebug: unused */
 
     // initnode call with "bottom" --> first forknode of the group, normally goes in to nodep
     // we've already incremented nextnode, so that's all we need for this program
@@ -2928,8 +2928,9 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
 
 
 void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
-                 pointarray treenode, boolean lngths, double *trweight, boolean *goteof,
-                 long *nextnode, long *ntips, long no_species, boolean *haslengths,
+                 pointarray treenode, boolean lngths, double *trweight,
+                 boolean *goteof, long *nextnode, long *ntips,
+                 long no_species, boolean *haslengths,
                  boolean unifok, long maxnodes)
 { /* recursive procedure adds nodes to user-defined tree
      -- old-style bifurcating-only version used only by treeread2
@@ -2972,7 +2973,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       getch(ch, parens, treefile);
 
       addelement2(p, ch, parens, treefile, treenode, lngths, trweight,
-                  goteof, nextnode, ntips, no_species, haslengths, unifok, maxnodes);
+                  goteof, nextnode, ntips, no_species, haslengths, unifok,
+                  maxnodes);
 
       if ((*ch) == ')') {
         notlast = false;
@@ -3072,7 +3074,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
 void treeread2 (FILE *treefile, node **root, pointarray treenode,
                 boolean lngths, double *trweight, boolean *goteof,
-                boolean *haslengths, long *no_species, boolean unifok, long maxnodes)
+                boolean *haslengths, long *no_species, boolean unifok,
+                long maxnodes)
 {
   /* read in user-defined tree and set it up
      -- old-style bifurcating-only version used only in Fitch, Kitsch,
