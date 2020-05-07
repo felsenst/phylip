@@ -114,7 +114,7 @@ tree* dnaml_tree_new(long nonodes, long spp)
   t = Malloc(sizeof(dnaml_tree));
   dnaml_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnaml_tree_new */
 
 
 void dnaml_tree_init(tree* t, long nonodes, long spp)
@@ -124,7 +124,7 @@ void dnaml_tree_init(tree* t, long nonodes, long spp)
   t->try_insert_ = ml_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
   ((ml_tree*)t)->makenewv = dnaml_tree_makenewv;
-}
+} /* dnaml_tree_init */
 
 
 void getoptions(void)
@@ -512,7 +512,7 @@ void reallocsites(void)
   location    = (long *) Malloc(sites * sizeof(long));
   aliasweight = (long *) Malloc(sites * sizeof(long));
 
-}
+} /* reallocsites */
 
 
 void allocrest(void)
@@ -705,7 +705,7 @@ void freetable(void)
     free(tbl[i]);
   }
   free(tbl);
-}
+} /* freetable */
 
 
 void inittable(void)
@@ -1936,7 +1936,7 @@ void dnaml_reroot(tree* t)              // RSGbugfix: Name change.
   }
 
   t->root = t->nodep[0]->back;          // Reset ROOT; moved from line just after call to DNAML_REROOT.
-}
+} /* dnaml_reroot */
 
 
 void maketree(void)
@@ -2272,7 +2272,7 @@ void dnamlrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* dnamlrun */
 
 
 void dnaml(
@@ -2835,7 +2835,7 @@ void dnaml(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnaml */
 
 
 int main(int argc, Char *argv[])
