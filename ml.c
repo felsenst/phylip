@@ -1076,7 +1076,7 @@ double set_tyme_evaluate(tree *t, node *p, double tyme)
 #endif
 
   return t->evaluate(t, p, false);
-}
+} /* set_tyme_evaluate */
 
 
 void mlk_tree_makenewv(tree* t, node *p)

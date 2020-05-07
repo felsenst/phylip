@@ -40,6 +40,7 @@ void   makedists(node *);
 void   makebigv(contml_node *, boolean *);
 void   correctv(node *);
 void   littlev(node *);
+void   contml_tree_makenewv(tree *, node *);
 void   nuview(node *);
 void   inittip(tree*,  long);
 void   coordinates(node *, double, long *, double *);
@@ -114,7 +115,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
   allocview(t, nonodes2, totalleles);
   t->evaluate = contml_tree_evaluate;
   t->nuview = contml_tree_nuview;
-  ((ml_tree*)t)->makenewv = (makenewv_t)no_op;
+  ((ml_tree*)t)->makenewv = (makenewv_t)contml_tree_makenewv;
   t->free = contml_tree_free;
 } /* contml_tree_init */
 
@@ -926,18 +927,29 @@ void nuview(node *p)
 }  /* nuview */
 
 
-void contml_tree_nuview(tree* t, node* p)
-{ /* set up views from views of neighbors */
+void contml_tree_makenewv(tree* t, node* p) {
+/* compute new branch lengths on branches connected to an interior
+ * fork circle.  Actually makes new values for all branches
+ * connected to that fork -- issue is that if we did it for
+ * only one branch, the removal of deltav's might make the
+ * branch length negative.  */
   boolean negatives;
 
-  generic_tree_nuview(t, p);
-  if (((node *)p)->tip)
-    return;
   makedists(p);
   makebigv((contml_node*)p, &negatives);
   if (negatives)
     correctv(p);
   littlev(p);
+} /* contml_tree_makenewv */
+
+
+void contml_tree_nuview(tree* t, node* p)
+{ /* set up views from views of neighbors */
+
+  generic_tree_nuview(t, p);
+  if (((node *)p)->tip)
+    return;
+  contml_tree_makenewv(t, p);  /* debug: belongs here or separate? */
   nuview(p);
 } /* contml_tree_nuview */
 
@@ -1361,24 +1373,6 @@ void maketree(void)
     }
     while (which <= numtrees)
     {
-/* debug:  comment out for now
-      for (i = 0 ; i < nonodes2 ; i++)
-      {
-        if ( i >= spp)
-        {
-debug */
-          /* must do this since not all nodes may be used if
-           * an unrooted tree is read in after a rooted one */
-/* debug:  comment out for now
-          curtree->nodep[i]->back = NULL;
-          curtree->nodep[i]->next->back = NULL;
-          curtree->nodep[i]->next->next->back = NULL;
-        }
-        else {
-          curtree->nodep[i]->back = NULL;
-        }
-      }
-debug */
       treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes2);
       treevaluate();

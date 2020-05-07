@@ -3059,12 +3059,11 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       if (!minusread)
         q->oldlen = valyew / divisor;
       else
-        q->oldlen = 0.0;
+        q->oldlen = initialv;
       if (lngths) {
         q->v = valyew / divisor;
         q->back->v = q->v;
         q->iter = false;
-        q->back->iter = false;
         q->back->iter = false;
       }
     }
@@ -4293,14 +4292,11 @@ void generic_tree_nuview(tree* t, node* p)
   /*  calls t->nuview on all siblings to update their parent */
   node* sib_ptr;
 
-  /* Recursive calls, should be called for all children */
+  /* Recursive calls, called for all children of rest of fork circle */
   for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
     if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
     {
       t->nuview (t, sib_ptr->back);
-    }
-    else
-    {
     }
   }
 } /* generic_tree_nuview */
