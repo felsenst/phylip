@@ -630,16 +630,20 @@ void freex(long nonodes, pointarray treenode)
 }  /* freex */
 
 
-void update(tree *t, node *p)
-{
-  node *sib_ptr;
+void ml_update(tree *t, node *p)
+{ /* calls nuview to update views at both ends, and set outward-
+   * looking initialized values to true, then calls makenewv,
+   * then sets inward-looking initialized values false
+   * debug: should smoothit be passed as a parameter? */
 
-  if (!p->tip && !p->initialized)
+  if (!p->tip && !p->initialized) {
     t->nuview((tree*)t, p);
-
-  if ( p->back && !p->back->tip && !p->back->initialized)
+    p->initialized = true;
+  }
+  if ( p->back && !p->back->tip && !p->back->initialized) {
     t->nuview((tree*)t, p->back);
-
+    p->back->initialized = true;
+  }
   if ((!usertree) || (usertree && !lngths) || p->iter)
   {
     ((ml_tree*)t)->makenewv((tree*)t, p);
@@ -648,23 +652,9 @@ void update(tree *t, node *p)
     {
       inittrav(t, p);
       inittrav(t, p->back);
-    }
-    else
-    {
-      // RSGdebug: Is this a model for fixing bogus BACK/NEXT pointers?
-      if ( inserting )
-      {
-        if (!p->tip)
-        {
-          for ( sib_ptr = p->next;  sib_ptr != p ; sib_ptr = sib_ptr->next)
-          {
-            sib_ptr->initialized = false;
-          }
-        }
-      }
-    }
+    };
   }
-}  /* update */
+}  /* ml_update */
 
 
 void smooth(tree* t, node *p)
@@ -675,7 +665,7 @@ void smooth(tree* t, node *p)
     return;
   smoothed = false;
 
-  update(t, p);
+  ml_update(t, p);
 
   if ( p->tip )
     return;
@@ -770,9 +760,9 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
   if ( !dooinit )
   {
     inserting = true;
-    update(t, p->back);
-    update(t, p->next->back);
-    update(t, p->next->next->back);
+    ml_update(t, p);
+    ml_update(t, p->next);
+    ml_update(t, p->next->next);
     inserting = false;
   }
   else
@@ -824,8 +814,12 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
         smooth(t, (*q)->back);
     }
   }
-  else
-    update(t, *q);
+  else {   /* update views at both ends of branch connected to q */
+    if (!(*q)->tip)
+      ml_update(t, *q);
+    if (!(*q)->back->tip)
+      ml_update(t, (*q)->back);
+  }
 } /* ml_tree_re_move */
 
 
@@ -1063,17 +1057,6 @@ double set_tyme_evaluate(tree *t, node *p, double tyme)
 
   set_tyme(p, tyme);
   t->nuview(t, p);
-
-  /* TODO Seems to work without this, but make sure: */
-#if 0
-  num_sibs = count_sibs(p);
-  sib_ptr = p;
-  for (i=0 ; i < num_sibs; i++)
-  {
-    sib_ptr = sib_ptr->next;
-    nuview(sib_ptr);
-  }
-#endif
 
   return t->evaluate(t, p, false);
 } /* set_tyme_evaluate */

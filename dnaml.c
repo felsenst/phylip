@@ -1263,19 +1263,19 @@ void dnaml_tree_makenewv(tree* t, node *p)
     {
       y = y + slope/fabs(curve);   /* Newton-Raphson, forced uphill-wards */
       if (y < epsilon)
-        y = epsilon;
+        y = epsilon;               /* don't get too close to zero */
     }
     else
     {
-      if (fabs(y - yold) < epsilon)
-        ite = 20;
+      if (fabs(y - yold) < epsilon) /* if change is too small ... */
+        ite = 20;                  /* then don't do any more iterating */
       y = (y + 19*yold) / 20.0;    /* retract 95% of way back */
     }
     ite++;
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  p->v = yold;   /* the last one that had better likelihood */
+  p->v = yold;      /* the last one that had better likelihood */
   q->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */

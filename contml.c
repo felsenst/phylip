@@ -41,7 +41,7 @@ void   makebigv(contml_node *, boolean *);
 void   correctv(node *);
 void   littlev(node *);
 void   contml_tree_makenewv(tree *, node *);
-void   nuview(node *);
+void   contml_tree_nuview(tree*, node *);
 void   inittip(tree*,  long);
 void   coordinates(node *, double, long *, double *);
 void   drawline(long, double);
@@ -61,7 +61,6 @@ void   inittrees(void);
 tree*  contml_tree_new(long, long);
 void   contml_tree_init(tree*, long, long);
 void   contml_tree_free(tree*);
-void   contml_tree_nuview(tree*, node*);
 void   contmlrun(void);
 void   contml(char * infilename, char * intreename, char * OutfileName, char * outfileopt,
               char * OuttreeName, char * outtreeopt, int BestTree, int UseLengths, int GeneFreq,
@@ -742,9 +741,11 @@ debug:  */
 
 double contml_tree_evaluate(tree *t, node *p, boolean saveit)
 { /* evaluate likelihood of a tree */
+  /* debug: (is saveit needed?) */
   long i;
   double sum;
 
+  generic_tree_evaluate (t, p, saveit);    /* update views if needed */
   sum = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
   {
@@ -752,7 +753,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
       l0gf[which - 1][i] = 0.0;
   }
 
-  sumlikely(p, p->back, &sum);
+  sumlikely(p, p->back, &sum);    /* this gets the likelihood, recursively */
   if (usertree && which <= MAXSHIMOTREES)
   {
     l0gl[which - 1] = sum;
@@ -891,8 +892,8 @@ void littlev(node *p)
 }  /* littlev */
 
 
-void nuview(node *p)
-{ /* renew information about subtrees */
+void contml_tree_nuview(tree* t, node *p)
+{ /* renew inward-looking view information in subtrees */
   long i, j, k, m;
   node *q, *r, *a, *b, *temp;
   double v1, v2, vtot, f1, f2;
@@ -903,8 +904,8 @@ void nuview(node *p)
   {
     a = q->back;
     b = r->back;
-    v1 = ((contml_node *)q)->bigv;
-    v2 = ((contml_node *)r)->bigv;
+    v1 = q->v;
+    v2 = r->v;
     vtot = v1 + v2;
     if (vtot > 0.0)
       f1 = v2 / vtot;
@@ -924,7 +925,7 @@ void nuview(node *p)
     q = r;
     r = temp;
   }
-}  /* nuview */
+}  /* contml_tree_nuview */
 
 
 void contml_tree_makenewv(tree* t, node* p) {
@@ -941,17 +942,6 @@ void contml_tree_makenewv(tree* t, node* p) {
     correctv(p);
   littlev(p);
 } /* contml_tree_makenewv */
-
-
-void contml_tree_nuview(tree* t, node* p)
-{ /* set up views from views of neighbors */
-
-  generic_tree_nuview(t, p);
-  if (((node *)p)->tip)
-    return;
-  contml_tree_makenewv(t, p);  /* debug: belongs here or separate? */
-  nuview(p);
-} /* contml_tree_nuview */
 
 
 void contml_node_copy(node *src, node *dst)

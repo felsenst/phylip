@@ -318,7 +318,7 @@ void verify_nuview(node *p)
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
   /* TODO: implement */
-} /* verify */
+} /* verify_nuview */
 
 
 void invalidate_nuview(node *p)
@@ -357,7 +357,7 @@ void invalidate_traverse(node *p)
 void inittrav_all(tree *t)
 {
   /* Set initialized false on all nodes reachable from p, so
-   * that view are regenerated regardless. For debugging nuview
+   * that views are regenerated regardless. For debugging nuview
    * problems. */
 
   node *p;
@@ -367,7 +367,7 @@ void inittrav_all(tree *t)
   for ( index = spp; index < t->nonodes; index++ ) {
     p = t->nodep[index];
 
-    /* Set initialized false on all nodes in fork */
+    /* Go ariund circle, set initialized false on all nodes in fork */
     p->initialized = false;
     for ( p = p->next; p != t->nodep[index]; p = p->next ) {
       p->initialized = false;
@@ -377,22 +377,15 @@ void inittrav_all(tree *t)
 
 
 void inittrav (tree* t, node *p)
-{ /* traverse to set pointers uninitialized on inserting */
+{ /* traverse to set inward-looking pointers uninitialized on inserting */
   node *sib_ptr;
-
-  /*
-    printf ("BUG.970 %p\n",p);
-  */
 
   if (p == NULL)
     return;
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    /*
-      printf("BUG.970 -- uninit %p\n",sib_ptr);
-    */
-    sib_ptr->initialized = false;
+    sib_ptr->initialized = false;       /* traverse from this circle */
     inittrav(t, sib_ptr->back);
   }
 } /* inittrav */
@@ -4289,35 +4282,32 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(tree* t, node* p)
 {
-  /*  calls t->nuview on all siblings to update their parent */
-  node* sib_ptr;
+  /*  calls the current nongeneric t->nuview on this branch, first
+   *  recursing through all children in this direction, as needed,
+   *  when boolean initialized shows that they have not been updated yet */
+  node *sib_ptr;
 
-  /* Recursive calls, called for all children of rest of fork circle */
-  for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
-    if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
-    {
-      t->nuview (t, sib_ptr->back);
+  if (!p->tip) {         /* is this end of the branch a fork? */
+    for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
+      if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
+      {    /* recurse out, as needed, to initialize, with appropriate nuview */
+        generic_tree_nuview (t, sib_ptr->back);
+      }
     }
   }
+  t->nuview(t, p); /* when done updating all views from both ends of branch */
 } /* generic_tree_nuview */
 
 
 double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 { /* 
-   * Updates nuviews for p and p->back in preparation for evaluation specific
+   * Updates views for p and p->back in preparation for evaluation specific
    * to each program.
    */
-  node *q;
-  (void)dummy;                          // RSGdebug: Parameter never used.
 
-  q = p->back;
   if ( p->initialized == false && p->tip == false )
   {
     t->nuview((tree*)t, p);
-  }
-  if ( q  && q->initialized == false && q->tip == false )
-  {
-    t->nuview((tree*)t, q);
   }
   return 0;
 } /* generic_tree_evaluate */

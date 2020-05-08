@@ -77,7 +77,7 @@ void    codon_freex_notip(long nonodes, pointarray treenode);
 void    prot_freex_notip(long nonodes, pointarray treenode);
 void    freex_notip(long, pointarray);
 void    freex(long, pointarray);
-void    update(tree*, node *p);
+void    ml_update(tree*, node *p);
 void    smooth(tree*, node *p);
 void    ml_tree_insert_(tree*, node*, node*, boolean);
 void    ml_tree_re_move(tree* t, node*p, node** q, boolean);
