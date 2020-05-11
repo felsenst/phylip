@@ -325,6 +325,7 @@ void invalidate_nuview(node *p)
 { /* Invalidate all views looking toward p. Must be called on a node
    * after changing its tyme or branch lengths before evaluating at any other
    * node. */
+  /* debug: is this really needed, or is this already done elsewhere? */
 
   invalidate_traverse(p);
   invalidate_traverse(p->back);
@@ -385,8 +386,8 @@ void inittrav (tree* t, node *p)
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    sib_ptr->initialized = false;       /* traverse from this circle */
-    inittrav(t, sib_ptr->back);
+    sib_ptr->initialized = false;  /* set booleans looking back in */
+    inittrav(t, sib_ptr->back);       /* traverse from this circle */
   }
 } /* inittrav */
 
@@ -2642,9 +2643,9 @@ MALLOCRETURN *mymalloc(long x)
 
 
 void hookup(node *p, node *q)
-{ /* hook together two nodes *
+{ /* hook together two nodes 
    * IMPORTANT -- does not change branch lengths. Other routines
-   expect them to be as they were, and update them later */
+   * expect them to be as they were, and update them later */
   p->back = q;
   q->back = p;
 }  /* hookup */
@@ -3920,7 +3921,6 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
   /* restore L and R nodes in unrooted tree case */
-  (void)r;                              // RSGdebug: Parameter never used.
 
   t->lrsaves[0]->copy(t->lrsaves[0], t->rb);
   t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
@@ -3934,8 +3934,7 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   p->next->back->v = p->next->v;
   p->next->next->back->v = p->next->next->v;
 
-  /* BUG.970 */
-  inittrav(t, t->rb);
+  inittrav(t, t->rb);      /*  to make sure initialized booleans are OK */
   inittrav(t, t->rnb);
   inittrav(t, t->rnnb);
   inittrav(t, p->next);
@@ -4448,14 +4447,15 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
   node *q, *p;
   long num_sibs;
 
-  if ( fork->back->tip && fork->tip ) {
+  if ( fork->back->tip && fork->tip ) {  /* debuug: does this ever occur? */
     fork->back = NULL;
     fork->back = NULL;
     return;
   }
+
   num_sibs = count_sibs(fork);
 
-  if ( num_sibs > 2 ) {   /* multifurcation case: may not be used a lot */
+  if ( num_sibs > 2 ) {     /* multifurcation case: may not be used a lot */
     for ( q = fork ; q->next != fork ; q = q->next)
       /* do nothing */;
 

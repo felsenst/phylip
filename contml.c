@@ -878,7 +878,8 @@ void correctv(node *p)
 
 
 void littlev(node *p)
-{ /* remove part of it that belongs to other branches */
+{ /* remove part of it that belongs to other branches 
+   * This is a version that works only for bifurcating trees */
   long i;
 
   for (i = 1; i <= 3; i++)
