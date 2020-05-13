@@ -1540,7 +1540,6 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);
     curtree->smoothall(curtree, curtree->root);
-    curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
     polishing= false;
   }
@@ -1550,11 +1549,11 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
 
 void ml_inittravtree(tree* t, node *p)
 {
-  /* traverse tree to set initialized and v to initial values */
+  /* traverse tree to set branch lengths  v  to initial values
+   * must be called twice the first time, at both ends of
+   * a branch such as the root branch.  Separate from the
+   * task of setting initialized booleans for views to false   */
   node* q;
-
-  p->initialized = false;
-  p->back->initialized = false;
 
   if ((!lngths) || p->iter)
   {

@@ -674,8 +674,8 @@ void contml_hookup(node* p, node* q){
    (one of the nodes may be in a fork circle) */
 
   hookup(p, q);
-  p->v = 0.1;
-  q->v = 0.1;
+  p->v = initialv;
+  q->v = initialv;
 } /* contml_hookup */
 
 
@@ -1275,7 +1275,8 @@ void summarize(void)
 
 
 void nodeinit(node *p)
-{ /* initialize a node -- for interior forks, use rough averages */
+{ /* initialize a node -- for interior forks, use rough averages
+   * debug: why do we need this?  Why not just use nodep? */
   node *q, *r;
   long i, j, m;
 
@@ -1293,9 +1294,9 @@ void nodeinit(node *p)
     m += alleles[i];
   }
   if ((!lngths) || p->iter)
-    p->v = 0.1;
+    p->v = initialv;
   if ((!lngths) || p->back->iter)
-    p->back->v = 0.1;
+    p->back->v = initialv;
 }  /* nodeinit */
 
 
@@ -1319,10 +1320,17 @@ void initrav(node *p)
 
 
 void treevaluate(void)
-{ /* evaluate user-defined tree, iterating branch lengths */
+{ /* evaluate user-defined tree, iterating branch lengths if needed */
   long i;
 
-  unroot(curtree, nonodes2);
+  unroot(curtree, nonodes2);          /*  so root is at interior fork */
+  inittravall (curtree, curtree->root);     /* set initializeds false */
+  inittravall (curtree, curtree->root->back);
+  if (!lngths) {        /* if no branch lengths, set them to initialv */
+    ml_inittravtree (curtree, curtree->root);
+    ml_inittravtree (curtree, curtree->root->back);
+  }
+/* debug: replace these by nuview calls? */
   initrav(curtree->root);
   initrav(curtree->root->back);
   for (i = 1; i <= smoothings * 4; i++)
@@ -1415,6 +1423,7 @@ void maketree(void)
       phyFillScreenColor();
     }
 
+    /* debug: make sure works properly when only 3 species */
     while (nextsp <= spp)
     {
       inittip(curtree, enterorder[nextsp - 1]);

@@ -335,6 +335,7 @@ void invalidate_nuview(node *p)
 void invalidate_traverse(node *p)
 { /* Invalidates p's view and all views looking toward p from p->back
    * on out. */
+  /* debug: is this needed in view of function inittrav? */
   node *q;
 
   if (p == NULL)
@@ -357,9 +358,10 @@ void invalidate_traverse(node *p)
 
 void inittrav_all(tree *t)
 {
-  /* Set initialized false on all nodes reachable from p, so
+  /* Set initialized false on all interior fork nodes on tree, so
    * that views are regenerated regardless. For debugging nuview
-   * problems. */
+   * problems. Not needed for regular program execution --
+   * replaced by function inittravall */
 
   node *p;
   long index;
@@ -368,7 +370,7 @@ void inittrav_all(tree *t)
   for ( index = spp; index < t->nonodes; index++ ) {
     p = t->nodep[index];
 
-    /* Go ariund circle, set initialized false on all nodes in fork */
+    /* Go around circle, set initialized false on all nodes in fork */
     p->initialized = false;
     for ( p = p->next; p != t->nodep[index]; p = p->next ) {
       p->initialized = false;
@@ -377,8 +379,28 @@ void inittrav_all(tree *t)
 } /* inittrav_all */
 
 
+void inittravall (tree* t, node *p)
+{
+  /* traverse further through tree from there outwards setting all
+   * "initialized" booleans on any connected node to false
+   * To set all initializeds to false on a tree must be called twice
+   * for root branch, once at each end of the branch */
+  node *q;
+
+  p->initialized = false;
+  p->back->initialized = false;
+  if (p->tip)                            /* bail if at a tip */
+    return;
+  for (q = p->next; q != p; q = q->next) /* go to rest of fork circle */
+    inittravall (t, q->back);            /* ... and on outwards from there */
+
+} /* inittravall */
+
+
 void inittrav (tree* t, node *p)
-{ /* traverse to set inward-looking pointers uninitialized on inserting */
+{ /* traverse to set inward-looking booleans uninitialized on inserting
+   * This does not set all initialized booleans in the tree to false,
+   * only the ones looking inwards at the branch it is first called for */
   node *sib_ptr;
 
   if (p == NULL)
@@ -387,7 +409,7 @@ void inittrav (tree* t, node *p)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
     sib_ptr->initialized = false;  /* set booleans looking back in */
-    inittrav(t, sib_ptr->back);       /* traverse from this circle */
+    inittrav(t, sib_ptr->back);    /* further traverse from this circle */
   }
 } /* inittrav */
 
