@@ -1275,7 +1275,7 @@ void summarize(void)
 
 
 void nodeinit(node *p)
-{ /* initialize a node */
+{ /* initialize a node -- for interior forks, use rough averages */
   node *q, *r;
   long i, j, m;
 
@@ -1313,6 +1313,7 @@ void initrav(node *p)
       initrav(q->back);
       q = q->next;
     }
+    nodeinit(p);
   }
 }  /* initrav */
 

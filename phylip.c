@@ -4773,18 +4773,18 @@ void print_progress(char *outstr)
 /* **** debug tools **** */
 
 
-void seetree(tree * curtree)
+void seetree(tree * t)
 {
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
   node *pp, *qq;
   long int i;
-  long int nonodes = curtree->nonodes;
+  long int nonodes = t->nonodes;
   boolean malformed;
 
   for (i = 0; i < nonodes; ++i)
   {
-    qq = curtree->nodep[i];
+    qq = t->nodep[i];
 
     if (i < spp)
     {
