@@ -646,19 +646,14 @@ void ml_update(tree *t, node *p)
   }
   if ((!usertree) || (usertree && !lngths) || p->iter)
   {
-    ((ml_tree*)t)->makenewv((tree*)t, p);
-
-    if ( smoothit )
-    {
-      inittrav(t, p);
-      inittrav(t, p->back);
-    };
+    ((ml_tree*)t)->nuview((tree*)t, p);
   }
 }  /* ml_update */
 
 
 void smooth(tree* t, node *p)
-{
+{  /* repeatedly and recursively do one step of smoothing on a
+      branch */
   node *sib_ptr;
 
   if ( p == NULL )
@@ -686,6 +681,8 @@ void smooth(tree* t, node *p)
 
 static void ml_tree_smoothall(tree* t, node* p)
 {
+  /* go through the tree multiple times re-estimating branch lengths
+   * using makenewv, with "initialized" reset as needed   */
   boolean save;
   int i;
   node* q;

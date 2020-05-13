@@ -16,9 +16,11 @@ typedef struct ml_node ml_node;
 typedef void (*allocx_t)(ml_node*, long, long);
 typedef void (*freex_t)(ml_node*);
 typedef void (*makenewv_t)(tree*, node*);
+typedef void (*nuview_t)(tree*, node*);
 
 typedef struct ml_tree {
   tree tree;
+  nuview_t nuview;
   makenewv_t makenewv;
 } ml_tree;
 

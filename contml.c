@@ -895,37 +895,32 @@ void littlev(node *p)
 
 void contml_tree_nuview(tree* t, node *p)
 { /* renew inward-looking view information in subtrees */
-  long i, j, k, m;
-  node *q, *r, *a, *b, *temp;
+  long j, k, m;
+  node *q, *r, *a, *b;
   double v1, v2, vtot, f1, f2;
 
   q = p->next;
   r = q->next;
-  for (i = 1; i <= 3; i++)
+  a = q->back;
+  b = r->back;
+  v1 = q->v;
+  v2 = r->v;
+  vtot = v1 + v2;
+  if (vtot > 0.0)
+    f1 = v2 / vtot;
+  else
+    f1 = 0.5;
+  f2 = 1.0 - f1;
+  m = 0;
+  for (j = 0; j < loci; j++)
   {
-    a = q->back;
-    b = r->back;
-    v1 = q->v;
-    v2 = r->v;
-    vtot = v1 + v2;
-    if (vtot > 0.0)
-      f1 = v2 / vtot;
-    else
-      f1 = 0.5;
-    f2 = 1.0 - f1;
-    m = 0;
-    for (j = 0; j < loci; j++)
-    {
-      for (k = 1; k <= alleles[j]; k++)
-        ((cont_node_type*)p)->view[m+k-1] = f1 * ((cont_node_type*)a)->view[m+k-1] + f2 * ((cont_node_type*)b)->view[m+k-1];
-      m += alleles[j];
-    }
-    p->deltav = v1 * f1;
-    temp = p;
-    p = q;
-    q = r;
-    r = temp;
+    for (k = 1; k <= alleles[j]; k++)
+      ((cont_node_type*)p)->view[m+k-1] = f1*((cont_node_type*)a)->view[m+k-1]
+                                     + f2 * ((cont_node_type*)b)->view[m+k-1];
+    m += alleles[j];
   }
+  p->deltav = v1 * f1;
+
 }  /* contml_tree_nuview */
 
 
