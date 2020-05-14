@@ -932,7 +932,7 @@ void contml_tree_makenewv(tree* t, node* p) {
 
   p->v = distance(p, p->back);
   p->v = p->v - p->deltav - p->back->deltav;
-  if (p->v < 0.0) {
+  if (p->v < 0.0) {  /* debug:  need to iterate this? */
     makedists(p);
     makebigv((contml_node*)p, &negatives);
     if (negatives)
