@@ -548,6 +548,7 @@ typedef node* (*tree_get_forknode_t)(tree*,long);
 typedef void (*tree_release_forknode_t)(tree*,node*);
 typedef void (*tree_reinit_forknode_t)(tree*,node*);
 typedef void (*tree_nuview_t)(tree*,node*);
+typedef void (*tree_makenewv_t)(tree*,node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
@@ -578,6 +579,7 @@ struct tree_vtable {
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
   tree_nuview_t nuview;
+  tree_makenewv_t makenewv;
 };
 
 typedef enum {
@@ -631,6 +633,7 @@ struct tree {
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
   tree_nuview_t nuview;
+  tree_makenewv_t makenewv;
   tree_print_t tree_print_f;
   do_branchl_on_insert_t do_branchl_on_insert_f;
   do_branchl_on_re_move_t do_branchl_on_re_move_f;

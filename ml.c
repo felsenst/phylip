@@ -646,7 +646,7 @@ void ml_update(tree *t, node *p)
   }
   if ((!usertree) || (usertree && !lngths) || p->iter)
   {
-    t->nuview((tree*)t, p);
+    t->makenewv((tree*)t, p);
   }
 }  /* ml_update */
 

@@ -114,7 +114,7 @@ void contml_tree_init(tree* t, long nonodes, long spp)
   allocview(t, nonodes2, totalleles);
   t->evaluate = contml_tree_evaluate;
   t->nuview = contml_tree_nuview;
-  ((ml_tree*)t)->makenewv = (makenewv_t)contml_tree_makenewv;
+  t->makenewv = contml_tree_makenewv;
   t->free = contml_tree_free;
 } /* contml_tree_init */
 
