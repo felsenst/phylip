@@ -646,7 +646,7 @@ void ml_update(tree *t, node *p)
   }
   if ((!usertree) || (usertree && !lngths) || p->iter)
   {
-    ((ml_tree*)t)->nuview((tree*)t, p);
+    t->nuview((tree*)t, p);
   }
 }  /* ml_update */
 
@@ -682,7 +682,8 @@ void smooth(tree* t, node *p)
 static void ml_tree_smoothall(tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
-   * using makenewv, with "initialized" reset as needed   */
+   * using makenewv, with "initialized" reset and views updated
+   * as needed   */
   boolean save;
   int i;
   node* q;
@@ -697,7 +698,8 @@ static void ml_tree_smoothall(tree* t, node* p)
   for ( i = 0 ; i < smoothings ; i++ )
   {
     smooth(t, p->back);
-    if ( p->tip ) return;
+    if ( p->tip )
+      return;
     for ( q = p->next ; q != p ; q = q->next)
       smooth(t, q->back);
   }
@@ -750,7 +752,6 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
   */
   long i;
   node *r;
-
 
   generic_tree_insert_(t, p, q, dooinit);  /* debug:  maybe "multif"? */
 
@@ -1512,7 +1513,9 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
 }  /* empiricalfreqs */
 
 
-void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean global, boolean progress, tree* priortree, tree* bestree, inittravtree_t inittravtree)
+void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
+                    boolean global, boolean progress, tree* priortree,
+                    tree* bestree, inittravtree_t inittravtree)
 {
   /* evaluate a user tree */
 
@@ -1535,7 +1538,7 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
     inittravtree(curtree, curtree->root);
     polishing = true;
     smoothit = true;
-    curtree->evaluate(curtree, curtree->root, 0);
+    curtree->evaluate(curtree, curtree->root, 0);   /* debug:  why?  */
     curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
     polishing= false;
@@ -1548,7 +1551,7 @@ void ml_inittravtree(tree* t, node *p)
 {
   /* traverse tree to set branch lengths  v  to initial values
    * must be called twice the first time, at both ends of
-   * a branch such as the root branch.  Separate from the
+   * a branch such as the root branch.  Is separate from the
    * task of setting initialized booleans for views to false   */
   node* q;
 

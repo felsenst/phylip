@@ -820,7 +820,7 @@ void makedists(node *p)
 
 
 void makebigv(contml_node *p, boolean *negatives)
-{ /* make new branch length */
+{ /* make new branch lengths iteratively at a fork */
   long i;
   contml_node *temp, *q, *r;
 
@@ -925,18 +925,20 @@ void contml_tree_nuview(tree* t, node *p)
 
 
 void contml_tree_makenewv(tree* t, node* p) {
-/* compute new branch lengths on branches connected to an interior
- * fork circle.  Actually makes new values for all branches
- * connected to that fork -- issue is that if we did it for
- * only one branch, the removal of deltav's might make the
- * branch length negative.  */
+/* Compute new branch length.  If after subtracting p->deltav it is negative,
+ * then compute new branch lengths on the three branches connected to p
+ * and do this iteratively, setting some to zero as needed. */
   boolean negatives;
 
-  makedists(p);
-  makebigv((contml_node*)p, &negatives);
-  if (negatives)
-    correctv(p);
-  littlev(p);
+  p->v = distance(p, p->back);
+  p->v = p->v - p->deltav - p->back->deltav;
+  if (p->v < 0.0) {
+    makedists(p);
+    makebigv((contml_node*)p, &negatives);
+    if (negatives)
+      correctv(p);
+    littlev(p);
+  }
 } /* contml_tree_makenewv */
 
 
