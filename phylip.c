@@ -3387,6 +3387,8 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
 
+  t->donewbl = false;  /* for parsimony etc.  gets overwritten in ml_tree_init */
+
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
     t->lrsaves[i] = functions.node_new(false,0);
@@ -3400,7 +3402,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->copy = generic_tree_copy;
   t->smoothall = (tree_smoothall_t)no_op;
   t->root = t->nodep[0];
-  t->root = NULL;
+  t->root = NULL;     /* debug:  huh? */
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
   t->save_lr_nodes = unrooted_tree_save_lr_nodes;
@@ -3594,7 +3596,8 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, qwhere, &bestyet, bestree, thorough);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
+                                        qwhere, &bestyet, bestree, thorough);
 /* debug:  in above call --  "thorough"? "contin"? */
       if ( thorough )
       {
@@ -4313,10 +4316,12 @@ void generic_tree_nuview(tree* t, node* p)
       if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
       {    /* recurse out, as needed, to initialize, with appropriate nuview */
         generic_tree_nuview (t, sib_ptr->back);
+        sib_ptr->initialized = false;
       }
-    }
+    };
+    t->nuview((tree*)t, p);   /* this actually calculates the view */
+    p->initialized = false;
   }
-  t->nuview(t, p); /* when done updating all views from both ends of branch */
 } /* generic_tree_nuview */
 
 
@@ -4461,7 +4466,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
 } /* rooted_tree_insert_ */
 
 
-void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
+void generic_tree_re_move(tree* t, node* fork, node** where, boolean donewbl)
 { /* disconnects an interior node circle with the subtree connected to it
    * at node "fork", setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
@@ -4485,7 +4490,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
     fork->next = NULL;
     if ( t->root == fork )
       t->root = q;
-    if ( doinit ) {
+    if ( donewbl ) {
       inittrav(t, q);
       for ( p = q->next ; p != q ; p = p->next )
         inittrav(t, p);
@@ -4509,7 +4514,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean doinit)
 
     t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
 
-    if ( doinit ) {
+    if ( donewbl ) {
       inittrav(t, *where);
       inittrav(t, (*where)->back);
     }
@@ -4557,7 +4562,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
-  t->insert_(t, p, q, false);
+  t->insert_(t, p, q, t->donewbl);
 
   if (atstart)
     bettertree = true;
@@ -4598,7 +4603,7 @@ void buildsimpletree(tree *t, long* enterorder)
 }  /* buildsimpletree */
 
 
-void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
+void rooted_tree_re_move(tree* t, node* item, node** where, boolean donewbl)
 {
   /* Remove a node from a rooted tree
    *
@@ -4622,7 +4627,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
   if ( count_sibs(item->back) != 2 ) {
     /* removing a node from a multi-furcation is the same in the rooted and
        unrooted sense */
-    generic_tree_re_move(t, item, where, doinit);
+    generic_tree_re_move(t, item, where, donewbl);
 
   } else { /* 2 sibs */
 
@@ -4649,7 +4654,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 
     t->release_fork(t, fork);
     item->back = NULL;
-    if  ( doinit) {
+    if  ( donewbl ) {
       inittrav(t, whereloc);
       inittrav(t, whereloc->back);
     }

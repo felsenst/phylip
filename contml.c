@@ -1327,11 +1327,10 @@ void treevaluate(void)
     ml_inittravtree (curtree, curtree->root);
     ml_inittravtree (curtree, curtree->root->back);
   }
-/* debug: replace these by nuview calls? */
-  initrav(curtree->root);
-  initrav(curtree->root->back);
-  for (i = 1; i <= smoothings * 4; i++)
-    smooth(curtree, curtree->root);
+  if (lngths && curtree->donewbl) {
+    for (i = 1; i <= smoothings * 4; i++)
+      smooth(curtree, curtree->root);
+  }
   curtree->evaluate(curtree, curtree->root, false);
 }  /* treevaluate */
 

@@ -486,6 +486,7 @@ struct node {
   long ymin, ymax;                       /* used by printree        -plc   */
   boolean haslength;               /* haslength used in dnamlk             */
   boolean iter;                    /* iter used in dnaml, fitch & restml   */
+  boolean donewbl;                 /* new branch lengths needed? */
   boolean initialized;             /* initialized used in dnamlk & restml  */
   double v, tyme, deltav, ssq;     /* ssq used only in contrast            */
   boolean deleted;        /* true if node is deleted (retree)              */
@@ -607,6 +608,7 @@ struct tree {
   node *rb, *rnb, *rnnb;
   boolean mulf;
   boolean onleft;
+  boolean donewbl;
 
   /* fork management bookeeping stacks */
   Slist_ptr free_forks;

@@ -40,6 +40,7 @@ void ml_node_reinit(node * n);
 void ml_tree_init(tree* t, long nonodes, long spp)
 { /* set up variables in ml_tree */
   generic_tree_init(t, nonodes, spp);
+  t->donewbl = true;
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
@@ -631,22 +632,14 @@ void freex(long nonodes, pointarray treenode)
 
 
 void ml_update(tree *t, node *p)
-{ /* calls nuview to update views at both ends, and set outward-
-   * looking initialized values to true, then calls makenewv,
-   * then sets inward-looking initialized values false
+{ /* calls nuview to (one-way recursively) make views at both ends
    * debug: should smoothit be passed as a parameter? */
 
   if (!p->tip && !p->initialized) {
-    t->nuview((tree*)t, p);
-    p->initialized = true;
+    generic_tree_nuview((tree*)t, p);     /* recurse from one end */
   }
   if ( p->back && !p->back->tip && !p->back->initialized) {
-    t->nuview((tree*)t, p->back);
-    p->back->initialized = true;
-  }
-  if ((!usertree) || (usertree && !lngths) || p->iter)
-  {
-    t->makenewv((tree*)t, p);
+    generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
   }
 }  /* ml_update */
 
@@ -661,6 +654,7 @@ void smooth(tree* t, node *p)
   smoothed = false;
 
   ml_update(t, p);
+  t->makenewv (t, p);
 
   if ( p->tip )
     return;
@@ -672,7 +666,6 @@ void smooth(tree* t, node *p)
     if ( sib_ptr->back )
     {
       smooth(t, sib_ptr->back);
-      p->initialized = false;
       sib_ptr->initialized = false;
     }
   }
@@ -741,11 +734,11 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 
 
 
-void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
+void ml_tree_insert_(tree *t, node *p, node *q, boolean donewbl)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
-  * dooinit is given, all branches optimized, otherwise just those nearby.
+  * donewbl is given, all branches optimized.
   *
   * Insert q near p 
   * p is the interior fork connected to the inserted subtree or tip
@@ -753,9 +746,9 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
   long i;
   node *r;
 
-  generic_tree_insert_(t, p, q, dooinit);  /* debug:  maybe "multif"? */
+  generic_tree_insert_(t, p, q, donewbl);  /* debug:  maybe "multif"? */
 
-  if ( !dooinit )
+  if ( !donewbl )
   {
     inserting = true;
     ml_update(t, p);
@@ -763,7 +756,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean dooinit)
     ml_update(t, p->next->next);
     inserting = false;
   }
-  else
+  else    /* this is the case where we recurse outwards, smoothing */
   {
     for ( i = 0 ; i < smoothings ; i++)
     {
@@ -795,15 +788,16 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
 } /* ml_tree_do_branchl_on_re_move */
 
 
-void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
+void ml_tree_re_move(tree *t, node *p, node **q, boolean donewbl)
 {
-  /* remove p and record in q where it was */
-  /* assumes bifurcations */
+  /* remove p and record in q where it was
+   * assumes bifurcations
+   * donewbl is boolean which tells whether branch lengths get redone   */
   long i;
 
-  generic_tree_re_move(t, p, q, doinit);
+  generic_tree_re_move(t, p, q, donewbl);
 
-  if ( doinit )
+  if ( donewbl )
   {
     for (i = 0 ; i < smoothings ; i++ )
     {
@@ -847,7 +841,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
     qwherein = q;
     t->copy(t, bestree);
   }
-  t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
+  t->re_move(t, p, &whereRemoved, false);
 
   assert(whereRemoved == q);
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
@@ -963,7 +957,7 @@ void set_tyme (node* p, double tyme)
 }
 
 
-void mlk_tree_re_move(tree* t, node *item, node** where, boolean doinit)
+void mlk_tree_re_move(tree* t, node *item, node** where, boolean donewbl)
 {
   // RSGnote: Originally the word "where" was the word "fork" in this comment, but that makes
   // no sense, as there is no variable "fork".  I *think* that the variable "where" was intended.
@@ -973,10 +967,10 @@ void mlk_tree_re_move(tree* t, node *item, node** where, boolean doinit)
   long i;
   node* whereloc;
 
-  rooted_tree_re_move(t, item, &whereloc, doinit);
+  rooted_tree_re_move(t, item, &whereloc, donewbl);
   if ( where )  *where = whereloc;
 
-  if ( doinit )
+  if ( donewbl )
   {
     inittrav(t, whereloc);
     inittrav(t, whereloc->back);
