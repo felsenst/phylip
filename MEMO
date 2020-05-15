@@ -43,12 +43,19 @@ also: to diff of your local changes with the files you
 pulled down to the local system
   git diff
 
-if remote and local branched get out of synch and cannot
+if remote and local branches get out of synch and cannot
 use ordinary commits to resolve this, pull down the
 remote branch with
     git fetch https://felsenst@github.com/felsenst/phylip master
 and then do a 
     git commit 
+(with no list of files)
+and then do a push to the remote, as above
+
+... or look at the local file that had >>> and <<<
+indicating the diff, edit it to correctness, and
+then do a 
+    git commit
 (with no list of files)
 and then do a push to the remote, as above
 
