@@ -30,7 +30,7 @@
 #                           current directory.
 #
 #      make dnaml           to compile and link one program, (in this example,
-#                           DnaML) and leave the executable and object files
+#                           Dnaml) and leave the executable and object files
 #                           in the current directory (where the source code is).
 #                           You will have to move the executable in to the
 #                           executables directory (e.g. "mv dnaml ../exe")
@@ -42,9 +42,11 @@
 #
 # These are the statements we have been talking about:
 #
-# One of the reasons for changing them would be to put the executables on a different file system.
-# The default configuration is to have within the overall PHYLIP directory three subdirectories:
-#   "src" for source code, "exe" for the executables, and "doc" for the documentation files.
+# One of the reasons for changing them would be to put the executables
+# on a different file system.  The default configuration is to have within
+# the overall PHYLIP directory three subdirectories:
+#   "src" for source code, "exe" for the executables, and
+#   "doc" for the documentation files.
 #
 # The following specifies the directory where the executables will be placed:
 EXEDIR = ../exe
@@ -58,7 +60,8 @@ EXEDIR = ../exe
 #    LIBS   -- non-default system libraries needed to compile most programs
 #    DLIBS  -- non-default system libraries needed to compile draw programs
 #    CC     -- the name (and, optionally, location) of your C compiler
-#    DC     -- the name (and, optionally, location) of your C compiler for draw programs
+#    DC     -- the name (and, optionally, location) of your C compiler
+#               for draw programs
 #
 # We've provided a set of possible values for each variable.
 #
@@ -95,16 +98,21 @@ EXEDIR = ../exe
 # A basic one for debugging:
 CFLAGS  = -g -Wall
 #
-# For some serious debugging using GNU GCC.  This raises debug warning reporting to highest level possible.
-# ifeq ($(MODE), GDB)
-#   # No optimization; intended for debugging with GDB.  Debug level is "-ggdb3", maximal for GDB.  Originally was "-g".  Maximal debug information preserved (at cost of "-Wuninitialized" warning).
-#   CFLAGS=-ggdb3 -std=c99 -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
-# else
-#   # Minimal optimization; intended for debugging via compilation but not using GDB.  Debug level is "-g", good for debugging but not maximal for GDB.
-#   CFLAGS=-g -std=c99 -O -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wuninitialized -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
-#   # In case value is not defined (or bogus), give MODE a value to indicate "NORMAL" compilation; used only for display.
-#   MODE=NORMAL
-# endif
+# For some serious debugging using GNU GCC.  This raises debug warning
+#  reporting to highest level possible.
+#ifeq ($(MODE), GDB)
+#   No optimization; intended for debugging with GDB.  Debug level
+#    is "-ggdb3", maximal for GDB.  Originally was "-g".  Maximal debug
+#    information preserved (at cost of "-Wuninitialized" warning).
+#CFLAGS=-ggdb3 -std=c99 -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+#else
+#   Minimal optimization; intended for debugging via compilation but not
+#   using GDB. Debug level is "-g", good for debugging but not maximal for GDB.
+#CFLAGS=-g -std=c99 -O -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Wextra -pedantic -Wuninitialized -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+#  In case value is not defined (or bogus), give MODE a value to indicate
+#   "NORMAL" compilation; used only for display.
+#MODE=NORMAL
+#endif
 #
 # An optimized one for gcc:
 #CFLAGS  = -O3 -fomit-frame-pointer
@@ -231,7 +239,7 @@ help:
 	@echo "                            current directory."
 	@echo ""
 	@echo "     make dnaml             to compile and link one program, (in this example,"
-	@echo "                            DnaML) and leave the executable and object files"
+	@echo "                            Dnaml) and leave the executable and object files"
 	@echo "                            in the current directory (where the source code is)."
 	@echo ""
 	@echo "                            You will have to move the executable into the"
@@ -256,7 +264,7 @@ put:
 	@mkdir -p $(EXEDIR)
 	@mv $(PROGS) $(EXEDIR)
 	@echo ""
-	@echo "Installing font files in $(EXEDIR)."
+	@echo "Installing Hershey font files in $(EXEDIR)."
 	@cp font* $(EXEDIR)
 	@echo ""
 	@echo "Finished installation."
@@ -276,7 +284,7 @@ clean:
 	@echo "Finished removing object files.  Now will remove"
 	@echo "executable files from the current directory, but not from the"
 	@echo "executables directory.  (If some are not here, the makefile"
-	@echo "will terminate with an error message but this is not a problem.)"
+	@echo "may terminate with an error message but this is not a problem.)"
 	@echo ""
 	@echo "Removing executables from this directory."
 	@rm -f $(PROGS)

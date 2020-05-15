@@ -933,7 +933,7 @@ void contml_tree_makenewv(tree* t, node* p) {
   p->v = distance(p, p->back);
   p->v = p->v - p->deltav - p->back->deltav;
   if (p->v < 0.0) {
-    makedists(p);
+    makedists(p);    /* debug: probably need to do a loop around circle */
     makebigv((contml_node*)p, &negatives);
     if (negatives)
       correctv(p);
@@ -1363,7 +1363,6 @@ void maketree(void)
     for (which = 1; which <= spp; which++)
       inittip(curtree, which);
     which = 1;
-    inittrees();
     for (i = spp; i < nonodes2; i++) {
       p = curtree->get_fork(curtree, i);
       curtree->nodep[i] = p;
@@ -1421,7 +1420,7 @@ void maketree(void)
     }
 
     /* debug: make sure works properly when only 3 species */
-    while (nextsp <= spp)
+    while (nextsp <= spp)    /* add rest of species to tree */
     {
       inittip(curtree, enterorder[nextsp - 1]);
       curtree->copy(curtree, priortree);
