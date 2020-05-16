@@ -645,8 +645,7 @@ void ml_update(tree *t, node *p)
 
 
 void smooth(tree* t, node *p)
-{  /* repeatedly and recursively do one step of smoothing on a
-      branch */
+{  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
 
   if ( p == NULL )

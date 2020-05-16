@@ -1323,11 +1323,12 @@ void treevaluate(void)
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
   inittravall (curtree, curtree->root);     /* set initializeds false */
   inittravall (curtree, curtree->root->back);
+  curtree->donewbl = !lngths;
   if (!lngths) {        /* if no branch lengths, set them to initialv */
     ml_inittravtree (curtree, curtree->root);
     ml_inittravtree (curtree, curtree->root->back);
   }
-  if (lngths && curtree->donewbl) {
+  if ((!lngths) && curtree->donewbl) {
     for (i = 1; i <= smoothings * 4; i++)
       smooth(curtree, curtree->root);
   }
@@ -1405,6 +1406,7 @@ void maketree(void)
     inittip(curtree, enterorder[1]);
     inittip(curtree, enterorder[2]);
     inittip(curtree, enterorder[3]);
+    curtree->donewbl = true;
     buildsimpletree(curtree, enterorder);
     if (jumb == 1)
       numtrees = 1;
