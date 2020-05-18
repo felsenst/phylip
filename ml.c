@@ -170,7 +170,7 @@ node * dna_node_new(node_type type, long index) // RSGbugfix
 
   dna_node_init(n, type, index);
   return n;
-}
+} /* dna_node_new */
 
 
 void dna_node_init(node *node, node_type type, long index)
@@ -191,7 +191,7 @@ void dna_node_init(node *node, node_type type, long index)
 
   if ( endsite != 0 && rcategs != 0 )
     n->ml_node.allocx((ml_node*)n, endsite, rcategs);
-}
+} /* dna_node_init */
 
 
 node * prot_node_new(node_type type, long index) // RSGbugfix
@@ -199,7 +199,7 @@ node * prot_node_new(node_type type, long index) // RSGbugfix
   node *n = Malloc(sizeof(struct prot_node));
   prot_node_init(n, type, index);
   return n;
-}
+} /* prot_node_new */
 
 
 void prot_node_init(node *n, node_type type, long index)
@@ -214,7 +214,7 @@ void prot_node_init(node *n, node_type type, long index)
   pn->x = NULL;
   if ( endsite != 0 && rcategs != 0 )
     pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
-}
+} /* prot_node_init */
 
 
 node * codon_node_new(node_type type, long index) // RSGbugfix
@@ -222,7 +222,7 @@ node * codon_node_new(node_type type, long index) // RSGbugfix
   node *n = Malloc(sizeof(struct codon_node));
   codon_node_init(n, type, index);
   return n;
-}
+} /* codon_node_new */
 
 
 void codon_node_init(node *n, node_type type, long index)
@@ -237,7 +237,7 @@ void codon_node_init(node *n, node_type type, long index)
   pn->codonx = NULL;
   if ( endsite != 0 && rcategs != 0 )
     pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
-}
+} /* codon_node_init */
 
 
 void ml_node_free(node **np)
@@ -245,7 +245,7 @@ void ml_node_free(node **np)
   ml_node *n = (ml_node*)*np;
   n->freex(n);
   generic_node_free(np);
-}
+} /* ml_node_free */
 
 
 void ml_node_init(node *n, node_type type, long index)
@@ -652,8 +652,10 @@ void smooth(tree* t, node *p)
     return;
   smoothed = false;
 
-  ml_update(t, p);
-  t->makenewv (t, p);
+  ml_update(t, p);    /* get views at both ends updated */
+  t->makenewv (t, p); /* new value of branch length */
+  inittrav (t, p);    /* set inward-looking pointers false ... */
+  inittrav (t, p->back);  /* ... from both ends */
 
   if ( p->tip )
     return;
@@ -953,7 +955,7 @@ void set_tyme (node* p, double tyme)
     } while (sib_ptr != p );
   else
     ((ml_node*)p)->node.tyme = tyme;
-}
+} /* set_tyme */
 
 
 void mlk_tree_re_move(tree* t, node *item, node** where, boolean donewbl)

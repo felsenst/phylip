@@ -600,7 +600,7 @@ boolean filexists(const char *filename)
     return 1;
   } else
     return 0;
-}  /*filexists*/
+}  /* filexists */
 
 
 void openfile(
@@ -938,9 +938,9 @@ void randumize(longer seed, long *enterorder)
   long i, j, k;
 
   for (i = 0; i < spp; i++) {
-    j = (long)(randum(seed) * (i+1));
+    j = (long)(randum(seed) * (i+1));  /* choose a random preceding species */
     k = enterorder[j];
-    enterorder[j] = enterorder[i];
+    enterorder[j] = enterorder[i];     /* and swap with it */
     enterorder[i] = k;
   }
 } /* randumize */
@@ -1057,7 +1057,7 @@ void initcatn(long *categs)
     (void)getchar();
     countup(&loopcount, 10);
   } while (*categs > maxcategs || *categs < 1);
-}  /*initcatn*/
+}  /* initcatn */
 
 
 void initcategs(long categs, double *rate)
@@ -1089,7 +1089,7 @@ void initcategs(long categs, double *rate)
       break;
     countup(&loopcount, 100);
   }
-}  /*initcategs*/
+}  /* initcategs */
 
 
 void initprobcat(long categs, double *probsum, double *probcat)
@@ -1128,7 +1128,7 @@ void initprobcat(long categs, double *probsum, double *probcat)
     }
     countup(&loopcount, 100);
   } while (!done);
-}  /*initprobcat*/
+}  /* initprobcat */
 
 
 /************ Math utility functions ********/
@@ -1227,7 +1227,7 @@ double logfac (long n)
 
 double glaguerre(long m, double b, double x)
 { /* Generalized Laguerre polynomial computed recursively.
-     For use by initgammacat */
+     For use by initgammacat.  Thanks to Lindsey Dubb */
   long i;
   double gln, glnm1, glnp1; /* L_n, L_(n-1), L_(n+1) */
 
