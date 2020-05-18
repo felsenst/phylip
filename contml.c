@@ -932,6 +932,7 @@ void contml_tree_makenewv(tree* t, node* p) {
 
   p->v = distance(p, p->back);
   p->v = p->v - p->deltav - p->back->deltav;
+  p->back->v = p->v;
   if (p->v < 0.0) {
     makedists(p);    /* debug: probably need to do a loop around circle */
     makebigv((contml_node*)p, &negatives);
@@ -1256,9 +1257,13 @@ void summarize(void)
     chihigh *= chihigh * chihigh;
   }
   fprintf(outfile, "\nBetween     And             Length");
-  fprintf(outfile, "      Approx. Confidence Limits\n");
+  if ((usertree && !lngths) || !usertree) 
+    fprintf(outfile, "      Approx. Confidence Limits");
+  fprintf(outfile, "\n");
   fprintf(outfile, "-------     ---             ------");
-  fprintf(outfile, "      ------- ---------- ------\n");
+  if ((usertree && !lngths) || !usertree) 
+    fprintf(outfile, "      ------- ---------- ------");
+  fprintf(outfile, "\n");
   describe(curtree->root->next->back, chilow, chihigh);
   describe(curtree->root->next->next->back, chilow, chihigh);
   describe(curtree->root->back, chilow, chihigh);
@@ -1319,6 +1324,7 @@ void initrav(node *p)
 void treevaluate(void)
 { /* evaluate user-defined tree, iterating branch lengths if needed */
   long i;
+  double like;  /* to keep evaluate happy, not used */
 
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
   inittravall (curtree, curtree->root);     /* set initializeds false */
@@ -1332,7 +1338,7 @@ void treevaluate(void)
     for (i = 1; i <= smoothings * 4; i++)
       smooth(curtree, curtree->root);
   }
-  curtree->evaluate(curtree, curtree->root, false);
+  like = curtree->evaluate(curtree, curtree->root, false);
 }  /* treevaluate */
 
 

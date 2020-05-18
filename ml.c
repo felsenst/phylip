@@ -831,9 +831,10 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
   t->insert_(t, p, q, false);
   like = t->evaluate(t, p, false);
 
-  if (atstart)
+  if (atstart) {
     bettertree = true;
-  else {
+    t->copy(t, bestree);
+  } else {
     bettertree = (like > *bestyet);
     succeeded = bettertree;
     }
