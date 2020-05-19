@@ -735,11 +735,11 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 
 
 
-void ml_tree_insert_(tree *t, node *p, node *q, boolean donewbl)
+void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
-  * donewbl is given, all branches optimized.
+  * t->donewbl is true, all branches optimized.
   *
   * Insert q near p 
   * p is the interior fork connected to the inserted subtree or tip
@@ -747,9 +747,9 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean donewbl)
   long i;
   node *r;
 
-  generic_tree_insert_(t, p, q, donewbl);  /* debug:  maybe "multif"? */
+  generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
-  if ( !donewbl )
+  if ( !t->donewbl )
   {
     inserting = true;
     ml_update(t, p);
@@ -758,13 +758,12 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean donewbl)
     inserting = false;
   }
   else    /* this is the case where we recurse outwards, smoothing */
-/* debug: should this go out both ends? */
   {
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p->back);
+      smooth(t, p->back);   /* go out back end of branch, recrusing */
       for ( r = p->next ; r != p ; r = r->next )
-        smooth(t, r);
+        smooth(t, r);   /* go around fork, out each other branch */
     }
   }
 } /* ml_tree_insert */
