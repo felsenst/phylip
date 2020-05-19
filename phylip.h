@@ -858,7 +858,7 @@ void            gnudisctreenode(node**, node**, long, long);
 void            generic_tree_restore_lr_nodes(tree*, node*, node*);
 void            rooted_tree_save_lr_nodes(tree*, node*, node*);
 void            generic_tree_reinit_forknode(tree*, node*);
-void            generic_inittravtree(node*);
+void            generic_initialvtrav(node*);
 void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
 

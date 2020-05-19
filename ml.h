@@ -48,7 +48,7 @@ typedef struct dna_node{
   phenotype x;
 } dna_node;
 
-typedef void (*inittravtree_t)(tree*, node*);
+typedef void (*initialvtrav_t)(tree*, node*);
 
 #ifndef OLDC /* prototypes */
 node *  dna_node_new(node_type, long);
@@ -99,8 +99,8 @@ double  set_tyme_evaluate(tree *, node *, double);
 void    mlk_tree_makenewv(tree*, node *);
 void    empiricalfreqs(double *, double *, double *, double *, steptr, pointarray);
 void    ml_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
-                        tree*, inittravtree_t);
-void    ml_inittravtree(tree*, node *);
+                        tree*, initialvtrav_t);
+void    ml_initialvtrav(tree*, node *);
 #endif
 
 #endif /* _ML_H_ */
