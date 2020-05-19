@@ -68,7 +68,7 @@ double sigma(node *, double *);
 void   describe(node *);
 void   summarize(void);
 void   restml_treeout(node *);
-void   inittravtree(restml_tree*, node *);
+void   initialvtrav(restml_tree*, node *);
 void   maketree(void);
 void   adjust_lengths(tree *);
 double adjusted_v(double v);
@@ -1827,7 +1827,7 @@ void restml_tree_restore_traverses(tree *t, node * p, node *q)
 }
 
 
-void inittravtree(restml_tree* t, node *p)
+void initialvtrav(restml_tree* t, node *p)
 {
   /* traverse tree to set initialized and v to initial values */
   node *q;
@@ -1857,11 +1857,11 @@ void inittravtree(restml_tree* t, node *p)
     q = p->next;
     while ( q != p )
     {
-      inittravtree(t, q->back);
+      initialvtrav(t, q->back);
       q = q->next;
     }
   }
-} /* inittravtree */
+} /* initialvtrav */
 
 
 double adjusted_v(double v)
@@ -1922,7 +1922,7 @@ void maketree(void)
       fixtree(curtree);
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, (inittravtree_t)inittravtree );
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, (initialvtrav_t)initialvtrav );
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);

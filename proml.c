@@ -2125,7 +2125,7 @@ void maketree(void)
 
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2238,7 +2238,7 @@ void maketree(void)
       if (njumble > 1)
         bestree2->copy(bestree2, curtree);
       curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree );
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav );
       proml_printree();
       summarize();
       if (trout)

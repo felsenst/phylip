@@ -4028,14 +4028,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boo
     else {                 /* for case where one is rearranging only locally */
       if (qwhere == q ) {
         assert(*bestyet <= oldbestyet);
-        t->insert_(t, r, qwhere, true);
+        t->insert_(t, r, qwhere, false);
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
       else {
         assert(*bestyet > oldbestyet);
         succeeded = true;
-        t->insert_(t, r, qwhere, true);
+        t->insert_(t, r, qwhere, false);
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p,0);
         /* debug        double otherbest = *bestyet;      JF:  is this needed? */
@@ -4557,12 +4557,12 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                                  boolean thorough, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
-  double like;
+  double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
   boolean succeeded, bettertree;
   node* dummy;
 
   succeeded = false;
-  t->insert_(t, p, q, t->donewbl);
+  t->insert_(t, p, q, false);
 
   if (atstart)
     bettertree = true;

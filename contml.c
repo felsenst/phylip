@@ -1331,8 +1331,8 @@ void treevaluate(void)
   inittravall (curtree, curtree->root->back);
   curtree->donewbl = !lngths;
   if (!lngths) {        /* if no branch lengths, set them to initialv */
-    ml_inittravtree (curtree, curtree->root);
-    ml_inittravtree (curtree, curtree->root->back);
+    ml_initialvtrav (curtree, curtree->root);
+    ml_initialvtrav (curtree, curtree->root->back);
   }
   if ((!lngths) && curtree->donewbl) {
     for (i = 1; i <= smoothings * 4; i++)
@@ -1414,6 +1414,10 @@ void maketree(void)
     inittip(curtree, enterorder[3]);
     curtree->donewbl = true;
     buildsimpletree(curtree, enterorder);
+    inittrav(curtree, curtree->root);
+    inittrav(curtree, curtree->root->back);
+    smooth(curtree, curtree->root);
+    smooth(curtree, curtree->root->back);
     if (jumb == 1)
       numtrees = 1;
     nextsp = 4;

@@ -3687,7 +3687,7 @@ void maketree(void)
 
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
       // BUG.969 -- proml has reusertree stuff in here
       if (treeprint)
       {
@@ -3804,7 +3804,7 @@ void maketree(void)
       if (njumble > 1)
         bestree2->copy(bestree2, curtree);
       curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
       if (treeprint)
       {
         codml_printree();

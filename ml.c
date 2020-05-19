@@ -1512,7 +1512,7 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
 
 void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
                     boolean global, boolean progress, tree* priortree,
-                    tree* bestree, inittravtree_t inittravtree)
+                    tree* bestree, initialvtrav_t initialvtrav)
 {
   /* evaluate a user tree */
 
@@ -1532,8 +1532,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
   }
   else
   {
-    if (!lngths)
-      inittravtree(curtree, curtree->root);
+    if (!lngths) {
+      initialvtrav(curtree, curtree->root);
+      initialvtrav(curtree, curtree->root->back);
+    }
     polishing = true;
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);   /* debug:  why?  */
@@ -1545,7 +1547,7 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
 }  /* ml_treevaluate */
 
 
-void ml_inittravtree(tree* t, node *p)
+void ml_initialvtrav(tree* t, node *p)
 {
   /* traverse tree to set branch lengths  v  to initial values
    * must be called twice the first time, at both ends of
@@ -1564,11 +1566,11 @@ void ml_inittravtree(tree* t, node *p)
     q = p->next;
     while ( q != p )
     {
-      ml_inittravtree(t, q->back);
+      ml_initialvtrav(t, q->back);
       q = q->next;
     }
   }
-}  /* ml_inittravtree */
+}  /* ml_initialvtrav */
 
 
 // End.
