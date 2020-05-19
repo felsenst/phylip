@@ -663,7 +663,7 @@ void smooth(tree* t, node *p)
     return;
 
   for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {
+  {             /* recursion out one end to do this on all branches */
     if ( sib_ptr->back )
     {
       smooth(t, sib_ptr->back);
@@ -684,7 +684,7 @@ static void ml_tree_smoothall(tree* t, node* p)
 
   save = smoothit;
   smoothit = true;
-  if ( p->tip ) p = p->back;
+  if ( p->tip ) p = p->back;  /* debug: what does this do? */
 
   /* it may seem like we are doing too many smooths, but sometimes
    * one branch near p may already be completly smoothed from an
@@ -758,6 +758,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean donewbl)
     inserting = false;
   }
   else    /* this is the case where we recurse outwards, smoothing */
+/* debug: should this go out both ends? */
   {
     for ( i = 0 ; i < smoothings ; i++)
     {
@@ -1531,7 +1532,8 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
   }
   else
   {
-    inittravtree(curtree, curtree->root);
+    if (!lngths)
+      inittravtree(curtree, curtree->root);
     polishing = true;
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);   /* debug:  why?  */
