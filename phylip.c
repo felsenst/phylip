@@ -387,8 +387,14 @@ void inittravall (tree* t, node *p)
    * for root branch, once at each end of the branch */
   node *q;
 
-  p->initialized = false;
-  p->back->initialized = false;
+  if (p->tip)
+    p->initialized = true;
+  else
+    p->initialized = false;
+  if (p->tip)
+    p->back->initialized = true;
+  else
+    p->back->initialized = false;
   if (p->tip)                            /* bail if at a tip */
     return;
   for (q = p->next; q != p; q = q->next) /* go to rest of fork circle */

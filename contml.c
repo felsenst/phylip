@@ -810,6 +810,8 @@ void makedists(node *p)
   long i;
   node *q;
 
+  if (p->tip)
+    p = p->back;
   for (i = 1; i <= 3; i++)
   {
     q = p->next;
@@ -934,6 +936,8 @@ void contml_tree_makenewv(tree* t, node* p) {
   p->v = p->v - p->deltav - p->back->deltav;
   p->back->v = p->v;
   if (p->v < 0.0) {
+    if (p->tip)
+      p = p->back;
     makedists(p);    /* debug: probably need to do a loop around circle */
     makebigv((contml_node*)p, &negatives);
     if (negatives)
@@ -1414,8 +1418,10 @@ void maketree(void)
     inittip(curtree, enterorder[3]);
     curtree->donewbl = true;
     buildsimpletree(curtree, enterorder);
-    inittrav(curtree, curtree->root);
-    inittrav(curtree, curtree->root->back);
+    ml_initialvtrav (curtree, curtree->root);
+    ml_initialvtrav (curtree, curtree->root->back);
+    inittravall(curtree, curtree->root);
+    inittravall(curtree, curtree->root->back);
     smooth(curtree, curtree->root);
     smooth(curtree, curtree->root->back);
     if (jumb == 1)
