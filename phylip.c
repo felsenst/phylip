@@ -4411,10 +4411,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! newnode->initialized );
   }
 
-  if (thorough) {   /* debug:  what boolean needed here? */
-    inittrav(t, p);
-    inittrav(t, p->back);
-  }
+  inittrav(t, p);
+  inittrav(t, p->back);
 } /* generic_tree_insert_ */
 
 

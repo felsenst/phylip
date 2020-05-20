@@ -741,7 +741,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * After inserting via generic_tree_insert, branch length gets initialv. If
   * t->donewbl is true, all branches optimized.
   *
-  * Insert q near p 
+  * Insert p near q 
   * p is the interior fork connected to the inserted subtree or tip
   */
   long i;
@@ -751,6 +751,12 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 
   if ( !t->donewbl )
   {
+    invalidate_traverse(p);        /* set initialized false on views ... */
+    invalidate_traverse(p->next);  /* ... looking in towards this fork */
+    invalidate_traverse(p->next->next);
+    p->initialized = false;  
+    p->next->initialized = false;  
+    p->next->next->initialized = false;  
     inserting = true;
     ml_update(t, p);
     ml_update(t, p->next);

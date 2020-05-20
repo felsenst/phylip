@@ -930,19 +930,21 @@ void contml_tree_makenewv(tree* t, node* p) {
 /* Compute new branch length.  If after subtracting p->deltav it is negative,
  * then compute new branch lengths on the three branches connected to p
  * and do this iteratively, setting some to zero as needed. */
-  boolean negatives;
+/* debug:    boolean negatives;    commented out maybe not needed  */
 
   p->v = distance(p, p->back);
   p->v = p->v - p->deltav - p->back->deltav;
   p->back->v = p->v;
   if (p->v < 0.0) {
-    if (p->tip)
+    p->v = 0.0;    /* nearest legal value.  smoothing adjusts others */
+    p->back->v = 0.0;
+/* debug:    if (p->tip)
       p = p->back;
-    makedists(p);    /* debug: probably need to do a loop around circle */
+    makedists(p);     debug: probably need to do a loop around circle
     makebigv((contml_node*)p, &negatives);
     if (negatives)
       correctv(p);
-    littlev(p);
+    littlev(p);   debug */
   }
 } /* contml_tree_makenewv */
 
