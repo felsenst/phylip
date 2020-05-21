@@ -344,6 +344,7 @@ void invalidate_traverse(node *p)
     return;
 
   p->initialized = false;
+  p->back->initialized = false;
 
   q = p->back;
   if ( q == NULL ) return;
@@ -382,7 +383,7 @@ void inittrav_all(tree *t)
 void inittravall (tree* t, node *p)
 {
   /* traverse further through tree from there outwards setting all
-   * "initialized" booleans on any connected node to false
+   * "initialized" booleans on any connected interior node to false
    * To set all initializeds to false on a tree must be called twice
    * for root branch, once at each end of the branch */
   node *q;
@@ -391,7 +392,7 @@ void inittravall (tree* t, node *p)
     p->initialized = true;
   else
     p->initialized = false;
-  if (p->tip)
+  if (p->back->tip)
     p->back->initialized = true;
   else
     p->back->initialized = false;
@@ -4322,11 +4323,11 @@ void generic_tree_nuview(tree* t, node* p)
       if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
       {    /* recurse out, as needed, to initialize, with appropriate nuview */
         generic_tree_nuview (t, sib_ptr->back);
-        sib_ptr->initialized = false;
       }
     };
-    t->nuview((tree*)t, p);   /* this actually calculates the view */
-    p->initialized = false;
+    t->nuview((tree*)t, p);   /* this actually calculates the view using
+                               * the algorithm for that kind of data */
+    p->initialized = true;
   }
 } /* generic_tree_nuview */
 

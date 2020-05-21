@@ -632,8 +632,7 @@ void freex(long nonodes, pointarray treenode)
 
 
 void ml_update(tree *t, node *p)
-{ /* calls nuview to (one-way recursively) make views at both ends
-   * debug: should smoothit be passed as a parameter? */
+{ /* calls nuview to (one-way recursively) make views at both ends */
 
   if (!p->tip && !p->initialized) {
     generic_tree_nuview((tree*)t, p);     /* recurse from one end */

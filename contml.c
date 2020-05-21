@@ -905,9 +905,9 @@ void contml_tree_nuview(tree* t, node *p)
   r = q->next;
   a = q->back;
   b = r->back;
-  v1 = q->v;
-  v2 = r->v;
-  vtot = v1 + v2;
+  v1 = q->v + a->deltav;     /*  this is now   v1'   */
+  v2 = r->v + b->deltav;     /*  this is now   v2'   */
+  vtot = v1 + v2;            /*  this is now  v1' + v2'   */
   if (vtot > 0.0)
     f1 = v2 / vtot;
   else
@@ -921,7 +921,7 @@ void contml_tree_nuview(tree* t, node *p)
                                      + f2 * ((cont_node_type*)b)->view[m+k-1];
     m += alleles[j];
   }
-  p->deltav = v1 * f1;
+  p->deltav = v1 * f1;   /* so it is     v1' v2' / (v1' + v2')     */
 
 }  /* contml_tree_nuview */
 
@@ -1344,6 +1344,8 @@ void treevaluate(void)
     for (i = 1; i <= smoothings * 4; i++)
       smooth(curtree, curtree->root);
   }
+  else
+    ml_update(curtree, curtree->root);
   like = curtree->evaluate(curtree, curtree->root, false);
 }  /* treevaluate */
 
