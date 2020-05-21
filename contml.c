@@ -1344,8 +1344,11 @@ void treevaluate(void)
     for (i = 1; i <= smoothings * 4; i++)
       smooth(curtree, curtree->root);
   }
-  else
+  else {
+    inittravall(curtree, curtree->root);
+    inittravall(curtree, curtree->root->back);
     ml_update(curtree, curtree->root);
+  }
   like = curtree->evaluate(curtree, curtree->root, false);
 }  /* treevaluate */
 
