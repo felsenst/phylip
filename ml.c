@@ -632,10 +632,10 @@ void freex(long nonodes, pointarray treenode)
 
 
 void ml_update(tree *t, node *p)
-{ /* calls nuview to (one-way recursively) make views at both ends */
+{ /* calls nuview to (each one-way recursively) make views at both ends */
 
   if (!p->tip && !p->initialized) {
-    generic_tree_nuview((tree*)t, p);     /* recurse from one end */
+    generic_tree_nuview((tree*)t, p);           /* recurse from one end */
   }
   if ( p->back && !p->back->tip && !p->back->initialized) {
     generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
@@ -654,7 +654,7 @@ void smooth(tree* t, node *p)
   ml_update(t, p);    /* get views at both ends updated */
   t->makenewv (t, p); /* new value of branch length */
   inittrav (t, p);    /* set inward-looking pointers false ... */
-  inittrav (t, p->back);  /* ... from both ends */
+  inittrav (t, p->back);  /* ... from both ends of this branch */
 
   if ( p->tip )
     return;
@@ -662,7 +662,7 @@ void smooth(tree* t, node *p)
     return;
 
   for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {             /* recursion out one end to do this on all branches */
+  {      /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
       smooth(t, sib_ptr->back);
@@ -764,6 +764,10 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   }
   else    /* this is the case where we recurse outwards, smoothing */
   {
+    inittrav(t, p);        /* set inward-looking pointers false */
+    inittrav(t, p->back);
+    ml_update(t, p);
+    ml_update(t, p->back);
     for ( i = 0 ; i < smoothings ; i++)
     {
       smooth(t, p->back);   /* go out back end of branch, recrusing */
@@ -813,9 +817,9 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean donewbl)
     }
   }
   else {   /* update views at both ends of branch connected to q */
-    if (!(*q)->tip)
+    if (!((*q)->tip))
       ml_update(t, *q);
-    if (!(*q)->back->tip)
+    if (!((*q)->back->tip))
       ml_update(t, (*q)->back);
   }
 } /* ml_tree_re_move */

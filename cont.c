@@ -227,7 +227,7 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
     }
     fprintf(outfile, "\n\n");
   }
-  else                                  /* Shimodaira-Hasegawa test using normal approximation */
+  else            /* Shimodaira-Hasegawa test using normal approximation */
   {
     if(numtrees > MAXSHIMOTREES)
     {
@@ -305,12 +305,12 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
     fprintf(outfile, "   Significantly worse?\n\n");
     for (i = 0; i < numtrees; i++)
     {
-      fprintf(outfile, "%3ld%10.1f", i+1, l0gl[i]);
+      fprintf(outfile, "%3ld%10.2f", i+1, l0gl[i]);
       if ((maxwhich-1) == i)
         fprintf(outfile, "  <------ best\n");
       else
       {
-        fprintf(outfile, " %9.1f  %10.3f", l0gl[i]-maxlogl, P[i]);
+        fprintf(outfile, " %9.2f  %10.2f", l0gl[i]-maxlogl, P[i]);
         if (P[i] < 0.05)
           fprintf(outfile, "           Yes\n");
         else

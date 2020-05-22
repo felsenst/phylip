@@ -407,7 +407,8 @@ void inittravall (tree* t, node *p)
 void inittrav (tree* t, node *p)
 { /* traverse to set inward-looking booleans uninitialized on inserting
    * This does not set all initialized booleans in the tree to false,
-   * only the ones looking inwards at the branch it is first called for */
+   * only the ones looking inwards at the branch it is first called for,
+   * and then only ones connected to this end of the branch */
   node *sib_ptr;
 
   if (p == NULL)
@@ -3795,7 +3796,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     }
   }
   if (contin && !q->back->tip) {
-    /* we need to go both ways, if start in an interior branch of an unrooted tree */
+    /* we need to go both ways, if start in an interior branch
+     * of an unrooted tree */
     for ( sib_ptr = q->back->next ; sib_ptr != q->back ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
@@ -4379,7 +4381,8 @@ node* generic_tree_get_forknode(tree* t, long i)
 
 void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 { /* generic version of inserting fork with attached subtree
-     where fork is pointed to by  p,   near node or tip  q  */
+     where fork is pointed to by  p, and attached subtree is at
+     p->back, inserting it near node or tip  q  */
   node *newnode, *r;
   boolean thorough = true;  /* debug: needed at all? */
 
@@ -4572,7 +4575,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   if (atstart)
     bettertree = true;
   else {
-    bettertree = (like > *bestyet);
+    bettertree = (t->score > *bestyet);
     succeeded = bettertree;
     }
   if (bettertree) {
