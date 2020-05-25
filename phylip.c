@@ -408,7 +408,10 @@ void inittrav (tree* t, node *p)
 { /* traverse to set inward-looking booleans uninitialized on inserting
    * This does not set all initialized booleans in the tree to false,
    * only the ones looking inwards at the branch it is first called for,
-   * and then only ones connected to this end of the branch */
+   * and then only ones connected to this end of the branch.  It
+   * traverses from one end of the branch but not from the other,
+   * so usually needs to be called twice, once on each end of the
+   * branch, */
   node *sib_ptr;
 
   if (p == NULL)
@@ -416,8 +419,10 @@ void inittrav (tree* t, node *p)
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    sib_ptr->initialized = false;  /* set booleans looking back in */
-    inittrav(t, sib_ptr->back);    /* further traverse from this circle */
+    if (!(sib_ptr->initialized)) {   /* if not already uninitialized ... */
+      sib_ptr->initialized = false;  /* set booleans looking back in, then */
+      inittrav(t, sib_ptr->back);    /* further traverse from this circle */
+    }
   }
 } /* inittrav */
 
@@ -2799,11 +2804,14 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     (*nextnode)++;          /* get ready to use new interior node */
     nodei = *nextnode;      /* do what needs to be done at bottom */
     if ( (maxnodes != -1) && (nodei > maxnodes)) {
-      sprintf(progbuf, "ERROR in input tree file: Attempting to allocate too\n");
+      sprintf(progbuf,
+               "ERROR in input tree file: Attempting to allocate too\n");
       print_progress(progbuf);
-      sprintf(progbuf, "many nodes. This is usually caused by a unifurcation.\n");
+      sprintf(progbuf,
+               "many nodes. This is usually caused by a unifurcation.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read\n");
+      sprintf(progbuf,
+               "To use this tree with this program, use Retree to read\n");
       print_progress(progbuf);
       sprintf(progbuf, "and write this tree.\n");
       print_progress(progbuf);
@@ -2851,9 +2859,11 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
       }
     }
     if ( furcs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
+      sprintf(progbuf,
+              "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+              "To use this tree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
@@ -2880,19 +2890,19 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     hookup(q, (*p));                    /* now hook up */
   (*initnode)(treep, p, len, nodei, ntips,
               parens, iter, nodep, str, ch, treefile);
-  /* do what needs to be done to variable iter */
+          /* do what needs to be done to variable iter */
   if ((*ch) == ':')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, length, nodep, str, ch, treefile);
-  /* do what needs to be done with length */
+          /* do what needs to be done with length */
   else if ((*ch) != ';' && (*ch) != '[')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, hsnolength, nodep, str, ch, treefile);
-  /* ... or what needs to be done when no length */
+          /* ... or what needs to be done when no length */
   if ((*ch) == '[')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, treewt, nodep, str, ch, treefile);
-  /* ... for processing a tree weight */
+          /* ... for processing a tree weight */
   else if ((*ch) == ';')     /* ... and at end of tree */
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, unittrwt, nodep, str, ch, treefile);
@@ -3395,7 +3405,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
 
-  t->donewbl = false;  /* for parsimony etc.  gets overwritten in ml_tree_init */
+  t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
@@ -4395,18 +4405,18 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
       hookup(p->next, q);
       hookup(p->next->next, r);
       }
-    else {         /* if q is the root fork */
+    else {                /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
       };
     t->do_branchl_on_insert_f(t, p, q);
 
-    assert( ! p->initialized );
+/* debug: needed?    assert( ! p->initialized );
     assert( ! p->next->initialized );
-    assert( ! p->next->next->initialized );
+    assert( ! p->next->next->initialized );   debug */
 
   }
-  else {
+  else {                /* if is at a multifurcating node */
     newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
     newnode->next = q->next;
     q->next = newnode;
@@ -4474,7 +4484,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
 } /* rooted_tree_insert_ */
 
 
-void generic_tree_re_move(tree* t, node* fork, node** where, boolean donewbl)
+void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
 { /* disconnects an interior node circle with the subtree connected to it
    * at node "fork", setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
@@ -4482,7 +4492,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean donewbl)
   node *q, *p;
   long num_sibs;
 
-  if ( fork->back->tip && fork->tip ) {  /* debuug: does this ever occur? */
+  if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
     fork->back = NULL;
     fork->back = NULL;
     return;
@@ -4498,7 +4508,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean donewbl)
     fork->next = NULL;
     if ( t->root == fork )
       t->root = q;
-    if ( donewbl ) {
+    if ( do_newbl ) {
       inittrav(t, q);
       for ( p = q->next ; p != q ; p = p->next )
         inittrav(t, p);
@@ -4510,20 +4520,20 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean donewbl)
       (*where) = fork->next->back;
     else
       (*where) = fork->next->next->back;
-    if (fork->next->back != NULL)    /* connect remaining neighbors to each other */
+    if (fork->next->back != NULL)            /* connect remaining neighbors */
       fork->next->back->back = fork->next->next->back;
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
-    if ((fork->next == t->root) || (fork->next->next == t->root))  /* set root */
-      t->root = *where;
+    if ((fork->next == t->root) || (fork->next->next == t->root))
+      t->root = *where;                      /* set root */
     fork->next->back = NULL;
     fork->next->next->back = NULL;
     if (t->root->tip ) t->root = t->root->back;
 
     t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
 
-    if ( donewbl ) {
-      inittrav(t, *where);
+    if ( do_newbl ) {      /* set not-initialized on branches looking in ... */
+      inittrav(t, *where);                       /* ... towards this branch */
       inittrav(t, (*where)->back);
     }
   }
@@ -4611,7 +4621,7 @@ void buildsimpletree(tree *t, long* enterorder)
 }  /* buildsimpletree */
 
 
-void rooted_tree_re_move(tree* t, node* item, node** where, boolean donewbl)
+void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
 {
   /* Remove a node from a rooted tree
    *
@@ -4635,7 +4645,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean donewbl)
   if ( count_sibs(item->back) != 2 ) {
     /* removing a node from a multi-furcation is the same in the rooted and
        unrooted sense */
-    generic_tree_re_move(t, item, where, donewbl);
+    generic_tree_re_move(t, item, where, do_newbl);
 
   } else { /* 2 sibs */
 
@@ -4662,7 +4672,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean donewbl)
 
     t->release_fork(t, fork);
     item->back = NULL;
-    if  ( donewbl ) {
+    if  ( do_newbl ) {
       inittrav(t, whereloc);
       inittrav(t, whereloc->back);
     }

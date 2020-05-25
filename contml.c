@@ -557,7 +557,8 @@ void inputdata(void)
 
 void transformgfs(void)
 { /* do stereographic projection transformation on gene frequencies to
-     get variables that come closer to independent Brownian motions */
+     get variables that come closer to independent Brownian motions 
+     This was developed by Elizabeth Thompson (Biometrics, 1972) */
   long i, j, k, l, m, n, maxalleles;
   double f, sum;
   double *sumprod, *sqrtp, *pbar;
@@ -659,12 +660,12 @@ void transformgfs(void)
 
 void getinput(void)
 { /* reads the input data */
-  getalleles();
-  inittrees();
-  inputdata();
-  if (!contchars)
+  getalleles();     /* How many species/strains/populations, how many loci */
+  inittrees();      /* set up tree(s) of appropriate sizes */
+  inputdata();      /* read in the data and store it */
+  if (!contchars)   /* if it's gene frequencies ... */
   {
-    transformgfs();
+    transformgfs();  /* use approximate linearization (E. A. Thompson 1972) */
   }
 }  /* getinput */
 
@@ -1333,19 +1334,19 @@ void treevaluate(void)
   double like;  /* to keep evaluate happy, not used */
 
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
-  inittravall (curtree, curtree->root);     /* set initializeds false */
+  inittravall (curtree, curtree->root);     /* set all initializeds false */
   inittravall (curtree, curtree->root->back);
-  curtree->donewbl = !lngths;
-  if (!lngths) {        /* if no branch lengths, set them to initialv */
+  curtree->do_newbl = !lngths;   /* if not use lengths, will need new ones */
+  if (!lngths) {      /* if not using branch lengths, set them to initialv */
     ml_initialvtrav (curtree, curtree->root);
     ml_initialvtrav (curtree, curtree->root->back);
   }
-  if ((!lngths) && curtree->donewbl) {
+  if (!lngths) {
     for (i = 1; i <= smoothings * 4; i++)
       smooth(curtree, curtree->root);
   }
   else {
-    inittravall(curtree, curtree->root);
+    inittravall(curtree, curtree->root);     /* set all initializeds false */
     inittravall(curtree, curtree->root->back);
     ml_update(curtree, curtree->root);
   }
@@ -1423,7 +1424,7 @@ void maketree(void)
     inittip(curtree, enterorder[1]);
     inittip(curtree, enterorder[2]);
     inittip(curtree, enterorder[3]);
-    curtree->donewbl = true;
+    curtree->do_newbl = true;
     buildsimpletree(curtree, enterorder);
     ml_initialvtrav (curtree, curtree->root);
     ml_initialvtrav (curtree, curtree->root->back);
