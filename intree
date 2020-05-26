@@ -1,0 +1,3 @@
+((European,African),American,(Chinese,Australian));
+(American,(Chinese,Australian),(European,African));
+((European,African),(American,(Chinese,Australian)));
