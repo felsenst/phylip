@@ -93,6 +93,7 @@ double trweight;   /* added to make treeread happy */
 boolean goteof;
 boolean haslengths;   /* end of ones added to make treeread happy */
 node *addwhere;
+double like;
 
 /* added to make ml.o happy, could use these later */
 boolean smoothed = false;
@@ -708,7 +709,7 @@ debug:  */
     for (i = 0; i < loci; i++)
       l0gf[which - 1][i] += (1 - alleles[i]) * log(vee) / 2.0;
   }
-  if (contchars)
+  if (contchars)    /* this case is where there are continuous characters */
   {
     m = 0;
     for (i = 0; i < loci; i++)
@@ -720,7 +721,7 @@ debug:  */
       sumsq += term;
     }
   }
-  else
+  else       /* ... and this case is where there are gene frequencies */
   {
     m = 0;
     for (i = 0; i < loci; i++)
@@ -736,7 +737,11 @@ debug:  */
       m += alleles[i];
     }
   }
-  (*sum) += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug */  printf(" adding in: %15.9f\n", df * log(vee) / -2.0 - sumsq / (2.0 * vee));
+  *sum += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug: */  printf(" sum now:  %15.10f \n", *sum);
+  like += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug: */  printf(" like now: %15.10f \n", like);
 }  /* sumlikely */
 
 
@@ -746,6 +751,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
   long i;
   double sum;
 
+  ml_update (t, t->root);
   generic_tree_evaluate (t, p, saveit);    /* update views if needed */
   sum = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
@@ -754,7 +760,9 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
       l0gf[which - 1][i] = 0.0;
   }
 
+/* debug: */  printf(" likelihood sum before:  %15.10f \n", sum);
   sumlikely(p, p->back, &sum);    /* this gets the likelihood, recursively */
+/* debug: */  printf(" likelihood sum now:  %15.10f \n", sum);
   if (usertree && which <= MAXSHIMOTREES)
   {
     l0gl[which - 1] = sum;
@@ -1331,7 +1339,7 @@ void initrav(node *p)
 void treevaluate(void)
 { /* evaluate user-defined tree, iterating branch lengths if needed */
   long i;
-  double like;  /* to keep evaluate happy, not used */
+  double dummy;
 
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
   inittravall (curtree, curtree->root);     /* set all initializeds false */
@@ -1350,7 +1358,8 @@ void treevaluate(void)
     inittravall(curtree, curtree->root->back);
     ml_update(curtree, curtree->root);
   }
-  like = curtree->evaluate(curtree, curtree->root, false);
+  dummy = curtree->evaluate(curtree, curtree->root, false);
+/* debug:  */  printf("  likelihood of tree is  %15.8f\n", like);
 }  /* treevaluate */
 
 

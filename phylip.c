@@ -4350,9 +4350,13 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
    * to each program.
    */
 
-  if ( p->initialized == false && p->tip == false )
+  if ( (p->initialized == false) && (p->tip == false) )
   {
     t->nuview((tree*)t, p);
+  }
+  if ( (p->back->initialized == false) && (p->back->tip == false) )
+  {
+    t->nuview((tree*)t, p->back);
   }
   return 0;
 } /* generic_tree_evaluate */
