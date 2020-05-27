@@ -1211,9 +1211,9 @@ void treeout(node *p)
 
 
 void describe(node *p, double chilow, double chihigh)
-{ /* print out information for one branch */
+{ /* print out information for one branch, recurse out from there */
   long i;
-  node *q;
+  node *q, *r;
   double bigv, delta;
 
   q = p->back;
@@ -1233,12 +1233,15 @@ void describe(node *p, double chilow, double chihigh)
   delta = p->deltav + p->back->deltav;
   bigv = p->v + delta;
   if (p->iter)
-    fprintf(outfile, "   (%12.8f,%12.8f)", chilow * bigv - delta, chihigh * bigv - delta);
+    fprintf(outfile, "   (%12.8f,%12.8f)", chilow * bigv - delta,
+                                           chihigh * bigv - delta);
   fprintf(outfile, "\n");
-  if (!p->tip)
-  {
-    describe(p->next->back, chilow, chihigh);
-    describe(p->next->next->back, chilow, chihigh);
+  if (!p->tip) {    /* recurse on out from there */
+    for (r = p->next; r != p; r = r->next) {
+      if (!r->back->tip) {
+        describe(r->back, chilow, chihigh);
+      }
+    }
   }
 }  /* describe */
 
@@ -1246,6 +1249,7 @@ void describe(node *p, double chilow, double chihigh)
 void summarize(void)
 { /* print out branch lengths etc. */
   double chilow, chihigh;
+  node *q;
 
   fprintf(outfile, "\nremember: ");
   if (outgropt)
@@ -1279,9 +1283,12 @@ void summarize(void)
   if ((usertree && !lngths) || !usertree) 
     fprintf(outfile, "      ------- ---------- ------");
   fprintf(outfile, "\n");
-  describe(curtree->root->next->back, chilow, chihigh);
-  describe(curtree->root->next->next->back, chilow, chihigh);
-  describe(curtree->root->back, chilow, chihigh);
+  if (!curtree->root->tip) {  /* recurse out all nonempty branches */
+    for (q = curtree->root->next; q != curtree->root; q = q->next) {
+      if (q->back != NULL)            /* if branch is not empty */
+        describe(q->back, chilow, chihigh);
+    }
+  }
   fprintf(outfile, "\n\n");
   if (trout)
   {
