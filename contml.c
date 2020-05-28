@@ -810,6 +810,7 @@ double distance(node *p, node *q)
       sum += temp * temp;
     }
   }
+  sum = sum/df;
   return sum;
 }  /* distance */
 
@@ -905,55 +906,57 @@ void littlev(node *p)
 
 
 void contml_tree_nuview(tree* t, node *p)
-{ /* renew inward-looking view information in subtrees */
+{ /* renew inward-looking view information in subtrees
+   * This handles arbitrarily-multifurcating interior node circles */
+  /* debug: note this can be generalized to molecular sequences by
+   * breaking out the numerical calculations into a separate function */
   long j, k, m;
-  node *q, *r, *a, *b;
+  node *q, *a, *b;
   double v1, v2, vtot, f1, f2;
 
-  q = p->next;
-  r = q->next;
-  a = q->back;
-  b = r->back;
-  v1 = q->v + a->deltav;     /*  this is now   v1'   */
-  v2 = r->v + b->deltav;     /*  this is now   v2'   */
-  vtot = v1 + v2;            /*  this is now  v1' + v2'   */
-  if (vtot > 0.0)
-    f1 = v2 / vtot;
-  else
-    f1 = 0.5;
-  f2 = 1.0 - f1;
+  v1 = p->next->v + p->next->deltav; /*  length (v1') of leftmost branch */
+  a = p->next->back;                 /* other end of that branch */
   m = 0;
-  for (j = 0; j < loci; j++)
+  for (j = 0; j < loci; j++)         /* start by copying its values */
   {
     for (k = 1; k <= alleles[j]; k++)
-      ((cont_node_type*)p)->view[m+k-1] = f1*((cont_node_type*)a)->view[m+k-1]
-                                     + f2 * ((cont_node_type*)b)->view[m+k-1];
+      ((cont_node_type*)p)->view[m+k-1] = ((cont_node_type*)a)->view[m+k-1];
     m += alleles[j];
   }
+  for (q = p->next->next; q != p; q = q->next) {  /* around other furcs */
+    b = q->back;
+    v2 = q->v + b->deltav;     /*  this is now   v2'   */
+    vtot = v1 + v2;            /*  this is now  v1' + v2'   */
+    if (vtot > 0.0)
+      f1 = v2 / vtot;
+    else                       /* bizarre case where all lengths 0 */
+      f1 = 0.5;                /* (not sure this works or makes sense) */
+    f2 = 1.0 - f1;
+    m = 0;
+    for (j = 0; j < loci; j++) /* view, taking that furc into account */
+    {
+      for (k = 1; k <= alleles[j]; k++)
+        ((cont_node_type*)p)->view[m+k-1] = f1*((cont_node_type*)p)->view[m+k-1]
+                                       + f2 * ((cont_node_type*)b)->view[m+k-1];
+      m += alleles[j];
+    }
   p->deltav = v1 * f1;   /* so it is     v1' v2' / (v1' + v2')     */
-
+  v1 = p->deltav;        /* new value of deltav to use with next furc */
+  }
 }  /* contml_tree_nuview */
 
 
 void contml_tree_makenewv(tree* t, node* p) {
 /* Compute new branch length.  If after subtracting p->deltav it is negative,
- * then compute new branch lengths on the three branches connected to p
- * and do this iteratively, setting some to zero as needed. */
-/* debug:    boolean negatives;    commented out maybe not needed  */
+ * then set it to the nearest legal value, zero.  The other branches will
+ * adjust to that as needed as they are iterated */
 
   p->v = distance(p, p->back);
   p->v = p->v - p->deltav - p->back->deltav;
   p->back->v = p->v;
   if (p->v < 0.0) {
-    p->v = 0.0;    /* nearest legal value.  smoothing adjusts others */
+    p->v = 0.0;       /* nearest legal value.  smoothing adjusts others */
     p->back->v = 0.0;
-/* debug:    if (p->tip)
-      p = p->back;
-    makedists(p);     debug: probably need to do a loop around circle
-    makebigv((contml_node*)p, &negatives);
-    if (negatives)
-      correctv(p);
-    littlev(p);   debug */
   }
 } /* contml_tree_makenewv */
 
@@ -1351,6 +1354,7 @@ void treevaluate(void)
   long i;
   double dummy;
 
+  like = 0.0;
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
   inittravall (curtree, curtree->root);     /* set all initializeds false */
   inittravall (curtree, curtree->root->back);
@@ -1360,8 +1364,10 @@ void treevaluate(void)
     ml_initialvtrav (curtree, curtree->root->back);
   }
   if (!lngths) {
-    for (i = 1; i <= smoothings * 4; i++)
+    for (i = 1; i <= smoothings * 4; i++) {
       smooth(curtree, curtree->root);
+      smooth(curtree, curtree->root->back);
+    }
   }
   else {
     inittravall(curtree, curtree->root);     /* set all initializeds false */

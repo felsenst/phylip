@@ -665,8 +665,8 @@ void smooth(tree* t, node *p)
   {      /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, sib_ptr->back);
-      sib_ptr->initialized = false;
+      smooth(t, sib_ptr->back);      /* go out branch leading from there */
+      sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
 }  /* smooth */
@@ -770,9 +770,8 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     ml_update(t, p->back);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p->back);   /* go out back end of branch, recrusing */
-      for ( r = p->next ; r != p ; r = r->next )
-        smooth(t, r);   /* go around fork, out each other branch */
+      smooth(t, p);   /* go around fork, out each other branch */
+      smooth(t, p->back);   /* go out back end of branch, recursing */
     }
   }
 } /* ml_tree_insert */
