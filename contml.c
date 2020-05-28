@@ -1238,10 +1238,8 @@ void describe(node *p, double chilow, double chihigh)
   fprintf(outfile, "\n");
   if (!p->tip) {    /* recurse on out from there */
     for (r = p->next; r != p; r = r->next) {
-      if (!r->back->tip) {
         describe(r->back, chilow, chihigh);
       }
-    }
   }
 }  /* describe */
 
@@ -1284,10 +1282,13 @@ void summarize(void)
     fprintf(outfile, "      ------- ---------- ------");
   fprintf(outfile, "\n");
   if (!curtree->root->tip) {  /* recurse out all nonempty branches */
-    for (q = curtree->root->next; q != curtree->root; q = q->next) {
-      if (q->back != NULL)            /* if branch is not empty */
+    q = curtree->root;
+    do {
+      q = q->next;
+      if (q->back != NULL) {            /* if branch is not empty */
         describe(q->back, chilow, chihigh);
-    }
+      }
+    } while (q != curtree->root);
   }
   fprintf(outfile, "\n\n");
   if (trout)
@@ -1314,7 +1315,9 @@ void nodeinit(node *p)
   for (i = 0; i < loci; i++)
   {
     for (j = 1; j < alleles[i]; j++)
-      ((cont_node_type*)p)->view[m+j-1] = 0.5 * ((cont_node_type*)q)->view[m+j-1] + 0.5 * ((cont_node_type*)r)->view[m+j-1];
+      ((cont_node_type*)p)->view[m+j-1] =
+          0.5 * ((cont_node_type*)q)->view[m+j-1] 
+        + 0.5 * ((cont_node_type*)r)->view[m+j-1];
     m += alleles[i];
   }
   if ((!lngths) || p->iter)
