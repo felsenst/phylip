@@ -690,6 +690,7 @@ void sumlikely(node *p, node *q, double *sum)
     sumlikely(p->next->back, p->next->next->back, sum);
   if (!q->tip)
     sumlikely(q->next->back, q->next->next->back, sum);
+/* debug */  printf("contrast between %ld and %ld\n", p->index, q->index);
   if (p->back == q)
     vee = p->v;
   else
@@ -713,11 +714,13 @@ debug:  */
     m = 0;
     for (i = 0; i < loci; i++)
     {
+/* debug */  printf("p->view[0]: %15.9f, q->view[0]: %15.9f\n", ((cont_node_type*)p)->view[0], ((cont_node_type*)q)->view[0]);
       temp = ((cont_node_type*)p)->view[i] - ((cont_node_type*)q)->view[i];
       term = temp * temp;
       if (usertree && which <= MAXSHIMOTREES)
         l0gf[which - 1][i] -= term / (2.0 * vee);
       sumsq += term;
+/* debug */  printf("sumsq is now  %15.9f\n", sumsq);
     }
   }
   else       /* ... and this case is where there are gene frequencies */
@@ -732,6 +735,7 @@ debug:  */
         if (usertree && which <= MAXSHIMOTREES)
           l0gf[which - 1][i] -= term / (2.0 * vee);
         sumsq += term;
+/* debug */  printf("sumsq is now  %15.9f\n", sumsq);
       }
       m += alleles[i];
     }
@@ -915,6 +919,7 @@ void contml_tree_nuview(tree* t, node *p)
   node *q, *a, *b;
   double v1, v2, vtot, f1, f2;
 
+/* debug */ printf("new view from  %ld  to  %ld\n", p->back->index, p->index);
   v1 = p->next->v + p->next->deltav; /*  length (v1') of leftmost branch */
   a = p->next->back;                 /* other end of that branch */
   m = 0;
@@ -953,9 +958,10 @@ void contml_tree_makenewv(tree* t, node* p) {
  * adjust to that as needed as they are iterated */
 
   p->v = distance(p, p->back);
-/* debug */ printf(" branch from %ld to %ld, dist is:  %15.10f\n", p->index, p->back->index, p->v);
-  p->v = p->v - p->deltav - p->back->deltav;
+/* debug */ printf(" makenewv: branch from %ld to %ld, dist is:  %15.10f\n", p->index, p->back->index, p->v);
+/* debug */ printf(" p->deltav: %15.10f, p->back->deltav: %15.10f\n", p->deltav, p->back->deltav);
 /* debug */ printf(" estimated bigv is  %15.10f\n", p->v);
+  p->v = p->v - p->deltav - p->back->deltav;
   p->back->v = p->v;
   if (p->v < 0.0) {
     p->v = 0.0;       /* nearest legal value.  smoothing adjusts others */
