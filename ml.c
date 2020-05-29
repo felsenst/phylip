@@ -744,7 +744,6 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * p is the interior fork connected to the inserted subtree or tip
   */
   long i;
-  node *r;
 
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
@@ -810,9 +809,10 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
   {
     for (i = 0 ; i < smoothings ; i++ )
     {
-      smooth(t, *q);
-      if ( smoothit )
+      if ( smoothit ) {
+        smooth(t, *q);
         smooth(t, (*q)->back);
+      }
     }
   }
   else {   /* update views at both ends of branch connected to q */
@@ -927,8 +927,10 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   else
     set_tyme(newfork, ((ml_node*)newfork)->node.tyme - initialv);
 
-  if ( !smoothit )
+  if ( !smoothit ) {
     smooth(t, newfork);
+    smooth(t, newfork->back);
+  }
   else
   {
     inittrav(t, newtip);

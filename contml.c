@@ -737,6 +737,7 @@ debug:  */
       m += alleles[i];
     }
   }
+  printf(" terms: %15.10f, %15.10f\n", df * log(vee) / -2.0,  - sumsq / (2.0 * vee));
 /* debug */  printf(" adding in: %15.9f\n", df * log(vee) / -2.0 - sumsq / (2.0 * vee));
   *sum += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
 /* debug: */  printf(" sum now:  %15.10f \n", *sum);
@@ -952,12 +953,15 @@ void contml_tree_makenewv(tree* t, node* p) {
  * adjust to that as needed as they are iterated */
 
   p->v = distance(p, p->back);
+/* debug */ printf(" branch from %ld to %ld, dist is:  %15.10f\n", p->index, p->back->index, p->v);
   p->v = p->v - p->deltav - p->back->deltav;
+/* debug */ printf(" estimated bigv is  %15.10f\n", p->v);
   p->back->v = p->v;
   if (p->v < 0.0) {
     p->v = 0.0;       /* nearest legal value.  smoothing adjusts others */
     p->back->v = 0.0;
   }
+/* debug */ printf(" v is  %15.10f\n", p->v);
 } /* contml_tree_makenewv */
 
 
