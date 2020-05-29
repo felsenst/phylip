@@ -684,8 +684,7 @@ void contml_hookup(node* p, node* q){
 void sumlikely(node *p, node *q, double *sum)
 { /* sum contribution to likelihood over forks in tree */
   long i, j, m;
-  double term, sumsq, vee;
-  double temp;
+  double term, temp, sumsq, vee;
 
   if (!p->tip)
     sumlikely(p->next->back, p->next->next->back, sum);
@@ -703,12 +702,12 @@ void sumlikely(node *p, node *q, double *sum)
     exxit(-1);
   }
 debug:  */
-  sumsq = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
   {
     for (i = 0; i < loci; i++)
       l0gf[which - 1][i] += (1 - alleles[i]) * log(vee) / 2.0;
   }
+  sumsq = 0.0;
   if (contchars)    /* this case is where there are continuous characters */
   {
     m = 0;
@@ -737,7 +736,8 @@ debug:  */
       m += alleles[i];
     }
   }
-  printf(" terms: %15.10f, %15.10f\n", df * log(vee) / -2.0,  - sumsq / (2.0 * vee));
+/* debug */  printf(" vee: %15.10f, df: %ld, sumsq: %15.10f\n", vee, df, sumsq);
+/* debug */  printf(" terms: %15.10f, %15.10f\n", df * log(vee) / -2.0,  - sumsq / (2.0 * vee));
 /* debug */  printf(" adding in: %15.9f\n", df * log(vee) / -2.0 - sumsq / (2.0 * vee));
   *sum += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
 /* debug: */  printf(" sum now:  %15.10f \n", *sum);
