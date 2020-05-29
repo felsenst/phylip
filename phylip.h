@@ -680,7 +680,7 @@ void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);
 void            inittrav_all(tree*);
-void            inittravall (tree*, node*);
+void            initializetrav (tree*, node*);
 void            inittrav (tree*, node*);
 void            EOF_error(void);
 void            crash_handler(int);

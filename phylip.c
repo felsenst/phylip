@@ -362,7 +362,7 @@ void inittrav_all(tree *t)
   /* Set initialized false on all interior fork nodes on tree, so
    * that views are regenerated regardless. For debugging nuview
    * problems. Not needed for regular program execution --
-   * replaced by function inittravall */
+   * replaced by function initializetrav */
 
   node *p;
   long index;
@@ -380,7 +380,7 @@ void inittrav_all(tree *t)
 } /* inittrav_all */
 
 
-void inittravall (tree* t, node *p)
+void initializetrav (tree* t, node *p)
 {
   /* traverse further through tree from there outwards setting all
    * "initialized" booleans on any connected interior node to false
@@ -399,9 +399,9 @@ void inittravall (tree* t, node *p)
   if (p->tip)                            /* bail if at a tip */
     return;
   for (q = p->next; q != p; q = q->next) /* go to rest of fork circle */
-    inittravall (t, q->back);            /* ... and on outwards from there */
+    initializetrav (t, q->back);            /* ... and on outwards from there */
 
-} /* inittravall */
+} /* initializetrav */
 
 
 void inittrav (tree* t, node *p)
@@ -4337,10 +4337,10 @@ void generic_tree_nuview(tree* t, node* p)
         generic_tree_nuview (t, sib_ptr->back);
       }
     };
-    t->nuview((tree*)t, p);   /* this actually calculates the view using
-                               * the algorithm for that kind of data */
-    p->initialized = true;
   }
+  t->nuview((tree*)t, p);   /* this actually calculates the view using
+                             * the algorithm for that kind of data */
+  p->initialized = true;
 } /* generic_tree_nuview */
 
 
