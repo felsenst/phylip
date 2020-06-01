@@ -820,6 +820,7 @@ double distance(node *p, node *q)
 }  /* distance */
 
 
+/* debug:   from here for next few functions, not needed as far as I can see */
 void makedists(node *p)
 { /* compute distances among three neighbors of a node */
   long i;
@@ -908,6 +909,7 @@ void littlev(node *p)
     p = p->next;
   }
 }  /* littlev */
+/* debug:   functions, not needed as far as I can see */
 
 
 void contml_tree_nuview(tree* t, node *p)
@@ -1366,8 +1368,8 @@ void treevaluate(void)
 
   like = 0.0;
   unroot(curtree, nonodes2);          /*  so root is at interior fork */
-  inittravall (curtree, curtree->root);     /* set all initializeds false */
-  inittravall (curtree, curtree->root->back);
+  initializetrav (curtree, curtree->root);     /* set all initializeds false */
+  initializetrav (curtree, curtree->root->back);
   curtree->do_newbl = !lngths;   /* if not use lengths, will need new ones */
   if (!lngths) {      /* if not using branch lengths, set them to initialv */
     ml_initialvtrav (curtree, curtree->root);
@@ -1379,8 +1381,8 @@ void treevaluate(void)
     }
   }
   else {
-    inittravall(curtree, curtree->root);     /* set all initializeds false */
-    inittravall(curtree, curtree->root->back);
+    initializetrav(curtree, curtree->root);     /* set all initializeds false */
+    initializetrav(curtree, curtree->root->back);
     ml_update(curtree, curtree->root);
   }
   dummy = curtree->evaluate(curtree, curtree->root, false);

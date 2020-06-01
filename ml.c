@@ -634,12 +634,13 @@ void freex(long nonodes, pointarray treenode)
 void ml_update(tree *t, node *p)
 { /* calls nuview to (each one-way recursively) make views at both ends */
 
-  if (!p->tip && !p->initialized) {
+  if (!p->tip)
     generic_tree_nuview((tree*)t, p);           /* recurse from one end */
-  }
-  if ( p->back && !p->back->tip && !p->back->initialized) {
+/* debug: try without   }
+  if ( p->back && !p->back->tip && !p->back->initialized) {     debug: end */
+  if (!p->back->tip)
     generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
-  }
+/* debug: try without    }     debug: end */
 }  /* ml_update */
 
 
