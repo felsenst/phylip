@@ -1464,8 +1464,8 @@ void maketree(void)
     buildsimpletree(curtree, enterorder);
     ml_initialvtrav (curtree, curtree->root);
     ml_initialvtrav (curtree, curtree->root->back);
-    inittravall(curtree, curtree->root);
-    inittravall(curtree, curtree->root->back);
+/* debug: maybe unnecessary    inittravall(curtree, curtree->root);
+    inittravall(curtree, curtree->root->back);   debug */
     smooth_traverse(curtree, curtree->root);
     if (jumb == 1)
       numtrees = 1;

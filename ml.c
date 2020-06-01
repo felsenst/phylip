@@ -679,6 +679,7 @@ void smooth(tree* t, node *p)
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
+  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
 }  /* smooth */
 
 
