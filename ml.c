@@ -643,6 +643,15 @@ void ml_update(tree *t, node *p)
 }  /* ml_update */
 
 
+void smooth_traverse(tree* t, node *p)
+{ /* start traversal, smoothing branch lengths, in both directions from
+   * this branch */
+
+  smooth(t, p);
+  smooth(t, p->back);
+} /* smooth_traverse */
+
+
 void smooth(tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
@@ -683,7 +692,7 @@ static void ml_tree_smoothall(tree* t, node* p)
 
   save = smoothit;
   smoothit = true;
-  if ( p->tip ) p = p->back;  /* debug: what does this do? */
+/* debug:   if ( p->tip ) p = p->back;   what does this do? */
 
   /* it may seem like we are doing too many smooths, but sometimes
    * one branch near p may already be completly smoothed from an
@@ -752,8 +761,8 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     invalidate_traverse(p);        /* set initialized false on views ... */
     invalidate_traverse(p->next);  /* ... looking in towards this fork */
     invalidate_traverse(p->next->next);
-    p->initialized = false;  
-    p->next->initialized = false;  
+    p->initialized = false;    /* set initialized false on views ... */
+    p->next->initialized = false;    /* from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
     ml_update(t, p);
@@ -766,11 +775,9 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     inittrav(t, p);        /* set inward-looking pointers false */
     inittrav(t, p->back);
     ml_update(t, p);
-    ml_update(t, p->back);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p);   /* go around fork, out each other branch */
-      smooth(t, p->back);   /* go out back end of branch, recursing */
+      smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
 } /* ml_tree_insert */
@@ -810,8 +817,8 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
     for (i = 0 ; i < smoothings ; i++ )
     {
       if ( smoothit ) {
-        smooth(t, *q);
-        smooth(t, (*q)->back);
+        smooth_traverse(t, *q);
+        smooth_traverse(t, (*q)->back);
       }
     }
   }

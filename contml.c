@@ -1375,8 +1375,7 @@ void treevaluate(void)
   }
   if (!lngths) {
     for (i = 1; i <= smoothings * 4; i++) {
-      smooth(curtree, curtree->root);
-      smooth(curtree, curtree->root->back);
+      smooth_traverse(curtree, curtree->root);
     }
   }
   else {
@@ -1465,8 +1464,7 @@ void maketree(void)
     ml_initialvtrav (curtree, curtree->root->back);
     inittravall(curtree, curtree->root);
     inittravall(curtree, curtree->root->back);
-    smooth(curtree, curtree->root);
-    smooth(curtree, curtree->root->back);
+    smooth_traverse(curtree, curtree->root);
     if (jumb == 1)
       numtrees = 1;
     nextsp = 4;
