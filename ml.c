@@ -634,6 +634,7 @@ void freex(long nonodes, pointarray treenode)
 void ml_update(tree *t, node *p)
 { /* calls nuview to (each one-way recursively) make views at both ends */
 
+/* debug: */ printf("starting function ml_update\n");
   if (!p->tip)
     generic_tree_nuview((tree*)t, p);           /* recurse from one end */
 /* debug: try without   }
@@ -648,6 +649,7 @@ void smooth_traverse(tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
 
+/* debug: */ printf("starting function smooth_traverse\n");
   smooth(t, p);
   smooth(t, p->back);
 } /* smooth_traverse */
@@ -657,6 +659,7 @@ void smooth(tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
 
+/* debug: */ printf("starting function smooth\n");
   if ( p == NULL )
     return;
   smoothed = false;
@@ -756,6 +759,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   */
   long i;
 
+/* debug: */ printf("starting function ml_tree_insert\n");
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
   if ( !t->do_newbl )

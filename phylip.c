@@ -4330,6 +4330,7 @@ void generic_tree_nuview(tree* t, node* p)
    *  when boolean initialized shows that they have not been updated yet */
   node *sib_ptr;
 
+/* debug */ printf("starting function generic_tree_nuview\n");
   if (!p->tip) {         /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
@@ -4350,6 +4351,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
    * to each program.
    */
 
+/* debug: */ printf("starting function generic_tree_evaluate\n");
   if ( (p->initialized == false) && (p->tip == false) )
   {
     t->nuview((tree*)t, p);
@@ -4400,6 +4402,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
   node *newnode, *r;
   boolean thorough = true;  /* debug: needed at all? */
 
+/* debug: */ printf("starting function generic_tree_insert\n");
   if ( !multf ) {
 
     assert(p->next->next->next == p);

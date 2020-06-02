@@ -756,6 +756,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
   long i;
   double sum;
 
+/* debug: */ printf("starting function contml_tree_evaluate\n");
   ml_update (t, t->root);
   generic_tree_evaluate (t, p, saveit);    /* update views if needed */
   sum = 0.0;
@@ -921,9 +922,11 @@ void contml_tree_nuview(tree* t, node *p)
   node *q, *a, *b;
   double v1, v2, vtot, f1, f2;
 
+/* debug: */ printf("starting function contml_tree_nuview\n");
 /* debug */ printf("new view from  %ld  to  %ld\n", p->back->index, p->index);
-  v1 = p->next->v + p->next->deltav; /*  length (v1') of leftmost branch */
+  v1 = p->next->v;           /*  length (v1') of leftmost branch */
   a = p->next->back;                 /* other end of that branch */
+  v1 += a->deltav;           /*  length of it now  v1'  */
   m = 0;
   for (j = 0; j < loci; j++)         /* start by copying its values */
   {
