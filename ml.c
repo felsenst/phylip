@@ -816,6 +816,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
 
+/* debug */ printf("start ml_tree_remove\n");
   generic_tree_re_move(t, p, q, do_newbl);
 
   if ( do_newbl )
@@ -847,6 +848,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
   boolean succeeded, bettertree;
   node* whereRemoved;
 
+/* debug */ printf("start ml_tree_try_insert_thorough\n");
   succeeded = false;
   t->save_traverses(t, p, q);
   t->insert_(t, p, q, false);
@@ -870,7 +872,9 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
 
   /* Update t->score */
+/* debug:   maybe not needed?  
   like = t->evaluate(t, q, 0);
+debug  */
 
   return succeeded;
 } /* ml_tree_try_insert_thorough */
@@ -886,6 +890,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
  */
   boolean succeeded;
 
+/* debug */ printf("ml_tree_try_insert_\n");
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet, bestree, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
