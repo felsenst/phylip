@@ -872,9 +872,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
 
   /* Update t->score */
-/* debug:   maybe not needed?  
   like = t->evaluate(t, q, 0);
-debug  */
 
   return succeeded;
 } /* ml_tree_try_insert_thorough */

@@ -757,7 +757,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
   double sum;
 
 /* debug: */ printf("starting function contml_tree_evaluate\n");
-  ml_update (t, t->root);
+  ml_update (t, p);
   generic_tree_evaluate (t, p, saveit);    /* update views if needed */
   sum = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
