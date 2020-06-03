@@ -211,6 +211,8 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist # drawgram drawtree
 
+DYLIBS = libcontml.so
+
 #
 # General commands.
 #
@@ -246,7 +248,7 @@ help:
 	@echo "                            executables directory (e.g. "mv dnaml $(EXEDIR)")"
 	@echo "                            Note that the program name should be lower case."
 
-all:    introduce $(PROGS)
+all:    introduce $(PROGS) $(DYLIBS)
 	@echo ""
 	@echo "Finished compiling."
 
@@ -296,10 +298,10 @@ clean:
 #
 
 Slist.o:      Slist.c Slist.h
-	$(CC) -c Slist.c
+	$(CC) -c Slist.c -shared -fPIC
 
 phylip.o:     phylip.c phylip.h Slist.h
-	$(CC) -c phylip.c
+	$(CC) -c phylip.c -shared -fPIC 
 
 # Add this to include debugging facility.
 # debug.o:      debug.c debug.h phylip.h Slist.h
@@ -309,7 +311,7 @@ seq.o:        seq.c phylip.h seq.h
 	$(CC) -c seq.c
 
 ml.o:         ml.c phylip.h ml.h
-	$(CC) -c ml.c
+	$(CC) -c ml.c -shared -fPIC 
 
 rest_common.o:  rest_common.c rest_common.h phylip.h
 	$(CC) -c rest_common.c
@@ -339,7 +341,7 @@ dist.o:       dist.c phylip.h dist.h
 	$(CC) -c dist.c
 
 cont.o:       cont.c cont.h phylip.h
-	$(CC) -c cont.c
+	$(CC) -c cont.c -shared -fPIC
 
 moves.o:      moves.c phylip.h moves.h
 	$(CC) -c moves.c
@@ -366,8 +368,8 @@ codml.o:      codml.c ml.h seq.h phylip.h
 consense.o:   consense.c cons.h phylip.h
 	$(CC) -c consense.c
 
-contml.o:     contml.c cont.h phylip.h ml.h
-	$(CC) -c contml.c
+contml.o:     contml.c cont.h phylip.h ml.h Slist.h
+	$(CC) -c contml.c -shared -fPIC
 
 contrast.o:   contrast.c cont.h phylip.h
 	$(CC) -c contrast.c
@@ -492,6 +494,7 @@ consense:     consense.o cons.o $(LIBS)
 
 contml:       contml.o cont.o ml.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
+	libcontml.so
 
 contrast:     contrast.o cont.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -592,5 +595,10 @@ threshml:     threshml.o cont.o $(LIBS)
 treedist:     treedist.o cons.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
+
+# Dynamic libraries (.so)
+
+libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h
+	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c
 
 # End.
