@@ -3266,7 +3266,7 @@ void unroot_here(tree* t, node* root, node** nodep, long nonodes)
     tmpnode->next->index--;
     tmpnode->next->next->index--;
   }
-  generic_tree_release_fork(t, root); /* release the node of highest number */
+  generic_tree_release_fork(t, root); /* release the former root fork */
 } /* unroot_here */
 
 
