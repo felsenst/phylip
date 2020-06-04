@@ -782,8 +782,8 @@ void            treeread2 (FILE*, node**, pointarray, boolean, double*,
 void            exxit (int);
 char            gettc(FILE*);
 void            unroot(tree*, long);
-void            unroot_here(node*, node**, long);
-void            unroot_r(node*, node**, long);
+void            unroot_here(tree*, node*, node**, long);
+void            unroot_r(tree*, node*, node**, long);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
 void            generic_tree_init(tree*, long, long);
