@@ -211,7 +211,7 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist # drawgram drawtree
 
-DYLIBS = libcontml.so
+DYLIBS = libclique.so libconsense.so libcontml.so libfactor.so
 
 #
 # General commands.
@@ -360,13 +360,13 @@ matrixd.o:    matrixd.c matrixd.h
 #
 
 clique.o:     clique.c disc.h phylip.h
-	$(CC) -c clique.c
+	$(CC) -c clique.c -shared -fPIC
 
 codml.o:      codml.c ml.h seq.h phylip.h
 	$(CC) -c codml.c
 
 consense.o:   consense.c cons.h phylip.h
-	$(CC) -c consense.c
+	$(CC) -c consense.c -shared -fPIC
 
 contml.o:     contml.c cont.h phylip.h ml.h Slist.h
 	$(CC) -c contml.c -shared -fPIC
@@ -420,7 +420,7 @@ drawtree.o:   drawinit.c drawtree.c draw.h phylip.h
 	$(DC) -c drawtree.c
 
 factor.o:     factor.c phylip.h
-	$(CC) -c factor.c
+	$(CC) -c factor.c -shared -fPIC
 
 fitch.o:      fitch.c dist.h phylip.h ml.h
 	$(CC) -c fitch.c
@@ -485,9 +485,11 @@ treedist.o:   treedist.c cons.h phylip.h
 
 clique:       clique.o disc.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
+	libclique.so
 
 codml:        codml.o ml.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
+	libconsense.so
 
 consense:     consense.o cons.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -538,8 +540,9 @@ drawgram:     drawgram.o draw.o draw2.o interface.o $(LIBS)
 drawtree:     drawtree.o draw.o draw2.o interface.o $(LIBS)
 	$(DC) $(DLIBS) $^ $(LDADD) -o $@
 
-factor:       factor.o $(LIBS)
+factor:       factor.o disc.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
+	libfactor.so
 
 fitch:        fitch.o dist.o ml.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -598,7 +601,16 @@ treedist:     treedist.o cons.o $(LIBS)
 
 # Dynamic libraries (.so)
 
+libclique.so:   clique.o disc.o phylip.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libclique.so -shared -fPIC clique.c disc.c phylip.c
+
+libconsense.so:	consense.o cons.o phylip.o Slist.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libconsense.so -shared -fPIC consense.c cons.c phylip.c Slist.c
+
 libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h $(LIBS)
 	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c Slist.c
+
+libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c
 
 # End.

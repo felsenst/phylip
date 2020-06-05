@@ -65,6 +65,7 @@ void    codon_node_allocx(ml_node*, long, long);
 void    dna_node_allocx(ml_node*, long, long);
 void    ml_tree_init(tree*, long, long);
 void    ml_node_copy(node*, node*);
+void    ml_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);
 void    fix_x(dna_node*, long, double, long);
 void    fix_protx(prot_node*, long, double, long);

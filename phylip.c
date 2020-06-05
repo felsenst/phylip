@@ -4417,7 +4417,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
      where fork is pointed to by  p, and attached subtree is at
      p->back, inserting it near node or tip  q  */
   node *newnode, *r;
-  boolean thorough = true;  /* debug: needed at all? */
+/* debug:   boolean thorough = true;  needed at all? */
 
 /* debug: */ printf("starting function generic_tree_insert\n");
   if ( !multf ) {

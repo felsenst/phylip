@@ -671,16 +671,6 @@ void getinput(void)
 }  /* getinput */
 
 
-void contml_hookup(node* p, node* q){
-/* hook up two nodes, set branch length to initial value
-   (one of the nodes may be in a fork circle) */
-
-  hookup(p, q);
-  p->v = initialv;
-  q->v = initialv;
-} /* contml_hookup */
-
-
 void sumlikely(node *p, node *q, double *sum)
 { /* sum contribution to likelihood over forks in tree */
   long i, j, m;

@@ -68,6 +68,16 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
 } /* ml_node_copy */
 
 
+void ml_hookup(node* p, node* q){
+/* hook up two nodes, set branch length to initial value
+   (one of the nodes may be in a fork circle) */
+
+  hookup(p, q);
+  p->v = initialv;
+  q->v = initialv;
+} /* ml_hookup */
+
+
 void codon_node_copy(node* srcn, node* destn)
 { /* copy a codon_node */
   codon_node *src = (codon_node *)srcn;
@@ -109,7 +119,7 @@ void prot_node_copy(node* srcn, node* destn)
   for (i = 0; i < src->ml_node.endsite; i++)
     for (j = 0; j < src->ml_node.categs; j++)
       memcpy(dest->x[i][j], src->x[i][j], sizeof(psitelike));
-}
+} /* prot_node_copy */
 
 
 void dna_node_copy(node* srcn, node* destn)
@@ -665,7 +675,7 @@ void smooth(tree* t, node *p)
   smoothed = false;
 
   ml_update(t, p);   /* get views at both ends updated, recursing if needed */
-  t->makenewv (t, p); /* new value of branch length */
+  ((ml_tree*)t)->makenewv (t, p); /* new value of branch length */
   inittrav (t, p);    /* set inward-looking pointers false ... */
   inittrav (t, p->back);  /* ... from both ends of this branch */
 
