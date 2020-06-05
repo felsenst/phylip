@@ -947,7 +947,7 @@ void dnaml_tree_nuview(tree* t, node *p)
   double correction;
   double maxx;
 
-  generic_tree_nuview(t, p);
+/* debug:  generic_tree_nuview(t, p);   */
 
   /* Allocate the structure and blocks therein for variables used in this function. */
   num_sibs = count_sibs(p);
