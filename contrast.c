@@ -1836,12 +1836,12 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        incparam = -incparam*0.3;
      }
    } while (fabs(incparam) > 0.00000000001);  /* end loop for line search */
-if (sizes)
-  printf("after rotations and resizings:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
+ if (sizes)
+   printf("after rotations and resizings:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
 else
   printf("after rotations:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
-  slopeinc *= 1.0;
-  } while (bestlogL - olderlogL > 0.0000000001);
+ slopeinc *= 1.0;
+ } while (bestlogL - olderlogL > 0.0000000001);
   copyallwtoz();
 } /* felsmorph3 */
 
@@ -3382,7 +3382,7 @@ boolean placefossilonbranch (node *p, node *q)
                 "\n from node %ld (length ago: %6.3f) to node %ld (length ago: %6.3f)\n",
                 q->index, curtree.nodep[q->index-1]->tyme/multiplier,
                 q->back->index, curtree.nodep[q->back->index-1]->tyme/multiplier);
-      generic_tree_insert_(&curtree, p, q, false, false);
+      generic_tree_insert_(&curtree, p, q, false);
       tup = q->tyme;
       if (tup < p->tyme)
         tup = p->tyme;
@@ -3405,7 +3405,7 @@ boolean placefossilonbranch (node *p, node *q)
   }
   else
   {
-    generic_tree_insert_(&curtree, p, q, false, false);
+    generic_tree_insert_(&curtree, p, q, false);
     if (p->tyme > q->tyme)
       p->back->tyme = p->tyme + 0.1;
     else

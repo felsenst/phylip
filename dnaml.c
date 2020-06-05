@@ -2072,13 +2072,13 @@ void maketree(void)
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, qwhere, &bestyet, bestree, smoothit);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true, false);
+        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true);
         smoothit = false;
         bestyet = curtree->score;
       }
