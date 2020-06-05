@@ -492,7 +492,7 @@ codml:        codml.o ml.o seq.o $(LIBS)
 consense:     consense.o cons.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-contml:       contml.o cont.o ml.o $(LIBS)
+contml:       contml.o cont.o ml.o Slist.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 	libcontml.so
 
@@ -598,7 +598,7 @@ treedist:     treedist.o cons.o $(LIBS)
 
 # Dynamic libraries (.so)
 
-libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h
-	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c
+libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h $(LIBS)
+	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c Slist.c
 
 # End.

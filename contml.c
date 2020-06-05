@@ -1370,7 +1370,8 @@ void treevaluate(void)
   double dummy;
 
   like = 0.0;
-  unroot(curtree, nonodes2);          /*  so root is at interior fork */
+  if (curtree->root->back == NULL)
+    unroot(curtree, nonodes2);          /*  so root is at interior fork */
   initializetrav (curtree, curtree->root);     /* set all initializeds false */
   initializetrav (curtree, curtree->root->back);
   curtree->do_newbl = !lngths;   /* if not use lengths, will need new ones */

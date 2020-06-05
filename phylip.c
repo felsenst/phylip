@@ -3211,8 +3211,10 @@ void unroot(tree* t, long nonodes)
    * leftmost descendant of that rootmost node
    * then release the previous rootmost interior node.
    * currently used by fitch, restml and contml */
+  node* p;
 
   if (t->root->back == NULL) {      /* move root pointer point to leftmost  */
+    p = t->root;
     if (t->root->next->back->tip)   /* interior node descended from ...  */
       t->root = t->root->next->next->back;   /* that rootmost interior node */
     else  t->root = t->root->next->back;
@@ -3231,14 +3233,16 @@ void unroot(tree* t, long nonodes)
     else t->root = t->root->back;
   }
 
-  unroot_r(t, t->root, t->nodep, nonodes); /* traverse to find interior ... */
-  unroot_r(t, t->root->back, t->nodep, nonodes); /* ... node to be released */
+  unroot_r(t, t->root, nonodes); /* traverse to find interior ... */
+  unroot_r(t, t->root->back, nonodes); /*  forks to be released */
+  generic_tree_release_fork(t, p);
 } /* unroot */
 
 
-void unroot_here(tree* t, node* root, node** nodep, long nonodes)
+void unroot_here(tree* t, node* root, long nonodes)
 {
-  /* used by unroot: cut out the interior node that is to be
+  /* used by unroot: move to the end of the nodep list of interior
+   * nodes the interior node that is to be
    * released once we have moved the root
    * assumes bifurcation -- it is only called in that case */
   node* tmpnode;
@@ -3256,21 +3260,20 @@ void unroot_here(tree* t, node* root, node** nodep, long nonodes)
   root->next->next->back->back = root->next->back;
 
   while ( root->index != nonodes ) {
-    tmpnode = nodep[ root->index ];
-    nodep[root->index] = root;
+    tmpnode = t->nodep[ root->index ];
+    t->nodep[root->index] = root;
     root->index++;
     root->next->index++;
     root->next->next->index++;
-    nodep[root->index - 2] = tmpnode;
+    t->nodep[root->index - 2] = tmpnode;
     tmpnode->index--;
     tmpnode->next->index--;
     tmpnode->next->next->index--;
   }
-  generic_tree_release_fork(t, root); /* release the former root fork */
 } /* unroot_here */
 
 
-void unroot_r(tree* t, node* p, node** nodep, long nonodes)
+void unroot_r(tree* t, node* p, long nonodes)
 {
   /* used by unroot: go around tree recursively looking for
    * the interior node that has a "back" pointer to NULL
@@ -3282,9 +3285,10 @@ void unroot_r(tree* t, node* p, node** nodep, long nonodes)
 
   q = p->next;
   while ( q != p ) {
-    if (q->back == NULL)
-      unroot_here(t, q, nodep, nonodes);
-    else unroot_r(t, q->back, nodep, nonodes);
+    if (q->back == NULL) {
+      unroot_here(t, q, nonodes);
+    }
+    else unroot_r(t, q->back, nonodes);
     q = q->next;
   }
 } /* unroot_r */
