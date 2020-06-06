@@ -211,7 +211,7 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist # drawgram drawtree
 
-DYLIBS = libclique.so libconsense.so libcontml.so libdnadist.so libfactor.so
+DYLIBS = libclique.so libconsense.so libcontml.so libdnadist.so libdnapenny.so libdolpenny.so libfactor.so libgendist.so libneighbor.so libpenny.so
 
 #
 # General commands.
@@ -393,7 +393,7 @@ dnamove.o:    dnamove.c seq.h moves.h phylip.h parsimony.h dnaparsimony.h
 	$(CC) -c dnamove.c
 
 dnapenny.o:   dnapenny.c seq.h phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnapenny.c
+	$(CC) -c dnapenny.c -shared -fPIC
 
 dnapars.o:    dnapars.c seq.h phylip.h parsimony.h dnaparsimony.h
 	$(CC) -c dnapars.c
@@ -405,7 +405,7 @@ dollop.o:     dollop.c disc.h dollo.h phylip.h
 	$(CC) -c dollop.c
 
 dolpenny.o:   dolpenny.c disc.h dollo.h phylip.h
-	$(CC) -c dolpenny.c
+	$(CC) -c dolpenny.c -shared -fPIC
 
 draw.o:       draw.c draw.h phylip.h interface.h
 	$(DC) -c draw.c
@@ -426,7 +426,7 @@ fitch.o:      fitch.c dist.h phylip.h ml.h
 	$(CC) -c fitch.c
 
 gendist.o:    gendist.c phylip.h pmatrix.c pmatrix.h
-	$(CC) -c gendist.c
+	$(CC) -c gendist.c -shared -fPIC
 
 interface.o:  interface.c interface.h draw.h
 	$(DC) -c interface.c
@@ -441,13 +441,13 @@ move.o:       move.c disc.h moves.h wagner.h phylip.h
 	$(CC) -c move.c
 
 neighbor.o:   neighbor.c dist.h phylip.h
-	$(CC) -c neighbor.c
+	$(CC) -c neighbor.c -shared -fPIC
 
 pars.o:       pars.c discrete.h phylip.h parsimony.h
 	$(CC) -c pars.c
 
 penny.o:      penny.c disc.h wagner.h phylip.h
-	$(CC) -c penny.c
+	$(CC) -c penny.c -shared -fPIC
 
 proml.o:      proml.c seq.h ml.h phylip.h prom_common.h prom_common.c
 	$(CC) -c proml.c
@@ -485,18 +485,15 @@ treedist.o:   treedist.c cons.h phylip.h
 
 clique:       clique.o disc.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
-	libclique.so
 
 codml:        codml.o ml.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
-	libconsense.so
 
 consense:     consense.o cons.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 contml:       contml.o cont.o ml.o Slist.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
-	libcontml.so
 
 contrast:     contrast.o cont.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -506,7 +503,6 @@ dnacomp:      dnacomp.o seq.o parsimony.o dnaparsimony.o $(LIBS)
 
 dnadist:      dnadist.o pmatrix.o matrixd.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
-	libdnadist.so
 
 dnainvar:     dnainvar.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -543,7 +539,6 @@ drawtree:     drawtree.o draw.o draw2.o interface.o $(LIBS)
 
 factor:       factor.o disc.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
-	libfactor.so
 
 fitch:        fitch.o dist.o ml.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
@@ -616,5 +611,17 @@ libdnadist.so:	dnadist.o pmatrix.o seq.o phylip.o phylip.h seq.h  $(LIBS)
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c
+
+libgendist.so:  gendist.o phylip.o pmatrix.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libgendist.so -shared -fPIC gendist.c pmatrix.c phylip.c Slist.c
+
+libneighbor.so: neighbor.o dist.o phylip.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libneighbor.so -shared -fPIC neighbor.c dist.c phylip.c Slist.c
+
+libpenny.so:    penny.o disc.o wagner.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libpenny.so -shared -fPIC penny.c disc.c wagner.c phylip.c Slist.c
+	
+libdolpenny.so:    dolpenny.o disc.o wagner.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libdolpenny.so -shared -fPIC dolpenny.c disc.c wagner.c phylip.c Slist.c
 
 # End.
