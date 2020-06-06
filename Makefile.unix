@@ -211,7 +211,7 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist # drawgram drawtree
 
-DYLIBS = libclique.so libconsense.so libcontml.so libdnadist.so libdnapenny.so libdolpenny.so libfactor.so libgendist.so libneighbor.so libpenny.so
+DYLIBS = libclique.so libconsense.so libcontml.so libdnadist.so libdnainvar.so libdnapenny.so libdolpenny.so libfactor.so libgendist.so libneighbor.so libpenny.so
 
 #
 # General commands.
@@ -381,7 +381,7 @@ dnadist.o:    dnadist.c pmatrix.h seq.h phylip.h
 	$(CC) -c dnadist.c -shared -fPIC
 
 dnainvar.o:   dnainvar.c seq.h phylip.h
-	$(CC) -c dnainvar.c
+	$(CC) -c dnainvar.c -shared -fPIC
 
 dnaml.o:      dnaml.c seq.h ml.h phylip.h
 	$(CC) -c dnaml.c
@@ -608,6 +608,12 @@ libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h $(LIBS)
 
 libdnadist.so:	dnadist.o pmatrix.o seq.o phylip.o phylip.h seq.h  $(LIBS)
 	$(CC) $(CFLAGS) -o libdnadist.so -shared -fPIC dnadist.c seq.c phylip.c pmatrix.c matrixd.c Slist.c
+
+libdnainvar.so: dnainvar.o seq.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdnainvar.so -shared -fPIC dnainvar.c seq.c phylip.c Slist.c
+
+libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapenny.c seq.c phylip.c Slist.c
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c
