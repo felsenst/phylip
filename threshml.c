@@ -72,7 +72,7 @@ sequence yy;
 initdata *funcs;
 double stepsize, lwt, wt, c0, c1, c2, d0, d1, d2, d3, logdetMM0, logdetMM1;
 double sumlrt, sumloglrt, sumdenominator;
-double **x, *xx, **z, *zz, *eig, *liabvars;
+double **x, *xx, **z, *zz, *eig;
 double **AA, **BB, **BB0, **CC, **FF, **MM, **MM0, **MM1, **eigvecs;
 double *sumnumerator;
 char thisname[MAXNCH];
@@ -357,7 +357,6 @@ void allocthings (void)
   MM1 = (double **)Malloc(chars * sizeof(double *));/* stored covariances */
   for (i = 0; i < chars; i++)
     MM1[i] = (double *)Malloc(chars * sizeof(double));
-  liabvars = (double *)Malloc(chars * sizeof(double));  /* liability variances */
   eigvecs =  (double **)Malloc(chars * sizeof(double *));     /* eigenvectors */
   for (i = 0; i < chars; i++)
     eigvecs[i] = (double *)Malloc(chars * sizeof(double));
@@ -993,8 +992,9 @@ void iterateliabilities (long timesteps, boolean estimatenewcovs)
   }
   for (t = 0; t < timesteps; t++) { /* run a chain this long */
     if (progress) {
-      if ((t%n) == 0)
+      if ((t%n) == 0) {
         printf("."); fflush(stdout);  /* print out a dot every so often */
+      }
     }
     if (lasttime && nullchains)
       sumloglrt = 0.0;              /* get ready to get term for this tree */
@@ -1099,17 +1099,6 @@ void correcttransform(boolean nullchains)
         sum += AA[i][k] * CC[k][j];
       BB[i][j] = sum;  /* don't update it right away as AA gets re-used */
     }
-  for (i = chars1; i < chars; i++) {  /* determine the scale of liabilities */
-    liabvars[i] = 0.0;
-    for (j = 0; j < chars; j++)
-      liabvars[i] += BB[i][j]*BB[i][j];  /* get sums of squares of transform */
-    liabvars[i] = sqrt(liabvars[i]);     /* and square-root it */
-    for (j = 0; j < chars; j++)
-      BB[i][j] /= liabvars[i];  /* make sure character i has variance 1 */
-  }
-  for (i = 0; i < nonodes; i++)   /* rescale liabilities so have s.d. 1 */
-    for (j = chars1; j < chars; j++)
-      ((cont_node_type*)curtree.nodep[i])->view[j] /= liabvars[j];
   norm = 0.0;                   /* get norm of change in transform */
   for (i = 0; i < chars; i++)
     for (j = 0; j < chars; j++) /* sum of squared changes of transform */
@@ -1139,8 +1128,6 @@ void correcttransform(boolean nullchains)
     }
     for (j = 0; j < chars; j++) {
       ((cont_node_type*)curtree.nodep[i])->view[j] = xx[j];
-      if (j >= chars1)   /* if a liability, rescale so variance 1 */
-        ((cont_node_type*)curtree.nodep[i])->view[j] /= liabvars[j];
     }
   }
   if (testing && lasttime && !nullchains) {
