@@ -56,7 +56,7 @@ long chars, col, ith, njumble, jumb = 0, nonodes = 0, msets;
 long inseed, inseed0;
 boolean jumble, usertree, trout, weights, progress, stepbox, ancseq, firstset, mulsets, justwts;
 steptr oldweight, necsteps;
-tree* curtree;
+tree* curtree, bestree;
 long *enterorder;
 Char basechar[32]="ACMGRSVTWYHKDBNO???????????????";
 bestelm *bestrees;
@@ -777,13 +777,13 @@ void maketree(void)                     // RSGbugfix
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, numtrees, nextnode;
-  boolean firsttree, goteof, haslengths;
+  boolean firsttree, goteof, haslengths, thorough = true;
   node *item, *dummy;
 #if 0                                   // RSGbugfix
   pointarray nodep;
 #endif
   boolean *names;
-  boolean multf;
+  boolean multif;
 
   if (!usertree)
   {
@@ -813,8 +813,8 @@ void maketree(void)                     // RSGbugfix
       bestyet = -350.0 * spp * chars;
       item = curtree->nodep[enterorder[i - 1] - 1];
       there = curtree->root;
-      curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet, NULL, NULL, 0, &multf);
-      curtree->insert_(curtree, item, there, recompute, multf);
+      curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet, &bestree, thorough);
+      curtree->insert_(curtree, item, there, false);
       like = bestyet;
       curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false, NULL, NULL);
       if (progress)

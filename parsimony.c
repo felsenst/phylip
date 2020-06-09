@@ -17,7 +17,7 @@ extern long nonodes, endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 extern steptr weight, category, alias, location, ally;
 extern node** lrsaves;
-extern tree* curtree;
+extern tree* curtree, bestree;
 
 long maxtrees;
 double *threshwt;
@@ -101,7 +101,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
   (void)thorough;                       // RSGnote: Parameter never used.
 
   t->save_traverses(t, item, p);
-  t->insert_(t, item, p, true, false);
+  t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
   if (like > *bestyet || *bestyet == UNDEFINED)
@@ -138,7 +138,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
 #if 0
   if ( p->tip == false )
   {
-    t->insert_(t, item, p, true, true);
+    t->insert_(t, item, p, , true);
     like = t->evaluate(t, p, false);
     if (like >= *bestyet || *bestyet == UNDEFINED)
     {
@@ -177,7 +177,7 @@ void pars_tree_init(tree* t, long nonodes, long spp)
 {
   generic_tree_init(t, nonodes, spp);
   t->globrearrange = pars_globrearrange;
-  t->try_insert_ = pars_tree_try_insert_;
+  t->try_insert_ = (tree_try_insert_t)pars_tree_try_insert_;
   t->evaluate = pars_tree_evaluate;
 }
 
@@ -954,10 +954,10 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       }
       for ( k = 0 ; k <= num_sibs2 ; k++ )
       {
-        curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere, &bestyet, NULL, NULL, 0, &multf);
+        curtree->addtraverse(curtree, removed, sib_ptr2->back, true, qwhere, &bestyet, &bestree, multf);
         sib_ptr2 = sib_ptr2->next;
       }
-      curtree->insert_(curtree, removed, where, true, mulf);
+      curtree->insert_(curtree, removed, where, mulf);
     }
   }
   if (progress)
@@ -1011,8 +1011,8 @@ void collapsebranch(tree* t, node* n)
   }
   t->release_fork(t, m); 
 
-  inittrav(n);
-  inittrav(n->back);
+  inittrav(t, n);
+  inittrav(t, n->back);
   n->initialized = false;
 }
 
