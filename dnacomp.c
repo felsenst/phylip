@@ -776,7 +776,7 @@ void maketree(void)                     // RSGbugfix
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, numtrees, nextnode;
+  long i, j, k, numtrees, nextnode;
   boolean firsttree, goteof, haslengths, thorough = true;
   node *item, *dummy;
 #if 0                                   // RSGbugfix
@@ -813,8 +813,11 @@ void maketree(void)                     // RSGbugfix
       bestyet = -350.0 * spp * chars;
       item = curtree->nodep[enterorder[i - 1] - 1];
       there = curtree->root;
-      curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet, &bestree, thorough);
-      curtree->insert_(curtree, item, there, false);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(item, p);
+      curtree->addtraverse(curtree, item->back, curtree->root, true, there, &bestyet, &bestree, thorough);
+      curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
       curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false, NULL, NULL);
       if (progress)

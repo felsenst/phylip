@@ -89,18 +89,15 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
    * This version actually does the hookups which are quickly dissolved, however
    * none of the changes are propegated in the tree and it is like as if it never
    * got inserted, if we are on the last rearrangement save a bestscoring insert to
-   * the bestrees array */
+   * the bestrees array
+   * item  should be an interior fork hooked to a tip or subtree which is item->back */
   double like;
   boolean succeeded = false;
   node* dummy;
   boolean found = false;
   long pos = 0;
 
-  (void)bestree;                        // RSGnote: Parameter never used.
-  (void)priortree;                      // RSGnote: Parameter never used.
-  (void)thorough;                       // RSGnote: Parameter never used.
-
-  t->save_traverses(t, item, p);
+/* debug:    t->save_traverses(t, item, p);      */
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
@@ -126,7 +123,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
   if (like > *bestyet || *bestyet == UNDEFINED)
     *bestyet = like;
   t->re_move(t, item, &dummy, true);
-  t->restore_traverses(t, item, p);
+/* debug:   t->restore_traverses(t, item, p);   */
   t->evaluate(t, p, 0);   // as in dnaml, but may not be needed
 
   found = false;
@@ -138,7 +135,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
 #if 0
   if ( p->tip == false )
   {
-    t->insert_(t, item, p, , true);
+    t->insert_(t, item, p, false);
     like = t->evaluate(t, p, false);
     if (like >= *bestyet || *bestyet == UNDEFINED)
     {

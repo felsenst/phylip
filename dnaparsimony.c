@@ -656,8 +656,9 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
 }  /* dnapars_tree_evaluate */
 
 
-void dnapars_tree_nuview(tree* t, node*p)
-{
+void dnapars_tree_nuview(tree* t, node* p)
+{ /* calculate the view for all endsite sites 
+   * includes possibility of multifurcations */
   node *q;
   dnapars_node *qback;
   long i, j, base1, newbase, steps, largest;
@@ -665,7 +666,7 @@ void dnapars_tree_nuview(tree* t, node*p)
   boolean bif;
   long root = 0;
 
-  generic_tree_nuview(t, p);
+/* debug:   generic_tree_nuview(t, p);      not needed, generic will call appropriate one */
   bif = (count_sibs(p) == 2);
 
   for ( i = 0 ; i < endsite ; i++ )
@@ -728,7 +729,7 @@ void dnapars_tree_nuview(tree* t, node*p)
   }
 
   p->initialized = true;
-}
+} /* dnapars_tree_nuview */
 
 
 boolean dna_branchcollapsible(tree* t, node* n)
@@ -750,7 +751,7 @@ boolean dna_branchcollapsible(tree* t, node* n)
       return false;
   }
   return collapsible;
-}
+} /* dna_branchcollapse */
 
 
 void dna_makevalues(tree* t, boolean usertree)

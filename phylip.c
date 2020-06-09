@@ -3812,7 +3812,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   atstart = true;
   succeeded = false;
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, atstart);
+                             thorough, atstart);   /* debug: why q->back here? */
   atstart = false;
   if (!q->tip && contin) {
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
