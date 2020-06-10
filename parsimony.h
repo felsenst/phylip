@@ -68,7 +68,7 @@ void    treeout3(node *, long, long *, node *);
 void    disc_treelength(node *root, long chars, pointarray treenode);
 void    grandrearr(tree*t, boolean, boolean);
 void    drawline3(long, double, node *);
-boolean pars_tree_try_insert_(tree*, node *, node *, node **, double *, tree*, tree*, boolean, boolean *);
+boolean pars_tree_try_insert_(tree*, node *, node *, node *, double *, tree*, tree*, boolean, boolean *);
 void    coordinates(tree* t, node *p, double lengthsum, long *tipy, double *tipmax);
 void    printree(tree* t);
 node*   root_tree(tree*t, node* here);

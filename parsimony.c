@@ -84,7 +84,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 }
 
 
-boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, double * bestyet, tree * bestree, tree * priortree, boolean thorough, boolean *multf )
+boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there, double * bestyet, tree * bestree, tree * priortree, boolean thorough, boolean *multf )
 { /* insert item at p, if the resulting tree has a better score, update bestyet and there
    * This version actually does the hookups which are quickly dissolved, however
    * none of the changes are propegated in the tree and it is like as if it never
@@ -103,7 +103,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node ** there, do
 
   if (like > *bestyet || *bestyet == UNDEFINED)
   {
-    *there = p;
+    there = p;
     succeeded = true;
     *multf = false;
   }
@@ -934,7 +934,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       if ( sib_ptr->back == NULL || sib_ptr->back->tip )
         continue;
 
-      removed = sib_ptr;
+      removed = sib_ptr->back;
       mulf = 2 != count_sibs(removed->back);
       curtree->re_move(curtree, removed, &where, true);
       qwhere = where;
@@ -1267,7 +1267,7 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
     {
       load_tree(t, treei, bestrees);
       t->evaluate(t, t->root, 0);
-      t->globrearrange(t, progress, false);
+      t->globrearrange(t, progress, true);
       done = rearrfirst;
     }
   }

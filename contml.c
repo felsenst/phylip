@@ -32,7 +32,6 @@ void   getalleles(void);
 void   inputdata(void);
 void   transformgfs(void);
 void   getinput(void);
-void   contml_hookup(node *, node *);
 void   sumlikely(node *, node *, double *);
 double contml_tree_evaluate(tree *, node *, boolean);
 double distance(node *, node *);
@@ -1482,7 +1481,7 @@ void maketree(void)
       bestyet = UNDEFINED;
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
-      contml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
       qwhere = NULL;
       curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
                            &bestyet, bestree, true);
