@@ -26,31 +26,38 @@ long minwhich;
 
 tree* dnapars_tree_new(long nonodes, long spp)
 {
+  /* make new dnapars_tree */ 
+
   tree *t = Malloc(sizeof(dnapars_tree));
   dnapars_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnapars_tree_new */
 
 
 void dnapars_tree_init(tree* t, long nonodes, long spp)
 {
+  /* set up functions for dnapars_tree */
+
   pars_tree_init(t, nonodes, spp);
   t->evaluate = dnapars_tree_evaluate;
   t->nuview = dnapars_tree_nuview;
   ((pars_tree*)t)->branchcollapsible = dna_branchcollapsible;
-}
+} /* dnapars_tree_init */
 
 
 node* dnapars_node_new(node_type type, long index) // RSGbugfix
 {
+  /* make a new dnapars_node */
+
   node* n = Malloc(sizeof(dnapars_node));
   dnapars_node_init(n, type, index);
   return n;
-}
+} /* dnapars_node_new */
 
 
 void dnapars_node_init(node* n, node_type type, long index)
 {
+  /* mostly, set up local functiona for a dnapars_node */
   dnapars_node *dn = (dnapars_node *)n;
 
   pars_node_init(n, type, index);
@@ -66,11 +73,13 @@ void dnapars_node_init(node* n, node_type type, long index)
 
   if (dn->numnuc) free(dn->numnuc);
   dn->numnuc = Malloc(endsite * sizeof(nucarray));
-}
+} /* dnapars_node_init */
 
 
 void dnapars_node_reinit(node * n)
 {
+  /* reinitialize a dnapars_node */
+
   pars_node_reinit(n);
 
   dnapars_node *dn = (dnapars_node *)n;
@@ -82,20 +91,23 @@ void dnapars_node_reinit(node * n)
   if (dn->numnuc)
     free(dn->numnuc);
   dn->numnuc = Malloc(endsite * sizeof(nucarray));
-}
+} /* dnapars_node_reinit */
 
 
 void dnapars_node_free(node **pp)
 {
+  /* free a dnapars_node */
   dnapars_node * dp = (dnapars_node *)*pp;
+
   free(dp->base);
   free(dp->numnuc);
   pars_node_free(pp);
-}
+} / dnapars_node_free */
 
 
 void dnapars_node_copy(node* srcn, node* dstn)
 {
+  /* copy a dnapars_node */
   dnapars_node *src = (dnapars_node *)srcn;
   dnapars_node *dst = (dnapars_node *)dstn;
 
@@ -107,11 +119,12 @@ void dnapars_node_copy(node* srcn, node* dstn)
   }
   memcpy(dst->base, src->base, endsite * sizeof(long));
   memcpy(dst->numnuc, src->numnuc, endsite * sizeof(nucarray));
-}
+} /* dnapars_node_copy */
 
 
 void dna_initmin(dnapars_node *p, long sitei, boolean internal)
 {
+  /* some bookkeeping involving inferring branch lengths */
   long i;
 
   if (internal)
@@ -347,7 +360,8 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
 
 
 void dna_treelength(node *root, long chars, pointarray treenode)
-{ /*  calls branchlentrav at each site */
+{ 
+  /*  calls branchlentrav at each site */
   long sitei;
   double trlen;
 
@@ -657,7 +671,8 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
 
 
 void dnapars_tree_nuview(tree* t, node* p)
-{ /* calculate the view for all endsite sites 
+{ 
+  /* calculate the view for all endsite sites 
    * includes possibility of multifurcations */
   node *q;
   dnapars_node *qback;
@@ -734,6 +749,7 @@ void dnapars_tree_nuview(tree* t, node* p)
 
 boolean dna_branchcollapsible(tree* t, node* n)
 {
+  /* dnapars version of checking whether a branch is collapsible */
   boolean collapsible = true;
   long i;
   node* q;
@@ -762,7 +778,6 @@ void dna_makevalues(tree* t, boolean usertree)
   char ns = 0;
 
   // RSGnote: Parameter never referenced.  Also, a global of the same name exists.
-  // THIS IS A REAL BUG POTENTIAL.
   (void)usertree;
 
   for (j = 0; j < endsite; j++)
