@@ -45,9 +45,9 @@ static void flipnodes(node *nodea, node *nodeb);
 
 node* root_tree(tree* t, node* here)
 {
-  /* Setup a root in a tree.  This is useful for functions that expect a rooted tree
-   * such as oldsavetree.  This does NOT reorient the tree so that all nodep
-   * pointers point to the root.  */
+  /* Setup a root in a tree.  This is useful for functions that expect a
+   * rooted tree such as oldsavetree.  This does NOT reorient the tree so
+   * that all nodep pointers point to the root.  */
   node* nuroot;
 
   nuroot = t->get_forknode(t, here->index);
@@ -55,13 +55,15 @@ node* root_tree(tree* t, node* here)
   here->next = nuroot;
 
   return nuroot;
-}
+} /* root_tree */
 
 
 void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 {
-  // Removes a root from a tree; useful after a return from functions that expect a rooted tree (e.g. oldsavetree()).
-  // Then reroots the tree before releasing a FORKNODE or FORKRING to a FREELIST, to avoid tree components pointing (even temporarily) into garbage.
+  /* Removes a root from a tree; useful after a return from functions that
+   * expect a rooted tree (e.g. oldsavetree()). Then reroots the tree before
+   * releasing a FORKNODE or FORKRING to a FREELIST, to avoid tree components
+   * pointing (even temporarily) into garbage. */
   node *p;
 
   if ( count_sibs(fakeroot) > 2 )
@@ -81,16 +83,21 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
       t->root = t->nodep[outgrno - 1]->back;
     t->release_fork(t, fakeroot);
   }
-}
+} /* reroot_tree */
 
 
-boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there, double * bestyet, tree * bestree, tree * priortree, boolean thorough, boolean *multf )
-{ /* insert item at p, if the resulting tree has a better score, update bestyet and there
-   * This version actually does the hookups which are quickly dissolved, however
-   * none of the changes are propegated in the tree and it is like as if it never
-   * got inserted, if we are on the last rearrangement save a bestscoring insert to
-   * the bestrees array
-   * item  should be an interior fork hooked to a tip or subtree which is item->back */
+boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
+  double * bestyet, tree * bestree, tree * priortree, boolean thorough,
+  boolean *multf )
+{
+  /* insert item at p, if the resulting tree has a better score, update bestyet
+   * and there
+   * This version actually does the hookups which are quickly dissolved,
+   * however none of the changes are propegated in the tree and it is like as
+   * if it never got inserted. If we are on the last rearrangement save a
+   * bestscoring insert to the bestrees array
+   * item  should be an interior fork hooked to a tip or subtree which
+   * is item->back */
   double like;
   boolean succeeded = false;
   node* dummy;
@@ -130,8 +137,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there, dou
   pos = 0;
 
   /* Uncoomenting the following code will allow for a multifurcating search,
-   * However you will generally find every multifurcation as a separate tree including
-   * ambiguous ones.  */
+   * However you will generally find every multifurcation as a separate tree
+   * including ambiguous ones.  */
 #if 0
   if ( p->tip == false )
   {
@@ -159,28 +166,31 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there, dou
 #endif
 
   return succeeded;
-}
+} /* pars_tree_try_insert */
 
 
 tree* pars_tree_new(long nonodes, long spp)
 {
+  /* make a new pars_tree */
   tree* t = Malloc(sizeof(pars_tree));
   pars_tree_init(t, nonodes, spp);
   return t;
-}
+} /* pars_tree_new */
 
 
 void pars_tree_init(tree* t, long nonodes, long spp)
 {
+  /* setup of a new tree  with  spp  tips */
   generic_tree_init(t, nonodes, spp);
   t->globrearrange = pars_globrearrange;
   t->try_insert_ = (tree_try_insert_t)pars_tree_try_insert_;
   t->evaluate = pars_tree_evaluate;
-}
+} /* pars_tree_init */
 
 
 void pars_node_init(node* p, node_type type, long index)
 {
+  /* set up a new node for a pars_tree */
   pars_node *pn = (pars_node *)p;
 
   generic_node_init(p, type, index);
@@ -193,21 +203,23 @@ void pars_node_init(node* p, node_type type, long index)
   if (pn->numsteps)
     free(pn->numsteps);
   pn->numsteps = Malloc(endsite * sizeof(long));
-}
+} /* pars_node_init */
 
 
 void pars_node_reinit(node * n)
 {
+  /* re-setup a pars_tree node */
   generic_node_reinit(n);
   pars_node *pn = (pars_node *)n;
   if (pn->numsteps)
     free(pn->numsteps);
   pn->numsteps = Malloc(endsite * sizeof(long));
-}
+} /* pars_node_reinit */
 
 
 void pars_node_print(node * n)
 {
+  /* print out steps for a pars_tree node */
   generic_node_print(n);
   pars_node * pn = (pars_node*)n;
   if(pn->numsteps == NULL) printf(" numsteps:<empty>");
@@ -220,19 +232,21 @@ void pars_node_print(node * n)
       printf(" %ld", pn->numsteps[i]);
     }
   }
-}
+} /* pars_node_print */
 
 
 void pars_node_free(node **pp)
-{
+{ 
+  /* free a node from a pars_tree */
   pars_node *pn = (pars_node *)*pp;
   free(pn->numsteps);
   generic_node_free(pp);
-}
+} /* pars_node_free */
 
 
 void pars_node_copy(node* srcn, node* dstn)
-{
+{ 
+  /* copy a pars_tree node */
   pars_node *src = (pars_node *)srcn;
   pars_node *dst = (pars_node *)dstn;
 
@@ -240,7 +254,7 @@ void pars_node_copy(node* srcn, node* dstn)
   if (dst->numsteps == NULL )
     dst->numsteps = Malloc(endsite * sizeof(long));
   memcpy(dst->numsteps, src->numsteps, endsite * sizeof(long));
-}
+} /* pars_node_copy */
 
 
 void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars, boolean progress, long * finalTotal)
@@ -912,6 +926,8 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
     print_progress(progbuf);
   }
 
+/* debug:   goes through all tips and forks.  But what if some of them aren't
+ *          on the tree?   */
   for ( i = 0 ; i < curtree->nonodes ; i++ )
   {
     sib_ptr  = curtree->nodep[i];
@@ -962,7 +978,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
     sprintf(progbuf, "\n");
     print_progress(progbuf);
   }
-}
+} /* pars_globrearrange */
 
 
 boolean treecollapsible(tree* t, node* n)
@@ -981,18 +997,18 @@ boolean treecollapsible(tree* t, node* n)
     collapsible =  treecollapsible(t, sib) || collapsible;
   }
   return collapsible;
-}
+} ?8 treecollapsible */
 
 
 void collapsebranch(tree* t, node* n)
-{
+{ /* remove a branch and merge the forks at both ends */
   node* m, *sib, *newfork;
   long nsibs;
 
   m = n->back;
 
   nsibs = count_sibs(m);
-  (void)nsibs;                          // RSGnote: Variable set but never referenced.
+  (void)nsibs;               // RSGnote: Variable set but never referenced.
 
   for ( sib = m->next ; sib != m ; sib = sib->next )
   {
@@ -1008,14 +1024,14 @@ void collapsebranch(tree* t, node* n)
   }
   t->release_fork(t, m); 
 
-  inittrav(t, n);
+  inittrav(t, n);   /* now make initialized pointer false (ones looking in? */
   inittrav(t, n->back);
   n->initialized = false;
-}
+} /* collapsebranch */
 
 
 void collapsetree(tree* t, node* n)
-{
+{  /* collapse all branches that are designated as collapsible */
   node *sib;
   if ( ((pars_tree*)t)->branchcollapsible(t, n) )
     collapsebranch(t, n);
@@ -1025,7 +1041,7 @@ void collapsetree(tree* t, node* n)
   {
     collapsetree(t, sib);
   }
-}
+} /* collapsetree */
 
 
 void printree(tree* t)
@@ -1231,7 +1247,9 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
       {
         l = location[ally[k - 1] - 1];
         if (oldweight[k - 1] > 0)
-          fprintf(outfile, "%4ld", oldweight[k - 1] * (((pars_node*)t->root)->numsteps[l - 1] / weight[l - 1]));
+          fprintf(outfile, "%4ld",
+                   oldweight[k - 1]
+                    * (((pars_node*)t->root)->numsteps[l - 1] / weight[l - 1]));
         else
           fprintf(outfile, "%4ld", (((pars_node*)t->root)->numsteps[k - 1] ));
       }
@@ -1245,8 +1263,9 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
 {
   /* calls global rearrangement on best trees */
   long treei;
-  boolean done = false;
   long i, pos;
+  boolean done = false;
+  tree* bestree;
 
   lastrearr = true;
   savetree(t, place);
@@ -1428,28 +1447,28 @@ double pars_tree_evaluate(tree* t, node*p, boolean dummy)
   }
   t->score = -sum;
   return -sum;
-}
+} /* pars_tree_evaluate */
 
 
 bestelm* allocbestree(void)
-{
+{ /* Malloc space for bestelm and bestrees */
   long i;
   bestelm* bestrees;
   bestrees = (bestelm *)Malloc(maxtrees * sizeof(bestelm));
   for (i = 1; i <= maxtrees; i++)
     bestrees[i - 1].btree = (long *)Malloc(nonodes * sizeof(long));
   return bestrees;
-}
+} /* allocbestree */
 
 
 bestelm** allocbestrees(void)
-{
+{ /* alloc space for array of bestrees */
   long i;
   bestelm **rebestrees = Malloc(2 * sizeof(bestelm*));
   for ( i = 0 ; i < 2 ; i++ )
     rebestrees[i] = allocbestree();
   return rebestrees;
-}
+} /* bestelm */
 
 
 // End.
