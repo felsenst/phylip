@@ -56,7 +56,7 @@ long chars, col, ith, njumble, jumb = 0, nonodes = 0, msets;
 long inseed, inseed0;
 boolean jumble, usertree, trout, weights, progress, stepbox, ancseq, firstset, mulsets, justwts;
 steptr oldweight, necsteps;
-tree* curtree, bestree;
+tree *curtree, *bestree, *priortree;
 long *enterorder;
 Char basechar[32]="ACMGRSVTWYHKDBNO???????????????";
 bestelm *bestrees;
@@ -408,6 +408,8 @@ void doinput(void)
   }
   makeweights();
   curtree = dnacomp_tree_new(nonodes, spp);
+  bestree = dnacomp_tree_new(nonodes, spp);
+  priortree = dnacomp_tree_new(nonodes, spp);
   dna_makevalues(curtree, usertree);
 }  /* doinput */
 
@@ -816,10 +818,10 @@ void maketree(void)                     // RSGbugfix
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
       hookup(item, p);
-      curtree->addtraverse(curtree, item->back, curtree->root, true, there, &bestyet, &bestree, thorough);
+      curtree->addtraverse(curtree, item->back, curtree->root, true, there, &bestyet, bestree, thorough);
       curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
-      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false, NULL, NULL);
+      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true, priortree, bestree);
       if (progress)
       {
         writename(i - 1, 1, enterorder);
@@ -852,7 +854,7 @@ void maketree(void)                     // RSGbugfix
           bstlike2 = bestlike;
           nextree = 1;
         }
-        curtree->globrearrange(curtree, progress, false);
+        curtree->globrearrange(curtree, progress, thorough);
       }
     }
     if (progress)
