@@ -102,7 +102,7 @@ void dnapars_node_free(node **pp)
   free(dp->base);
   free(dp->numnuc);
   pars_node_free(pp);
-} / dnapars_node_free */
+} /* dnapars_node_free */
 
 
 void dnapars_node_copy(node* srcn, node* dstn)

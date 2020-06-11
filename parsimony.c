@@ -257,10 +257,11 @@ void pars_node_copy(node* srcn, node* dstn)
 } /* pars_node_copy */
 
 
-void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars, boolean progress, long * finalTotal)
+void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
+                       boolean progress, long * finalTotal)
 {
-  /* Goes through all best trees, collapsing trees where possible, and  */
-  /* deleting trees that are not unique.    */
+  /* Goes through all best trees, collapsing trees where possible,
+   * and deleting trees that are not unique.    */
   long i, j, k, pos ;
   boolean found;
   long treeLimit = nextree - 1 < maxtrees ? nextree - 1 : maxtrees;
@@ -322,12 +323,13 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars, boole
     phyFillScreenColor();
   }
   *finalTotal = treeLimit;
-}
+} /* collapsebesttrees */
 
 
 static long get_numdesc(node* root, node* p)
-{ /* we used to bookkeep a numdesc variable,  this is no longer necessary, however
-     some older functions still like it. */
+{
+  /* we used to bookkeep a numdesc variable,  this is no longer
+   * necessary, however some older functions still like it. */
   if ( p->tip )
     return 0;
   if ( root->index == p->index && root != p)
@@ -336,13 +338,14 @@ static long get_numdesc(node* root, node* p)
        (p->next->back == NULL && p->next != root))
     return 0;
   return count_sibs(p);
-}
+} /* get_numdesc */
 
 
 void reroot(node *outgroup, node *root)
 {
-  /* reorients tree, putting outgroup in desired position. used if the root is binary. */
-  /* used in dnacomp & dnapars */
+  /* reorients tree, putting outgroup in desired position. used if
+   * the root is binary.
+   * used in dnacomp & dnapars */
   node *p, *q;
 
   if (outgroup->back->index == root->index)
@@ -374,8 +377,8 @@ void reroot2(node *outgroup, node *root)
 
 void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 {
-  /* reorients tree, putting back outgroup in original position. */
-  /* used in dnacomp & dnapars */
+  /* reorients tree, putting back outgroup in original position.
+   * used in dnacomp & dnapars */
   node *p;
 
   p = root->next;
@@ -389,8 +392,8 @@ void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 
 
 void savetree(tree* t, long *place)     // RSGbugfix
-{ /* Record in place where each species has to be added to reconstruct this tree. */
-  /* This code roots the tree and calls oldsavetree to save it. */
+{ /* Record in place where each species has to be added to reconstruct
+   * this tree. This code roots the tree and calls oldsavetree to save it. */
   node *oldroot, *p, *outgrnode;
 
   outgrnode = t->nodep[outgrno - 1];
@@ -404,10 +407,11 @@ void savetree(tree* t, long *place)     // RSGbugfix
 
 
 void oldsavetree(tree* t, long *place)
-{ /* record in place where each species has to be
-     added to reconstruct this tree this code assumes a root
-     this is the older function,  a new function roots the tree and calls this
-     function to save the tree */
+{
+   /* record in place where each species has to be
+    * added to reconstruct this tree this code assumes a root
+    * this is the older function,  a new function roots the tree and calls this
+    * function to save the tree */
   long i, j, nextnode, nvisited;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
   boolean done, newfork;
@@ -522,8 +526,9 @@ void oldsavetree(tree* t, long *place)
 
 
 void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
-{ /* adds first best tree. If we are rearranging on usertrees, add it to the second
-   * array of trees if the score is good enough */
+{
+  /* adds first best tree. If we are rearranging on usertrees, 
+   * add it to the second array of trees if the score is good enough */
   long repos;
   boolean found;
 
@@ -552,7 +557,8 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse, long
 
 
 void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
-{ /* add tied tree */
+{
+  /* add a tied tree */
   boolean found;
   long repos;
 
@@ -571,7 +577,8 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
 
 
 static void flipnodes(node *nodea, node *nodeb)
-{ /* flip nodes */
+{
+  /* flip nodes */
   node *backa, *backb;
 
   backa = nodea->back;
@@ -584,7 +591,8 @@ static void flipnodes(node *nodea, node *nodeb)
 
 
 static void moveleft(node *root, node *outgrnode, node **flipback)
-{ /* makes outgroup node to leftmost child of root */
+{
+  /* makes outgroup node to leftmost child of root */
   node *p;
   boolean done;
 
@@ -604,7 +612,8 @@ static void moveleft(node *root, node *outgrnode, node **flipback)
 
 
 void printbranchlengths(node *p)
-{
+{ 
+  /* print branch lengths */
   node *q;
   long i;
 
@@ -630,6 +639,7 @@ void printbranchlengths(node *p)
 
 void initbranchlen(node *p)
 {
+  /* initial values of branch lengths */
   node *q;
 
   p->v = 0.0;
@@ -782,7 +792,8 @@ void newindex(long i, node *p)
 
 
 void load_tree(tree* t, long treei, bestelm* bestrees)
-{ /* restores a tree from bestrees */
+{
+  /* restores a tree from bestrees */
   long j, nsibs, nextnode;
   node *q, *below, *bback, *forknode, *newtip;
 
@@ -841,11 +852,12 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 
   t->root = t->nodep[outgrno - 1]->back;
   t->score = bestyet;
-}
+} /* load_tree */
 
 
 static void  savetraverse(node *p)
-{ /* set boolean "bottom" on each interior node to show which way is down */
+{ 
+  /* set boolean "bottom" on each interior node to show which way is down */
   node *q;
 
   p->bottom = true;
@@ -863,7 +875,10 @@ static void  savetraverse(node *p)
 
 
 static void bintomulti(tree *t, node **root, node **binroot)
-{  /* Attaches root's left child to its right child and makes the right child new root. */
+{
+  /* Make a binary tree multifurcating:
+   * attaches root's left child to its right child and makes the right
+   * child the new root. */
   node *left, *right, *newnode, *temp;
 
   right = (*root)->next->next->back;
@@ -890,7 +905,8 @@ static void bintomulti(tree *t, node **root, node **binroot)
 
 
 static boolean outgrin(node *root, node *outgrnode)
-{ /* checks if outgroup node is a child of root */
+{
+  /* checks if outgroup node is a child of root */
   node *p;
 
   p = root->next;
@@ -916,8 +932,6 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
   boolean multf, mulf;
   node* removed;
 
-  (void)thorough;                       // RSGnote: Parameter never used.
-
   bestyet = oldbestyet = curtree->evaluate(curtree, curtree->root, 0);
 
   if (progress)
@@ -927,7 +941,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
   }
 
 /* debug:   goes through all tips and forks.  But what if some of them aren't
- *          on the tree?   */
+ *          on the tree? (that may happen if rearranging a user tree)   */
   for ( i = 0 ; i < curtree->nonodes ; i++ )
   {
     sib_ptr  = curtree->nodep[i];
@@ -967,7 +981,8 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       }
       for ( k = 0 ; k <= num_sibs2 ; k++ )
       {
-        curtree->addtraverse(curtree, removed, sib_ptr2->back, true, qwhere, &bestyet, &bestree, multf);
+        curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
+                              qwhere, &bestyet, &bestrees, multf);
         sib_ptr2 = sib_ptr2->next;
       }
       curtree->insert_(curtree, removed, where, mulf);
@@ -983,6 +998,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
 boolean treecollapsible(tree* t, node* n)
 {
+ /* find out whether there is any collapsible branch on the tree */
   node *sib;
   boolean collapsible = false;
 
@@ -997,7 +1013,7 @@ boolean treecollapsible(tree* t, node* n)
     collapsible =  treecollapsible(t, sib) || collapsible;
   }
   return collapsible;
-} ?8 treecollapsible */
+} /* treecollapsible */
 
 
 void collapsebranch(tree* t, node* n)
@@ -1265,7 +1281,6 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
   long treei;
   long i, pos;
   boolean done = false;
-  tree* bestree;
 
   lastrearr = true;
   savetree(t, place);
