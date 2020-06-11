@@ -675,7 +675,7 @@ void smooth(tree* t, node *p)
   smoothed = false;
 
   ml_update(t, p);   /* get views at both ends updated, recursing if needed */
-  ((ml_tree*)t)->makenewv (t, p); /* new value of branch length */
+  t->makenewv (t, p); /* new value of branch length */
   inittrav (t, p);    /* set inward-looking pointers false ... */
   inittrav (t, p->back);  /* ... from both ends of this branch */
 
@@ -765,8 +765,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * t->do_newbl is true, all branches optimized.
   *
   * Insert p near q 
-  * p is the interior fork connected to the inserted subtree or tip
-  */
+  * p is the interior fork connected to the inserted subtree or tip */
   long i;
 
 /* debug: */ printf("starting function ml_tree_insert\n");
@@ -777,11 +776,11 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     invalidate_traverse(p);        /* set initialized false on views ... */
     invalidate_traverse(p->next);  /* ... looking in towards this fork */
     invalidate_traverse(p->next->next);
-    p->initialized = false;    /* set initialized false on views ... */
-    p->next->initialized = false;    /* from the interior node */
+    p->initialized = false;        /* set initialized false on views ... */
+    p->next->initialized = false;  /* ... out from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
-    ml_update(t, p);
+    ml_update(t, p);               /* update the views outward */
     ml_update(t, p->next);
     ml_update(t, p->next->next);
     inserting = false;
@@ -809,9 +808,6 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
 
-  (void)t;                              // RSGnote: Parameter never used.
-  (void)p;                              // RSGnote: Parameter never used.
-
   double combinedEdgeWeight = q->v + q->back->v;
   q->v       = combinedEdgeWeight;
   q->back->v = combinedEdgeWeight;
@@ -821,12 +817,12 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
 
 void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 {
-  /* remove p and record in q where it was
+  /* remove  p  and record in  q  where it was
    * assumes bifurcations
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
 
-/* debug */ printf("start ml_tree_remove\n");
+/* debug: */ printf("start ml_tree_remove\n");
   generic_tree_re_move(t, p, q, do_newbl);
 
   if ( do_newbl )
@@ -850,10 +846,10 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 
 static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean atstart)
 {
- /* Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
- *  updates bestyet and returns true.  If this is the first place to insert, set
- *  bestyet  to the current likelihood and set  qwhere  to the current place  q
- */
+ /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
+  * better than bestyet, updates bestyet and returns true.  If this is the
+  * first place to insert, set  bestyet  to the current likelihood and set
+  * qwhere  to the current place  q  */
   double like;
   boolean succeeded, bettertree;
   node* whereRemoved;
@@ -900,7 +896,8 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
 
 /* debug */ printf("ml_tree_try_insert_\n");
   if ( thorough )
-    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet, bestree, atstart);
+    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
+                                             bestree, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
 
