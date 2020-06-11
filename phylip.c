@@ -3633,7 +3633,6 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
       succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
                                         qwhere, &bestyet, bestree, thorough);
-/* debug:  in above call --  "thorough"? "contin"? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3804,17 +3803,21 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                               node* qwherein, double* bestyet, tree* bestree,
                               boolean thorough)
-{ /* try adding p at q, proceed recursively through tree */
+{ /* try adding  p  at  q, proceed recursively through tree.
+   * contin  indicates whether one continues recursively or
+   * is just doing local rearragements. 
+   * thorough indicates whether need to adjust parameters
+   * further out than  q  to assess that location  */
   node *sib_ptr;
   boolean succeeded, atstart;
 
-  
   atstart = true;
-  succeeded = false;
-  succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, atstart);   /* debug: why q->back here? */
+  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+                             thorough, atstart);
+  succeeded = false;      /* for first location we try */
   atstart = false;
-  if (!q->tip && contin) {
+  if (!q->tip) {     /* in one direction, try immediate descendant branches,
+                      * maybe further unless just local rearrangements */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
@@ -3824,8 +3827,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   }
   if (contin && !q->back->tip) {
     /* we need to go both ways, if start in an interior branch
-     * of an unrooted tree */
-    for ( sib_ptr = q->back->next ; sib_ptr != q->back ; sib_ptr = sib_ptr->next)
+     * of an unrooted tree and are not doing just local rearrangements */
+    for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree,
@@ -3839,9 +3842,16 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
                               node *qwherein, double* bestyet, tree* bestree,
                               boolean thorough, boolean atstart)
-{ /* try adding p at q, then recursively through tree from one end of that branch */
+{
+  /* try adding  p  at  q, then maybe recursively through tree
+   * from one end of that branch
+   * succeeded  tells whether any location was found better
+   * than the original location, q
+   * contin  indicates whether one proceeds through the subtree
+   * recursively instead of just trying this one branch, as in
+   * local rearrangement */
   node *sib_ptr;
-  boolean succeeded= false;
+  boolean succeeded = false;
 
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              thorough, atstart);
