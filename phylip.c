@@ -90,7 +90,7 @@ void generic_tree_copy(tree* src, tree* dst)
       dst_sibs--;
       }
     }
-  for ( i = spp; i < maxcircles; i++) {  /* insert needed nodes in dst forks */
+  for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
     doingacircle = false;
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
@@ -293,7 +293,8 @@ long count_sibs (node *p)
     return_int = 0;
   } else {           /* if there is one ... */
     if (p->tip) {
-      sprintf (progbuf, "Error: the function count_sibs called on a tip.  This is a bug.\n");
+      sprintf (progbuf,
+         "Error: the function count_sibs called on a tip.  This is a bug.\n");
       print_progress(progbuf);
       exxit (-1);
     }
@@ -399,7 +400,7 @@ void initializetrav (tree* t, node *p)
   if (p->tip)                            /* bail if at a tip */
     return;
   for (q = p->next; q != p; q = q->next) /* go to rest of fork circle */
-    initializetrav (t, q->back);            /* ... and on outwards from there */
+    initializetrav (t, q->back);         /* ... and on outwards from there */
 
 } /* initializetrav */
 
@@ -450,13 +451,15 @@ void crash_handler(int sig_num)
 #endif /* SIGSEGV */
 #ifdef SIGFPE
     case SIGFPE:
-      sprintf(progbuf, "This program has caused a Floating Point Exception.\n");
+      sprintf(progbuf,
+               "This program has caused a Floating Point Exception.\n");
       print_progress(progbuf);
       break;
 #endif  /* SIGFPE */
 #ifdef SIGILL
     case SIGILL:
-      sprintf(progbuf, "This program has attempted an illegal instruction.\n");
+      sprintf(progbuf,
+               "This program has attempted an illegal instruction.\n");
       print_progress(progbuf);
       break;
 #endif  /* SIGILL */
@@ -482,23 +485,30 @@ void crash_handler(int sig_num)
 #endif /* SIGSEGV */
   if (segorbus)
   {
-    sprintf(progbuf, "        This may have been caused by an incorrectly formatted input file\n");
+    sprintf(progbuf,
+ "        This may have been caused by an incorrectly formatted input file\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        or input tree file.  You should check those files carefully.\n");
+    sprintf(progbuf,
+    "        or input tree file.  You should check those files carefully.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        If this seems to be a bug, please mail joe@gs.washington.edu\n");
+    sprintf(progbuf,
+    "        If this seems to be a bug, please mail joe@gs.washington.edu\n");
     print_progress(progbuf);
   }
   else
   {
-    sprintf(progbuf, "        Most likely, you have encountered a bug in the program.\n");
+    sprintf(progbuf,
+         "        Most likely, you have encountered a bug in the program.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        Since this seems to be a bug, please mail joe@gs.washington.edu\n");
+    sprintf(progbuf,
+ "        Since this seems to be a bug, please mail joe@gs.washington.edu\n");
     print_progress(progbuf);
   }
-  sprintf(progbuf, "        with the name of the program, your computer system type,\n");
+  sprintf(progbuf,
+        "        with the name of the program, your computer system type,\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        a full description of the problem, and with the input data file.\n");
+  sprintf(progbuf,
+"        a full description of the problem, and with the input data file.\n");
   print_progress(progbuf);
   abort();
 } /* crash_handler */
@@ -508,11 +518,10 @@ void crash_handler(int sig_num)
 
 void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
 { /* initialization routine for all programs
-   * anything done at the beginning for every program should be done here */
-
-  /* set up signal handler for segfault, floating point exception, illegal
-   * instruction, bad pipe, bus error.  There are more signals that can cause a
-   * crash, but these are the most common even these aren't found on all
+   * anything done at the beginning for every program should be done here. 
+   * set up signal handler for segfault, floating point exception, illegal
+   * instruction, bad pipe, bus error.  There are more signals that can cause
+   * a crash, but these are the most common even these aren't found on all
    * machines.  */
   javarun = isjavarun;
 
@@ -723,7 +732,8 @@ void openfile(
           }
           continue;
         default:
-          printf("Internal error in openfile().  Unknown mode \"%s\".\n", filemode);
+          printf(
+           "Internal error in openfile().  Unknown mode \"%s\".\n", filemode);
           exxit(-1);
       }
     }
@@ -855,7 +865,9 @@ void countup(long *loopcount, long maxcount)
 
   (*loopcount)++;
   if ((*loopcount) >= maxcount) {
-    printf("\nERROR:  Made %ld attempts to read input in loop.  Aborting run.\n", *loopcount);
+    printf(
+        "\nERROR:  Made %ld attempts to read input in loop.  Aborting run.\n",
+            *loopcount);
     exxit(-1);
   }
 } /* countup */
@@ -936,8 +948,8 @@ double randum(longer seed)
       newseed[j] &= 63;
     }
   }
-  memcpy(seed, newseed, sizeof(longer));        /* new seed replaces old one */
-  seed[5] &= 3;          /* from the new seed, get a floating point fraction */
+  memcpy(seed, newseed, sizeof(longer));       /* new seed replaces old one */
+  seed[5] &= 3;         /* from the new seed, get a floating point fraction */
   x = 0.0;
   for (i = 0; i <= 5; i++)
     x = x / 64.0 + seed[i];
@@ -1275,8 +1287,9 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
   lgroot[1][1] = 1.0+alpha;
   for (i = 2; i <= categs; i++)
     lgr(i, alpha, lgroot);                   /* get roots for L^(a)_n */
-  /* here get weights */
-  /* Gamma weights are (1+a)(1+a/2) ... (1+a/n)*x_i/((n+1)^2 [L_{n+1}^a(x_i)]^2)  */
+  /* here get weights:
+   * Gamma weights are (1+a)(1+a/2) ...
+                       (1+a/n)*x_i/((n+1)^2 [L_{n+1}^a(x_i)]^2)  */
   f = 1;
   for (i = 1; i <= categs; i++)
     f *= (1.0+alpha/i);
@@ -1329,7 +1342,8 @@ void root_hermite(long n, double *hroot)
 } /* root_hermite */
 
 
-double halfroot(double (*func)(long m, double x), long n, double startx, double delta)
+double halfroot(double (*func)(long m, double x), long n,
+                 double startx, double delta)
 { /* searches from the bound (startx) only in one direction
      (by positive or negative delta, which results in
      other-bound=startx+delta)
@@ -1475,7 +1489,8 @@ void initlambda(double *lambda)
 
   loopcount = 0;
   do {
-    printf("Mean block length of sites having the same rate (greater than 1)?\n");
+    printf(
+       "Mean block length of sites having the same rate (greater than 1)?\n");
     fflush(stdout);
     if(scanf("%lf%*[^\n]", lambda)) {}  // Read number and scan to EOL.
     (void)getchar();
@@ -1510,7 +1525,9 @@ void initfreqs(double *freqap, double *freqcp, double *freqgp, double *freqtp)
 
         if (fabs(sum - 1.0) >= 1.0e-3)
         {
-          printf("Normalized base frequencies are:\n%.3f %.3f %.3f %.3f\n" "(press enter)", freqa, freqc, freqg, freqt);
+          printf(
+           "Normalized base frequencies are:\n%.3f %.3f %.3f %.3f\n" 
+           "(press enter)", freqa, freqc, freqg, freqt);
           fflush(stdout);
           fgetline(stdin);
         }
@@ -1673,9 +1690,11 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
         *ch = 0;
       }
 
-      recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip, nextnode, haslengths, unifok);
+      recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip,
+                         nextnode, haslengths, unifok);
 
-      // initnode call with "hslength" --> no need to do anything here, typically just hooks it up
+      /* initnode call with "hslength" --> no need to do anything here,
+       * typically just hooks it up   */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -1687,9 +1706,11 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
     }
 
     if ( furcs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
+      sprintf(progbuf,
+               "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+              "To use this tree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
@@ -1707,17 +1728,19 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
     if ((*ch) == ')')
       (*parens)--;         /* decrement count of open parentheses */
-    // initnode call with "tip" --> typically copies str info above, but we just increase
+    /* initnode call with "tip" --> typically copies str info above,
+     *  but we just increase  */
     (*nexttip)++;
 
   } else
     getch(ch, parens, treefile);
 
-  // initnode call with "iter" --> sets iter/initialv/initialized code -- nothing to do here
+  /* initnode call with "iter" --> sets iter/initialv/initialized code
+   *   -- nothing to do here */
 
   if ((*ch) == ':')
   {
-    // initnode call with "length" -> must read length using processlength
+    /* initnode call with "length" -> must read length using processlength */
     double valyew, divisor;
     boolean minusread;
     processlength(&valyew,&divisor,ch,&minusread,treefile,parens);
@@ -1726,15 +1749,16 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     if ((*ch) != ';' && (*ch) != '[')
     {
-      // initnode call with "hsnolength" --> sets flag that not all items have length
-      // so, do nothing here?
+      /* initnode call with "hsnolength" --> sets flag that not all items
+       * have length, so do nothing here? */
     }
   }
   if ((*ch) == '[')
-    // process tree weight
+    /* process tree weight  */
   {
-    // initnode call with "treewt" --> can do something for cons.c things -- need to read
-    // stolen directly from cons.c
+    /* initnode call with "treewt" --> can do something for cons.c things
+     * -- need to read */
+    /* stolen directly from cons.c  */
     double trweight;
     if (!eoln(treefile))
     {
@@ -1755,7 +1779,8 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
         getch(ch, parens, treefile);
         if (*ch != ';')
         {
-          sprintf(progbuf, "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
           print_progress(progbuf);
           exxit(-1);
         }
@@ -1766,9 +1791,10 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     if ((*ch) == ';')     /* ... and at end of tree */
     {
-      // initnode call with "unittrwt" --> can do something for cons.c things -- need to read
-      // stolen directly from cons.c
-      // double trweight = 1.0 ;
+      /* initnode call with "unittrwt" --> can do something for cons.c things
+       *  -- need to read  */
+      /* stolen directly from cons.c  */
+      /*  debug:  ??  double trweight = 1.0 ;  */
       long i = ftell (treefile);
       char c = ' ';
       while (c == ' ') {
@@ -1794,8 +1820,9 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
 void inputNumbersFromTreeFile(FILE * intree, long * spp_p, long * nonodes_p)
 {
-  /* read in user-defined tree to determine values of spp, maximum name length, nonodes */
-  /* Eats blank lines and everything up to the first open paren, then
+  /* read in user-defined tree to determine values of spp, maximum name
+   * length, nonodes.
+   * Eats blank lines and everything up to the first open paren, then
    * calls the recursive function addelement, which builds the
    * tree and calls back to initnode. */
   char  ch;
@@ -1861,9 +1888,11 @@ void inputnumbers(long *spp, long *chars, long *nonodes, long n)
    * (*spp * 2 - n)  in *nonodes */
 
   if (fscanf(infile, "%ld%ld", spp, chars) != 2 || *spp <= 0 || *chars <= 0) {
-    sprintf(progbuf, "ERROR:  inputnumbers Unable to read the number of species or characters in data set.\n");
+    sprintf(progbuf,
+    "ERROR:  inputnumbers Unable to read the number of species or characters in data set.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+      "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1876,9 +1905,11 @@ void inputnumbers2(long *spp, long *nonodes, long n)
   /* read species number */
 
   if (fscanf(infile, "%ld", spp) != 1 || *spp <= 0) {
-    sprintf(progbuf, "ERROR:  inputnumbers2 Unable to read the number of species in data set.\n");
+    sprintf(progbuf,
+ "ERROR:  inputnumbers2 Unable to read the number of species in data set.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+       "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1901,7 +1932,8 @@ void samenumsp(long *chars, long ith)
   }
   if (cursp != spp)
   {
-    sprintf(progbuf, "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
+    sprintf(progbuf,
+      "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1917,14 +1949,18 @@ void samenumsp2(long ith)
   if (eoln(infile))
     scan_eoln(infile);
   if (fscanf(infile, "%ld", &cursp) != 1) {
-    sprintf(progbuf, "\n\nERROR:  samenumsp2 Unable to read number of species in data set %ld.\n",ith);
+    sprintf(progbuf,
+  "\n\nERROR:  samenumsp2 Unable to read number of species in data set %ld.\n",
+     ith);
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+       "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
   if (cursp != spp) {
-    sprintf(progbuf, "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
+    sprintf(progbuf,
+      "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1950,8 +1986,9 @@ void readoptions(long *extranum, const char *options)
 
 
 void matchoptions(Char *ch, const char *options)
-{  /* match option characters to those in auxiliary options line in restriction
-    * site data file */
+{
+  /* match option characters to those in auxiliary options line in
+   * restriction site data file */
 
   *ch = gettc(infile);
   uppercase(ch);
@@ -1995,18 +2032,22 @@ void initname(long i)
     if (eoff(infile) || eoln(infile)) {
       sprintf(progbuf, "\n\nERROR:  End-of-Line or End-of-File");
       print_progress(progbuf);
-      sprintf(progbuf, " in the middle of species name for species %ld.\n\n", i+1);
+      sprintf(progbuf,
+               " in the middle of species name for species %ld.\n\n", i+1);
       print_progress(progbuf);
       exxit(-1);
     }
     if (!gotatab) {  /* if no tab character has been read yet */
       nayme[i][j] = gettc(infile);
       if ((nayme[i][j] == '(') || (nayme[i][j] == ')') || (nayme[i][j] == ':')
-          || (nayme[i][j] == ',') || (nayme[i][j] == ';') || (nayme[i][j] == '[')
-          || (nayme[i][j] == ']')) {
+          || (nayme[i][j] == ',') || (nayme[i][j] == ';')
+          || (nayme[i][j] == '[') || (nayme[i][j] == ']'))
+      {
         sprintf(progbuf, "\nERROR:  Species name may not contain characters ( ) : ; , [ ] \n");
         print_progress(progbuf);
-        sprintf(progbuf, "        In the name of species number %ld at position number %ld.\n",i+1, j+1);
+        sprintf(progbuf,
+        "        In the name of species number %ld at position number %ld.\n",
+         i+1, j+1);
         print_progress(progbuf);
         sprintf(progbuf, "        there is character %c\n\n", nayme[i][j]);
         print_progress(progbuf);
@@ -2026,9 +2067,10 @@ void initname(long i)
 
 void checknames(long int num_species)
 {
-  // Check NAYME array for duplicates.  Prints all duplicates (if more than one).
-  // RSGnote: Possibly add provisions for checking for missing names on loading
-  // multiple databases as well as consistency (and avoidance of duplication).
+  /* Check NAYME array for duplicates. Prints all duplicates (if more than
+   * one). RSGnote: Possibly add provisions for checking for missing names on
+   * loading multiple datasets as well as consistency (and avoidance of
+   * duplication).  */
   boolean uh_oh = false;
   long int i, j;
 
@@ -2156,13 +2198,14 @@ void printweights(FILE *filename, long inc, long chars,
 
 /************* Category file routines ***************/
 
-void inputcategs(long a, long b, steptr category, long categs, const char *prog)
+void inputcategs(long a, long b, steptr category,
+                  long categs, const char *prog)
 {
   /* input the categories, 1-9 */
   Char ch;
   long i;
 
-  //printf("in inputcategs a: %li, b: %li, categs: %li, prog: %s\n", a, b, categs, prog);
+  /* debug:  ? printf("in inputcategs a: %li, b: %li, categs: %li, prog: %s\n", a, b, categs, prog);  */
 
   for (i = a; i < b; i++) {
     do {
@@ -2176,7 +2219,8 @@ void inputcategs(long a, long b, steptr category, long categs, const char *prog)
     else {
       sprintf(progbuf, "\n\nERROR:  Bad category character: %c", ch);
       print_progress(progbuf);
-      sprintf(progbuf, " -- categories in %s are currently 1-%ld.\n", prog, categs);
+      sprintf(progbuf,
+               " -- categories in %s are currently 1-%ld.\n", prog, categs);
       print_progress(progbuf);
       exxit(-1);
     }
@@ -2225,7 +2269,8 @@ void inputfactors(long chars, Char *factor, boolean *factors)
 }  /* inputfactors */
 
 
-void printfactors(FILE *filename, long chars, Char *factor, const char *letters)
+void printfactors(FILE *filename, long chars,
+                   Char *factor, const char *letters)
 {
   /* print out list of factor symbols */
   long i;
@@ -2243,7 +2288,8 @@ void printfactors(FILE *filename, long chars, Char *factor, const char *letters)
 }  /* printfactors */
 
 
-void findtree(boolean *found, long *pos, long nextree, long *place, bestelm *bestrees)
+void findtree(boolean *found, long *pos, long nextree,
+               long *place, bestelm *bestrees)
 {
   /* finds tree given by array place in array bestrees by binary search */
   /* used by dnacomp, dnapars, dollop, mix, & protpars */
@@ -2279,7 +2325,8 @@ void findtree(boolean *found, long *pos, long nextree, long *place, bestelm *bes
 }  /* findtree */
 
 
-void addtree(long pos, long *nextree, boolean collapse, long *place, bestelm *bestrees)
+void addtree(long pos, long *nextree, boolean collapse,
+              long *place, bestelm *bestrees)
 {
   /* puts tree from array place in its proper position in array bestrees */
   /* used by dnacomp, dnapars, dollop, mix, & protpars */
@@ -2376,7 +2423,9 @@ void findch(Char c, Char *ch, long which)
   while (!done) {
     if (c == ',') {
       if (*ch == '(' || *ch == ')' || *ch == ';') {
-        sprintf(progbuf, "\n\nERROR in user tree %ld: unmatched parenthesis or missing comma.\n\n", which);
+        sprintf(progbuf,
+   "\n\nERROR in user tree %ld: unmatched parenthesis or missing comma.\n\n",
+                 which);
         print_progress(progbuf);
         exxit(-1);
       } else if (*ch == ',')
@@ -2419,13 +2468,13 @@ void processlength(double *valyew, double *divisor, Char *ch,
   *lengthIsNegative = false;
   pointread = false;
   hasExponent = false;
-  exponentIsNegative = -1; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+  exponentIsNegative = -1; /* 3 states: -1=unassigned, 1=true, 0=false */
   exponent = 0;
   *valyew = 0.0;
   *divisor = 1.0;
   getch(ch, parens, treefile);
   if ('+' == *ch)
-    getch(ch, parens, treefile); // ignore leading '+', because "+1.2345" == "1.2345"
+    getch(ch, parens, treefile); /* ignore leading +: "+1.2345" == "1.2345" */
   else if ('-' == *ch)
   {
     *lengthIsNegative = true;
@@ -2440,7 +2489,8 @@ void processlength(double *valyew, double *divisor, Char *ch,
         pointread = true;
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with more than one \'.\' in it.\n\n");
+        sprintf(progbuf,
+       "\n\nERROR:  Branch length found with more than one \'.\' in it.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2448,10 +2498,12 @@ void processlength(double *valyew, double *divisor, Char *ch,
     else if ('+' == *ch)
     {
       if (hasExponent && -1 == exponentIsNegative)
-        exponentIsNegative = 0; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+        exponentIsNegative = 0; /* 3 states: -1=unassigned, 1=true, 0=false */
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with \'+\' in an unexpected place.\n\n");
+        sprintf(progbuf,
+     "\n\nERROR:  Branch length found with \'+\' in an unexpected place.\n\n"
+                  );
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2459,10 +2511,11 @@ void processlength(double *valyew, double *divisor, Char *ch,
     else if ('-' == *ch)
     {
       if (hasExponent && -1 == exponentIsNegative)
-        exponentIsNegative = 1; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+        exponentIsNegative = 1; /* 3 states: -1=unassigned, 1=true, 0=false */
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with \'-\' in an unexpected place.\n\n");
+        sprintf(progbuf,
+    "\n\nERROR:  Branch length found with \'-\' in an unexpected place.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2473,7 +2526,8 @@ void processlength(double *valyew, double *divisor, Char *ch,
         hasExponent = true;
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with more than one \'E\' in it.\n\n");
+        sprintf(progbuf,
+      "\n\nERROR:  Branch length found with more than one \'E\' in it.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2529,13 +2583,12 @@ void commentskipper(FILE *intree, long *bracket)
 
 long countcomma(FILE *treefile, long *comma)
 {
-  /* Modified by Dan F. 11/10/96 */
-
-  /* countcomma rewritten so it passes back both lparen+comma to allocate nodep
-     and a pointer to the comma variable.  This allows the tree to know how many
-     species exist, and the tips to be placed in the front of the nodep array */
-  /* The next line inserted so this function leaves the file pointing
-     to where it found it, not just re-winding it. */
+  /* Modified by Dan F. 11/10/96: 
+   * countcomma rewritten so it passes back both lparen+comma to allocate
+   * nodep and a pointer to the comma variable.  This allows the tree to know
+   * how many species exist, and the tips to be placed in the front of the
+   * nodep array. The next line inserted so this function leaves the file
+   * pointing to where it found it, not just re-winding it. */
   long orig_position = ftell(treefile);
 
   Char c;
@@ -2633,7 +2686,8 @@ void memerror(void)
 
 void odd_malloc(long x)
 { /* error message if attempt to malloc too little or too much memory */
-  sprintf(progbuf, "ERROR:  A function asked for an inappropriate amount of memory:");
+  sprintf(progbuf,
+           "ERROR:  A function asked for an inappropriate amount of memory:");
   print_progress(progbuf);
   sprintf(progbuf, "  %ld bytes.\n", x);
   print_progress(progbuf);
@@ -2647,11 +2701,14 @@ void odd_malloc(long x)
   print_progress(progbuf);
   sprintf(progbuf, "        Please check your input file carefully.\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        If it seems to be a bug, please mail joe@gs.washington.edu\n");
+  sprintf(progbuf,
+      "        If it seems to be a bug, please mail joe@gs.washington.edu\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        with the name of the program, your computer system type,\n");
+  sprintf(progbuf,
+        "        with the name of the program, your computer system type,\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        a full description of the problem, and with the input data file.\n");
+  sprintf(progbuf,
+ "        a full description of the problem, and with the input data file.\n");
   print_progress(progbuf);
   /* abort() can be used to crash */
 
@@ -2785,10 +2842,11 @@ void match_names_to_data (Char *str, pointarray treenode, node **p, long spp)
 }  /* match_names_to_data */
 
 
-void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *treefile,
-                pointarray nodep, boolean *goteof, boolean *first,
-                long *nextnode, long *ntips, boolean *haslengths,
-                initptr initnode, boolean unifok, long maxnodes)
+void addelement(tree * treep, node **p, node *q, Char *ch,
+                 long *parens, FILE *treefile, pointarray nodep,
+                 boolean *goteof, boolean *first, long *nextnode,
+                 long *ntips, boolean *haslengths, initptr initnode,
+                 boolean unifok, long maxnodes)
 {
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
@@ -2819,12 +2877,14 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     }
 
     /* do what needs to be done at bottom */
-    (*initnode)(treep, p, len, nodei, ntips, parens, bottom, nodep, str, ch, treefile);
+    (*initnode)(treep, p, len, nodei, ntips, parens,
+                 bottom, nodep, str, ch, treefile);
     pfirst      = (*p);
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
       furcs++;
-      (*initnode)(treep, &(*p)->next, len, nodei, ntips, parens, nonbottom, nodep, str, ch, treefile);
+      (*initnode)(treep, &(*p)->next, len, nodei,
+                   ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
       r = (*p)->next;
       getch(ch, parens, treefile);      /* look for next character */
@@ -2846,7 +2906,8 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 
-      (*initnode)(treep, &r, len, nodei, ntips, parens, hslength, nodep, str, ch, treefile);
+      (*initnode)(treep, &r, len, nodei, ntips, parens,
+                   hslength, nodep, str, ch, treefile);
       /* do what is done after each about length */
       *p = r;                         /* make r point back to p */
 
@@ -4024,7 +4085,7 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
   bestyet = t->evaluate(t, start, 0);
   while(succeeded)
   {
-    succeeded = unrooted_tree_locrearrange_recurs(t, start->back, &bestyet,
+    succeeded = unrooted_tree_locrearrange_recurs(t, start, &bestyet,
                                                 thorough, priortree, bestree);
   }
 } /* generic_unrooted_locrearrange */
@@ -4035,11 +4096,10 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                                            tree* bestree)
 {
   /* rearranges the tree locally by removing a subtree
-   * connected to an interior node, keeping it
-   * together and trying to insert it in two neighboring
-   * branches.  p  points to the end of the interior
-   * branch, the other end of which is connected to
-   * the moved subtree, at p->back->next->next.
+   * connected to an interior node, keeping those
+   * together and trying to insert them in two neighboring
+   * branches.  p  points to the interior node that
+   * is removed, p->back is the root of the removed subtree.
    * The two target branches to try are the other
    * two connected to interior node  p.  
    * (this function doesn't handle multifurcations)
@@ -4050,12 +4110,12 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
   qwhere = NULL;
 
-  if ((!p->tip) && !p->back->tip)   /* is this an interior branch? */
+  if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
   {
     oldbestyet = *bestyet;
     r = p->back->next->next;
     if (!thorough)
-      t->save_lr_nodes(t, p, r);
+      t->save_lr_nodes(t, p, r);   /* debug:  check what this does */
     else
       t->copy(t, bestree);
     t->re_move(t, r, &q, false);
@@ -4065,18 +4125,21 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     else
       qwhere = p;
 
-    t->addtraverse(t, r, p->next, false, qwhere, bestyet, bestree,
-                   thorough);
+    /* following does "greedy" searching of placement on two sibling
+     * branches, so accepts the first if it improves things and then
+     * doesn't even try the other one.  contin  parameter is false. */
+    t->addtraverse(t, r, p->next->back, false, qwhere,
+                    bestyet, bestree, thorough); /* trying just this branch */
 
-    if(qwhere == q)     /* don't continue if we've already got a better tree */
+    if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
-      t->addtraverse(t, r, p->next->next, false, qwhere, bestyet, bestree,
-                     thorough);
+      t->addtraverse(t, r, p->next->next->back, false,
+                      qwhere, bestyet, bestree, thorough);
     }
 
     if (thorough)
       bestree->copy(bestree, t);
-    else {                 /* for case where one is rearranging only locally */
+    else {                /* for case where one is rearranging only locally */
       if (qwhere == q ) {
         assert(*bestyet <= oldbestyet);
         t->insert_(t, r, qwhere, false);
@@ -4098,11 +4161,11 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       /* If rearrangements failed here, try subtrees, but stop when we find
        * one that improves the score. */
       if (!p->tip) {
-       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back, bestyet,
-                                                      thorough, priortree, bestree);
+       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+                                       bestyet, thorough, priortree, bestree);
         if (!succeeded)
           succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back,
-                                             bestyet, thorough, priortree, bestree);
+                                        bestyet, thorough, priortree, bestree);
       }
     }
   }
@@ -4203,7 +4266,8 @@ void rooted_repreorder(tree* t, node *p, boolean *success)
 }  /* repreorder */
 
 
-void rooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree, tree* bestree)
+void rooted_locrearrange(tree* t, node* start, boolean thorough,
+                          tree* priortree, tree* bestree)
 {
   /*traverses the tree (preorder), finding any local
     rearrangement which increases the score.
@@ -4308,8 +4372,8 @@ stack* push(stack* oldstack, void* newdata)
 
 node* generic_tree_get_fork(tree* t, long k)
 { /* 
-   * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
-   * false on all, and return.
+   * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized
+   * to false on all, and return.
    * The fork is assigned  k+1  as its value of  index
    * Changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
@@ -4342,7 +4406,7 @@ void generic_tree_release_fork(tree* t, node* n)
   long m;
 
   m = n->index - 1;
-  n = t->nodep[n->index  - 1];    /* the node in the circle pointed to by nodep */
+  n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
 
   p = n;
   q = n;
@@ -4365,8 +4429,8 @@ void generic_tree_nuview(tree* t, node* p)
 /* debug */ printf("starting function generic_tree_nuview\n");
   if (!p->tip) {         /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
-      if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
-      {    /* recurse out, as needed, to initialize, with appropriate nuview */
+      if (sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
+      {   /* recurse out, as needed, to initialize, with appropriate nuview */
         generic_tree_nuview (t, sib_ptr->back);
       }
     };
@@ -4665,9 +4729,9 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
   /* Remove a node from a rooted tree
    *
    * Disconnects item from tree t and if a unifurcation results, joins item's
-   * sibling to item's grandparent, freeing item's entire parent fork. If where
-   * is given, a pointer to item's former sibling is returned, or NULL if
-   * no item could be removed. */
+   * sibling to item's grandparent, freeing item's entire parent fork.
+   * If where is given, a pointer to item's former sibling is returned, or
+   * NULL if no item could be removed. */
   node *whereloc;
   node *p, *q;
   node *fork;
@@ -4796,8 +4860,9 @@ void fixtree(tree* t)
       t->nodep[i]->next->next->next = t->nodep[i];
       t->release_fork(t, t->nodep[i]);
     }
-    else if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
-      t->release_fork(t, t->nodep[i]);
+    else
+      if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
+        t->release_fork(t, t->nodep[i]);
   }
 } /* fixtree */
 
@@ -4811,7 +4876,7 @@ void arbitrary_resolve(tree* t)
     if ( count_sibs(t->nodep[i]) > 2 ) {
       item = t->nodep[i]->back;
       t->re_move(t, item, &where, false);
-      t->insert_(t, item, where, false);  /* debug: need to correct last argument */
+      t->insert_(t, item, where, false);/*debug: need to correct last argument*/
       i--; /* do it again, just in case it still multifurcs */
     }
   }
@@ -4892,7 +4957,8 @@ void seetree(tree * t)
       if (qq == NULL) {
         printf(" node: %ld is (nil)\n", i+1);
       } else {
-        printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
+        printf(" node: %p index:%ld  connects to nodes:",
+                 (void *)qq, qq->index);
         pp = qq;
         malformed = false;
 
