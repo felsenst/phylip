@@ -4014,20 +4014,25 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 } /* unrooted_tree_restore */
 
 
-void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree, tree* bestree)
-{ /* generic form of local rearrangement, keep doing until does not succeed */
+void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
+                                   tree* priortree, tree* bestree)
+{
+ /* generic form of local rearrangement, keep doing until does not succeed */
   double bestyet;
   boolean succeeded = true;
 
   bestyet = t->evaluate(t, start, 0);
   while(succeeded)
   {
-    succeeded = unrooted_tree_locrearrange_recurs(t, start->back, &bestyet, thorough, priortree, bestree);
+    succeeded = unrooted_tree_locrearrange_recurs(t, start->back, &bestyet,
+                                                thorough, priortree, bestree);
   }
 } /* generic_unrooted_locrearrange */
 
 
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
+boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
+                                           boolean thorough, tree* priortree,
+                                           tree* bestree)
 {
   /* rearranges the tree locally by removing a subtree
    * connected to an interior node, keeping it
@@ -4714,8 +4719,11 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
 } /* rooted_tree_re_move */
 
 
-void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean progress)
-{ /* Heuristic Search for Best Unrooted Tree*/
+void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
+            boolean progress)
+{
+  /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
+   * with sequential addition followed by local rearrangements */
   long i, k;
   node *item, *there, *p;
   long *enterorder;
@@ -4760,7 +4768,8 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
 
 
 void preparetree(tree* t)
-{ /* throw all the forknodes onto the stack so treeread can use them */
+{
+  /* throw all the forknodes onto the stack so treeread can use them */
   node* p;
   long i;
 
