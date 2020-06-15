@@ -50,9 +50,14 @@ node* root_tree(tree* t, node* here)
    * that all nodep pointers point to the root.  */
   node* nuroot;
 
+/* debug:   this always adds a forknode to the rootmost interior fork.  Replacing it
+ * by code which does not
   nuroot = t->get_forknode(t, here->index);
   nuroot->next = here->next;
   here->next = nuroot;
+debug:  */
+
+  nuroot = here;
 
   return nuroot;
 } /* root_tree */
@@ -392,7 +397,7 @@ void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 
 
 void savetree(tree* t, long *place)     // RSGbugfix
-{ /* Record in place where each species has to be added to reconstruct
+{ /* Record in  place  where each species has to be added to reconstruct
    * this tree. This code roots the tree and calls oldsavetree to save it. */
   node *oldroot, *p, *outgrnode;
 
@@ -408,8 +413,8 @@ void savetree(tree* t, long *place)     // RSGbugfix
 
 void oldsavetree(tree* t, long *place)
 {
-   /* record in place where each species has to be
-    * added to reconstruct this tree this code assumes a root
+   /* record in  place  where each species has to be
+    * added to reconstruct this tree. This code assumes a root
     * this is the older function,  a new function roots the tree and calls this
     * function to save the tree */
   long i, j, nextnode, nvisited;
