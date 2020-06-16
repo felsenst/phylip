@@ -163,7 +163,7 @@ void getoptions(void)
   gama = false;
   global = false;
   hypstate = false;
-  improve = false;
+  improve = true;
   invar = false;
   jumble = false;
   njumble = 1;
