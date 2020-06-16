@@ -67,7 +67,7 @@ void alloctip(node *);
 void freetrans(transptr *, long, long );
 void print_basefreq(FILE *fp, basefreq *freq, boolean empirical);
 void ttratio_warning(double ttratio);
-void makebasefreq(basefreq *freq, double freqa, double freqc, double freqg, double freqt, double ttratio);
+void makebasefreq(basefreq, double, double, double, double, double);
 void getbasefreqs(double, double, double, double, double *, double *, double *, double *, double *, double *, double *, double *, double *, double *, boolean, boolean);
 void sitesort(long, steptr);
 void sitecombine(long);
@@ -77,12 +77,12 @@ void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
 void drawline(long, double, node *);
 void treeout(node *, long, long *, node *);
-void drawline2(long i, double scale, tree *curtree);
+void drawline2(long, double, tree *);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double, double *, double **, steptr, longer);
 void freex2(long, pointarray);
-void inittrees(tree **curtree, tree **bestree, tree **priortree, tree **bestree2, long nonodes, long spp);
-void resetlrsaves(long param1, long param2);
+void inittrees(tree *, tree *, tree *, tree *, long, long);
+void resetlrsaves(long, long);
 /*function prototypes*/
 #endif
 
