@@ -34,7 +34,8 @@ void   prot_inittable(void);
 void   getinput(void);
 void   prot_slopecurv(node *, double, double *, double *, double *);
 void   proml_tree_makenewv(tree* t, node *p);
-void   make_pmatrix(double **, double **, double **, long, double, double, double *, double **);
+void   make_pmatrix(double **, double **, double **, long,
+                     double, double, double *, double **);
 boolean   rearrange(node *, node *, double *);
 void   proml_coordinates(node *, double, long *, double *);
 void   proml_printree(void);
@@ -43,7 +44,8 @@ void   describe(node *);
 void   prot_reconstr(node *, long);
 void   rectrav(node *, long, long);
 void   summarize(void);
-void   initpromlnode(tree *, node **, long, long, long *, long *, initops, pointarray, Char *, Char *, FILE *);
+void   initpromlnode(tree *, node **, long, long, long *, long *,
+                      initops, pointarray, Char *, Char *, FILE *);
 void   dnaml_treeout(node *);
 void   maketree(void);
 void   proml_reroot(tree*) ;            // RSGbugfix: Name change.
@@ -53,26 +55,38 @@ tree * proml_tree_new(long nonodes, long spp);
 void   prot_freetable(void);
 void   proml_tree_nuview(tree* t, node *p);
 void   promlrun(void);
-void   proml(char * infilename, char * intreename, char * wgtsfilename, char * catsfilename,
-             char * outfilename, char * outfileopt, char * outtreename, char * outtreeopt,
-             char * TreeUseMethod, char * ProbModel, int UseLengths, int OneCat, int NumCats,
-             double SiteRate1, double SiteRate2, double SiteRate3, double SiteRate4, double SiteRate5,
-             double SiteRate6, double SiteRate7, double SiteRate8, double SiteRate9, char * RateVar,
-             int AdjCor, double BlockLen, double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
-             double HMMRate3, double HMMRate4, double HMMRate5, double HMMRate6, double HMMRate7, double HMMRate8,
-             double HMMRate9, double HMMProb1, double HMMProb2, double HMMProb3, double HMMProb4, double HMMProb5,
-             double HMMProb6, double HMMProb7, double HMMProb8, double HMMProb9, double InvarFract,
-             int SitesWeight, int SpeedAn, int GlobalRe, int RandInput, int RandNum, int Njumble,
-             int OutRoot, int OutNum, int MultData, int MultDSet, int NumSeqs, int InputSeq, int PrintData,
-             int PrintInd, int PrintTree, int WriteTree, int RecHypo);
+void   proml(char * infilename, char * intreename, char * wgtsfilename,
+             char * catsfilename, char * outfilename, char * outfileopt,
+             char * outtreename, char * outtreeopt, char * TreeUseMethod,
+             char * ProbModel, int UseLengths, int OneCat, int NumCats,
+             double SiteRate1, double SiteRate2, double SiteRate3,
+             double SiteRate4, double SiteRate5, double SiteRate6,
+             double SiteRate7, double SiteRate8, double SiteRate9,
+             char * RateVar, int AdjCor, double BlockLen, double CoeffVar,
+             int NumRates, double HMMRate1, double HMMRate2, double HMMRate3,
+             double HMMRate4, double HMMRate5, double HMMRate6,
+             double HMMRate7, double HMMRate8, double HMMRate9,
+             double HMMProb1, double HMMProb2, double HMMProb3,
+             double HMMProb4, double HMMProb5, double HMMProb6,
+             double HMMProb7, double HMMProb8, double HMMProb9,
+             double InvarFract, int SitesWeight, int SpeedAn,
+             int GlobalRe, int RandInput, int RandNum, int Njumble,
+             int OutRoot, int OutNum, int MultData, int MultDSet,
+             int NumSeqs, int InputSeq, int PrintData, int PrintInd,
+             int PrintTree, int WriteTree, int RecHypo);
 /* function prototypes */
 #endif
 
 boolean haslengths;
-Char infilename[100], outfilename[100], intreename[100], outtreename[100], catfilename[100], weightfilename[100];
+Char infilename[100], outfilename[100], intreename[100], outtreename[100],
+      catfilename[100], weightfilename[100];
 long nonodes2, weightsum, datasets, ith, jumb = 0;
 long inseed, inseed0, parens;
-boolean global, jumble, weights, trout, usertree, reusertree, ctgry, rctgry, auto_, hypstate, progress, mulsets, justwts, firstset, improve, smoothit, polishing, lngths, gama, invar, usepam;
+boolean global, jumble, weights, trout, usertree, reusertree, ctgry, rctgry,
+         auto_, hypstate, progress, mulsets, justwts, firstset, thorough,
+         improve, smoothit, polishing, lngths, gama, invar, usepam;
+tree *curtree, *bestree, *bestree2, *priortree;
+node *qwhere;
 double cv, alpha, lambda, invarfrac;
 contribarr *contribution, like, nulike, clai;
 double **term, **slopeterm, **curveterm;
@@ -136,7 +150,7 @@ void getoptions(void)
   gama = false;
   global = false;
   hypstate = false;
-  improve = false;
+  improve = true;
   interleaved = true;
   invar = false;
   jumble = false;
@@ -166,9 +180,12 @@ void getoptions(void)
     printf("  U                 Search for best tree?  %s\n", string);
     if (usertree && !reusertree)
     {
-      printf("  L          Use lengths from user trees?  %s\n", (lngths ? "Yes" : "No"));
+      printf("  L          Use lengths from user trees?  %s\n",
+              (lngths ? "Yes" : "No"));
     }
-    printf("  P    JTT, PMB or PAM probability model?  %s\n", usejtt ? "Jones-Taylor-Thornton" : usepmb ? "Henikoff/Tillier PMB" : "Dayhoff PAM");
+    printf("  P    JTT, PMB or PAM probability model?  %s\n",
+            usejtt ? "Jones-Taylor-Thornton" :
+            usepmb ? "Henikoff/Tillier PMB" : "Dayhoff PAM");
     printf("  C   One category of substitution rates?");
     if (!ctgry || categs == 1)
       printf("  Yes\n");
@@ -194,11 +211,14 @@ void getoptions(void)
       else
         printf("  Yes, mean block length =%6.1f\n", 1.0 / lambda);
     }
-    printf("  W                       Sites weighted?  %s\n", (weights ? "Yes" : "No"));
+    printf("  W                       Sites weighted?  %s\n",
+           (weights ? "Yes" : "No"));
     if (!usertree || reusertree)
     {
-      printf("  S        Speedier but rougher analysis?  %s\n", (improve ? "No, not rough" : "Yes"));
-      printf("  G                Global rearrangements?  %s\n", (global ? "Yes" : "No"));
+      printf("  S        Speedier but rougher analysis?  %s\n",
+              (improve ? "No, not rough" : "Yes"));
+      printf("  G                Global rearrangements?  %s\n",
+             (global ? "Yes" : "No"));
     }
     if (!usertree)
     {
@@ -2067,7 +2087,6 @@ void maketree(void)
   boolean dummy_first, goteof;
   pointarray dummy_treenode = NULL;
   long nextnode;
-  node *qwhere;
   double bestyet;
 
   prot_inittable();
@@ -2179,6 +2198,7 @@ void maketree(void)
     buildsimpletree(curtree, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     smoothit = improve;
+    thorough = true;
     nextsp = 4;
 
     while (nextsp <= spp)
@@ -2186,13 +2206,13 @@ void maketree(void)
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, qwhere, &bestyet, bestree, thorough);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true, false);
+        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, false);
         smoothit = false;
         curtree->copy(curtree, bestree);
         bestyet = curtree->score;
