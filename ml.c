@@ -675,7 +675,7 @@ void smooth(tree* t, node *p)
   smoothed = false;
 
   ml_update(t, p);   /* get views at both ends updated, recursing if needed */
-  t->makenewv (t, p); /* new value of branch length */
+  ((ml_tree*)t)->makenewv (t, p); /* new value of branch length */
   inittrav (t, p);    /* set inward-looking pointers false ... */
   inittrav (t, p->back);  /* ... from both ends of this branch */
 
