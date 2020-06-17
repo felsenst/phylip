@@ -89,7 +89,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          reusertree, ctgry, rctgry, auto_, hypstate, ttr, progress, mulsets,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
-tree *curtree, *bestree, *bestree2, *priortree;
+tree* curtree, bestree, bestree2, priortree;
 node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -674,7 +674,7 @@ void getinput(void)
     inputdata(sites);
   }
   makeweights();
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  inittrees(curtree, bestree, priortree, bestree2, nonodes2, spp);
   makevalues2(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
   if (freqsfrom)
   {
