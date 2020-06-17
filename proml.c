@@ -850,7 +850,7 @@ void getinput(void)
   if (!justwts || firstset)
     input_protdata(sites);
   prom_makeweights();
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  inittrees(curtree, bestree, priortree, bestree2, nonodes2, spp);
   prot_makevalues(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
 }  /* getinput */
 

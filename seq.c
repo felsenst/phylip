@@ -20,15 +20,15 @@ sequence inputSequences;
 node** lrsaves;
 
 
-void inittrees(tree** curtree, tree** bestree, tree** priortree,
-                tree** bestree2, long nonodes, long spp)
+void inittrees(tree* curtree, tree* bestree, tree* priortree,
+                tree* bestree2, long nonodes, long spp)
 {
   /* intiialize curtree, priortree, and two bestrees */
 
-  *curtree = functions.tree_new(nonodes, spp);
-  *bestree = functions.tree_new(nonodes, spp);
-  *priortree = functions.tree_new(nonodes, spp);
-  *bestree2 = functions.tree_new(nonodes, spp);
+  curtree = functions.tree_new(nonodes, spp);
+  bestree = functions.tree_new(nonodes, spp);
+  priortree = functions.tree_new(nonodes, spp);
+  bestree2 = functions.tree_new(nonodes, spp);
 } /* inittrees */
 
 
