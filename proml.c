@@ -50,10 +50,10 @@ void   dnaml_treeout(node *);
 void   maketree(void);
 void   proml_reroot(tree*) ;            // RSGbugfix: Name change.
 void   proml_tree_init(tree* t, long nonodes, long spp);
-double proml_tree_evaluate(tree* t, node *p, boolean saveit);
-tree * proml_tree_new(long nonodes, long spp);
+double proml_tree_evaluate(tree*, node *, boolean);
+tree * proml_tree_new(long, long);
 void   prot_freetable(void);
-void   proml_tree_nuview(tree* t, node *p);
+void   proml_tree_nuview(tree*, node*);
 void   promlrun(void);
 void   proml(char * infilename, char * intreename, char * wgtsfilename,
              char * catsfilename, char * outfilename, char * outfileopt,
@@ -1068,8 +1068,6 @@ void proml_tree_nuview(tree* t, node *p)
   double **pmat;
   double maxx;
   double correction;
-
-  generic_tree_nuview(t, p);
 
   /* Figure out how many siblings the current node has  */
   /* and be sure that pmatrices is large enough         */
@@ -2096,6 +2094,7 @@ void maketree(void)
   pointarray dummy_treenode = NULL;
   long nextnode;
   double bestyet;
+  node *p;
 
   prot_inittable();
 
@@ -2215,11 +2214,16 @@ void maketree(void)
 
     while (nextsp <= spp)
     {
+      curtree->copy(curtree, priortree);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1],
-                            curtree->root, true, qwhere, &bestyet, bestree, thorough);
+      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+                            &bestyet, bestree, thorough);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
@@ -2227,7 +2231,6 @@ void maketree(void)
         smoothit = true;
         curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, false);
         smoothit = false;
-        curtree->copy(curtree, bestree);
         bestyet = curtree->score;
       }
       if (progress)
