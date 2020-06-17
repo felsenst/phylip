@@ -18,10 +18,9 @@ boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 steptr weight, category, alias, location, ally;
 sequence inputSequences;
 node** lrsaves;
+extern tree *curtree, *bestree, *priortree, *bestree2;
 
-
-void inittrees(tree* curtree, tree* bestree, tree* priortree,
-                tree* bestree2, long nonodes, long spp)
+void inittrees(long nonodes, long spp)
 {
   /* intiialize curtree, priortree, and two bestrees */
 

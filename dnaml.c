@@ -116,6 +116,7 @@ vall *mp=NULL;
 tree* dnaml_tree_new(long nonodes, long spp)
 {
   tree* t;
+
   t = Malloc(sizeof(dnaml_tree));
   dnaml_tree_init(t, nonodes, spp);
   return t;
@@ -674,7 +675,7 @@ void getinput(void)
     inputdata(sites);
   }
   makeweights();
-  inittrees(curtree, bestree, priortree, bestree2, nonodes2, spp);
+  inittrees(nonodes2, spp);
   makevalues2(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
   if (freqsfrom)
   {

@@ -228,13 +228,17 @@ void getoptions(void)
       else
         printf("  No. Use input order\n");
     }
-    printf("  O                        Outgroup root?  %s%3ld\n", (outgropt ? "Yes, at sequence number" : "No, use as outgroup species"), outgrno);
+    printf("  O                        Outgroup root?  %s%3ld\n", (outgropt ?
+            "Yes, at sequence number" : "No, use as outgroup species"),
+           outgrno);
     printf("  M           Analyze multiple data sets?");
     if (mulsets)
-      printf("  Yes, %2ld %s\n", datasets, (justwts ? "sets of weights" : "data sets"));
+      printf("  Yes, %2ld %s\n", datasets,
+             (justwts ? "sets of weights" : "data sets"));
     else
       printf("  No\n");
-    printf("  I          Input sequences interleaved?  %s\n", (interleaved ? "Yes" : "No, sequential"));
+    printf("  I          Input sequences interleaved?  %s\n",
+           (interleaved ? "Yes" : "No, sequential"));
     printf("  0   Terminal type (IBM PC, ANSI, none)?  %s\n", (ibmpc ? "IBM PC" : ansi  ? "ANSI" : "(none)"));
     printf("  1    Print out the data at start of run  %s\n", (printdata ? "Yes" : "No"));
     printf("  2  Print indications of progress of run  %s\n", (progress ? "Yes" : "No"));
@@ -850,7 +854,7 @@ void getinput(void)
   if (!justwts || firstset)
     input_protdata(sites);
   prom_makeweights();
-  inittrees(curtree, bestree, priortree, bestree2, nonodes2, spp);
+  inittrees(nonodes2, spp);
   prot_makevalues(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
 }  /* getinput */
 
@@ -1313,7 +1317,7 @@ void proml_tree_makenewv(tree* t, node *p)
   {
     prot_slopecurv(p, y, &like, &slope, &curve);
     better = false;
-    if (firsttime)                      /* if no older value of y to compare with */
+    if (firsttime)             /* if no older value of y to compare with */
     {
       yold = y;
       oldlike = like;
@@ -1322,7 +1326,7 @@ void proml_tree_makenewv(tree* t, node *p)
     }
     else
     {
-      if (like > oldlike)               /* update the value of yold if it was better */
+      if (like > oldlike)      /* update the value of yold if it was better */
       {
         yold = y;
         oldlike = like;
@@ -1332,7 +1336,7 @@ void proml_tree_makenewv(tree* t, node *p)
     }
     if (better)
     {
-      y = y + slope/fabs(curve);        /* Newton-Raphson, forced uphill-wards */
+      y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
       if (y < epsilon)
         y = epsilon;
     }
@@ -1346,7 +1350,7 @@ void proml_tree_makenewv(tree* t, node *p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  p->v = yold;                          /* the last one that had better likelihood */
+  p->v = yold;                   /* the last one that had better likelihood */
   q->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* proml_tree_makenewv */
@@ -1367,7 +1371,8 @@ double proml_tree_evaluate(tree *t, node *p, boolean saveit)
   y = p->v;
   for (j = 0; j < rcategs; j++)
     for (k = 0; k < categs; k++)
-      make_pmatrix(pmatrices[0][j][k], NULL, NULL, 0, y, tbl[j][k], eigmat, probmat);
+      make_pmatrix(pmatrices[0][j][k], NULL, NULL, 0,
+                    y, tbl[j][k], eigmat, probmat);
   for (i = 0; i < endsite; i++)
   {
     k = category[alias[i]-1] - 1;
@@ -1473,7 +1478,8 @@ void proml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
       xx = 100.0;
     proml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
     q = q->next;
-  } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
+  } while ((p == curtree->root || p != q)
+           && (p != curtree->root || p->next != q));
   first = p->next->back;
   q = p;
   while (q->next != p)
@@ -1690,7 +1696,7 @@ void summarize(void)
 {
   /* print out branch length information and node numbers */
   long i, j, num_sibs;
-  long mm = 0;                          // RSGnote: Formerly may have been referenced before being initialized.
+  long mm = 0;   // RSGnote: Formerly may have been referenced before being initialized.
   double mode, sum;
   double like[maxcategs], nulike[maxcategs];
   double **marginal;
@@ -1786,7 +1792,7 @@ void summarize(void)
     }
     mx0 = mx;
     fprintf(outfile,
-            "Combination of categories that contributes the most to the likelihood:\n\n");
+"Combination of categories that contributes the most to the likelihood:\n\n");
     for (i = 1; i <= nmlngth + 3; i++)
       putc(' ', outfile);
     for (i = 1; i <= sites; i++)
@@ -1913,7 +1919,9 @@ void summarize(void)
 }  /* summarize */
 
 
-void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips, long *parens, initops whichinit, pointarray treenode, Char *str, Char *ch, FILE *intree)
+void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips,
+                    long *parens, initops whichinit, pointarray treenode,
+                    Char *str, Char *ch, FILE *intree)
 {
   /* initializes a node */
   boolean minusread;
@@ -2018,8 +2026,8 @@ void dnaml_treeout(node *p)
       inloop = true;
       dnaml_treeout(q->back);
       q = q->next;
-    } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
-
+    } while ((p == curtree->root || p != q) && (p != curtree->root
+             || p->next != q));
     putc(')', outtree);
     col++;
   }
@@ -2077,7 +2085,7 @@ void proml_reroot(tree* t)              // RSGbugfix: Name change.
     t->release_fork(t, r);
   }
 
-  t->root = t->nodep[0]->back;          // Reset ROOT; moved from line just after call to PROML_REROOT.
+  t->root = t->nodep[0]->back; // Reset ROOT; moved from line just after call to PROML_REROOT.
 } /* proml_reroot */
 
 
@@ -2127,9 +2135,11 @@ void maketree(void)
       dummy_first      = true;
       goteof           = false;
       preparetree(curtree);
-      treeread(curtree, intree, &curtree->root, dummy_treenode, &goteof, &dummy_first, &nextnode, &haslengths, initpromlnode, false, nonodes2);
+      treeread(curtree, intree, &curtree->root, dummy_treenode,
+                &goteof, &dummy_first, &nextnode, &haslengths,
+                initpromlnode, false, nonodes2);
       fixtree(curtree);
-      proml_reroot(curtree);                              // RSGbugfix: Name change.
+      proml_reroot(curtree);                     // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
       {
@@ -2144,7 +2154,8 @@ void maketree(void)
 
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
+      ml_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2175,7 +2186,8 @@ void maketree(void)
     FClose(intree);
     putc('\n', outfile);
     if (!auto_ && numtrees > 1 && weightsum > 1 && !reusertree)
-      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl, l0gl, l0gf, aliasweight, seed);
+      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl,
+                l0gl, l0gf, aliasweight, seed);
   }
   else
   {
@@ -2206,7 +2218,8 @@ void maketree(void)
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, qwhere, &bestyet, bestree, thorough);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1] - 1],
+                            curtree->root, true, qwhere, &bestyet, bestree, thorough);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else

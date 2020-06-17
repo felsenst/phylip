@@ -85,8 +85,7 @@ void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,
                double *, double **, steptr, longer);
 void freex2(long, pointarray);
-void inittrees(tree *curtree, tree *bestree, tree *priortree,
-                tree *bestree2, long nonodes, long spp);
+void inittrees(long, long);
 void resetlrsaves(long param1, long param2);
 /*function prototypes*/
 #endif
