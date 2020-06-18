@@ -644,7 +644,9 @@ void freex(long nonodes, pointarray treenode)
 void ml_update(tree *t, node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
-   * indicated by boolean initialized */
+   * indicated by boolean initialized
+   * the nuviews for the specific program are in turn called from
+   * generic_tree_nuview  in phylip.c  */
 
 /* debug: */ printf("starting function ml_update\n");
   if (!p->tip)
