@@ -45,7 +45,7 @@ boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress, stepbox,
 extern boolean usertree;
 steptr oldweight;
 longer seed;
-tree* curtree;
+tree* curtree, bestree, bestree2, priortree;
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
 extern double *threshwt;

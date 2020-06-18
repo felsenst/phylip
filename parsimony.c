@@ -987,7 +987,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       for ( k = 0 ; k <= num_sibs2 ; k++ )
       {
         curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                              qwhere, &bestyet, &bestrees, multf);
+                              qwhere, &bestyet, bestrees, multf);
         sib_ptr2 = sib_ptr2->next;
       }
       curtree->insert_(curtree, removed, where, mulf);

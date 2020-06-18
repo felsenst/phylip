@@ -317,28 +317,28 @@ rest_common.o:  rest_common.c rest_common.h phylip.h
 	$(CC) -c rest_common.c
 
 prom_common.o:  prom_common.c prom_common.h phylip.h
-	$(CC) -c prom_common.c
+	$(CC) -c prom_common.c -shared -fPIC
 
 parsimony.o:  parsimony.c phylip.h parsimony.h
-	$(CC) -c parsimony.c
+	$(CC) -c parsimony.c -shared -fPIC
 
 dnaparsimony.o:  dnaparsimony.c phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnaparsimony.c
+	$(CC) -c dnaparsimony.c -shared -fPIC
 
 disc.o:       disc.c phylip.h disc.h
-	$(CC) -c disc.c
+	$(CC) -c disc.c -shared -fPIC
 
 discrete.o:   discrete.c discrete.h phylip.h parsimony.h
-	$(CC) -c discrete.c
+	$(CC) -c discrete.c -shared -fPIC
 
 dollo.o:      dollo.c phylip.h dollo.h
-	$(CC) -c dollo.c
+	$(CC) -c dollo.c -shared -fPIC
 
 wagner.o:     wagner.c phylip.h wagner.h
-	$(CC) -c wagner.c
+	$(CC) -c wagner.c -shared -fPIC
 
 dist.o:       dist.c phylip.h dist.h
-	$(CC) -c dist.c
+	$(CC) -c dist.c -shared -fPIC
 
 cont.o:       cont.c cont.h phylip.h
 	$(CC) -c cont.c -shared -fPIC
@@ -347,13 +347,13 @@ moves.o:      moves.c phylip.h moves.h
 	$(CC) -c moves.c
 
 cons.o:       cons.c cons.h phylip.h
-	$(CC) -c cons.c
+	$(CC) -c cons.c -shared -fPIC
 
 pmatrix.o:    pmatrix.c pmatrix.h
-	$(CC) -c pmatrix.c
+	$(CC) -c pmatrix.c -shared -fPIC
 
 matrixd.o:    matrixd.c matrixd.h
-	$(CC) -c matrixd.c
+	$(CC) -c matrixd.c -shared -fPIC
 
 #
 # Compile the individual programs.
@@ -372,7 +372,7 @@ contml.o:     contml.c cont.h phylip.h ml.h Slist.h
 	$(CC) -c contml.c -shared -fPIC
 
 contrast.o:   contrast.c cont.h phylip.h
-	$(CC) -c contrast.c
+	$(CC) -c contrast.c -shared -fPIC
 
 dnacomp.o:    dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
 	$(CC) -c dnacomp.c -shared -fPIC
@@ -474,7 +474,7 @@ seqboot.o:    seqboot.c phylip.h
 	$(CC) -c seqboot.c -shared -fPIC
 
 threshml.o:   threshml.c cont.h phylip.h Slist.h
-	$(CC) -c threshml.c
+	$(CC) -c threshml.c -shared -fPIC
 
 treedist.o:   treedist.c cons.h phylip.h
 	$(CC) -c treedist.c -shared -fPIC
@@ -615,6 +615,9 @@ libdnainvar.so: dnainvar.o seq.o phylip.o $(LIBS)
 libdnaml.so:	dnaml.o seq.o ml.o $(LIBS)
 	$(CC) $(CFLAGS) -o libdnaml.so -shared -fPIC dnaml.c seq.c ml.c phylip.c Slist.c -shared -fPIC
 
+libdnapars.so: dnappars.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
+
 libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
 	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapenny.c seq.c phylip.c Slist.c
 
@@ -639,8 +642,8 @@ libneighbor.so: neighbor.o dist.o phylip.o phylip.h $(LIBS)
 libpenny.so:    penny.o disc.o wagner.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libpenny.so -shared -fPIC penny.c disc.c wagner.c phylip.c Slist.c
 
-libproml.so:	proml.o seq.o ml.c $(LIBS)
-	$(CC) $(CFLAGS) -o libproml.so -shared -fPIC proml.c seq.c ml.c phylip.c Slist.c -shared -fPIC
+libproml.so:	proml.o seq.o ml.c prom_common.c $(LIBS)
+	$(CC) $(CFLAGS) -o libproml.so -shared -fPIC proml.c prom_common.c seq.c ml.c phylip.c Slist.c -shared -fPIC
 
 libprotdist.so:  protdist.o pmatrix.o seq.o $(LIBS)
 	$(CC) $(CFLAGS) -o libprotdist.so -shared -fPIC protdist.c seq.c pmatrix.c phylip.c Slist.c
