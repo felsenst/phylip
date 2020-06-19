@@ -308,7 +308,7 @@ phylip.o:     phylip.c phylip.h Slist.h
 #	$(CC) -c debug.c
 
 seq.o:        seq.c phylip.h seq.h
-	$(CC) -c seq.c
+	$(CC) -c seq.c -shared -fPIC
 
 ml.o:         ml.c phylip.h ml.h
 	$(CC) -c ml.c -shared -fPIC 
@@ -377,7 +377,7 @@ contrast.o:   contrast.c cont.h phylip.h
 dnacomp.o:    dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
 	$(CC) -c dnacomp.c -shared -fPIC
 
-dnadist.o:    dnadist.c pmatrix.h seq.h phylip.h
+dnadist.o:    dnadist.c seq.h pmatrix.h phylip.h
 	$(CC) -c dnadist.c -shared -fPIC
 
 dnainvar.o:   dnainvar.c seq.h phylip.h

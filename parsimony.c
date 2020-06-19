@@ -581,6 +581,22 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
 } /* addtiedtree */
 
 
+boolean pars_addtraverse(tree*, node*, node*, boolean, node*,
+                                      double*, bestelm*, boolean)
+{
+  /* wrapper for addraverse, calling generic addtraverse or some such,
+   * and then taking the best tree found and adding it to the array
+   * of tied best trees found */
+
+   /* mockup:  */
+   /* call addtraverse as usual */
+   /* then take the best tree.  If better, start bestelm array anew */
+   /* if tied, add it in if not already there */
+   /* else discard it */
+
+} /* pars_addtraverse */
+
+
 static void flipnodes(node *nodea, node *nodeb)
 {
   /* flip nodes */
@@ -986,7 +1002,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       }
       for ( k = 0 ; k <= num_sibs2 ; k++ )
       {
-        curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
+        curtree->pars_addtraverse(curtree, removed, sib_ptr2->back, true,
                               qwhere, &bestyet, bestrees, multf);
         sib_ptr2 = sib_ptr2->next;
       }
