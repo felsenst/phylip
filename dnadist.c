@@ -62,7 +62,7 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], catfilename[FNMLNGTH], weightf
 long sites, weightsum, ith;
 
 boolean firstset;
-
+tree *curtree, *bestree, *priortree, *bestree2;       /* to make seq.h happy */
 sitelike **x;    /* array of sitelike [0..spp-1][0..endsite-1] */
 double xv, freqa, freqc, freqg, freqt, freqar, freqcy, freqgr, freqty, fracchange;
 basefreq freq;

@@ -850,7 +850,7 @@ void maketree(void)
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree,
                            curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true,
-                           &where, &bestyet, bestree, priortree, true, &multf);
+                           where, &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
