@@ -197,6 +197,9 @@ void setuptree(tree *a, long nonodes)
   node *p;
 
   for (i = 1; i <= nonodes; i++) {
+    if (i > spp) {
+      a->nodep[i-1] = generic_tree_get_fork(a, i-1); 
+    }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;

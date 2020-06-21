@@ -578,7 +578,6 @@ void fitch_nuview(tree* t, node *p)
   /* renew information about subtrees */
   node *q;
 
-  generic_tree_nuview(t, p);
   alter(p, p->back);
   for (q = p->next ; q != p ; q = q->next )
     alter(q, q->back);
