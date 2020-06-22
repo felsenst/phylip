@@ -41,7 +41,7 @@ long inseed;
 vector *x;
 intvector *reps;
 boolean jumble, lower, upper, outgropt, replicates, trout, printdata, progress, treeprint, mulsets, njoin;
-tree curtree;
+tree *curtree;
 longer seed;
 long *enterorder;
 Char progname[20];
@@ -547,8 +547,8 @@ void maketree(void)
     sprintf(progbuf, "\n");
     print_progress(progbuf);
   }
-  if (ith == 1)
-    setuptree(&curtree, nonodes + 1);
+  if (ith == 1)                  /* if this is first tree do setup */
+    setuptree(curtree, nonodes);
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)
@@ -565,9 +565,10 @@ void maketree(void)
     col = 0;
     if (njoin)
       treeout(curtree.root, &col, 0.43429448222, njoin, curtree.root);
-    else
+    else {
       curtree.root = curtree.root,
       treeoutr(curtree.root, &col, &curtree);
+    }
   }
   if (progress) {
     sprintf(progbuf, "\nOutput written on file \"%s\".\n\n", outfilename);

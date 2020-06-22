@@ -38,7 +38,7 @@ void   correctv(node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
-void   fitch_setuptip(long, tree *);
+void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   addtraverse(node *, node *, boolean, long *, boolean *);
@@ -612,7 +612,7 @@ void fitch_makenewv(tree* t, node *p)
 }  /* update */
 
 
-void fitch_setuptip(long m, tree *t)
+void fitch_setuptip(tree *t, long m)
 {
   /* initialize branch lengths and views in a tip */
   long i=0;
@@ -645,16 +645,16 @@ void fitch_setuptip(long m, tree *t)
 void fitch_buildnewtip(long m, tree *t, long nextsp)
 {
   /* initialize and hook up a new tip */
-  fitch_setuptip(m, t);
+  fitch_setuptip(t, m);
 }  /* fitch_buildnewtip */
 
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
   /* make and initialize a three-species tree */
-  fitch_setuptip(enterorder[0], t);
-  fitch_setuptip(enterorder[1], t);
-  fitch_setuptip(enterorder[2], t);
+  fitch_setuptip(t, enterorder[0]);
+  fitch_setuptip(t, enterorder[1]);
+  fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
 }  /* fitch_buildsimpletree */
 
