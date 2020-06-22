@@ -224,7 +224,7 @@ void doinit(void)
   /* initializes variables */
   fprintf(outfile, "\nNeighbor-Joining/UPGMA method version %s\n\n", VERSION);
 
-  node *p;
+/* debug:  need this?     node *p;   */
 
   inputnumbers2(&spp, &nonodes, 2);
   nonodes += (njoin ? 0 : 1);
@@ -232,11 +232,14 @@ void doinit(void)
   {
     getoptions();
   }
-  alloctree(&curtree.nodep, nonodes+1);
-  p = curtree.nodep[nonodes]->next;
-  curtree.nodep[nonodes]->next = curtree.nodep[nonodes];
+  curtree = generic_tree_new(nonodes, spp);
+  generic_tree_init(curtree, nonodes, spp);
+  setuptree(curtree, nonodes);
+/* debug:  needed here?
+  p = curtree->nodep[nonodes]->next;
+  curtree->nodep[nonodes]->next = curtree->nodep[nonodes];
   free(p->next);
-  free(p);
+  free(p);   debug */
   allocrest();
 }  /* doinit */
 
@@ -307,10 +310,10 @@ void summarize(void)
     fprintf(outfile, "From     To            Length          Height\n");
     fprintf(outfile, "----     --            ------          ------\n");
   }
-  describe(curtree.root->next->back, 0.0);
-  describe(curtree.root->next->next->back, 0.0);
+  describe(curtree->root->next->back, 0.0);
+  describe(curtree->root->next->next->back, 0.0);
   if (njoin)
-    describe(curtree.root->back, 0.0);
+    describe(curtree->root->back, 0.0);
   fprintf(outfile, "\n\n");
 }  /* summarize */
 
@@ -443,13 +446,14 @@ void jointree(void)
       print_progress(progbuf);
       phyFillScreenColor();
     }
-    hookup(curtree.nodep[nextnode - 1]->next, cluster[mini - 1]);
-    hookup(curtree.nodep[nextnode - 1]->next->next, cluster[minj - 1]);
+    generic_tree_get_fork(curtree, nextnode);
+    hookup(curtree->nodep[nextnode - 1]->next, cluster[mini - 1]);
+    hookup(curtree->nodep[nextnode - 1]->next->next, cluster[minj - 1]);
     cluster[mini - 1]->v = bi;
     cluster[minj - 1]->v = bj;
     cluster[mini - 1]->back->v = bi;
     cluster[minj - 1]->back->v = bj;
-    cluster[mini - 1] = curtree.nodep[nextnode - 1];
+    cluster[mini - 1] = curtree->nodep[nextnode - 1];
     cluster[minj - 1] = NULL;
     nextnode++;
     if (njoin)
@@ -487,8 +491,8 @@ void jointree(void)
     }
   }
   if (!njoin) {
-    curtree.root = cluster[el[0] - 1];
-    curtree.root->back = NULL;
+    curtree->root = cluster[el[0] - 1];
+    curtree->root->back = NULL;
     free(av);
     free(oc);
     return;
@@ -516,16 +520,16 @@ void jointree(void)
     print_progress(progbuf);
     phyFillScreenColor();
   }
-  hookup(curtree.nodep[nextnode - 1], cluster[el[0] - 1]);
-  hookup(curtree.nodep[nextnode - 1]->next, cluster[el[1] - 1]);
-  hookup(curtree.nodep[nextnode - 1]->next->next, cluster[el[2] - 1]);
+  hookup(curtree->nodep[nextnode - 1], cluster[el[0] - 1]);
+  hookup(curtree->nodep[nextnode - 1]->next, cluster[el[1] - 1]);
+  hookup(curtree->nodep[nextnode - 1]->next->next, cluster[el[2] - 1]);
   cluster[el[0] - 1]->v = bi;
   cluster[el[1] - 1]->v = bj;
   cluster[el[2] - 1]->v = bk;
   cluster[el[0] - 1]->back->v = bi;
   cluster[el[1] - 1]->back->v = bj;
   cluster[el[2] - 1]->back->v = bk;
-  curtree.root = cluster[el[0] - 1]->back;
+  curtree->root = cluster[el[0] - 1]->back;
   free(av);
   free(oc);
   free(R);
@@ -554,20 +558,19 @@ void maketree(void)
   if (jumble)
     randumize(seed, enterorder);
   for (i = 0; i < spp; i++)
-    cluster[i] = curtree.nodep[i];
+    cluster[i] = curtree->nodep[i];
   jointree();
   if (njoin)
-    curtree.root = curtree.nodep[outgrno - 1]->back;
-  printree(curtree.root, treeprint, !njoin);
+    curtree->root = curtree->nodep[outgrno - 1]->back;
+  printree(curtree->root, treeprint, !njoin);
   if (treeprint)
     summarize();
   if (trout) {
     col = 0;
     if (njoin)
-      treeout(curtree.root, &col, 0.43429448222, njoin, curtree.root);
+      treeout(curtree->root, &col, 0.43429448222, njoin, curtree->root);
     else {
-      curtree.root = curtree.root,
-      treeoutr(curtree.root, &col, &curtree);
+      treeoutr(curtree->root, &col, curtree);
     }
   }
   if (progress) {
@@ -851,7 +854,7 @@ int main(int argc, Char *argv[])
   FClose(infile);
   FClose(outfile);
   FClose(outtree);
-  freetree(&curtree.nodep, nonodes+1);
+  generic_tree_free(curtree);
   freerest();
   /* FIXME -- put in frees for funcs/initdata */
 #ifdef MAC

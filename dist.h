@@ -26,8 +26,8 @@ typedef struct dist_node {
 
 #ifndef OLDC
 /*function prototypes*/
-void alloctree(pointptr *, long);
-void freetree(pointptr *, long);
+void alloctree(tree *, long);
+void freetree(tree *, long);
 void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
