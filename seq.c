@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -33,6 +32,7 @@ void inittrees(long nonodes, long spp)
 
 void inputdata(long chars)
 {
+  /* read in and if needed print out sequences */
   read_sequences(chars);
   if (printdata)
   {
@@ -43,8 +43,8 @@ void inputdata(long chars)
 
 void read_sequences(long nchars)
 {
-  /* input the names and sequences for each species */
-  /* used by dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnapars, & dnapenny */
+  /* input the names and sequences for each species
+   * used by dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnapars, & dnapenny */
   long i, j, basesread, basesnew=0;
   Char charstate;
   boolean allread, done;
@@ -510,13 +510,12 @@ void sitesort2(long sites, steptr aliasweight)
 void sitecombine2(long sites, steptr aliasweight)
 {
   /* combine sites that have identical rate categories and patterns
-     by making one of them which "represents" them have the total weight
-     and the rest have weight 0.  They are tied if they have the same
-     rate category number and the same site pattern
-     ally[i-1] ends up as the number of the site (in the original site
-     numbering that represents the site which is  ith  in its original order.
-  */
-  /* used in dnaml, dnamlk, proml, promlk, and codml */
+   * by making one of them which "represents" them have the total weight
+   * and the rest have weight 0.  They are tied if they have the same
+   * rate category number and the same site pattern
+   * ally[i-1] ends up as the number of the site (in the original site
+   * numbering that represents the site which is  ith  in its original order.
+   * used in dnaml, dnamlk, proml, promlk, and codml */
   long i, j, k;
   boolean tied;
 
@@ -531,7 +530,8 @@ void sitecombine2(long sites, steptr aliasweight)
       k = 1;
       while (k <= spp && tied)
       {
-        tied = (tied && inputSequences[k - 1][alias[i - 1] - 1] == inputSequences[k - 1][alias[j - 1] - 1]);
+        tied = (tied && inputSequences[k - 1][alias[i - 1] - 1]
+                         == inputSequences[k - 1][alias[j - 1] - 1]);
         k++;
       }
       if (!tied)
@@ -548,8 +548,8 @@ void sitecombine2(long sites, steptr aliasweight)
 
 void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 {
-  /* move so positively weighted sites come first */
-  /* used by dnaml, dnamlk, proml, promlk, codml, dnainvar, and restml */
+  /* move so positively weighted sites come first
+   * used by dnaml, dnamlk, proml, promlk, codml, dnainvar, and restml */
   long itemp;
   boolean done, found;
 
@@ -704,8 +704,8 @@ void drawline(long i, double scale, node *root)
 
 void treeout(node *p, long nextree, long *col, node *root)
 {
-  /* write out file with representation of final tree */
-  /* used in dnacomp, dnamove, dnapars, & dnapenny */
+  /* write out file with representation of final tree
+   * used in dnacomp, dnamove, dnapars, & dnapenny */
   node *q;
   long i, n;
   Char c;
@@ -762,8 +762,8 @@ void treeout(node *p, long nextree, long *col, node *root)
 
 void drawline2(long i, double scale, tree* curtree)
 {
-  /* draws one row of the tree diagram by moving up tree */
-  /* used in dnaml, proml, & restml */
+  /* draws one row of the tree diagram by moving up tree
+   * used in dnaml, proml, & restml */
   node *p, *q;
   long n, j;
   boolean extra;
@@ -840,7 +840,8 @@ void drawline2(long i, double scale, tree* curtree)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i && (i != (long)p->ycoord || p == curtree->root))
+      if ((long)last->ycoord > i && (long)first->ycoord < i
+            && (i != (long)p->ycoord || p == curtree->root))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
@@ -869,7 +870,8 @@ void drawline2(long i, double scale, tree* curtree)
 }  /* drawline2 */
 
 
-void standev(long chars, long numtrees, long minwhich, double minsteps, double *nsteps, long **fsteps, longer seed)
+void standev(long chars, long numtrees, long minwhich, double minsteps,
+              double *nsteps, long **fsteps, longer seed)
 {
   /* do paired sites test (KHT or SH test) on user-defined trees
    * used in dnapars & protpars */
@@ -958,7 +960,8 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
           covar[j][i] = temp;
       }
     }
-    for (i = 0; i < numtrees; i++)   /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    for (i = 0; i < numtrees; i++)
     {
       sum = 0.0;
       for (j = 0; j <= i-1; j++)
@@ -1194,4 +1197,4 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl,
 }  /* standev2 */
 
 
-// End.
+/* End. */

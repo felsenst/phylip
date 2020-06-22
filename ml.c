@@ -1,7 +1,5 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
-   Written by Michal Palczewski
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0.
+   Written by Michal Palczewski */
 
 
 #ifdef HAVE_CONFIG_H
@@ -38,7 +36,7 @@ void ml_node_reinit(node * n);
 
 
 void ml_tree_init(tree* t, long nonodes, long spp)
-{ /* set up variables in ml_tree */
+{ /* set up function variables in ml_tree */
   generic_tree_init(t, nonodes, spp);
   t->do_newbl = true;
   t->smoothall = ml_tree_smoothall;
@@ -185,6 +183,8 @@ node * dna_node_new(node_type type, long index) // RSGbugfix
 
 void dna_node_init(node *node, node_type type, long index)
 {
+  /* initialize a node for a dna tree */
+
   dna_node *n = (dna_node *)node;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -206,6 +206,8 @@ void dna_node_init(node *node, node_type type, long index)
 
 node * prot_node_new(node_type type, long index) // RSGbugfix
 {
+  /* create a node for a protein tree */
+
   node *n = Malloc(sizeof(struct prot_node));
   prot_node_init(n, type, index);
   return n;
@@ -214,6 +216,8 @@ node * prot_node_new(node_type type, long index) // RSGbugfix
 
 void prot_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for a protein tree */
+
   prot_node *pn = (prot_node *)n;
 
   ml_node_init(n, type, index);
@@ -229,7 +233,9 @@ void prot_node_init(node *n, node_type type, long index)
 
 node * codon_node_new(node_type type, long index) // RSGbugfix
 {
+  /* create a node for a codon-model tree */
   node *n = Malloc(sizeof(struct codon_node));
+
   codon_node_init(n, type, index);
   return n;
 } /* codon_node_new */
@@ -237,6 +243,7 @@ node * codon_node_new(node_type type, long index) // RSGbugfix
 
 void codon_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for a codon-model tree */
   codon_node *pn = (codon_node *)n;
 
   ml_node_init(n, type, index);
@@ -252,6 +259,7 @@ void codon_node_init(node *n, node_type type, long index)
 
 void ml_node_free(node **np)
 {
+  /* free a node for ml trees */
   ml_node *n = (ml_node*)*np;
   n->freex(n);
   generic_node_free(np);
@@ -260,6 +268,7 @@ void ml_node_free(node **np)
 
 void ml_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for ml trees */
   ml_node *mln = (ml_node *)n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -280,7 +289,9 @@ void ml_node_init(node *n, node_type type, long index)
 
 void ml_node_reinit(node * n)
 {
+  /* reset things for an ml tree node *
   ml_node * mln = (ml_node*)n;
+
   mln->node.tyme = 0;
   // BUG.970 -- does freex need refreshing ?
   // BUG.970 -- leave for dna_node and prot_node ?
@@ -290,6 +301,7 @@ void ml_node_reinit(node * n)
 
 void ml_node_print(node * n)
 {
+  /* for debugging */
   generic_node_print(n);
   ml_node * mn = (ml_node*)n;
   printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
@@ -298,6 +310,7 @@ void ml_node_print(node * n)
 
 void allocx(long nonodes, long endsite, long param, ml_node** treenode)
 {
+  /* allocate sequences */
   /* param =  sitelength in restml */
   /* param =  rcategs in dnaml/proml */
   long i;
@@ -321,6 +334,7 @@ void allocx(long nonodes, long endsite, long param, ml_node** treenode)
 
 void dna_node_freex(ml_node* n)
 {
+  /* free a dna tree node */
   dna_node *dn;
   long i;
 
@@ -339,6 +353,7 @@ void dna_node_freex(ml_node* n)
 
 void prot_node_freex(ml_node* n)
 {
+  /* free a protein tree node */
   prot_node *pn;
   long i;
 
@@ -357,6 +372,7 @@ void prot_node_freex(ml_node* n)
 
 void codon_node_freex(ml_node* n)
 {
+  /* free a codon-model tree node */
   codon_node *pn;
   long i;
 
@@ -375,6 +391,7 @@ void codon_node_freex(ml_node* n)
 
 void dna_node_allocx(ml_node* n, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a dna tree node */
   dna_node *dn = (dna_node *)n;
   long i;
 
@@ -390,6 +407,7 @@ void dna_node_allocx(ml_node* n, long endsite, long rcategs)
 
 void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a protein tree node */
   prot_node *n = (prot_node *)nn;
   long i;
 
@@ -405,6 +423,7 @@ void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
 
 void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a codon-model tree node */
   codon_node *n = (codon_node *)nn;
   long i;
 
@@ -420,8 +439,8 @@ void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
 
 void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence y, steptr alias)
 {
-  /* set up fractional likelihoods at tips */
-  /* used by dnaml & dnamlk */
+  /* set up fractional likelihoods at tips 
+   * used by dnaml & dnamlk */
   long i, j, k, l;
   bases b;
 
@@ -544,7 +563,8 @@ void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence
 
 void prot_freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in proml */
+  /* free interior fork nodes
+   * used in proml */
   long i, j;
   node *p;
 
@@ -568,7 +588,8 @@ void prot_freex_notip(long nonodes, pointarray treenode)
 
 void codon_freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in proml */
+  /* free interior fork nodes
+   * used in proml */
   long i, j;
   node *p;
 
@@ -593,7 +614,8 @@ void codon_freex_notip(long nonodes, pointarray treenode)
 
 void freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in dnaml & dnamlk */
+  /* free interior fork nodes
+   * used in dnaml & dnamlk */
   long i, j;
   node *p;
 

@@ -1,8 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Dan Fineman, and Patrick Colacurcio.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Dan Fineman, Patrick Colacurcio, Elizabeth Walkup, and Jim McGill. */
 
 
 #ifdef HAVE_CONFIG_H
@@ -1953,8 +1951,9 @@ void dnaml_treeout(node *p)
 }  /* dnaml_treeout */
 
 
-void dnaml_reroot(tree* t)              // RSGbugfix: Name change.
+void dnaml_reroot(tree* t) 
 {
+  /* move root of tree */
   node *q;
   double newl;
   node *r = t->root;
@@ -2289,7 +2288,7 @@ void clean_up(void)
 
 void dnamlrun(void)
 {
-  // debug printout // JRMdebug
+  /* debug printout  JRMdebug  */
   /*
     printf("\nctgry: %i\n", ctgry);
     printf("categs: %li\n", categs);
@@ -2322,15 +2321,15 @@ void dnamlrun(void)
     printf("mulsets: %i\n", mulsets);
     printf("datasets: %li\n", datasets);
   */
-  // do the work
+  /* do the work  */
   if (!usertree) nonodes2--;
   for (ith = 1; ith <= datasets; ith++) {
     if (datasets > 1) {
       fprintf(outfile, "Data set # %ld:\n", ith);
-      //printf("\nData set # %ld:\n", ith); // JRMdebug
+      /* printf("\nData set # %ld:\n", ith);  JRMdebug */
     }
     ttratio = ttratio0;
-    //printf("calling getinput\n"); // JRMdebug
+    /* printf("calling getinput\n");  JRMdebug */
     getinput();
     if (ith == 1)
       firstset = false;
@@ -2775,11 +2774,11 @@ void dnaml(
 
   alpha = 1.0/(cv * cv);
 
-  //printf("values transfered\n"); // JRMdebug
-  //printf("maxcategs: %i\n", maxcategs); // JRMdebug
+  /* printf("values transfered\n");    JRMdebug  */
+  /* printf("maxcategs: %i\n", maxcategs);  JRMdebug */
 
-  // create arrays and initialize them
-  // warning: if maxcategs ever changes, this has to change also
+  /* create arrays and initialize them  */
+  /* warning: if maxcategs ever changes, this has to change also  */
   rate = (double *) Malloc(maxcategs * sizeof(double));
   rate[0]   = SiteRate1;
   rate[1]   = SiteRate2;
@@ -2813,9 +2812,9 @@ void dnaml(
   probcat[7]   = HMMProb8;
   probcat[8]   = HMMProb9;
 
-  //printf("rates transfered\n"); // JRMdebug
+  /* printf("rates transfered\n"); // JRMdebug  */
 
-  // conditional modification of arrays
+  /* conditional modification of arrays */
   int i;
   if (gama)
   {
@@ -2835,7 +2834,7 @@ void dnaml(
     }
   }
 
-  // everything translated, start the run
+  /* everything translated, start the run */
   infile = fopen(infilename, "r");
   outfile = fopen(OutfileName, outfileopt);
   strcpy(outfilename, OutfileName);
@@ -2937,7 +2936,7 @@ int main(int argc, Char *argv[])
   if (trout)
     openfile(&outtree, OUTTREE, "output tree file", "w", argv[0], outtreename);
 
-  dnamlrun();  // do the actual work
+  dnamlrun();     /* do the actual work */
 
   clean_up();
   printf("Done.\n\n");
@@ -2946,4 +2945,4 @@ int main(int argc, Char *argv[])
 }  /* DNA Maximum Likelihood */
 
 
-// End.
+/* End. */

@@ -38,7 +38,7 @@ void   correctv(node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
-void   setuptipf(long, tree *);
+void   fitch_setuptip(long, tree *);
 void   fitch_buildnewtip(long, tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   addtraverse(node *, node *, boolean, long *, boolean *);
@@ -81,24 +81,27 @@ char *progname;
 
 tree* fitch_tree_new(long nonodes, long spp)
 {
+  /* initialize a tree for Fitch */
   tree* t;
+
   t = Malloc(sizeof(fitch_tree));
   fitch_tree_init(t, nonodes, spp);
   return t;
-}
+} /* fitch_tree_new */
 
 
 void fitch_tree_init(tree* t, long nonodes, long spp)
 {
-  fitch_tree *ft = (fitch_tree *)t;
+  /* set up functions for a tree for Fitch */
 
+  fitch_tree *ft = (fitch_tree *)t;
   ml_tree_init(&(ft->ml_tree.tree), nonodes, spp);
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->nuview = fitch_nuview;
   ft->ml_tree.makenewv = fitch_makenewv;
-}
+} /* fitch_tree_init */
 
 
 void getoptions(void)
@@ -313,6 +316,7 @@ void getoptions(void)
 
 void allocrest(void)
 {
+  /* allocate routing stuff */
   long i;
 
   x = (vector *)Malloc(spp * sizeof(vector));
@@ -324,7 +328,7 @@ void allocrest(void)
   }
   nayme = (naym *)Malloc(spp * sizeof(naym));
   enterorder = (long *)Malloc(spp * sizeof(long));
-}
+} /* allocrest */
 
 
 void doinit(void)
@@ -608,7 +612,7 @@ void fitch_makenewv(tree* t, node *p)
 }  /* update */
 
 
-void setuptipf(long m, tree *t)
+void fitch_setuptip(long m, tree *t)
 {
   /* initialize branch lengths and views in a tip */
   long i=0;
@@ -635,26 +639,22 @@ void setuptipf(long m, tree *t)
   WITH->node.index = m;
   if (WITH->node.iter) WITH->node.v = 0.0;
   free(n);
-}  /* setuptipf */
+}  /* fitch_setuptip */
 
 
 void fitch_buildnewtip(long m, tree *t, long nextsp)
 {
-  (void)nextsp;                         // RSGnote: Parameter never used.
-
   /* initialize and hook up a new tip */
-  setuptipf(m, t);
+  fitch_setuptip(m, t);
 }  /* fitch_buildnewtip */
 
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
-  (void)nextsp;                         // RSGnote: Parameter never used.
-
   /* make and initialize a three-species tree */
-  setuptipf(enterorder[0], t);
-  setuptipf(enterorder[1], t);
-  setuptipf(enterorder[2], t);
+  fitch_setuptip(enterorder[0], t);
+  fitch_setuptip(enterorder[1], t);
+  fitch_setuptip(enterorder[2], t);
   buildsimpletree(t, enterorder);
 }  /* fitch_buildsimpletree */
 
@@ -684,8 +684,6 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
-
-  (void)numtrees;                       // RSGnote: Parameter never used.
 
   fprintf(outfile, "\nremember:");
   if (outgropt)
@@ -757,7 +755,7 @@ void treevaluate(void)
   double oldlike;
 
   for (i = 1; i <= spp; i++)
-    setuptipf(i, curtree);
+    fitch_setuptip(i, curtree);
   unroot(curtree, nonodes);
 
   initrav(curtree->root);
@@ -788,7 +786,7 @@ void maketree(void)
     inputdata(replicates, printdata, lower, upper, x, reps);
     setuptree(curtree, nonodes);
     for (which = 1; which <= spp; which++)
-      setuptipf(which, curtree);
+      fitch_setuptip(which, curtree);
     if (eoln(infile))
       scan_eoln(infile);
     /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
