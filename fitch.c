@@ -779,9 +779,9 @@ void maketree(void)
   /* contruct the tree */
   long nextsp, numtrees=-1;
   boolean succeeded=false;
-  long i, which;
+  long i, k, which;
   double bestyet;
-  node* where;
+  node *where, *p;
   boolean multf;
 
   if (usertree) {
@@ -843,8 +843,14 @@ void maketree(void)
     }
     while (nextsp <= spp) {
       nums = nextsp;
-      fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
       curtree->copy(curtree, priortree);
+      fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      p->v = initialv;
+      p->back->v = initialv;
+      bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree,
