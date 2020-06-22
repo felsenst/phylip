@@ -422,7 +422,7 @@ drawtree.o:   drawinit.c drawtree.c draw.h phylip.h
 factor.o:     factor.c phylip.h
 	$(CC) -c factor.c -shared -fPIC
 
-fitch.o:      fitch.c dist.h phylip.h ml.h
+fitch.o:      fitch.c dist.h phylip.h ml.h Slist.h
 	$(CC) -c fitch.c -shared -fPIC
 
 gendist.o:    gendist.c phylip.h pmatrix.c pmatrix.h
@@ -632,6 +632,9 @@ libdrawtree.so:   drawtree.o draw.o draw2.o phylip.o phylip.h $(LIBS)
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c
+
+libfitch.so:	fitch.o phylip.o dist.o ml.o $(LIBS)
+	$(CC) $(CFLAGS) -o libfitch.so -shared -fPIC fitch.c phylip.c ml.c dist.c Slist.c
 
 libgendist.so:  gendist.o phylip.o pmatrix.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libgendist.so -shared -fPIC gendist.c pmatrix.c phylip.c Slist.c

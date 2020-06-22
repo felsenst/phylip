@@ -1,9 +1,6 @@
-/* Version 3.7. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Dan Fineman, Patrick Colacurcio, and Mike Palczewski.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
-
+   Dan Fineman, Patrick Colacurcio, and Mike Palczewski.  */ 
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -169,6 +166,7 @@ void generic_node_copy(node* src, node* dst)
 
 void generic_fork_print(node * n)
 {
+  /* a debugging function to print out information about a fork */
   boolean firstTime = true;
   boolean nulledOut = false;
   node* p = n;
@@ -192,6 +190,8 @@ void generic_fork_print(node * n)
 
 void generic_node_print(node *n)
 {
+  /* a debugging function to print out information about a node */
+
   sprintf(progbuf, "%10p : %10p", (void *)n, (void *)n->back);
   print_progress(progbuf);
   if(n->back != NULL)
@@ -214,7 +214,8 @@ void generic_node_print(node *n)
 
 
 void generic_node_free(node **n)
-{ /* Release a node's memory */
+{
+  /* Release a node's memory */
   free(*n);
   *n = NULL;
 } /* generic_node_free */

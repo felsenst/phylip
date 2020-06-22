@@ -289,7 +289,7 @@ void ml_node_init(node *n, node_type type, long index)
 
 void ml_node_reinit(node * n)
 {
-  /* reset things for an ml tree node *
+  /* reset things for an ml tree node */
   ml_node * mln = (ml_node*)n;
 
   mln->node.tyme = 0;

@@ -368,12 +368,12 @@ void inputoptions(void)
   fprintf(outfile, "                  __ __             2\n");
   fprintf(outfile, "                  \\  \\   (Obs - Exp)\n");
   fprintf(outfile, "Sum of squares =  /_ /_  ------------\n");
-  fprintf(outfile, "                               ");
+  fprintf(outfile, "                   i  j        ");
   if (power == (long)power)
     fprintf(outfile, "%2ld\n", (long)power);
   else
     fprintf(outfile, "%4.1f\n", power);
-  fprintf(outfile, "                   i  j      Obs\n\n");
+  fprintf(outfile, "                             Obs\n\n");
   fprintf(outfile, "Negative branch lengths ");
   if (!negallowed)
     fprintf(outfile, "not ");
@@ -851,9 +851,8 @@ void maketree(void)
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-      curtree->addtraverse(curtree,
-                           curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true,
-                           where, &bestyet, bestree, true);
+      curtree->addtraverse(curtree, p, curtree->root, true,
+                            where, &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
@@ -918,6 +917,8 @@ void maketree(void)
 
 void fitchrun(void)
 {
+  /* do a single tree estimation */
+
   //printf("in fitchrun\n");
   fflush(stdout);
 
@@ -971,9 +972,11 @@ void fitchrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* fitchrun */
+
 
 void fitch(
+  /* take parameters from Java interface */
   char * infilename,
   char * intreename,
   char * OutfileName,
@@ -1241,7 +1244,7 @@ void fitch(
   FClose(outfile);
   FClose(infile);
   //printf("Done.\n\n");
-}
+} /* fitch */
 
 
 int main(int argc, Char *argv[])
@@ -1283,7 +1286,7 @@ int main(int argc, Char *argv[])
   printf("Done.\n\n");
   phyRestoreConsoleAttributes();
   return 0;
-}
+} /* main */
 
 
 // End.

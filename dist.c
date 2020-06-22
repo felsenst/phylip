@@ -170,7 +170,8 @@ void allocw(long nonodes, pointptr treenode)
 
 void freew(long nonodes, pointptr treenode)
 {
-  /* used in fitch */
+  /* free weights array
+   * used in fitch */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
@@ -186,13 +187,13 @@ void freew(long nonodes, pointptr treenode)
       p = (dist_node*)p->node.next;
     }
   }
-}
+} /* freew */
 
 
 void setuptree(tree *a, long nonodes)
 {
-  /* initialize a tree */
-  /* used in fitch, kitsch, & neighbor */
+  /* initialize a tree
+   * used in fitch, kitsch, & neighbor */
   long i=0;
   node *p;
 
@@ -216,6 +217,14 @@ void setuptree(tree *a, long nonodes)
       }
     }
   }
+  /* Create garbage lists */ 
+  a->free_forks = Slist_new();      /* debug:  Now unnecessary? */
+  a->free_fork_nodes = Slist_new();
+      
+  /* Put all interior nodes on garbage lists by "releasing" them */
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
+    a->release_fork(a, a->nodep[i]);
+  } 
   a->score = -1.0;
   a->root = a->nodep[0];
 }  /* setuptree */
