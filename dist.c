@@ -108,7 +108,7 @@ void allocd(long nonodes, pointptr treenode)
       p = (dist_node*)(p->node.next);
     }
   }
-}
+} /* allocd */
 
 
 void freed(long nonodes, pointptr treenode)
@@ -129,12 +129,12 @@ void freed(long nonodes, pointptr treenode)
       p = (dist_node*)(p->node.next);
     }
   }
-}
+} /* freed */
 
 
 void allocw(long nonodes, pointptr treenode)
 {
-  /* used in fitch & kitsch */
+  /* allocate weights array. used in fitch & kitsch */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
@@ -150,7 +150,7 @@ void allocw(long nonodes, pointptr treenode)
       p = (dist_node*)p->node.next;
     }
   }
-}
+} /* allocw */
 
 
 void freew(long nonodes, pointptr treenode)
@@ -178,14 +178,17 @@ void freew(long nonodes, pointptr treenode)
 void setuptree(tree* a, long nonodes)
 {
   /* initialize a tree
-   * used in fitch, kitsch, & neighbor */
-  /* debug:  need to combine somehow with  phylip.c: generic_tree_init  */
+   * used in fitch, kitsch, & neighbor
+   * debug:  need to combine somehow with  phylip.c: generic_tree_init  */
   long i=0;
   node *p;
 
   for (i = 1; i <= nonodes; i++) {
     if (i > spp) {
       a->nodep[i-1] = generic_tree_get_fork(a, i-1); 
+    }
+    else {
+      a->nodep[i-1] = dist_node_new(true, i);
     }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
@@ -204,7 +207,6 @@ void setuptree(tree* a, long nonodes)
     }
   }
   /* Create garbage lists */ 
-  a->free_forks = Slist_new();      /* debug:  Now unnecessary? */
   a->free_fork_nodes = Slist_new();
       
   /* Put all interior nodes on garbage lists by "releasing" them */

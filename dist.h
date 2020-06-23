@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+*/
 
 
 /*
@@ -47,4 +46,4 @@ void dist_node_free(node **np);
 #endif
 
 
-// End.
+/* End. */

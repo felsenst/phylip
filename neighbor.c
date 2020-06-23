@@ -551,8 +551,9 @@ void maketree(void)
     sprintf(progbuf, "\n");
     print_progress(progbuf);
   }
-  if (ith == 1)                  /* if this is first tree do setup */
-    setuptree(curtree, nonodes);
+/* debug: needed                  if this is first tree do setup?
+  if (ith == 1)
+    setuptree(curtree, nonodes);   debug; */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)
@@ -587,6 +588,7 @@ void maketree(void)
 
 void neighborrun(void)
 {
+  /* run multiple datasets, a tree for each */
   // JRMdebug
   /*
   printf("\njumble %i\n", jumble);
@@ -622,7 +624,7 @@ void neighborrun(void)
       scan_eoln(infile);
     ith++;
   }
-}
+} /* neighborrun */
 
 
 void neighbor(
