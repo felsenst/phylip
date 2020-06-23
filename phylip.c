@@ -3476,7 +3476,6 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   }
 
   /* Create garbage lists */
-  t->free_forks = Slist_new();      /* debug:  Now unnecessary? */
   t->free_fork_nodes = Slist_new();
 
   /* Put all interior nodes on garbage lists by "releasing" them */

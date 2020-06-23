@@ -232,9 +232,8 @@ void doinit(void)
   {
     getoptions();
   }
-  curtree = generic_tree_new(nonodes, spp);
+  dist_tree_new(curtree, nonodes);
   generic_tree_init(curtree, nonodes, spp);
-  setuptree(curtree, nonodes);
 /* debug:  needed here?
   p = curtree->nodep[nonodes]->next;
   curtree->nodep[nonodes]->next = curtree->nodep[nonodes];
@@ -551,9 +550,6 @@ void maketree(void)
     sprintf(progbuf, "\n");
     print_progress(progbuf);
   }
-/* debug: needed                  if this is first tree do setup?
-  if (ith == 1)
-    setuptree(curtree, nonodes);   debug; */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)

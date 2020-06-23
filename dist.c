@@ -175,7 +175,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void setuptree(tree* a, long nonodes)
+void dist_tree_new(tree* a, long nonodes)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
@@ -183,12 +183,14 @@ void setuptree(tree* a, long nonodes)
   long i=0;
   node *p;
 
+  a = (tree*)Malloc(sizeof(tree));
+  a->nodep =(node**)Malloc(nonodes*sizeof(node*));
   for (i = 1; i <= nonodes; i++) {
     if (i > spp) {
-      a->nodep[i-1] = generic_tree_get_fork(a, i-1); 
+      a->nodep[i-1] = generic_tree_get_fork(a, i); 
     }
     else {
-      a->nodep[i-1] = dist_node_new(true, i);
+      a->nodep[i-1] = dist_node_new(1, i);  /* 1 indicates a tip node */
     }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
@@ -215,7 +217,7 @@ void setuptree(tree* a, long nonodes)
   } 
   a->score = -1.0;
   a->root = a->nodep[0];
-}  /* setuptree */
+}  /* dist_tree_new */
 
 
 void inputdata(boolean replicates, boolean printdata, boolean lower,

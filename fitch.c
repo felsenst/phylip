@@ -365,15 +365,15 @@ void inputoptions(void)
   fprintf(outfile, "\nFitch-Margoliash method version %s\n\n", VERSION);
   if (minev)
     fprintf(outfile, "Minimum evolution method option\n\n");
-  fprintf(outfile, "                  __ __             2\n");
-  fprintf(outfile, "                  \\  \\   (Obs - Exp)\n");
-  fprintf(outfile, "Sum of squares =  /_ /_  ------------\n");
-  fprintf(outfile, "                   i  j        ");
+  fprintf(outfile, "                                    2\n");
+  fprintf(outfile, "                  __ __  (Obs - Exp)\n");
+  fprintf(outfile, "                  \\  \\   ------------\n");
+  fprintf(outfile, "Sum of squares =  /_ /_        ");
   if (power == (long)power)
     fprintf(outfile, "%2ld\n", (long)power);
   else
     fprintf(outfile, "%4.1f\n", power);
-  fprintf(outfile, "                             Obs\n\n");
+  fprintf(outfile, "                   i  j      Obs\n\n");
   fprintf(outfile, "Negative branch lengths ");
   if (!negallowed)
     fprintf(outfile, "not ");
@@ -754,8 +754,8 @@ void treevaluate(void)
   long i;
   double oldlike;
 
-  for (i = 1; i <= spp; i++)
-    fitch_setuptip(i, curtree);
+  for (i = 1; i <= spp; i++)   /* debug: already done? is this necessary? */
+    fitch_setuptip(curtree, i);
   unroot(curtree, nonodes);
 
   initrav(curtree->root);
@@ -784,9 +784,9 @@ void maketree(void)
 
   if (usertree) {
     inputdata(replicates, printdata, lower, upper, x, reps);
-    setuptree(curtree, nonodes);
+    dist_tree_new(curtree, nonodes);
     for (which = 1; which <= spp; which++)
-      fitch_setuptip(which, curtree);
+      fitch_setuptip(curtree, which);
     if (eoln(infile))
       scan_eoln(infile);
     /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
@@ -819,10 +819,10 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
-      setuptree(curtree, nonodes);
-      setuptree(priortree, nonodes);
-      setuptree(bestree, nonodes);
-      if (njumble > 1) setuptree(bestree2, nonodes);
+      dist_tree_new(curtree, nonodes);
+      dist_tree_new(priortree, nonodes);
+      dist_tree_new(bestree, nonodes);
+      if (njumble > 1) dist_tree_new(bestree2, nonodes);
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;

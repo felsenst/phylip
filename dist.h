@@ -31,7 +31,7 @@ void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
-void setuptree(tree *, long);
+void dist_tree_new(tree *, long);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
 void drawline(long, double, node *, boolean);
