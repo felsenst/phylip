@@ -95,7 +95,8 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   /* set up functions for a tree for Fitch */
 
   fitch_tree *ft = (fitch_tree *)t;
-  ml_tree_init(&(ft->ml_tree.tree), nonodes, spp);
+/* debug:   dist_tree_init(&(ft->ml_tree.tree), nonodes, spp);   debug */
+  dist_tree_init(t, nonodes, spp);
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
@@ -784,7 +785,7 @@ void maketree(void)
 
   if (usertree) {
     inputdata(replicates, printdata, lower, upper, x, reps);
-    dist_tree_new(curtree, nonodes);
+    dist_tree_init(curtree, nonodes);
     for (which = 1; which <= spp; which++)
       fitch_setuptip(curtree, which);
     if (eoln(infile))

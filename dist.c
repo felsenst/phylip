@@ -36,7 +36,7 @@ void dist_node_init(node* n, node_type type, long index)
   dn->dist = 0;
   dn->d = (vector)Malloc(nonodes * sizeof(double));
   dn->w = (vector)Malloc(nonodes * sizeof(double));
-} /* dist_node_new */
+} /* dist_node_init */
 
 
 void dist_node_free(node **np)
@@ -175,7 +175,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_new(tree* a, long nonodes)
+void dist_tree_init(tree* a, long nonodes)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
@@ -183,11 +183,9 @@ void dist_tree_new(tree* a, long nonodes)
   long i=0;
   node *p;
 
-  a = (tree*)Malloc(sizeof(tree));
-  a->nodep =(node**)Malloc(nonodes*sizeof(node*));
   for (i = 1; i <= nonodes; i++) {
     if (i > spp) {
-      a->nodep[i-1] = generic_tree_get_fork(a, i); 
+      a->nodep[i-1] = functions.node_new(0, i);
     }
     else {
       a->nodep[i-1] = dist_node_new(1, i);  /* 1 indicates a tip node */
@@ -217,7 +215,7 @@ void dist_tree_new(tree* a, long nonodes)
   } 
   a->score = -1.0;
   a->root = a->nodep[0];
-}  /* dist_tree_new */
+}  /* dist_tree_init */
 
 
 void inputdata(boolean replicates, boolean printdata, boolean lower,
