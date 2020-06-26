@@ -2289,11 +2289,13 @@ void printfactors(FILE *filename, long chars,
 }  /* printfactors */
 
 
+/*********** routines for saving, retrieving trees **********/
+
 void findtree(boolean *found, long *pos, long nextree,
                long *place, bestelm *bestrees)
 {
   /* finds tree given by array place in array bestrees by binary search */
-  /* used by dnacomp, dnapars, dollop, mix, & protpars */
+  /* used by Dnacomp, Dnapars, Dollop, Mix, and Protpars */
   long i, lower, upper;
   boolean below, done;
 
@@ -2330,7 +2332,7 @@ void addtree(long pos, long *nextree, boolean collapse,
               long *place, bestelm *bestrees)
 {
   /* puts tree from array place in its proper position in array bestrees */
-  /* used by dnacomp, dnapars, dollop, mix, & protpars */
+  /* used by Dnacomp, Dnapars, Dollop, Mix, and Protpars */
   long i;
 
   for (i = *nextree - 1; i >= pos; i--)
@@ -2353,7 +2355,8 @@ void addtree(long pos, long *nextree, boolean collapse,
 
 long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
 {
-  /* finds bestree with either global or local field false */
+  /* in array of saved trees, finds bestree with
+   * either global or local field false */
   long i;
 
   if (glob) {
@@ -2370,8 +2373,9 @@ long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
 
 
 void shellsort(double *a, long *b, long n)
-{ /* Shell sort keeping a, b in same order */
-  /* used by dnapenny, dolpenny, penny, and threshml */
+{ /* Shell sort keeping a, b in same order
+   * used by Dnapenny, Dolpenny, Penny, and Threshml
+   * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast */
   long gap, i, j, itemp;
   double rtemp;
 
@@ -2396,7 +2400,7 @@ void shellsort(double *a, long *b, long n)
 }  /* shellsort */
 
 
-/******** User trees ****************/
+/******** routines for reading User trees ****************/
 
 void getch(Char *c, long *parens, FILE *treefile)
 { /* get next nonblank character from a tree file */
@@ -2627,7 +2631,7 @@ long countcomma(FILE *treefile, long *comma)
 long countsemic(FILE *treefile)
 { /* Used to determine the number of user trees.  Return
      either a: the number of semicolons in the file outside comments
-     or b: the first integer in the file */
+     or b: the first integer in the file (this is deprecated) */
   Char c;
   long return_val, semic = 0;
   long bracket = 0;
@@ -2735,6 +2739,8 @@ MALLOCRETURN *mymalloc(long x)
 } /* mymalloc */
 
 
+/************* routines for altering trees ****************/
+
 void hookup(node *p, node *q)
 { /* hook together two nodes 
    * IMPORTANT -- does not change branch lengths. Other routines
@@ -2776,6 +2782,7 @@ void allocate_nodep(pointarray *nodep, FILE *treefile, long  *precalc_tips)
                                           tip nodes in the front region of
                                           nodep.  Used for species check?  */
 } /* allocate_nodep -plc */
+
 
 
 long take_name_from_tree (Char *ch, Char *str, FILE *treefile)
@@ -3446,7 +3453,9 @@ void generic_tree_free(tree *t)
 
 void generic_tree_init(tree* t, long nonodes, long spp)
 {
-  /* initialize a tree, generic version */
+  /* initialize nodes and forks on a tree, generic version
+   * leaves nodes at tips but makes enough nodes for forks
+   * and then puts them on the fork_node garbage list  */
   long i, j;
   node *q,*p;
 
@@ -3482,7 +3491,16 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
+  t->root = t->nodep[0];
+  t->setupfunctions(tree *t);    /* this already assigned when tree created */
+} /* generic_tree_init */
 
+
+void generic_tree_setupfunctions(tree *t) 
+(
+  /* initialize functions.  Mostly for parsimony, they
+   * get overwritten in dist.c, ml.c as needed */
+  
   t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
@@ -3497,8 +3515,6 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
   t->smoothall = (tree_smoothall_t)no_op;
-  t->root = t->nodep[0];
-  t->root = NULL;     /* debug:  huh? */
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
   t->save_lr_nodes = unrooted_tree_save_lr_nodes;
@@ -3518,14 +3534,17 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->tree_good_f = generic_tree_good;
   t->node_good_f = generic_node_good;
   t->fork_good_f = generic_fork_good;
-} /* generic_tree_init */
+} /* generic_tree_setupfunctions */
 
 
 tree* generic_tree_new(long nonodes, long spp)
 {
-  /* allocate a new tree and call generic_tree_init on it */
+  /* allocate a new tree and call generic_tree_init on it 
+   * also initialize the setting up of its functions to the generic version */
   tree* t = Malloc(sizeof(tree));
+
   generic_tree_init(t, nonodes, spp);
+  t->setupfunctions = generic_tree_setupfunctions; /* reset later as needed */
   return t;
 } /* generic_tree_new */
 

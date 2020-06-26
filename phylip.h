@@ -1,8 +1,6 @@
-/* Version 4.0a. (c) Copyright 1993-2014 by the University of Washington.
+/* Version 4.0a.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Mike Palczewski, Doug Buxton and Dan Fineman.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Mike Palczewski, Doug Buxton and Dan Fineman.    */
 
 #ifndef _PHYLIP_H_
 #define _PHYLIP_H_
@@ -23,17 +21,21 @@
    ANSI conforming C, it will probably work.
 
    We will try to figure out machine type
-   based on defines in stdio, and compiler-defined things as well.: */
+   based on defines in stdio, and compiler-defined things as well.:
+   Quite a bit of this is being paranoid about being on antique operating
+   systems or antique compilers */
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef WIN32
+
+#define true    1                   /* messing with truth itself! */
+#define false   0
+
+#ifdef WIN32                        /* if we're in Microsoft Windows */
 #include <windows.h>
 
 
-#else
-
-/* Use null macros instead */
+#else                               /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
 
 #define phySaveConsoleAttributes()      NULL_EXPR
@@ -44,24 +46,22 @@
 
 #endif /* WIN32 */
 
-#define true    1
-#define false   0
-
-#ifdef  GNUDOS
+#ifdef  GNUDOS      /* GNU functions to make it act like DOS */
 #define DJGPP
 #define DOS
 #endif
 
-#ifdef THINK_C
+#ifdef THINK_C      /* Think C = Lightspeed C for MacOS 8 or 9 */
 #define MAC
 #endif
-#ifdef __MWERKS__
+
+#ifdef __MWERKS__   /* the defunct Metrowerks C for Apple PowerPC */
 #ifndef WIN32
 #define MAC
 #endif
 #endif
 
-#ifdef __CMS_OPEN
+#ifdef __CMS_OPEN  /* default file names for Java Content Management System */
 #define CMS
 #define EBCDIC true
 #define INFILE "infile data"
@@ -76,11 +76,13 @@
 #define ANCFILE "ancestors data"
 #define MIXFILE "mixture data"
 #define FACTFILE "factors data"
-#else
+
+#else               /* default file names for everything else */
+
 #define EBCDIC false
 #define INFILE "infile"
 #define OUTFILE "outfile"
-#define FONTFILE "fontfile" /* on unix this might be /usr/local/lib/fontfile */
+#define FONTFILE "fontfile" /* on Unix might be in /usr/local/lib/fontfile */
 #define PLOTFILE "plotfile"
 #define INTREE "intree"
 #define INTREE2 "intree2"
@@ -92,15 +94,15 @@
 #define FACTFILE "factors"
 #endif
 
-#ifdef L_ctermid            /* try and detect for sysV or V7. */
+#ifdef L_ctermid            /* try and detect for Unix sysV or V7. */
 #define SYSTEM_FIVE
 #endif
 
-#ifdef sequent
+#ifdef sequent              /* if on a Sequent multiprocessing machine */
 #define SYSTEM_FIVE
 #endif
 
-#ifndef SYSTEM_FIVE
+#ifndef SYSTEM_FIVE         /* diagnosing whether on BDS Unix */
 #include <stdlib.h>
 # if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
 # define UNIX
@@ -108,21 +110,21 @@
 # endif
 #endif
 
-#ifdef __STDIO_LOADED
-#define VMS
+#ifdef __STDIO_LOADED        /* diagnosing whether on a DEC */
+#define VMS                  /* VAX running their VMS operating system */
 #define MACHINE_TYPE "VAX/VMS C"
 #endif
 
-#ifdef __WATCOMC__
+#ifdef __WATCOMC__           /* diagnosing whether compiler is Watcom C */
 #define QUICKC
 #define WATCOM
 #define DOS
 #include "graph.h"
 #endif
-/* watcom-c has graphics library calls that are almost identical to    *
- * quick-c, so the "QUICKC" symbol name stays.                         */
+/* Watcom-C has graphics library calls that are almost identical to
+ * Microsoft Quick-C, so the "QUICKC" symbol name stays                 */
 
-#ifdef _QC
+#ifdef _QC                   /* is the compiler Microsoft's old Quick C? */
 #define MACHINE_TYPE "MS-DOS / Quick C"
 #define QUICKC
 #include "graph.h"
@@ -132,29 +134,30 @@
 #ifdef _DOS_MODE
 #define MACHINE_TYPE "MS-DOS /Microsoft C "
 #define DOS           /* DOS is always defined if on a DOS machine */
-#define MSC           /* MSC is defined for microsoft C              */
+#define MSC           /* MSC is defined for Microsoft C              */
 #endif
 
-#ifdef __MSDOS__      /* TURBO c compiler, ONLY (no other DOS C compilers) */
+#ifdef __MSDOS__      /* TURBO C compiler, ONLY (no other DOS C compilers) */
 #define DOS
 #define TURBOC
 #include <stdlib.h>
 #include <graphics.h>
 #endif
 
-#ifdef DJGPP          /* DJ Delorie's original gnu  C/C++ port */
+#ifdef DJGPP          /* DJ Delorie's original Gnu C/C++ port */
 #include <graphics.h>
 #endif
 
-#ifndef MACHINE_TYPE
+#ifndef MACHINE_TYPE        /* if none of the above, assume ANSI C */
 #define MACHINE_TYPE "ANSI C"
 #endif
 
-#ifdef DOS
+#ifdef DOS             /* if running under MSDOS or something imitating it */
 #define MALLOCRETURN void
 #else
 #define MALLOCRETURN void
 #endif
+
 #ifdef VMS
 #define signed /* signed doesn't exist in VMS */
 #endif
@@ -216,12 +219,12 @@
 #define getch gettch
 #endif
 
-/* directory delimiters */
+/* delimiters in paths to files */
 #ifdef MAC
 #define DELIMITER ':'
 #else
 #ifdef WIN32
-#define DELIMITER '\\'
+#define DELIMITER '\\'     /* a backslash character */
 #else
 #define DELIMITER '/'
 #endif
@@ -229,7 +232,7 @@
 
 
 #define FClose(file) if (file) fclose(file) ; file=NULL
-#define Malloc(x) mymalloc((long)x)
+#define Malloc(x) mymalloc((long)x)    /* mymalloc is our wrapper for malloc */
 
 typedef void *Anyptr;
 #define Signed     signed
@@ -243,8 +246,8 @@ typedef void *Anyptr;
 typedef unsigned int boolean;
 #endif
 
-/* Number of items per machine word in set.
- * Used in consensus programs and clique */
+/* Number of items per machine word in when stores a binary set of bits.
+ * Used in Consense, Treedist, and Clique; can't use sign bit */
 #define SETBITS 31
 
 /* Static memory parameters */
@@ -258,7 +261,7 @@ typedef unsigned int boolean;
 #define pointe          '.'
 #define down            2
 #define MAXNUMTREES    10000000  /* greater than number of user trees can be */
-#define MAXSHIMOTREES 100
+#define MAXSHIMOTREES 100    /* SHT test.  Yes, he uses this as his nickname */
 
 /* Maximum likelihood parameters */
 
@@ -272,14 +275,14 @@ typedef unsigned int boolean;
                                  * calculations. */
 
 /* Math constants */
-#define SQRTPI 1.7724538509055160273
-#define SQRT2  1.4142135623730950488
-#define  purset ((1 << (long)A) + (1 << (long)G))
-#define  pyrset ((1 << (long)C) + (1 << (long)T))
+#define SQRTPI 1.7724538509055160273     /* square root of Pi, for Normal */
+#define SQRT2  1.4142135623730950488     /* square root of 2. */
+#define  purset ((1 << (long)A) + (1 << (long)G))   /* the purine bases */
+#define  pyrset ((1 << (long)C) + (1 << (long)T))   /* the pyrimidines */
 #define NLRSAVES 5 /* number of views that need to be saved during local  *
                     * rearrangement                                       */
 
-/* Used in proml, promlk, dnaml, dnamlk for undefined bestyet*/
+/* Used in Proml, Promlk, Dnaml, Dnamlk for undefined bestyet value */
 #define UNDEFINED 1.0
 
 /* a basic stack */
@@ -293,11 +296,11 @@ struct stack {
 
 typedef long *steptr;
 typedef long longer[6];
-typedef char naym[MAXNCH];
+typedef char naym[MAXNCH];    /* for species names */
 typedef long *bitptr;
 typedef double raterootarray[maxcategs2][maxcategs2];
 
-typedef struct bestelm {
+typedef struct bestelm {      /* stores trees */
   long *btree;
   boolean gloreange;
   boolean locreange;
@@ -312,9 +315,9 @@ long spp;                       /* number of species */
 long words, bits;
 boolean ibmpc, ansi, tranvsp;
 naym *nayme;                    /* names of species */
-char progbuf[256]; // string to display in the progress output
+char progbuf[256]; /* string to display in the progress output */
 
-#define ebcdic          EBCDIC
+#define ebcdic          EBCDIC  /* IBM character set pre-ANSI/ISO */
 
 typedef Char plotstring[MAXNCH];
 
@@ -323,7 +326,7 @@ typedef Char plotstring[MAXNCH];
 
 
 /* The below pre-processor commands define the type used to store
-   group arrays.  We can't use #elif for metrowerks, so we use
+   group arrays.  We can't use #elif for Metrowerks C, so we use
    cascaded if statements */
 #include <limits.h>
 
@@ -334,7 +337,7 @@ typedef Char plotstring[MAXNCH];
 /* K&R says that there should be a plus in front of the number, but no
    machine we've seen actually uses one; we'll include it just in
    case. */
-#define MAX_32BITS        2147483647
+#define MAX_32BITS        2147483647    /* max integer if 32-bit arithmetic */
 #define MAX_32BITS_PLUS  +2147483647
 
 /* If ints are 4 bytes, use them */
@@ -370,11 +373,11 @@ typedef int  group_type;
 
 typedef Char **sequence;
 
-typedef enum {
+typedef enum {         /* the DNA bases */
   A, C, G, T, O
 } bases;
 
-typedef enum {
+typedef enum {         /* the amino acids in proteins */
   alanine, arginine, asparagine, aspartic, cysteine,
   glutamine, glutamic, glycine, histidine, isoleucine,
   leucine, lysine, methionine, phenylalanine, proline,
@@ -388,29 +391,29 @@ typedef enum {
 } discbases;
 
 
-/* used by protpars and protdist */
-typedef enum {
+/* used by Protpars and Protdist */
+typedef enum {          /* the three-letter amino acid codes, extended */
   ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, pro,
   ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
 } aas;
 
-/* arrays for likelihoods in dnaml, dnadist...                              */
+/* arrays for likelihoods in Dnaml, Dnamlk, Dnadist...                              */
 typedef double sitelike[(long)T - (long)A + 1];
 typedef sitelike *ratelike;
 typedef ratelike *phenotype;
 
-/* arrays for likelihoods in proml, prokmlk...                              */
+/* arrays for likelihoods in Proml, Prokmlk...                              */
 typedef double psitelike[(long)valine - (long)alanine + 1];
 typedef psitelike *pratelike;
 typedef pratelike *pphenotype;
 
-/* arrays for likelihoods in codml...                                       */
+/* arrays for likelihoods in Codml                                       */
 typedef double csitelike[61];
 typedef csitelike *cratelike;
 typedef cratelike *cphenotype;
 
-typedef long *baseptr;       /* baseptr used in dnapars, dnacomp & dnapenny */
-typedef unsigned char *discbaseptr;     /* discbaseptr used in pars         */
+typedef long *baseptr;       /* baseptr used in Dnapars, Dnacomp, Dnapenny */
+typedef unsigned char *discbaseptr;     /* discbaseptr used in Pars         */
 typedef double *phenotype3;                 /* for continuous char programs */
 
 typedef double *vector;                     /* used in distance programs    */
@@ -423,10 +426,10 @@ typedef enum { bottom, nonbottom, hslength, tip, iter, length,
 
 
 typedef double **transmatrix;
-typedef transmatrix *transptr;                /* transptr used in restml */
+typedef transmatrix *transptr;                /* transptr used in Restml */
 
 typedef long sitearray[3];
-typedef sitearray *seqptr;                    /* seqptr used in protpars */
+typedef sitearray *seqptr;                    /* seqptr used in Protpars */
 
 /* datastructure typedefs */
 enum node_type { FORK_NODE = 0, TIP_NODE };
@@ -522,6 +525,7 @@ struct node {
   struct node_vtable *vtable;               /* Pointer to node vtable */
 };
 
+
 typedef node **pointarray;
 
 typedef tree* (*tree_new_t)(long nonodes, long spp);
@@ -614,6 +618,7 @@ struct tree {
   Slist_ptr free_forks;
   Slist_ptr free_fork_nodes;
 
+  tree_setfunctions_t setfunctions;     /* sets up functions */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
@@ -659,9 +664,9 @@ typedef struct initdata {
 
 initdata functions;
 
-boolean javarun;
+boolean javarun;            /* boolean for when Java front-end is in use */
 
-#ifndef OLDC
+#ifndef OLDC                /* if not the old original K&R C compiler */
 /* function prototypes */
 void            no_op(void);
 void            even_sibs(tree*, node*, node*);
@@ -786,8 +791,9 @@ void            unroot_here(tree*, node*, long);
 void            unroot_r(tree*, node*, long);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
-void            generic_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);
+void            generic_tree_init(tree*, long, long);
+void		generic_tree_setfunctions(tree*);
 void            generic_tree_free(tree*);
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
@@ -865,4 +871,4 @@ void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* _PHYLIP_H_ */
 
 
-// End.
+/* End. */
