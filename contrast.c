@@ -100,6 +100,7 @@ node*  contrast_node_make(tree *, node_type, long);
 void   makenewbranches(void);
 void   updatebounds(node *);
 double evaluate(node *);
+#ifdef 0;            /* fossil stuff commented out for now */
 double fevaluate(double, node *, boolean);
 void   locatefossilonbranch (node *, node *, node *, boolean);
 boolean placefossilonbranch(node *, node *);
@@ -109,6 +110,10 @@ void   replacefossil(void);
 void   placeonefossil(long);
 void   makefossilcovars(node *);
 void   placeallfossils(void);
+#endif        /* end commenting-out of fossil stuff */
+void   writereportforonecovar(boolean, matrix, double*);
+void   writereports(void);
+void   calculatecovsetc(void);
 void   maketree(void);
 /* function prototypes */
 #endif
@@ -133,7 +138,7 @@ double logL, bestlogL, logLvara, logLnocorr, logLnovara, multiplier,
   incparam0, startlogL, endlogL, nmepsilon, nmupsilon, worstlogL, alpha,
   gammma, rho, sigma;
 boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
-  linearsize, morphall, sizes, sizechar, shapes, nophylo, printdata,
+  linearsize, morphall, sizes, sizes, shapes, nophylo, printdata,
   progress, reg, multrees, muldata, treeswithin,
   datawithin, cross, fossil, inferscale, varywithin,
   nocorr, writecont, bifurcating, pca, firsttime,
@@ -165,7 +170,7 @@ void getoptions(void)
   sizes = false;
   mlsizes = true;
   linearsize = false;
-  sizechar = false;
+  sizes = false;
   dimensions = 2;
   numtrees = 1;
   ndatas = 1;
@@ -232,11 +237,11 @@ void getoptions(void)
             if (centroidsize)
               printf("  centroid size\n");
           }
-        printf("  E                  Add a log(size) character?");
-        if (sizechar)
+        printf("  E                     Report size variation?");
+        if (sizes)
           printf("  Yes, in addition to shape\n");
         else
-          printf("  No, have only shape characters\n");
+          printf("  No, just covariation of coordinates\n");
       } else {
         printf("  No\n");
       }
@@ -271,6 +276,7 @@ void getoptions(void)
       else
         printf("  No\n");
     }
+#ifdef 0              /* comment this out for now as undeveloped */
     printf("  F                Infer position of fossil(s)? ");
     if (fossil)
       printf(" Yes\n");
@@ -306,6 +312,7 @@ void getoptions(void)
       printf("  H   How close to best-yet logL to show value: ");
       printf(" %4.2f\n", howworse);
     }
+#endif
     printf("  M        Multiple trees?  Multiple data sets?");
     if (muldata) {
       if (multrees) {
@@ -3286,7 +3293,7 @@ for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
   return (logL);
 } /* evaluate */
 
-
+#ifdef 0;                      /* for now, comment out all the fossil stuff */
 double fevaluate (double twhere, node *q, boolean atroot)
 {
   /* calculate log(L) by calling evaluate, for a given placement
@@ -3545,6 +3552,7 @@ void placeallfossils(void) {
     placeonefossil(i);                 /*   all fossils and attach them */
   }
 } /* placeallfossils */
+#endif  /* end commenting-out of fossil stuff */
 
 
 void reportlrttests()
@@ -3552,6 +3560,7 @@ void reportlrttests()
   /* write out the results of the LRT tests of no phylogenetic covariances */
 /* debug: make sure in other functions to save and pass in the results of the test */
 
+  }
   if (nocorr || nophylo) {
     fprintf(outfile, "\n\n\n    Likelihood Ratio Test");
     if (nocorr)
@@ -3600,6 +3609,7 @@ void reportlrttests()
                 n1*(charsd-n1));
       if (nophylo)
         fprintf(outfile, "\n");
+      }
     }
     if (nophylo) {
       fprintf(outfile,
@@ -3620,70 +3630,72 @@ void reportlrttests()
 } /* reportlrttests */
 
 
-void writereports(void)
+void writereportforonecovar(boolean within, matrix var, double* means)
 {
-  /* for one combination of data set and tree, write out means, covariances
-   * (within and between species as needed), principal components, etc. */
+  /* for one of the inferred covariance matrices, write out all the desired
+   * reports on it (covariances, correlations, regressions, means, PCs etc
+   * before these, write a string describing which covariation */
 
-  multiplier = 1.0;
-  makecontrasts(curtree.root);
-  getcovariances();
-  getmeans();
-/* debug:  later on may move some of the principal component stuff back here */
-  if (!varywithin) {
-    if (!omitheaders)
-      writemethods();
-    if (superposition)
-      writesuper();
-    if (writecont)
-      writecontrasts();
-    if (!omitheaders)
-      writemeans();
-    if (sizes) {
-      if (!omitheaders) {
-        writereports();
-        writescales();
-        writevarsz();
-        writerotations();
-        if (sizechar)
-          writeallom();
-        reportcovars(sumprod, charspp);
-        if (reg)
-          reportregressions(sumprod, charspp);
-      }
+  if (superposition)
+    writesuper();
+  if (writecont)
+    writecontrasts();
+  if (!omitheaders)
+    writemeans();
+  if (sizes) {
+    writereports();
+    writerotations();
+    writescales();
+    writevarsz();
+    writeallom();
     }
-    else
-      if(!omitheaders) {
-        reportcovars(sumprod, charspp);
-        if (reg)
-          reportregressions(sumprod, charspp);
-      }
-    if (pca) {
-      qreigen (temp5, charspp);
-      reportpca(charspp);
+  reportcovars(sumprod, charspp);
+  if (reg) {
+    reportregressions(sumprod, charspp);
     }
-    if(reg || pca || (sizes && !superposition)) {
-      logL = evaluate(curtree.root);
-      bestlogL = logL;
-      reportlogL (logL, contno*df);
+  printcovariances(nocorr, nophylo);
+  if (pca) {
+    reportpca(charspp);
+    }
+  if(reg || pca || (sizes && !superposition)) {
+    reportlogL (logL, contno*df);
     }
     if (!omitheaders)
       putc('\n', outfile);
-  }
-  else {
-    printcovariances(false, false);
+} /* writereportforonecovar */
+
+
+void writereports(void)
+{
+  /* for one combination of data set and tree, write out means, covariances
+   * (within and between species as needed), principal components,
+   * superpositions, etc. Menu settings control which are written out,
+   * and can turn off headings so as to write out in computer-readable form */
+
+/* debug: later on may move some of the principal component stuff back here */
+    if (!omitheaders) {
+      writemethods();
+      fprintf(outfile, " Evolutionary covariation (between species)\n\n");
+      }
+    if (varywithin) {
+      writereportforonecovar(false, vara, means); /* the between variation */
+      writereportforonecovar(true, vare, means);  /* the within variation */
+      }
+    else {
+      writereportforonecovar(false, vara, means); /* the between variation */
+      }
+/* debug: ? */    printcovariances(false, false);
     if (nocorr || nophylo)
       logLvara = logL;
     if (nocorr) {
-      printcovariances(nocorr, nophylo);
       logLnocorr = logL;
     }
     if (nophylo) {
-      printcovariances(nocorr, nophylo);
       logLnovara = logL;
     }
+  if (nocorr || nophylo) {
     reportlrtests();
-  }
+    }
 } /* writereports */
 
 
@@ -3697,12 +3709,6 @@ void calculatecovsetc(void)
   getcovariances();
   getmeans();
   if (!varywithin) {
-    if (superposition)
-      writesuper();
-    if (writecont)
-      writecontrasts();
-    if (!omitheaders)
-      writemeans();
     if (sizes) {
       getscales();
       if (linearsize)  {
@@ -3721,90 +3727,19 @@ void calculatecovsetc(void)
     if(reg || pca || (sizes && !superposition)) {
       logL = evaluate(curtree.root);
       bestlogL = logL;
-      reportlogL (logL, contno*df);
     }
-    if (!omitheaders)
-      putc('\n', outfile);
   }
   else {
     emiterate(false, false);
-    printcovariances(false, false);
     if (nocorr || nophylo)
       logLvara = logL;
     if (nocorr) {
       emiterate(nocorr, false);
-      printcovariances(nocorr, nophylo);
       logLnocorr = logL;
     }
     if (nophylo) {
       emiterate(nocorr, nophylo);
-      printcovariances(nocorr, nophylo);
       logLnovara = logL;
-    }
-    if (nocorr || nophylo) {
-      fprintf(outfile, "\n\n\n    Likelihood Ratio Test");
-      if (nocorr)
-        fprintf(outfile,  " of no correlation");
-      if (nophylo && nocorr)
-        fprintf(outfile, " and");
-      if (nophylo)
-        fprintf(outfile,  " of no VarA component");
-      fprintf(outfile, "\n");
-      fprintf(outfile, "    ---------- ----- ----");
-      if (nocorr)
-        fprintf(outfile,  " -- -- -----------");
-      if (nophylo && nocorr)
-        fprintf(outfile, " ---");
-      if (nophylo)
-        fprintf(outfile,  " -- -- ---- ---------");
-      fprintf(outfile, "\n\n");
-      if (nophylo) {
-        if (nocorr)
-          fprintf(outfile, "    Log likelihood with varA, correlation = %13.5f,",
-                  logLvara);
-        else
-          fprintf(outfile, "    Log likelihood with varA              = %13.5f,",
-                  logLvara);
-      } else
-        fprintf(outfile, "    Log likelihood with correlation       = %13.5f,",
-                logLvara);
-      if (nocorr && nophylo)
-        fprintf(outfile, "  %ld parameters\n\n\n", charsd*(charsd+1));
-      else
-        fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1));
-      if (nocorr) {
-        fprintf(outfile,
-                "    Log likelihood without correlation    = %13.5f,",
-                logLnocorr);
-        fprintf(outfile, "  %ld parameters\n\n", n1*(n1+1)/2+(charsd-n1+1)*(charsd-n1)/2+charsd*(charsd+1)/2);
-        fprintf(outfile, "                     difference    = %13.5f\n\n",
-                logLvara-logLnocorr);
-        fprintf(outfile, "                Chi-square value = %13.5f,",
-                2.0*(logLvara-logLnocorr));
-        if (n1*(charsd-n1) == 1)
-          fprintf(outfile, "  %ld  degree of freedom\n\n",
-                  n1*(charsd-n1));
-        else
-          fprintf(outfile, "  %ld  degrees of freedom\n\n",
-                  n1*(charsd-n1));
-        if (nophylo)
-          fprintf(outfile, "\n");
-      }
-      if (nophylo) {
-        fprintf(outfile,
-                "    Log likelihood without varA           = %13.5f,", logLnovara);
-        fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1)/2);
-        fprintf(outfile, "                     difference    = %13.5f\n\n",
-                logLvara-logLnovara);
-        fprintf(outfile, "                Chi-square value = %13.5f,",
-                2.0*(logLvara-logLnovara));
-        if (charsd*(charsd+1)/2 == 1)
-          fprintf(outfile, "  %ld  degree of freedom\n\n",
-                  charsd*(charsd+1)/2);
-        else
-          fprintf(outfile, "  %ld  degrees of freedom\n\n",
-                  charsd*(charsd+1)/2);
-      }
     }
   }
 } /* calculatecovsetc */
