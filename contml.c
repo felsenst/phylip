@@ -101,14 +101,21 @@ boolean polishing = false;
 
 tree * contml_tree_new(long nonodes, long spp)
 { /* create a contml_tree */
-  tree* t = Malloc(sizeof(ml_tree));
+  /* debug: confusion: is this tree_new enough?  It allocates an amount of
+   * memory that should be enough.  It calls tree_init, which calls other
+   * of that ilk.  It does *not* call the generic_tree_new as the
+   * stuff there adds nothing to what is done here */
+  tree* t = Malloc(sizeof(ml_tree));   /* debug: redundant to generic one? */
+  t->setupfunctions = ml_tree_setupfunctions;
   contml_tree_init(t, nonodes, spp);
   return t;
 } /* contml_tree_new*/
 
 
 void contml_tree_init(tree* t, long nonodes, long spp)
-{ /* initialize a contml_tree */
+{ 
+  /* initialize a contml_tree.  Calls ml_tree_init (which itself calls
+   * generic_tree_init) and those set some functions then this sets more */
 
   ml_tree_init(t, nonodes, spp);
   allocview(t, nonodes2, totalleles);

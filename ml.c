@@ -45,6 +45,7 @@ void ml_tree_init(tree* t, long nonodes, long spp)
   t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  t->setupfunctions(tree *t);  /* was already assigned by *tree_new */
 } /* ml_tree_init */
 
 

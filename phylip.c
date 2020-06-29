@@ -3492,7 +3492,6 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
   t->root = t->nodep[0];
-  t->setupfunctions(tree *t);    /* this already assigned when tree created */
 } /* generic_tree_init */
 
 
@@ -3541,6 +3540,7 @@ tree* generic_tree_new(long nonodes, long spp)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * also initialize the setting up of its functions to the generic version */
+ /* debug:  allocate size of tree here or in the local tree_new functions? */
   tree* t = Malloc(sizeof(tree));
 
   generic_tree_init(t, nonodes, spp);
