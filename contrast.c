@@ -85,7 +85,6 @@ void   qreigen(matrix, long);
 void   reportmatrix(matrix, long);
 void   reportpca(long);
 void   reportlogL (double, long);
-void   getmeans(void);
 void   writescales(void);
 void   writevarsz(void);
 void   writeallom(void);
