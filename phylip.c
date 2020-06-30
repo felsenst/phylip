@@ -3369,11 +3369,12 @@ void destruct_tree(tree* t)
   long j, nsibs;
   node *q, *p;
 
-  while ( !Slist_isempty(t->free_forks) )
+/* debug:   commenting out as dubious:
+  while ( !Slist_isempty(t->free_fork_nodes) )
   {
-    t->get_fork(t, 0); /* debug: effect is to discard fork; probably leaks */
+    t->get_fork(t, 0);
   }
-
+debug */
   for ( j = t->spp; j < t->nonodes ; j++ ) {
     if (t->nodep[j] != NULL) {
       p = t->nodep[j];
@@ -3496,9 +3497,10 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 
 
 void generic_tree_setupfunctions(tree *t) 
-(
+{
   /* initialize functions.  Mostly for parsimony, they
    * get overwritten in dist.c, ml.c as needed */
+  long i;
   
   t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
 

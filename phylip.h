@@ -102,7 +102,7 @@
 #define SYSTEM_FIVE
 #endif
 
-#ifndef SYSTEM_FIVE         /* diagnosing whether on BDS Unix */
+#ifndef SYSTEM_FIVE         /* diagnosing whether on BSD Unix */
 #include <stdlib.h>
 # if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
 # define UNIX
@@ -110,8 +110,8 @@
 # endif
 #endif
 
-#ifdef __STDIO_LOADED        /* diagnosing whether on a DEC */
-#define VMS                  /* VAX running their VMS operating system */
+#ifdef __STDIO_LOADED        /* diagnosing whether on a DEC VAX */
+#define VMS                  /* running their VMS operating system */
 #define MACHINE_TYPE "VAX/VMS C"
 #endif
 
@@ -155,7 +155,7 @@
 #ifdef DOS             /* if running under MSDOS or something imitating it */
 #define MALLOCRETURN void
 #else
-#define MALLOCRETURN void
+#define MALLOCRETURN void   /* debug:  what ... ?  then why #ifdef ? */
 #endif
 
 #ifdef VMS
@@ -438,6 +438,7 @@ typedef enum node_type node_type;
 typedef struct node node;
 typedef struct tree tree;
 typedef node* (*new_node_t)(node_type, long);
+typedef void (*tree_setupfunctions_t)(tree*);
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
 typedef void (*node_free_t)(node**);
@@ -618,7 +619,7 @@ struct tree {
   Slist_ptr free_forks;
   Slist_ptr free_fork_nodes;
 
-  tree_setfunctions_t setfunctions;     /* sets up functions */
+  tree_setupfunctions_t setupfunctions;     /* sets up functions */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
@@ -793,7 +794,7 @@ void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);
 void            generic_tree_init(tree*, long, long);
-void		generic_tree_setfunctions(tree*);
+void		generic_tree_setupfunctions(tree*);
 void            generic_tree_free(tree*);
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
