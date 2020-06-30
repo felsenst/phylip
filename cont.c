@@ -77,15 +77,17 @@ void freetree(pointarray *treenode, long nonodes)
     free((*treenode)[i]);
   for (i = spp; i < nonodes; i++)
   {
-    p = (*treenode)[i]->next;
-    /* cannot guarantee always triplets, so travel around the ring */
-    while (p != (*treenode)[i])
-    {
-      q = p;
-      p = p->next;
-      free(q);
-    }
+    if (*treenode[i] != NULL) {
+      p = (*treenode)[i]->next;
+      /* cannot guarantee always triplets, so travel around the ring */
+      while (p != (*treenode)[i])
+      {
+        q = p;
+        p = p->next;
+        free(q);
+      }
     free((*treenode)[i]);
+    }
   }
   free(*treenode);   /* debug:  should we also free the free_fork_nodes  list?  */
 } /* freetree */
@@ -162,7 +164,7 @@ void allocview(tree *a, long nonodes, long totalleles)
 
 void freeview(tree *a, long nonodes)
 {
-  /* deallocate view */
+  /* deallocate views */
   /* used in contml and threshml */
   long i;
   node *p, *q;
@@ -173,13 +175,15 @@ void freeview(tree *a, long nonodes)
   }
   for (i = spp; i < nonodes; i++)
   {
-    p = a->nodep[i];
-    q = p;
-    do {
-      free(((cont_node_type*)q)->view);
-      q = q->next;
+    if (((cont_node_type*)a->nodep[i]) != NULL) {
+      p = a->nodep[i];
+      q = p;
+      do {
+        free(((cont_node_type*)q)->view);
+        q = q->next;
+      }
+      while (q != p);
     }
-    while (q != p);
   }
 }  /* freeview */
 

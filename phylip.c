@@ -3493,6 +3493,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
   t->root = t->nodep[0];
+  t->setupfunctions(t);
 } /* generic_tree_init */
 
 
