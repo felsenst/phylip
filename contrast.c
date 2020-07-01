@@ -73,6 +73,8 @@ double normdiff(boolean);
 void   matcopy(double **, double **, long);
 void   newcovars(boolean, boolean);
 void   printcovariances(boolean, boolean);
+void   reportregressions(matrix, long);
+void   reportlrttests(void);
 void   emiterate(boolean, boolean);
 void   initcontrastnode(tree *, node **, long, long, long *,
                         long *, initops, pointarray, Char *, Char *, FILE *);
@@ -99,7 +101,7 @@ node*  contrast_node_make(tree *, node_type, long);
 void   makenewbranches(void);
 void   updatebounds(node *);
 double evaluate(node *);
-#ifdef 0;            /* fossil stuff commented out for now */
+#if 0    /* fossil stuff commented out for now */
 double fevaluate(double, node *, boolean);
 void   locatefossilonbranch (node *, node *, node *, boolean);
 boolean placefossilonbranch(node *, node *);
@@ -137,7 +139,7 @@ double logL, bestlogL, logLvara, logLnocorr, logLnovara, multiplier,
   incparam0, startlogL, endlogL, nmepsilon, nmupsilon, worstlogL, alpha,
   gammma, rho, sigma;
 boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
-  linearsize, morphall, sizes, sizes, shapes, nophylo, printdata,
+  linearsize, morphall, sizes, sizes, sizechar, shapes, nophylo, printdata,
   progress, reg, multrees, muldata, treeswithin,
   datawithin, cross, fossil, inferscale, varywithin,
   nocorr, writecont, bifurcating, pca, firsttime,
@@ -275,7 +277,7 @@ void getoptions(void)
       else
         printf("  No\n");
     }
-#ifdef 0              /* comment this out for now as undeveloped */
+#if 0            /* comment this out for now as undeveloped */
     printf("  F                Infer position of fossil(s)? ");
     if (fossil)
       printf(" Yes\n");
@@ -3292,7 +3294,7 @@ for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
   return (logL);
 } /* evaluate */
 
-#ifdef 0;                      /* for now, comment out all the fossil stuff */
+#if 0          /* for now, comment out all the fossil stuff */
 double fevaluate (double twhere, node *q, boolean atroot)
 {
   /* calculate log(L) by calling evaluate, for a given placement
@@ -3559,7 +3561,6 @@ void reportlrttests()
   /* write out the results of the LRT tests of no phylogenetic covariances */
 /* debug: make sure in other functions to save and pass in the results of the test */
 
-  }
   if (nocorr || nophylo) {
     fprintf(outfile, "\n\n\n    Likelihood Ratio Test");
     if (nocorr)
@@ -3584,9 +3585,10 @@ void reportlrttests()
       else
         fprintf(outfile, "    Log likelihood with varA              = %13.5f,",
                 logLvara);
-    } else
+    } else {
       fprintf(outfile, "    Log likelihood with correlation       = %13.5f,",
               logLvara);
+    }
     if (nocorr && nophylo)
       fprintf(outfile, "  %ld parameters\n\n\n", charsd*(charsd+1));
     else
@@ -3608,7 +3610,6 @@ void reportlrttests()
                 n1*(charsd-n1));
       if (nophylo)
         fprintf(outfile, "\n");
-      }
     }
     if (nophylo) {
       fprintf(outfile,
@@ -3629,7 +3630,7 @@ void reportlrttests()
 } /* reportlrttests */
 
 
-void writereportforonecovar(boolean within, matrix var, double* means)
+void writereportforonecovar(boolean within, matrix var, phenotype3 meanz)
 {
   /* for one of the inferred covariance matrices, write out all the desired
    * reports on it (covariances, correlations, regressions, means, PCs etc
@@ -3664,6 +3665,17 @@ void writereportforonecovar(boolean within, matrix var, double* means)
 } /* writereportforonecovar */
 
 
+void reportregressions(matrix sumprod, long charspp) {
+/*
+ * write out what the regressions are on this matrix
+ */
+
+  regressions();
+/* to do: separate reporting from calculating */
+
+} /* reportregressions */
+
+
 void writereports(void)
 {
   /* for one combination of data set and tree, write out means, covariances
@@ -3677,11 +3689,11 @@ void writereports(void)
       fprintf(outfile, " Evolutionary covariation (between species)\n\n");
       }
     if (varywithin) {
-      writereportforonecovar(false, vara, means); /* the between variation */
-      writereportforonecovar(true, vare, means);  /* the within variation */
+      writereportforonecovar(false, vara, meanz); /* the between variation */
+      writereportforonecovar(true, vare, meanz);  /* the within variation */
       }
     else {
-      writereportforonecovar(false, vara, means); /* the between variation */
+      writereportforonecovar(false, vara, meanz); /* the between variation */
       }
 /* debug: ? */    printcovariances(false, false);
     if (nocorr || nophylo)
@@ -3693,7 +3705,7 @@ void writereports(void)
       logLnovara = logL;
     }
   if (nocorr || nophylo) {
-    reportlrtests();
+    reportlrttests();
     }
 } /* writereports */
 
@@ -3751,13 +3763,17 @@ void maketree(void)
   firsttime = false;  /* make sure next data set isn't considered first */
   bifurcating = (curtree.root->next->next == curtree.root);
   contwithin();   /* debug: does this need to be moved? */
+#if 0
   if (fossil)
   {
     placeallfossils();
   }
   else {
+#endif
     calculatecovsetc();
+#if 0
   }
+#endif
 } /* maketree */
 
 
