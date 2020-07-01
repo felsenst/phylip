@@ -46,6 +46,7 @@ void   morph(void);
 void   getdata(void);
 void   allocrest(void);
 void   doinit(void);
+tree*  contrast_tree_new(long, long);
 void   rotate(long, long, double);
 void   resize(long, long, double);
 void   copyztotemp(long, long);
@@ -149,7 +150,7 @@ boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
 Char ch;
 
 /* Local variables for maketree, propagated globally for C version: */
-tree curtree;
+tree *curtree;
 
 /* Variables declared just to make treeread happy */
 boolean haslengths, goteof, first;
@@ -907,6 +908,17 @@ void doinit(void)
   getoptions();
   allocrest();
 }  /* doinit */
+
+
+tree* contrast_tree_new(nonodes, spp)
+{
+  /* set up a new tree */
+  tree* t;
+
+  t <- generic_tree_new(nonodes, spp);
+  t->setupfunctions = generic_tree_setupfunctions;
+  return t;
+} /* contrast_tree_new */
 
 
 void rotate(long i, long j, double sintheta) {
@@ -3799,7 +3811,7 @@ int main(int argc, Char *argv[])
   reg = true;
   numtrees = 1;
   doinit();
-  curtree = *generic_tree_new(spp, nonodes);
+  curtree = contrast_tree_new(spp, nonodes);
   ncases = numtrees;    /* ncases will be how many tree-data pairs are done */
   if (ndatas > numtrees)
     ncases = ndatas;

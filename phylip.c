@@ -3547,7 +3547,6 @@ tree* generic_tree_new(long nonodes, long spp)
   tree* t = Malloc(sizeof(tree));
 
   generic_tree_init(t, nonodes, spp);
-  t->setupfunctions = generic_tree_setupfunctions; /* reset later as needed */
   return t;
 } /* generic_tree_new */
 
