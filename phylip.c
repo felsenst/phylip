@@ -3544,9 +3544,9 @@ tree* generic_tree_new(long nonodes, long spp)
   /* allocate a new tree and call generic_tree_init on it 
    * also initialize the setting up of its functions to the generic version */
  /* debug:  allocate size of tree here or in the local tree_new functions? */
-  tree* t = Malloc(sizeof(tree));
+  tree* t;
 
-  generic_tree_init(t, nonodes, spp);
+  t = Malloc(sizeof(tree));
   return t;
 } /* generic_tree_new */
 
