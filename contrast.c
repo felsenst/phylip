@@ -917,6 +917,7 @@ tree* contrast_tree_new(long nonodes, long spp)
 
   t = generic_tree_new(nonodes, spp);
   t->setupfunctions = generic_tree_setupfunctions;
+  generic_tree_init(t, nonodes, spp);
   return t;
 } /* contrast_tree_new */
 
@@ -3494,9 +3495,9 @@ void makenewbranches (void)
 
   p = NULL;                             // RSGnote: "p" initialized merely to silence compiler warning.
 
-/* #if 0                                     deug; may not need this
+/* #if 0                                    debug; may not need this  
   curtree->nodep = realloc(curtree->nodep, (nonodes + numfossils) * sizeof(node *  *));
-/* #endif  */
+   #endif      debug  */
 
   *t = curtree;                         // RSGnote: Write from uniititialized pointer.
 
@@ -3666,7 +3667,9 @@ void writereportforonecovar(boolean within, matrix var, phenotype3 meanz)
   if (reg) {
     reportregressions(sumprod, charspp);
     }
-  printcovariances(nocorr, nophylo);
+  if (varywithin) {
+    printcovariances(nocorr, nophylo);
+    }
   if (pca) {
     reportpca(charspp);
     }
@@ -3812,7 +3815,7 @@ int main(int argc, Char *argv[])
   reg = true;
   numtrees = 1;
   doinit();
-  curtree = contrast_tree_new(spp, nonodes);
+  curtree = contrast_tree_new(nonodes, spp);
   ncases = numtrees;    /* ncases will be how many tree-data pairs are done */
   if (ndatas > numtrees)
     ncases = ndatas;
