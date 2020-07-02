@@ -105,8 +105,8 @@ tree * contml_tree_new(long nonodes, long spp)
    * memory that should be enough.  It calls tree_init, which calls other
    * of that ilk.  It does *not* call the generic_tree_new as the
    * stuff there adds nothing to what is done in ml.c*/
-  tree* t = Malloc(sizeof(ml_tree));   /* debug: redundant to generic one? */
-
+  tree* t = Malloc(sizeof(ml_tree));   /* debug: redundant to generic one?
+                                        * or maybe need to supplement generic one? */
   t->setupfunctions = generic_tree_setupfunctions;
   generic_tree_init(t, nonodes, spp);
   ml_tree_init(t, nonodes, spp);
@@ -765,6 +765,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
   }
 
 /* debug: */  printf(" likelihood sum before:  %15.10f \n", sum);
+/* debug: */ like = 0.0;
   sumlikely(p, p->back, &sum);    /* this gets the likelihood, recursively */
 /* debug: */  printf(" likelihood sum now:  %15.10f \n", sum);
   if (usertree && which <= MAXSHIMOTREES)

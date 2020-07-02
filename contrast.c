@@ -66,7 +66,6 @@ void   writesuper(void);
 void   writecontrasts(void);
 void   getsizevar(void);
 void   writemethods(void);
-void   regressions(void);
 double logdet(double **);
 void   invert(double **);
 void   initcovars(boolean);
@@ -74,7 +73,8 @@ double normdiff(boolean);
 void   matcopy(double **, double **, long);
 void   newcovars(boolean, boolean);
 void   printcovariances(boolean, boolean);
-void   reportregressions(matrix, long);
+void   calculateregressions(matrix, long);
+void   reportregressions(matrix, matrix);
 void   reportlrttests(void);
 void   emiterate(boolean, boolean);
 void   initcontrastnode(tree *, node **, long, long, long *,
@@ -132,8 +132,8 @@ phenotype3 **x, **y, **z, **w, *specsize, *rotation, **cntrast, *ssqcont, meanz;
 double **vara, **vare, **oldvara, **oldvare, **Bax, **Bex, **temp1, **temp2,
   **temp3, **temp4, **temp5, **temp6, **temp7, *temp8, **parameters,
   *nmmeanparams, *reflectedparameters, *expandedparameters, *slopes,
-  *contractedparameters, *shrunkparameters, *loglike,
-  **sumprod, *mean, *umean,   *allom, **eigvecs, *eig, *fossiltime;
+  *contractedparameters, *shrunkparameters, *loglike, **sumprod, *mean, *umean,
+  **regressions, **correlations, *allom, **eigvecs, *eig, *fossiltime;
 double logL, bestlogL, logLvara, logLnocorr, logLnovara, multiplier,
   multiplier0, jacobian, pi=3.141592653, minmultmult, maxmultmult, bestwhere,
   bestmult, howworse, tolerance, tollimit, tolstart, unorm, varz, zsum,
@@ -172,7 +172,6 @@ void getoptions(void)
   sizes = false;
   mlsizes = true;
   linearsize = false;
-  sizes = false;
   dimensions = 2;
   numtrees = 1;
   ndatas = 1;
@@ -656,7 +655,7 @@ void getoptions(void)
     charsd2 = chars - (dropchars-1);  /* number of non-location dimensions */
   }
   charsp = chars;                         /* an inferred size character */
-  if (sizes && sizechar)  /* make room for */ 
+  if (sizes && sizechar)  /* make room for an inferred size character */ 
     charspp = chars + 1;
   else
     charspp = chars;
@@ -890,6 +889,15 @@ void allocrest(void)
   }
   mean = (double *)Malloc((long)charsp * sizeof(double));
   umean = (double *)Malloc((long)charsp * sizeof(double));
+  regressions = (double **)Malloc((long)charspp * sizeof(double *));
+  for (i = 0; i < charspp; i++) {
+    regressions[i] = (double *)Malloc((long)charspp * sizeof(double));
+  }
+  correlations = (double **)Malloc((long)charspp * sizeof(double *));
+  for (i = 0; i < charspp; i++) {
+    correlations[i] = (double *)Malloc((long)charspp * sizeof(double));
+  }
+  mean = (double *)Malloc((long)charsp * sizeof(double));
   allom = (double *)Malloc((long)charsp * sizeof(double));
   eigvecs =  (double **)Malloc(charspp * sizeof(double *));   /* eigenvectors */
   for (i = 0; i < charspp; i++)
@@ -2384,8 +2392,13 @@ void writemethods (void) {
     fprintf(outfile, "\nPrincipal components are being calculated ");
     if ((!linearsize) && sizes && sizechar)
       fprintf(outfile, " based on shape and size\n\n");
-    else
-      fprintf(outfile, " based on shape characters only\n\n");
+    else {
+      if (!sizechar) {
+        fprintf(outfile, " based on shape characters only\n\n");
+      } else {
+        fprintf(outfile, " based on all characters\n\n");
+      }
+    }
   }
 }; /* writemethods */
 
@@ -2414,7 +2427,25 @@ void covsandshapes (void) {
 }; /* covsandshapes */
 
 
-void regressions (void)
+void calculateregressions (matrix sumprod, long charspp)
+{
+  /* compute regressions and correlations among contrasts */
+  long i, j;
+
+  for (i = 0; i < charspp; i++) {
+    for (j = 0; j < charspp; j++) {
+      regressions[i][j] = sumprod[i][j] / sumprod[i][i];
+    }
+  }
+  for (i = 0; i < charspp; i++) {
+    for (j = 0; j < charspp; j++) {
+      correlations[i][j] = sumprod[i][j] / sqrt(sumprod[i][i] * sumprod[j][j]);
+    }
+  }
+}  /* calculateregressions */
+
+
+void reportregressions (matrix regressions, matrix correlations)
 {
   /* compute regressions and correlations among contrasts */
   long i, j;
@@ -2424,15 +2455,14 @@ void regressions (void)
     fprintf(outfile, "----------- -------- -- -----\n\n");
     for (i = 0; i < charspp; i++) {
       for (j = 0; j < charspp; j++)
-        fprintf(outfile, " %9.4f", sumprod[i][j] / sumprod[i][i]);
+        fprintf(outfile, " %9.4f", regressions[i][i]);
       putc('\n', outfile);
     }
     fprintf(outfile, "\nCorrelations\n");
     fprintf(outfile, "------------\n\n");
     for (i = 0; i < charspp; i++) {
       for (j = 0; j < charspp; j++)
-        fprintf(outfile, " %9.4f",
-                sumprod[i][j] / sqrt(sumprod[i][i] * sumprod[j][j]));
+        fprintf(outfile, " %9.4f", correlations[i][j]);
       putc('\n', outfile);
     }
   }
@@ -2471,7 +2501,7 @@ void regressions (void)
               n1*(charsd-n1));
   }
   putc('\n', outfile);
-}  /* regressions */
+}  /* reportregressions */
 
 
 double logdet(double **a)
@@ -3665,7 +3695,8 @@ void writereportforonecovar(boolean within, matrix var, phenotype3 meanz)
     }
   reportcovars(sumprod, charspp);
   if (reg) {
-    reportregressions(sumprod, charspp);
+    calculateregressions(sumprod, charspp);
+    reportregressions(regressions, correlations);
     }
   if (varywithin) {
     printcovariances(nocorr, nophylo);
@@ -3679,17 +3710,6 @@ void writereportforonecovar(boolean within, matrix var, phenotype3 meanz)
     if (!omitheaders)
       putc('\n', outfile);
 } /* writereportforonecovar */
-
-
-void reportregressions(matrix sumprod, long charspp) {
-/*
- * write out what the regressions are on this matrix
- */
-
-  regressions();
-/* to do: separate reporting from calculating */
-
-} /* reportregressions */
 
 
 void writereports(void)
@@ -3711,7 +3731,6 @@ void writereports(void)
     else {
       writereportforonecovar(false, vara, meanz); /* the between variation */
       }
-/* debug: ? */    printcovariances(false, false);
     if (nocorr || nophylo)
       logLvara = logL;
     if (nocorr) {
@@ -3746,7 +3765,7 @@ void calculatecovsetc(void)
         varz = sumprod[charspp-1][charspp-1]; 
     }
     if (reg || pca)
-      regressions();
+      calculateregressions(sumprod, charspp);
     if (pca) {
       matcopy(sumprod, temp5, charspp);
       qreigen (temp5, charspp);
@@ -3787,6 +3806,7 @@ void maketree(void)
   else {
 #endif
     calculatecovsetc();
+    writereports();
 #if 0
   }
 #endif
