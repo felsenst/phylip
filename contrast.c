@@ -3494,9 +3494,9 @@ void makenewbranches (void)
 
   p = NULL;                             // RSGnote: "p" initialized merely to silence compiler warning.
 
-#if 0                                   //  debug; may not need this
+/* #if 0                                     deug; may not need this
   curtree->nodep = realloc(curtree->nodep, (nonodes + numfossils) * sizeof(node *  *));
-#endif
+/* #endif  */
 
   *t = curtree;                         // RSGnote: Write from uniititialized pointer.
 
@@ -3505,7 +3505,7 @@ void makenewbranches (void)
     q = curtree->nodep[fossilsp[i]-1];   /* a pointer to that fossil */
     q->tip = true;
 
-#if 0   // debug    probably don't want this:
+/* #if 0    debug    probably don't want this: */
     initcontrastnode(&p, &grbg, NULL, 0.0, emptynode, &spp, 0, bottom, NULL, curtree->nodep, NULL, NULL, NULL);
     for (j = 1; j <= 2; j++)            // complete the triangle of nodes
     {
@@ -3513,7 +3513,7 @@ void makenewbranches (void)
       p = p->next;
     }
     p->next = p;                        // connect last part of triangle
-#endif
+/* debug  #endif  */
 
     t->get_forknode(t, emptynode);      /* get a fork */
     curtree->nodep[emptynode] = p;       // RSGnote: "p" referenced before being initialized.
