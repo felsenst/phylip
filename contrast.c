@@ -910,12 +910,12 @@ void doinit(void)
 }  /* doinit */
 
 
-tree* contrast_tree_new(nonodes, spp)
+tree* contrast_tree_new(long nonodes, long spp)
 {
   /* set up a new tree */
   tree* t;
 
-  t <- generic_tree_new(nonodes, spp);
+  t = generic_tree_new(nonodes, spp);
   t->setupfunctions = generic_tree_setupfunctions;
   return t;
 } /* contrast_tree_new */
@@ -1222,7 +1222,7 @@ double linesearch (double* theta, double tol, long n, long m, boolean* changed) 
     rotate(n, m, tol);
     *theta += tol;
     copyztox(n, m);              /* synch  x  with  z  */
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     better = (logL > bestlogL);
     if (better) {
       bestlogL = logL;
@@ -1233,7 +1233,7 @@ double linesearch (double* theta, double tol, long n, long m, boolean* changed) 
   *theta -= tol;
   copytemptoz(n, m);  /* restore best-yet value */
   copyztox (n, m);    /* and put it in x too  */
-  bestlogL = evaluate(curtree.root);
+  bestlogL = evaluate(curtree->root);
   logL = bestlogL;
   return(*theta);
 } /* linesearch */
@@ -1251,7 +1251,7 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
   do {
     logsznew = logszcurrent + tol;
     resize(n, m, tol);
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     better = (logL > bestlogL);
     if (better) {
       bestlogL = logL;
@@ -1262,7 +1262,7 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
   } while (better);
   copytemptoz(n, m);  /* set aside best-yet value */
   copyztox (n, m);    /* and put it in x too  */
-  bestlogL = evaluate(curtree.root);
+  bestlogL = evaluate(curtree->root);
   return(logszcurrent);
 } /* linesearchsz */
 
@@ -1437,21 +1437,21 @@ void boasfit(void)
 //   // below.  This is definately a bug.  Initialized here only to silence compiler warning.
 //   double maxtheta = 0.0;
 // 
-//   storedroot = curtree.root; /* store the root of the tree to restore later */
+//   storedroot = curtree->root; /* store the root of the tree to restore later */
 //   (void)storedroot;          // RSGnote: Variable set but never used.
 // 
-//   wasrootedatinteriornode = (curtree.root->back == NULL);  /* debug: works? */
+//   wasrootedatinteriornode = (curtree->root->back == NULL);  /* debug: works? */
 //   if (!wasrootedatinteriornode)
 //   {
-//     leftbranchlength = curtree.root->next->v;
-//     rightbranchlength = curtree.root->next->next->v;
+//     leftbranchlength = curtree->root->next->v;
+//     rightbranchlength = curtree->root->next->next->v;
 //     (void)leftbranchlength;             // RSGnote: Variable set but never used.
 //     (void)rightbranchlength;            // RSGnote: Variable set but never used.
 //   }
 //   do {   /* repeated rounds of improvement until angles all small enough */
 //     maxangle = 0.0;
 //     for (i = 0; i < spp; i++) { /* for each species reroot where connects */
-//       wherefrom = curtree.root;
+//       wherefrom = curtree->root;
 //       nearestinternalnode = wherefrom;
 //       if (wherefrom->tip)
 //         nearestinternalnode = wherefrom->back;
@@ -1461,7 +1461,7 @@ void boasfit(void)
 //       /* double check the next statement: is it calling contrasting on the
 //          correct nearby node?  Must have inserted root, done this call
 //          in a correctly coordinated way    -- debug */
-//       makecontrasts(curtree.root->next->back);
+//       makecontrasts(curtree->root->next->back);
 //       getcovariances();
 //       /* now compute inverse of contrasts, plus get JC^(-1)I etc. */
 //       /*   question -- what to do if C is not of full rank? */
@@ -1555,7 +1555,7 @@ void getloglikefromparameters (double* newparameters) {
   for (i = 0; i < spp; i++) {  /* update all specimens */
     nmalterspecimen(i, 0, newparameters);
     }
-  logL = evaluate(curtree.root);
+  logL = evaluate(curtree->root);
   copyallwtoz();
 } /* getloglikefromparameters */
 
@@ -1730,7 +1730,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
              copyztotemp(i, j);
              changeofparam = 0.0;
              copyztox(i, j);
-             bestlogL = evaluate(curtree.root);
+             bestlogL = evaluate(curtree->root);
              logLnow = bestlogL;
              bestrot = rotation[i][j];
              bestsize = specsize[i][j];
@@ -1746,7 +1746,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
                  }
                  changeofparam += incparam;
                  copyztox(i, j);
-                 logLnow = evaluate(curtree.root);
+                 logLnow = evaluate(curtree->root);
                  if (logLnow > bestlogL) { /* if the log-likelihood is better */
                    bestlogL = logLnow;
                    copyztotemp(i, j);
@@ -1794,7 +1794,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
  do {
    copyallwtoz();  /* start from same forms */
    copyallztox();
-   oldlogL = evaluate(curtree.root);
+   oldlogL = evaluate(curtree->root);
    olderlogL = oldlogL;
    for (i = 0; i < nparams; i++) {      /* compute approximate slope vector */
      which = 0;
@@ -1811,7 +1811,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyztox(which, 0);
-     logLnow = evaluate(curtree.root);
+     logLnow = evaluate(curtree->root);
      if (i > 0) {
        if (i < spp) {   /* change angle of all but first specimen */
          sintheta = sin(-slopeinc);
@@ -1821,13 +1821,13 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyztox(which, 0);
-     logLnow2 = evaluate(curtree.root);
+     logLnow2 = evaluate(curtree->root);
      slopes[i] = logLnow - logLnow2;
      copywtoz(which, 0);  /* restore original form */
    }
    incparam = 0.0001;     /* may need to tune this */
    copyallztox();
-   bestlogL = evaluate(curtree.root);
+   bestlogL = evaluate(curtree->root);
    logLnow = bestlogL;
    do {           /* line search of parameter (angle or size) */
      copyallwtoz();
@@ -1844,7 +1844,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyallztox();
-     logLnow = evaluate(curtree.root);
+     logLnow = evaluate(curtree->root);
 /* printf("incparam = %15.12f, bestlogL = %20.12f, logL = %20.12f\n", incparam, bestlogL, logLnow);A   debug */
      if (logLnow > bestlogL) { /* if the log-likelihood is better */
        bestlogL = logLnow;
@@ -1908,7 +1908,7 @@ void morph(void)
     } while (endlogL - startlogL > 0.00001);
   }
   else {
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     bestlogL = logL;
   }
   if (bookmorph)
@@ -1938,11 +1938,11 @@ void contwithin(void)
             = (sumphen[j] - k*x[i][k][j])/sqrt((double)(k*(k+1)));
         sumphen[j] += x[i][k][j];
         if (k == (sample[i]-1))
-          ((cont_node_type*)curtree.nodep[i])->view[j] = sumphen[j]/sample[i];
+          ((cont_node_type*)curtree->nodep[i])->view[j] = sumphen[j]/sample[i];
         x[i][0][j] = sumphen[j]/sample[i];
       }
       if (k == 0)
-        curtree.nodep[i]->ssq = 1.0/sample[i]; /* sum of squares for sp. i */
+        curtree->nodep[i]->ssq = 1.0/sample[i]; /* sum of squares for sp. i */
       else
         ssqcont[i][k] = 1.0;   /* if a within contrast */
     }
@@ -1959,7 +1959,7 @@ void contbetween(node *p)
   double v0, v1, vtot, f0, f1;
   boolean atbase;
 
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   pp = p->next;
   q = pp->back;    /* starting with first two descendants ... */
   v0 = multiplier * (q->v + q->deltav);
@@ -2014,9 +2014,9 @@ void contbetween(node *p)
     v0 = multiplier * p->deltav;
     pp = pp->next;
   } while (((!atbase) && ((pp->next) != p))
-           || (atbase && (((curtree.root->back == NULL)
-                           && (pp->next != curtree.root))
-                          || ((curtree.root->back != NULL)
+           || (atbase && (((curtree->root->back == NULL)
+                           && (pp->next != curtree->root))
+                          || ((curtree->root->back != NULL)
                               && (pp != p)))));
   df = charsd;           /* reduce df if too few characters */
   if (charsd > contno)
@@ -2034,7 +2034,7 @@ void makecontrasts(node *p)
       zsum += ((cont_node_type*)p)->view[charspp-1];
     return;
   }
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   pp = p->next;
   do {   /* go around the ring making contrasts on descendants */
     makecontrasts(pp->back);
@@ -2078,7 +2078,7 @@ void getmeans (void) {
   long i;
 
   for (i = 0; i < charspp; i++)
-    mean[i] = ((cont_node_type*)curtree.root)->view[i];
+    mean[i] = ((cont_node_type*)curtree->root)->view[i];
   unorm = 0.0;
   for (i = 0; i < charsp; i++)  /* compute the norm of the mean vector */
     unorm += mean[i]*mean[i];
@@ -3054,6 +3054,7 @@ void contrast_node_copy(node *src, node *dst)
 void contrast_node_init(node* n, node_type type, long index)
 { /* initialize a contrast_node */
   contrast_node *cn = (contrast_node*)n;
+
   generic_node_init(&(cn->cont_node_var.node_var), type, index);
   ((cont_node_type*)(cn))->view = (phenotype3)Malloc((long)charspp * sizeof(double));
   cn->cont_node_var.node_var.copy = contrast_node_copy;
@@ -3140,12 +3141,12 @@ void readthetree (void)
   /* read in the tree */
   long nextnode;
 
-  alloctree(&curtree.nodep, nonodes);
-  setuptree(&curtree, nonodes);
+  alloctree(&curtree->nodep, nonodes);
+  setuptree(curtree, nonodes);
   nextnode = 0;
   goteof = false;
   first = true;
-  treeread (&curtree, intree, &curtree.root, curtree.nodep, &goteof, &first,
+  treeread (curtree, intree, &curtree->root, curtree->nodep, &goteof, &first,
             &nextnode, &haslengths,
             initcontrastnode, false, nonodes);
 } /* readthetree */
@@ -3184,7 +3185,7 @@ void bltimetraverse (node *p, double *timedowntohere)
   boolean atbase;
 
   if (!(p->tip)) {
-    atbase = (p == curtree.root);
+    atbase = (p == curtree->root);
     pp = p->next;
     do {
       bltimetraverse (pp->back, timedowntohere);
@@ -3192,7 +3193,7 @@ void bltimetraverse (node *p, double *timedowntohere)
         p->tyme = (*timedowntohere) + multiplier * pp->v;
       *timedowntohere = p->tyme;
       pp = pp->next;
-    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
   } else {
     if (isfossil[p->index])
       p->tyme = fossiltime[p->index - 1];
@@ -3211,7 +3212,7 @@ void updatebounds(node *p)
   node *pp;
   double lowestfossil, lowestfossilabovehere;
 
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   if (p->tip)
   {
     p->onlyfossilsabove = isfossil[p->index];
@@ -3236,7 +3237,7 @@ void updatebounds(node *p)
       if (pp->back->lowestfossilabove > lowestfossilabovehere)
         lowestfossilabovehere = pp->back->lowestfossilabove;
       pp = pp->next;
-    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
     p->onlyfossilsabove = allfossilsabove;
     p->fossilsabove = somefossilsabove;
     if (somefossilsabove  && !allfossilsabove)   /* then need to get scaling */
@@ -3249,7 +3250,7 @@ void updatebounds(node *p)
             lowestfossil = pp->back->tyme;
         }
         pp = pp->next;
-      } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+      } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
       if (!atbase)
       {
         if (lowestfossil > minmultmult * multiplier * p->tyme)
@@ -3270,10 +3271,10 @@ double evaluate (node *q) {
     if (sizes && (!linearsize))
       zsum = 0.0;
   contwithin();
-  makecontrasts(curtree.root);
+  makecontrasts(curtree->root);
   getcovariances();
   if (fossil)
-    makefossilcovars(curtree.root);
+    makefossilcovars(curtree->root);
   matcopy(sumprod, temp5, charspp);
 /* debug  if ((chars == df) && !(justprocrust || bookmorph || mlrots))     if full rank */
 /* debug     ldet = logdet(temp5);   */           /* can just take Log Det */
@@ -3320,14 +3321,14 @@ double fevaluate (double twhere, node *q, boolean atroot)
   assert(numfossils > 0);               // RSGnote: Otherwise "r" fails to be initialized.
   for (k = 0; k < numfossils; k++)      /* branch length near fossils */
   {
-    r = curtree.nodep[fossilsp[k]-1];
+    r = curtree->nodep[fossilsp[k]-1];
     rr = r->back->next->next;
     r->v = (rr->tyme - r->tyme)/multiplier;
     if (!atroot)
       rr->back->v = r->v;
   }
 
-  logL = evaluate (curtree.root);
+  logL = evaluate (curtree->root);
   if (firstplace || (logL > bestlogL))
   {
     bestlogL = logL;
@@ -3364,12 +3365,12 @@ void locatefossilonbranch (node *p, node *q, node *qq, boolean atroot)
     p->back->next->back->v = p->back->next->v;
     if (p->back->next->next->back != NULL) {
       p->back->next->next->v =
-        (curtree.nodep[p->back->next->next->back->index - 1]->tyme
+        (curtree->nodep[p->back->next->next->back->index - 1]->tyme
          - twhere)/multiplier;
       p->back->next->next->back->v = p->back->next->next->v;
     }
     p->back->next->next->tyme = p->tyme + p->v;
-    logL = fevaluate(twhere, curtree.root, atroot);
+    logL = fevaluate(twhere, curtree->root, atroot);
   }
 } /* locatefossilonbranch */
 
@@ -3383,10 +3384,10 @@ boolean placefossilonbranch (node *p, node *q)
   double tup, tnew, timedowntohere;
   boolean canplacehere = false;         // RSGnote: Formerly not initialized; done so to silence compiler warning.
 
-  bltimetraverse (curtree.root, &timedowntohere); /* calculate  tyme  values */
-  if (!(q == curtree.root))
+  bltimetraverse (curtree->root, &timedowntohere); /* calculate  tyme  values */
+  if (!(q == curtree->root))
   {
-    qq = curtree.nodep[q->back->index - 1];   /* qq  is node ancestral to q */
+    qq = curtree->nodep[q->back->index - 1];   /* qq  is node ancestral to q */
     if (q->tyme > qq->tyme)                   /* switch them if out of time order */
     {
       qtemp = q;
@@ -3399,8 +3400,8 @@ boolean placefossilonbranch (node *p, node *q)
       if (reportplacefossils)
         fprintf(outfile,
                 "\n from node %ld (length ago: %6.3f) to node %ld (length ago: %6.3f)\n",
-                q->index, curtree.nodep[q->index-1]->tyme/multiplier,
-                q->back->index, curtree.nodep[q->back->index-1]->tyme/multiplier);
+                q->index, curtree->nodep[q->index-1]->tyme/multiplier,
+                q->back->index, curtree->nodep[q->back->index-1]->tyme/multiplier);
       generic_tree_insert_(&curtree, p, q, false);
       tup = q->tyme;
       if (tup < p->tyme)
@@ -3416,7 +3417,7 @@ boolean placefossilonbranch (node *p, node *q)
         locatefossilonbranch (p, q, qq, false);   /* debug */
       }
       generic_tree_re_move(&curtree, p, &q, false);
-      q1 = curtree.nodep[q->back->index-1];
+      q1 = curtree->nodep[q->back->index-1];
       q->v = (q1->tyme - q->tyme)/multiplier;
       q->back->v = q->v;
       canplacehere = true;  /* debug   temporary */
@@ -3431,14 +3432,14 @@ boolean placefossilonbranch (node *p, node *q)
       p->back->tyme = q->tyme + 0.1;
     p->back->next->tyme = p->back->tyme;  /* set tymes of new root node */
     p->back->next->next->tyme = p->back->tyme;
-    curtree.root = p->back->next->next;
+    curtree->root = p->back->next->next;
     tup = q->tyme;
     if (tup < p->tyme)
       tup = p->tyme;
     if (reportplacefossils) {
       fprintf(outfile, " (at root) minmultmult = %10.6f\n",minmultmult);  /* debug */
       fprintf(outfile, " place species %ld between node %ld (length ago: %6.3f) and -infinity\n",
-              p->index, q->index, curtree.nodep[q->index-1]->tyme);
+              p->index, q->index, curtree->nodep[q->index-1]->tyme);
       fprintf(outfile, "     length  multiplier     time\n");
       fprintf(outfile, "      (ago)  (to time)      (ago)     Log(L)\n");
       fprintf(outfile, "     ------  -----------    -----     ------\n");
@@ -3459,9 +3460,9 @@ void placetraverse (long n, node *p)
   boolean atbase, worked;
   double timedowntohere;
 
-  bltimetraverse (curtree.root, &timedowntohere); /* calculate  tymes */
-  atbase = (p == curtree.root);
-  worked = placefossilonbranch(curtree.nodep[fossilsp[n-1]-1], p);
+  bltimetraverse (curtree->root, &timedowntohere); /* calculate  tymes */
+  atbase = (p == curtree->root);
+  worked = placefossilonbranch(curtree->nodep[fossilsp[n-1]-1], p);
   if (!(p->tip)) {
     pp = p->next;
     do {
@@ -3471,8 +3472,8 @@ void placetraverse (long n, node *p)
         placetraverse (n, r);
       pp = pp->next;
     } while (((!atbase) && (pp != p))
-             || (atbase && (((curtree.root->back == NULL) && (pp != curtree.root))
-                            || ((curtree.root->back != NULL) && (pp != curtree.root->next))
+             || (atbase && (((curtree->root->back == NULL) && (pp != curtree->root))
+                            || ((curtree->root->back != NULL) && (pp != curtree->root->next))
                    )));
   }
 } /* placetraverse */
@@ -3494,28 +3495,28 @@ void makenewbranches (void)
   p = NULL;                             // RSGnote: "p" initialized merely to silence compiler warning.
 
 #if 0                                   //  debug; may not need this
-  curtree.nodep = realloc(curtree.nodep, (nonodes + numfossils) * sizeof(node *  *));
+  curtree->nodep = realloc(curtree->nodep, (nonodes + numfossils) * sizeof(node *  *));
 #endif
 
   *t = curtree;                         // RSGnote: Write from uniititialized pointer.
 
   emptynode = nonodes - numfossils;
   for (i = 0; i < numfossils; i++) {
-    q = curtree.nodep[fossilsp[i]-1];   /* a pointer to that fossil */
+    q = curtree->nodep[fossilsp[i]-1];   /* a pointer to that fossil */
     q->tip = true;
 
 #if 0   // debug    probably don't want this:
-    initcontrastnode(&p, &grbg, NULL, 0.0, emptynode, &spp, 0, bottom, NULL, curtree.nodep, NULL, NULL, NULL);
+    initcontrastnode(&p, &grbg, NULL, 0.0, emptynode, &spp, 0, bottom, NULL, curtree->nodep, NULL, NULL, NULL);
     for (j = 1; j <= 2; j++)            // complete the triangle of nodes
     {
-      initcontrastnode(&p->next, &grbg, NULL, 0.0, emptynode, &spp, 0, nonbottom, NULL, curtree.nodep, NULL, NULL, NULL);
+      initcontrastnode(&p->next, &grbg, NULL, 0.0, emptynode, &spp, 0, nonbottom, NULL, curtree->nodep, NULL, NULL, NULL);
       p = p->next;
     }
     p->next = p;                        // connect last part of triangle
 #endif
 
     t->get_forknode(t, emptynode);      /* get a fork */
-    curtree.nodep[emptynode] = p;       // RSGnote: "p" referenced before being initialized.
+    curtree->nodep[emptynode] = p;       // RSGnote: "p" referenced before being initialized.
     p->index = emptynode+1;             /* set up number of new interior node */
     p->next->index = p->index;          // RSGnote: Using a non-initialized pointer for a memory write.
     p->next->next->index = p->index;
@@ -3530,8 +3531,8 @@ void placeonefossil(long n)
   long j;
   /* traverse over tree placing fossil in various branches,
      Then leave it where it fits best.  */
-  updatebounds(curtree.root);
-  curtree.nodep[fossilsp[n-1]-1]->tyme = fossiltime[n-1];
+  updatebounds(curtree->root);
+  curtree->nodep[fossilsp[n-1]-1]->tyme = fossiltime[n-1];
   if (reportplacefossils)
     printf("placing fossil number %ld, species %ld, on tree\n",
            n, fossilsp[n-1]);
@@ -3546,7 +3547,7 @@ void placeonefossil(long n)
   }
   for (j = 1; j < 2*nmult; j = j+2) {  /* try different multipliers */
     multiplier = (minmultmult*(2*nmult-j)+maxmultmult*j)*multiplier0/(2*nmult);
-    placetraverse (n, curtree.root);  /* start at root, traverse */
+    placetraverse (n, curtree->root);  /* start at root, traverse */
     fprintf(outfile, "\n\nBest location:  branch %ld, at branch length %lf down the branch,\n scaling multiplier  %lf, best time %lf,  log(L) = %lf\n", bestplace,
             bestwhere, bestmult, bestwhere*bestmult, bestlogL);
   }
@@ -3728,7 +3729,7 @@ void calculatecovsetc(void)
    * means and call the functions that report on them and other stuff */
 
   multiplier = 1.0;
-  makecontrasts(curtree.root);
+  makecontrasts(curtree->root);
   getcovariances();
   getmeans();
   if (!varywithin) {
@@ -3748,7 +3749,7 @@ void calculatecovsetc(void)
       qreigen (temp5, charspp);
     }
     if(reg || pca || (sizes && !superposition)) {
-      logL = evaluate(curtree.root);
+      logL = evaluate(curtree->root);
       bestlogL = logL;
     }
   }
@@ -3773,7 +3774,7 @@ void maketree(void)
 
   morph();         /* put y into x after doing morphometric transforms */
   firsttime = false;  /* make sure next data set isn't considered first */
-  bifurcating = (curtree.root->next->next == curtree.root);
+  bifurcating = (curtree->root->next->next == curtree->root);
   contwithin();   /* debug: does this need to be moved? */
 #if 0
   if (fossil)
