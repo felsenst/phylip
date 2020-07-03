@@ -2389,11 +2389,11 @@ void writemethods (void) {
     }
   }
   if (pca) {
-    fprintf(outfile, "\nPrincipal components are being calculated ");
+    fprintf(outfile, "\nPrincipal components are being calculated");
     if ((!linearsize) && sizes && sizechar)
       fprintf(outfile, " based on shape and size\n\n");
     else {
-      if (!sizechar) {
+      if (sizes) {
         fprintf(outfile, " based on shape characters only\n\n");
       } else {
         fprintf(outfile, " based on all characters\n\n");
@@ -2452,15 +2452,35 @@ void reportregressions (matrix regressions, matrix correlations)
 
   if (reg) {
     fprintf(outfile, "\nRegressions (columns on rows)\n");
-    fprintf(outfile, "----------- -------- -- -----\n\n");
+    fprintf(outfile, "----------- -------- -- -----\n");
+    for (i = 0; i < charspp; i++) {          /* print out column numbers */
+      if (i == 0)
+        fprintf(outfile, "\n        ");
+      fprintf(outfile, "   %3ld    ", i+1);
+      if ((i > 0) && (i%10 == 10) && (charspp > i))
+        fprintf(outfile, "\n        ");
+      if ((i+1) == charspp)
+        fprintf(outfile, "\n");
+    }
     for (i = 0; i < charspp; i++) {
+      fprintf(outfile, " %2ld   ", i+1);
       for (j = 0; j < charspp; j++)
-        fprintf(outfile, " %9.4f", regressions[i][i]);
+        fprintf(outfile, " %9.4f", regressions[i][j]);
       putc('\n', outfile);
     }
     fprintf(outfile, "\nCorrelations\n");
-    fprintf(outfile, "------------\n\n");
+    fprintf(outfile, "------------\n");
+    for (i = 0; i < charspp; i++) {          /* print out column numbers */
+      if (i == 0)
+        fprintf(outfile, "\n        ");
+      fprintf(outfile, "   %3ld   ", i+1);
+      if ((i > 0) && (i%10 == 0) && (charspp > i))
+        fprintf(outfile, "\n        ");
+      if ((i+1) == charspp)
+        fprintf(outfile, "\n");
+    }
     for (i = 0; i < charspp; i++) {
+      fprintf(outfile, " %2ld   ", i+1);
       for (j = 0; j < charspp; j++)
         fprintf(outfile, " %9.4f", correlations[i][j]);
       putc('\n', outfile);
