@@ -2473,7 +2473,7 @@ void reportregressions (matrix regressions, matrix correlations)
     for (i = 0; i < charspp; i++) {          /* print out column numbers */
       if (i == 0)
         fprintf(outfile, "\n        ");
-      fprintf(outfile, "   %3ld   ", i+1);
+      fprintf(outfile, "   %3ld    ", i+1);
       if ((i > 0) && (i%10 == 0) && (charspp > i))
         fprintf(outfile, "\n        ");
       if ((i+1) == charspp)
@@ -3050,17 +3050,17 @@ void reportpca(long m)
   fprintf(outfile,
           "   --------- ---------- ------ -- ------ ------------ -- ---------- ---------\n\n");
   reportmatrix (eigvecs, m);
-  fprintf(outfile, "   For            Variance of        Fraction of");
+  fprintf(outfile, "  For principal     Variance of      Fraction of");
   if (linearsize) 
     fprintf(outfile, "      Correlation\n");
   else
     fprintf(outfile, "\n");
-  fprintf(outfile, "   variable       its change         variance");
+  fprintf(outfile, "   component        its change       variance");
   if (linearsize) 
     fprintf(outfile, "         with size\n");
   else
     fprintf(outfile, "\n");
-  fprintf(outfile, "   --------       -----------        -----------");
+  fprintf(outfile, "   --------         -----------      -----------");
   if (linearsize) 
     fprintf(outfile, "      -----------\n");
   else
