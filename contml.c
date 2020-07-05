@@ -684,7 +684,7 @@ void sumlikely(node *p, node *q, double *sum)
   long i, j, m;
   double term, temp, sumsq, vee;
 
-  if (!p->tip)
+  if (!p->tip)       /* debug: bifurcating only */
     sumlikely(p->next->back, p->next->next->back, sum);
   if (!q->tip)
     sumlikely(q->next->back, q->next->next->back, sum);
@@ -692,7 +692,9 @@ void sumlikely(node *p, node *q, double *sum)
   if (p->back == q)
     vee = p->v;
   else
+/* debug */  printf("p->v, q->v: %12.8f, %12.8f\n", p->v, q->v);
     vee = p->v + q->v;
+/* debug */  printf("p->deltav, q->deltav: %12.8f, %12.8f\n", p->deltav, q->deltav);
   vee += p->deltav + q->deltav;
 /* debug: this seems to give trouble so commenting it out ...
   if (vee <= 1.0e-10)
