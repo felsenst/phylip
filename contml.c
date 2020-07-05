@@ -688,7 +688,7 @@ void sumlikely(node *p, node *q, double *sum)
     sumlikely(p->next->back, p->next->next->back, sum);
   if (!q->tip)
     sumlikely(q->next->back, q->next->next->back, sum);
-/* debug */  printf("contrast between %ld and %ld\n", p->index, q->index);
+/* debug */  printf("doing contrast between %ld and %ld\n", p->index, q->index);
   if (p->back == q)
     vee = p->v;
   else
@@ -728,8 +728,12 @@ debug:  */
     {
       for (j = 1; j < alleles[i]; j++)
       {
+/* debug */  printf("p->view[0]: %15.9f, q->view[0]: %15.9f\n", ((cont_node_type*)p)->view[m+j-1], ((cont_node_type*)q)->view[m+j-1]);
         temp = ((cont_node_type*)p)->view[m+j-1] - ((cont_node_type*)q)->view[m+j-1];
+/* debug */ printf("contrast is:  %14.8f\n", temp);
         term = temp * temp;
+/* debug */ printf("squared contrast is:  %14.8f\n", term);
+/* debug */ printf("v1'+v2' is:  %14.8f\n", vee);
         if (usertree && which <= MAXSHIMOTREES)
           l0gf[which - 1][i] -= term / (2.0 * vee);
         sumsq += term;
