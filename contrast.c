@@ -2542,8 +2542,8 @@ void reportregressions (matrix regressions, matrix correlations)
 double logdet(double **a)
 {
   /* Gauss-Jordan log determinant calculation.
-     in place, overwriting previous contents of a.  On exit,
-     matrix a contains the inverse. Works only for positive definite A */
+   * in place, overwriting previous contents of a.  On exit,
+   * matrix a contains the inverse. Works only for positive definite A */
   long i, j, k;
   double temp, sum;
 
@@ -2598,6 +2598,38 @@ void invert(double **a)
     }
   }
 }  /*invert*/
+
+
+void ginverse (double** a)
+{
+  /* Moore-Penrose inverse, using spectral decomposition.  On exit  a
+   * contains the generalized inverse.  This is obtained by taking the
+   * eigenvalues and inverting them, except for ones near zero which
+   * are instead zeroed, then reconstituting the matrix.  The function
+   * qreigen is used, which leaves column eigenvectors in array  eigvecs
+   * and eigenvalues in array  eig.
+   */
+  boolean *nearlyzero;
+  long i, j, k;
+  double sum;
+  
+  nearlyzero = (boolean*)Malloc(charspp*sizeof(boolean));
+  for (i = 1; i < charspp; i++)      /* indicate which eigenvalues */
+    if (fabs(eig[i]) < 1.0e-14)      /* are near enough to zero */
+      nearlyzero[i] = true;
+    else
+      nearlyzero[i] = false;
+  qreigen(a);                         /* obtains the spectral decomposition */
+  for (i = 1; i <= charspp; i++) {                  /* reconstitute so get */
+    for (j = 1; j < charspp; j++) {              /* M-P generalized inverse */
+      a[i][j] = 0.0;
+      for (k = 1; k < charspp; k++) {
+        if (!nearlyzero[k])
+          a[i][j] += eigvecs[k][j] * eigvecs[k][i] / eig[k];
+      }
+    }
+  }
+} /* ginverse */
 
 
 void initcovars(boolean novara)
@@ -2705,16 +2737,20 @@ void newcovars(boolean nocorr, boolean novara)
       vare[i][j] = 0.0;
     }
   for (i = 0; i < spp-1; i++) {            /* accumulate over contrasts ... */
-    if (i <= spp-2) {       /* E(aa'|x) and E(ee'|x) for "between" contrasts */
+    if (i <= spp-2) {      /* E(aa'|x) and E(ee'|x) for "between" contrasts */
       sqssq = sqrt(ssqcont[i][0]);      /* sqrt(d) */
-      for (k = 0; k < charspp; k++)       /* compute (dA+E) for this contrast */
+      for (k = 0; k < charspp; k++)     /* compute (dA+E) for this contrast */
         for (l = 0; l < charspp; l++)
           if (!novara)
             temp1[k][l] = ssqcont[i][0] * oldvara[k][l] + oldvare[k][l];
           else
             temp1[k][l] = oldvare[k][l];
       matcopy(temp1, temp2, charspp);
-      invert(temp2);                               /* compute (dA+E)^(-1)  */
+      if (2*spp > charspp+3) {
+        invert(temp2);                               /* compute (dA+E)^(-1) */
+      } else {
+        ginverse(temp2);                      /* or its generalized inverse */
+      }
       matcopy(temp2, temp4, charspp);
       /* sum of - x (dA+E)^(-1) x'/2 for old A, E */
       for (k = 0; k < charspp; k++)
@@ -2774,7 +2810,11 @@ void newcovars(boolean nocorr, boolean novara)
     }
   }
   matcopy(oldvare, temp2, charspp);
-  invert(temp2);                                              /* get E^(-1) */
+  if (2*spp > charspp+3) {
+    invert(temp2);                               /* compute (dA+E)^(-1) */
+  } else {
+    ginverse(temp2);                      /* or its generalized inverse */
+  }
   matcopy(oldvare, temp3, charspp);
   sum3 = 0.5 * logdet(temp3);                         /* get 1/2 log det(E) */
   for (i = 0; i < spp; i++) {
@@ -3004,7 +3044,7 @@ void shiftqr(double **a, long n, double accuracy)
 void qreigen(double **prob, long n)
 {
   /* QR eigenvector/eigenvalue method for symmetric matrix. Leaves
-     right eigenvectors as columns in eigvecs, and their eigenvalues in prob */
+   * right eigenvectors as columns in eigvecs, and their eigenvalues in prob */
   double accuracy;
   long i, j;
 
