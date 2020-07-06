@@ -400,8 +400,10 @@ void initializetrav (tree* t, node *p)
     p->back->initialized = false;
   if (p->tip)                            /* bail if at a tip */
     return;
-  for (q = p->next; q != p; q = q->next) /* go to rest of fork circle */
-    initializetrav (t, q->back);         /* ... and on outwards from there */
+  for (q = p->next; q != p; q = q->next) { /* go to rest of fork circle */
+    q->initialized = false;                /* setting nodes uninitialized */
+    initializetrav (t, q->back);        /* ... and on outwards from there */
+  }
 
 } /* initializetrav */
 

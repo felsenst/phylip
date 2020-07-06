@@ -1453,7 +1453,7 @@ void maketree(void)
       fprintf(outfile, "\n\n");
     }
   }
-  else                                  /* if we are constructing a tree */
+  else                                    /* if we are searching for a tree */
   {
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -1466,9 +1466,9 @@ void maketree(void)
     // debug: RGS: destruct_tree() is ALWAYS called in all the other programs; doing same thing
     // here fixes SegFault bug due to something not getting initialized properly when using jumbling.
     destruct_tree(curtree);
+    inittip(curtree, enterorder[0]);
     inittip(curtree, enterorder[1]);
     inittip(curtree, enterorder[2]);
-    inittip(curtree, enterorder[3]);
     curtree->do_newbl = true;
     buildsimpletree(curtree, enterorder);
     ml_initialvtrav (curtree, curtree->root);
