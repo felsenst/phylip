@@ -265,7 +265,7 @@ typedef unsigned int boolean;
 
 /* Maximum likelihood parameters */
 
-#define smoothings      4       /* number of passes through smoothing algorithm */
+#define smoothings      8       /* number of passes through smoothing algorithm */
 #define iterations      8       /* number of iterates for each branch           */
 #define epsilon         0.0001  /* small number used in makenewv */
 #define EPSILON         0.00001 /* small number used in hermite root-finding */
