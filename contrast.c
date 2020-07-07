@@ -2607,24 +2607,26 @@ void ginverse (double** a)
    * eigenvalues and inverting them, except for ones near zero which
    * are instead zeroed, then reconstituting the matrix.  The function
    * qreigen is used, which leaves column eigenvectors in array  eigvecs
-   * and eigenvalues in array  eig.
+   * and eigenvalues in array  eig.   Note that eig is sorted in
+   * decreasing order, and eigorder[i] tells which element of eigvecs
+   * corresponds to that eigenvalue.
    */
   boolean *nearlyzero;
   long i, j, k;
   
   nearlyzero = (boolean*)Malloc(charspp*sizeof(boolean));
+  qreigen(a, charspp);                /* obtains the spectral decomposition */
   for (i = 0; i < charspp; i++)      /* indicate which eigenvalues */
     if (fabs(eig[i]) < 1.0e-14)      /* are near enough to zero */
       nearlyzero[i] = true;
     else
       nearlyzero[i] = false;
-  qreigen(a, charspp);                         /* obtains the spectral decomposition */
   for (i = 0; i < charspp; i++) {                  /* reconstitute so get */
     for (j = 0; j < charspp; j++) {              /* M-P generalized inverse */
       a[i][j] = 0.0;
       for (k = 0; k < charspp; k++) {
         if (!nearlyzero[k])
-          a[i][j] += eigvecs[j][k] * eigvecs[i][k] / eig[k];
+          a[i][j] += eigvecs[j][k]*eigvecs[i][k] / eig[k];
       }
     }
   }
@@ -3106,9 +3108,9 @@ void reportpca(long m)
   for (i = 0; i < m; i++)   /* sum the eigenvalues */
     eigtotal += eig[i];
   fprintf(outfile,
-          "   Principal Components (rows) as linear combinations of characters (columns)\n");
+  "   Principal Components (rows) as linear combinations of characters (columns)\n");
   fprintf(outfile,
-          "   --------- ---------- ------ -- ------ ------------ -- ---------- ---------\n\n");
+  "   --------- ---------- ------ -- ------ ------------ -- ---------- ---------\n\n");
   reportmatrix (eigvecs, m);
   fprintf(outfile, "  For principal     Variance of      Fraction of");
   if (linearsize) 
@@ -3125,10 +3127,10 @@ void reportpca(long m)
     fprintf(outfile, "      -----------\n");
   else
     fprintf(outfile, "\n");
-  for (i = 0; i < df; i++) {   /* print out the eigenvalues (variances) */
+  for (i = 0; i < df; i++) {       /* print out the eigenvalues (variances) */
     n = m-i-1;
     corr = 0.0;
-    for (j=0; j < charspp; j++)  /* correlation with the mean vector */
+    for (j=0; j < charspp; j++)         /* correlation with the mean vector */
       corr += mean[j]*eigvecs[eigorder[n]][j];
     corr /= unorm;
     if (eig[n] < 0.0001)
@@ -3396,15 +3398,15 @@ double evaluate (node *q) {
 /* debug  if ((chars == df) && !(justprocrust || bookmorph || mlrots))     if full rank */
 /* debug     ldet = logdet(temp5);   */           /* can just take Log Det */
 /* debug   else { */
-    qreigen(temp5, charspp);        /* all eigenvalues including zeros */
-    for (i = 0; i < charspp; i++)   /* set up sort tags for eigenvalue order */
+    qreigen(temp5, charspp);      /* all eigenvalues including (near-)zeros */
+    for (i = 0; i < charspp; i++)  /* set up sort tags for eigenvalue order */
       eigorder[i] = i;
-    shellsort(eig, eigorder, charspp); /* sort eigenvalues in ascending order */
+    shellsort(eig, eigorder, charspp);       /* sort eig in ascending order */
 // for (i = 0; i < df; i++)   /* set up sort tags for eigenvalue order */
 //   printf(" %12.8f", -0.5*contno*log(eig[charspp-i-1])); /*debug */
 // printf("\n");  /* debug */
     ldet = 0.0;
-for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
+  for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
     for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
       ldet += log(eig[charspp-i-1]);
 /* debug  }   */

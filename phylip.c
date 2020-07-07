@@ -2375,29 +2375,32 @@ long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
 
 
 void shellsort(double *a, long *b, long n)
-{ /* Shell sort keeping a, b in same order
-   * used by Dnapenny, Dolpenny, Penny, and Threshml
-   * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast */
+{ 
+  /* Shell sort keeping a, b in same order
+   * used by Dnapenny, Dolpenny, Penny, Contrast, and Threshml
+   * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast
+   * (and a pleasingly short program)  Shell was the discover's name.
+   * sorts in same order an accompanying array (b) of tags */
   long gap, i, j, itemp;
   double rtemp;
 
-  gap = n / 2;
+  gap = n / 2;                /* set initial gap size half the array length */
   while (gap > 0) {
-    for (i = gap + 1; i <= n; i++) {
-      j = i - gap;
+    for (i = gap + 1; i <= n; i++) {     /* compare elements that far apart */
+      j = i - gap;                             /* compare elements i, i+gap */
       while (j > 0) {
-        if (a[j - 1] > a[j + gap - 1]) {
+        if (a[j - 1] > a[j + gap - 1]) {            /* swap if out of order */
           rtemp = a[j - 1];
           a[j - 1] = a[j + gap - 1];
           a[j + gap - 1] = rtemp;
-          itemp = b[j - 1];
+          itemp = b[j - 1];              /* swap the accompanying array too */
           b[j - 1] = b[j + gap - 1];
           b[j + gap - 1] = itemp;
         }
-        j -= gap;
+        j -= gap;                   /* loop over all pairs separated by gap */
       }
     }
-    gap /= 2;
+    gap /= 2;    /* integer division: shrink the gap size by half each time */
   }
 }  /* shellsort */
 
