@@ -2611,21 +2611,20 @@ void ginverse (double** a)
    */
   boolean *nearlyzero;
   long i, j, k;
-  double sum;
   
   nearlyzero = (boolean*)Malloc(charspp*sizeof(boolean));
-  for (i = 1; i < charspp; i++)      /* indicate which eigenvalues */
+  for (i = 0; i < charspp; i++)      /* indicate which eigenvalues */
     if (fabs(eig[i]) < 1.0e-14)      /* are near enough to zero */
       nearlyzero[i] = true;
     else
       nearlyzero[i] = false;
-  qreigen(a);                         /* obtains the spectral decomposition */
-  for (i = 1; i <= charspp; i++) {                  /* reconstitute so get */
-    for (j = 1; j < charspp; j++) {              /* M-P generalized inverse */
+  qreigen(a, charspp);                         /* obtains the spectral decomposition */
+  for (i = 0; i < charspp; i++) {                  /* reconstitute so get */
+    for (j = 0; j < charspp; j++) {              /* M-P generalized inverse */
       a[i][j] = 0.0;
-      for (k = 1; k < charspp; k++) {
+      for (k = 0; k < charspp; k++) {
         if (!nearlyzero[k])
-          a[i][j] += eigvecs[k][j] * eigvecs[k][i] / eig[k];
+          a[i][j] += eigvecs[j][k] * eigvecs[i][k] / eig[k];
       }
     }
   }
@@ -2746,7 +2745,7 @@ void newcovars(boolean nocorr, boolean novara)
           else
             temp1[k][l] = oldvare[k][l];
       matcopy(temp1, temp2, charspp);
-      if (2*spp > charspp+3) {
+      if (2*spp >= charspp+3) {
         invert(temp2);                               /* compute (dA+E)^(-1) */
       } else {
         ginverse(temp2);                      /* or its generalized inverse */
@@ -2810,7 +2809,7 @@ void newcovars(boolean nocorr, boolean novara)
     }
   }
   matcopy(oldvare, temp2, charspp);
-  if (2*spp > charspp+3) {
+  if (2*spp >= charspp+3) {
     invert(temp2);                               /* compute (dA+E)^(-1) */
   } else {
     ginverse(temp2);                      /* or its generalized inverse */
