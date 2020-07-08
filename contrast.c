@@ -67,6 +67,7 @@ void   writecontrasts(void);
 void   getsizevar(void);
 void   writemethods(void);
 double logdet(double **);
+double glogdet(double *);
 void   invert(double **);
 void   initcovars(boolean);
 double normdiff(boolean);
@@ -2506,7 +2507,12 @@ void reportregressions (matrix regressions, matrix correlations)
     for (i = 0; i < charspp; i++)
       for (j = 0; j < charspp; j++)
         temp1[i][j] = sumprod[i][j] / sqrt(sumprod[i][i]*sumprod[j][j]);
-    logLvara = -0.5*contno*logdet(temp1);
+    if (2*spp >= charspp+3) {
+      logLvara = -0.5*contno*logdet(temp1);
+    } else {
+      qreigen(temp1, charspp);
+      logLvara = -0.5 * glogdet(eig);  /* generalized logdet */
+    }
     for (i = 0; i < charspp; i++)
       for (j = 0; j < charspp; j++) {
         if (nset[i] != nset[j])
@@ -2571,6 +2577,22 @@ double logdet(double **a)
 }  /* logdet */
 
 
+double glogdet (double* eig)
+{
+  /* log generalized determinant, from non-nearly-zero postitive
+   * eigenvalues */
+  long i;
+  double x;
+
+  x = 0.0;
+  for (i = 0; i < charspp; i++) {
+    if (fabs(eig[i]) > 1.0e-14)         /* if this dimension has variation */
+      x += log(eig[i]);
+  }
+  return x;
+} /* glogdet */
+
+
 void invert(double **a)
 {
   /* Gauss-Jordan reduction -- invert chars x chars matrix a
@@ -2621,12 +2643,12 @@ void ginverse (double** a)
       nearlyzero[i] = true;
     else
       nearlyzero[i] = false;
-  for (i = 0; i < charspp; i++) {                  /* reconstitute so get */
+  for (i = 0; i < charspp; i++) {                  /* reconstitute to get */
     for (j = 0; j < charspp; j++) {              /* M-P generalized inverse */
       a[i][j] = 0.0;
       for (k = 0; k < charspp; k++) {
         if (!nearlyzero[k])
-          a[i][j] += eigvecs[j][k]*eigvecs[i][k] / eig[k];
+          a[i][j] += eigvecs[i][k]*eigvecs[j][k] / eig[k];
       }
     }
   }
@@ -2758,7 +2780,12 @@ void newcovars(boolean nocorr, boolean novara)
         for (l = 0; l < charspp; l++)
           sum2 -= cntrast[i][0][k]*temp2[k][l]*cntrast[i][0][l]/2.0;
       matcopy(temp1, temp3, charspp);
-      sum2 -= 0.5 * logdet(temp3);              /* log determinant term too */
+      if (2*spp >= charspp+3) {
+        sum2 -= 0.5 * logdet(temp3);            /* log determinant term too */
+      } else {
+        qreigen(temp3, charspp);
+        sum2 -= 0.5 * glogdet(eig);         /* generalized log  determinant */
+      }
       if (!novara) {
         for (k = 0; k < charspp; k++)
           for (l = 0; l < charspp; l++) {
@@ -2812,12 +2839,19 @@ void newcovars(boolean nocorr, boolean novara)
   }
   matcopy(oldvare, temp2, charspp);
   if (2*spp >= charspp+3) {
-    invert(temp2);                               /* compute (dA+E)^(-1) */
+    invert(temp2);                                   /* compute (dA+E)^(-1) */
   } else {
-    ginverse(temp2);                      /* or its generalized inverse */
+    ginverse(temp2);                          /* or its generalized inverse */
   }
   matcopy(oldvare, temp3, charspp);
-  sum3 = 0.5 * logdet(temp3);                         /* get 1/2 log det(E) */
+  if (!novara) {
+    if (2*spp >= charspp+3) {
+      sum3 = 0.5 * logdet(temp3);                     /* get 1/2 log det(E) */
+    } else {
+      qreigen(temp3, charspp);
+      sum3 = 0.5 * glogdet(eig);           /* generalized log  determinant */
+    }
+  }
   for (i = 0; i < spp; i++) {
     if (sample[i] > 1) {
       for (j = 1; j < sample[i]; j++) {       /* E(aa'|x) (invisibly) and
