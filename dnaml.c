@@ -113,17 +113,21 @@ vall *mp=NULL;
 
 tree* dnaml_tree_new(long nonodes, long spp)
 {
+  /* set up variables and then set up identities of functions */
   tree* t;
 
-  t = Malloc(sizeof(dnaml_tree));
-  dnaml_tree_init(t, nonodes, spp);
+  inittrees(nonodes, spp);
+  ml_tree_init(curtree, nonodes, spp);
+  dnaml_tree_init(curtree, nonodes, spp);
+  t->setupfunctions = generic_tree_setupfunctions;
   return t;
 } /* dnaml_tree_new */
 
 
 void dnaml_tree_init(tree* t, long nonodes, long spp)
 {
-  ml_tree_init(t, nonodes, spp);    // calls allocx
+  /* set up functions for a dnaml_tree */
+
   t->evaluate = dnaml_tree_evaluate;
   t->try_insert_ = ml_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
@@ -2874,11 +2878,10 @@ void dnaml(
   firstset = true;
   ibmpc = IBMCRT;
   ansi = ANSICRT;
-  doinit();
+  doinit();                       /* read in the options and the data */
   ttratio0 = ttratio;
 
-  //printf("calling dnamlrun\n");
-  dnamlrun();  // do the actual work
+  dnamlrun();                                   /* do the actual work */
 
   FClose(infile);
   FClose(outfile);
@@ -2926,7 +2929,7 @@ int main(int argc, Char *argv[])
   firstset = true;
   ibmpc = IBMCRT;
   ansi = ANSICRT;
-  doinit();
+  doinit();                                             /* present the menu */
   ttratio0 = ttratio;
   if (ctgry)
     openfile(&catfile, CATFILE, "categories file", "r", argv[0], catfilename);
