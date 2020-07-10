@@ -116,13 +116,14 @@ tree* dnaml_tree_new(long nonodes, long spp)
   /* set up variables and then set up identities of functions */
   tree* t;
 
-  inittrees(nonodes, spp);
-  generic_tree_new(nonodes, spp);
+  curtree = generic_tree_new(nonodes, spp);
+  besttree = generic_tree_new(nonodes, spp);
+  besttree2 = generic_tree_new(nonodes, spp);
+  priortree = generic_tree_new(nonodes, spp);
   t->setupfunctions = generic_tree_setupfunctions;
-  genetic_tree_init(nonodes, spp);
+  generic_tree_init(nonodes, spp);
   ml_tree_init(curtree, nonodes, spp);
   dnaml_tree_init(curtree, nonodes, spp);
-  t->setupfunctions = generic_tree_setupfunctions;
   return t;
 } /* dnaml_tree_new */
 
