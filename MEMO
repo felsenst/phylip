@@ -39,9 +39,13 @@ note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
 
+
 also: to diff of your local changes with the files you
 pulled down to the local system
   git diff
+to focus on the .c or .h  files that matter, use
+  got diff | grep diff
+
 
 if remote and local branches get out of synch and cannot
 use ordinary commits to resolve this, pull down the
