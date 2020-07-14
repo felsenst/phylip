@@ -59,6 +59,7 @@ void   contml_node_copy(node *, node *);
 void   inittrees(void);
 tree*  contml_tree_new(long, long);
 void   contml_tree_init(tree*, long, long);
+void   contml_tree_setup(long, long);
 void   contml_tree_free(tree*);
 void   contmlrun(void);
 void   contml(char * infilename, char * intreename, char * OutfileName, char * outfileopt,
@@ -99,25 +100,9 @@ boolean smoothed = false;
 boolean polishing = false;
 
 
-tree * contml_tree_new(long nonodes, long spp)
-{ /* create a contml_tree */
-  /* debug: confusion: is this tree_new enough?  It allocates an amount of
-   * memory that should be enough.  It calls tree_init, which calls other
-   * of that ilk.  It does *not* call the generic_tree_new as the
-   * stuff there adds nothing to what is done in ml.c*/
-  tree* t = Malloc(sizeof(ml_tree));   /* debug: redundant to generic one?
-                                        * or maybe need to supplement generic one? */
-  t->setupfunctions = generic_tree_setupfunctions;
-  generic_tree_init(t, nonodes, spp);
-  ml_tree_init(t, nonodes, spp);
-  contml_tree_init(t, nonodes, spp);
-  return t;
-} /* contml_tree_new*/
-
-
 void contml_tree_init(tree* t, long nonodes, long spp)
 { 
-  /* initialize a contml_tree.  Calls ml_tree_init (which itself calls
+  /* initialize a contml_tree.
    * generic_tree_init) and those set some functions then this sets more */
 
   allocview(t, nonodes2, totalleles);
@@ -128,6 +113,28 @@ void contml_tree_init(tree* t, long nonodes, long spp)
 } /* contml_tree_init */
 
  
+tree * contml_tree_new(long nonodes, long spp)
+{ /* create a contml_tree */
+  tree* t = Malloc(sizeof(ml_tree));
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
+  contml_tree_init(t, nonodes, spp);
+  return t;
+} /* contml_tree_new*/
+
+
+void contml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = contml_tree_new(nonodes, spp);
+  bestree = contml_tree_new(nonodes, spp);
+  bestree2 = contml_tree_new(nonodes, spp);
+  priortree = contml_tree_new(nonodes, spp);
+} /* contml_tree_setup */
+
+
 void contml_tree_free(tree* t)
 { /* free a contml_node */
   freeview(t, nonodes2);

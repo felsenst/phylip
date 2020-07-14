@@ -385,7 +385,6 @@ typedef enum {         /* the amino acids in proteins */
 } acids;
 
 /* for Pars */
-
 typedef enum {
   zero = 0, one, two, three, four, five, six, seven
 } discbases;

@@ -3498,7 +3498,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
   t->root = t->nodep[0];
-  t->setupfunctions(t);
+  generic_tree_setupfunctions(t);
 } /* generic_tree_init */
 
 
@@ -3552,6 +3552,7 @@ tree* generic_tree_new(long nonodes, long spp)
   tree* t;
 
   t = Malloc(sizeof(tree));
+  generic_tree_init(t, nonodes, spp);
   return t;
 } /* generic_tree_new */
 

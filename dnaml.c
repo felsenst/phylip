@@ -25,6 +25,9 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
+tree*  dnaml_tree_new(long, long);
+void   dnaml_tree_init(tree*, long, long);
+void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -53,8 +56,6 @@ void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_tree_init(tree*, long, long);
-tree*  dnaml_tree_new(long, long);
 double dnaml_tree_evaluate(tree*, node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -116,13 +117,9 @@ tree* dnaml_tree_new(long nonodes, long spp)
   /* set up variables and then set up identities of functions */
   tree* t;
 
-  inittrees(nonodes, spp);
-  generic_tree_new(nonodes, spp);
-  t->setupfunctions = generic_tree_setupfunctions;
-  genetic_tree_init(nonodes, spp);
-  ml_tree_init(curtree, nonodes, spp);
-  dnaml_tree_init(curtree, nonodes, spp);
-  t->setupfunctions = generic_tree_setupfunctions;
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
+  dnaml_tree_init(t, nonodes, spp);
   return t;
 } /* dnaml_tree_new */
 
@@ -134,8 +131,19 @@ void dnaml_tree_init(tree* t, long nonodes, long spp)
   t->evaluate = dnaml_tree_evaluate;
   t->try_insert_ = ml_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
-  ((ml_tree*)t)->makenewv = dnaml_tree_makenewv;
+  t->makenewv = dnaml_tree_makenewv;
 } /* dnaml_tree_init */
+
+
+void dnaml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = dnaml_tree_new(nonodes, spp);
+  bestree = dnaml_tree_new(nonodes, spp);
+  bestree2 = dnaml_tree_new(nonodes, spp);
+  priortree = dnaml_tree_new(nonodes, spp);
+} /* dnaml_tree_setup */
 
 
 void inittip(tree* t, long m)

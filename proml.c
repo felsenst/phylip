@@ -23,6 +23,9 @@ typedef struct proml_tree {
 
 #ifndef OLDC
 /* function prototypes */
+tree * proml_tree_new(long, long);
+void   proml_tree_init(tree* t, long nonodes, long spp);
+void   proml_tree_setup(long, long);
 void   getoptions(void);
 void   makeprotfreqs(void);
 void   doinit(void);
@@ -49,9 +52,7 @@ void   initpromlnode(tree *, node **, long, long, long *, long *,
 void   dnaml_treeout(node *);
 void   maketree(void);
 void   proml_reroot(tree*) ;            // RSGbugfix: Name change.
-void   proml_tree_init(tree* t, long nonodes, long spp);
 double proml_tree_evaluate(tree*, node *, boolean);
-tree * proml_tree_new(long, long);
 void   prot_freetable(void);
 void   proml_tree_nuview(tree*, node*);
 void   promlrun(void);
