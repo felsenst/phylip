@@ -1,8 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Lucas Mix, Akiko Fuseki, Sean Lamont,
    Andrew Keeffe, Dan Fineman, and Patrick Colacurcio.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -49,7 +48,7 @@ void   rectrav(node *, long, long);
 void   summarize(void);
 void   initpromlnode(tree *, node **, long, long, long *, long *,
                       initops, pointarray, Char *, Char *, FILE *);
-void   dnaml_treeout(node *);
+void   proml_treeout(node *);
 void   maketree(void);
 void   proml_reroot(tree*) ;            // RSGbugfix: Name change.
 double proml_tree_evaluate(tree*, node *, boolean);
@@ -109,19 +108,36 @@ vall *mp;
 
 tree* proml_tree_new(long nonodes, long spp)
 {
-  tree* t = Malloc(sizeof(proml_tree));
+  /* set up variables and then set up identities of functions */
+  tree* t;
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
   proml_tree_init(t, nonodes, spp);
   return t;
 } /* proml_tree_new */
 
 
-void proml_tree_init(tree * t, long nonodes, long spp)
+void proml_tree_init(tree* t, long nonodes, long spp)
 {
-  ml_tree_init(t, nonodes, spp);
+  /* set up functions for a proml_tree */
+
   t->evaluate = proml_tree_evaluate;
+  t->try_insert_ = ml_tree_try_insert_;
   t->nuview = proml_tree_nuview;
-  ((ml_tree*)t)->makenewv = proml_tree_makenewv;
+  t->makenewv = proml_tree_makenewv;
 } /* proml_tree_init */
+
+
+void proml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = proml_tree_new(nonodes, spp);
+  bestree = proml_tree_new(nonodes, spp);
+  bestree2 = proml_tree_new(nonodes, spp);
+  priortree = proml_tree_new(nonodes, spp);
+} /* proml_tree_setup */
 
 
 void getoptions(void)
@@ -855,7 +871,7 @@ void getinput(void)
   if (!justwts || firstset)
     input_protdata(sites);
   prom_makeweights();
-  inittrees(nonodes2, spp);
+  proml_tree_setup(nonodes2, spp);
   prot_makevalues(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
 }  /* getinput */
 
@@ -1977,7 +1993,7 @@ void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips,
 } /* initpromlnode */
 
 
-void dnaml_treeout(node *p)
+void proml_treeout(node *p)
 {
   /* write out file with representation of final tree2 */
   /* Only works for bifurcations! */
@@ -2023,7 +2039,7 @@ void dnaml_treeout(node *p)
         }
       }
       inloop = true;
-      dnaml_treeout(q->back);
+      proml_treeout(q->back);
       q = q->next;
     } while ((p == curtree->root || p != q) && (p != curtree->root
              || p->next != q));
@@ -2046,7 +2062,7 @@ void dnaml_treeout(node *p)
     fprintf(outtree, ":%*.5f", (int)(w + 7), x);
     col += w + 8;
   }
-}  /* dnaml_treeout */
+}  /* proml_treeout */
 
 
 void proml_reroot(tree* t)              // RSGbugfix: Name change.
@@ -2123,7 +2139,7 @@ void maketree(void)
     }
 
     /* This taken out of tree read, used to be [spp-1], but referring
-       to [0] produces output identical to what the pre-modified dnaml
+       to [0] produces output identical to what the pre-modified proml
        produced. */
     for ( which = 1 ; which <= numtrees ; which++)
     {
@@ -2174,7 +2190,7 @@ void maketree(void)
       if (trout)
       {
         col = 0;
-        dnaml_treeout(curtree->root);
+        proml_treeout(curtree->root);
       }
       if(which < numtrees)
       {
@@ -2281,7 +2297,7 @@ void maketree(void)
       if (trout)
       {
         col = 0;
-        dnaml_treeout(curtree->root);
+        proml_treeout(curtree->root);
       }
     }
   }

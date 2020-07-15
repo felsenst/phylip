@@ -688,7 +688,7 @@ void getinput(void)
     inputdata(sites);
   }
   makeweights();
-  inittrees(nonodes2, spp);
+  dnaml_tree_setup(nonodes2, spp);
   makevalues2(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
   if (freqsfrom)
   {
