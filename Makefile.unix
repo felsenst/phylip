@@ -597,8 +597,11 @@ treedist:     treedist.o cons.o $(LIBS)
 
 # Dynamic libraries (.so)
 
-libclique.so:   clique.o disc.o phylip.o phylip.h $(LIBS)
+libclique.so:   clique.o disc.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libclique.so -shared -fPIC clique.c disc.c phylip.c
+
+libcodml.so:    codml.o ml.o seq.o phylip.h $(LIBS)
+	$(CC) $(CFLAGS) -o libcodml.o -shared -fPIC codml.c ml.c seq.c phylip.c Slist.c
 
 libconsense.so:	consense.o cons.o phylip.o Slist.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libconsense.so -shared -fPIC consense.c cons.c phylip.c Slist.c
