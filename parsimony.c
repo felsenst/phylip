@@ -178,6 +178,8 @@ tree* pars_tree_new(long nonodes, long spp)
 {
   /* make a new pars_tree */
   tree* t = Malloc(sizeof(pars_tree));
+
+  generic_tree_init(t, nonodes, spp);
   pars_tree_init(t, nonodes, spp);
   return t;
 } /* pars_tree_new */
@@ -186,7 +188,7 @@ tree* pars_tree_new(long nonodes, long spp)
 void pars_tree_init(tree* t, long nonodes, long spp)
 {
   /* setup of a new tree  with  spp  tips */
-  generic_tree_init(t, nonodes, spp);
+
   t->globrearrange = pars_globrearrange;
   t->try_insert_ = (tree_try_insert_t)pars_tree_try_insert_;
   t->evaluate = pars_tree_evaluate;
@@ -397,7 +399,8 @@ void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 
 
 void savetree(tree* t, long *place)     // RSGbugfix
-{ /* Record in  place  where each species has to be added to reconstruct
+{
+  /* Record in  place  where each species has to be added to reconstruct
    * this tree. This code roots the tree and calls oldsavetree to save it. */
   node *oldroot, *p, *outgrnode;
 
@@ -581,15 +584,42 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
 } /* addtiedtree */
 
 
-boolean pars_addtraverse(tree*, node*, node*, boolean, node*,
-                                      double*, bestelm*, boolean)
+void add_to_besttrees(tree* t, score, bestelm* bestrees)
 {
-  /* wrapper for addraverse, calling generic addtraverse or some such,
-   * and then taking the best tree found and adding it to the array
-   * of tied best trees found */
+  /* take the tree we have found and try to add it to the array bestrees:
+   * if none are already there, make it the first one, if it is better than
+   * the ones that are there then toss them and start over with just this
+   * one, if tied with them add it in too */
+  boolean better, worse, tied;
+  
+/* debug:  here get the score of the previous trees tied for best right now */
+  if (!(score > bestscoreyet)) {           /* if going to save this one ... */
+    savetree(tree* t, long *place);
+    if (score < bestscoreyet) {      /* if it will be the lone new best one */
+      addbestever(pos, nextree, maxtrees, collapse, place, bestrees, score);
+    } else {                            /* it is another tree tied for best */
+      addtiedtree(pos, *nextree, maxtrees, collapse, place, bestrees, score);
+    }
+  }
+/* test whether better, worse, or tied */
+} /* add_to_besttrees */
 
-   /* mockup:  */
-   /* call addtraverse as usual */
+
+boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
+                          node* qwherein, double* bestyet, bestelm*,
+                          boolean thorough)
+{
+  /* wrapper for addraverse, calling generic addtraverse
+   * and then taking the best tree found and adding it to the array
+   * of tied best trees found. Function like this works for parsimony-like
+   * criteria where there are exact ties, not for likelihood or distance
+   * criteria */
+   boolean success;
+
+   success = generic_tree_addtraverse(tree* t, node* p, node* q,
+                                       boolean contin, node* qwherein,
+                                       double* bestyet, tree* bestree,
+                                       boolean thorough)
    /* then take the best tree.  If better, start bestelm array anew */
    /* if tied, add it in if not already there */
    /* else discard it */
@@ -818,12 +848,8 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   long j, nsibs, nextnode;
   node *q, *below, *bback, *forknode, *newtip;
 
-  destruct_tree(t);
-
-  /* we are going to do a little of our own bookkeeping */
-  /* first make sure that all the available FORKRINGS in the tree are availble for use */
-/*  while ( !Slist_isempty(t->free_forkrings) ) t->get_forkring(t);   debug */
-
+  destruct_tree(t);       /* to make sure all interior nodes are on 
+                           * the list at free_fork_nodes  */
   /* restore the tree */
   hookup(t->nodep[1], t->nodep[spp]->next);
   hookup(t->nodep[0], t->nodep[spp]->next->next);
@@ -1487,9 +1513,11 @@ double pars_tree_evaluate(tree* t, node*p, boolean dummy)
 
 
 bestelm* allocbestree(void)
-{ /* Malloc space for bestelm and bestrees */
+{ 
+  /* Malloc space for bestelm and bestrees */
   long i;
   bestelm* bestrees;
+
   bestrees = (bestelm *)Malloc(maxtrees * sizeof(bestelm));
   for (i = 1; i <= maxtrees; i++)
     bestrees[i - 1].btree = (long *)Malloc(nonodes * sizeof(long));
@@ -1498,13 +1526,15 @@ bestelm* allocbestree(void)
 
 
 bestelm** allocbestrees(void)
-{ /* alloc space for array of bestrees */
+{
+  /* alloc space for array of bestrees */
   long i;
   bestelm **rebestrees = Malloc(2 * sizeof(bestelm*));
+
   for ( i = 0 ; i < 2 ; i++ )
     rebestrees[i] = allocbestree();
   return rebestrees;
 } /* bestelm */
 
 
-// End.
+/* End. */

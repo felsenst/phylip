@@ -1,7 +1,6 @@
-/* Version 4.0 (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -16,6 +15,7 @@ extern long nextree;    /* parsimony.c -- for counting stored trees */
 
 #ifndef OLDC
 /* function prototypes */
+void    dnapars_tree_setup(long, long);
 void    getoptions(void);
 void    allocrest(void);
 void    reallocchars(void);
@@ -26,26 +26,32 @@ void    describe(void);
 void    maketree(void);
 void    freerest(void);
 void    dnaparsrun(void);
-void    dnapars(char *infilename, char *intreename, char *outfilename, char *outfileopt, char *weightsfilename,
-                char *outtreename, char *outtreeopt, int searchbest, char *searchopts, int treesave, int inputorder,
-                int randnum, int numjumble, int outroot, int outnum, int threshpars, double threshval, int transpars,
-                int sitesweighted, int analyzemult, int multdataset, int nummult, int inputseq, int doprintdata,
-                int dodotdiff, int printprog, int printtree, int printsteps, int printseq, int writetree);
+void    dnapars(char *infilename, char *intreename, char *outfilename,
+                char *outfileopt, char *weightsfilename, char *outtreename,
+                char *outtreeopt, int searchbest, char *searchopts,
+                int treesave, int inputorder, int randnum, int numjumble,
+                int outroot, int outnum, int threshpars, double threshval,
+                int transpars, int sitesweighted, int analyzemult,
+                int multdataset, int nummult, int inputseq, int doprintdata,
+                int dodotdiff, int printprog, int printtree, int printsteps,
+                int printseq, int writetree);
 /* function prototypes */
 #endif
 
-long jumb = 0, nonodes = 0;
-Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreename[FNMLNGTH], weightfilename[FNMLNGTH];
+Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
+      outtreename[FNMLNGTH], weightfilename[FNMLNGTH];
 char basechar[32]="ACMGRSVTWYHKDBNO???????????????";
-long chars, col, msets, ith, njumble;
+long jumb = 0, nonodes = 0;
+long spp, chars, col, msets, ith, njumble;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
 double threshold;
-boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress, stepbox, ancseq, mulsets, justwts, firstset, multf;
+boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress,
+         stepbox, ancseq, mulsets, justwts, firstset, multf;
 extern boolean usertree;
 steptr oldweight;
 longer seed;
-tree* curtree, bestree, bestree2, priortree;
+tree* curtree, bestree;      /* use bestelm array; bestree just temporarily */
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
 extern double *threshwt;
@@ -63,6 +69,15 @@ node *there;
 baseptr nothing;
 boolean *names;
 char *progname;
+
+
+void dnapars_tree_setup(long nonodes, long spp)
+{
+  /* allocate new tree(s) */
+
+  curtree = dnapars_tree_new(nonodes, spp);
+  bestree = dnapars_tree_new(nonodes, spp);
+} /* dnapar tree_setup */
 
 
 void getoptions(void)
@@ -336,7 +351,6 @@ void doinit(void)
   /* initializes variables */
   fprintf(outfile, "\nDNA parsimony algorithm, version %s\n\n", VERSION);
 
-  //inputnumbers(&spp, &chars, &nonodes, 2);
   inputnumbers(&spp, &chars, &nonodes, 1);
   if (!javarun)
   {
@@ -389,7 +403,7 @@ void doinput(void)
     }
   }
   makeweights();
-  curtree = dnapars_tree_new(nonodes, spp);
+  dnapars_tree_setup(nonodes, spp);
   dna_makevalues(curtree, usertree);
 }  /* doinput */
 

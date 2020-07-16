@@ -1,8 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    and Michal Palczewski.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -28,7 +27,10 @@ tree* dnapars_tree_new(long nonodes, long spp)
 {
   /* make new dnapars_tree */ 
 
-  tree *t = Malloc(sizeof(dnapars_tree));
+  tree *t;
+  
+  generic_tree_new(t, nonodes, spp);
+  pars_tree_init(t, nonodes, spp);
   dnapars_tree_init(t, nonodes, spp);
   return t;
 } /* dnapars_tree_new */
@@ -38,7 +40,6 @@ void dnapars_tree_init(tree* t, long nonodes, long spp)
 {
   /* set up functions for dnapars_tree */
 
-  pars_tree_init(t, nonodes, spp);
   t->evaluate = dnapars_tree_evaluate;
   t->nuview = dnapars_tree_nuview;
   ((pars_tree*)t)->branchcollapsible = dna_branchcollapsible;
