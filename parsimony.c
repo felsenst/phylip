@@ -1,8 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    and Michal Palczewski.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -45,21 +44,22 @@ static void flipnodes(node *nodea, node *nodeb);
 
 node* root_tree(tree* t, node* here)
 {
-  /* Setup a root in a tree.  This is useful for functions that expect a
+  /* Setup a root in a tree, a 3-node circle between  here  and  here->back.
+   * This is useful for functions that expect a
    * rooted tree such as oldsavetree.  This does NOT reorient the tree so
-   * that all nodep pointers point to the root.  */
-  node* nuroot;
+   * that all nodep pointers point to the rootmost node of that interior
+   * node.  */
+  node *nuroot1, *nuroot2, *nuroot3;
 
-/* debug:   this always adds a forknode to the rootmost interior fork.  Replacing it
- * by code which does not
-  nuroot = t->get_forknode(t, here->index);
-  nuroot->next = here->next;
-  here->next = nuroot;
-debug:  */
-
-  nuroot = here;
-
-  return nuroot;
+  nuroot1 = t->get_forknode(t, nonodes);
+  hookup(here, nuroot1);
+  nuroot2 = t->get_forknode(t, nonodes);
+  nuroot1->next = nuroot2;
+  hookup(nuroot2, here->back);
+  nuroot3 = t->get_forknode(t, nonodes);
+  nuroot2->next = nuroot3;
+  nuroot3->next = nuroot1;
+  return nuroot3;
 } /* root_tree */
 
 
@@ -77,7 +77,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
     p->next = fakeroot->next;
     if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
       t->nodep[fakeroot->index - 1 ] = p;
-    if ( t->root == fakeroot)           // RSGbugfix: Reroot before sending FORKNODE to freelist.
+    if ( t->root == fakeroot)   // RSGbugfix: Reroot before sending FORKNODE to freelist.
       t->root = t->nodep[outgrno - 1]->back;
     t->release_forknode(t, fakeroot);
   }
@@ -141,9 +141,9 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   found = false;
   pos = 0;
 
-  /* Uncoomenting the following code will allow for a multifurcating search,
-   * However you will generally find every multifurcation as a separate tree
-   * including ambiguous ones.  */
+  /* debug:  Uncommenting the following code will allow for a multifurcating
+   * search, However you will generally find every multifurcation as a
+   * separate tree including ambiguous ones.  */
 #if 0
   if ( p->tip == false )
   {
@@ -398,7 +398,7 @@ void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 }  /* reroot3 */
 
 
-void savetree(tree* t, long *place)     // RSGbugfix
+void savetree(tree* t, long *place)
 {
   /* Record in  place  where each species has to be added to reconstruct
    * this tree. This code roots the tree and calls oldsavetree to save it. */
@@ -406,7 +406,7 @@ void savetree(tree* t, long *place)     // RSGbugfix
 
   outgrnode = t->nodep[outgrno - 1];
   p = outgrnode->back;
-  oldroot = t->root;
+  oldroot = p;
   t->root = root_tree(t, p);
   oldsavetree(t, place);
   reroot_tree(t, t->root);              // RSGbugfix: Name change.
@@ -416,7 +416,7 @@ void savetree(tree* t, long *place)     // RSGbugfix
 
 void oldsavetree(tree* t, long *place)
 {
-   /* record in  place  where each species has to be
+   /* record in array  place  where each species has to be
     * added to reconstruct this tree. This code assumes a root
     * this is the older function,  a new function roots the tree and calls this
     * function to save the tree */
@@ -533,7 +533,8 @@ void oldsavetree(tree* t, long *place)
 }  /* oldsavetree */
 
 
-void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
+void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
+                  long *place, bestelm *bestrees, double score)
 {
   /* adds first best tree. If we are rearranging on usertrees, 
    * add it to the second array of trees if the score is good enough */
@@ -583,30 +584,40 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
   }
 } /* addtiedtree */
 
-
-void add_to_besttrees(tree* t, score, bestelm* bestrees)
+/* debug:  may not need in view of pars_try_insert  */
+#if 0
+void add_to_besttrees(tree* t, long score, bestelm* bestrees)
 {
   /* take the tree we have found and try to add it to the array bestrees:
    * if none are already there, make it the first one, if it is better than
    * the ones that are there then toss them and start over with just this
    * one, if tied with them add it in too */
+
   boolean better, worse, tied;
+  long bestscoreyet;
   
-/* debug:  here get the score of the previous trees tied for best right now */
+  bestscoreyet = bestyet;
   if (!(score > bestscoreyet)) {           /* if going to save this one ... */
-    savetree(tree* t, long *place);
+    savetree(t, place);
     if (score < bestscoreyet) {      /* if it will be the lone new best one */
-      addbestever(pos, nextree, maxtrees, collapse, place, bestrees, score);
+      addbestever(&pos, nextree, maxtrees, collapse, place, bestrees, score);
     } else {                            /* it is another tree tied for best */
-      addtiedtree(pos, *nextree, maxtrees, collapse, place, bestrees, score);
+      addtiedtree(&pos, *nextree, maxtrees, collapse, place, bestrees, score);
     }
   }
-/* test whether better, worse, or tied */
+    if ( !found )
+    {
+      if (*bestyet < like || nextree == 1 )
+        addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
+      else
+        addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+    }
 } /* add_to_besttrees */
+#endif     /* debug: end of commented-out stuff */
 
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
-                          node* qwherein, double* bestyet, bestelm*,
+                          node* qwherein, double* bestyet, bestelm* bestrees,
                           boolean thorough)
 {
   /* wrapper for addraverse, calling generic addtraverse
@@ -616,14 +627,10 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    * criteria */
    boolean success;
 
-   success = generic_tree_addtraverse(tree* t, node* p, node* q,
-                                       boolean contin, node* qwherein,
-                                       double* bestyet, tree* bestree,
-                                       boolean thorough)
-   /* then take the best tree.  If better, start bestelm array anew */
-   /* if tied, add it in if not already there */
-   /* else discard it */
-
+   success = generic_tree_addtraverse(t, p, q, contin, qwherein,
+                                       bestyet, &bestree, thorough);
+/* debug:    add_to_besttrees(tree* t, long score, bestelm* bestrees);  */
+   return success;
 } /* pars_addtraverse */
 
 
@@ -902,7 +909,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 } /* load_tree */
 
 
-static void  savetraverse(node *p)
+static void savetraverse(node *p)
 { 
   /* set boolean "bottom" on each interior node to show which way is down */
   node *q;
@@ -1028,8 +1035,8 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
       }
       for ( k = 0 ; k <= num_sibs2 ; k++ )
       {
-        curtree->pars_addtraverse(curtree, removed, sib_ptr2->back, true,
-                              qwhere, &bestyet, bestrees, multf);
+        curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
+                              qwhere, &bestyet, &bestree, multf);
         sib_ptr2 = sib_ptr2->next;
       }
       curtree->insert_(curtree, removed, where, mulf);
@@ -1457,8 +1464,9 @@ void initparsnode(tree *treep, node **p, long len, long nodei, long *ntips, long
 
 
 double pars_tree_evaluate(tree* t, node*p, boolean dummy)
-{ /* not used but could be, would work for all parsimony programs
-     slower than a native version */
+{
+  /* not used but could be, would work for all parsimony programs
+   * slower than a native version */
   node *root  = NULL;
   node *left  = NULL;
   node *right = NULL;
