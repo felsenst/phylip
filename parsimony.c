@@ -402,20 +402,34 @@ void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
 }  /* reroot3 */
 
 
-void savetree(tree* t, long *place)
+static void bintomulti(tree *t, node **root, node **binroot)
 {
-  /* Record in  place  where each species has to be added to reconstruct
-   * this tree. This code roots the tree and calls oldsavetree to save it. */
-  node *oldroot, *p, *outgrnode;
+  /* Make a binary tree multifurcating:
+   * attaches root's left child to its right child and makes the right
+   * child the new root. */
+  node *left, *right, *newnode, *temp;
 
-  outgrnode = t->nodep[outgrno - 1];
-  p = outgrnode->back;
-  oldroot = p;
-  t->root = root_tree(t, p);
-  oldsavetree(t, place);
-  reroot_tree(t, t->root);              // RSGbugfix: Name change.
-  t->root = oldroot;
-}  /* savetree */
+  right = (*root)->next->next->back;
+  left = (*root)->next->back;
+  if (right->tip)
+  {
+    (*root)->next = right->back;
+    (*root)->next->next = left->back;
+    temp = left;
+    left = right;
+    right = temp;
+    right->back->next = *root;
+  }
+  newnode = t->get_forknode(t, right->index);
+  newnode->next = right->next;
+  newnode->back = left;
+  left->back = newnode;
+  right->next = newnode;
+  (*root)->next->back = (*root)->next->next->back = NULL;
+  *binroot = *root;
+  *root = right;
+  (*root)->back = NULL;
+} /* bintomulti */
 
 
 void oldsavetree(tree* t, long *place)
@@ -433,8 +447,10 @@ void oldsavetree(tree* t, long *place)
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
+#if 0                        /* debug: don't need this?  */
   if (get_numdesc(t->root, t->root) == 2)
     bintomulti(t, &t->root, &binroot);
+#endif
   if (outgrin(t->root, outgrnode))
   {
     if (outgrnode != t->root->next->back)
@@ -535,6 +551,22 @@ void oldsavetree(tree* t, long *place)
   if (binroot)
     backtobinary(t, &t->root, binroot);
 }  /* oldsavetree */
+
+
+void savetree(tree* t, long *place)
+{
+  /* Record in  place  where each species has to be added to reconstruct
+   * this tree. This code roots the tree and calls oldsavetree to save it. */
+  node *oldroot, *p, *outgrnode;
+
+  outgrnode = t->nodep[outgrno - 1];
+  p = outgrnode->back;
+  oldroot = p;
+  t->root = root_tree(t, p);
+  oldsavetree(t, place);
+  reroot_tree(t, t->root);              // RSGbugfix: Name change.
+  t->root = oldroot;
+}  /* savetree */
 
 
 void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
@@ -856,31 +888,30 @@ void newindex(long i, node *p)
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores a tree from bestrees */
-  long j, nsibs, nextnode;
+  long j, nsibs;
   node *q, *below, *bback, *forknode, *newtip;
 
   destruct_tree(t);       /* to make sure all interior nodes are on 
                            * the list at free_fork_nodes  */
   /* restore the tree */
+  t->nodep[spp] = t->get_fork(t, spp);
   hookup(t->nodep[1], t->nodep[spp]->next);
   hookup(t->nodep[0], t->nodep[spp]->next->next);
 
-  nextnode = spp + 2;
-
-  for ( j = 3; j <= spp ; j++ )
+  for ( j = 3; j <= spp ; j++ )     /* adding one by one species, 3, 4, ... */
   {
     newtip = t->nodep[j-1];
 
-    if ( bestrees[treei].btree[j-1] > 0 )
+    if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
     {
       /* bifurcation */
-      below = (t->nodep[bestrees[treei].btree[j - 1] - 1]);
-      forknode = t->nodep[nextnode++ - 1]->next;
+      forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
+      hookup(newtip, forknode);
+      below = t->nodep[bestrees[treei].btree[j - 1] - 1];
       bback = below->back;
       hookup(forknode->next, below);
       if ( bback )
         hookup(forknode->next->next, bback);
-
     }
     else
     {
@@ -930,36 +961,6 @@ static void savetraverse(node *p)
   }
 
 }  /* savetraverse */
-
-
-static void bintomulti(tree *t, node **root, node **binroot)
-{
-  /* Make a binary tree multifurcating:
-   * attaches root's left child to its right child and makes the right
-   * child the new root. */
-  node *left, *right, *newnode, *temp;
-
-  right = (*root)->next->next->back;
-  left = (*root)->next->back;
-  if (right->tip)
-  {
-    (*root)->next = right->back;
-    (*root)->next->next = left->back;
-    temp = left;
-    left = right;
-    right = temp;
-    right->back->next = *root;
-  }
-  newnode = t->get_forknode(t, right->index);
-  newnode->next = right->next;
-  newnode->back = left;
-  left->back = newnode;
-  right->next = newnode;
-  (*root)->next->back = (*root)->next->next->back = NULL;
-  *binroot = *root;
-  *root = right;
-  (*root)->back = NULL;
-} /* bintomulti */
 
 
 static boolean outgrin(node *root, node *outgrnode)
@@ -1017,33 +1018,34 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
     for ( j = 0 ; j <= num_sibs ; j++ )
     {
       sib_ptr = curtree->nodep[i];
-      for ( k = 0 ; k < j ; k++ )
+      for ( k = 0 ; k < j ; k++ ) {
         sib_ptr = sib_ptr->next;
-      if ( sib_ptr->back == NULL || sib_ptr->back->tip )
-        continue;
+        if ( sib_ptr->back == NULL || sib_ptr->back->tip )
+          continue;                     /* skip over rest of loop this time */
 
-      removed = sib_ptr->back;
-      mulf = 2 != count_sibs(removed->back);
-      curtree->re_move(curtree, removed, &where, true);
-      qwhere = where;
+        removed = sib_ptr->back;
+        mulf = 2 != count_sibs(removed->back);
+        curtree->re_move(curtree, removed, &where, true);
+        qwhere = where;
 
-      if ( where->tip)
-      {
-        num_sibs2 = 0;
-        sib_ptr2 = where->back;
+        if ( where->tip)
+        {
+          num_sibs2 = 0;
+          sib_ptr2 = where->back;
+        }
+        else
+        {
+          num_sibs2 = count_sibs(where);
+          sib_ptr2 = where;
+        }
+        for ( k = 0 ; k <= num_sibs2 ; k++ )
+        {
+          curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
+                                qwhere, &bestyet, &bestree, multf);
+          sib_ptr2 = sib_ptr2->next;
+        }
+        curtree->insert_(curtree, removed, where, mulf);
       }
-      else
-      {
-        num_sibs2 = count_sibs(where);
-        sib_ptr2 = where;
-      }
-      for ( k = 0 ; k <= num_sibs2 ; k++ )
-      {
-        curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                              qwhere, &bestyet, &bestree, multf);
-        sib_ptr2 = sib_ptr2->next;
-      }
-      curtree->insert_(curtree, removed, where, mulf);
     }
   }
   if (progress)
