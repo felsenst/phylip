@@ -888,23 +888,23 @@ void newindex(long i, node *p)
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores a tree from bestrees */
-  long j, nsibs;
-  node *q, *below, *bback, *forknode, *newtip;
+  long i, j, nsibs;
+  boolean foundit = false;
+  node *p, *q, *below, *bback, *forknode, *newtip;
 
   destruct_tree(t);       /* to make sure all interior nodes are on 
                            * the list at free_fork_nodes  */
   /* restore the tree */
-  t->nodep[spp] = t->get_fork(t, spp);
-  hookup(t->nodep[1], t->nodep[spp]->next);
-  hookup(t->nodep[0], t->nodep[spp]->next->next);
+  forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
+  hookup(t->nodep[1], forknode->next);
+  hookup(t->nodep[0], forknode->next->next);
 
   for ( j = 3; j <= spp ; j++ )     /* adding one by one species, 3, 4, ... */
   {
     newtip = t->nodep[j-1];
 
     if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
-    {
-      /* bifurcation */
+    {              /*  if bifurcation */
       forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
       hookup(newtip, forknode);
       below = t->nodep[bestrees[treei].btree[j - 1] - 1];
@@ -914,29 +914,38 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
         hookup(forknode->next->next, bback);
     }
     else
-    {
-      /* multifurcation */
+    {          /*  if goes into a multifurcation put a new node into circle */
       below = t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
       forknode = t->get_forknode(t, below->index);
       forknode->next = below->next;
       below->next = forknode;
     }
-    hookup(forknode, newtip);
   }
 
-  nsibs = count_sibs(t->nodep[spp]);
-  if ( nsibs > 2 )
-  {
-    for ( q = t->nodep[spp]->next ; q->next != t->nodep[spp] ; q = q->next);
-    q->next = t->nodep[spp]->next;
-    q = t->nodep[spp];
-    t->nodep[spp] = t->nodep[spp]->next;
-    t->release_forknode(t, q);
+  forknode = NULL;
+  for (i = spp; i <= nonodes; i++) {     /* check all interior node circles */
+    p = t->nodep[i];
+    for (q = p; q != p; q = q->next) {                 /* go all way around */
+      if (q->back == NULL) {
+        forknode = q;              /* find a node that has nothing below it */
+        foundit = true;
+      }
+    }
   }
-  else
-  {
-    hookup(t->nodep[spp]->next->back, t->nodep[spp]->next->next->back);
-    t->release_fork(t, t->nodep[spp]); 
+  if (foundit) {    /* remove the interior node which has an empty neighbor */
+    nsibs = count_sibs(forknode); 
+    if ( nsibs > 2 )
+    {                            /* find the circle member that precedes it */
+      for ( q = forknode ; q->next != forknode ; q = q->next);
+      q->next = forknode->next;                      /* and connect past it */
+      t->nodep[q->index - 1] = q;           /* and have nodep point to that */
+      t->release_forknode(t, forknode);                      /* and toss it */
+    }
+    else
+    {                   /* if the interior node has only two real neighbors */
+      hookup(forknode->next->back, forknode->next->next->back);
+      t->release_fork(t, forknode);        /* release the whole fork circle */
+    }
   }
 
   t->root = t->nodep[outgrno - 1]->back;
@@ -999,11 +1008,11 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
     print_progress(progbuf);
   }
 
-/* debug:   goes through all tips and forks.  But what if some of them aren't
- *          on the tree? (that may happen if rearranging a user tree)   */
   for ( i = 0 ; i < curtree->nonodes ; i++ )
   {
     sib_ptr  = curtree->nodep[i];
+    if (sib_ptr == NULL)
+      continue;         /* skip this case if no interior node circle there */
     if ( sib_ptr->tip )
       num_sibs = 0;
     else
