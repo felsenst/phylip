@@ -923,14 +923,16 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   }
 
   forknode = NULL;
-  for (i = spp; i <= nonodes; i++) {     /* check all interior node circles */
+  for (i = spp; i < nonodes; i++) {     /* check all interior node circles */
     p = t->nodep[i];
-    for (q = p; q != p; q = q->next) {                 /* go all way around */
+    q = p;
+    do {
       if (q->back == NULL) {
         forknode = q;              /* find a node that has nothing below it */
         foundit = true;
       }
-    }
+      q = q->next;
+    } while (q != p);  /* annoying; could not get for loop to work for this */
   }
   if (foundit) {    /* remove the interior node which has an empty neighbor */
     nsibs = count_sibs(forknode); 
