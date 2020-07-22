@@ -4417,7 +4417,7 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->index = k+1;   /* debug:   necessary?  retval node is already assigned this index */
   p = retval;
   p = p->next;
-  while (p != retval) {  /* set index of nodes in right to  k */
+  while (p != retval) {  /* set index of nodes in right to  k+1 */
     p->index = k+1;
     p = p->next;
   }
