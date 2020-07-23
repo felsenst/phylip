@@ -795,8 +795,8 @@ void getdata(void)
         }
         y[i][k][j-1] = x[i][k][j-1];    /* copy it into  y */
       }
-/*    if (!eoln(infile))        debug:  need with within-species variation?
-        scan_eoln(infile);   */
+    if (!eoln(infile))      /*  debug:  need with within-species variation?  */
+        scan_eoln(infile); 
     }
 /* debug      printf("\n"); */
     if (printdata)
