@@ -2026,7 +2026,8 @@ void headings(long chars, const char *letters1, const char *letters2)
 
 void initname(long i)
 {
-  /* read in species name */
+  /* read in species name.  If has bad characters, complain.
+   * If has a Tab character, signals to blank-fill rest of name, */
   boolean gotatab;
   long j;
 

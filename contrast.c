@@ -751,8 +751,8 @@ void getdata(void)
       exxit(-1);
     }
   }
+  scan_eoln(infile);
   for (i = 0; i < spp; i++) {
-    scan_eoln(infile);
     initname(i);
     if (varywithin) {
       if (fscanf(infile, "%ld", &sample[i]) == 1) {
@@ -782,7 +782,7 @@ void getdata(void)
         if (eoln(infile))
           scan_eoln(infile);
         if (fscanf(infile, "%lf", &x[i][k][j - 1]) != 1) {
-          printf("Error in input file at species %ld.\n", i+1);
+          printf("Error in input file at species %ld, sample %ld, character %ld.\n", i+1, k+1, j);
           exxit(-1);
         }
         if (printdata) {
@@ -795,10 +795,9 @@ void getdata(void)
         }
         y[i][k][j-1] = x[i][k][j-1];    /* copy it into  y */
       }
-    if (!eoln(infile))      /*  debug:  need with within-species variation?  */
+      if (!eoln(infile))      /*  debug:  need with within-species variation?  */
         scan_eoln(infile); 
     }
-/* debug      printf("\n"); */
     if (printdata)
       putc('\n', outfile);
   }
@@ -2471,7 +2470,7 @@ void reportregressions (matrix regressions, matrix correlations)
     fprintf(outfile, "----------- -------- -- -----\n");
     for (i = 0; i < charspp; i++) {          /* print out column numbers */
       if (i == 0)
-        fprintf(outfile, "\n        ");
+        fprintf(outfile, "\nrow\\col ");
       fprintf(outfile, "   %3ld    ", i+1);
       if ((i > 0) && (i%10 == 10) && (charspp > i))
         fprintf(outfile, "\n        ");
@@ -2488,7 +2487,7 @@ void reportregressions (matrix regressions, matrix correlations)
     fprintf(outfile, "------------\n");
     for (i = 0; i < charspp; i++) {          /* print out column numbers */
       if (i == 0)
-        fprintf(outfile, "\n        ");
+        fprintf(outfile, "\nrow\\col ");
       fprintf(outfile, "   %3ld    ", i+1);
       if ((i > 0) && (i%10 == 0) && (charspp > i))
         fprintf(outfile, "\n        ");
@@ -3101,7 +3100,7 @@ void reportmatrix (matrix QQ, long m)
   /* print out the axes that are independent */
   long i, j, n;
 
-  fprintf(outfile, "        ");
+  fprintf(outfile, "row\\col ");
   for (i = 0; i < m; i++) {          /* print out column numbers */
     if ((i > 0) && (i%6 == 0))
       fprintf(outfile, "\n        ");
