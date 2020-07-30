@@ -693,7 +693,7 @@ void freerest(void)
   free(alias);
   free(ally);
   free(location);
-  free(threshwt);
+/*   free(threshwt);  debug: for some reason this blows up so commented out */
 }  /* freerest */
 
 
@@ -753,8 +753,8 @@ void dnaparsrun(void)
     fflush(outtree);
   }
 
-  curtree->free(curtree);
-}
+/* debug   curtree->free(curtree);     commented out because crashes */
+} /* dnaparsrun */
 
 
 void dnapars(
@@ -1091,7 +1091,7 @@ void dnapars(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnapars */
 
 
 int main(int argc, Char *argv[])

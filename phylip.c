@@ -3381,7 +3381,7 @@ void destruct_tree(tree* t)
     t->get_fork(t, 0);
   }
 debug */
-  for ( j = t->spp; j < t->nonodes ; j++ ) {
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {
     if (t->nodep[j] != NULL) {
       p = t->nodep[j];
       p->back = NULL;
@@ -3427,9 +3427,11 @@ void generic_tree_free(tree *t)
   long i;
   node *p,*q,*r;
 
+/* debug:  this is probably unnecessary as no longer have a forks list
   while ( !Slist_isempty(t->free_forks) )
     Slist_pop(t->free_forks);
   Slist_delete(t->free_forks);
+debug  */
 
   while ( !Slist_isempty(t->free_fork_nodes) )
     Slist_pop(t->free_fork_nodes);
@@ -3498,6 +3500,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
+  t->nodep[nonodes] = NULL;   /* might need this */
   t->root = t->nodep[0];
   generic_tree_setupfunctions(t);
 } /* generic_tree_init */

@@ -49,19 +49,22 @@ node* root_tree(tree* t, node* here)
    * rooted tree such as oldsavetree.  This does NOT reorient the tree so
    * that all nodep pointers point to the rootmost node of that interior
    * node.  */
+  long k;
   node *nuroot1, *nuroot2, *nuroot3, *there;  /* the three nodes in the new circle
                                                * and a saving of  here->back */
+
+  k = generic_tree_findemptyfork(t);
   there = here->back;
-  nuroot1 = t->get_forknode(t, nonodes);
+  nuroot1 = t->get_forknode(t, k+1);
   hookup(here, nuroot1);
-  nuroot2 = t->get_forknode(t, nonodes);
+  nuroot2 = t->get_forknode(t, k+1);
   nuroot1->next = nuroot2;
   hookup(nuroot2, there);
-  nuroot3 = t->get_forknode(t, nonodes);
+  nuroot3 = t->get_forknode(t, k+1);
   nuroot2->next = nuroot3;
   nuroot3->next = nuroot1;
   nuroot3->back = NULL;
-  t->nodep[nonodes-1] = nuroot3;
+  t->nodep[k] = nuroot3;
   return nuroot3;
 } /* root_tree */
 
@@ -126,7 +129,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   if ( lastrearr && (like >= *bestyet || *bestyet == UNDEFINED))
   {
     savetree(t, place);
-    findtree(&found, &pos, nextree, place, bestrees);
+    findtree(&found, &pos, nextree-1, place, bestrees);
     if ( !found )
     {
       if (*bestyet < like || nextree == 1 )
@@ -1357,7 +1360,7 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
   savetree(t, place);
   addbestever(&pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 
-  for ( i = 0 ; i < nextree ; i++)
+  for ( i = 0 ; i < nextree-1 ; i++)
     bestrees[i].gloreange = false;
 
   while (!done)
