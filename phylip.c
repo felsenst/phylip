@@ -3375,33 +3375,23 @@ void destruct_tree(tree* t)
   long j, nsibs;
   node *q, *p;
 
-/* debug:   commenting out as dubious:
-  while ( !Slist_isempty(t->free_fork_nodes) )
-  {
-    t->get_fork(t, 0);
+  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+    if (t->nodep[j] != NULL)
+      t->release_forknode(t, t->nodep[j]);
   }
-debug */
-  for ( j = t->spp; j <= t->nonodes ; j++ ) {
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {         /* release fork nodes */
     if (t->nodep[j] != NULL) {
       p = t->nodep[j];
       p->back = NULL;
-      /* BUG.970
-         p->initialized = false;
-      */
+      p->initialized = false;
       for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
         q = p->next->next;
         t->release_forknode(t, p->next);
         p->next = q;
+        p->initialized = false;
+        p->back = NULL;
       }
-
-      p->initialized = false;
-      p->next->initialized = false;
-      p->next->next->initialized = false;
-      p->back = NULL;
-      p->next->back = NULL;
-      p->next->next->back = NULL;
-  
-      t->release_fork(t, p);
+      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
     }
   }
 
@@ -4738,17 +4728,17 @@ void buildsimpletree(tree *t, long* enterorder)
   /* build a simple three-tip tree with interior fork, by hooking
      up two tips, then inserting third tip hooked to fork, also set root */
   long k;
-  node* p = t->nodep[ enterorder[0] - 1];
-  node* q = t->nodep[ enterorder[1] - 1];
-  node* r = t->nodep[ enterorder[2] - 1];
-  node* newnode;
+  node *p, *q, *r, *newnode;
 
-  k = generic_tree_findemptyfork(t);
-  newnode = t->get_fork(t, k);
-  hookup(r, newnode);      /* connect third tip to new fork */
-  hookup(p,q);             /* connect first and second tips */
+  p = t->get_forknode(t, enterorder[0] - 1);
+  q = t->get_forknode(t, enterorder[1] - 1);
+  r = t->get_forknode(t, enterorder[2] - 1);
+  k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode = t->get_fork(t, k);                  /* get a three-species fork */
+  hookup(r, newnode);                      /* connect third tip to new fork */
+  hookup(p,q);                             /* connect first and second tips */
 
-  t->insert_(t, newnode, q, false);  /* connect all of them */
+  t->insert_(t, newnode, q, false);                  /* connect all of them */
 
   t->root = p;
 
