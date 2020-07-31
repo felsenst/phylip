@@ -619,7 +619,7 @@ libdnaml.so:	dnaml.o seq.o ml.o $(LIBS)
 	$(CC) $(CFLAGS) -o libdnaml.so -shared -fPIC dnaml.c seq.c ml.c phylip.c Slist.c -shared -fPIC
 
 libdnapars.so: dnapars.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdnapars.so -shared -fPIC dnapars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
 
 libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
 	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapenny.c seq.c phylip.c Slist.c
