@@ -623,6 +623,7 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
   }
 } /* addtiedtree */
 
+
 /* debug:  may not need in view of pars_try_insert  */
 #if 0
 void add_to_besttrees(tree* t, long score, bestelm* bestrees)
