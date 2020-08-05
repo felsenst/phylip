@@ -3471,11 +3471,13 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->nodep = Malloc(nonodes * sizeof(node *));
   for ( i = 0 ; i < spp ; i++ ) {
     t->nodep[i] = functions.node_new(true, i+1);
+    t->nodep[i]->tip = true;
   }
   for ( i = spp ; i < nonodes ; i++ ) {
     q = NULL;
     for ( j = 1 ; j <= 3 ; j++ ) {
       p = functions.node_new(false, i + 1 );
+      p->tip = false;
       p->next = q;
       q = p;
     }
@@ -4409,10 +4411,12 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->next->initialized = false;
   retval->next->next->initialized = false;
   retval->index = k+1;   /* debug:   necessary?  retval node is already assigned this index */
+  retval->tip = false;
   p = retval;
   p = p->next;
   while (p != retval) {  /* set index of nodes in right to  k+1 */
     p->index = k+1;
+    p->tip = false;
     p = p->next;
   }
   t->nodep[k] = retval;
@@ -4508,6 +4512,7 @@ node* generic_tree_get_forknode(tree* t, long i)
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
   }
+  p->tip = (i < spp);
   return p;
 } /* generic_tree_get_forknode */
 

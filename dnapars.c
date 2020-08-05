@@ -558,6 +558,8 @@ void maketree(void)                     // RSGbugfix
       {
         load_tree(curtree, i, bestrees);
         reroot(curtree->nodep[outgrno - 1], curtree->root);
+        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
         curtree->root = root_tree(curtree, curtree->root);
         curtree->nodep[curtree->root->index - 1] = curtree->root;
@@ -605,6 +607,8 @@ void maketree(void)                     // RSGbugfix
       haslengths = true;
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
       reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+      initializetrav(curtree, curtree->root);
+      initializetrav(curtree, curtree->root->back);
       curtree->evaluate(curtree, curtree->root, false);
       curtree->root = root_tree(curtree, curtree->root);
       if (treeprint)
