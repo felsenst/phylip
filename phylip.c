@@ -388,6 +388,7 @@ void initializetrav (tree* t, node *p)
    * "initialized" booleans on any connected interior node to false
    * To set all initializeds to false on a tree must be called twice
    * for root branch, once at each end of the branch */
+/* debug:  does this duplicate the previous two functions? */
   node *q;
 
   if (p->tip)
@@ -423,7 +424,7 @@ void inittrav (tree* t, node *p)
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    if (!(sib_ptr->initialized)) {   /* if not already uninitialized ... */
+    if (sib_ptr->initialized) {   /* if not already uninitialized ... */
       sib_ptr->initialized = false;  /* set booleans looking back in, then */
       inittrav(t, sib_ptr->back);    /* further traverse from this circle */
     }
@@ -3455,8 +3456,8 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
-  long i, j;
-  node *q,*p;
+  long i;
+  node *q, *p;
 
   /* these functions may be customized for each program */
   if ( t->release_fork == NULL )
@@ -3474,15 +3475,17 @@ void generic_tree_init(tree* t, long nonodes, long spp)
     t->nodep[i]->tip = true;
   }
   for ( i = spp ; i < nonodes ; i++ ) {
-    q = NULL;
-    for ( j = 1 ; j <= 3 ; j++ ) {
-      p = functions.node_new(false, i + 1 );
-      p->tip = false;
-      p->next = q;
-      q = p;
-    }
-    p->next->next->next = p;
-    t->nodep[i] = p;
+    q = functions.node_new(false, i+1 );
+    p = q;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);;
+    p = p->next;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);;
+    p = p->next;
+    p->tip = false;
+    p->next = q;
+    t->nodep[i] = q;
   }
 
   /* Create garbage lists */
@@ -4401,7 +4404,7 @@ node* generic_tree_get_fork(tree* t, long k)
    * Changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
    */
-  node *retval, *p;
+  node *retval;
 
   retval = generic_tree_get_forknode(t, k+1);
   retval->next = generic_tree_get_forknode(t, k+1);
@@ -4410,15 +4413,9 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
-  retval->index = k+1;   /* debug:   necessary?  retval node is already assigned this index */
   retval->tip = false;
-  p = retval;
-  p = p->next;
-  while (p != retval) {  /* set index of nodes in right to  k+1 */
-    p->index = k+1;
-    p->tip = false;
-    p = p->next;
-  }
+  retval->next->tip = false;
+  retval->next->next->tip = false;
   t->nodep[k] = retval;
   return retval;
 } /* generic_tree_get_fork */
@@ -4735,9 +4732,9 @@ void buildsimpletree(tree *t, long* enterorder)
   long k;
   node *p, *q, *r, *newnode;
 
-  p = t->get_forknode(t, enterorder[0] - 1);
-  q = t->get_forknode(t, enterorder[1] - 1);
-  r = t->get_forknode(t, enterorder[2] - 1);
+  p = t->nodep[enterorder[0] - 1];
+  q = t->nodep[enterorder[1] - 1];
+  r = t->nodep[enterorder[2] - 1];
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
   newnode = t->get_fork(t, k);                  /* get a three-species fork */
   hookup(r, newnode);                      /* connect third tip to new fork */

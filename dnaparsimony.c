@@ -735,7 +735,7 @@ void dnapars_tree_nuview(tree* t, node* p)
       }
       else
       { /* optimization for bifurcation, code above still works though*/
-        newbase = ((dnapars_node*)p->next->back)->base[i] | ((dnapars_node*)p->next->next->back)->base[i];
+        newbase = ((dnapars_node*)(p->next->back))->base[i] | ((dnapars_node*)(p->next->next->back))->base[i];
         steps += weight[i];
       }
     }
