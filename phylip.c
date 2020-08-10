@@ -241,7 +241,7 @@ void generic_node_init(node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;
+  n->init = generic_node_init;   /* debug: are these overriding more local assignments? */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -3370,22 +3370,19 @@ void unroot_r(tree* t, node* p, long nonodes)
 } /* unroot_r */
 
 
-void destruct_tree(tree* t)
-{ /* returns a tree such that there are no branches, and the free fork nodes
-     go on the stacks */
+void release_all_forks(tree* t)
+{
+  /* release all forks of a tree to the free_forknodes list.
+   * also set "back" pointers of tips to NULL */
   long j, nsibs;
-  node *q, *p;
+  node *p, *q;
 
-  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
-    if (t->nodep[j] != NULL)
-      t->release_forknode(t, t->nodep[j]);
-  }
-  for ( j = t->spp; j <= t->nonodes ; j++ ) {         /* release fork nodes */
-    if (t->nodep[j] != NULL) {
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+    if (t->nodep[j] != NULL) {                   /* make there is one there */
       p = t->nodep[j];
       p->back = NULL;
       p->initialized = false;
-      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
+      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
         q = p->next->next;
         t->release_forknode(t, p->next);
         p->next = q;
@@ -3395,7 +3392,23 @@ void destruct_tree(tree* t)
       t->release_fork(t, p);          /* put it on the free_fork_nodes list */
     }
   }
+  for ( j = 0; j < spp; j++) {   /* set the "back" pointers of tips to NULL */
+    if (t->nodep[j] != NULL)
+      t->nodep[j]->back = NULL;
+  }
+} /* release_all_forks */
 
+
+void destruct_tree(tree* t)
+{ /* returns a tree such that there are no branches, and the free fork nodes
+     go on the stacks */
+  long j;
+
+  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+    if (t->nodep[j] != NULL)
+      t->release_forknode(t, t->nodep[j]);
+  }
+  release_all_forks(t);
 } /* destruct_tree */
 
 
@@ -4822,7 +4835,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     enterorder[i - 1] = i;
   if (jumble)
     randumize(seed, enterorder);
-  destruct_tree(curtree);
+  release_all_forks(curtree);
   buildsimpletree(curtree, enterorder);
   curtree->root = curtree->nodep[enterorder[0] - 1]->back;
   if (progress) {
@@ -4857,6 +4870,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
 void preparetree(tree* t)
 {
   /* throw all the forknodes onto the stack so treeread can use them */
+/* debug:  this function is probably no longer used, can be deleted? */
   node* p;
   long i;
 
