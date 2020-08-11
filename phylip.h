@@ -789,6 +789,7 @@ char            gettc(FILE*);
 void            unroot(tree*, long);
 void            unroot_here(tree*, node*, long);
 void            unroot_r(tree*, node*, long);
+void            release_all_forks(tree*);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);

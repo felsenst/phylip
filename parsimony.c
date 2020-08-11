@@ -304,13 +304,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     while(!bestrees[k].collapse)
       k++;
-    /* Reconstruct tree. */
-    load_tree(t, k, bestrees);
+    load_tree(t, k, bestrees);                         /* Reconstruct tree. */
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
-    savetree(t, place);
-    /* move everything down in the bestree list */
-    for(j = k ; j < (treeLimit - 1) ; j++)
+    savetree(t, place);          /* set aside collapsed tree in place array */
+    for(j = k ; j < (treeLimit - 1) ; j++)  /* move rest of trees down list */
     {
       memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
       bestrees[j].gloreange = bestrees[j + 1].gloreange;
@@ -319,13 +317,12 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       bestrees[j + 1].locreange = false;
       bestrees[j].collapse = bestrees[j + 1].collapse;
     }
-    treeLimit--;
+    treeLimit--;         /* because there is now one fewer tree in bestrees */
 
     pos=0;
     findtree(&found, &pos, treeLimit, place, bestrees);
 
-    /* put the new tree in the the list if it wasn't found */
-    if(!found)
+    if(!found)       /* put the new tree in the the list if it wasn't found */
     {
       addtree(pos, &treeLimit, false, place, bestrees);
     }
@@ -450,10 +447,11 @@ void oldsavetree(tree* t, long *place)
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
-#if 0                        /* debug: don't need this?  */
+/* debug: don't need this?
+#if 0 
   if (get_numdesc(t->root, t->root) == 2)
     bintomulti(t, &t->root, &binroot);
-#endif
+#endif    debug */
   if (outgrin(t->root, outgrnode))
   {
     if (outgrnode != t->root->next->back)
@@ -472,8 +470,10 @@ void oldsavetree(tree* t, long *place)
   savetraverse(t->root);
   nextnode = spp + 1;
   for (i = nextnode; i <= nonodes; i++)
-    if (get_numdesc(t->root, t->nodep[i - 1]) == 0)
-      flipindexes(i, t->nodep);
+    if (t->nodep[i-1] != NULL) {
+      if (get_numdesc(t->root, t->nodep[i-1]) == 0)
+        flipindexes(i, t->nodep);
+    }
   for (i = 0; i < nonodes; i++)
     place[i] = 0;
   place[t->root->index - 1] = 1;
@@ -896,8 +896,8 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   boolean foundit = false;
   node *p, *q, *below, *bback, *forknode, *newtip;
 
-  destruct_tree(t);       /* to make sure all interior nodes are on 
-                           * the list at free_fork_nodes  */
+  release_all_forks(t);              /* to make sure all interior nodes
+                                        are on the list at free_fork_nodes  */
   /* restore the tree */
   forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
@@ -916,6 +916,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       hookup(forknode->next, below);
       if ( bback )
         hookup(forknode->next->next, bback);
+      t->nodep[spp+j-2] = forknode->next->next; /* be sure which way is down */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
