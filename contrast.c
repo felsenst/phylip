@@ -785,6 +785,7 @@ void getdata(void)
           printf("Error in input file at species %ld, sample %ld, character %ld.\n", i+1, k+1, j);
           exxit(-1);
         }
+printf("x[%ld][%ld][%ld] = %12.9f\n", i, k, j-1, x[i][k][j-1]);
         if (printdata) {
           fprintf(outfile, " %14.9f", x[i][k][j - 1]);
           if (j % 6 == 0) {
