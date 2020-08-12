@@ -1,3 +1,2 @@
-((European,African),American,(Chinese,Australian));
-(American,(Chinese,Australian),(European,African));
-((European,African),(American,(Chinese,Australian)));
+(((Chinese:0.00209641,American:0.03805602):0.00940820,Australian:0.05248762):0.02257454,
+African:0.09693444,European:0.00000000);
