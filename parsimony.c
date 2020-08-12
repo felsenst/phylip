@@ -308,7 +308,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
     savetree(t, place);          /* set aside collapsed tree in place array */
-    for(j = k ; j < (treeLimit - 1) ; j++)  /* move rest of trees down list */
+    for(j = k ; j < (treeLimit - 1) ; j++)    /* move rest of trees forward */
     {
       memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
       bestrees[j].gloreange = bestrees[j + 1].gloreange;
@@ -879,26 +879,31 @@ void backtobinary(tree* t, node **root, node *binroot)
 
 void newindex(long i, node *p)
 {
-  /* assigns index i to node p */
+  /* assigns index i to fork that  p is in */
 
   while (p->index != i)
   {
     p->index = i;
-    p = p->next;
+    p = p->next;   /* ... and move on around circle. */
   }
 } /* newindex */
 
 
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
-  /* restores a tree from bestrees */
+  /* restores tree  treei  from array bestrees.  Add tips to a tree.
+   * The array element  bestree[treei].btree[k]  indicates that
+   * the k-th tip is to be connected to a new fork that is below tip or
+   * fork  btree[k].  If negative, it indicates that it is to be added as an
+   * extra furc to the fork that is already at the bottom of the branch that
+   * is below fork (or tip)  k  */
   long i, j, nsibs;
   boolean foundit = false;
-  node *p, *q, *below, *bback, *forknode, *newtip;
+  node *p, *q, *below, *bback, *forknode, *newtip, *beforewhere, *afterwhere;
 
   release_all_forks(t);              /* to make sure all interior nodes
                                         are on the list at free_fork_nodes  */
-  /* restore the tree */
+                                     /* then make tree of first two species */
   forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
@@ -908,7 +913,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     newtip = t->nodep[j-1];
 
     if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
-    {              /*  if bifurcation */
+    {                                                    /*  if bifurcation */
       forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
       hookup(newtip, forknode);
       below = t->nodep[bestrees[treei].btree[j - 1] - 1];
@@ -916,28 +921,37 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       hookup(forknode->next, below);
       if ( bback )
         hookup(forknode->next->next, bback);
-      t->nodep[spp+j-2] = forknode->next->next; /* be sure which way is down */
+      t->nodep[spp+j-2] = forknode->next->next;   /* know which way is down */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
-      below = t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
-      forknode = t->get_forknode(t, below->index);
-      forknode->next = below->next;
-      below->next = forknode;
+      bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
+      beforewhere = bback->next;            /* where will that node be put? */ 
+      afterwhere = bback->next->next;   /* get the nodes before, after that */
+      do {   /* move around fork circle until just before the downward link */
+        beforewhere = afterwhere;
+        afterwhere = afterwhere->next;
+      } while ((afterwhere->next) != bback);
+      forknode = t->get_forknode(t, below->index);        /* get a new node */
+      hookup(newtip, forknode);             /* hook the tip to the new node */
+      beforewhere->next = forknode;               /* put it the right place */
+      forknode->next = afterwhere;
     }
   }
 
   forknode = NULL;
-  for (i = spp; i < nonodes; i++) {     /* check all interior node circles */
+  for (i = spp; i < nonodes; i++) {      /* check all interior node circles */
     p = t->nodep[i];
-    q = p;
-    do {
-      if (q->back == NULL) {
-        forknode = q;              /* find a node that has nothing below it */
-        foundit = true;
-      }
-      q = q->next;
-    } while (q != p);  /* annoying; could not get for loop to work for this */
+    if (p != NULL) {
+      q = p;
+      do {
+        if (q->back == NULL) {
+          forknode = q;            /* find a node that has nothing below it */
+          foundit = true;
+          }
+        q = q->next;
+      } while (q != p); 
+    }
   }
   if (foundit) {    /* remove the interior node which has an empty neighbor */
     nsibs = count_sibs(forknode); 
