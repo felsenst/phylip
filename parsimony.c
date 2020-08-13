@@ -99,7 +99,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   double * bestyet, tree * bestree, tree * priortree, boolean thorough,
-  boolean *multf )
+  boolean *atstart)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -119,7 +119,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
-  if (like > *bestyet || *bestyet == UNDEFINED)
+  if (like > *bestyet || first)
   {
     there = p;
     succeeded = true;
@@ -138,7 +138,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, like);
     }
   }
-  if (like > *bestyet || *bestyet == UNDEFINED)
+  if (like > *bestyet || atstart)
     *bestyet = like;
   t->re_move(t, item, &dummy, true);
 /* debug:   t->restore_traverses(t, item, p);   */

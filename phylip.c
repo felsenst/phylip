@@ -3913,7 +3913,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * thorough indicates whether need to adjust parameters
    * further out than  q  to assess that location  */
   node *sib_ptr;
-  boolean succeeded, atstart;
+  boolean succeeded;
 
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
@@ -4832,7 +4832,6 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
   node *item, *there, *p;
   long *enterorder;
   double bestyet;
-  (void)thorough;                       // RSGdebug: Parameter never used.
 
   enterorder = (long *)Malloc(spp * sizeof(long));
   for (i = 1; i <= spp; i++)
@@ -4849,7 +4848,6 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     phyFillScreenColor();
   }
   for (i = 4; i <= spp; i++) {
-    bestyet = UNDEFINED;
     item = curtree->nodep[enterorder[i - 1] - 1];
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     there = curtree->root;

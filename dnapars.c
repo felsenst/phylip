@@ -473,7 +473,7 @@ void maketree(void)                     // RSGbugfix
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode;
-  boolean done, firsttree, goteof, haslengths;
+  boolean firsttree, goteof, haslengths;
 
 #if 0                                   // RSGbugfix: Local variable never used.
   pointarray nodep;
@@ -516,8 +516,6 @@ void maketree(void)                     // RSGbugfix
       print_progress(progbuf);
       phyFillScreenColor();
     }
-
-    done = false;
 
     lastrearr = true;
     grandrearr(curtree, progress, rearrfirst);
