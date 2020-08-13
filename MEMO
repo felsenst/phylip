@@ -9,6 +9,24 @@ To clone a git repository to here
 git clone https://github.com/felsenst/phylip/ .
 
 
+To change current branch of the git repository to foobar:
+
+git checkout foobar
+
+(this does not seem to move files, just to change which branch you
+are talking about)
+
+
+To make the content of one branch (say "master") be replaced by
+the content of another (say "gh-pages"):
+
+git checkout master
+git merge gh-pages
+
+(So you're "in" master, and merging from that other
+ branch.  This is all on the local version of those)
+
+
 To put some changed files up on the github master copy of "phylip"
 after changing local stuff (which seems by default to be branch "master")
 by "git commit filename" or more generally  "git commit filename1 filename2"
@@ -44,7 +62,7 @@ also: to diff of your local changes with the files you
 pulled down to the local system
   git diff
 to focus on the .c or .h  files that matter, use
-  got diff | grep diff
+  git diff | grep diff
 
 
 if remote and local branches get out of synch and cannot

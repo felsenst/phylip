@@ -282,8 +282,9 @@ typedef unsigned int boolean;
 #define NLRSAVES 5 /* number of views that need to be saved during local  *
                     * rearrangement                                       */
 
-/* Used in Proml, Promlk, Dnaml, Dnamlk for undefined bestyet value */
-#define UNDEFINED 1.0
+/* Used in Proml, Promlk, Dnaml, Dnamlk and in the parsimony programs
+ * for undefined bestyet value */
+#define UNDEFINED -99.99999
 
 /* a basic stack */
 typedef struct stack stack;
@@ -789,6 +790,7 @@ char            gettc(FILE*);
 void            unroot(tree*, long);
 void            unroot_here(tree*, node*, long);
 void            unroot_r(tree*, node*, long);
+void            release_all_forks(tree*);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);

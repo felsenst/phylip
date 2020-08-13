@@ -241,7 +241,7 @@ void generic_node_init(node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;
+  n->init = generic_node_init;   /* debug: are these overriding more local assignments? */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -388,6 +388,7 @@ void initializetrav (tree* t, node *p)
    * "initialized" booleans on any connected interior node to false
    * To set all initializeds to false on a tree must be called twice
    * for root branch, once at each end of the branch */
+/* debug:  does this duplicate the previous two functions? */
   node *q;
 
   if (p->tip)
@@ -423,7 +424,7 @@ void inittrav (tree* t, node *p)
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    if (!(sib_ptr->initialized)) {   /* if not already uninitialized ... */
+    if (sib_ptr->initialized) {   /* if not already uninitialized ... */
       sib_ptr->initialized = false;  /* set booleans looking back in, then */
       inittrav(t, sib_ptr->back);    /* further traverse from this circle */
     }
@@ -2303,7 +2304,7 @@ void findtree(boolean *found, long *pos, long nextree,
   boolean below, done;
 
   below = false;
-  lower = 1;
+  lower = 0;
   upper = nextree - 1;
   (*found) = false;
   while (!(*found) && lower <= upper) {
@@ -2313,14 +2314,14 @@ void findtree(boolean *found, long *pos, long nextree,
     while (!done) {
       done = (i > spp);
       if (!done)
-        done = (place[i - 1] != bestrees[(*pos) - 1].btree[i - 1]);
+        done = (place[i-1] != bestrees[*pos].btree[i - 1]);
       if (!done)
         i++;
     }
     (*found) = (i > spp);
     if (*found)
       break;
-    below = (place[i - 1] <  bestrees[(*pos )- 1].btree[i - 1]);
+    below = (place[i-1] <  bestrees[*pos].btree[i - 1]);
     if (below)
       upper = (*pos) - 1;
     else
@@ -2334,12 +2335,15 @@ void findtree(boolean *found, long *pos, long nextree,
 void addtree(long pos, long *nextree, boolean collapse,
               long *place, bestelm *bestrees)
 {
-  /* puts tree from array place in its proper position in array bestrees */
-  /* used by Dnacomp, Dnapars, Dollop, Mix, and Protpars */
+  /* puts tree from array place in its proper position in array bestrees
+   * used by Dnacomp, Dnapars, Dollop, Mix, and Protpars
+   * pos takes range 0 .. nextree-1.  There are currently  nextree trees
+   * occupying that range, and once it is added there will then be
+   * nextree+1 trees occupying range  0 .. nextree  */
   long i;
 
-  for (i = *nextree - 1; i >= pos; i--)
-  {
+  for (i = *nextree; i > pos; i--)
+  {                            /* shift information for tree up by one tree */
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
     bestrees[i - 1].gloreange = false;
@@ -2348,9 +2352,9 @@ void addtree(long pos, long *nextree, boolean collapse,
     bestrees[i].collapse = bestrees[i - 1].collapse;
   }
   for (i = 0; i < spp; i++)
-    bestrees[pos - 1].btree[i] = place[i];
-  /*  bestrees[pos -1].gloreange = false; */
-  bestrees[pos -1].collapse = false;
+    bestrees[pos].btree[i] = place[i];
+  /*  bestrees[pos - 1].gloreange = false;  debug:  do we need this? */
+  bestrees[pos].collapse = false;
 
   (*nextree)++;
 }  /* addtree */
@@ -2380,15 +2384,16 @@ void shellsort(double *a, long *b, long n)
   /* Shell sort keeping a, b in same order
    * used by Dnapenny, Dolpenny, Penny, Contrast, and Threshml
    * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast
-   * (and a pleasingly short program)  Shell was the discover's name.
-   * sorts in same order an accompanying array (b) of tags */
+   * (and a pleasingly short program)  Shell was the discover's name -- it
+   * is not related to the "shell game" where one shuffles around thimbles.
+   * It sorts in the same order an accompanying array (b) of tags */
   long gap, i, j, itemp;
   double rtemp;
 
   gap = n / 2;                /* set initial gap size half the array length */
   while (gap > 0) {
     for (i = gap + 1; i <= n; i++) {     /* compare elements that far apart */
-      j = i - gap;                             /* compare elements i, i+gap */
+      j = i - gap;                             /* compare elements j, j+gap */
       while (j > 0) {
         if (a[j - 1] > a[j + gap - 1]) {            /* swap if out of order */
           rtemp = a[j - 1];
@@ -3369,42 +3374,45 @@ void unroot_r(tree* t, node* p, long nonodes)
 } /* unroot_r */
 
 
-void destruct_tree(tree* t)
-{ /* returns a tree such that there are no branches, and the free fork nodes
-     go on the stacks */
+void release_all_forks(tree* t)
+{
+  /* release all forks of a tree to the free_forknodes list.
+   * also set "back" pointers of tips to NULL */
   long j, nsibs;
-  node *q, *p;
+  node *p, *q;
 
-/* debug:   commenting out as dubious:
-  while ( !Slist_isempty(t->free_fork_nodes) )
-  {
-    t->get_fork(t, 0);
-  }
-debug */
-  for ( j = t->spp; j < t->nonodes ; j++ ) {
-    if (t->nodep[j] != NULL) {
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+    if (t->nodep[j] != NULL) {                   /* make there is one there */
       p = t->nodep[j];
       p->back = NULL;
-      /* BUG.970
-         p->initialized = false;
-      */
-      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
+      p->initialized = false;
+      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
         q = p->next->next;
         t->release_forknode(t, p->next);
         p->next = q;
+        p->initialized = false;
+        p->back = NULL;
       }
-
-      p->initialized = false;
-      p->next->initialized = false;
-      p->next->next->initialized = false;
-      p->back = NULL;
-      p->next->back = NULL;
-      p->next->next->back = NULL;
-  
-      t->release_fork(t, p);
+      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
     }
   }
+  for ( j = 0; j < spp; j++) {   /* set the "back" pointers of tips to NULL */
+    if (t->nodep[j] != NULL)
+      t->nodep[j]->back = NULL;
+  }
+} /* release_all_forks */
 
+
+void destruct_tree(tree* t)
+{ /* returns a tree such that there are no branches, and the free fork nodes
+     go on the stacks */
+  long j;
+
+  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+    if (t->nodep[j] != NULL)
+      t->release_forknode(t, t->nodep[j]);
+  }
+  release_all_forks(t);
 } /* destruct_tree */
 
 
@@ -3427,9 +3435,11 @@ void generic_tree_free(tree *t)
   long i;
   node *p,*q,*r;
 
+/* debug:  this is probably unnecessary as no longer have a forks list
   while ( !Slist_isempty(t->free_forks) )
     Slist_pop(t->free_forks);
   Slist_delete(t->free_forks);
+debug  */
 
   while ( !Slist_isempty(t->free_fork_nodes) )
     Slist_pop(t->free_fork_nodes);
@@ -3463,8 +3473,8 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
-  long i, j;
-  node *q,*p;
+  long i;
+  node *q, *p;
 
   /* these functions may be customized for each program */
   if ( t->release_fork == NULL )
@@ -3479,16 +3489,20 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->nodep = Malloc(nonodes * sizeof(node *));
   for ( i = 0 ; i < spp ; i++ ) {
     t->nodep[i] = functions.node_new(true, i+1);
+    t->nodep[i]->tip = true;
   }
   for ( i = spp ; i < nonodes ; i++ ) {
-    q = NULL;
-    for ( j = 1 ; j <= 3 ; j++ ) {
-      p = functions.node_new(false, i + 1 );
-      p->next = q;
-      q = p;
-    }
-    p->next->next->next = p;
-    t->nodep[i] = p;
+    q = functions.node_new(false, i+1 );
+    p = q;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);;
+    p = p->next;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);;
+    p = p->next;
+    p->tip = false;
+    p->next = q;
+    t->nodep[i] = q;
   }
 
   /* Create garbage lists */
@@ -3498,6 +3512,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
+  t->nodep[nonodes] = NULL;   /* might need this */
   t->root = t->nodep[0];
   generic_tree_setupfunctions(t);
 } /* generic_tree_init */
@@ -4406,7 +4421,7 @@ node* generic_tree_get_fork(tree* t, long k)
    * Changed so always pulls forknodes off their list, never pulls 
    * circles of nodes off their list
    */
-  node *retval, *p;
+  node *retval;
 
   retval = generic_tree_get_forknode(t, k+1);
   retval->next = generic_tree_get_forknode(t, k+1);
@@ -4415,13 +4430,9 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
-  retval->index = k+1;   /* debug:   necessary?  retval node is already assigned this index */
-  p = retval;
-  p = p->next;
-  while (p != retval) {  /* set index of nodes in right to  k+1 */
-    p->index = k+1;
-    p = p->next;
-  }
+  retval->tip = false;
+  retval->next->tip = false;
+  retval->next->next->tip = false;
   t->nodep[k] = retval;
   return retval;
 } /* generic_tree_get_fork */
@@ -4454,7 +4465,7 @@ void generic_tree_nuview(tree* t, node* p)
    *  when boolean initialized shows that they have not been updated yet */
   node *sib_ptr;
 
-/* debug */ printf("starting function generic_tree_nuview\n");
+/* debug printf("starting function generic_tree_nuview\n"); */ 
   if (!p->tip) {         /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
@@ -4475,7 +4486,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
    * to each program.
    */
 
-/* debug: */ printf("starting function generic_tree_evaluate\n");
+/* debug: printf("starting function generic_tree_evaluate\n"); */ 
   if ( (p->initialized == false) && (p->tip == false) )
   {
     t->nuview((tree*)t, p);
@@ -4515,6 +4526,7 @@ node* generic_tree_get_forknode(tree* t, long i)
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
   }
+  p->tip = (i < spp);
   return p;
 } /* generic_tree_get_forknode */
 
@@ -4526,7 +4538,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
   node *newnode, *r;
 /* debug:   boolean thorough = true;  needed at all? */
 
-/* debug: */ printf("starting function generic_tree_insert\n");
+/* debug: printf("starting function generic_tree_insert\n"); */ 
   if ( !multf ) {
 
     assert(p->next->next->next == p);
@@ -4735,17 +4747,17 @@ void buildsimpletree(tree *t, long* enterorder)
   /* build a simple three-tip tree with interior fork, by hooking
      up two tips, then inserting third tip hooked to fork, also set root */
   long k;
-  node* p = t->nodep[ enterorder[0] - 1];
-  node* q = t->nodep[ enterorder[1] - 1];
-  node* r = t->nodep[ enterorder[2] - 1];
-  node* newnode;
+  node *p, *q, *r, *newnode;
 
-  k = generic_tree_findemptyfork(t);
-  newnode = t->get_fork(t, k);
-  hookup(r, newnode);      /* connect third tip to new fork */
-  hookup(p,q);             /* connect first and second tips */
+  p = t->nodep[enterorder[0] - 1];
+  q = t->nodep[enterorder[1] - 1];
+  r = t->nodep[enterorder[2] - 1];
+  k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode = t->get_fork(t, k);                  /* get a three-species fork */
+  hookup(r, newnode);                      /* connect third tip to new fork */
+  hookup(p,q);                             /* connect first and second tips */
 
-  t->insert_(t, newnode, q, false);  /* connect all of them */
+  t->insert_(t, newnode, q, false);                  /* connect all of them */
 
   t->root = p;
 
@@ -4827,7 +4839,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     enterorder[i - 1] = i;
   if (jumble)
     randumize(seed, enterorder);
-  destruct_tree(curtree);
+  release_all_forks(curtree);
   buildsimpletree(curtree, enterorder);
   curtree->root = curtree->nodep[enterorder[0] - 1]->back;
   if (progress) {
@@ -4862,6 +4874,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
 void preparetree(tree* t)
 {
   /* throw all the forknodes onto the stack so treeread can use them */
+/* debug:  this function is probably no longer used, can be deleted? */
   node* p;
   long i;
 

@@ -49,19 +49,22 @@ node* root_tree(tree* t, node* here)
    * rooted tree such as oldsavetree.  This does NOT reorient the tree so
    * that all nodep pointers point to the rootmost node of that interior
    * node.  */
+  long k;
   node *nuroot1, *nuroot2, *nuroot3, *there;  /* the three nodes in the new circle
                                                * and a saving of  here->back */
+
+  k = generic_tree_findemptyfork(t);
   there = here->back;
-  nuroot1 = t->get_forknode(t, nonodes);
+  nuroot1 = t->get_forknode(t, k+1);
   hookup(here, nuroot1);
-  nuroot2 = t->get_forknode(t, nonodes);
+  nuroot2 = t->get_forknode(t, k+1);
   nuroot1->next = nuroot2;
   hookup(nuroot2, there);
-  nuroot3 = t->get_forknode(t, nonodes);
+  nuroot3 = t->get_forknode(t, k+1);
   nuroot2->next = nuroot3;
   nuroot3->next = nuroot1;
   nuroot3->back = NULL;
-  t->nodep[nonodes-1] = nuroot3;
+  t->nodep[k] = nuroot3;
   return nuroot3;
 } /* root_tree */
 
@@ -70,7 +73,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 {
   /* Removes a root from a tree; useful after a return from functions that
    * expect a rooted tree (e.g. oldsavetree()). Then reroots the tree before
-   * releasing a FORKNODE or FORKRING to a FREELIST, to avoid tree components
+   * releasing a forknode to the freelist, to avoid tree components
    * pointing (even temporarily) into garbage. */
   node *p;
 
@@ -101,7 +104,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
    * This version actually does the hookups which are quickly dissolved,
-   * however none of the changes are propegated in the tree and it is like as
+   * however none of the changes are propegated in the tree and it is as
    * if it never got inserted. If we are on the last rearrangement save a
    * bestscoring insert to the bestrees array
    * item  should be an interior fork hooked to a tip or subtree which
@@ -126,10 +129,10 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   if ( lastrearr && (like >= *bestyet || *bestyet == UNDEFINED))
   {
     savetree(t, place);
-    findtree(&found, &pos, nextree, place, bestrees);
+    findtree(&found, &pos, nextree-1, place, bestrees);
     if ( !found )
     {
-      if (*bestyet < like || nextree == 1 )
+      if (*bestyet < like || nextree == 0 )
         addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
       else
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, like);
@@ -139,7 +142,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
     *bestyet = like;
   t->re_move(t, item, &dummy, true);
 /* debug:   t->restore_traverses(t, item, p);   */
-  t->evaluate(t, p, 0);   // as in dnaml, but may not be needed
+  t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
+
 
   found = false;
   pos = 0;
@@ -269,15 +273,13 @@ void pars_node_copy(node* srcn, node* dstn)
 
 
 void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
-                       boolean progress, long * finalTotal)
+                       boolean progress, long *finalTotal)
 {
   /* Goes through all best trees, collapsing trees where possible,
    * and deleting trees that are not unique.    */
   long i, j, k, pos ;
   boolean found;
-  long treeLimit = nextree - 1 < maxtrees ? nextree - 1 : maxtrees;
-
-  (void)chars;                          // RSGnote: Parameter never used.
+  long treeLimit = nextree < maxtrees ? nextree : maxtrees;
 
   for(i = 0 ; i < treeLimit ; i++)
   {
@@ -289,8 +291,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     print_progress(progbuf);
   }
   k = 0;
-  for(i = 0 ; i < treeLimit ; i++)
-  {
+  for(i = 0 ; i < treeLimit ; i++) {
     if(progress)
     {
       if(i % ((treeLimit / 72) + 1) == 0)
@@ -301,13 +302,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     while(!bestrees[k].collapse)
       k++;
-    /* Reconstruct tree. */
-    load_tree(t, k, bestrees);
+    load_tree(t, k, bestrees);                         /* Reconstruct tree. */
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
-    savetree(t, place);
-    /* move everything down in the bestree list */
-    for(j = k ; j < (treeLimit - 1) ; j++)
+    savetree(t, place);          /* set aside collapsed tree in place array */
+    for(j = k ; j < (treeLimit - 1) ; j++)    /* move rest of trees forward */
     {
       memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
       bestrees[j].gloreange = bestrees[j + 1].gloreange;
@@ -316,13 +315,12 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       bestrees[j + 1].locreange = false;
       bestrees[j].collapse = bestrees[j + 1].collapse;
     }
-    treeLimit--;
+    treeLimit--;         /* because there is now one fewer tree in bestrees */
 
     pos=0;
     findtree(&found, &pos, treeLimit, place, bestrees);
 
-    /* put the new tree in the the list if it wasn't found */
-    if(!found)
+    if (!found)      /* put the new tree in the the list if it wasn't found */
     {
       addtree(pos, &treeLimit, false, place, bestrees);
     }
@@ -447,10 +445,11 @@ void oldsavetree(tree* t, long *place)
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
-#if 0                        /* debug: don't need this?  */
+/* debug: don't need this?
+#if 0 
   if (get_numdesc(t->root, t->root) == 2)
     bintomulti(t, &t->root, &binroot);
-#endif
+#endif    debug */
   if (outgrin(t->root, outgrnode))
   {
     if (outgrnode != t->root->next->back)
@@ -469,8 +468,10 @@ void oldsavetree(tree* t, long *place)
   savetraverse(t->root);
   nextnode = spp + 1;
   for (i = nextnode; i <= nonodes; i++)
-    if (get_numdesc(t->root, t->nodep[i - 1]) == 0)
-      flipindexes(i, t->nodep);
+    if (t->nodep[i-1] != NULL) {
+      if (get_numdesc(t->root, t->nodep[i-1]) == 0)
+        flipindexes(i, t->nodep);
+    }
   for (i = 0; i < nonodes; i++)
     place[i] = 0;
   place[t->root->index - 1] = 1;
@@ -573,12 +574,13 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
                   long *place, bestelm *bestrees, double score)
 {
   /* adds first best tree. If we are rearranging on usertrees, 
-   * add it to the second array of trees if the score is good enough */
+   * add it to the second array of trees if the score is good enough
+   * pos is the position where it will be added which is 0   */
   long repos;
   boolean found;
 
-  *pos = 1;
-  *nextree = 1;
+  *pos = 0;
+  *nextree = 0;
 
   addtree(*pos, nextree, collapse, place, bestrees);
   if ( reusertree )
@@ -588,7 +590,7 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
     {
       renextree = 1;
       rebestyet = score;
-      addtree(1, &renextree, collapse, place, rebestrees[1]);
+      addtree(1, &renextree, collapse, place, rebestrees[1]);  /* debug: correct? */
       renextree = 1;
     }
     else if ( score != UNDEFINED && score == rebestyet )
@@ -603,13 +605,13 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
 
 void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
 {
-  /* add a tied tree */
+  /* add a tied tree.   pos is the position in the range  0 .. (nextree-1) */
   boolean found;
   long repos;
 
   if (*nextree <= maxtrees)
     addtree(pos, nextree, collapse, place, bestrees);
-  if ( reusertree )
+  if ( reusertree )    /* debug:  this part needs more debugging */
   {
     if ( rebestyet == score )
     {
@@ -619,6 +621,7 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
     }
   }
 } /* addtiedtree */
+
 
 /* debug:  may not need in view of pars_try_insert  */
 #if 0
@@ -875,26 +878,32 @@ void backtobinary(tree* t, node **root, node *binroot)
 
 void newindex(long i, node *p)
 {
-  /* assigns index i to node p */
+  /* assigns index i to fork that  p is in */
 
   while (p->index != i)
   {
     p->index = i;
-    p = p->next;
+    p = p->next;   /* ... and move on around circle. */
   }
 } /* newindex */
 
 
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
-  /* restores a tree from bestrees */
+  /* restores tree  treei  from array bestrees (treei is the index
+   * of the array, so tree 5 has treei = 4).  Add all the tips to a tree one
+   * by one in order.  The array element  bestree[treei].btree[k]  indicates
+   * that the k-th tip is to be connected to a new fork that is below tip or
+   * fork  btree[k].  If negative, it indicates that it is to be added as an
+   * extra furc to the fork that is already at the bottom of the branch that
+   * is below fork (or tip) abs(btree[k])  */
   long i, j, nsibs;
   boolean foundit = false;
-  node *p, *q, *below, *bback, *forknode, *newtip;
+  node *p, *q, *below, *bback, *forknode, *newtip, *beforewhere, *afterwhere;
 
-  destruct_tree(t);       /* to make sure all interior nodes are on 
-                           * the list at free_fork_nodes  */
-  /* restore the tree */
+  release_all_forks(t);              /* to make sure all interior nodes
+                                        are on the list at free_fork_nodes  */
+                                     /* then make tree of first two species */
   forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
@@ -904,7 +913,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     newtip = t->nodep[j-1];
 
     if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
-    {              /*  if bifurcation */
+    {                                                    /*  if bifurcation */
       forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
       hookup(newtip, forknode);
       below = t->nodep[bestrees[treei].btree[j - 1] - 1];
@@ -912,27 +921,37 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       hookup(forknode->next, below);
       if ( bback )
         hookup(forknode->next->next, bback);
+      t->nodep[spp+j-2] = forknode->next->next;   /* know which way is down */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
-      below = t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
-      forknode = t->get_forknode(t, below->index);
-      forknode->next = below->next;
-      below->next = forknode;
+      bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
+      beforewhere = bback->next;            /* where will that node be put? */ 
+      afterwhere = bback->next->next;   /* ... the nodes before, after that */
+      do {   /* move around fork circle until just before the downward link */
+        beforewhere = afterwhere;
+        afterwhere = afterwhere->next;
+      } while ((afterwhere->next) != bback);
+      forknode = t->get_forknode(t, below->index);        /* get a new node */
+      hookup(newtip, forknode);             /* hook the tip to the new node */
+      beforewhere->next = forknode;               /* put it the right place */
+      forknode->next = afterwhere;
     }
   }
 
   forknode = NULL;
-  for (i = spp; i < nonodes; i++) {     /* check all interior node circles */
+  for (i = spp; i < nonodes; i++) {      /* check all interior node circles */
     p = t->nodep[i];
-    q = p;
-    do {
-      if (q->back == NULL) {
-        forknode = q;              /* find a node that has nothing below it */
-        foundit = true;
-      }
-      q = q->next;
-    } while (q != p);  /* annoying; could not get for loop to work for this */
+    if (p != NULL) {
+      q = p;
+      do {
+        if (q->back == NULL) {
+          forknode = q;            /* find a node that has nothing below it */
+          foundit = true;
+          }
+        q = q->next;
+      } while (q != p); 
+    }
   }
   if (foundit) {    /* remove the interior node which has an empty neighbor */
     nsibs = count_sibs(forknode); 
@@ -1357,7 +1376,7 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
   savetree(t, place);
   addbestever(&pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 
-  for ( i = 0 ; i < nextree ; i++)
+  for ( i = 0 ; i < nextree-1 ; i++)
     bestrees[i].gloreange = false;
 
   while (!done)

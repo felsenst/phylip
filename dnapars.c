@@ -518,7 +518,6 @@ void maketree(void)                     // RSGbugfix
     }
 
     done = false;
-    (void)done;                         // RSGnote: Variable set but never used.
 
     lastrearr = true;
     grandrearr(curtree, progress, rearrfirst);
@@ -532,7 +531,7 @@ void maketree(void)                     // RSGbugfix
     {
       long outCount = 0;
       collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
-      long missedCount = nextree - 1 - maxtrees;
+      long missedCount = nextree - maxtrees;
       if (treeprint)
       {
         putc('\n', outfile);
@@ -542,7 +541,8 @@ void maketree(void)                     // RSGbugfix
         {
           if (missedCount > 0)
           {
-            fprintf(outfile, "as many as %ld trees may have been found\n", missedCount + outCount);
+            fprintf(outfile, "as many as %ld trees may have been found\n",
+                     missedCount + outCount);
             fprintf(outfile, "here are the first %4ld of them\n", outCount );
           }
           else
@@ -558,6 +558,8 @@ void maketree(void)                     // RSGbugfix
       {
         load_tree(curtree, i, bestrees);
         reroot(curtree->nodep[outgrno - 1], curtree->root);
+        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
         curtree->root = root_tree(curtree, curtree->root);
         curtree->nodep[curtree->root->index - 1] = curtree->root;
@@ -577,7 +579,8 @@ void maketree(void)                     // RSGbugfix
       initseed(&inseed, &inseed0, seed);
     if (numtrees > MAXNUMTREES)
     {
-      printf("\nERROR:  Number of input trees is read incorrectly from %s.\n", intreename);
+      printf("\nERROR:  Number of input trees is read incorrectly from %s.\n",
+              intreename);
       exxit(-1);
     }
     if (treeprint)
@@ -593,18 +596,18 @@ void maketree(void)                     // RSGbugfix
     if (trout)
       fprintf(outtree, "%ld\n", numtrees);
 
-#if 0                                   // RSGbugfix: Local variable never used.
-    nodep = NULL;
-#endif
-
     which = 1;
     while (which <= numtrees)
     {
       firsttree = true;
       nextnode = 0;
       haslengths = true;
-      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &firsttree, &nextnode, &haslengths, initparsnode, false,
+                nonodes);
       reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+      initializetrav(curtree, curtree->root);
+      initializetrav(curtree, curtree->root->back);
       curtree->evaluate(curtree, curtree->root, false);
       curtree->root = root_tree(curtree, curtree->root);
       if (treeprint)
@@ -654,7 +657,9 @@ void maketree(void)                     // RSGbugfix
 
 
 void reallocchars(void)
-{ /* The amount of chars can change between runs this function reallocates all the variables whose size depends on the amount of chars */
+{
+  /* The number of chars can change between runs -- so this function
+   * reallocates all the variables whose size depends on the number of chars */
   long i;
 
   for (i=0; i < spp; i++)
@@ -673,7 +678,7 @@ void reallocchars(void)
   alias = (long *)Malloc(chars * sizeof(long));
   ally = (long *)Malloc(chars * sizeof(long));
   location = (long *)Malloc(chars * sizeof(long));
-}
+} /* reallocchars */
 
 
 void freerest(void)
@@ -693,7 +698,7 @@ void freerest(void)
   free(alias);
   free(ally);
   free(location);
-  free(threshwt);
+/*   free(threshwt);  debug: for some reason this blows up so commented out */
 }  /* freerest */
 
 
@@ -753,8 +758,8 @@ void dnaparsrun(void)
     fflush(outtree);
   }
 
-  curtree->free(curtree);
-}
+/* debug   curtree->free(curtree);     commented out because crashes */
+} /* dnaparsrun */
 
 
 void dnapars(
@@ -1091,7 +1096,7 @@ void dnapars(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnapars */
 
 
 int main(int argc, Char *argv[])
