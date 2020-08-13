@@ -272,15 +272,13 @@ void pars_node_copy(node* srcn, node* dstn)
 
 
 void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
-                       boolean progress, long * finalTotal)
+                       boolean progress, long *finalTotal)
 {
   /* Goes through all best trees, collapsing trees where possible,
    * and deleting trees that are not unique.    */
   long i, j, k, pos ;
   boolean found;
   long treeLimit = nextree - 1 < maxtrees ? nextree - 1 : maxtrees;
-
-  (void)chars;                          // RSGnote: Parameter never used.
 
   for(i = 0 ; i < treeLimit ; i++)
   {
@@ -292,8 +290,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     print_progress(progbuf);
   }
   k = 0;
-  for(i = 0 ; i < treeLimit ; i++)
-  {
+  for(i = 0 ; i < treeLimit ; i++) {
     if(progress)
     {
       if(i % ((treeLimit / 72) + 1) == 0)
@@ -304,7 +301,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     while(!bestrees[k].collapse)
       k++;
-    load_tree(t, k, bestrees);                         /* Reconstruct tree. */
+    load_tree(t, k, bestrees);                       /* Reconstruct tree. */
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
     savetree(t, place);          /* set aside collapsed tree in place array */
@@ -322,7 +319,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     pos=0;
     findtree(&found, &pos, treeLimit, place, bestrees);
 
-    if(!found)       /* put the new tree in the the list if it wasn't found */
+    if (!found)      /* put the new tree in the the list if it wasn't found */
     {
       addtree(pos, &treeLimit, false, place, bestrees);
     }
@@ -580,8 +577,8 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
   long repos;
   boolean found;
 
-  *pos = 1;
-  *nextree = 1;
+  *pos = 0;
+  *nextree = 0;
 
   addtree(*pos, nextree, collapse, place, bestrees);
   if ( reusertree )
@@ -891,7 +888,8 @@ void newindex(long i, node *p)
 
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
-  /* restores tree  treei  from array bestrees.  Add tips to a tree.
+  /* restores tree  treei  from array bestrees (treei is the index
+   * of the array, so tree 5 has treei = 4).  Add all the tips to a tree.
    * The array element  bestree[treei].btree[k]  indicates that
    * the k-th tip is to be connected to a new fork that is below tip or
    * fork  btree[k].  If negative, it indicates that it is to be added as an

@@ -2304,7 +2304,7 @@ void findtree(boolean *found, long *pos, long nextree,
   boolean below, done;
 
   below = false;
-  lower = 1;
+  lower = 0;
   upper = nextree - 1;
   (*found) = false;
   while (!(*found) && lower <= upper) {
@@ -2335,12 +2335,15 @@ void findtree(boolean *found, long *pos, long nextree,
 void addtree(long pos, long *nextree, boolean collapse,
               long *place, bestelm *bestrees)
 {
-  /* puts tree from array place in its proper position in array bestrees */
-  /* used by Dnacomp, Dnapars, Dollop, Mix, and Protpars */
+  /* puts tree from array place in its proper position in array bestrees
+   * used by Dnacomp, Dnapars, Dollop, Mix, and Protpars
+   * pos takes range 0 .. nextree-1.  There are currently  nextree trees
+   * occupying that range, and once it is added there will then be
+   * nextree+1 trees occupying range  0 .. nextree  */
   long i;
 
-  for (i = *nextree - 1; i >= pos; i--)
-  {
+  for (i = *nextree; i > pos; i--)
+  {                            /* shift information for tree up by one tree */
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
     bestrees[i - 1].gloreange = false;
@@ -2349,9 +2352,9 @@ void addtree(long pos, long *nextree, boolean collapse,
     bestrees[i].collapse = bestrees[i - 1].collapse;
   }
   for (i = 0; i < spp; i++)
-    bestrees[pos - 1].btree[i] = place[i];
-  /*  bestrees[pos -1].gloreange = false; */
-  bestrees[pos -1].collapse = false;
+    bestrees[pos].btree[i] = place[i];
+  /*  bestrees[pos - 1].gloreange = false;  debug:  do we need this? */
+  bestrees[pos].collapse = false;
 
   (*nextree)++;
 }  /* addtree */
@@ -2381,15 +2384,16 @@ void shellsort(double *a, long *b, long n)
   /* Shell sort keeping a, b in same order
    * used by Dnapenny, Dolpenny, Penny, Contrast, and Threshml
    * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast
-   * (and a pleasingly short program)  Shell was the discover's name.
-   * sorts in same order an accompanying array (b) of tags */
+   * (and a pleasingly short program)  Shell was the discover's name -- it
+   * is not related to the "shell game" where one shuffles around thimbles.
+   * It sorts in the same order an accompanying array (b) of tags */
   long gap, i, j, itemp;
   double rtemp;
 
   gap = n / 2;                /* set initial gap size half the array length */
   while (gap > 0) {
     for (i = gap + 1; i <= n; i++) {     /* compare elements that far apart */
-      j = i - gap;                             /* compare elements i, i+gap */
+      j = i - gap;                             /* compare elements j, j+gap */
       while (j > 0) {
         if (a[j - 1] > a[j + gap - 1]) {            /* swap if out of order */
           rtemp = a[j - 1];
