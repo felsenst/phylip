@@ -73,7 +73,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 {
   /* Removes a root from a tree; useful after a return from functions that
    * expect a rooted tree (e.g. oldsavetree()). Then reroots the tree before
-   * releasing a FORKNODE or FORKRING to a FREELIST, to avoid tree components
+   * releasing a forknode to the freelist, to avoid tree components
    * pointing (even temporarily) into garbage. */
   node *p;
 
@@ -104,7 +104,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
    * This version actually does the hookups which are quickly dissolved,
-   * however none of the changes are propegated in the tree and it is like as
+   * however none of the changes are propegated in the tree and it is as
    * if it never got inserted. If we are on the last rearrangement save a
    * bestscoring insert to the bestrees array
    * item  should be an interior fork hooked to a tip or subtree which
@@ -132,7 +132,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
     findtree(&found, &pos, nextree-1, place, bestrees);
     if ( !found )
     {
-      if (*bestyet < like || nextree == 1 )
+      if (*bestyet < like || nextree == 0 )
         addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
       else
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, like);
@@ -142,7 +142,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
     *bestyet = like;
   t->re_move(t, item, &dummy, true);
 /* debug:   t->restore_traverses(t, item, p);   */
-  t->evaluate(t, p, 0);   // as in dnaml, but may not be needed
+  t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
+
 
   found = false;
   pos = 0;
@@ -278,7 +279,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * and deleting trees that are not unique.    */
   long i, j, k, pos ;
   boolean found;
-  long treeLimit = nextree - 1 < maxtrees ? nextree - 1 : maxtrees;
+  long treeLimit = nextree < maxtrees ? nextree : maxtrees;
 
   for(i = 0 ; i < treeLimit ; i++)
   {
@@ -301,7 +302,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     while(!bestrees[k].collapse)
       k++;
-    load_tree(t, k, bestrees);                       /* Reconstruct tree. */
+    load_tree(t, k, bestrees);                         /* Reconstruct tree. */
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
     savetree(t, place);          /* set aside collapsed tree in place array */
@@ -573,7 +574,8 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
                   long *place, bestelm *bestrees, double score)
 {
   /* adds first best tree. If we are rearranging on usertrees, 
-   * add it to the second array of trees if the score is good enough */
+   * add it to the second array of trees if the score is good enough
+   * pos is the position where it will be added which is 0   */
   long repos;
   boolean found;
 
@@ -588,7 +590,7 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
     {
       renextree = 1;
       rebestyet = score;
-      addtree(1, &renextree, collapse, place, rebestrees[1]);
+      addtree(1, &renextree, collapse, place, rebestrees[1]);  /* debug: correct? */
       renextree = 1;
     }
     else if ( score != UNDEFINED && score == rebestyet )
@@ -603,13 +605,13 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
 
 void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
 {
-  /* add a tied tree */
+  /* add a tied tree.   pos is the position in the range  0 .. (nextree-1) */
   boolean found;
   long repos;
 
   if (*nextree <= maxtrees)
     addtree(pos, nextree, collapse, place, bestrees);
-  if ( reusertree )
+  if ( reusertree )    /* debug:  this part needs more debugging */
   {
     if ( rebestyet == score )
     {
@@ -889,12 +891,12 @@ void newindex(long i, node *p)
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores tree  treei  from array bestrees (treei is the index
-   * of the array, so tree 5 has treei = 4).  Add all the tips to a tree.
-   * The array element  bestree[treei].btree[k]  indicates that
-   * the k-th tip is to be connected to a new fork that is below tip or
+   * of the array, so tree 5 has treei = 4).  Add all the tips to a tree one
+   * by one in order.  The array element  bestree[treei].btree[k]  indicates
+   * that the k-th tip is to be connected to a new fork that is below tip or
    * fork  btree[k].  If negative, it indicates that it is to be added as an
    * extra furc to the fork that is already at the bottom of the branch that
-   * is below fork (or tip)  k  */
+   * is below fork (or tip) abs(btree[k])  */
   long i, j, nsibs;
   boolean foundit = false;
   node *p, *q, *below, *bback, *forknode, *newtip, *beforewhere, *afterwhere;
@@ -925,7 +927,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     {          /*  if goes into a multifurcation put a new node into circle */
       bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
       beforewhere = bback->next;            /* where will that node be put? */ 
-      afterwhere = bback->next->next;   /* get the nodes before, after that */
+      afterwhere = bback->next->next;   /* ... the nodes before, after that */
       do {   /* move around fork circle until just before the downward link */
         beforewhere = afterwhere;
         afterwhere = afterwhere->next;
