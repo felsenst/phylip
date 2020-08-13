@@ -2314,14 +2314,14 @@ void findtree(boolean *found, long *pos, long nextree,
     while (!done) {
       done = (i > spp);
       if (!done)
-        done = (place[i - 1] != bestrees[(*pos) - 1].btree[i - 1]);
+        done = (place[i-1] != bestrees[*pos].btree[i - 1]);
       if (!done)
         i++;
     }
     (*found) = (i > spp);
     if (*found)
       break;
-    below = (place[i - 1] <  bestrees[(*pos )- 1].btree[i - 1]);
+    below = (place[i-1] <  bestrees[*pos].btree[i - 1]);
     if (below)
       upper = (*pos) - 1;
     else
