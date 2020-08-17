@@ -2342,14 +2342,16 @@ void addtree(long pos, long *nextree, boolean collapse,
    * nextree+1 trees occupying range  0 .. nextree  */
   long i;
 
-  for (i = *nextree; i > pos; i--)
-  {                            /* shift information for tree up by one tree */
-    memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
-    bestrees[i].gloreange = bestrees[i - 1].gloreange;
-    bestrees[i - 1].gloreange = false;
-    bestrees[i].locreange = bestrees[i - 1].locreange;
-    bestrees[i - 1].locreange = false;
-    bestrees[i].collapse = bestrees[i - 1].collapse;
+  if (*nextree > 1) {        /* skip shifting if not at least 2 trees there */
+    for (i = *nextree; i > pos; i--)
+    {                          /* shift information for tree up by one tree */
+      memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
+      bestrees[i].gloreange = bestrees[i - 1].gloreange;
+      bestrees[i - 1].gloreange = false;
+      bestrees[i].locreange = bestrees[i - 1].locreange;
+      bestrees[i - 1].locreange = false;
+      bestrees[i].collapse = bestrees[i - 1].collapse;
+    }
   }
   for (i = 0; i < spp; i++)
     bestrees[pos].btree[i] = place[i];
