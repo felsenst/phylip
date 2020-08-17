@@ -666,9 +666,8 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    * criteria */
    boolean success;
 
-   atstart = true;
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
-                                       bestyet, &bestree, thorough, atstart);
+                                       bestyet, &bestree, thorough);
 /* debug:    add_to_besttrees(tree* t, long score, bestelm* bestrees);  */
    return success;
 } /* pars_addtraverse */
@@ -1072,7 +1071,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                                qwhere, &bestyet, &bestree, multf, atstart);
+                                qwhere, &bestyet, &bestree, multf);
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);

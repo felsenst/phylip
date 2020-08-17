@@ -211,7 +211,7 @@ void getoptions(void)
     printf("Settings for this run:\n");
     printf("  B               Morphometric transformations?");
     if (nomorph)
-      printf("  No morphometric data\n");
+      printf("  No, not morphometric data\n");
     else {
       if (bookmorph)
         printf("  Bookstein transform\n");
@@ -795,11 +795,12 @@ void getdata(void)
         }
         y[i][k][j-1] = x[i][k][j-1];    /* copy it into  y */
       }
-      if (!eoln(infile))      /*  debug:  need with within-species variation?  */
-        scan_eoln(infile); 
     }
-    if (printdata)
-      putc('\n', outfile);
+    /* got all the data we need for that member, */
+    /* read the next line if we still have more members to define */
+    if (k != sample[i]-1)
+      scan_eoln(infile);
+    putc('\n', outfile);
   }
   if (printdata)
     putc('\n', outfile);
