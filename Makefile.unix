@@ -314,7 +314,7 @@ ml.o:         ml.c phylip.h ml.h
 	$(CC) -c ml.c -shared -fPIC 
 
 rest_common.o:  rest_common.c rest_common.h phylip.h
-	$(CC) -c rest_common.c
+	$(CC) -c rest_common.c -shared -fPIC
 
 prom_common.o:  prom_common.c prom_common.h phylip.h
 	$(CC) -c prom_common.c -shared -fPIC
@@ -392,11 +392,11 @@ dnamlk.o:     dnamlk.c seq.h ml.h phylip.h
 dnamove.o:    dnamove.c seq.h moves.h phylip.h parsimony.h dnaparsimony.h
 	$(CC) -c dnamove.c
 
-dnapenny.o:   dnapenny.c seq.h phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnapenny.c -shared -fPIC
-
 dnapars.o:    dnapars.c seq.h phylip.h parsimony.h dnaparsimony.h
 	$(CC) -c dnapars.c -shared -fPIC
+
+dnapenny.o:   dnapenny.c seq.h phylip.h parsimony.h dnaparsimony.h
+	$(CC) -c dnapenny.c -shared -fPIC
 
 dolmove.o:    dolmove.c disc.h moves.h dollo.h phylip.h
 	$(CC) -c dolmove.c
@@ -516,10 +516,10 @@ dnamlk:       dnamlk.o seq.o ml.o $(LIBS)
 dnamove:      dnamove.o seq.o moves.o parsimony.o dnaparsimony.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-dnapenny:     dnapenny.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+dnapars:      dnapars.o seq.o parsimony.o dnaparsimony.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-dnapars:      dnapars.o seq.o parsimony.o dnaparsimony.o $(LIBS)
+dnapenny:     dnapenny.o seq.o parsimony.o dnaparsimony.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 dolmove:      dolmove.o disc.o moves.o dollo.o $(LIBS)
