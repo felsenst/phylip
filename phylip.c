@@ -2327,7 +2327,9 @@ void findtree(boolean *found, long *pos, long nextree,
     else
       lower = (*pos) + 1;
   }
-  if (!(*found) && !below)
+  if (!((*pos) == (nextree-1)))                          /* if not past end */
+    if (!(*found))                                  /* and didn't find tree */
+      if (!below)                               /* and it may be above here */
     (*pos)++;
 }  /* findtree */
 
@@ -3915,7 +3917,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * thorough indicates whether need to adjust parameters
    * further out than  q  to assess that location  */
   node *sib_ptr;
-  boolean succeeded;
+  boolean succeeded, atstart;
 
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,

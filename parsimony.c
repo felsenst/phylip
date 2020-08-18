@@ -119,28 +119,37 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
-  if (like > *bestyet || first)
-  {
-    there = p;
-    succeeded = true;
-    *multf = false;
-  }
 
-  if ( lastrearr && (like >= *bestyet || *bestyet == UNDEFINED))
-  {
+  if (atstart) {                      /* case when this is first tree tried */
+    pos = 0;
+    found = false;
     savetree(t, place);
-    findtree(&found, &pos, nextree-1, place, bestrees);
-    if ( !found )
+    *bestyet = like;
+    succeeded = true;
+  } 
+  else {
+    if ( lastrearr && (like >= *bestyet) )      /* deciding on a later tree */
     {
-      if (*bestyet < like || nextree == 0 )
+      savetree(t, place);
+      findtree(&found, &pos, nextree-1, place, bestrees);
+      succeeded = true;
+    }  
+    if ( !found )          /* if it isn't already in the list of best trees */
+    {
+      if (like > *bestyet) {  /* replacing all of them? or adding one more? */
         addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
+        *bestyet = like;
+      }
       else
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, like);
     }
   }
-  if (like > *bestyet || atstart)
-    *bestyet = like;
-  t->re_move(t, item, &dummy, true);
+  if (succeeded)
+  {
+    there = p;
+/* debug:    *multf = false;   */
+  }
+  t->re_move(t, item, &dummy, true);   /* pull the branch back of the tree */
 /* debug:   t->restore_traverses(t, item, p);   */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
@@ -306,18 +315,19 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     while ( treecollapsible(t, t->nodep[0]))
       collapsetree(t, t->nodep[0]);
     savetree(t, place);          /* set aside collapsed tree in place array */
-    for(j = k ; j < (treeLimit - 1) ; j++)    /* move rest of trees forward */
-    {
-      memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
-      bestrees[j].gloreange = bestrees[j + 1].gloreange;
-      bestrees[j + 1].gloreange = false;
-      bestrees[j].locreange = bestrees[j + 1].locreange;
-      bestrees[j + 1].locreange = false;
-      bestrees[j].collapse = bestrees[j + 1].collapse;
+    if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
+      for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees forward */
+      {
+        memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
+        bestrees[j].gloreange = bestrees[j + 1].gloreange;
+        bestrees[j + 1].gloreange = false;
+        bestrees[j].locreange = bestrees[j + 1].locreange;
+        bestrees[j + 1].locreange = false;
+        bestrees[j].collapse = bestrees[j + 1].collapse;
+      }
     }
     treeLimit--;         /* because there is now one fewer tree in bestrees */
-
-    pos=0;
+    pos = 0;
     findtree(&found, &pos, treeLimit, place, bestrees);
 
     if (!found)      /* put the new tree in the the list if it wasn't found */
