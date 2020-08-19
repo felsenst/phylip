@@ -482,68 +482,70 @@ void oldsavetree(tree* t, long *place)
       if (get_numdesc(t->root, t->nodep[i-1]) == 0)
         flipindexes(i, t->nodep);
     }
-  for (i = 0; i < nonodes; i++)
+  for (i = 0; i < nonodes; i++)                   /* zero out "place" array */
     place[i] = 0;
-  place[t->root->index - 1] = 1;
-  for (i = 1; i <= spp; i++)
+  place[t->root->index - 1] = 1;                 /* first element must be 1 */
+  for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];
-    while (place[p->index - 1] == 0)
-    {
-      place[p->index - 1] = i;
-      while (!p->bottom)
-        p = p->next;
-      r = p;
-      p = p->back;
-    }
-    if (i > 1)
-    {
-      q = t->nodep[i - 1];
-      newfork = true;
-      nvisited = sibsvisited(q, place);
-      if (nvisited == 0)
+    if (p->back != NULL) {                    /* if this tip is in the tree */
+      while (place[p->index - 1] == 0)   /* if no number yet there in place */
       {
-        if (parentinmulti(r, t->root))
+        place[p->index - 1] = i;          /* set value to index of that tip */
+        while (!p->bottom)             /* go around circle to find way down */
+          p = p->next;
+        r = p;
+        p = p->back;                             /* go down to earlier fork */
+      }
+      if (i > 1)    /* debug: something about multifurcations ?? */
+      {
+        q = t->nodep[i - 1];
+        newfork = true;
+        nvisited = sibsvisited(q, place);
+        if (nvisited == 0)
         {
-          nvisited = sibsvisited(r, place);
-          if (nvisited == 0)
-            place[i - 1] = place[p->index - 1];
-          else if (nvisited == 1)
-            place[i - 1] = smallest(r, place);
-          else
+          if (parentinmulti(r, t->root))
           {
-            place[i - 1] = -smallest(r, place);
-            newfork = false;
+            nvisited = sibsvisited(r, place);
+            if (nvisited == 0)
+              place[i - 1] = place[p->index - 1];
+            else if (nvisited == 1)
+              place[i - 1] = smallest(r, place);
+            else
+            {
+              place[i - 1] = -smallest(r, place);
+              newfork = false;
+            }
           }
+          else
+            place[i - 1] = place[p->index - 1];
+        }
+        else if (nvisited == 1)
+        {
+          place[i - 1] = place[p->index - 1];
         }
         else
-          place[i - 1] = place[p->index - 1];
-      }
-      else if (nvisited == 1)
-      {
-        place[i - 1] = place[p->index - 1];
-      }
-      else
-      {
-        place[i - 1] = -smallest(q, place);
-        newfork = false;
-      }
-      if (newfork)
-      {
-        j = place[p->index - 1];
-        done = false;
-        while (!done)
         {
-          place[p->index - 1] = nextnode;
-          while (!p->bottom)
-            p = p->next;
-          p = p->back;
-          done = (p == NULL);
-          if (!done)
-            done = (place[p->index - 1] != j);
-          if (done)
+          place[i - 1] = -smallest(q, place);
+          newfork = false;
+        }
+        if (newfork)
+        {
+          j = place[p->index - 1];
+          done = false;
+          while (!done)
           {
-            nextnode++;
+            place[p->index - 1] = nextnode;
+            while (!p->bottom)
+              p = p->next;
+            p = p->back;
+            done = (p == NULL);
+            if (!done)
+              done = (place[p->index - 1] != j);
+            if (done)
+            {
+              nextnode++;
+            }
           }
         }
       }
