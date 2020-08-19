@@ -129,7 +129,7 @@ long nonodes, chars, startmchar, endmchar, dropchars=0,
      ndatas, morphchars, dimensions, numfossils, ndiv, nmult, nparams,
      nmpoints, nmworstone, nmsecondworstone, nmbestone;
 long ith, ithwas, jth, jthwas, kth;
-phenotype3 **x, **y, **z, **w, *specsize, *rotation, **cntrast, *ssqcont, meanz;
+phenotype3 **x, **y, **z, **w, **specsize, *rotation, **cntrast, *ssqcont, meanz;
 double **vara, **vare, **oldvara, **oldvare, **Bax, **Bex, **temp1, **temp2,
   **temp3, **temp4, **temp5, **temp6, **temp7, *temp8, **parameters,
   *nmmeanparams, *reflectedparameters, *expandedparameters, *slopes,
@@ -724,7 +724,7 @@ void getdata(void)
   y = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   z = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   w = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
-  specsize = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3));
+  specsize = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3));
   cntrast = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   ssqcont = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3 *));
   rotation = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3 *));
@@ -768,7 +768,7 @@ void getdata(void)
     y[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
     z[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
     w[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
-    specsize[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
+    specsize[i] = (phenotype3 *)Malloc((long)(sample[i] * sizeof(double)));
     cntrast[i] = (phenotype3 *)Malloc((long)(sample[i] * sizeof(phenotype3)));
     ssqcont[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
     rotation[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
@@ -778,6 +778,7 @@ void getdata(void)
       z[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
       w[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
       cntrast[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
+      specsize[i][k] = (phenotype3)Malloc((long)((long)charspp * sizeof(double)));
       for (j = 1; j <= chars; j++) {
         if (eoln(infile))
           scan_eoln(infile);
@@ -959,7 +960,7 @@ void resize(long i, long j, double logsz) {
   }
   if (sizechar)
     z[i][j][charspp-1] += logsz;  /* change the log-size accordingly */
-  specsize[i][j] = z[i][j][charspp-1];   /* also separate log specimen size */
+/* debug:   to allow compiling   specsize[i][j] = z[i][j][charspp-1];   also separate log specimen size */
   copyztox(i, j);              /* synch  x  with  z  */
 } /* resize */
 
@@ -1889,9 +1890,9 @@ void morph(void)
       for (k = 0; k < charsp; k++)
         z[i][j][k] = y[i][j][k];
       if (sizes) {
-        z[i][j][charspp] = 0.0;   /* initialize size character */
-        specsize[i][j] = 0.0;  /* initialize sizes array */
+        z[i][j][charspp] = 0.0;   /* initialize size character  debug: this will be deleted */
       }
+      specsize[i][j] = 0.0;  /* initialize sizes array */
     }
   if (bookmorph || mlrots || justprocrust) {
     if (morphall) {
@@ -2091,7 +2092,10 @@ void getcovariances (void) {
 
 
 void getmeans (void) {
-  /* infer the mean from the phenotype pruned to the root */
+  /* infer the mean from the phenotype pruned to the root
+   * Note: could be inferred from pruning to other places too,
+   * which means these will only be the same in the asymptote
+   * of small changes */
   long i;
 
   for (i = 0; i < charspp; i++)
@@ -2214,7 +2218,7 @@ void writesizes (void)
   fprintf(outfile, "-------- ----- ------\n\n");
   for (i = 0; i < spp; i++)
     for (j = 0; j < sample[i]; j++)
-      fprintf(outfile, "%10.6f\n", exp(specsize[i][j]));
+      fprintf(outfile, "%10.6f\n", 1.0 + specsize[i][j]);
 } /* writesizes */
 
 
@@ -2234,13 +2238,15 @@ void getscales(void) {
   long i, j;
 
   for (i = 0; i < spp; i++) {  /* debug  ignores within-species case */
-    if (linearsize) {
-      specsize[i][0] = 0.0;
-      for (j = 0; j < charsp; j++)
-        specsize[i][0] += x[i][0][j]*mean[j]/(unorm*unorm);
-    }
+    for (j = 0; j < sample[i]; j++) {
+      if (linearsize) {
+        specsize[i][j] = 0.0;
+        for (k = 0; k < charsp; j++)
+          specsize[i][j] += x[i][j][j]*mean[k]/(unorm*unorm);
+      }
     else 
       specsize[i][0] = exp(specsize[i][0]);
+    }
   }
 } /* getscales */
 
@@ -2251,8 +2257,10 @@ void writescales(void) {
 
   fprintf(outfile, "Inferred scales (sizes) of the specimens\n");
   fprintf(outfile, "-------- ------ ------- -- --- ---------\n\n");
-  for (i = 0; i < spp; i++) {  /* debug  ignores within-species case */
-    fprintf(outfile, "%12.8f\n", specsize[i][0]);
+  for (i = 0; i < spp; i++) { 
+    for (j = 0; j < sample[i]; j++) {
+      fprintf(outfile, "%12.8f\n", specsize[i][j]);
+    }
   }
 } /* writescales */
 
