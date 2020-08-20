@@ -4732,7 +4732,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   if (atstart)
     bettertree = true;
   else {
-    bettertree = (t->score > *bestyet);
+    bettertree = (t->score > *bestyet);           /* note: better is bigger */
     succeeded = bettertree;
     }
   if (bettertree) {

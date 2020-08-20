@@ -120,15 +120,16 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   like = t->evaluate(t, p, false);
 
 
-  if (atstart) {                      /* case when this is first tree tried */
+  if (*atstart) {                     /* case when this is first tree tried */
     pos = 0;
     found = false;
     savetree(t, place);
     *bestyet = like;
     succeeded = true;
+    *atstart = false;
   } 
   else {
-    if ( lastrearr && (like >= *bestyet) )      /* deciding on a later tree */
+    if ( lastrearr && (like <= *bestyet) )      /* deciding on a later tree */
     {
       savetree(t, place);
       findtree(&found, &pos, nextree-1, place, bestrees);
@@ -455,17 +456,15 @@ void oldsavetree(tree* t, long *place)
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
-/* debug: don't need this?
-#if 0 
-  if (get_numdesc(t->root, t->root) == 2)
-    bintomulti(t, &t->root, &binroot);
-#endif    debug */
+/* debug:  is stuff after here necessary in view of adding binary fork
+ * between the outgroup tip and its nearest fork?  */
   if (outgrin(t->root, outgrnode))
   {
     if (outgrnode != t->root->next->back)
       moveleft(t->root, outgrnode, &flipback);
   }
   else
+/* debug:  ... down to here */
   {
     root2 = t->root;
     lastdesc = t->root->next;
@@ -497,7 +496,9 @@ void oldsavetree(tree* t, long *place)
         r = p;
         p = p->back;                             /* go down to earlier fork */
       }
-      if (i > 1)    /* debug: something about multifurcations ?? */
+/* debug:  maybe we don't need any of this from here  ... */
+#if 0
+      if (i > 1)
       {
         q = t->nodep[i - 1];
         newfork = true;
@@ -548,9 +549,10 @@ void oldsavetree(tree* t, long *place)
             }
           }
         }
+#endif
       }
     }
-  }
+#if 0
   if (flipback)
     flipnodes(outgrnode, flipback->back);
   else
@@ -561,6 +563,7 @@ void oldsavetree(tree* t, long *place)
       t->root = root2;
     }
   }
+#endif
   if (binroot)
     backtobinary(t, &t->root, binroot);
 }  /* oldsavetree */
@@ -988,14 +991,15 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 
 static void savetraverse(node *p)
 { 
-  /* set boolean "bottom" on each interior node to show which way is down */
+  /* set boolean "bottom" on one of the nodes in a fork circle
+   * at each interior fork to show which way is down */
   node *q;
 
-  p->bottom = true;
+  p->bottom = true;                       /* set the one you arrive at true */
   if (p->tip)
     return;
   q = p->next;
-  while (q != p)
+  while (q != p)                  /* go around circle, set all others false */
   {
     q->bottom = false;
     savetraverse(q->back);
