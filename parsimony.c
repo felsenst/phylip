@@ -115,7 +115,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   boolean found = false;
   long pos = 0;
 
-/* debug:    t->save_traverses(t, item, p);      */
+/* debug:    t->save_traverses(t, item, p);     may need to restore to leave tree same  */
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
@@ -126,7 +126,6 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
     savetree(t, place);
     *bestyet = like;
     succeeded = true;
-    *atstart = false;
   } 
   else {
     if ( lastrearr && (like <= *bestyet) )      /* deciding on a later tree */
@@ -142,7 +141,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
         *bestyet = like;
       }
       else
-        addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, like);
+        addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
     }
   }
   if (succeeded)
@@ -585,7 +584,7 @@ void savetree(tree* t, long *place)
 }  /* savetree */
 
 
-void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
+void addbestever(long pos, long *nextree, long maxtrees, boolean collapse,
                   long *place, bestelm *bestrees, double score)
 {
   /* adds first best tree. If we are rearranging on usertrees, 
@@ -594,10 +593,10 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
   long repos;
   boolean found;
 
-  *pos = 0;
+  pos = 0;
   *nextree = 0;
 
-  addtree(*pos, nextree, collapse, place, bestrees);
+  addtree(pos, nextree, collapse, place, bestrees);
   if ( reusertree )
   {
     if ( score == UNDEFINED ) return;
@@ -618,14 +617,14 @@ void addbestever(long *pos, long *nextree, long maxtrees, boolean collapse,
 } /* addbestever */
 
 
-void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
+void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
 {
   /* add a tied tree.   pos is the position in the range  0 .. (nextree-1) */
   boolean found;
   long repos;
 
   if (*nextree <= maxtrees)
-    addtree(pos, nextree, collapse, place, bestrees);
+    addtree(*pos, nextree, collapse, place, bestrees);
   if ( reusertree )    /* debug:  this part needs more debugging */
   {
     if ( rebestyet == score )
@@ -638,36 +637,35 @@ void addtiedtree(long pos, long *nextree, long maxtrees, boolean collapse, long 
 } /* addtiedtree */
 
 
-/* debug:  may not need in view of pars_try_insert  */
-#if 0
 void add_to_besttrees(tree* t, long score, bestelm* bestrees)
 {
   /* take the tree we have found and try to add it to the array bestrees:
    * if none are already there, make it the first one, if it is better than
    * the ones that are there then toss them and start over with just this
    * one, if tied with them add it in too */
+/* debug:  may not need in view of pars_try_insert  */
 
-  boolean better, worse, tied;
-  long bestscoreyet;
+  boolean better, worse, tied, found;
+  long bestscoreyet, *pos;
   
   bestscoreyet = bestyet;
   if (!(score > bestscoreyet)) {           /* if going to save this one ... */
     savetree(t, place);
+    findtree(&found, &pos, nextree-1, place, bestrees);
     if (score < bestscoreyet) {      /* if it will be the lone new best one */
-      addbestever(&pos, nextree, maxtrees, collapse, place, bestrees, score);
+      addbestever(pos, &nextree, maxtrees, false, place, bestrees, score);
     } else {                            /* it is another tree tied for best */
-      addtiedtree(&pos, *nextree, maxtrees, collapse, place, bestrees, score);
+      addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
     }
   }
     if ( !found )
     {
-      if (*bestyet < like || nextree == 1 )
-        addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
+      if (bestyet < score || nextree == 1 )
+        addbestever(pos, &nextree, maxtrees, false, place, bestrees, score);
       else
-        addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+        addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
     }
 } /* add_to_besttrees */
-#endif     /* debug: end of commented-out stuff */
 
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
@@ -683,7 +681,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
                                        bestyet, &bestree, thorough);
-/* debug:    add_to_besttrees(tree* t, long score, bestelm* bestrees);  */
+   add_to_besttrees(t, t->score, bestrees);
    return success;
 } /* pars_addtraverse */
 

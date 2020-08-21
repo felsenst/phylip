@@ -757,7 +757,7 @@ void            printcategs(FILE*, long, steptr, const char*);
 void            inputfactors(long, Char*, boolean*);
 void            printfactors(FILE*, long, Char*, const char*);
 void            findtree(boolean*, long*, long, long*, bestelm*);
-void            addtree(long, long*, boolean, long*, bestelm*);
+void            addtree(long*, long*, boolean, long*, bestelm*);
 long            findunrearranged(bestelm*, long, boolean);
 void            shellsort(double*, long*, long);
 void            getch(Char*, long*, FILE*);
