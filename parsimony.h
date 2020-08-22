@@ -62,7 +62,7 @@ void    pars_globrearrange(tree*, boolean, boolean);
 boolean treecollapsible(tree*, node*);
 void    collapsebranch(tree*, node*);
 void    writesteps(tree*, long, boolean, steptr);
-void    addbestever(long *, long *, long, boolean, long *, bestelm *, double);
+void    addbestever(long, long *, long, boolean, long *, bestelm *, double);
 void    addtiedtree(long *, long *, long, boolean, long *, bestelm *, double);
 void    add_to_besttrees(tree*, long, bestelm*);
 boolean	pars_addtraverse(tree*, node*, node*, boolean, node*,

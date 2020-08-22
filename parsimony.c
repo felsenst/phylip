@@ -137,7 +137,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
     if ( !found )          /* if it isn't already in the list of best trees */
     {
       if (like > *bestyet) {  /* replacing all of them? or adding one more? */
-        addbestever(&pos, &nextree, maxtrees, false, place, bestrees, like);
+        addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
         *bestyet = like;
       }
       else
@@ -176,7 +176,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
         savetree(t, place);
         findtree(&found, &pos, nextree, place, bestrees);
         if ( (like > *bestyet  && !found) || nextree == 1)
-          addbestever(&pos, &nextree, maxtrees, false, place, bestrees);
+          addbestever(pos, &nextree, maxtrees, false, place, bestrees);
         else if ( !found )
           addtiedtree(pos, &nextree, maxtrees, false, place, bestrees);
       }
@@ -651,9 +651,9 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
   bestscoreyet = bestyet;
   if (!(score > bestscoreyet)) {           /* if going to save this one ... */
     savetree(t, place);
-    findtree(&found, &pos, nextree-1, place, bestrees);
+    findtree(&found, pos, nextree-1, place, bestrees);
     if (score < bestscoreyet) {      /* if it will be the lone new best one */
-      addbestever(pos, &nextree, maxtrees, false, place, bestrees, score);
+      addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
     } else {                            /* it is another tree tied for best */
       addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
     }
@@ -661,7 +661,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
     if ( !found )
     {
       if (bestyet < score || nextree == 1 )
-        addbestever(pos, &nextree, maxtrees, false, place, bestrees, score);
+        addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
       else
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
     }
@@ -1388,7 +1388,7 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
 
   lastrearr = true;
   savetree(t, place);
-  addbestever(&pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
+  addbestever(pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 
   for ( i = 0 ; i < nextree-1 ; i++)
     bestrees[i].gloreange = false;
