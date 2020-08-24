@@ -535,7 +535,7 @@ typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
     double*, tree*, boolean);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, boolean, boolean);
+    double*, tree*, boolean, boolean, boolean);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean);
@@ -804,9 +804,9 @@ boolean         generic_node_good(tree*, node*);
 void            rooted_globrearrange(tree*, boolean, boolean);
 void            generic_globrearrange(tree*, boolean, boolean);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
-                                          double*, tree*, boolean);
-boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean, boolean);
+boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node*,
+                                          double*, tree*, boolean, boolean, boolean);
 #ifdef WIN32
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);

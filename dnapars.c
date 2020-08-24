@@ -467,7 +467,7 @@ void describe(void)
 }  /* describe */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"

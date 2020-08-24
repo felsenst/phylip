@@ -99,7 +99,7 @@ void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   double * bestyet, tree * bestree, tree * priortree, boolean thorough,
-  boolean *atstart)
+  boolean storing, boolean *atstart)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -119,31 +119,31 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
 
-
-  if (*atstart) {                     /* case when this is first tree tried */
-    pos = 0;
-    found = false;
-    savetree(t, place);
-    *bestyet = like;
-    succeeded = true;
-  } 
-  else {
-    if ( lastrearr && (like <= *bestyet) )      /* deciding on a later tree */
-    {
+  if (storing) {
+    if (*atstart) {                     /* case when this is first tree tried */
+      pos = 0;
+      found = false;
       savetree(t, place);
-      findtree(&found, &pos, nextree-1, place, bestrees);
+      *bestyet = like;
       succeeded = true;
-    }  
-    if ( !found )          /* if it isn't already in the list of best trees */
-    {
-      if (like > *bestyet) {  /* replacing all of them? or adding one more? */
-        addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-        *bestyet = like;
+    } 
+    else {
+      if ( lastrearr && (like <= *bestyet) )      /* deciding on a later tree */
+      {
+        savetree(t, place);
+        findtree(&found, &pos, nextree-1, place, bestrees);
+        succeeded = true;
+      }  
+      if ( !found )          /* if it isn't already in the list of best trees */
+      {
+        if (like > *bestyet) {  /* replacing all of them? or adding one more? */
+          addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+          *bestyet = like;
+        }
+        else
+          addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       }
-      else
-        addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
     }
-  }
   if (succeeded)
   {
     there = p;
@@ -154,7 +154,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
 
-  found = false;
+  found = false;                /* debug: why this? May not have any effect */
   pos = 0;
 
   /* debug:  Uncommenting the following code will allow for a multifurcating
@@ -646,7 +646,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
 /* debug:  may not need in view of pars_try_insert  */
 
   boolean better, worse, tied, found;
-  long bestscoreyet, *pos;
+  long bestscoreyet, *pos = 0;
   
   bestscoreyet = bestyet;
   if (!(score > bestscoreyet)) {           /* if going to save this one ... */
@@ -1383,7 +1383,7 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
 {
   /* calls global rearrangement on best trees */
   long treei;
-  long i, pos;
+  long i, pos = 0;
   boolean done = false;
 
   lastrearr = true;

@@ -3921,7 +3921,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                             thorough, atstart);
+                             thorough, storing, atstart);
   succeeded = false;      /* for first location we try */
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
@@ -3930,7 +3930,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree, 
-                           thorough, atstart) || succeeded;
+                           thorough, storing, atstart) || succeeded;
     }
   }
   if (contin && !q->back->tip) {
@@ -3940,7 +3940,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree,
-                           thorough, atstart) || succeeded;
+                           thorough, storing, atstart) || succeeded;
     }
   }
   return succeeded;
@@ -3949,7 +3949,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
                               node *qwherein, double* bestyet, tree* bestree,
-                              boolean thorough, boolean atstart)
+                              boolean thorough, boolean storing, boolean atstart)
 {
   /* try adding  p  at  q, then maybe recursively through tree
    * from one end of that branch
@@ -3957,19 +3957,20 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
    * than the original location, q
    * contin  indicates whether one proceeds through the subtree
    * recursively instead of just trying this one branch, as in
-   * local rearrangement */
+   * local rearrangementboolean storing,  storing indicates that any trees
+   * that are found that are tied or better should be stored in bestrees */
   node *sib_ptr;
   boolean succeeded = false;
 
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, atstart);
+                             thorough, storing, atstart);
 
   if (!q->tip && contin) {       /* go to all branches leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                           contin, qwherein, bestyet, bestree,
-                          thorough, atstart) || succeeded;
+                          thorough, storing, atstart) || succeeded;
     }
   }
   return succeeded;
@@ -4719,7 +4720,7 @@ long generic_tree_findemptyfork(tree* t)
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                                  double* bestyet, tree* bestree,
-                                 boolean thorough, boolean atstart)
+                                 boolean thorough, boolean storing, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
