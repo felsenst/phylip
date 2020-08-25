@@ -533,7 +533,7 @@ typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
-    double*, tree*, boolean);
+    double*, tree*, boolean, boolean);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, boolean, boolean, boolean);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);

@@ -3740,7 +3740,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
       qwhere = where;
 
       succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
-                                        qwhere, &bestyet, bestree, thorough);
+                                        qwhere, &bestyet, bestree, thorough, false);  /* debug: storing? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3861,7 +3861,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         {
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
                                             true, qwhere, &bestyet, bestree,
-                                            thorough) || succeeded;
+                                            thorough, false) || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
@@ -3910,7 +3910,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                               node* qwherein, double* bestyet, tree* bestree,
-                              boolean thorough)
+                              boolean thorough, boolean storing)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
    * is just doing local rearragements. 
@@ -4177,12 +4177,12 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
     t->addtraverse(t, r, p->next->back, false, qwhere,
-                    bestyet, bestree, thorough); /* trying just this branch */
+                    bestyet, bestree, thorough, storing); /* trying just this branch */
 
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
       t->addtraverse(t, r, p->next->next->back, false,
-                      qwhere, bestyet, bestree, thorough);
+                      qwhere, bestyet, bestree, thorough, storing);
     }
 
     if (thorough)
@@ -4861,7 +4861,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     item = curtree->get_fork(curtree, k);
     hookup(item, p);
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                         curtree, true);
+                         curtree, true, (i == spp));    /* store now? */
     curtree->insert_(curtree, item, there, false);
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);

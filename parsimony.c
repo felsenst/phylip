@@ -144,6 +144,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       }
     }
+  }
   if (succeeded)
   {
     there = p;
@@ -455,6 +456,7 @@ void oldsavetree(tree* t, long *place)
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
+#if 0
 /* debug:  is stuff after here necessary in view of adding binary fork
  * between the outgroup tip and its nearest fork?  */
   if (outgrin(t->root, outgrnode))
@@ -464,6 +466,7 @@ void oldsavetree(tree* t, long *place)
   }
   else
 /* debug:  ... down to here */
+#endif
   {
     root2 = t->root;
     lastdesc = t->root->next;
@@ -495,6 +498,7 @@ void oldsavetree(tree* t, long *place)
         r = p;
         p = p->back;                             /* go down to earlier fork */
       }
+    }
 /* debug:  maybe we don't need any of this from here  ... */
 #if 0
       if (i > 1)
@@ -548,10 +552,6 @@ void oldsavetree(tree* t, long *place)
             }
           }
         }
-#endif
-      }
-    }
-#if 0
   if (flipback)
     flipnodes(outgrnode, flipback->back);
   else
@@ -562,9 +562,10 @@ void oldsavetree(tree* t, long *place)
       t->root = root2;
     }
   }
-#endif
   if (binroot)
     backtobinary(t, &t->root, binroot);
+#endif
+  }
 }  /* oldsavetree */
 
 
@@ -645,14 +646,14 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
    * one, if tied with them add it in too */
 /* debug:  may not need in view of pars_try_insert  */
 
-  boolean better, worse, tied, found;
+  boolean found;
   long bestscoreyet, *pos = 0;
   
   bestscoreyet = bestyet;
-  if (!(score > bestscoreyet)) {           /* if going to save this one ... */
+  if (!(score < bestscoreyet)) {           /* if going to save this one ... */
     savetree(t, place);
     findtree(&found, pos, nextree-1, place, bestrees);
-    if (score < bestscoreyet) {      /* if it will be the lone new best one */
+    if (score > bestscoreyet) {      /* if it will be the lone new best one */
       addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
     } else {                            /* it is another tree tied for best */
       addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
@@ -660,7 +661,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
   }
     if ( !found )
     {
-      if (bestyet < score || nextree == 1 )
+      if ((bestyet > score) || (nextree == 1) )
         addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
       else
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
@@ -670,7 +671,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
                           node* qwherein, double* bestyet, bestelm* bestrees,
-                          boolean thorough)
+                          boolean thorough, boolean storing)
 {
   /* wrapper for addraverse, calling generic addtraverse
    * and then taking the best tree found and adding it to the array
@@ -680,7 +681,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    boolean success;
 
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
-                                       bestyet, &bestree, thorough);
+                                       bestyet, &bestree, thorough, storing);
    add_to_besttrees(t, t->score, bestrees);
    return success;
 } /* pars_addtraverse */
@@ -1032,7 +1033,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double oldbestyet;
   double bestyet;
-  boolean multf, mulf;
+  boolean mulf;
   node* removed;
 
   bestyet = oldbestyet = curtree->evaluate(curtree, curtree->root, 0);
@@ -1085,7 +1086,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                                qwhere, &bestyet, &bestree, multf);
+                                qwhere, &bestyet, &bestree, true, true);
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
@@ -1592,7 +1593,7 @@ bestelm** allocbestrees(void)
   for ( i = 0 ; i < 2 ; i++ )
     rebestrees[i] = allocbestree();
   return rebestrees;
-} /* bestelm */
+} /* allocbestrees */
 
 
 /* End. */
