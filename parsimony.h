@@ -66,13 +66,13 @@ void    addbestever(long, long *, long, boolean, long *, bestelm *, double);
 void    addtiedtree(long *, long *, long, boolean, long *, bestelm *, double);
 void    add_to_besttrees(tree*, long, bestelm*);
 boolean	pars_addtraverse(tree*, node*, node*, boolean, node*,
-                                   double*, bestelm*, boolean);
+                                   double*, bestelm*, boolean, boolean);
 void    treeout3(node *, long, long *, node *);
 void    disc_treelength(node *, long, pointarray);
 void    grandrearr(tree*, boolean, boolean);
 void    drawline3(long, double, node *);
 boolean pars_tree_try_insert_(tree*, node *, node *, node *, double *, tree*,
-                               tree*, boolean, boolean *);
+                               tree*, boolean, boolean, boolean *);
 void    coordinates(tree*, node *, double, long *, double *);
 void    printree(tree*);
 node*   root_tree(tree*, node*);
