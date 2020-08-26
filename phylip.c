@@ -3921,7 +3921,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                             thorough, storing, atstart);
+                             thorough, atstart);
   succeeded = false;      /* for first location we try */
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
@@ -3963,7 +3963,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
   boolean succeeded = false;
 
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, storing, atstart);
+                             thorough, atstart);
 
   if (!q->tip && contin) {       /* go to all branches leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
@@ -4177,12 +4177,12 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
     t->addtraverse(t, r, p->next->back, false, qwhere,
-                    bestyet, bestree, thorough, storing); /* trying just this branch */
+                    bestyet, bestree, thorough, true);    /* storing it too */
 
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
       t->addtraverse(t, r, p->next->next->back, false,
-                      qwhere, bestyet, bestree, thorough, storing);
+                      qwhere, bestyet, bestree, thorough, true);
     }
 
     if (thorough)
@@ -4720,7 +4720,7 @@ long generic_tree_findemptyfork(tree* t)
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                                  double* bestyet, tree* bestree,
-                                 boolean thorough, boolean storing, boolean atstart)
+                                 boolean thorough, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */

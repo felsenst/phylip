@@ -69,31 +69,29 @@ node* root_tree(tree* t, node* here)
 } /* root_tree */
 
 
-void reroot_tree(tree* t, node* fakeroot) // RSGbugfix: Name change.
+void reroot_tree(tree* t, node* fakeroot)
 {
   /* Removes a root from a tree; useful after a return from functions that
    * expect a rooted tree (e.g. oldsavetree()). Then reroots the tree before
    * releasing a forknode to the freelist, to avoid tree components
    * pointing (even temporarily) into garbage. */
+/* debug:  make sure that fakeroot was pointing to "bottom" node in fork circle */
   node *p;
 
   if ( count_sibs(fakeroot) > 2 )
   {
     for (p = fakeroot ; p->next != fakeroot ; p = p->next);
-    p->next = fakeroot->next;
+    p->next = fakeroot->next;             /* bypass node fakeroot points to */
     if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
-      t->nodep[fakeroot->index - 1 ] = p;
-    if ( t->root == fakeroot)   // RSGbugfix: Reroot before sending FORKNODE to freelist.
-      t->root = t->nodep[outgrno - 1]->back;
-    t->release_forknode(t, fakeroot);
+      t->nodep[fakeroot->index - 1 ] = p;    /* have fakeroot point to fork */
   }
   else
-  {
-    hookup(fakeroot->next->back, fakeroot->next->next->back);
-    if ( t->root == fakeroot)           // RSGbugfix: Reroot before sending FORKRING to freelist.
-      t->root = t->nodep[outgrno - 1]->back;
-    t->release_fork(t, fakeroot);
+  {     /* are only 2 sibs.  Be careful to hook two real sibs to each other */
+    hookup(fakeroot->next->back, fakeroot->next->next->back); /* debug: always OK? */
   }
+  if ( t->root == fakeroot)           // RSGbugfix: Reroot before sending FORKRING to freelist.
+    t->root = t->nodep[outgrno - 1]->back;
+  t->release_fork(t, fakeroot);
 } /* reroot_tree */
 
 
