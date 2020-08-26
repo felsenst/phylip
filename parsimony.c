@@ -570,16 +570,36 @@ void oldsavetree(tree* t, long *place)
 void savetree(tree* t, long *place)
 {
   /* Record in  place  where each species has to be added to reconstruct
-   * this tree. This code roots the tree and calls oldsavetree to save it. */
-  node *oldroot, *p, *outgrnode;
+   * this tree. This code finds out whether there is already a root fork
+   * that has a NULL ancestor, if not it  roots the tree.  Then it calls
+   * and calls oldsavetree to save it. */
+  boolean wasrooted;
+  node *oldroot, *p, *q, *outgrnode;
 
+  wasrooted = false;
   outgrnode = t->nodep[outgrno - 1];
   p = outgrnode->back;
-  oldroot = p;
-  t->root = root_tree(t, p);
-  oldsavetree(t, place);
-  reroot_tree(t, t->root);              // RSGbugfix: Name change.
-  t->root = oldroot;
+  wasrooted = (p->back == NULL); /* find out whether was already rooted by */
+  q = p;                      /* going around circle to see whether it was */
+  if (!wasrooted) {
+    while (q != p) {
+      if (q->back == NULL) {
+        wasrooted = true;
+        break;
+      }
+      q = q->next;
+    }
+  }
+  if (wasrooted) {
+    oldroot = p;
+  }
+  if (!wasrooted)
+    t->root = root_tree(t, p);                 /* put in a "fake" root fork */
+  oldsavetree(t, place);        /* now save this rooted tree in array place */
+  if (!wasrooted) {                /* remove the fake root if one was added */
+    reroot_tree(t, t->root);
+    t->root = oldroot;
+  }
 }  /* savetree */
 
 
