@@ -5038,7 +5038,7 @@ void seetree(tree * t)
 
           qq = qq->next;
           n++;
-          if ((qq != pp) && (n < 10))
+          if ((qq != pp) && (n < 6))
           {
             printf(",");
           }

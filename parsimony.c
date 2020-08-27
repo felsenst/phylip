@@ -31,7 +31,7 @@ boolean mulf;
 sequence convtab;
 long renextree, nextree;
 
-static void savetraverse(node *p);
+void setbottomtraverse(node *p);
 static void oldsavetree(tree* t, long *place);
 static void bintomulti(tree *t, node **root, node **binroot);
 static void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc);
@@ -463,20 +463,18 @@ void oldsavetree(tree* t, long *place)
       moveleft(t->root, outgrnode, &flipback);
   }
   else
-/* debug:  ... down to here */
-#endif
   {
+/* debug:  ... down to here */
     root2 = t->root;
     lastdesc = t->root->next;
     while (lastdesc->next != t->root)
       lastdesc = lastdesc->next;
     lastdesc->next = t->root->next;
-#if 0
     t->root = t->get_forknode(t, outgrnode->back->index);
     reroot2(outgrnode, t->root);
-#endif
   }
-  savetraverse(t->root);
+#endif
+  setbottomtraverse(t->root);
   nextnode = spp + 1;
 #if 0
   for (i = nextnode; i <= nonodes; i++)     /* debug: why is this necessary? */
@@ -586,6 +584,7 @@ void savetree(tree* t, long *place)
   wasrooted = (p->back == NULL); /* find out whether was already rooted by */
   q = p;                      /* going around circle to see whether it was */
   if (!wasrooted) {
+    q = q->next;
     while (q != p) {
       if (q->back == NULL) {
         wasrooted = true;
@@ -1011,7 +1010,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 } /* load_tree */
 
 
-static void savetraverse(node *p)
+void setbottomtraverse(node *p)
 { 
   /* set boolean "bottom" to true on one of the nodes in a fork circle
    * at each interior fork to show which way is down.  Go around
@@ -1026,10 +1025,10 @@ static void savetraverse(node *p)
   while (q != p)                  /* go around circle, set all others false */
   {
     q->bottom = false;
-    savetraverse(q->back);
+    setbottomtraverse(q->back);
     q = q->next;
   }
-}  /* savetraverse */
+}  /* setbottomtraverse */
 
 
 static boolean outgrin(node *root, node *outgrnode)
