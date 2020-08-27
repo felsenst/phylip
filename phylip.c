@@ -4975,7 +4975,7 @@ void seetree(tree * t)
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
   node *pp, *qq;
-  long int i;
+  long int i, n;
   long int nonodes = t->nonodes;
   boolean malformed;
 
@@ -5005,9 +5005,20 @@ void seetree(tree * t)
                  (void *)qq, qq->index);
         pp = qq;
         malformed = false;
-
+        n = 0;
         do
         {
+          malformed = ((qq->next == qq) || (qq->next->next == qq));
+          if (malformed)
+          {
+            printf(" node is: %p: ", qq);
+            printf(" (->next is %p: ", qq->next);
+            if (qq->next == qq)
+              printf("  same node)");
+            else
+              printf(")");
+          }
+
           if (qq->back == NULL)
           {
             printf(" (nil)");
@@ -5017,17 +5028,21 @@ void seetree(tree * t)
             printf(" %p index:%ld", (void *)qq->back, qq->back->index);
           }
 
+          if (malformed)
+          {
+            if (qq->next->next == qq)
+               printf(" (->next->next is %p: same node)", qq->next->next);
+            else
+              printf(")");
+          }
+
           qq = qq->next;
-          if (qq != pp)
+          n++;
+          if ((qq != pp) && (n < 10))
           {
             printf(",");
           }
-          malformed = (qq->next == qq);
-          if (malformed)
-          {
-            printf(" (->next is %p: same node)", qq->next);
-          }
-        } while ((qq != pp) && (qq->index == pp->index) && !malformed);
+        } while ((qq != pp) && (qq->index == pp->index) && (n < 10) && !malformed);
 
         printf("\n");
       }

@@ -471,16 +471,20 @@ void oldsavetree(tree* t, long *place)
     while (lastdesc->next != t->root)
       lastdesc = lastdesc->next;
     lastdesc->next = t->root->next;
+#if 0
     t->root = t->get_forknode(t, outgrnode->back->index);
     reroot2(outgrnode, t->root);
+#endif
   }
   savetraverse(t->root);
   nextnode = spp + 1;
-  for (i = nextnode; i <= nonodes; i++)
+#if 0
+  for (i = nextnode; i <= nonodes; i++)     /* debug: why is this necessary? */
     if (t->nodep[i-1] != NULL) {
       if (get_numdesc(t->root, t->nodep[i-1]) == 0)
         flipindexes(i, t->nodep);
     }
+#endif
   for (i = 0; i < nonodes; i++)                   /* zero out "place" array */
     place[i] = 0;
   place[t->root->index - 1] = 1;                 /* first element must be 1 */
@@ -812,14 +816,15 @@ boolean alltips(node *forknode, node *p)
 
 void flipindexes(long nextnode, pointarray treenode)
 {
-  /* flips index of nodes between nextnode and last node.  */
+  /* flips index of nodes between nextnode and last node.
+   * This is intended to move any empty fork to be numerically last  */
   long last;
   node *temp;
 
   last = nonodes;
   while (treenode[last - 1]->back == NULL)
-    last--;
-  if (last > nextnode)
+    last--;                     /* go earlier in forks to find nonempty one */
+  if (last > nextnode)       /* swap it with place where next fork is to be */
   {
     temp = treenode[nextnode - 1];
     treenode[nextnode - 1] = treenode[last - 1];
@@ -1008,8 +1013,10 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 
 static void savetraverse(node *p)
 { 
-  /* set boolean "bottom" on one of the nodes in a fork circle
-   * at each interior fork to show which way is down */
+  /* set boolean "bottom" to true on one of the nodes in a fork circle
+   * at each interior fork to show which way is down.  Go around
+   * fork circle and set others to false.  Traverse out through tree
+   * to do this on all nodes.  */
   node *q;
 
   p->bottom = true;                       /* set the one you arrive at true */
@@ -1022,7 +1029,6 @@ static void savetraverse(node *p)
     savetraverse(q->back);
     q = q->next;
   }
-
 }  /* savetraverse */
 
 
