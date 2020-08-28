@@ -485,7 +485,7 @@ void oldsavetree(tree* t, long *place)
 #endif
   for (i = 0; i < nonodes; i++)                   /* zero out "place" array */
     place[i] = 0;
-  place[t->root->index - 1] = 1;                 /* first element must be 1 */
+  place[0] = 1;                                  /* first element must be 1 */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];
@@ -498,72 +498,72 @@ void oldsavetree(tree* t, long *place)
         r = p;
         p = p->back;                             /* go down to earlier fork */
       }
+      place[i] = place[p->index-1];      /* set place to number encountered */
     }
-/* debug:  maybe we don't need any of this from here  ... */
+/* debug: maybe we don't need any of this from here ... */
 #if 0
-      if (i > 1)
+    if (i > 1)
+    {
+      q = t->nodep[i - 1];
+      newfork = true;
+      nvisited = sibsvisited(q, place);
+      if (nvisited == 0)
       {
-        q = t->nodep[i - 1];
-        newfork = true;
-        nvisited = sibsvisited(q, place);
-        if (nvisited == 0)
-        {
-          if (parentinmulti(r, t->root))
-          {
-            nvisited = sibsvisited(r, place);
-            if (nvisited == 0)
-              place[i - 1] = place[p->index - 1];
-            else if (nvisited == 1)
-              place[i - 1] = smallest(r, place);
-            else
-            {
-              place[i - 1] = -smallest(r, place);
-              newfork = false;
-            }
-          }
-          else
-            place[i - 1] = place[p->index - 1];
-        }
-        else if (nvisited == 1)
-        {
-          place[i - 1] = place[p->index - 1];
-        }
-        else
-        {
-          place[i - 1] = -smallest(q, place);
-          newfork = false;
-        }
-        if (newfork)
-        {
-          j = place[p->index - 1];
-          done = false;
-          while (!done)
-          {
-            place[p->index - 1] = nextnode;
-            while (!p->bottom)
-              p = p->next;
-            p = p->back;
-            done = (p == NULL);
-            if (!done)
-              done = (place[p->index - 1] != j);
-            if (done)
-            {
-              nextnode++;
-            }
-          }
-        }
-  if (flipback)
+      if (parentinmulti(r, t->root))
+      {
+      nvisited = sibsvisited(r, place);
+      if (nvisited == 0)
+      place[i - 1] = place[p->index - 1];
+      else if (nvisited == 1)
+      place[i - 1] = smallest(r, place);
+      else
+      {
+      place[i - 1] = -smallest(r, place);
+      newfork = false;
+      }
+    }
+    else
+      place[i - 1] = place[p->index - 1];
+      }
+    else if (nvisited == 1)
+    {
+    place[i - 1] = place[p->index - 1];
+    }
+    else
+    {
+    place[i - 1] = -smallest(q, place);
+    newfork = false;
+    }
+    if (newfork)
+    {
+    j = place[p->index - 1];
+    done = false;
+    while (!done)
+    {
+    place[p->index - 1] = nextnode;
+    while (!p->bottom)
+    p = p->next;
+    p = p->back;
+    done = (p == NULL);
+    if (!done)
+    done = (place[p->index - 1] != j);
+    if (done)
+    nextnode++;
+    }
+    }
+    }
+    if (flipback)
     flipnodes(outgrnode, flipback->back);
-  else
-  {
+    else
+    {
     if (root2)
     {
-      reroot3(t, outgrnode, t->root, root2, lastdesc);
-      t->root = root2;
+    reroot3(t, outgrnode, t->root, root2, lastdesc);
+    t->root = root2;
     }
-  }
-  if (binroot)
-    backtobinary(t, &t->root, binroot);
+    }
+    if (binroot)
+      backtobinary(t, &t->root, binroot);
 #endif
   }
 }  /* oldsavetree */
