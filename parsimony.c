@@ -509,58 +509,59 @@ void oldsavetree(tree* t, long *place)
       nvisited = sibsvisited(q, place);
       if (nvisited == 0)
       {
-      if (parentinmulti(r, t->root))
-      {
-      nvisited = sibsvisited(r, place);
-      if (nvisited == 0)
-      place[i - 1] = place[p->index - 1];
+        if (parentinmulti(r, t->root))
+        {
+          nvisited = sibsvisited(r, place);
+          if (nvisited == 0)
+            place[i - 1] = place[p->index - 1];
+          else if (nvisited == 1)
+            place[i - 1] = smallest(r, place);
+          else
+          {
+            place[i - 1] = -smallest(r, place);
+            newfork = false;
+          }
+        }
+        else
+          place[i - 1] = place[p->index - 1];
+      }
       else if (nvisited == 1)
-      place[i - 1] = smallest(r, place);
+      {
+        place[i - 1] = place[p->index - 1];
+      }
       else
       {
-      place[i - 1] = -smallest(r, place);
-      newfork = false;
+        place[i - 1] = -smallest(q, place);
+        newfork = false;
       }
-    }
-    else
-      place[i - 1] = place[p->index - 1];
+      if (newfork)
+      {
+        j = place[p->index - 1];
+        done = false;
+        while (!done)
+        {
+          place[p->index - 1] = nextnode;
+          while (!p->bottom)
+            p = p->next;
+            p = p->back;
+          done = (p == NULL);
+          if (!done)
+            done = (place[p->index - 1] != j);
+          if (done)
+          {
+            nextnode++;
+          }
+        }
       }
-    else if (nvisited == 1)
-    {
-    place[i - 1] = place[p->index - 1];
-    }
-    else
-    {
-    place[i - 1] = -smallest(q, place);
-    newfork = false;
-    }
-    if (newfork)
-    {
-    j = place[p->index - 1];
-    done = false;
-    while (!done)
-    {
-    place[p->index - 1] = nextnode;
-    while (!p->bottom)
-    p = p->next;
-    p = p->back;
-    done = (p == NULL);
-    if (!done)
-    done = (place[p->index - 1] != j);
-    if (done)
-    nextnode++;
-    }
-    }
-    }
     if (flipback)
-    flipnodes(outgrnode, flipback->back);
+      flipnodes(outgrnode, flipback->back);
     else
     {
-    if (root2)
-    {
-    reroot3(t, outgrnode, t->root, root2, lastdesc);
-    t->root = root2;
-    }
+      if (root2)
+      {
+        reroot3(t, outgrnode, t->root, root2, lastdesc);
+        t->root = root2;
+      }
     }
     if (binroot)
       backtobinary(t, &t->root, binroot);
