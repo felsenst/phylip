@@ -445,47 +445,21 @@ void oldsavetree(tree* t, long *place)
     * added to reconstruct this tree. This code assumes a root
     * this is the older function,  a new function roots the tree and calls this
     * function to save the tree */
-  long i, j, nextnode, nvisited;
+  long i, j, nextnode, nvisited, newforknum;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
   boolean done, newfork;
 
+#if 0
   binroot = NULL;
   lastdesc = NULL;
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
-#if 0
-/* debug:  is stuff after here necessary in view of adding binary fork
- * between the outgroup tip and its nearest fork?  */
-  if (outgrin(t->root, outgrnode))
-  {
-    if (outgrnode != t->root->next->back)
-      moveleft(t->root, outgrnode, &flipback);
-  }
-  else
-  {
-/* debug:  ... down to here */
-    root2 = t->root;
-    lastdesc = t->root->next;
-    while (lastdesc->next != t->root)
-      lastdesc = lastdesc->next;
-    lastdesc->next = t->root->next;
-    t->root = t->get_forknode(t, outgrnode->back->index);
-    reroot2(outgrnode, t->root);
-  }
 #endif
-  setbottomtraverse(t->root);
+  setbottomtraverse(t->root);  /* set booleans indicating which way is down */
   nextnode = spp + 1;
-#if 0
-  for (i = nextnode; i <= nonodes; i++)     /* debug: why is this necessary? */
-    if (t->nodep[i-1] != NULL) {
-      if (get_numdesc(t->root, t->nodep[i-1]) == 0)
-        flipindexes(i, t->nodep);
-    }
-#endif
-  for (i = 0; i < nonodes; i++)                   /* zero out "place" array */
+  for (i = 0; i < nonodes; i++)                 /* initialize "place" array */
     place[i] = 0;
-  place[0] = 1;                                  /* first element must be 1 */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];
@@ -495,10 +469,23 @@ void oldsavetree(tree* t, long *place)
         place[p->index - 1] = i;          /* set value to index of that tip */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
-        r = p;
         p = p->back;                             /* go down to earlier fork */
+        if (p == NULL)                   /* if we went past bottom fork ... */
+          break;                                 /* blast out of while loop */
       }
-      place[i] = place[p->index-1];      /* set place to number encountered */
+      if (p != NULL) {
+        place[i] = place[p->index-1];    /* set place to number encountered */
+        newforknum = spp + i;    /* the number of the fork when it connects */
+        while (place[p->index - 1] == place[i])   /* for bottom part of ... */
+        {                                /* ... lineage that i connected to */
+          place[p->index - 1] = newforknum;     /* set to index of new fork */
+          while (!p->bottom)           /* go around circle to find way down */
+            p = p->next;
+          p = p->back;                           /* go down to earlier fork */
+          if (p == NULL)               /* blast out of loop if reached root */
+            break;
+        }
+      }
     }
 /* debug: maybe we don't need any of this from here ... */
 #if 0
