@@ -479,6 +479,7 @@ void oldsavetree(tree* t, long *place)
           break;                                 /* blast out of while loop */
       }
       if (p != NULL) {              /* we ran into a nonzero lineage number */
+        place[i] = lineagenumber[p->index -1];     /* record in place array */
         newforknum = spp + i - 1;           /* number of new fork when attaches */
         lineagenumber[p->index - 1] = newforknum;  /* number from here down */
         while (lineagenumber[p->index - 1] == place[i])    /* going on down */
