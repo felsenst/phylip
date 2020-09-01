@@ -391,21 +391,22 @@ void initializetrav (tree* t, node *p)
 /* debug:  does this duplicate the previous two functions? */
   node *q;
 
-  if (p->tip)
-    p->initialized = true;
-  else
-    p->initialized = false;
-  if (p->back->tip)
-    p->back->initialized = true;
-  else
-    p->back->initialized = false;
-  if (p->tip)                            /* bail if at a tip */
-    return;
-  for (q = p->next; q != p; q = q->next) { /* go to rest of fork circle */
-    q->initialized = false;                /* setting nodes uninitialized */
-    initializetrav (t, q->back);        /* ... and on outwards from there */
+  if (p != NULL) {
+    if (p->tip)
+      p->initialized = true;
+    else
+      p->initialized = false;
+    if (p->back->tip)
+      p->back->initialized = true;
+    else
+      p->back->initialized = false;
+    if (p->tip)                            /* bail if at a tip */
+      return;
+    for (q = p->next; q != p; q = q->next) { /* go to rest of fork circle */
+      q->initialized = false;                /* setting nodes uninitialized */
+      initializetrav (t, q->back);        /* ... and on outwards from there */
+    }
   }
-
 } /* initializetrav */
 
 

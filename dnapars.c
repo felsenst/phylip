@@ -605,7 +605,8 @@ void maketree(void)
                 nonodes);
       reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
       initializetrav(curtree, curtree->root);
-      initializetrav(curtree, curtree->root->back);
+      if (curtree->root != NULL)
+        initializetrav(curtree, curtree->root->back);
       curtree->evaluate(curtree, curtree->root, false);
       curtree->root = root_tree(curtree, curtree->root);
       if (treeprint)
