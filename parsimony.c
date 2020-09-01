@@ -446,6 +446,7 @@ void oldsavetree(tree* t, long *place)
     * this is the older function,  a new function roots the tree and calls this
     * function to save the tree */
   long i, j, nextnode, nvisited, newforknum;
+  long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
   boolean done, newfork;
 
@@ -456,29 +457,32 @@ void oldsavetree(tree* t, long *place)
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
 #endif
+  lineagenumber = (long *)Malloc(nonodes*sizeof(long));
   setbottomtraverse(t->root);  /* set booleans indicating which way is down */
   nextnode = spp + 1;
-  for (i = 0; i < nonodes; i++)                 /* initialize "place" array */
+  for (i = 0; i < spp; i++)                     /* initialize "place" array */
     place[i] = 0;
+  for (i = 0; i < nonodes; i++)          /* which lineage each tree node is */
+    lineagenumber[i] = 0;                          /* ... starts out zeroed */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
-    p = t->nodep[i - 1];
+    place[0] = 1;                                   /* this one is always 1 */
+    p = t->nodep[i - 1];                           /* start with species  i */
     if (p->back != NULL) {                    /* if this tip is in the tree */
-      while (place[p->index - 1] == 0)   /* if no number yet there in place */
+      while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
-        place[p->index - 1] = i;          /* set value to index of that tip */
+        lineagenumber[p->index - 1] = i;  /* set value to index of that tip */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
         if (p == NULL)                   /* if we went past bottom fork ... */
           break;                                 /* blast out of while loop */
       }
-      if (p != NULL) {
-        place[i] = place[p->index-1];    /* set place to number encountered */
-        newforknum = spp + i;    /* the number of the fork when it connects */
-        while (place[p->index - 1] == place[i])   /* for bottom part of ... */
-        {                                /* ... lineage that i connected to */
-          place[p->index - 1] = newforknum;     /* set to index of new fork */
+      if (p != NULL) {              /* we ran into a nonzero lineage number */
+        newforknum = spp + i - 1;           /* number of new fork when attaches */
+        lineagenumber[p->index - 1] = newforknum;  /* number from here down */
+        while (lineagenumber[p->index - 1] == place[i])    /* going on down */
+        {
           while (!p->bottom)           /* go around circle to find way down */
             p = p->next;
           p = p->back;                           /* go down to earlier fork */
