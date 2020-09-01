@@ -76,12 +76,13 @@ void reroot_tree(tree* t, node* fakeroot)
    * releasing a forknode to the freelist, to avoid tree components
    * pointing (even temporarily) into garbage. */
 /* debug:  make sure that fakeroot was pointing to "bottom" node in fork circle */
+  long i;
   node *p;
 
   if ( count_sibs(fakeroot) > 2 )
   {
     for (p = fakeroot ; p->next != fakeroot ; p = p->next);
-    p->next = fakeroot->next;             /* bypass node fakeroot points to */
+      p->next = fakeroot->next;           /* bypass node fakeroot points to */
     if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
       t->nodep[fakeroot->index - 1 ] = p;    /* have fakeroot point to fork */
   }
@@ -89,8 +90,15 @@ void reroot_tree(tree* t, node* fakeroot)
   {     /* are only 2 sibs.  Be careful to hook two real sibs to each other */
     hookup(fakeroot->next->back, fakeroot->next->next->back); /* debug: always OK? */
   }
-  if ( t->root == fakeroot)           // RSGbugfix: Reroot before sending FORKRING to freelist.
-    t->root = t->nodep[outgrno - 1]->back;
+  if ( t->root == fakeroot) /* set root of tree if was pointing to fakeroot */
+  {
+    if (t->nodep[outgrno-1]->back != NULL)   /* if that tip not on the tree */
+      t->root = t->nodep[outgrno - 1]->back;
+    else {            /* find the tip of lowest number actually on the tree */
+      for (i = 0; t->nodep[i]->back == NULL; i++) { }
+      t->root = t->nodep[i]->back;                        /* set it to root */
+      }
+  }
   t->release_fork(t, fakeroot);
 } /* reroot_tree */
 
