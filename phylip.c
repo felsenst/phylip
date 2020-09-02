@@ -4839,35 +4839,36 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
   long *enterorder;
   double bestyet;
 
-  enterorder = (long *)Malloc(spp * sizeof(long));
+  enterorder = (long *)Malloc(spp * sizeof(long));  /* order to add to tree */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)
-    randumize(seed, enterorder);
-  release_all_forks(curtree);
-  buildsimpletree(curtree, enterorder);
-  curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    randumize(seed, enterorder);     /* in Jumble case, randomize the order */
+  release_all_forks(curtree);               /* make sure tree has just tips */
+  buildsimpletree(curtree, enterorder);        /* make tree of first 3 tips */
+  curtree->root = curtree->nodep[enterorder[0] - 1]->back;      /* its root */
   if (progress) {
     sprintf(progbuf, "Adding species:\n");
     print_progress(progbuf);
     writename(0, 3, enterorder);
     phyFillScreenColor();
   }
-  for (i = 4; i <= spp; i++) {
+  for (i = 4; i <= spp; i++) {  /* sequential addition: add tips one by one */
     item = curtree->nodep[enterorder[i - 1] - 1];
-    curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    curtree->root = curtree->nodep[enterorder[0] - 1]->back;  /* debug: redundant? */
     there = curtree->root;
-    k = generic_tree_findemptyfork(curtree);
+    k = generic_tree_findemptyfork(curtree); /* find an available fork slot */
     p = curtree->nodep[enterorder[i-1]-1];
     item = curtree->get_fork(curtree, k);
-    hookup(item, p);
+    hookup(item, p);                      /* hook the next tip to this fork */
+    bestyet = -50*spp*chars;             /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                         curtree, true, (i == spp));    /* store now? */
-    curtree->insert_(curtree, item, there, false);
+                         curtree, true, (i == spp));          /* store now? */
+    curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
-                          NULL, NULL);
+                          NULL, NULL);     /* round of local rearrangements */
     if (progress) {
-      writename(i - 1, 1, enterorder);
+      writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();
     }
   }

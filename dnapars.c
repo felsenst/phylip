@@ -618,7 +618,7 @@ void maketree(void)
       describe();
       if (which < numtrees)
       {
-        // may need to free some memory here
+        /*  debug:   may need to free some memory here  */
       }
       which++;
     }

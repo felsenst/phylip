@@ -312,18 +312,19 @@ FILE *infile, *outfile, *intree, *intree2, *outtree;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
-long spp;                       /* number of species */
-long words, bits;
+long spp;                                              /* number of species */
+long chars;                                /* number of characters or sites */
+long words, bits;    /* binary words, bit length for binary sets of species */
 boolean ibmpc, ansi, tranvsp;
-naym *nayme;                    /* names of species */
-char progbuf[256]; /* string to display in the progress output */
+naym *nayme;                                   /* array of names of species */
+char progbuf[256];              /* string to display in the progress output */
 
 #define ebcdic          EBCDIC  /* IBM character set pre-ANSI/ISO */
 
 typedef Char plotstring[MAXNCH];
 
 /* Approx. 1GB, used to test for memory request errors */
-#define TOO_MUCH_MEMORY 1000000000
+#define TOO_MUCH_MEMORY 1000000000      /* debug: maybe should make bigger? */
 
 
 /* The below pre-processor commands define the type used to store
@@ -370,15 +371,15 @@ typedef int  group_type;
 
 /* for many programs */
 
-#define maxuser         1000  /* maximum number of user-defined trees    */
+#define maxuser         1000        /* maximum number of user-defined trees */
 
 typedef Char **sequence;
 
-typedef enum {         /* the DNA bases */
+typedef enum {                 /* the four DNA bases plus unknown or absent */
   A, C, G, T, O
 } bases;
 
-typedef enum {         /* the amino acids in proteins */
+typedef enum {                               /* the amino acids in proteins */
   alanine, arginine, asparagine, aspartic, cysteine,
   glutamine, glutamic, glycine, histidine, isoleucine,
   leucine, lysine, methionine, phenylalanine, proline,
@@ -412,7 +413,7 @@ typedef double csitelike[61];
 typedef csitelike *cratelike;
 typedef cratelike *cphenotype;
 
-typedef long *baseptr;       /* baseptr used in Dnapars, Dnacomp, Dnapenny */
+typedef long *baseptr;        /* baseptr used in Dnapars, Dnacomp, Dnapenny */
 typedef unsigned char *discbaseptr;     /* discbaseptr used in Pars         */
 typedef double *phenotype3;                 /* for continuous char programs */
 
@@ -426,16 +427,16 @@ typedef enum { bottom, nonbottom, hslength, tip, iter, length,
 
 
 typedef double **transmatrix;
-typedef transmatrix *transptr;                /* transptr used in Restml */
+typedef transmatrix *transptr;                   /* transptr used in Restml */
 
 typedef long sitearray[3];
-typedef sitearray *seqptr;                    /* seqptr used in Protpars */
+typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 
 /* datastructure typedefs */
 enum node_type { FORK_NODE = 0, TIP_NODE };
 typedef enum node_type node_type;
 
-typedef struct node node;
+typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
 typedef node* (*new_node_t)(node_type, long);
 typedef void (*tree_setupfunctions_t)(tree*);
@@ -462,7 +463,7 @@ typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
  * #define node_copy(src,dst)      (((node*)(src))->vtable->node_copy_f((node*)(src),(node*)(dst)))
  */
 
-typedef enum nodetype {
+typedef enum nodetype {                                /* what kind of data */
   NODE_T_UNKNOWN,
   NODE_T_GENERIC,
   NODE_T_ML,
@@ -480,36 +481,36 @@ struct node_vtable {
 
 extern struct node_vtable node_vtable;
 
-struct node {
+struct node {   /* a basic node: space for everytihing but the kitchen sink */
   nodetype      type;                   /* Runtime type id */
   struct node *next, *back;
   plotstring nayme;
   long index;
   double xcoord, ycoord;
   double oldlen, naymlength;
-  long ymin, ymax;                       /* used by printree        -plc   */
-  boolean haslength;               /* haslength used in dnamlk             */
-  boolean iter;                    /* iter used in dnaml, fitch & restml   */
-  boolean do_newbl;                 /* new branch lengths needed? */
-  boolean initialized;             /* initialized used in dnamlk & restml  */
-  double v, tyme, deltav, ssq;     /* ssq used only in contrast            */
-  boolean deleted;        /* true if node is deleted (retree)              */
-  boolean hasname;        /* true if tip has a name (retree)               */
-  double beyond;          /* distance beyond this node to most distant tip */
-                            /* (retree) */
-  boolean deadend;          /* true if no undeleted nodes beyond this node */
-                            /* (retree) */
-  boolean onebranch;        /* true if there is one undeleted node beyond  */
-                            /* this node (retree)                          */
+  long ymin, ymax;                        /* used by printree        -plc   */
+  boolean haslength;                /* haslength used in dnamlk             */
+  boolean iter;                     /* iter used in dnaml, fitch & restml   */
+  boolean do_newbl;                  /* new branch lengths needed? */
+  boolean initialized;              /* initialized used in dnamlk & restml  */
+  double v, tyme, deltav, ssq;      /* ssq used only in contrast            */
+  boolean deleted;                      /* true if node is deleted (retree) */
+  boolean hasname;                       /* true if tip has a name (retree) */
+  double beyond;           /* distance beyond this node to most distant tip */
+                            /* (for Retree) */
+  boolean deadend;           /* true if no undeleted nodes beyond this node */
+                             /* (for Retree) */
+  boolean onebranch;         /* true if there is one undeleted node beyond  */
+                                                   /* this node (in Retree) */
   struct node *onebranchnode;
-                            /* if there is, a pointer to that node (retree)*/
-  double onebranchlength;   /* if there is, the distance from here to there*/
-                                /* (retree)                                */
-  boolean onebranchhaslength;   /* true if there is a valid combined length*/
-                                 /* from here to there (retree)            */
-  boolean tip;                   /* true if node is a tip node */
-  boolean bottom;                /* used in dnapars & dnacomp, disc char   */
-  boolean visited;               /* used in dnapars & dnacomp  disc char   */
+                            /* if there is, a pointer to that node (Retree) */
+  double onebranchlength;   /* if there is, the distance from here to there */
+                                                                /* (Retree) */
+  boolean onebranchhaslength;   /* true if there is a valid combined length */
+                                             /* from here to there (Retree) */
+  boolean tip;                                /* true if node is a tip node */
+  boolean bottom;                   /* used in Dnapars & Dnacomp, disc char */
+  boolean visited;                  /* used in Dnapars & Dnacomp, disc char */
   bitptr stateone, statezero;    /* discrete char programs                 */
   Char state;                    /* state used in Dnamove, Dolmove & Move  */
   boolean onlyfossilsabove;  /* used in Contrast for fossil machinery */
