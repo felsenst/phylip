@@ -539,7 +539,7 @@ typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, boolean, boolean, boolean);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
-    tree*, boolean, boolean);
+    tree*, boolean, boolean, boolean);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
@@ -589,7 +589,7 @@ struct tree_vtable {
   tree_makenewv_t makenewv;
 };
 
-typedef enum {
+typedef enum {                           /* enum type which is type of tree */
   TREE_T_UNKNOWN,
   TREE_T_GENERIC,
   TREE_T_ROOTED,
@@ -598,7 +598,7 @@ typedef enum {
 } treetype;
 
 
-struct tree {
+struct tree {                                              /* the tree type */
   treetype      type;
   pointarray nodep;
   double score;
@@ -666,9 +666,9 @@ typedef struct initdata {
 
 initdata functions;
 
-boolean javarun;            /* boolean for when Java front-end is in use */
+boolean javarun;               /* boolean for when Java front-end is in use */
 
-#ifndef OLDC                /* if not the old original K&R C compiler */
+#ifndef OLDC            /* need this if not the old original K&R C compiler */
 /* function prototypes */
 void            no_op(void);
 void            even_sibs(tree*, node*, node*);
@@ -808,7 +808,7 @@ boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean, boolean);
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean, boolean, boolean);
-#ifdef WIN32
+#ifdef WIN32              /* if using screen attributes of a Windows system */
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
 void 		phyRestoreConsoleAttributes(void);
@@ -844,7 +844,7 @@ void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
-                                          tree*, boolean, boolean);
+                                          tree*, boolean, boolean, boolean);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);

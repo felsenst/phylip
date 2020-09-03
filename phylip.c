@@ -2305,14 +2305,14 @@ void findtree(boolean *found, long *pos, long nextree,
   boolean below, done;
 
   below = false;
-  lower = 0;
+  lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
-  while (!(*found) && lower <= upper) {
-    (*pos) = (lower + upper) / 2;
-    i = 3;
+  while (!(*found) && lower <= upper) {   /* debug: <= or <  ? */
+    (*pos) = (lower + upper) / 2;  /* look in the middle of current region */
+    i = 3;                 /* first two positions are always  1, 2 so skip */
     done = false;
-    while (!done) {
+    while (!done) {                 /* go along place array checking match */
       done = (i > spp);
       if (!done)
         done = (place[i-1] != bestrees[*pos].btree[i - 1]);
@@ -2320,10 +2320,10 @@ void findtree(boolean *found, long *pos, long nextree,
         i++;
     }
     (*found) = (i > spp);
-    if (*found)
+    if (*found)                   /* you found a match, blasqt your way out */
       break;
     below = (place[i-1] <  bestrees[*pos].btree[i - 1]);
-    if (below)
+    if (below)                    /* set limits to subregion below or above */
       upper = (*pos) - 1;
     else
       lower = (*pos) + 1;
@@ -3922,7 +3922,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                             thorough, atstart);
+                             thorough, storing, atstart);
   succeeded = false;      /* for first location we try */
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
@@ -3964,7 +3964,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
   boolean succeeded = false;
 
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, atstart);
+                             thorough, storing, atstart);
 
   if (!q->tip && contin) {       /* go to all branches leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
@@ -4721,7 +4721,7 @@ long generic_tree_findemptyfork(tree* t)
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                                  double* bestyet, tree* bestree,
-                                 boolean thorough, boolean atstart)
+                                 boolean thorough, boolean storing, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
@@ -4861,7 +4861,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     p = curtree->nodep[enterorder[i-1]-1];
     item = curtree->get_fork(curtree, k);
     hookup(item, p);                      /* hook the next tip to this fork */
-    bestyet = -50*spp*chars;             /* I sure hope this is bad enough */
+    bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                          curtree, true, (i == spp));          /* store now? */
     curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */

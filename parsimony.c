@@ -81,7 +81,7 @@ void reroot_tree(tree* t, node* fakeroot)
 
   if ( count_sibs(fakeroot) > 2 )
   {
-    for (p = fakeroot ; p->next != fakeroot ; p = p->next);
+    for (p = fakeroot ; p->next != fakeroot ; p = p->next)
       p->next = fakeroot->next;           /* bypass node fakeroot points to */
     if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
       t->nodep[fakeroot->index - 1 ] = p;    /* have fakeroot point to fork */
