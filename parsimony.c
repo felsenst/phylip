@@ -126,7 +126,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   like = t->evaluate(t, p, false);
 
   if (storing) {
-    if (*atstart) {                     /* case when this is first tree tried */
+    if (atstart) {                     /* case when this is first tree tried */
       pos = 0;
       found = false;
       savetree(t, place);
