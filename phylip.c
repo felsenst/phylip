@@ -4720,7 +4720,7 @@ long generic_tree_findemptyfork(tree* t)
 
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
-                                 double* bestyet, tree* bestree, tree* priortree,
+                                 double* bestyet, tree* bestree,
                                  boolean thorough, boolean storing, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
