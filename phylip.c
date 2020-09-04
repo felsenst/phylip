@@ -3923,7 +3923,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
-  succeeded = false;      /* for first location we try */
+  succeeded = true;   /* debug: why this boolean? for first location we try */
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
                       * maybe further unless just local rearrangements */
@@ -4542,7 +4542,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
      where fork is pointed to by  p, and attached subtree is at
      p->back, inserting it near node or tip  q  */
   node *newnode, *r;
-/* debug:   boolean thorough = true;  needed at all? */
+/* debug:   boolean thorough = true;  needed at all? Maybe */
 
 /* debug: printf("starting function generic_tree_insert\n"); */ 
   if ( !multf ) {
@@ -4720,7 +4720,7 @@ long generic_tree_findemptyfork(tree* t)
 
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
-                                 double* bestyet, tree* bestree,
+                                 double* bestyet, tree* bestree, tree* priortree,
                                  boolean thorough, boolean storing, boolean atstart)
 {
   /* try to insert in one place, return "succeeded", then restore */
@@ -4863,7 +4863,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                         curtree, true, (i == spp));          /* store now? */
+                         curtree, true, (i == spp));/* the last time, store */
     curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);     /* round of local rearrangements */

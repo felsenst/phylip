@@ -72,7 +72,7 @@ void    disc_treelength(node *, long, pointarray);
 void    grandrearr(tree*, boolean, boolean);
 void    drawline3(long, double, node *);
 boolean pars_tree_try_insert_(tree*, node *, node *, node *, double *, tree*,
-                               tree*, boolean, boolean, boolean *);
+                               tree*, boolean, boolean, boolean);
 void    coordinates(tree*, node *, double, long *, double *);
 void    printree(tree*);
 node*   root_tree(tree*, node*);
