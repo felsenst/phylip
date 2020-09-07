@@ -104,8 +104,7 @@ void reroot_tree(tree* t, node* fakeroot)
 
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
-  double * bestyet, tree * bestree, tree * priortree, boolean thorough,
-  boolean storing, boolean atstart)
+  double * bestyet, tree * bestree, boolean thorough, boolean storing, boolean atstart)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -130,6 +129,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       pos = 0;
       found = false;
       savetree(t, place);
+      addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
       *bestyet = like;
       succeeded = true;
     } 
@@ -663,7 +663,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
    * if none are already there, make it the first one, if it is better than
    * the ones that are there then toss them and start over with just this
    * one, if tied with them add it in too */
-/* debug:  may not need in view of pars_try_insert  */
+/* debug:  may not need in view of pars_tree_try_insert  */
 
   boolean found;
   long bestscoreyet, *pos = 0;
