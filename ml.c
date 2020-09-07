@@ -31,7 +31,7 @@ boolean inserting;
 /* prototypes for unexported functions */
 static void ml_tree_smoothall(tree*, node*);
 static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
-                                            double*, tree*, boolean);
+                                   double*, tree*, boolean, boolean, boolean);
 void ml_node_reinit(node * n);
 
 
@@ -869,7 +869,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 } /* ml_tree_re_move */
 
 
-static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean atstart)
+static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
 {
  /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
   * better than bestyet, updates bestyet and returns true.  If this is the
@@ -910,8 +910,8 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
 
 
 boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
-                             double* bestyet, tree* bestree,
-                             boolean thorough, boolean atstart)
+                           double* bestyet, tree* bestree,
+                           boolean thorough, boolean storing, boolean atstart)
 {
  /* Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
  *  depending on the value of thorough. If multf is given, sets to
@@ -922,7 +922,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
 /* debug */ printf("ml_tree_try_insert_\n");
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
-                                             bestree, atstart);
+                                           bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
 
