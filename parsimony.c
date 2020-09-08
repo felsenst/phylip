@@ -469,6 +469,7 @@ void oldsavetree(tree* t, long *place)
     place[i] = 0;
   for (i = 0; i < nonodes; i++)          /* which lineage each tree node is */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
+  place[0] = 1;                                     /* this one is always 1 */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
@@ -485,9 +486,9 @@ void oldsavetree(tree* t, long *place)
       if (p != NULL) {              /* we ran into a nonzero lineage number */
         place[i-1] = lineagenumber[p->index -1];   /* record in place array */
         newforknum = spp + i - 1;       /* number of new fork when attaches */
-        lineagenumber[p->index - 1] = newforknum;  /* number from here down */
         while (lineagenumber[p->index - 1] == place[i-1])  /* going on down */
         {
+          lineagenumber[p->index - 1] = newforknum;       /* from here down */
           while (!p->bottom)           /* go around circle to find way down */
             p = p->next;
           p = p->back;                           /* go down to earlier fork */
