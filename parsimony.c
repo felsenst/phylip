@@ -125,7 +125,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   like = t->evaluate(t, p, false);
 
   if (storing) {
-    if (atstart) {                     /* case when this is first tree tried */
+    if (atstart) {                    /* case when this is first tree tried */
       pos = 0;
       found = false;
       savetree(t, place);
@@ -134,16 +134,18 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       succeeded = true;
     } 
     else {
-      if ( lastrearr && (like = *bestyet) )      /* deciding on a later tree */
+      if ( like == *bestyet )                    /* deciding on a later tree */
       {
-        savetree(t, place);
         findtree(&found, &pos, nextree-1, place, bestrees);
         succeeded = true;
         addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       } else {
-        if (like > *bestyet) {  /* replacing all of them? or adding one more? */
-            addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-            *bestyet = like;
+        if (like > *bestyet) { /* replacing all of them or adding one more? */
+          pos = 0;
+          found = false;
+          savetree(t, place);
+          addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+          *bestyet = like;
         }
       }
     }
@@ -592,13 +594,15 @@ void savetree(tree* t, long *place)
     }
   }
   if (wasrooted) {
-    oldroot = p;
+    oldroot = q;
   }
-  if (!wasrooted)
+  else {
     t->root = root_tree(t, p);                 /* put in a "fake" root fork */
+    oldroot = t->root;
+  }
   oldsavetree(t, place);        /* now save this rooted tree in array place */
   if (!wasrooted) {                /* remove the fake root if one was added */
-    reroot_tree(t, t->root);
+    reroot_tree(t, oldroot); 
     t->root = oldroot;
   }
 }  /* savetree */

@@ -4544,7 +4544,6 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
   node *newnode, *r;
 /* debug:   boolean thorough = true;  needed at all? Maybe */
 
-/* debug: printf("starting function generic_tree_insert\n"); */ 
   if ( !multf ) {
 
     assert(p->next->next->next == p);
@@ -4677,7 +4676,6 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
       t->root = *where;                      /* set root */
     fork->next->back = NULL;
     fork->next->next->back = NULL;
-    if (t->root->tip ) t->root = t->root->back;
 
     t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
 
@@ -4846,7 +4844,7 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     randumize(seed, enterorder);     /* in Jumble case, randomize the order */
   release_all_forks(curtree);               /* make sure tree has just tips */
   buildsimpletree(curtree, enterorder);        /* make tree of first 3 tips */
-  curtree->root = curtree->nodep[enterorder[0] - 1]->back;      /* its root */
+  curtree->root = curtree->nodep[enterorder[0] - 1];            /* its root */
   if (progress) {
     sprintf(progbuf, "Adding species:\n");
     print_progress(progbuf);
