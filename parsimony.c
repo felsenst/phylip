@@ -138,7 +138,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       {                /* find where it goes in numerical order in bestrees */
         findtree(&found, &pos, nextree, place, bestrees);
         succeeded = true;
-        addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+        if (!found)                    /* if found same tree, do not add it */
+          addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       } else {
         if (like > *bestyet) { /* replacing all of them or adding one more? */
           pos = 0;                   /* put it at the beginning of bestrees */
@@ -1412,8 +1413,10 @@ void grandrearr(tree* t, boolean progress, boolean rearrfirst)
   boolean done = false;
 
   lastrearr = true;
+/* debug:  whay do this, best trees are in array bestrees and  t  is not necessarily one of them
   savetree(t, place);
   addbestever(pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
+debug:   */
 
   for ( i = 0 ; i < nextree-1 ; i++)
     bestrees[i].gloreange = false;
