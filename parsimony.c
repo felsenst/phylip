@@ -125,25 +125,24 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   like = t->evaluate(t, p, false);
 
   if (storing) {
+    savetree(t, place);           /* make coded representation of this tree */
     if (atstart) {                    /* case when this is first tree tried */
-      pos = 0;
+      pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
-      savetree(t, place);
       addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
       *bestyet = like;
       succeeded = true;
     } 
     else {
-      if ( like == *bestyet )                    /* deciding on a later tree */
-      {
-        findtree(&found, &pos, nextree-1, place, bestrees);
+      if ( like == *bestyet )                   /* deciding on a later tree */
+      {                /* find where it goes in numerical order in bestrees */
+        findtree(&found, &pos, nextree, place, bestrees);
         succeeded = true;
         addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       } else {
         if (like > *bestyet) { /* replacing all of them or adding one more? */
-          pos = 0;
+          pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
-          savetree(t, place);
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
           *bestyet = like;
         }
