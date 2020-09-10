@@ -778,9 +778,6 @@ void dna_makevalues(tree* t, boolean usertree)
   long i, j;
   char ns = 0;
 
-  // RSGnote: Parameter never referenced.  Also, a global of the same name exists.
-  (void)usertree;
-
   for (j = 0; j < endsite; j++)
   {
     for (i = 0; i < spp; i++)
