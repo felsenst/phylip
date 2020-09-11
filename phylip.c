@@ -4479,8 +4479,8 @@ void generic_tree_nuview(tree* t, node* p)
       }
     };
   }
-  t->nuview((tree*)t, p);   /* this actually calculates the view using
-                             * the algorithm for that kind of data */
+  t->nuview((tree*)t, p);   /* this actually calculates the view using the
+                             * algorithm set up for that kind of data */
   p->initialized = true;
 } /* generic_tree_nuview */
 
@@ -4493,11 +4493,11 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 
   if ( (p->initialized == false) && (p->tip == false) )
   {
-    t->nuview((tree*)t, p);
+    generic_tree_nuview((tree*)t, p);
   }
   if ( (p->back->initialized == false) && (p->back->tip == false) )
   {
-    t->nuview((tree*)t, p->back);
+    generic_tree_nuview((tree*)t, p->back);
   }
   return 0;
 } /* generic_tree_evaluate */

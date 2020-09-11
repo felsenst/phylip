@@ -425,7 +425,8 @@ void dna_initbase(node *p, long sitei)
 
 long dna_getlargest(long *numnuc)
 {
-  /* find the largest in array numnuc */
+  /* find the largest in array numnuc, used to find which bases
+   * achieve most-parsimonious count  */
   long i, largest;
 
   largest = 0;
@@ -678,11 +679,10 @@ void dnapars_tree_nuview(tree* t, node* p)
   node *q;
   dnapars_node *qback;
   long i, j, base1, newbase, steps, largest;
-  long numnuc[5] = {0, 0, 0, 0, 0};
+  long numnuc[5] = {0, 0, 0, 0, 0};           /* covers case where is a gap */
   boolean bif;
   long root = 0;
 
-/* debug:   generic_tree_nuview(t, p);      not needed, generic will call appropriate one */
   bif = (count_sibs(p) == 2);
 
   for ( i = 0 ; i < endsite ; i++ )
@@ -690,26 +690,26 @@ void dnapars_tree_nuview(tree* t, node* p)
     newbase = 0xff;
     steps = 0;
     for ( q = p->next ; q != p ; q = q->next )
-    {
-      qback = (dnapars_node*)q->back;
+    {                /* go to all furcs, add numsteps and find shared bases */
+      qback = (dnapars_node*)q->back;      /* node which thus furc leads to */
       if ( qback == NULL )
       {
-        root = 1;
+        root = 1;                   /* a count so need a long not a boolean */
         continue;
       }
       /* if we root the tree we can safely ignore the root*/
       base1 = qback->base[i];
       if ( transvp )
-      {
+      {     /* transversion parsimony ignores changes within purine, pyrine */
         if (base1 & purset) base1 = purset;
         if (base1 & pyrset) base1 = pyrset;
       }
-      newbase &= base1;
-      steps += ((pars_node*)qback)->numsteps[i];
+      newbase &= base1;                   /* hoping for a shared nucleotide */
+      steps += ((pars_node*)qback)->numsteps[i];      /* add up numsteps[i] */
     }
-    if ( newbase == 0 )
+    if ( newbase == 0 )                       /* alas, no shared nucleotide */
     {
-      if ( !bif )
+      if ( !bif )                           /* for case of a multifurcation */
       {
         memset(numnuc, 0, sizeof(numnuc));
         for (j = (long)A; j <= (long)O; j++)
@@ -734,14 +734,15 @@ void dnapars_tree_nuview(tree* t, node* p)
         steps += (weight[i]) * (count_sibs(p) - largest - root);
       }
       else
-      { /* optimization for bifurcation, code above still works though*/
-        newbase = ((dnapars_node*)(p->next->back))->base[i] | ((dnapars_node*)(p->next->next->back))->base[i];
-        steps += weight[i];
+      {       /* optimization for bifurcation, code above still works though*/
+        newbase = ((dnapars_node*)(p->next->back))->base[i]
+                   | ((dnapars_node*)(p->next->next->back))->base[i];
+        steps += weight[i];    /* what Walter Fitch called an "intersunion" */
       }
     }
 
-    ((dnapars_node*)p)->base[i] = newbase;
-    ((pars_node*)p)->numsteps[i] = steps;
+    ((dnapars_node*)p)->base[i] = newbase;         /* base-set at this node */
+    ((pars_node*)p)->numsteps[i] = steps;    /* count at-or-above this node */
   }
 
   p->initialized = true;
