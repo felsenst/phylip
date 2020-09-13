@@ -3964,7 +3964,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
 
-  if (!q->tip && contin) {       /* go to all branches leading beyond fork */
+  if (contin && !q->tip) {        /* go to all branches leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,

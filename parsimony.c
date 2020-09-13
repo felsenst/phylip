@@ -123,7 +123,11 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
 /* debug:    t->save_traverses(t, item, p);     may need to restore to leave tree same  */
   t->insert_(t, item, p, false);
   like = t->evaluate(t, p, false);
-
+  if (like > *bestyet) {
+    generic_tree_copy(t, &bestree);
+    *bestyet = like;
+    there = p;
+  }
   if (storing) {
     savetree(t, place);           /* make coded representation of this tree */
     if (atstart) {                    /* case when this is first tree tried */
@@ -701,6 +705,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    * of tied best trees found. Function like this works for parsimony-like
    * criteria where there are exact ties, not for likelihood or distance
    * criteria */
+/* debug:  not yet called from anywhere */
    boolean success;
 
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
