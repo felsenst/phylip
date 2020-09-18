@@ -121,10 +121,10 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   long pos = 0;
 
 /* debug:    t->save_traverses(t, item, p);     may need to restore to leave tree same  */
-  t->insert_(t, item, p, false);
+  t->insert_(t, item, item->back, false);
   like = t->evaluate(t, p, false);
   if (like > *bestyet) {
-    generic_tree_copy(t, &bestree);
+    generic_tree_copy(t, bestree);
     *bestyet = like;
     there = p;
   }
@@ -476,10 +476,12 @@ void oldsavetree(tree* t, long *place)
   for (i = 0; i < nonodes; i++)          /* which lineage each tree node is */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   place[0] = 1;                                     /* this one is always 1 */
+  lineagenumber[0] = 1;                        /* first lineage is number 1 */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
     if (p->back != NULL) {                    /* if this tip is in the tree */
+      p = p->back;               /* go to the interior node connected to it */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
         lineagenumber[p->index - 1] = i;  /* set value to index of that tip */
@@ -497,9 +499,10 @@ void oldsavetree(tree* t, long *place)
           lineagenumber[p->index - 1] = newforknum;       /* from here down */
           while (!p->bottom)           /* go around circle to find way down */
             p = p->next;
-          p = p->back;                           /* go down to earlier fork */
-          if (p == NULL)               /* blast out of loop if reached root */
+          if (p->back == NULL)         /* blast out of loop if reached root */
             break;
+          else
+            p = p->back;                         /* go down to earlier fork */
         }
       }
     }
