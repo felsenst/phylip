@@ -58,7 +58,7 @@ boolean alltips(node *, node *);
 void    newindex(long, node *);
 void    load_tree(tree*, long, bestelm*);
 void    pars_node_free(node **);
-void    pars_globrearrange(tree*, boolean, boolean);
+void    pars_globrearrange(tree*, tree*, boolean, boolean);
 boolean treecollapsible(tree*, node*);
 void    collapsebranch(tree*, node*);
 void    writesteps(tree*, long, boolean, steptr);
@@ -69,7 +69,7 @@ boolean	pars_addtraverse(tree*, node*, node*, boolean, node*,
                                    double*, bestelm*, boolean, boolean);
 void    treeout3(node *, long, long *, node *);
 void    disc_treelength(node *, long, pointarray);
-void    grandrearr(tree*, boolean, boolean);
+void    grandrearr(tree*, tree*, boolean, boolean);
 void    drawline3(long, double, node *);
 boolean pars_tree_try_insert_(tree*, node *, node *, node *, double *, tree*,
                                boolean, boolean, boolean);

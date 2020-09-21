@@ -1058,7 +1058,8 @@ static boolean outgrin(node *root, node *outgrnode)
 } /* outgrin */
 
 
-void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
+void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
+                         boolean thorough)
 { /* does global rearrangements */
   /* The more general generic_unrooted_locrearrange also works but this is
    * much faster because it gets to take advantage of some of the speedups
@@ -1120,7 +1121,7 @@ void pars_globrearrange(tree* curtree, boolean progress, boolean thorough)
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                                qwhere, &bestyet, &bestree, true, true);
+                                qwhere, &bestyet, bestree, true, true);
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
@@ -1414,7 +1415,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 } /* writesteps */
 
 
-void grandrearr(tree* t, boolean progress, boolean rearrfirst)
+void grandrearr(tree* t, tree* bestree, boolean progress, boolean rearrfirst)
 {
   /* calls global rearrangement on best trees */
   long treei;
@@ -1442,7 +1443,7 @@ debug:   */
     {
       load_tree(t, treei, bestrees);
       t->evaluate(t, t->root, 0);
-      t->globrearrange(t, progress, true);
+      t->globrearrange(t, bestree, progress, true);
       done = rearrfirst;
     }
   }

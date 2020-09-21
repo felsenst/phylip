@@ -518,7 +518,7 @@ void maketree(void)
     }
 
     lastrearr = true;
-    grandrearr(curtree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst);
 
     if (progress)
     {

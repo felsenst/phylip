@@ -1656,7 +1656,7 @@ void maketree(void)                     // RSGbugfix
     (void)done;                         // RSGnote: Variable set but never used.
 
     lastrearr = true;
-    grandrearr(curtree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst);
 
     if (progress)
     {

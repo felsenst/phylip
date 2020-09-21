@@ -541,7 +541,7 @@ typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean);
 typedef void (*tree_free_t)(tree*);
-typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
+typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
 typedef void (*tree_smoothall_t)(tree*,node* p);
 typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);

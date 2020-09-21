@@ -602,7 +602,7 @@ void maketree(void)                     // RSGbugfix
     }
 
     phyFillScreenColor();
-    grandrearr(curtree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst);
 
     if (progress)
     {
