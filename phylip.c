@@ -4825,8 +4825,8 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
 } /* rooted_tree_re_move */
 
 
-void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
-            boolean progress)
+void hsbut(tree* curtree, tree* bestree, boolean thorough, boolean jumble,
+            longer seed, boolean progress)
 {
   /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
    * with sequential addition followed by local rearrangements */
@@ -4859,8 +4859,9 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed,
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                         curtree, true, (i == spp));/* the last time, store */
-    curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
+                         bestree, true, (i == spp));/* the last time, store */
+    curtree->copy(bestree, curtree);    /* replace current tree by best one */
+/* debug    curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
                           NULL, NULL);     /* round of local rearrangements */
     if (progress) {

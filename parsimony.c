@@ -711,6 +711,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 /* debug:  not yet called from anywhere */
    boolean success;
 
+/* debug:  does this make any sense?  Already saving best tree yet in generic version */
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
                              bestyet, &bestree, thorough, storing);
    add_to_besttrees(t, t->score, bestrees);
