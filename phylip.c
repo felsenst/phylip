@@ -80,7 +80,7 @@ void generic_tree_copy(tree* src, tree* dst)
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
-    while ( dst_sibs > src_sibs) {
+    while ( dst_sibs > src_sibs) {        /* remove and releast extra nodes */
       p = dst->nodep[i]->next;
       dst->nodep[i]->next = dst->nodep[i]->next->next;
       dst->release_forknode(dst, p);    /* they go onto free_forknodes list */
@@ -99,14 +99,14 @@ void generic_tree_copy(tree* src, tree* dst)
         dst->nodep[i] = p;
         }
       else {
-        p = dst->get_forknode(dst, i+1);   /* take another one off */
+        p = dst->get_forknode(dst, i+1);            /* take another one off */
 	p->next = dst->nodep[i];
 	dst->nodep[i] = p;
         dst_sibs++;
         }
       }
     if (doingacircle) {
-      q->next = dst->nodep[i];        /* close the circle */
+      q->next = dst->nodep[i];                          /* close the circle */
       doingacircle = false;
       }
     }
@@ -138,7 +138,11 @@ void generic_tree_copy(tree* src, tree* dst)
 
   /* copy score and root */
   dst->score = src->score;
-  dst->root = where_in_dest(src, dst, src->root);
+  if (src->root != NULL) {
+    if (src->root->back != NULL) {
+    dst->root = where_in_dest(src, dst, src->root);
+    }
+  }
 
 } /* generic_tree_copy */
 

@@ -121,7 +121,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   long pos = 0;
 
 /* debug:    t->save_traverses(t, item, p);     may need to restore to leave tree same  */
-  t->insert_(t, item, item->back, false);
+  t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
