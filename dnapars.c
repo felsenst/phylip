@@ -51,7 +51,7 @@ boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress,
 extern boolean usertree;
 steptr oldweight;
 longer seed;
-tree *curtree, *bestree;      /* use bestelm array; bestree just temporarily */
+tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
 extern double *threshwt;
@@ -77,6 +77,7 @@ void dnapars_tree_setup(long nonodes, long spp)
 
   curtree = dnapars_tree_new(nonodes, spp);
   bestree = dnapars_tree_new(nonodes, spp);
+  priortree = dnapars_tree_new(nonodes, spp);
 } /* dnapar tree_setup */
 
 
@@ -488,7 +489,7 @@ void maketree(void)
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, bestree, false, jumble, seed, progress);
+    hsbut(curtree, bestree, priortree, false, jumble, seed, progress);
     if (progress)
     {
       sprintf(progbuf, "\nDoing global rearrangements");

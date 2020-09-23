@@ -576,7 +576,7 @@ void maketree(void)                     // RSGbugfix
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, false, jumble, seed, progress);
+    hsbut(curtree, bestree, priortree, false, jumble, seed, progress);
 
     if (progress)
     {

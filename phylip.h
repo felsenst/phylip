@@ -848,7 +848,7 @@ boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
-void            hsbut(tree*, tree*, boolean, boolean, longer, boolean) ;
+void            hsbut(tree*, tree*, tree*, boolean, boolean, longer, boolean);
 void            preparetree(tree*);
 void            fixtree(tree*);
 void            arbitrary_resolve(tree*) ;
