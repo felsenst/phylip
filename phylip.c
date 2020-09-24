@@ -4138,6 +4138,8 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
   double bestyet;
   boolean succeeded = true;
 
+  if (start->tip)                  /* make sure that start at interior node */
+    start = start->back;
   bestyet = t->evaluate(t, start, 0);
   while(succeeded)
   {
