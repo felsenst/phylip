@@ -4095,9 +4095,9 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
   /* save left and right nodes */
 
-  r->back->copy(r->back, t->lrsaves[0]);
-  r->next->copy(r->back->next, t->lrsaves[1]);
-  r->next->next->copy(r->back->next->next, t->lrsaves[2]);
+  r->back->copy(r, t->lrsaves[0]);
+  r->next->back->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->back->copy(r->next->next->back, t->lrsaves[2]);
   p->next->copy(p->next, t->lrsaves[3]);
   p->next->next->copy(p->next->next, t->lrsaves[4]);
   t->rb = r->back;
@@ -4264,7 +4264,7 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
     inittrav(t, q->back);
   }
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
-
+  /* debug:  not sure it is affected by this */
   // debug:  printf("TREECHECK restoring %p and %p\n\t",p,q);
   // p->node_print_f(p);
   // printf("\n\t");
