@@ -1314,7 +1314,8 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
 
 double hermite(long n, double x)
 { /* calculates hermite polynomial with degree n and parameter x */
-  /* seems to be unprecise for n>13 -> root finder does not converge*/
+  /* seems to be unprecise for n>13 -> root finder does not converge */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   double h1 = 1.;
   double h2 = 2. * x;
   double xx = 2. * x;
@@ -1331,6 +1332,7 @@ double hermite(long n, double x)
 
 void root_hermite(long n, double *hroot)
 { /* find roots of Hermite polynmials */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long z;
   long ii;
   long start;
@@ -1358,6 +1360,7 @@ double halfroot(double (*func)(long m, double x), long n,
      other-bound=startx+delta)
      delta should be small.
      (*func) is a function with two arguments  */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   double xl;            /* lower x value */
   double xu;            /* upper x value */
   double xm = 0.0;
@@ -1419,6 +1422,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 {
   /* calculate the weights for the hermite polynomial at the roots
      using formula from Abramowitz and Stegun chapter 25.4.46 p.890 */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long i;
   double hr2;
   double numerator;
@@ -1433,6 +1437,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 
 void inithermitcat(long categs, double alpha, double *rate, double *probcat)
 { /* calculates rates and probabilities */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long i;
   double *hroot;
   double std;
@@ -4091,8 +4096,8 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
   /* save left and right nodes */
 
   r->back->copy(r->back, t->lrsaves[0]);
-  r->back->next->copy(r->back->next, t->lrsaves[1]);
-  r->back->next->next->copy(r->back->next->next, t->lrsaves[2]);
+  r->next->copy(r->back->next, t->lrsaves[1]);
+  r->next->next->copy(r->back->next->next, t->lrsaves[2]);
   p->next->copy(p->next, t->lrsaves[3]);
   p->next->next->copy(p->next->next, t->lrsaves[4]);
   t->rb = r->back;
@@ -4164,7 +4169,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
   {
     oldbestyet = *bestyet;
-    r = p->back->next->next;
+    r = p->next->next;
     if (!thorough)
       t->save_lr_nodes(t, p, r);   /* debug:  check what this does */
     else
@@ -4212,7 +4217,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       /* If rearrangements failed here, try subtrees, but stop when we find
        * one that improves the score. */
       if (!p->tip) {
-       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                                        bestyet, thorough, priortree, bestree);
         if (!succeeded)
           succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back,
@@ -4866,8 +4871,8 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
                          bestree, true, (i == spp));/* the last time, store */
     curtree->copy(bestree, curtree);    /* replace current tree by best one */
 /* debug    curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
-    curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
-                     priortree, bestree);  /* round of local rearrangements */
+    curtree->locrearrange(curtree, curtree->root, false, priortree,
+                            bestree);  /* round of local rearrangements */
     if (progress) {
       writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();
