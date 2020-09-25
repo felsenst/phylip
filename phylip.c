@@ -4108,9 +4108,11 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
-  /* restore L and R nodes in unrooted tree case */
+  /* restore left and right nodes in unrooted tree case */
+/* debug: got to get this working properly.  But what does it do?  Just set v's.  But where? */
+/* debug: I think restoring the v  values to the restored interior node and its neighbors */
 
-  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);
+  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);     /* do these restore views? */
   t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
   t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
   t->lrsaves[3]->copy(t->lrsaves[3], p->next);
@@ -4134,12 +4136,12 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
                                    tree* priortree, tree* bestree)
 {
- /* generic form of local rearrangement, keep doing until does not succeed */
+ /* generic wrapper for local rearrangement, do until does not succeed */
   double bestyet;
   boolean succeeded = true;
 
   if (start->tip)                  /* make sure that start at interior node */
-    start = start->back;
+    start = start->back;                   /* that is connected to outgroup */
   bestyet = t->evaluate(t, start, 0);
   while(succeeded)
   {
@@ -4154,15 +4156,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                                            tree* bestree)
 {
   /* rearranges the tree locally by removing a subtree
-   * connected to an interior node, keeping those
-   * together and trying to insert them in two neighboring
-   * branches.  p  points to the interior node that
-   * is removed, p->back is the root of the removed subtree.
-   * The two target branches to try are the other
-   * two connected to interior node  p.  
-   * (this function doesn't handle multifurcations)
+   * connected to an interior node, keeping those  together and trying to
+   * insert them in two neighboring branches.  p->back->next->next  points to
+   * the interior node that is to be removed, p->back->next->next->back  is
+   * the root of the removed subtree.  The two target branches to try are the
+   * other * two connected to interior node  p.  
+   * debug:  (this function doesn't yet handle multifurcations)
    */
-  node *q, *r, *qwhere;
+  node *q, *r, *rr, *qwhere;
   boolean succeeded = false;
   double oldbestyet;
 
@@ -4171,12 +4172,13 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
   {
     oldbestyet = *bestyet;
-    r = p->next->next;
+    r = p->back->next->next;           /* these are the two connected ... */
+    rr = r->back;                                  /* nodes being removed */
     if (!thorough)
-      t->save_lr_nodes(t, p, r);   /* debug:  check what this does */
+      t->save_lr_nodes(t, p, r);  /* save the views at fork containing  r */
     else
       t->copy(t, bestree);
-    t->re_move(t, r, &q, false);
+    t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
 
     if (thorough)
       t->copy(t, priortree);
@@ -4209,15 +4211,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
         succeeded = true;
         t->insert_(t, r, qwhere, false);
         t->smoothall(t, r->back);
-        *bestyet = t->evaluate(t, p,0);
+        *bestyet = t->evaluate(t, p, 0);
         /* debug        double otherbest = *bestyet;      JF:  is this needed? */
       }
     }
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
   } else {
-    if(!succeeded) {
-      /* If rearrangements failed here, try subtrees, but stop when we find
-       * one that improves the score. */
+    if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
+                       *  when we find one that improves the score. */
       if (!p->tip) {
         succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                                        bestyet, thorough, priortree, bestree);
@@ -4672,7 +4673,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
     }
     (*where) = q;
 
-  } else {                                      /* case of a bifurcation */
+  } else {                                         /* case of a bifurcation */
     if (fork->next->back != NULL)  /* set where to the place it was next to */
       (*where) = fork->next->back;
     else
@@ -4698,10 +4699,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
 
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 {
-  /* see version in ml.c */
-  (void)t;                              // RSGdebug: Parameter never used.
-  (void)p;                              // RSGdebug: Parameter never used.
-  (void)q;                              // RSGdebug: Parameter never used.
+  /* for now unused.  see version in ml.c */
 } /* generic_do_branchl_on_re_move */
 
 
