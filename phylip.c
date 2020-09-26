@@ -4093,42 +4093,42 @@ void phyClearScreen(void)
 
 void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
-  /* save left and right nodes */
+  /* save views and branch lengths around fork that is removed. */
 
-  r->back->copy(r, t->lrsaves[0]);
-  r->next->back->copy(r->next->back, t->lrsaves[1]);
-  r->next->next->back->copy(r->next->next->back, t->lrsaves[2]);
+  r->copy(r, t->lrsaves[0]);
+  r->next->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
   p->next->copy(p->next, t->lrsaves[3]);
   p->next->next->copy(p->next->next, t->lrsaves[4]);
-  t->rb = r->back;
-  t->rnb = r->back->next->back;
-  t->rnnb = r->back->next->next->back;
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                                /* ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
 } /* unrooted_tree_save */
 
 
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
-  /* restore left and right nodes in unrooted tree case */
-/* debug: got to get this working properly.  But what does it do?  Just set v's.  But where? */
-/* debug: I think restoring the v  values to the restored interior node and its neighbors */
+    /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
 
-  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);     /* do these restore views? */
+  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
   t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
   t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
-  t->lrsaves[3]->copy(t->lrsaves[3], p->next);
+  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
   t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
 
-  t->rb->back->v = t->rb->v;
+  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
   t->rnb->back->v = t->rnb->v;
   t->rnnb->back->v = t->rnnb->v;
-  p->next->back->v = p->next->v;
+  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
   p->next->next->back->v = p->next->next->v;
 
-  inittrav(t, t->rb);      /*  to make sure initialized booleans are OK */
-  inittrav(t, t->rnb);
+  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
+  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
   inittrav(t, t->rnnb);
-  inittrav(t, p->next);
+#if 0
+inittrav(t, p->next);    /* debug  removed as unnecessary */
   inittrav(t, p->next->next);
+#endif
 
 } /* unrooted_tree_restore */
 
@@ -4143,6 +4143,7 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
   if (start->tip)                  /* make sure that start at interior node */
     start = start->back;                   /* that is connected to outgroup */
   bestyet = t->evaluate(t, start, 0);
+  succeeded = true;
   while(succeeded)
   {
     succeeded = unrooted_tree_locrearrange_recurs(t, start, &bestyet,
@@ -4156,11 +4157,11 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                                            tree* bestree)
 {
   /* rearranges the tree locally by removing a subtree
-   * connected to an interior node, keeping those  together and trying to
-   * insert them in two neighboring branches.  p->back->next->next  points to
+   * connected to an interior node, keeping it together and trying to
+   * insert it in two neighboring branches.  p->back->next->next  points to
    * the interior node that is to be removed, p->back->next->next->back  is
    * the root of the removed subtree.  The two target branches to try are the
-   * other * two connected to interior node  p.  
+   * other two connected to interior node  p.  
    * debug:  (this function doesn't yet handle multifurcations)
    */
   node *q, *r, *rr, *qwhere;
@@ -4173,9 +4174,10 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   {
     oldbestyet = *bestyet;
     r = p->back->next->next;           /* these are the two connected ... */
-    rr = r->back;                                  /* nodes being removed */
+    rr = r->back;                              /* ... nodes being removed */
     if (!thorough)
-      t->save_lr_nodes(t, p, r);  /* save the views at fork containing  r */
+      t->save_lr_nodes(t, p, r);  /* save the views at the fork 
+                                   containing  r  and inward-looking at p */
     else
       t->copy(t, bestree);
     t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
