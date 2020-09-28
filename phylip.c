@@ -400,10 +400,12 @@ void initializetrav (tree* t, node *p)
       p->initialized = true;
     else
       p->initialized = false;
-    if (p->back->tip)
-      p->back->initialized = true;
-    else
-      p->back->initialized = false;
+    if (p->back != NULL) {
+      if (p->back->tip)
+        p->back->initialized = true;
+      else
+        p->back->initialized = false;
+    }
     if (p->tip)                            /* bail if at a tip */
       return;
     for (q = p->next; q != p; q = q->next) { /* go to rest of fork circle */
@@ -3692,10 +3694,10 @@ boolean generic_node_good(tree *t, node * n)
 } /* generic_node_good */
 
 
-void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
+void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress, boolean thorough)
 {
   /* does "global" (SPR) rearrangements */
-  tree *globtree, *oldtree, *priortree, *bestree;
+  tree *globtree, *oldtree, *priortree;
   int i;
   node *where,*sib_ptr,*qwhere;
   double oldbestyet;
@@ -3708,7 +3710,6 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
-  bestree = functions.tree_new(curtree->nonodes, curtree->spp);
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
   priortree = functions.tree_new(curtree->nonodes, curtree->spp);
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
@@ -3785,9 +3786,9 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 } /* rooted_globrearrange */
 
 
-void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
+void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boolean thorough)
 { /* does global rearrangements */
-  tree *globtree, *oldtree, *priortree, *bestree;
+  tree *globtree, *oldtree, *priortree;
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
@@ -3810,7 +3811,6 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
     fflush(progfile);
   }
 
-  bestree = functions.tree_new(curtree->nonodes, curtree->spp);
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
   priortree = functions.tree_new(curtree->nonodes, curtree->spp);
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
@@ -4164,7 +4164,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * other two connected to interior node  p.  
    * debug:  (this function doesn't yet handle multifurcations)
    */
-  node *q, *r, *rr, *qwhere;
+  node *q, *r, *qwhere;
   boolean succeeded = false;
   double oldbestyet;
 
@@ -4174,7 +4174,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   {
     oldbestyet = *bestyet;
     r = p->back->next->next;           /* these are the two connected ... */
-    rr = r->back;                              /* ... nodes being removed */
     if (!thorough)
       t->save_lr_nodes(t, p, r);  /* save the views at the fork 
                                    containing  r  and inward-looking at p */
@@ -4509,9 +4508,11 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   {
     generic_tree_nuview((tree*)t, p);
   }
-  if ( (p->back->initialized == false) && (p->back->tip == false) )
-  {
-    generic_tree_nuview((tree*)t, p->back);
+  if (p->back != NULL) {
+    if ( (p->back->initialized == false) && (p->back->tip == false) )
+    {
+      generic_tree_nuview((tree*)t, p->back);
+    }
   }
   return 0;
 } /* generic_tree_evaluate */

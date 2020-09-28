@@ -623,29 +623,35 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
   long i, steps;
   double term;
   double sum;
-  dnapars_node* p = (dnapars_node*)n;
-  dnapars_node* q = (dnapars_node*)n->back;
+  dnapars_node* p;
+  dnapars_node* q;
   long base1, base2;
   sum = 0.0;
 
-  generic_tree_evaluate(t, n, saveit);
+  p = (dnapars_node*)n;
+  q = (dnapars_node*)n->back;
+ 
+  generic_tree_evaluate(t, n, saveit);  /* get views and numsteps elsewhere */
 
   for (i = 0; i < endsite; i++)
   {
-    steps = ((pars_node*)p)->numsteps[i] + ((pars_node*)q)->numsteps[i];
-    base1 = p->base[i];
-    base2 = q->base[i];
-    if ( transvp )
-    {
-      if (base1 & purset) base1 = purset;
-      if (base1 & pyrset) base1 = pyrset;
+    if (n->back == NULL) {           /* if at root fork and nothing in back */
+      steps = ((pars_node*)p)->numsteps[i];
+    } else {              /* if at one end of a branch connecting two nodes */
+      steps = ((pars_node*)p)->numsteps[i] + ((pars_node*)q)->numsteps[i];
+      base1 = p->base[i];
+      base2 = q->base[i];
+      if ( transvp )     /* transversion parsimony, no cost for transitions */
+      {
+        if (base1 & purset) base1 = purset;
+        if (base1 & pyrset) base1 = pyrset;
+      }
+      if ( (base1 & base2) == 0 ) /* weighted by number of sites it aliases */
+        steps += weight[i];
     }
-    if ( (base1 & base2) == 0 )
-      steps += weight[i];
-    if ( ((pars_tree*)t)->supplement)
+    if ( ((pars_tree*)t)->supplement)      /* extra steps for polymorphisms */
       steps += ((pars_tree*)t)->supplement(t, i);
-
-    if (steps <= threshwt[i])
+    if (steps <= threshwt[i])                        /* threshold parsimony */
       term = steps;
     else
       term = threshwt[i];
@@ -653,6 +659,7 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
     if (usertree && which <= maxuser)
       fsteps[which - 1][i] = term;
   }
+
   if (usertree && which <= maxuser)
   {
     nsteps[which - 1] = sum;

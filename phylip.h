@@ -802,8 +802,8 @@ void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
 boolean         generic_fork_good(tree*, node*);
 boolean         generic_node_good(tree*, node*);
-void            rooted_globrearrange(tree*, boolean, boolean);
-void            generic_globrearrange(tree*, boolean, boolean);
+void            rooted_globrearrange(tree*, tree*, boolean, boolean);
+void            generic_globrearrange(tree*, tree*, boolean, boolean);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
                                           double*, tree*, boolean, boolean);
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean, node*,

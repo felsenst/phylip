@@ -879,7 +879,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps,
     which = 1;
     while (which <= numtrees)
     {
-      fprintf(outfile, "%3ld%10.1f", which, nsteps[which - 1] / 10);
+      fprintf(outfile, "%3ld%10.1f", which, nsteps[which - 1]);
       if (minwhich == which)
         fprintf(outfile, "  <------ best\n");
       else
@@ -899,7 +899,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps,
           }
         }
         sd = sqrt(sumw / (sumw - 1.0) * (sum2 - sum * sum / sumw));
-        fprintf(outfile, "%10.1f%12.4f", (nsteps[which - 1] - minsteps) / 10, sd);
+        fprintf(outfile, "%10.1f%12.4f", nsteps[which - 1] - minsteps, sd);
         if ((sum > 0.0) && (sum > 1.95996 * sd))
           fprintf(outfile, "           Yes\n");
         else
@@ -1003,7 +1003,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps,
     fprintf(outfile, "   Significantly worse?\n\n");
     for (i = 0; i < numtrees; i++)
     {
-      fprintf(outfile, "%3ld%10.1f", i+1, nsteps[i]/10);
+      fprintf(outfile, "%3ld%10.1f", i+1, nsteps[i]);
       if ((minwhich-1) == i)
         fprintf(outfile, "  <------ best\n");
       else

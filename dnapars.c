@@ -604,12 +604,12 @@ void maketree(void)
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
                 &firsttree, &nextnode, &haslengths, initparsnode, false,
                 nonodes);
-      reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+/*      reroot_tree(curtree, curtree->root);      debug */          // RSGbugfix: Name change.
       initializetrav(curtree, curtree->root);
       if (curtree->root != NULL)
         initializetrav(curtree, curtree->root->back);
       curtree->evaluate(curtree, curtree->root, false);
-      curtree->root = root_tree(curtree, curtree->root);
+/*      curtree->root = root_tree(curtree, curtree->root);   debug: need to reroot tree? */
       if (treeprint)
         fprintf(outfile, "\n\n");
       if (outgropt)
