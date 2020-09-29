@@ -120,7 +120,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   boolean found = false;
   long pos = 0;
 
-/* debug:    t->save_traverses(t, item, p);     may need to restore to leave tree same  */
+  /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
   if (like > *bestyet) {

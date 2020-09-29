@@ -542,7 +542,7 @@ typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean);
-typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
+typedef void (*tree_locrearrange_t)(tree*,node*,boolean,double*,tree*,tree*);
 typedef void (*tree_smoothall_t)(tree*,node* p);
 typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);
 typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
@@ -818,15 +818,16 @@ void 		phyClearScreen(void);
 
 void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
 void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
-void            generic_unrooted_locrearrange(tree*, node*, boolean, tree*,
-                                               tree*);
+void            generic_unrooted_locrearrange(tree*, node*, boolean, double*,
+                                               tree*, tree*);
 boolean		unrooted_tree_locrearrange_recurs(tree*, node*, double*,
                                                    boolean, tree*, tree*);
 void            generic_tree_save_traverses(tree*, node*, node*);
 void            generic_tree_restore_traverses(tree*, node*, node*);
 void    	rooted_tryrearr(tree*, node*, boolean*);
 void		rooted_repreorder(tree*, node*, boolean*);
-void            rooted_locrearrange(tree*, node*, boolean, tree*, tree*);
+void            rooted_locrearrange(tree*, node*, boolean, double*,
+                                     tree*, tree*);
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
 void*		pop(stack**);

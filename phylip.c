@@ -4134,19 +4134,17 @@ inittrav(t, p->next);    /* debug  removed as unnecessary */
 
 
 void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
-                                   tree* priortree, tree* bestree)
+                                   double* bestyet, tree* bestree, tree* priortree)
 {
  /* generic wrapper for local rearrangement, do until does not succeed */
-  double bestyet;
-  boolean succeeded = true;
+  boolean succeeded;
 
   if (start->tip)                  /* make sure that start at interior node */
     start = start->back;                   /* that is connected to outgroup */
-  bestyet = t->evaluate(t, start, 0);
   succeeded = true;
   while(succeeded)
   {
-    succeeded = unrooted_tree_locrearrange_recurs(t, start, &bestyet,
+    succeeded = unrooted_tree_locrearrange_recurs(t, start, bestyet,
                                                 thorough, priortree, bestree);
   }
 } /* generic_unrooted_locrearrange */
@@ -4166,19 +4164,18 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    */
   node *q, *r, *qwhere;
   boolean succeeded = false;
-  double oldbestyet;
+  double oldbestyet;    /* debug:  ever used?  */
 
   qwhere = NULL;
 
   if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
   {
+printf("locrearrange at node %2ld\n", p->index);  /* debug */
     oldbestyet = *bestyet;
     r = p->back->next->next;           /* these are the two connected ... */
     if (!thorough)
       t->save_lr_nodes(t, p, r);  /* save the views at the fork 
                                    containing  r  and inward-looking at p */
-    else
-      t->copy(t, bestree);
     t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
 
     if (thorough)
@@ -4327,7 +4324,7 @@ void rooted_repreorder(tree* t, node *p, boolean *success)
 
 
 void rooted_locrearrange(tree* t, node* start, boolean thorough,
-                          tree* priortree, tree* bestree)
+                          double* bestyet, tree* bestree, tree* priortree)
 {
   /*traverses the tree (preorder), finding any local
     rearrangement which increases the score.
@@ -4874,8 +4871,8 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
                          bestree, true, (i == spp));/* the last time, store */
     curtree->copy(bestree, curtree);    /* replace current tree by best one */
 /* debug    curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
-    curtree->locrearrange(curtree, curtree->root, false, priortree,
-                            bestree);  /* round of local rearrangements */
+    curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
+                           priortree);  /* round of local rearrangements */
     if (progress) {
       writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();
