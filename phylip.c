@@ -3942,7 +3942,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
     }
   }
   if (contin && !q->back->tip) {
-    /* we need to go both ways, if start in an interior branch
+    /* we need to go both ways, if we start in an interior branch
      * of an unrooted tree and are not doing just local rearrangements */
     for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
@@ -4134,7 +4134,8 @@ inittrav(t, p->next);    /* debug  removed as unnecessary */
 
 
 void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
-                                   double* bestyet, tree* bestree, tree* priortree)
+                                   double* bestyet, tree* bestree,
+                                   tree* priortree, boolean storing)
 {
  /* generic wrapper for local rearrangement, do until does not succeed */
   boolean succeeded;
@@ -4145,14 +4146,14 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
   while(succeeded)
   {
     succeeded = unrooted_tree_locrearrange_recurs(t, start, bestyet,
-                                                thorough, priortree, bestree);
+                                       thorough, priortree, bestree, storing);
   }
 } /* generic_unrooted_locrearrange */
 
 
 boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                                            boolean thorough, tree* priortree,
-                                           tree* bestree)
+                                           tree* bestree, boolean storing)
 {
   /* rearranges the tree locally by removing a subtree
    * connected to an interior node, keeping it together and trying to
@@ -4178,7 +4179,7 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
                                    containing  r  and inward-looking at p */
     t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
 
-    if (thorough)
+    if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
     else
       qwhere = p;
@@ -4186,14 +4187,17 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
-    t->addtraverse(t, r, p->next->back, false, qwhere,
-                    bestyet, bestree, thorough, true);    /* storing it too */
+    t->addtraverse(t, r, p, false, qwhere,
+                    bestyet, bestree, thorough, storing);
 
+/* debug:  the previous addtraverse already tries both local rearrangements */
+#if 0
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
       t->addtraverse(t, r, p->next->next->back, false,
-                      qwhere, bestyet, bestree, thorough, true);
+                      qwhere, bestyet, bestree, thorough, storing);
     }
+#endif
 
     if (thorough)
       bestree->copy(bestree, t);
@@ -4214,15 +4218,16 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
       }
     }
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
-  } else {
+  } else {      /* go on to rearrange rest of tree, pulling off other parts */
     if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                        *  when we find one that improves the score. */
       if (!p->tip) {
         succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
-                                       bestyet, thorough, priortree, bestree);
+                              bestyet, thorough, priortree, bestree, storing);
         if (!succeeded)
-          succeeded = unrooted_tree_locrearrange_recurs(t, p->next->next->back,
-                                        bestyet, thorough, priortree, bestree);
+          succeeded = unrooted_tree_locrearrange_recurs(t,
+                                       p->next->next->back, bestyet, thorough,
+                                       priortree, bestree, storing);
       }
     }
   }
@@ -4324,7 +4329,8 @@ void rooted_repreorder(tree* t, node *p, boolean *success)
 
 
 void rooted_locrearrange(tree* t, node* start, boolean thorough,
-                          double* bestyet, tree* bestree, tree* priortree)
+                          double* bestyet, tree* bestree,
+                          tree* priortree, boolean storing)
 {
   /*traverses the tree (preorder), finding any local
     rearrangement which increases the score.
