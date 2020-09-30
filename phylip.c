@@ -4218,19 +4218,20 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
       }
     }
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
-  } else {      /* go on to rearrange rest of tree, pulling off other parts */
-    if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
-                       *  when we find one that improves the score. */
-      if (!p->tip) {
-        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
-                              bestyet, thorough, priortree, bestree, storing);
-        if (!succeeded)
-          succeeded = unrooted_tree_locrearrange_recurs(t,
-                                       p->next->next->back, bestyet, thorough,
-                                       priortree, bestree, storing);
-      }
+  } 
+  /* go on to rearrange rest of tree, pulling off other parts */
+  if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
+                     *  when we find one that improves the score. */
+    if (!p->tip) {
+      succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+                            bestyet, thorough, priortree, bestree, storing);
+      if (!succeeded)
+        succeeded = unrooted_tree_locrearrange_recurs(t,
+                                     p->next->next->back, bestyet, thorough,
+                                     priortree, bestree, storing);
     }
   }
+
   return succeeded;
 } /* unrooted_tree_locrearrange_recurs */
 
