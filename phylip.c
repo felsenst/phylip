@@ -4203,7 +4203,7 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
       bestree->copy(bestree, t);
     else {                /* for case where one is rearranging only locally */
       if (qwhere == q ) {
-        assert(*bestyet <= oldbestyet);
+/* debug:       assert(*bestyet <= oldbestyet);     */
         t->insert_(t, r, qwhere, false);
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
@@ -4878,7 +4878,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     curtree->copy(bestree, curtree);    /* replace current tree by best one */
 /* debug    curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
-                           priortree);  /* round of local rearrangements */
+                  priortree, (i == spp));  /* round of local rearrangements */
     if (progress) {
       writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();
