@@ -3934,7 +3934,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
                       * maybe further unless just local rearrangements */
-    for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
+    for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree, 
@@ -4202,16 +4202,15 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
     if (thorough)
       bestree->copy(bestree, t);
     else {                /* for case where one is rearranging only locally */
+      t->insert_(t, r, qwhere, false);           /* put it in best location */
       if (qwhere == q ) {
 /* debug:       assert(*bestyet <= oldbestyet);     */
-        t->insert_(t, r, qwhere, false);
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
       else {
         assert(*bestyet > oldbestyet);
         succeeded = true;
-        t->insert_(t, r, qwhere, false);
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
         /* debug        double otherbest = *bestyet;      JF:  is this needed? */
@@ -4742,7 +4741,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
 
   succeeded = false;
   t->insert_(t, p, q, false);
-
+  like = t->evaluate(t, t->root, false);
   if (atstart)
     bettertree = true;
   else {
@@ -4752,8 +4751,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   if (bettertree) {
     *bestyet = like;
     qwherein = q;
-    if (thorough)
-      t->copy(t, bestree);
+    t->copy(t, bestree);
   }
   t->re_move(t, p, &dummy, false);
   return succeeded;
@@ -4877,7 +4875,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                          bestree, true, (i == spp));/* the last time, store */
     curtree->copy(bestree, curtree);    /* replace current tree by best one */
-/* debug    curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
+/*    curtree->insert_(curtree, item, there, false);   debug: put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
                   priortree, (i == spp));  /* round of local rearrangements */
     if (progress) {
