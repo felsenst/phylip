@@ -3928,6 +3928,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   boolean succeeded, atstart;
 
   atstart = true;
+printf("  calling pars_tree_try_insert with %ld:%ld\n",q->index,q->back->index); /* debug */
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
   succeeded = true;   /* debug: why this boolean? for first location we try */
@@ -3936,6 +3937,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                       * maybe further unless just local rearrangements */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
+printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr->back->index, sib_ptr->index); /* debug */
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree, 
                            thorough, storing, atstart) || succeeded;
@@ -3970,6 +3972,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded = false;
 
+printf("  calling pars_tree_try_insert with %ld:%ld\n",q->back->index,q->index); /* debug */
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
 
@@ -4187,7 +4190,7 @@ printf("locrearrange at node %2ld\n", p->index);  /* debug */
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
-    t->addtraverse(t, r, p, false, qwhere,
+    t->addtraverse(t, r, q, false, qwhere,
                     bestyet, bestree, thorough, storing);
 
 /* debug:  the previous addtraverse already tries both local rearrangements */
