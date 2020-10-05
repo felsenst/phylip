@@ -121,9 +121,10 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   long pos = 0;
 
   /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
+printf("   on branch %ld:%ld, ", p->index, p->back->index); /* debug */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
-printf("   on branch %ld:%ld, score = %lf\n", p->index, p->back->index, like);
+printf("score = %lf\n", like);   /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
     *bestyet = like;
@@ -1429,7 +1430,7 @@ void grandrearr(tree* t, tree* bestree, boolean progress, boolean rearrfirst)
   addbestever(pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 debug:   */
 
-  for ( i = 0 ; i < nextree-1 ; i++)
+  for ( i = 0 ; i <= nextree-1 ; i++)
     bestrees[i].gloreange = false;
 
   while (!done)
@@ -1443,7 +1444,7 @@ debug:   */
     if (!done)
     {
       load_tree(t, treei, bestrees);
-      t->evaluate(t, t->root, 0);
+      bestyet = t->evaluate(t, t->root, 0);
       t->globrearrange(t, bestree, progress, true);
       done = rearrfirst;
     }

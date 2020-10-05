@@ -2381,11 +2381,11 @@ long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
   long i;
 
   if (glob) {
-    for (i = 0; i < nextree - 1; i++)
+    for (i = 0; i <= nextree - 1; i++)
       if (!bestrees[i].gloreange)
         return i;
   } else {
-    for (i = 0; i < nextree - 1; i++)
+    for (i = 0; i <= nextree - 1; i++)
       if (!bestrees[i].locreange)
         return i;
   }
