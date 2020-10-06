@@ -161,7 +161,8 @@ printf("score = %lf\n", like);   /* debug */
     there = p;
 /* debug:    *multf = false;   */
   }
-  t->re_move(t, item, &dummy, true);   /* pull the branch back of the tree */
+  t->re_move(t, item, &dummy, true);/* pull the branch back off the tree */
+/* debug:  is preceding statement correct?  &dummy?  */
 /* debug:   t->restore_traverses(t, item, p);   */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
@@ -1068,12 +1069,12 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
    * available in the parsimony programs */
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
-  double oldbestyet;
   double bestyet;
   boolean mulf;
   node* removed;
 
-  bestyet = oldbestyet = curtree->evaluate(curtree, curtree->root, 0);
+  bestyet = curtree->evaluate(curtree, curtree->root, 0);
+printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
 
   if (progress)
   {
@@ -1105,9 +1106,10 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
           continue;                     /* skip over rest of loop this time */
 
-        removed = sib_ptr->back;
+        removed = sib_ptr;   /* debug: or is it  sib_ptr->back ? */
         mulf = 2 != count_sibs(removed->back);
         curtree->re_move(curtree, removed, &where, true);
+printf(" remove %ld:%ld\n", removed->index, removed->back->index); /* debug */
         qwhere = where;
 
         if ( where->tip)
@@ -1127,6 +1129,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
+printf("inserting back at %ld\n", where->index);  /* debug */
         curtree->root = curtree->nodep[0]->back;
         bestyet = curtree->evaluate(curtree, curtree->root, 0);
       }
@@ -1425,6 +1428,7 @@ void grandrearr(tree* t, tree* bestree, boolean progress, boolean rearrfirst)
   long treei;
   long i, pos = 0;
   boolean done = false;
+  boolean oldbestyet;
 
   lastrearr = true;
 /* debug:  whay do this, best trees are in array bestrees and  t  is not necessarily one of them
@@ -1435,6 +1439,7 @@ debug:   */
   for ( i = 0 ; i <= nextree-1 ; i++)
     bestrees[i].gloreange = false;
 
+  oldbestyet = bestree->score;
   while (!done)
   {
     treei = findunrearranged(bestrees, nextree, true);
@@ -1446,9 +1451,10 @@ debug:   */
     if (!done)
     {
       load_tree(t, treei, bestrees);
+printf("rearranging on tree %ld\n",treei); /* debug */
       bestyet = t->evaluate(t, t->root, 0);
       t->globrearrange(t, bestree, progress, true);
-      done = rearrfirst;
+      done = rearrfirst || (oldbestyet == bestyet);
     }
   }
 } /* grandrearr */

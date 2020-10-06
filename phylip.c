@@ -3923,7 +3923,9 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * contin  indicates whether one continues recursively or
    * is just doing local rearragements. 
    * thorough indicates whether need to adjust parameters
-   * further out than  q  to assess that location  */
+   * further out than  q  to assess that location
+   * p  should be a fork subtree connected to it so root of subtree 
+   * is at  p->back  */
   node *sib_ptr;
   boolean succeeded, atstart;
 
@@ -3948,6 +3950,7 @@ printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr
      * of an unrooted tree and are not doing just local rearrangements */
     for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
+printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr->back->index, sib_ptr->index); /* debug */
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree,
                            thorough, storing, atstart) || succeeded;
@@ -4660,8 +4663,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
   long num_sibs;
 
   if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
-    fork->back = NULL;
-    fork->back = NULL;
+    fork->back = NULL;                                   /* debug: why?  */
     return;
   }
 
