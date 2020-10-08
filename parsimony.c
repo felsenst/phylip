@@ -121,10 +121,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   long pos = 0;
 
   /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
-printf("   on branch %ld:%ld, ", p->index, p->back->index); /* debug */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
-printf("score = %lf\n", like);   /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
     *bestyet = like;
@@ -1109,7 +1107,7 @@ printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
         removed = sib_ptr;   /* debug: or is it  sib_ptr->back ? */
         mulf = 2 != count_sibs(removed->back);
         curtree->re_move(curtree, removed, &where, true);
-printf(" remove %ld:%ld\n", removed->index, removed->back->index); /* debug */
+/* printf(" remove %ld:%ld\n", removed->index, removed->back->index);   debug */
         qwhere = where;
 
         if ( where->tip)
@@ -1129,9 +1127,10 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /* debug */
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
-printf("inserting back at %ld\n", where->index);  /* debug */
+printf("inserting back at %ld", where->index);  /* debug */
         curtree->root = curtree->nodep[0]->back;
         bestyet = curtree->evaluate(curtree, curtree->root, 0);
+printf(", score = %lf\n", bestyet);  /* debug */
       }
     }
   }
@@ -1426,9 +1425,8 @@ void grandrearr(tree* t, tree* bestree, boolean progress, boolean rearrfirst)
 {
   /* calls global rearrangement on best trees */
   long treei;
-  long i, pos = 0;
+  long i, oldbestyet, pos = 0;
   boolean done = false;
-  boolean oldbestyet;
 
   lastrearr = true;
 /* debug:  whay do this, best trees are in array bestrees and  t  is not necessarily one of them

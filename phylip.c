@@ -3929,8 +3929,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded, atstart;
 
+printf("  calling addtraverse with %ld ", p->index); /* debug */
   atstart = true;
-printf("  calling pars_tree_try_insert with %ld:%ld\n",q->index,q->back->index); /* debug */
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
   succeeded = true;   /* debug: why this boolean? for first location we try */
@@ -3939,7 +3939,6 @@ printf("  calling pars_tree_try_insert with %ld:%ld\n",q->index,q->back->index);
                       * maybe further unless just local rearrangements */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
-printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr->back->index, sib_ptr->index); /* debug */
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree, 
                            thorough, storing, atstart) || succeeded;
@@ -3950,7 +3949,6 @@ printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr
      * of an unrooted tree and are not doing just local rearrangements */
     for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
-printf("  calling addtraverse with %ld inserted on %ld:%ld\n", p->index, sib_ptr->back->index, sib_ptr->index); /* debug */
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                            contin, qwherein, bestyet, bestree,
                            thorough, storing, atstart) || succeeded;
@@ -3975,7 +3973,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded = false;
 
-printf("  calling pars_tree_try_insert with %ld:%ld\n",q->back->index,q->index); /* debug */
+/* printf("  beginning addtraverse of %ld", q->index); debug */
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
 
@@ -4177,7 +4175,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
   if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
   {
-printf("locrearrange at node %2ld\n", p->index);  /* debug */
+/* printf("locrearrange at node %2ld\n", p->index);  debug */
     oldbestyet = *bestyet;
     r = p->back->next->next;           /* these are the two connected ... */
     if (!thorough)
