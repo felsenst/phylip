@@ -123,6 +123,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
+printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
     if (!storing)
@@ -1130,7 +1131,7 @@ printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
         curtree->insert_(curtree, removed, where, mulf);
 printf("inserting back at %ld", where->index);  /* debug */
         curtree->root = curtree->nodep[0]->back;
-        bestyet = curtree->evaluate(curtree, curtree->root, 0);
+/* debug:        bestyet = curtree->evaluate(curtree, curtree->root, 0); */
 printf(", score = %lf\n", bestyet);  /* debug */
       }
     }
