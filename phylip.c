@@ -3749,7 +3749,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress, boolea
       qwhere = where;
 
       succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
-                                        qwhere, &bestyet, bestree, thorough, false);  /* debug: storing? */
+                           qwhere, &bestyet, bestree, thorough, false, false);  /* debug: storing? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3868,13 +3868,14 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boole
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
-                                            true, qwhere, &bestyet, bestree,
-                                            thorough, false) || succeeded;
+                                         true, qwhere, &bestyet, bestree,
+                                         thorough, false, false) || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
         {
-          if (succeeded && qwhere != where && qwhere != where->back && bestyet > oldbestyet)
+          if (succeeded && qwhere != where && qwhere != where->back
+               && bestyet > oldbestyet)
           {
             curtree->insert_(curtree, removed, qwhere, true);
             curtree->smoothall(curtree, where);
@@ -3917,8 +3918,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boole
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                              node* qwherein, double* bestyet, tree* bestree,
-                              boolean thorough, boolean storing)
+                           node* qwherein, double* bestyet, tree* bestree,
+                           boolean thorough, boolean storing, boolean atstart)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
    * is just doing local rearragements. 
@@ -3927,10 +3928,9 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * p  should be a fork subtree connected to it so root of subtree 
    * is at  p->back  */
   node *sib_ptr;
-  boolean succeeded, atstart;
+  boolean succeeded;
 
 printf("  calling addtraverse with %ld ", p->index); /* debug */
-  atstart = true;
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart);
   succeeded = true;   /* debug: why this boolean? for first location we try */
@@ -4192,14 +4192,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
     t->addtraverse(t, r, q, false, qwhere,
-                    bestyet, bestree, thorough, storing);
+                    bestyet, bestree, thorough, storing, false);
 
 /* debug:  the previous addtraverse already tries both local rearrangements */
 #if 0
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
       t->addtraverse(t, r, p->next->next->back, false,
-                      qwhere, bestyet, bestree, thorough, storing);
+                      qwhere, bestyet, bestree, thorough, storing, false);
     }
 #endif
 
@@ -4876,7 +4876,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                         bestree, true, (i == spp));/* the last time, store */
+                   bestree, true, (i == spp), true);/* the last time, store */
     curtree->copy(bestree, curtree);    /* replace current tree by best one */
 /*    curtree->insert_(curtree, item, there, false);   debug: put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,

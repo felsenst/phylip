@@ -125,7 +125,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   like = t->evaluate(t, p, false);
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
-    *bestyet = like;
+    if (!storing)
+      *bestyet = like;
     there = p;
   }
   if (storing) {
@@ -702,7 +703,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
                           node* qwherein, double* bestyet, bestelm* bestrees,
-                          boolean thorough, boolean storing)
+                          boolean thorough, boolean storing, boolean atstart)
 {
   /* wrapper for addraverse, calling generic addtraverse
    * and then taking the best tree found and adding it to the array
@@ -714,7 +715,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 /* debug:  does this make any sense?  Already saving best tree yet in generic version */
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
-                             bestyet, &bestree, thorough, storing);
+                             bestyet, &bestree, thorough, storing, atstart);
    add_to_besttrees(t, t->score, bestrees);
    return success;
 } /* pars_addtraverse */
@@ -1123,7 +1124,7 @@ printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                                qwhere, &bestyet, bestree, true, true);
+                                qwhere, &bestyet, bestree, true, true, false);
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
