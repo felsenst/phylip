@@ -476,14 +476,6 @@ void maketree(void)
   long i, j, nextnode;
   boolean firsttree, goteof, haslengths;
 
-#if 0                                   // RSGbugfix: Local variable never used.
-  pointarray nodep;
-#endif
-
-  // RSGnote: Was formerly NOT INITIALIZED here and then potentially referenced
-  // before being initialized in one branch of IF below.  This is a bug unless we can
-  // prove that the appropriate branch of that IF will always be taken.  Initialized
-  // here only to silence compiler warning.
   long numtrees = 0;
 
   if (!usertree)

@@ -4843,21 +4843,24 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
 
 
 void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
-            boolean jumble, longer seed, boolean progress)
+            boolean jumble, longer seed, boolean progress, double bestfound)
 {
   /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
-   * with sequential addition followed by local rearrangements */
+   * with sequential addition followed by local rearrangements and then
+   * global rearrangements.  This is only used by parsimony programs */
   long i, k;
   node *item, *there, *p;
   long *enterorder;
   double bestyet;
 
+/* debug:  need to figure out how to find best tree and only add to bestrees at end */
   enterorder = (long *)Malloc(spp * sizeof(long));  /* order to add to tree */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)
     randumize(seed, enterorder);     /* in Jumble case, randomize the order */
-  release_all_forks(curtree);               /* make sure tree has just tips */
+  release_all_forks(curtree);            /* make sure curtree has just tips */
+  release_all_forks(bestree);            /* make sure bestree has just tips */
   buildsimpletree(curtree, enterorder);        /* make tree of first 3 tips */
   curtree->root = curtree->nodep[enterorder[0] - 1];            /* its root */
   if (progress) {
@@ -4878,7 +4881,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true);/* the last time, store */
     curtree->copy(bestree, curtree);   /*  replace current tree by best one */
-/*     curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
+    curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
                   priortree, (i == spp));  /* round of local rearrangements */
     if (progress) {
