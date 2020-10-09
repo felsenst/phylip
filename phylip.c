@@ -4877,8 +4877,8 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true);/* the last time, store */
-    curtree->copy(bestree, curtree);    /* replace current tree by best one */
-/*    curtree->insert_(curtree, item, there, false);   debug: put tip-and-fork on */
+    curtree->copy(bestree, curtree);   /*  replace current tree by best one */
+/*     curtree->insert_(curtree, item, there, false);   put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
                   priortree, (i == spp));  /* round of local rearrangements */
     if (progress) {
