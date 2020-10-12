@@ -3694,7 +3694,8 @@ boolean generic_node_good(tree *t, node * n)
 } /* generic_node_good */
 
 
-void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress, boolean thorough)
+void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
+                           boolean thorough, double* bestfound)
 {
   /* does "global" (SPR) rearrangements */
   tree *globtree, *oldtree, *priortree;
@@ -3749,7 +3750,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress, boolea
       qwhere = where;
 
       succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
-                           qwhere, &bestyet, bestree, thorough, false, false);  /* debug: storing? */
+                qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3786,7 +3787,8 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress, boolea
 } /* rooted_globrearrange */
 
 
-void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boolean thorough)
+void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
+                            boolean thorough, double* bestfound)
 { /* does global rearrangements */
   tree *globtree, *oldtree, *priortree;
   int i, j, k, num_sibs, num_sibs2;
@@ -3869,7 +3871,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boole
         {
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
                                          true, qwhere, &bestyet, bestree,
-                                         thorough, false, false) || succeeded;
+                                         thorough, false, false, bestfound)
+                                         || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
         if ( !thorough)
@@ -3919,7 +3922,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress, boole
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                            node* qwherein, double* bestyet, tree* bestree,
-                           boolean thorough, boolean storing, boolean atstart)
+                           boolean thorough, boolean storing, boolean atstart,
+                           double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
    * is just doing local rearragements. 
@@ -3932,7 +3936,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 printf("  calling addtraverse with %ld ", p->index); /* debug */
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                             thorough, storing, atstart);
+                             thorough, storing, atstart, bestfound);
   succeeded = true;   /* debug: why this boolean? for first location we try */
   atstart = false;
   if (!q->tip) {     /* in one direction, try immediate descendant branches,
@@ -3940,8 +3944,8 @@ printf("  calling addtraverse with %ld ", p->index); /* debug */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                           contin, qwherein, bestyet, bestree, 
-                           thorough, storing, atstart) || succeeded;
+                          contin, qwherein, bestyet, bestree, 
+                          thorough, storing, atstart, bestfound) || succeeded;
     }
   }
   if (contin && !q->back->tip) {
@@ -3950,17 +3954,18 @@ printf("  calling addtraverse with %ld ", p->index); /* debug */
     for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                           contin, qwherein, bestyet, bestree,
-                           thorough, storing, atstart) || succeeded;
+                          contin, qwherein, bestyet, bestree,
+                          thorough, storing, atstart, bestfound) || succeeded;
     }
   }
   return succeeded;
 } /* generic_tree_addtraverse */
 
 
-boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
-                              node *qwherein, double* bestyet, tree* bestree,
-                              boolean thorough, boolean storing, boolean atstart)
+boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
+                             boolean contin, node *qwherein, double* bestyet,
+                             tree* bestree, boolean thorough, boolean storing,
+                             boolean atstart, double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
    * from one end of that branch
@@ -3975,14 +3980,14 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q, boolean contin,
 
 /* printf("  beginning addtraverse of %ld", q->index); debug */
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
-                             thorough, storing, atstart);
+                              thorough, storing, atstart, bestfound);
 
   if (contin && !q->tip) {        /* go to all branches leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree,
-                          thorough, storing, atstart) || succeeded;
+                                 contin, qwherein, bestyet, bestree, thorough,
+                                 storing, atstart, bestfound) || succeeded;
     }
   }
   return succeeded;
@@ -4138,8 +4143,8 @@ inittrav(t, p->next);    /* debug  removed as unnecessary */
 
 
 void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
-                                   double* bestyet, tree* bestree,
-                                   tree* priortree, boolean storing)
+                              double* bestyet, tree* bestree, tree* priortree,
+                              boolean storing, double* bestfound)
 {
  /* generic wrapper for local rearrangement, do until does not succeed */
   boolean succeeded;
@@ -4150,14 +4155,14 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
   while(succeeded)
   {
     succeeded = unrooted_tree_locrearrange_recurs(t, start, bestyet,
-                                       thorough, priortree, bestree, storing);
+                            thorough, priortree, bestree, storing, bestfound);
   }
 } /* generic_unrooted_locrearrange */
 
 
 boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
-                                           boolean thorough, tree* priortree,
-                                           tree* bestree, boolean storing)
+                             boolean thorough, tree* priortree, tree* bestree,
+                             boolean storing, double* bestfound)
 {
   /* rearranges the tree locally by removing a subtree
    * connected to an interior node, keeping it together and trying to
@@ -4192,14 +4197,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
     t->addtraverse(t, r, q, false, qwhere,
-                    bestyet, bestree, thorough, storing, false);
+                    bestyet, bestree, thorough, storing, false, bestfound);
 
 /* debug:  the previous addtraverse already tries both local rearrangements */
 #if 0
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
-      t->addtraverse(t, r, p->next->next->back, false,
-                      qwhere, bestyet, bestree, thorough, storing, false);
+      t->addtraverse(t, r, p->next->next->back, false, qwhere, bestyet,
+                      bestree, thorough, storing, false, bestfound);
     }
 #endif
 
@@ -4227,11 +4232,11 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                      *  when we find one that improves the score. */
     if (!p->tip) {
       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
-                            bestyet, thorough, priortree, bestree, storing);
+                   bestyet, thorough, priortree, bestree, storing, bestfound);
       if (!succeeded)
         succeeded = unrooted_tree_locrearrange_recurs(t,
                                      p->next->next->back, bestyet, thorough,
-                                     priortree, bestree, storing);
+                                     priortree, bestree, storing, bestfound);
     }
   }
 
@@ -4334,7 +4339,7 @@ void rooted_repreorder(tree* t, node *p, boolean *success)
 
 void rooted_locrearrange(tree* t, node* start, boolean thorough,
                           double* bestyet, tree* bestree,
-                          tree* priortree, boolean storing)
+                          tree* priortree, boolean storing, double* bestfound)
 {
   /*traverses the tree (preorder), finding any local
     rearrangement which increases the score.
@@ -4734,8 +4739,8 @@ long generic_tree_findemptyfork(tree* t)
 
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
-                                 double* bestyet, tree* bestree,
-                                 boolean thorough, boolean storing, boolean atstart)
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
 {
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
@@ -4843,7 +4848,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
 
 
 void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
-            boolean jumble, longer seed, boolean progress, double bestfound)
+            boolean jumble, longer seed, boolean progress, double* bestfound)
 {
   /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
    * with sequential addition followed by local rearrangements and then
@@ -4879,11 +4884,11 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                   bestree, true, (i == spp), true);/* the last time, store */
+                   bestree, true, (i == spp), true, bestfound);   /* store? */
     curtree->copy(bestree, curtree);   /*  replace current tree by best one */
     curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
-                  priortree, (i == spp));  /* round of local rearrangements */
+                  priortree, (i == spp), bestfound);   /* local rearr'ments */
     if (progress) {
       writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();

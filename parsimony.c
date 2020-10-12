@@ -104,7 +104,8 @@ void reroot_tree(tree* t, node* fakeroot)
 
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
-  double * bestyet, tree * bestree, boolean thorough, boolean storing, boolean atstart)
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -671,7 +672,8 @@ void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse, long
 } /* addtiedtree */
 
 
-void add_to_besttrees(tree* t, long score, bestelm* bestrees)
+void add_to_besttrees(tree* t, long score, bestelm* bestrees,
+                       double* bestfound)
 {
   /* take the tree we have found and try to add it to the array bestrees:
    * if none are already there, make it the first one, if it is better than
@@ -679,32 +681,26 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees)
    * one, if tied with them add it in too */
 /* debug:  may not need in view of pars_tree_try_insert  */
 
-  boolean found;
-  long bestscoreyet, *pos = 0;
+  boolean found = false;
+  long *pos = 0;
   
-  bestscoreyet = bestyet;
-  if (!(score < bestscoreyet)) {           /* if going to save this one ... */
+  if ( (nextree = 1) || !(score < *bestfound)) {    /* if save this one ... */
     savetree(t, place);
-    findtree(&found, pos, nextree-1, place, bestrees);
-    if (score > bestscoreyet) {      /* if it will be the lone new best one */
+    if (score > *bestfound) {        /* if it will be the lone new best one */
       addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
     } else {                            /* it is another tree tied for best */
-      addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
-    }
-  }
-    if ( !found )
-    {
-      if ((bestyet > score) || (nextree == 1) )
-        addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
-      else
+      findtree(&found, pos, nextree-1, place, bestrees);  /* already there? */
+      if (!found)                      /* save it only if not already there */
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
     }
+  }
 } /* add_to_besttrees */
 
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
                           node* qwherein, double* bestyet, bestelm* bestrees,
-                          boolean thorough, boolean storing, boolean atstart)
+                          boolean thorough, boolean storing, boolean atstart,
+                          double* bestfound)
 {
   /* wrapper for addraverse, calling generic addtraverse
    * and then taking the best tree found and adding it to the array
@@ -716,8 +712,8 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 
 /* debug:  does this make any sense?  Already saving best tree yet in generic version */
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
-                             bestyet, &bestree, thorough, storing, atstart);
-   add_to_besttrees(t, t->score, bestrees);
+                   bestyet, &bestree, thorough, storing, atstart, bestfound);
+   add_to_besttrees(t, t->score, bestrees, bestfound);
    return success;
 } /* pars_addtraverse */
 
@@ -1062,7 +1058,7 @@ static boolean outgrin(node *root, node *outgrnode)
 
 
 void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
-                         boolean thorough)
+                         boolean thorough, double* bestfound)
 { /* does global rearrangements */
   /* The more general generic_unrooted_locrearrange also works but this is
    * much faster because it gets to take advantage of some of the speedups
@@ -1125,7 +1121,7 @@ printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                                qwhere, &bestyet, bestree, true, true, false);
+                     qwhere, &bestyet, bestree, true, true, false, bestfound);
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
@@ -1423,11 +1419,12 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 } /* writesteps */
 
 
-void grandrearr(tree* t, tree* bestree, boolean progress, boolean rearrfirst)
+void grandrearr(tree* t, tree* bestree, boolean progress,
+                 boolean rearrfirst, double* bestfound)
 {
   /* calls global rearrangement on best trees */
   long treei;
-  long i, oldbestyet, pos = 0;
+  long i, oldbestyet;
   boolean done = false;
 
   lastrearr = true;
@@ -1453,7 +1450,7 @@ debug:   */
       load_tree(t, treei, bestrees);
 printf("rearranging on tree %ld\n",treei); /* debug */
       bestyet = t->evaluate(t, t->root, 0);
-      t->globrearrange(t, bestree, progress, true);
+      t->globrearrange(t, bestree, progress, true, bestfound);
       done = rearrfirst || (oldbestyet == bestyet);
     }
   }

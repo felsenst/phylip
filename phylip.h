@@ -534,16 +534,16 @@ typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
-    double*, tree*, boolean, boolean, boolean);
+    double*, tree*, boolean, boolean, boolean, double*);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, boolean, boolean, boolean);
+    double*, tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
-    tree*, boolean, boolean, boolean);
+    tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_free_t)(tree*);
-typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean);
+typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean,double*);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,double*,
-                                     tree*,tree*,boolean);
+                                     tree*,tree*,boolean,double*);
 typedef void (*tree_smoothall_t)(tree*,node* p);
 typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);
 typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
@@ -803,12 +803,12 @@ void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
 boolean         generic_fork_good(tree*, node*);
 boolean         generic_node_good(tree*, node*);
-void            rooted_globrearrange(tree*, tree*, boolean, boolean);
-void            generic_globrearrange(tree*, tree*, boolean, boolean);
+void            rooted_globrearrange(tree*, tree*, boolean, boolean, double*);
+void            generic_globrearrange(tree*,tree*,boolean,boolean,double*);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
-                                   double*, tree*, boolean, boolean, boolean);
+                          double*, tree*, boolean, boolean, boolean, double*);
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean,
-                            node*, double*, tree*, boolean, boolean, boolean);
+                   node*, double*, tree*, boolean, boolean, boolean, double*);
 #ifdef WIN32              /* if using screen attributes of a Windows system */
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
@@ -820,15 +820,15 @@ void 		phyClearScreen(void);
 void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
 void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
 void            generic_unrooted_locrearrange(tree*, node*, boolean, double*,
-                                               tree*, tree*, boolean);
+                                              tree*, tree*, boolean, double*);
 boolean		unrooted_tree_locrearrange_recurs(tree*, node*, double*,
-                                              boolean, tree*, tree*, boolean);
+                                    boolean, tree*, tree*, boolean, double*);
 void            generic_tree_save_traverses(tree*, node*, node*);
 void            generic_tree_restore_traverses(tree*, node*, node*);
 void    	rooted_tryrearr(tree*, node*, boolean*);
 void		rooted_repreorder(tree*, node*, boolean*);
 void            rooted_locrearrange(tree*, node*, boolean, double*,
-                                     tree*, tree*,boolean);
+                                     tree*, tree*, boolean, double*);
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
 void*		pop(stack**);
@@ -846,11 +846,12 @@ void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
 boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
-                                          tree*, boolean, boolean, boolean);
+                                   tree*, boolean, boolean, boolean, double*);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
-void            hsbut(tree*, tree*, tree*, boolean, boolean, longer, boolean);
+void            hsbut(tree*, tree*, tree*, boolean, boolean,
+                       longer, boolean, double*);
 void            preparetree(tree*);
 void            fixtree(tree*);
 void            arbitrary_resolve(tree*) ;

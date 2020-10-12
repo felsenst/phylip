@@ -475,13 +475,15 @@ void maketree(void)
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode;
   boolean firsttree, goteof, haslengths;
+  double bestfound;
 
   long numtrees = 0;
 
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, bestree, priortree, false, jumble, seed, progress);
+    hsbut(curtree, bestree, priortree, false,
+           jumble, seed, progress, &bestfound);
     if (progress)
     {
       sprintf(progbuf, "\nDoing global rearrangements");
@@ -511,7 +513,7 @@ void maketree(void)
     }
 
     lastrearr = true;
-    grandrearr(curtree, bestree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
 
     if (progress)
     {
