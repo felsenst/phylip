@@ -136,19 +136,20 @@ printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
     if (atstart) {                    /* case when this is first tree tried */
       pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
-      addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+      if (like > *bestfound)
+        addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
       *bestyet = like;
       succeeded = true;
     } 
     else {
-      if ( like == *bestyet )                   /* deciding on a later tree */
+      if ( like == *bestfound )                 /* deciding on a later tree */
       {                /* find where it goes in numerical order in bestrees */
         findtree(&found, &pos, nextree, place, bestrees);
         succeeded = true;
         if (!found)                    /* if found same tree, do not add it */
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       } else {
-        if (like > *bestyet) { /* replacing all of them or adding one more? */
+        if (like > *bestfound) {       /* replacing all or adding one more? */
           pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
@@ -189,7 +190,7 @@ printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
       {
         savetree(t, place);
         findtree(&found, &pos, nextree, place, bestrees);
-        if ( (like > *bestyet  && !found) || nextree == 1)
+        if ( ((like > *bestyet) && !found) || nextree == 1)
           addbestever(pos, &nextree, maxtrees, false, place, bestrees);
         else if ( !found )
           addtiedtree(pos, &nextree, maxtrees, false, place, bestrees);
