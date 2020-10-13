@@ -4886,7 +4886,6 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true, bestfound);   /* store? */
     curtree->copy(bestree, curtree);   /*  replace current tree by best one */
-    curtree->insert_(curtree, item, there, false);   /* put tip-and-fork on */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
                   priortree, (i == spp), bestfound);   /* local rearr'ments */
     if (progress) {
