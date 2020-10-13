@@ -4883,6 +4883,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree, boolean thorough,
     item = curtree->get_fork(curtree, k);
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
+    *bestfound = bestyet;
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true, bestfound);   /* store? */
     curtree->copy(bestree, curtree);   /*  replace current tree by best one */

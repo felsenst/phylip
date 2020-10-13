@@ -136,8 +136,11 @@ printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
     if (atstart) {                    /* case when this is first tree tried */
       pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
-      if (like > *bestfound)
+      if (nextree == 0) {
+        *bestfound = like;
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+      }
+printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound);  /* debug */
       *bestyet = like;
       succeeded = true;
     } 
@@ -150,9 +153,12 @@ printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
       } else {
         if (like > *bestfound) {       /* replacing all or adding one more? */
+          *bestfound = like;
           pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound);  /* debug */
+          succeeded = true;
           *bestyet = like;
         }
       }
