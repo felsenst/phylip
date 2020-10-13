@@ -2398,6 +2398,10 @@ void writemethods (void) {
     fprintf(outfile, "\nScale, shape and allometry are inferred by a linear\n");
     fprintf(outfile, "approximate model, after covariances are inferred\n\n");
   }
+  if (linearsize && (!sizes)) {
+    fprintf(outfile, "\nAllometry, size variance, covariances are inferred by a linear\n");
+    fprintf(outfile, "approximate model, after covariances are inferred\n\n");
+  }
   if (!linearsize) {
     if (sizes) {
       if (mlsizes) {
@@ -3897,6 +3901,9 @@ void calculatecovsetc(void)
       }
       else
         varz = sumprod[charspp-1][charspp-1]; 
+    } else {
+      getsizevar();
+      getshapecovars(sumprod);
     }
     if (reg || pca)
       calculateregressions(sumprod, charspp);
