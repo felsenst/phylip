@@ -104,8 +104,9 @@ void reroot_tree(tree* t, node* fakeroot)
 
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
-                          double* bestyet, tree* bestree, boolean thorough,
-                          boolean storing, boolean atstart, double* bestfound)
+                          long jumb, double* bestyet, tree* bestree,
+                          boolean thorough, boolean storing, boolean atstart,
+                          double* bestfound)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -124,7 +125,6 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
-printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
     if (!storing)
@@ -137,10 +137,10 @@ printf(" score = %lf, bestyet = %lf\n", like, *bestyet);  /* debug */
       pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
       if (nextree == 0) {
-        *bestfound = like;
+        if (jumb == 1)
+          *bestfound = like;
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
       }
-printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound);  /* debug */
       *bestyet = like;
       succeeded = true;
     } 
@@ -157,7 +157,7 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfo
           pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound);  /* debug */
+printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
           succeeded = true;
           *bestyet = like;
         }
@@ -705,9 +705,9 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
 
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
-                          node* qwherein, double* bestyet, bestelm* bestrees,
-                          boolean thorough, boolean storing, boolean atstart,
-                          double* bestfound)
+                         node* qwherein, long jumb, double* bestyet,
+                         bestelm* bestrees, boolean thorough, boolean storing,
+                         boolean atstart, double* bestfound)
 {
   /* wrapper for addraverse, calling generic addtraverse
    * and then taking the best tree found and adding it to the array

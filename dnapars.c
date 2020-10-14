@@ -483,7 +483,7 @@ void maketree(void)
   {
     lastrearr = false;
     hsbut(curtree, bestree, priortree, false,
-           jumble, seed, progress, &bestfound);
+           jumble, jumb, seed, progress, &bestfound);
     if (progress)
     {
       sprintf(progbuf, "\nDoing global rearrangements");
