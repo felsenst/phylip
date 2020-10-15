@@ -104,9 +104,8 @@ void reroot_tree(tree* t, node* fakeroot)
 
 
 boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
-                          long jumb, double* bestyet, tree* bestree,
-                          boolean thorough, boolean storing, boolean atstart,
-                          double* bestfound)
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
 {
   /* insert item at p, if the resulting tree has a better score, update bestyet
    * and there
@@ -137,8 +136,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
       if (nextree == 0) {
-        if (jumb == 1)
-          *bestfound = like;
+        *bestfound = like;
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
       }
       *bestyet = like;
@@ -149,8 +147,10 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       {                /* find where it goes in numerical order in bestrees */
         findtree(&found, &pos, nextree, place, bestrees);
         succeeded = true;
-        if (!found)                    /* if found same tree, do not add it */
+        if (!found) {                  /* if found same tree, do not add it */
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+printf("Added another tied tree to bestrees, now %ld of them\n", nextree-1);
+        }
       } else {
         if (like > *bestfound) {       /* replacing all or adding one more? */
           *bestfound = like;
@@ -705,9 +705,9 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
 
 
 boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
-                         node* qwherein, long jumb, double* bestyet,
-                         bestelm* bestrees, boolean thorough, boolean storing,
-                         boolean atstart, double* bestfound)
+                         node* qwherein, double* bestyet, bestelm* bestrees,
+                         boolean thorough, boolean storing, boolean atstart,
+                         double* bestfound)
 {
   /* wrapper for addraverse, calling generic addtraverse
    * and then taking the best tree found and adding it to the array
@@ -717,10 +717,10 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 /* debug:  not yet called from anywhere */
    boolean success;
 
-/* debug:  does this make any sense?  Already saving best tree yet in generic version */
+/* debug:  does this make any sense?  Already saving best tree yet in generic version
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
                    bestyet, &bestree, thorough, storing, atstart, bestfound);
-   add_to_besttrees(t, t->score, bestrees, bestfound);
+   add_to_besttrees(t, t->score, bestrees, bestfound);     debug */
    return success;
 } /* pars_addtraverse */
 
@@ -1077,7 +1077,6 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   node* removed;
 
   bestyet = curtree->evaluate(curtree, curtree->root, 0);
-printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
 
   if (progress)
   {
@@ -1132,10 +1131,8 @@ printf("pars_globrearrange, bestlike = %lf\n", bestyet);  /* debug */
           sib_ptr2 = sib_ptr2->next;
         }
         curtree->insert_(curtree, removed, where, mulf);
-printf("inserting back at %ld", where->index);  /* debug */
         curtree->root = curtree->nodep[0]->back;
 /* debug:        bestyet = curtree->evaluate(curtree, curtree->root, 0); */
-printf(", score = %lf\n", bestyet);  /* debug */
       }
     }
   }
@@ -1455,7 +1452,6 @@ debug:   */
     if (!done)
     {
       load_tree(t, treei, bestrees);
-printf("rearranging on tree %ld\n",treei); /* debug */
       bestyet = t->evaluate(t, t->root, 0);
       t->globrearrange(t, bestree, progress, true, bestfound);
       done = rearrfirst || (oldbestyet == bestyet);

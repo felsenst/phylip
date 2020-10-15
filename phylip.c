@@ -3921,7 +3921,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                           node* qwherein, long jumb, double* bestyet,
+                           node* qwherein, double* bestyet,
                            tree* bestree, boolean thorough, boolean storing,
                            boolean atstart, double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
@@ -3934,8 +3934,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded;
 
-printf("  calling addtraverse with %ld ", p->index); /* debug */
-  succeeded = t->try_insert_(t, p, q, qwherein, jumb, bestyet, bestree,
+  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart, bestfound);
   succeeded = true;   /* debug: why this boolean? for first location we try */
   atstart = false;
@@ -3944,7 +3943,7 @@ printf("  calling addtraverse with %ld ", p->index); /* debug */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, jumb, bestyet, bestree, 
+                          contin, qwherein, bestyet, bestree, 
                           thorough, storing, atstart, bestfound) || succeeded;
     }
   }
@@ -3954,7 +3953,7 @@ printf("  calling addtraverse with %ld ", p->index); /* debug */
     for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, jumb, bestyet, bestree,
+                          contin, qwherein, bestyet, bestree,
                           thorough, storing, atstart, bestfound) || succeeded;
     }
   }
@@ -3963,9 +3962,9 @@ printf("  calling addtraverse with %ld ", p->index); /* debug */
 
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
-                          boolean contin, node *qwherein, long jumb,
-                          double* bestyet, tree* bestree, boolean thorough,
-                          boolean storing, boolean atstart, double* bestfound)
+                             boolean contin, node *qwherein, double* bestyet,
+                             tree* bestree, boolean thorough, boolean storing,
+                             boolean atstart, double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
    * from one end of that branch
@@ -3986,7 +3985,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                                 contin, jumb, qwherein, bestyet, bestree, thorough,
+                                 contin, qwherein, bestyet, bestree, thorough,
                                  storing, atstart, bestfound) || succeeded;
     }
   }
@@ -4884,7 +4883,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
     item = curtree->get_fork(curtree, k);
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
-    if (jumb == 1)
+    if ((jumb == 1) && (i == spp))    /* last of first  time through set it */
       *bestfound = bestyet;
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true, bestfound);   /* store? */

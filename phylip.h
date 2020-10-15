@@ -538,7 +538,7 @@ typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
     double*, tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
-typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, long, double*,
+typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean,double*);
