@@ -445,6 +445,8 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
+  long *indent;
+
   if (treeprint)
   {
     fprintf(outfile, "\nrequires a total of %10.3f\n", -(curtree->score));
@@ -463,7 +465,8 @@ void describe(void)
   if (trout)
   {
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    (*indent) = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
@@ -473,7 +476,7 @@ void maketree(void)
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, nextnode;
+  long i, j, nextnode, oldnextree;
   boolean firsttree, goteof, haslengths;
   double bestfound;
 
@@ -482,50 +485,52 @@ void maketree(void)
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, bestree, priortree, false,
-           jumble, jumb, seed, progress, &bestfound);
-    if (progress)
-    {
-      sprintf(progbuf, "\nDoing global rearrangements");
-      print_progress(progbuf);
-      if (rearrfirst)
+    oldnextree = nextree;    /* save this to detect when no new trees added */
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed, progress,
+           &bestfound);     /* sequential addition and local rearrangements */
+    if (nextree > oldnextree) {
+      if (progress)
       {
-        sprintf(progbuf, " on the first of the trees tied for best\n");
-      }
-      else
-      {
-        sprintf(progbuf, " on all trees tied for best\n");
-      }
-      print_progress(progbuf);
-      sprintf(progbuf, "  !");
-      print_progress(progbuf);
-      for (j = 0; j < nonodes; j++)
-      {
-        if (j % ((nonodes / 72) + 1) == 0)
+        sprintf(progbuf, "\nDoing global rearrangements");
+        print_progress(progbuf);
+        if (rearrfirst)
         {
-          sprintf(progbuf, "-");
-          print_progress(progbuf);
+          sprintf(progbuf, " on the first of the trees tied for best\n");
         }
+        else
+        {
+          sprintf(progbuf, " on all trees tied for best\n");
+        }
+        print_progress(progbuf);
+        sprintf(progbuf, "  !");
+        print_progress(progbuf);
+        for (j = 0; j < nonodes; j++)
+        {
+          if (j % ((nonodes / 72) + 1) == 0)
+          {
+            sprintf(progbuf, "-");
+            print_progress(progbuf);
+          }
+        }
+        sprintf(progbuf, "!\n");
+        print_progress(progbuf);
+        phyFillScreenColor();
       }
-      sprintf(progbuf, "!\n");
-      print_progress(progbuf);
-      phyFillScreenColor();
-    }
 
-    lastrearr = true;
-    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
-
-    if (progress)
-    {
-      sprintf(progbuf, "\n");
-      print_progress(progbuf);
+      lastrearr = true;   /* if new trees, SPR rearrangement on saved trees */
+      grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
+      if (progress)
+      {
+        sprintf(progbuf, "\n");
+        print_progress(progbuf);
+      }
     }
-    if (jumb == njumble)
-    {
+    if (jumb == njumble)           /* print out and/or write out all trees, */
+    {                              /* ... without any collapsible branches  */
       long outCount = 0;
       collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
       long missedCount = nextree - maxtrees;
-      if (treeprint)
+      if (treeprint)       /* progress message that trees have been printed */
       {
         putc('\n', outfile);
         if (outCount == 1)
@@ -547,7 +552,7 @@ void maketree(void)
       }
       if (treeprint)
         putc('\n', outfile);
-      for (i = 0; i < outCount ; i++)
+      for (i = 0; i < outCount ; i++)       /* print trees out onto outfile */
       {
         load_tree(curtree, i, bestrees);
         reroot(curtree->nodep[outgrno - 1], curtree->root);

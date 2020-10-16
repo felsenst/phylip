@@ -317,7 +317,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   }
   if(progress)
   {
-    sprintf(progbuf, "Collapsing best trees\n   ");
+    sprintf(progbuf, "\nCollapsing best trees\n   ");
     print_progress(progbuf);
   }
   k = 0;
@@ -1426,7 +1426,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 void grandrearr(tree* t, tree* bestree, boolean progress,
                  boolean rearrfirst, double* bestfound)
 {
-  /* calls global rearrangement on best trees */
+  /* calls "global" (SPR) rearrangement on best trees */
   long treei;
   long i, oldbestyet;
   boolean done = false;
@@ -1437,13 +1437,13 @@ void grandrearr(tree* t, tree* bestree, boolean progress,
   addbestever(pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 debug:   */
 
-  for ( i = 0 ; i <= nextree-1 ; i++)
-    bestrees[i].gloreange = false;
+  for ( i = 0 ; i <= nextree-1 ; i++)    /* set all saved trees as as-yet */
+    bestrees[i].gloreange = false;       /* globally un-rearranged */
 
   oldbestyet = bestree->score;
   while (!done)
   {
-    treei = findunrearranged(bestrees, nextree, true);
+    treei = findunrearranged(bestrees, nextree, true); /* find one not done */
     if (treei < 0)
       done = true;
     else
@@ -1451,16 +1451,16 @@ debug:   */
 
     if (!done)
     {
-      load_tree(t, treei, bestrees);
-      bestyet = t->evaluate(t, t->root, 0);
-      t->globrearrange(t, bestree, progress, true, bestfound);
-      done = rearrfirst || (oldbestyet == bestyet);
+      load_tree(t, treei, bestrees);                /* reconstruct the tree */
+      bestyet = t->evaluate(t, t->root, 0);                /* get its score */
+      t->globrearrange(t, bestree, progress, true, bestfound); /* rearrange */
+      done = rearrfirst || (oldbestyet == bestyet);    /* if not any better */
     }
   }
 } /* grandrearr */
 
 
-void treeout3(node *p, long nextree, long *col, node *root)
+void treeout3(node *p, long nextree, long *col, long *indent, node *root)
 {
   /* write out file with representation of final tree */
   /* used in dnapars -- writes branch lengths */
@@ -1469,6 +1469,8 @@ void treeout3(node *p, long nextree, long *col, node *root)
   double x;
   Char c;
 
+  if (p == root)
+    (*indent) = 0;
   if (p->tip)
   {
     n = 0;
@@ -1490,10 +1492,11 @@ void treeout3(node *p, long nextree, long *col, node *root)
   {
     putc('(', outtree);
     (*col)++;
+    (*indent)++;                         /* increment amount of line indent */
     q = p->next;
     while (q != p)
     {
-      treeout3(q->back, nextree, col, root);
+      treeout3(q->back, nextree, col, indent, root);
       q = q->next;
       if (q == p)
         break;
@@ -1503,10 +1506,13 @@ void treeout3(node *p, long nextree, long *col, node *root)
       {
         putc('\n', outtree);
         *col = 0;
+        for (i = 1; i <= indent; i++) /* write indent at beginning of line */
+          putc(' ', outtree);
       }
     }
     putc(')', outtree);
     (*col)++;
+    (*indent)--;
   }
   x = p->v;
   if (x > 0.0)

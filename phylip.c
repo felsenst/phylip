@@ -3697,7 +3697,7 @@ boolean generic_node_good(tree *t, node * n)
 void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
                            boolean thorough, double* bestfound)
 {
-  /* does "global" (SPR) rearrangements */
+  /* does "global" (SPR) rearrangements on a tree */
   tree *globtree, *oldtree, *priortree;
   int i;
   node *where,*sib_ptr,*qwhere;
@@ -3789,7 +3789,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
 void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
                             boolean thorough, double* bestfound)
-{ /* does global rearrangements */
+{ /* does "global" (SPR) rearrangements on a tree */
   tree *globtree, *oldtree, *priortree;
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
@@ -3853,7 +3853,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
           continue;
 
         removed = sib_ptr;
-
+         /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
         curtree->smoothall(curtree, where);
         curtree->copy(curtree, priortree);
@@ -3868,14 +3868,14 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
           sib_ptr2 = where;
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {
+        {        /* try inserting it on branches descended from this furc */
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
                                          true, qwhere, &bestyet, bestree,
                                          thorough, false, false, bestfound)
                                          || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
-        if ( !thorough)
+        if ( !thorough)      /* just put it in the next part of the subtree */
         {
           if (succeeded && qwhere != where && qwhere != where->back
                && bestyet > oldbestyet)
@@ -4851,14 +4851,14 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
             longer seed, boolean progress, double* bestfound)
 {
   /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
-   * with sequential addition followed by local rearrangements and then
-   * global rearrangements.  This is only used by parsimony programs */
+   * with sequential addition followed by local rearrangements after each 
+   * tip is added.  This is only used by parsimony programs.  It is usually
+   * followed by "global" (SPR) rearrangements on one or all best trees */
   long i, k;
   node *item, *there, *p;
   long *enterorder;
   double bestyet;
 
-/* debug:  need to figure out how to find best tree and only add to bestrees at end */
   enterorder = (long *)Malloc(spp * sizeof(long));  /* order to add to tree */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
@@ -4869,7 +4869,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
   buildsimpletree(curtree, enterorder);        /* make tree of first 3 tips */
   curtree->root = curtree->nodep[enterorder[0] - 1];            /* its root */
   if (progress) {
-    sprintf(progbuf, "Adding species:\n");
+    sprintf(progbuf, "\nAdding species:\n");
     print_progress(progbuf);
     writename(0, 3, enterorder);
     phyFillScreenColor();
