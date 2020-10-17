@@ -445,7 +445,7 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
-  long *indent;
+  long indent;
 
   if (treeprint)
   {
@@ -465,7 +465,7 @@ void describe(void)
   if (trout)
   {
     col = 0;
-    (*indent) = 0;
+    indent = 0;
     treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */

@@ -1460,7 +1460,7 @@ debug:   */
 } /* grandrearr */
 
 
-void treeout3(node *p, long nextree, long *col, long *indent, node *root)
+void treeout3(node *p, long nextree, long *col, long indent, node *root)
 {
   /* write out file with representation of final tree */
   /* used in dnapars -- writes branch lengths */
@@ -1470,7 +1470,7 @@ void treeout3(node *p, long nextree, long *col, long *indent, node *root)
   Char c;
 
   if (p == root)
-    (*indent) = 0;
+    indent = 0;
   if (p->tip)
   {
     n = 0;
@@ -1492,7 +1492,7 @@ void treeout3(node *p, long nextree, long *col, long *indent, node *root)
   {
     putc('(', outtree);
     (*col)++;
-    (*indent)++;                         /* increment amount of line indent */
+    indent++;                         /* increment amount of line indent */
     q = p->next;
     while (q != p)
     {
@@ -1512,7 +1512,6 @@ void treeout3(node *p, long nextree, long *col, long *indent, node *root)
     }
     putc(')', outtree);
     (*col)++;
-    (*indent)--;
   }
   x = p->v;
   if (x > 0.0)
