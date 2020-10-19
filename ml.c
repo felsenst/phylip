@@ -31,7 +31,7 @@ boolean inserting;
 /* prototypes for unexported functions */
 static void ml_tree_smoothall(tree*, node*);
 static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
-                                   double*, tree*, boolean, boolean, boolean);
+                          double*, tree*, boolean, boolean, boolean);
 void ml_node_reinit(node * n);
 
 
@@ -910,8 +910,8 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
 
 
 boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
-                           double* bestyet, tree* bestree,
-                           boolean thorough, boolean storing, boolean atstart)
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
 {
  /* Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
  *  depending on the value of thorough. If multf is given, sets to
@@ -1571,6 +1571,7 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
                     boolean global, boolean progress, tree* priortree,
                     tree* bestree, initialvtrav_t initialvtrav)
 {
+  double bestyet;
   /* evaluate a user tree */
 
   smoothit = improve;
@@ -1579,9 +1580,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     arbitrary_resolve(curtree);
     curtree->smoothall(curtree, curtree->root);
     if (global)
-      curtree->globrearrange(curtree, progress, smoothit);
+      curtree->globrearrange(curtree, bestree, progress, smoothit, &bestyet);
     else
-      curtree->locrearrange(curtree, curtree->root->back, smoothit, priortree, bestree);
+      curtree->locrearrange(curtree, curtree->root->back, smoothit, &bestyet,
+                             bestree, priortree, false, &bestyet);
     polishing = true;
     smoothit = true;
     curtree->smoothall(curtree, curtree->root);
