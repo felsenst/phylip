@@ -2154,7 +2154,7 @@ void maketree(void)
       if (smoothit)
         curtree->copy(curtree, priortree);
       curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
-                            &bestyet, bestree, thorough);
+                            &bestyet, bestree, thorough, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
@@ -2172,12 +2172,13 @@ void maketree(void)
 
       if (global && nextsp == spp)
       {
-        curtree->globrearrange(curtree, progress, smoothit);
+        curtree->globrearrange(curtree, bestree, progress,
+                                smoothit, &bestyet);
       }
       else
       {
         curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
-                               smoothit, priortree, bestree);
+                     smoothit, &bestyet, bestree, priortree, false, &bestyet);
       }
 
       nextsp++;
