@@ -30,14 +30,15 @@ int  _Slist_checklen(Slist_ptr l);
 
 
 static Slist_node_ptr Slist_node_new_(Slist_data_ptr data)
-{ /* Slist_node constructor which accepts NULL data */
+{ /* Slist_node constructor which can even accept NULL data,
+   * called by Slist_node_new (note difference in names) */
   Slist_node_ptr      node;
 
   node = (Slist_node_ptr)malloc(sizeof(struct _Slist_node));
   assert( node != NULL );
 
-  node->data = data;
-  node->next = NULL;
+  node->data = data;     /* have its data pointer point to "data" argument */
+  node->next = NULL;                                   /* nothing after it */
 
   return node;
 } /* Slist_node_new_ */
@@ -77,7 +78,7 @@ void Slist_delete(Slist_ptr l)
   assert( l != NULL );
   assert( Slist_isempty(l) );
   free( l );
-}
+} /* Slist_delete */
 
 
 /* DEBUG function  */
@@ -107,22 +108,23 @@ int Slist_isempty(Slist_ptr l)
 
 void Slist_push(Slist_ptr l, Slist_data_ptr data)
 {
+  /* make a new list-node and put it on "last"
   Slist_node_ptr node;
 
   assert( data != NULL );
-  node = Slist_node_new(data);
+  node = Slist_node_new(data); /* make new list-node which points to "data" */
 
-  if ( l->first == NULL )
+  if ( l->first == NULL )                  /* if there's nobody on the list */
   {
     assert(l->last == NULL);
-    l->last = node;
+    l->last = node;          /* then have "last" point to the new list-node */
   }
 
-  node->next = l->first;
-  l->first = node;
+  node->next = l->first;    /* have new list-node point to previous "first" */
+  l->first = node;          /* ... and have "first" point to it */
 
   l->length++;
-}
+} /* Slist_push */
 
 
 Slist_data_ptr Slist_pop(Slist_ptr l)
@@ -132,19 +134,19 @@ Slist_data_ptr Slist_pop(Slist_ptr l)
 
   assert( !Slist_isempty(l) );
 
-  del = l->first;
-  data = del->data;
+  del = l->first;                      /* the list-node that was "on first" */
+  data = del->data;                        /* the "data" that it pointed to */
 
-  l->first = del->next;
+  l->first = del->next;  /* make "first" point it the list-node's successor */
 
   if ( l->first == NULL )
     l->last = NULL;
 
-  Slist_node_delete(del);
+  Slist_node_delete(del);         /* toss the list-node that was popped off */
 
   l->length--;
 
-  return data;
+  return data;  /* return the "data" from the list-node that was popped off */
 } /* Slist_pop */
 
 
@@ -167,7 +169,7 @@ void Slist_append(Slist_ptr l, Slist_data_ptr data)
   l->last = node;
 
   l->length++;
-}
+} /* Slist_append */
 
 
 #ifdef LIST_ADT_TEST
