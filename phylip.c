@@ -3449,12 +3449,6 @@ void generic_tree_free(tree *t)
   long i;
   node *p,*q,*r;
 
-/* debug:  this is probably unnecessary as no longer have a forks list
-  while ( !Slist_isempty(t->free_forks) )
-    Slist_pop(t->free_forks);
-  Slist_delete(t->free_forks);
-debug  */
-
   while ( !Slist_isempty(t->free_fork_nodes) )
     Slist_pop(t->free_fork_nodes);
   Slist_delete(t->free_fork_nodes);

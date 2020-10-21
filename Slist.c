@@ -108,7 +108,7 @@ int Slist_isempty(Slist_ptr l)
 
 void Slist_push(Slist_ptr l, Slist_data_ptr data)
 {
-  /* make a new list-node and put it on "last"
+  /* make a new list-node and put it on "last" */
   Slist_node_ptr node;
 
   assert( data != NULL );
@@ -129,8 +129,8 @@ void Slist_push(Slist_ptr l, Slist_data_ptr data)
 
 Slist_data_ptr Slist_pop(Slist_ptr l)
 { /* pop a node off the linked list */
-  Slist_node_ptr    del;
-  Slist_data_ptr    data;
+  Slist_node_ptr    del;   /* del is the "list-node" that has a "next" */
+  Slist_data_ptr    data;   /* and a "data" pointer, which is the tree node */
 
   assert( !Slist_isempty(l) );
 
@@ -138,7 +138,6 @@ Slist_data_ptr Slist_pop(Slist_ptr l)
   data = del->data;                        /* the "data" that it pointed to */
 
   l->first = del->next;  /* make "first" point it the list-node's successor */
-
   if ( l->first == NULL )
     l->last = NULL;
 
