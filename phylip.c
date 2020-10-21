@@ -3391,7 +3391,7 @@ void unroot_r(tree* t, node* p, long nonodes)
 void release_all_forks(tree* t)
 {
   /* release all forks of a tree to the free_forknodes list.
-   * also set "back" pointers of tips to NULL */
+   * also set "back" pointers of tips to NULL, but don't release the tips */
   long j, nsibs;
   node *p, *q;
 
@@ -4550,7 +4550,7 @@ node* generic_tree_get_forknode(tree* t, long i)
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
   }
-  p->tip = (i < spp);
+  p->tip = (i <= spp);
   return p;
 } /* generic_tree_get_forknode */
 

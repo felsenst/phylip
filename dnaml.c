@@ -2137,7 +2137,7 @@ void maketree(void)
 
     nextsp = 3;
     polishing = false;
-    destruct_tree(curtree);
+    release_all_forks(curtree);
     buildsimpletree(curtree, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     smoothit = improve;

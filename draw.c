@@ -230,7 +230,7 @@ node* draw_node_new(node_type type, long index)
   node* n = Malloc(sizeof(draw_node));
   draw_node_init(n, type, index);
   return n;
-}
+} /* draw_node_new */
 
 
 void draw_node_init(node* n, node_type type, long index)
@@ -239,7 +239,7 @@ void draw_node_init(node* n, node_type type, long index)
   generic_node_init(n, type, index);
   n->init = draw_node_init;
   dn->theta = 0.0;
-}
+} /* draw_node_init */
 
 
 int pointinrect(double x, double y, double x0, double y0, double x1, double y1)
@@ -641,8 +641,6 @@ void initplotter (long ntips, char *fontname)
       }
     }
   }
-  //printf("in initploter ntips: %li plotter: %i\n", ntips, plotter);
-  //fflush(stdout);
 
   switch (plotter) {
 

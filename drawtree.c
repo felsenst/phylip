@@ -806,10 +806,6 @@ void getwidth(node *p)
   /* get width and depth beyond each node */
   double nw, nd;
   node *pp, *qq;
-  //seetree(p, nodep, nextnode); //JRMDebug
-  //dumpnodelinks(p, nodep, nextnode); //JRMDebug
-
-  //printf("  in getwidth p->type: %i nayme: %s index: %li\n", p->type, p->nayme, p->index); //JRMDebug
 
   nd = 0.0;
   if (p->tip)
@@ -827,7 +823,7 @@ void getwidth(node *p)
       pp = pp->next;
     } while (((p != curtree->root) && (pp != qq)) || ((p == curtree->root) && (pp != p->next)));
   }
-  ((drawtree_node*)p)->depth = nd + p->length;
+  ((drawtree_node*)p)->depth = nd + p->v;
   ((drawtree_node*)p)->width = nw;
 }  /* getwidth */
 
@@ -2077,15 +2073,12 @@ void calculate(void)
   for (i = 0; i < nextnode; i++)
     curtree->nodep[i]->ycoord = 0.0;
 
-  //printf("after nodep->ycoord\n"); //JRMDebug
-  //dumpnodelinks(root, nodep, nextnode); //JRMDebug
-
   if (!uselengths) {
     for (i = 0; i < nextnode; i++)
-      curtree->nodep[i]->length = 1.0;
+      curtree->nodep[i]->v = 1.0;
   } else {
     for (i = 0; i < nextnode; i++)
-      curtree->nodep[i]->length = fabs(curtree->nodep[i]->oldlen);
+      curtree->nodep[i]->v = fabs(curtree->nodep[i]->oldlen);
   }
 
   /* //JRMDebug
@@ -2613,17 +2606,17 @@ void drawtree(
   else
     doplot = false;
 
-    if (!haslengths) {
-        uselengths = false;
-    }
-    else {
-        if (usebranchlengths != 0) {
-            uselengths = true;
-        }
-        else {
-            uselengths = false;
-        }
-    }
+  if (!haslengths) {
+      uselengths = false;
+  }
+  else {
+      if (usebranchlengths != 0) {
+          uselengths = true;
+      }
+      else {
+          uselengths = false;
+      }
+  }
 
   if (regularizeangles != 0)
     regular = true;
