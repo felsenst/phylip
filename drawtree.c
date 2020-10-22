@@ -101,15 +101,13 @@ String res[]= {
         "*.drawing_area.right: ChainRight",
         "*.dialog.label: "
           "Drawtree unrooted tree plotting program\\n"
-  "PHYLIP version 4.0 (c) Copyright 1986-2013\\n"
-  "by The University of Washington.\\n"
-  "Written by Joseph Felsenstein and Christopher A. Meacham.\\n"
-  "Additional code written by Sean Lamont, Andrew Keefe, Hisashi Horino,\\n"
+  "PHYLIP version 4.0 (c) Copyright 1986-2020\\n"
+  "Written by Joseph Felsenstein, Christopher A. Meacham,\\n"
+  "Sean Lamont, Andrew Keefe, Hisashi Horino,\\n"
   "Akiko Fuseki, Doug Buxton and Michal Palczewski.\\n"
   "Permission is granted to copy, distribute and modify this program\\n"
   "provided that\\n"
-  "(1) This copyright message is not removed and\\n"
-  "(2) no fee i charged for this program.",
+  "(2) no fee is charged for this program.",
         NULL
 };
 #endif
@@ -166,13 +164,17 @@ void   makebox(char *, double *, double *, double *, long);
 /* function prototypes */
 #endif
 
+extern void initdrawtreenode(tree *, node **, long, long, long *,
+                      long *, initops, pointarray, Char *, Char *,
+                      FILE *);
+
 
 node* drawtree_node_new(node_type type, long index)
 {
   node* n = Malloc(sizeof(drawtree_node));
   drawtree_node_init(n, type, index);
   return n;
-}
+} /* drawtree_node_new */
 
 
 void drawtree_node_init(node *n, node_type type, long index)
@@ -182,7 +184,7 @@ void drawtree_node_init(node *n, node_type type, long index)
   draw_node_init(n, type, index);
   n->init = drawtree_node_init;
   dtn->r = 0;
-}
+} /* drawtree_node_init */
 
 
 void initialparms(void)

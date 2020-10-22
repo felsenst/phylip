@@ -111,8 +111,10 @@ void initdrawgramnode(tree * treep, node **p, long len,
                       pointarray treenode, Char *str, Char *ch,
                       FILE *intree)
 {
+  /* initialize a node for a tree for drawgram */
+
   initdrawnode(treep, p, len, nodei, ntips, parens, whichinit, treenode, str, ch, intree, negfix_ZERO);
-} // initdrawgramnode
+} /* initdrawgramnode */
 
 
 void initdrawtreenode(tree * treep, node **p, long len,
@@ -120,6 +122,8 @@ void initdrawtreenode(tree * treep, node **p, long len,
                       pointarray treenode, Char *str, Char *ch,
                       FILE *intree)
 {
+  /* initialize a node for a tree for drawtree */
+
   initdrawnode(treep, p, len, nodei, ntips, parens, whichinit, treenode, str, ch, intree, negfix_FABS);
 } // initdrawtreenode
 

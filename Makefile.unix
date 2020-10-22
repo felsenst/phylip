@@ -170,7 +170,8 @@ LDADD   = -lm
 # For gcc for Linux with X windows development packages installed
 #  or for MacOS X with X windows installed
 #  or for IBM pSeries with Linux:
-DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt
+DLIBS= -L/usr/X11R6/lib/ -lX11 -lXt
+# was: DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt   Athena widgets available? needed?
 #
 # For IBM Visualage compiler for AIX:
 #DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt -lXmu -lXext
@@ -355,6 +356,9 @@ pmatrix.o:    pmatrix.c pmatrix.h
 matrixd.o:    matrixd.c matrixd.h
 	$(CC) -c matrixd.c -shared -fPIC
 
+drawinit.o:   drawinit.c draw.c draw2.c draw.h
+	$(CC) -c drawinit.c -shared -fPIC
+
 #
 # Compile the individual programs.
 #
@@ -413,10 +417,10 @@ draw.o:       draw.c draw.h phylip.h
 draw2.o:      draw2.c draw.h phylip.h
 	$(DC) -c draw2.c -shared -fPIC
 
-drawgram.o:   drawinit.c drawgram.c draw.h phylip.h
+drawgram.o:   drawinit.c drawgram.c draw.h phylip.h Slist.h
 	$(DC) -c drawgram.c -shared -fPIC
 
-drawtree.o:   drawinit.c drawtree.c draw.h phylip.h
+drawtree.o:   drawinit.c drawtree.c draw.h phylip.h Slist.h
 	$(DC) -c drawtree.c -shared -fPIC
 
 factor.o:     factor.c phylip.h
@@ -531,10 +535,10 @@ dollop:       dollop.o disc.o dollo.o $(LIBS)
 dolpenny:     dolpenny.o disc.o dollo.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-drawgram:     drawgram.o draw.o draw2.o $(LIBS)
+drawgram:     drawgram.o draw.o draw2.o drawinit.o $(LIBS)
 	$(DC) $(DLIBS) $^ $(LDADD) -o $@
 
-drawtree:     drawtree.o draw.o draw2.o $(LIBS)
+drawtree:     drawtree.o draw.o draw2.o drawinit.o $(LIBS)
 	$(DC) $(DLIBS) $^ $(LDADD) -o $@
 
 factor:       factor.o disc.o $(LIBS)
@@ -627,10 +631,10 @@ libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
 libdolpenny.so:    dolpenny.o disc.o wagner.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libdolpenny.so -shared -fPIC dolpenny.c disc.c wagner.c phylip.c Slist.c
 
-libdrawgram.so:   drawgram.o draw.o draw2.o phylip.o draw.h phylip.h $(LIBS)
+libdrawgram.so:   drawgram.o draw.o draw2.o drawinit.o phylip.o draw.h phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libdrawgram.so -shared -fPIC drawgram.c draw.c draw2.c phylip.c Slist.c $(LIBS)
 
-libdrawtree.so:   drawtree.o draw.o draw2.o phylip.o phylip.h $(LIBS)
+libdrawtree.so:   drawtree.o draw.o draw2.o drawinit.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libdrawtree.so -shared -fPIC drawtree.c draw.c draw2.c phylip.c $(LIBS)
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
