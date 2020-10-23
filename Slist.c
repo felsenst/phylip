@@ -19,6 +19,10 @@
 #include <stdlib.h>
 #include "Slist.h"
 
+typedef struct _Slist_iter* Slist_iter_ptr;
+typedef Slist_data_ptr (*Slist_data_copy_t)(Slist_data_ptr);
+typedef void (*Slist_data_delete_t)(Slist_data_ptr *);
+
 #ifndef OLDC
 static Slist_node_ptr Slist_node_new_(Slist_data_ptr data);
 static Slist_node_ptr Slist_node_new(Slist_data_ptr data);

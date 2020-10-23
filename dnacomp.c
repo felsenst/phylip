@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2020
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -67,7 +66,7 @@ Char * progname;
 
 /* Local variables for maketree, propagated globally for C version: */
 long maxwhich;
-double like, maxsteps, bestyet, bestlike, bstlike2;
+double like, maxsteps, bestyet, bestlike, bstlike2, bestfound;
 boolean lastrearr, recompute;
 double nsteps[maxuser];
 long **fsteps;
@@ -818,10 +817,12 @@ void maketree(void)                     // RSGbugfix
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
       hookup(item, p);
-      curtree->addtraverse(curtree, item->back, curtree->root, true, there, &bestyet, bestree, thorough);
+      curtree->addtraverse(curtree, item->back, curtree->root, true, there,
+                        &bestyet, bestree, thorough, true, false, &bestfound);
       curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
-      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true, priortree, bestree);
+      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
+                       &bestyet,  bestree, priortree, (i == spp), &bestfound);
       if (progress)
       {
         writename(i - 1, 1, enterorder);
@@ -854,7 +855,8 @@ void maketree(void)                     // RSGbugfix
           bstlike2 = bestlike;
           nextree = 1;
         }
-        curtree->globrearrange(curtree, progress, thorough);
+        curtree->globrearrange(curtree, bestree, progress,
+                                 thorough, &bestfound);
       }
     }
     if (progress)
