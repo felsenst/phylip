@@ -1,6 +1,5 @@
-/* Version 4.0. (c) Copyright 2013 by the University of Washington.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0. (c) Copyright 2020.
+   */
 
 
 /* Slist.c
@@ -20,6 +19,27 @@
 #include <stdlib.h>
 #include "Slist.h"
 
+#ifndef OLDC
+static Slist_node_ptr Slist_node_new_(Slist_data_ptr data);
+static Slist_node_ptr Slist_node_new(Slist_data_ptr data);
+void Slist_node_delete(Slist_node_ptr ln);
+Slist_ptr Slist_new(void);
+void Slist_delete(Slist_ptr l);
+int _Slist_checklen(Slist_ptr l);
+int Slist_isempty(Slist_ptr l);
+void Slist_push(Slist_ptr l, Slist_data_ptr data);
+Slist_data_ptr Slist_pop(Slist_ptr l);
+void Slist_append(Slist_ptr l, Slist_data_ptr data);
+void Slist_delete_data(Slist_ptr l, Slist_data_delete_t delete_func);
+Slist_ptr Slist_new_fromarray(Slist_data_ptr obj[]);
+Slist_ptr Slist_copy(Slist_ptr l);
+Slist_ptr Slist_copy_deep(Slist_ptr l, Slist_data_copy_t copy_func);
+Slist_iter_ptr Slist_begin(Slist_ptr l);
+void * Si_next(Slist_iter_ptr iter);
+void nobj_delete(void **nobj_ptr);
+void *nobj_copy(void *nobj);
+int main(void);
+#endif
 
 /* Define this to include testing function main() */
 /* #define LIST_ADT_TEST */
@@ -41,7 +61,7 @@ static Slist_node_ptr Slist_node_new_(Slist_data_ptr data)
   node->next = NULL;                                   /* nothing after it */
 
   return node;
-} /* Slist_node_new_ */
+} /* Slist_node_new */
 
 
 static Slist_node_ptr Slist_node_new(Slist_data_ptr data)
@@ -84,6 +104,8 @@ void Slist_delete(Slist_ptr l)
 /* DEBUG function  */
 int _Slist_checklen(Slist_ptr l)
 {
+  /* check length of list for correctness */
+
   long i;
   Slist_node_ptr node;
 
@@ -96,7 +118,7 @@ int _Slist_checklen(Slist_ptr l)
   else
     printf("List %p->length is %ld, should be %ld!\n", (void *)l, l->length, i);
   return 0;
-}
+} /* _Slist_checklen */
 
 
 int Slist_isempty(Slist_ptr l)
@@ -151,6 +173,7 @@ Slist_data_ptr Slist_pop(Slist_ptr l)
 
 void Slist_append(Slist_ptr l, Slist_data_ptr data)
 {
+  /* append to end of list */
   Slist_node_ptr node;
 
   assert( data != NULL );
@@ -177,6 +200,7 @@ void Slist_append(Slist_ptr l, Slist_data_ptr data)
 
 void Slist_delete_data(Slist_ptr l, Slist_data_delete_t delete_func)
 {
+  /* delete a data item using a delete_func provided in call */
   Slist_data_ptr        obj;
 
   while ( !Slist_isempty(l) )
@@ -209,12 +233,15 @@ Slist_ptr Slist_new_fromarray(Slist_data_ptr obj[])
 
 Slist_ptr Slist_copy(Slist_ptr l)
 {
+  /* wrapper for copying */
+
   return Slist_copy_deep(l, NULL);
 } /* Slist_copy */
 
 
 Slist_ptr Slist_copy_deep(Slist_ptr l, Slist_data_copy_t copy_func)
 {
+  /* copying */
   Slist_ptr      dst;
   Slist_iter_ptr si;
   Slist_data_ptr data;
@@ -234,18 +261,19 @@ Slist_ptr Slist_copy_deep(Slist_ptr l, Slist_data_copy_t copy_func)
   Si_delete(&si);
 
   return dst;
-}
+} /* Slist_copy_deep */
 
 
 Slist_iter_ptr Slist_begin(Slist_ptr l)
 {
+  /* start a new list */
   Slist_iter_ptr iter;
 
   iter = (Slist_iter_ptr)malloc(sizeof(struct _Slist_iter));
   assert( iter != NULL );
   iter->next = l->first;
   return iter;
-}
+} /* Slist_begin */
 
 
 void Si_delete(Slist_iter_ptr *iter_ptr)
@@ -257,11 +285,12 @@ void Si_delete(Slist_iter_ptr *iter_ptr)
   assert( iter != NULL );
   free(iter);
   *iter_ptr = NULL;
-}
+} /* Si_delete */
 
 
 void * Si_next(Slist_iter_ptr iter)
 {
+  /* find next item in iteration on list */
   void * data;
 
   assert( iter != NULL );
@@ -272,7 +301,7 @@ void * Si_next(Slist_iter_ptr iter)
   iter->next = iter->next->next;
 
   return data;
-}
+} /* Si_next */
 
 
 /* Example object destructor */
@@ -283,7 +312,7 @@ void nobj_delete(void **nobj_ptr)
   assert( *nobj_ptr );
   free(*nobj_ptr);
   *nobj_ptr = NULL;
-}
+} /* nobj_delete */
 
 
 /* Example object copy constructor */
@@ -296,11 +325,12 @@ void *nobj_copy(void *nobj)
   *dst = *(int *)nobj;
 
   return (void *)dst;
-}
+} /* nobj_copy */
 
 
 int main(void)
 {
+  /* main program for running standalone to test */
   Slist          l, m;
   Slist_iter iter;
   int *data;

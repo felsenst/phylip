@@ -631,11 +631,11 @@ libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
 libdolpenny.so:    dolpenny.o disc.o wagner.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libdolpenny.so -shared -fPIC dolpenny.c disc.c wagner.c phylip.c Slist.c
 
-libdrawgram.so:   drawgram.o draw.o draw2.o drawinit.o phylip.o draw.h phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libdrawgram.so -shared -fPIC drawgram.c draw.c draw2.c phylip.c Slist.c $(LIBS)
+libdrawgram.so:   drawgram.o draw.o draw2.o drawinit.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdrawgram.so -shared -fPIC drawgram.c draw.c draw2.c phylip.c Slist.c
 
-libdrawtree.so:   drawtree.o draw.o draw2.o drawinit.o phylip.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libdrawtree.so -shared -fPIC drawtree.c draw.c draw2.c phylip.c $(LIBS)
+libdrawtree.so:   drawtree.o draw.o draw2.o drawinit.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdrawtree.so -shared -fPIC drawtree.c draw.c draw2.c drawinit.c phylip.c
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c

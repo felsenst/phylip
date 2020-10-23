@@ -190,8 +190,6 @@ void drawtree_node_init(node *n, node_type type, long index)
 void initialparms(void)
 {
   /* initialize parameters */
-  //printf("in initialparms\n");
-  //   fflush(stdout);
   paperx = 20.6375;
   pagex  = 20.6375;
   papery = 26.9875;
@@ -212,6 +210,7 @@ void initialparms(void)
   labelrotation = 0.0;
   charht = 0.3333;
   preview = true;
+  previewer = xpreview;
   hpmargin = 0.02*pagex;
   vpmargin = 0.02*pagey;
   labelavoid = false;

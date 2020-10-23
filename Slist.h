@@ -1,6 +1,5 @@
-/* Version 4.0. (c) Copyright 2012 by the University of Washington.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0. (c) Copyright 2020.
+   */
 
 
 /* Slist.h
@@ -69,9 +68,9 @@ struct _Slist_iter {
   Slist_node_ptr    next;
 };
 
-typedef struct _Slist_iter * Slist_iter_ptr;
-typedef void (*Slist_data_delete_t)(Slist_data_ptr *);
+typedef struct _Slist_iter* Slist_iter_ptr;
 typedef Slist_data_ptr (*Slist_data_copy_t)(Slist_data_ptr);
+typedef void (*Slist_data_delete_t)(Slist_data_ptr *);
 
 /* Create a new list from an array of Data objects. Array must be terminated
  * with a null pointer. */
@@ -102,4 +101,4 @@ static __inline__ int Si_atend(const Slist_iter_ptr iter)
 /* SLIST_H */
 
 
-// End.
+/* End. */
