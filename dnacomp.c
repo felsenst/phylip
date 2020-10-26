@@ -79,17 +79,22 @@ node *temp, *temp1;
 
 tree* dnacomp_tree_new(long nonodes, long spp)
 {
-  tree* t = Malloc(sizeof(dnacomp_tree));
+  /* allocate tree by calling dnapars_tree_new,
+   * also call init function */
+/* debug: can we use generic?  tree* t = Malloc(sizeof(dnacomp_tree)); */
+  tree* t = dnapars_tree_new(nonodes, spp);
   dnacomp_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnacomp_tree_new */
 
 
 void dnacomp_tree_init(tree* t, long nonodes, long spp)
 {
+  /* call dnapars_tree_init to initialize tree, set function evaluate */
+
   dnapars_tree_init(t, nonodes, spp);
   t->evaluate = dnacomp_tree_evaluate;
-}
+} /* dnacomp_tree_init */
 
 
 void getoptions(void)
