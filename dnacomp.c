@@ -823,7 +823,7 @@ void maketree(void)                     // RSGbugfix
       p = curtree->get_fork(curtree, k);
       hookup(item, p);
       curtree->addtraverse(curtree, item->back, curtree->root, true, there,
-                        &bestyet, bestree, thorough, true, false, &bestfound);
+                  &bestyet, bestree, thorough, (i == spp), false, &bestfound);
       curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
       curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
@@ -869,8 +869,7 @@ void maketree(void)                     // RSGbugfix
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
-    for (i = spp - 1; i >= 1; i--)
-      curtree->re_move(curtree, curtree->nodep[i], &dummy, recompute);
+    destruct_tree(curtree);
     if (jumb == njumble)
     {
       if (treeprint)
