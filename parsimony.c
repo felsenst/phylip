@@ -137,7 +137,9 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       found = false;
       if (nextree == 0) {
         *bestfound = like;
+printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
       }
       *bestyet = like;
       succeeded = true;
@@ -148,16 +150,18 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
         findtree(&found, &pos, nextree, place, bestrees);
         succeeded = true;
         if (!found) {                  /* if found same tree, do not add it */
+printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet, *bestfound);  /* debug */
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added another tied tree to bestrees, now %ld of them\n", nextree-1);
+printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
         }
       } else {
         if (like > *bestfound) {       /* replacing all or adding one more? */
           *bestfound = like;
           pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
-          addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
+          addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+printf("Added new best tree to bestrees, now %ld of them\n", nextree);
           succeeded = true;
           *bestyet = like;
         }
