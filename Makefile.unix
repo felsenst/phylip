@@ -212,7 +212,7 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist drawgram drawtree
 
-DYLIBS = libclique.so libconsense.so libcontml.so libdnadist.so libdnainvar.so libdnaml.so libdnapars.so libdnapenny.so libdolpenny.so libdrawgram.so libdrawtree.so libfactor.so libgendist.so libneighbor.so libpenny.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
+DYLIBS = libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so libdnaml.so libdnapars.so libdnapenny.so libdolpenny.so libdrawgram.so libdrawtree.so libfactor.so libgendist.so libneighbor.so libpenny.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
 
 #
 # General commands.
@@ -612,6 +612,9 @@ libconsense.so:	consense.o cons.o phylip.o Slist.o phylip.h $(LIBS)
 
 libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h $(LIBS)
 	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c Slist.c
+
+libdnacomp.so: dnacomp.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libdnacomp.so -shared -fPIC dnacomp.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
 
 libdnadist.so:	dnadist.o pmatrix.o seq.o phylip.o phylip.h seq.h  $(LIBS)
 	$(CC) $(CFLAGS) -o libdnadist.so -shared -fPIC dnadist.c seq.c phylip.c pmatrix.c matrixd.c Slist.c
