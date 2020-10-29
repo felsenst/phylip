@@ -855,11 +855,6 @@ void maketree(void)                     // RSGbugfix
           phyFillScreenColor();
         }
         bestlike = bestyet;
-        if (jumb == 1)
-        {
-          bstlike2 = bestlike;
-          nextree = 1;
-        }
         curtree->globrearrange(curtree, bestree, progress,
                                  thorough, &bestfound);
       }
@@ -869,7 +864,7 @@ void maketree(void)                     // RSGbugfix
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
-    destruct_tree(curtree);
+    release_all_forks(curtree);
     if (jumb == njumble)
     {
       if (treeprint)
@@ -889,7 +884,7 @@ void maketree(void)                     // RSGbugfix
       if (treeprint)
         putc('\n', outfile);
       recompute = false;
-      for (i = 0; i <= (nextree - 2); i++)
+      for (i = 0; i <= (nextree - 1); i++)
       {
         load_tree(curtree, i, bestrees);
         curtree->evaluate(curtree, curtree->root, 0);
@@ -1021,7 +1016,7 @@ void dnacomprun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* dnacomprun */
 
 
 void dnacomp(
@@ -1297,7 +1292,7 @@ void dnacomp(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnacomp */
 
 
 int main(int argc, Char *argv[])
@@ -1349,7 +1344,8 @@ int main(int argc, Char *argv[])
 
   FClose(infile);
   FClose(outfile);
-  FClose(outtree);
+  if (trout)
+    FClose(outtree);
 
 #ifdef MAC
   fixmacfile(outfilename);
