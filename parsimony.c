@@ -1134,7 +1134,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                      qwhere, &bestyet, bestree, true, true, false, bestfound);
           sib_ptr2 = sib_ptr2->next;
         }
-        curtree->insert_(curtree, removed, where, mulf);
+        curtree->insert_(curtree, removed, qwhere, false);
         curtree->root = curtree->nodep[0]->back;
 /* debug:        bestyet = curtree->evaluate(curtree, curtree->root, 0); */
       }

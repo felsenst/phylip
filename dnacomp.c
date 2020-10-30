@@ -777,7 +777,7 @@ void standev3(long chars, long numtrees, long maxwhich, double maxsteps, double 
 }  /* standev2 */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
@@ -785,9 +785,6 @@ void maketree(void)                     // RSGbugfix
   long i, j, k, numtrees, nextnode;
   boolean firsttree, goteof, haslengths, thorough = true;
   node *item, *dummy;
-#if 0                                   // RSGbugfix
-  pointarray nodep;
-#endif
   boolean *names;
   boolean multif;
 
@@ -828,37 +825,35 @@ void maketree(void)                     // RSGbugfix
       like = bestyet;
       curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
                        &bestyet, bestree, priortree, (i == spp), &bestfound);
+
       if (progress)
       {
         writename(i - 1, 1, enterorder);
         phyFillScreenColor();
       }
-      lastrearr = (i == spp);
-      if (lastrearr)
-      {
-        if (progress)
-        {
-          sprintf(progbuf, "\nDoing global rearrangements\n");
-          print_progress(progbuf);
-          sprintf(progbuf, "  !");
-          print_progress(progbuf);
-          for (j = 1; j <= nonodes; j++)
-          {
-            if ( j % (( nonodes / 72 ) + 1 ) == 0 )
-            {
-              sprintf(progbuf, "-");
-              print_progress(progbuf);
-            }
-          }
-          sprintf(progbuf, "!\n");
-          print_progress(progbuf);
-          phyFillScreenColor();
-        }
-        bestlike = bestyet;
-        curtree->globrearrange(curtree, bestree, progress,
-                                 thorough, &bestfound);
-      }
     }
+    if (progress)
+    {
+      sprintf(progbuf, "\nDoing global rearrangements\n");
+      print_progress(progbuf);
+      sprintf(progbuf, "  !");
+      print_progress(progbuf);
+      for (j = 1; j <= nonodes; j++)
+      {
+        if ( j % (( nonodes / 72 ) + 1 ) == 0 )
+        {
+          sprintf(progbuf, "-");
+          print_progress(progbuf);
+        }
+      }
+      sprintf(progbuf, "!\n");
+      print_progress(progbuf);
+      phyFillScreenColor();
+    }
+    bestlike = bestyet;
+    curtree->copy(bestree, curtree);
+    curtree->root = curtree->nodep[0]->back;
+    curtree->globrearrange(curtree, bestree, progress, thorough, &bestfound);
     if (progress)
     {
       sprintf(progbuf, "\n");
