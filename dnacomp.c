@@ -809,9 +809,9 @@ void maketree(void)                     // RSGbugfix
       writename(0, 3, enterorder);
       phyFillScreenColor();
     }
-    in_tree[0] = true;
-    in_tree[1] = true;
-    in_tree[2] = true;
+    in_tree[enterorder[0] - 1] = true;
+    in_tree[enterorder[1] - 1] = true;
+    in_tree[enterorder[2] - 1] = true;
     lastrearr = false;
     for (i = 4; i <= spp; i++)
     {
@@ -827,7 +827,7 @@ void maketree(void)                     // RSGbugfix
       curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
       curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
-                       &bestyet,  bestree, priortree, (i == spp), &bestfound);
+                       &bestyet, bestree, priortree, (i == spp), &bestfound);
       if (progress)
       {
         writename(i - 1, 1, enterorder);

@@ -748,7 +748,6 @@ void dnaparsrun(void)
       firstset = false;
     for (jumb = 1; jumb <= njumble; jumb++)
     {
-      //printf("calling maketree\n"); // JRMdebug
       maketree();
     }
     if (!justwts)
