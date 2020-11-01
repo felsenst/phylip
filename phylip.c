@@ -59,7 +59,8 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
     ret = dst->nodep[nsrc->index - 1];
     while ( p != nsrc ) {
       p = p->next;
-      ret = ret->next;
+      if (ret != NULL)
+        ret = ret->next;
     }
   }
   return ret;
@@ -80,7 +81,7 @@ void generic_tree_copy(tree* src, tree* dst)
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
-    while ( dst_sibs > src_sibs) {        /* remove and releast extra nodes */
+    while ( dst_sibs > src_sibs) {        /* remove and release extra nodes */
       p = dst->nodep[i]->next;
       dst->nodep[i]->next = dst->nodep[i]->next->next;
       dst->release_forknode(dst, p);    /* they go onto free_forknodes list */
