@@ -71,7 +71,7 @@ void generic_tree_copy(tree* src, tree* dst)
 { /* copies tree src to tree dst*/
   long i, j, num_sibs, src_sibs, dst_sibs,  maxcircles;
   boolean doingacircle;
-  node *p, *q;
+  node *p, *q, *r;
 
   /* reduce or increase interior node fork circle sizes in destination tree */
   maxcircles = src->nonodes;
@@ -82,10 +82,21 @@ void generic_tree_copy(tree* src, tree* dst)
     src_sibs = count_sibs(src->nodep[i]);
     dst_sibs = count_sibs(dst->nodep[i]);
     while ( dst_sibs > src_sibs) {        /* remove and release extra nodes */
-      p = dst->nodep[i]->next;
-      dst->nodep[i]->next = dst->nodep[i]->next->next;
-      dst->release_forknode(dst, p);    /* they go onto free_forknodes list */
-      dst_sibs--;
+      p = dst->nodep[i];    
+      q = p;
+      r = p;
+      if (q != NULL) {
+        while (q->next != p) {                /* until one points to  p ... */
+          q = q->next;                             /* ... move along circle */
+          if (r->next != q)
+            r = r->next;                    /* r  is one that points to  q  */
+        }
+        r->next = q->next;                  /* circle no longer includes  q */
+        dst->release_forknode(dst, q);  /* it goes onto free_forknodes list */
+        if (p == NULL)                       /* and if its down to zero ,,, */
+          dst->nodep[i] = NULL;          /* ... make nodep point to nothing */
+        dst_sibs--;
+        }
       }
     }
   for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
