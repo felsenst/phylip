@@ -56,11 +56,13 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
   if ( nsrc ) {
     p = src->nodep[nsrc->index - 1];
-    ret = dst->nodep[nsrc->index - 1];
-    while ( p != nsrc ) {
-      p = p->next;
-      if (ret != NULL)
-        ret = ret->next;
+    if (p != NULL) {
+      ret = dst->nodep[nsrc->index - 1];
+      while ( p != nsrc ) {
+        p = p->next;
+        if (ret != NULL)
+          ret = ret->next;
+      }
     }
   }
   return ret;
@@ -93,8 +95,12 @@ void generic_tree_copy(tree* src, tree* dst)
       while (q->next != p) {
         q = q->next;                               /* ... move along circle */
         }
-      dst->nodep[i] = p->next;                     /* cut  p  out of circle */
-      q->next = p->next;
+      if (p->next != p) {
+        dst->nodep[i] = p->next;                     /* cut  p  out of circle */
+        q->next = p->next;
+        }
+      else
+        dst->nodep[i] = NULL;
       dst->release_forknode(dst, p);    /* it goes onto free_forknodes list */
       dst_num--;
       }
@@ -5077,11 +5083,11 @@ void seetree(tree * t)
 
           qq = qq->next;
           n++;
-          if ((qq != pp) && (n < 6))
+          if ((qq != pp) && (n < 4))
           {
             printf(",");
           }
-        } while ((qq != pp) && (qq->index == pp->index) && (n < 10) && !malformed);
+        } while ((n < 4) && !malformed);
 
         printf("\n");
       }
