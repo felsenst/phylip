@@ -771,6 +771,8 @@ void freerest(void)
 
 void parsrun(void)
 {
+  /* run parsimony inference */
+
   // debug printout // JRMdebug
   /*
     printf("jumble: %i\n", jumble);
@@ -814,7 +816,7 @@ void parsrun(void)
     fflush(outtree);
     freerest();
   }
-}
+} /* parsrun */
 
 
 void pars(
@@ -848,6 +850,8 @@ void pars(
   int PrintSeq,
   int WriteTree)
 {
+  /* function that uses data sent from Java interface */
+
   initdata *funcs;
   //printf("Hello from Pars!\n"); // JRMdebug
   //fflush(stdout);
@@ -1145,7 +1149,7 @@ void pars(
     FClose(outtree);
   }
   //printf("\ndone\n"); // JRMdebug
-}
+} /* pars */
 
 
 int main(int argc, Char *argv[])

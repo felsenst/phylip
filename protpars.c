@@ -1,7 +1,6 @@
 /* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
-   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe.
+   and Jim McGill.  */
 
 
 #ifdef DEBUG
@@ -150,32 +149,40 @@ boolean *names;
 
 tree* protpars_tree_new(long nonodes, long spp)
 {
+  /* appropriate initialization for a tree */
   tree* t = Malloc(sizeof(protpars_tree));
+
   protpars_tree_init(t, nonodes, spp);
 
   return t;
-}
+} /* protpars_tree_new */
 
 
 void protpars_tree_init(tree *t, long nonodes, long spp)
 {
+  /* intialization of variables, functions for a new tree */
+
   pars_tree_init((tree*)t, nonodes, spp);
   t->nuview = protpars_tree_nuview;
   t->evaluate = protpars_tree_evaluate;
-}
+} /* protpars_tree_init */
 
 
 node* protpars_node_new(node_type type, long index) // RSGbugfix
 {
+  /* making a new tree node */
   node* n = Malloc(sizeof(protpars_node));
+
   protpars_node_init(n, type, index);
   return n;
-}
+} /* protpars_node_new */
 
 
 void protpars_node_init(node* node, node_type type, long index)
 {
+  /* initialization of a new protpars tree node */
   protpars_node *n = (protpars_node *)node;
+
   pars_node_init(node, type, index);
   node->init = protpars_node_init;
   if ( n != NULL && n->seq != NULL )
@@ -184,7 +191,7 @@ void protpars_node_init(node* node, node_type type, long index)
   if ( n->siteset)
     free(n->siteset);
   n->siteset = (seqptr)Malloc(chars * sizeof(sitearray));
-}
+} /* protpars_node_init */
 
 
 void protgnu(gseq **p)
@@ -642,7 +649,7 @@ void reallocchars(void)
   weight = (steptr)Malloc(chars * sizeof(long));
   oldweight = (steptr)Malloc(chars * sizeof(long));
   threshwt = (double*)Malloc(chars * sizeof(double));
-}
+} /* reallocchars */
 
 
 void allocrest(void)
@@ -675,18 +682,16 @@ void doinit(void)
   /* initializes variables */
   fprintf(outfile, "\nProtein parsimony algorithm, version %s\n\n", VERSION);
 
-  inputnumbers(&spp, &chars, &nonodes, 1);
-  endsite = chars;
-
   if (!javarun)
   {
     getoptions();
   }
 
+  inputnumbers(&spp, &chars, &nonodes, 1);
+  endsite = chars;
+
   if (printdata)
     fprintf(outfile, "%2ld species, %3ld  sites\n\n", spp, chars);
-
-  curtree = (tree*)protpars_tree_new(nonodes, spp);
 
   allocrest();
 }  /* doinit*/
@@ -699,9 +704,7 @@ void protinputdata(void)
   Char charstate;
   boolean allread, done;
 
-  // RSGnote: "aa" may be referenced before being assigned in original version.
-  // It is initialized here merely to silence a compiler warning (in case this will never happen).
-  aas aa = ala;   /* temporary amino acid for input */
+  aas aa = ala;  /* Mostly to avoid warning. temporary amino acid for input */
 
   if (printdata)
     headings(chars, "Sequences", "---------");
@@ -775,7 +778,8 @@ void protinputdata(void)
 
           // RSGnote: Variable "aa" may be referenced before being initialized here.
           ((protpars_node*)curtree->nodep[i - 1])->seq[j - 1] = aa;
-          memcpy(((protpars_node*)curtree->nodep[i - 1])->siteset[j - 1], translate[(long)aa - (long)ala], sizeof(sitearray));
+          memcpy(((protpars_node*)curtree->nodep[i - 1])->siteset[j - 1],
+                          translate[(long)aa - (long)ala], sizeof(sitearray));
         }
         if (interleaved)
           continue;
@@ -817,7 +821,8 @@ void protinputdata(void)
           l = chars;
         for (k = (i - 1) * 60 + 1; k <= l; k++)
         {
-          if (j > 1 && ((protpars_node*)curtree->nodep[j - 1])->seq[k - 1] == ((protpars_node*)curtree->nodep[0])->seq[k - 1])
+          if (j > 1 && ((protpars_node*)curtree->nodep[j - 1])->seq[k - 1]
+                        == ((protpars_node*)curtree->nodep[0])->seq[k - 1])
             charstate = '.';
           else
           {
@@ -902,13 +907,17 @@ void prot_makevalues(tree* t, boolean usertree)
 
 void doinput(void)
 {
-  /* reads the input data */
+  /* reads the input data, sets up sets at tips */
   long i;
+
+  curtree = (tree*)protpars_tree_new(nonodes, spp);
+  bestree = (tree*)protpars_tree_new(nonodes, spp);
+  priortree = (tree*)protpars_tree_new(nonodes, spp);
+  if (firstset)
+    protinputdata();
 
   if (justwts)
   {
-    if (firstset)
-      protinputdata();
     for (i = 0; i < chars; i++)
       weight[i] = 1;
     inputweights(chars, weight, &weights);
@@ -939,7 +948,6 @@ void doinput(void)
     }
     if (weights)
       printweights(outfile, 0, chars, weight, "Sites");
-    protinputdata();
   }
   if(!thresh)
     threshold = spp * 3.0;
@@ -947,14 +955,17 @@ void doinput(void)
   {
     threshwt[i] = (threshold * weight[i]);
   }
+
   prot_makevalues(curtree, usertree);
 }  /* doinput */
 
 
 double protpars_tree_evaluate(tree* t, node* p, boolean dummy)
 {
+  /* version of evaluate appropriate for protein parsimony */
   protpars_node *q = (protpars_node*)p->back;
   protpars_node *r = (protpars_node*)p;
+
   long m, sum = 0;
   sitearray base;
 
@@ -981,14 +992,16 @@ double protpars_tree_evaluate(tree* t, node* p, boolean dummy)
   t->score = -sum;
   TEST3('a');
   return -sum;
-}
+} /* protpars_tree_evaluate */
 
 
 void protpars_tree_nuview(tree* t, node* p)
 {
+  /* do nuview appropriate for protein sequences */
+
   generic_tree_nuview(t, p);
   protfillin(p, p->next->back, p->next->next->back);
-}
+} /* protpars_tree_nuview */
 
 
 void protfillin(node *p, node *left, node *rt)
@@ -1762,9 +1775,9 @@ void protparsrun(void)
     fflush(stdout);
   */
   for (ith = 1; ith <= msets; ith++) {
-    doinput();
-    if (ith == 1)
+    if (ith > 1)
       firstset = false;
+    doinput();
     if (msets > 1 && !justwts) {
       fprintf(outfile, "Data set # %ld:\n\n", ith);
       if (progress)
