@@ -136,7 +136,7 @@ gseq *garbage;
 /* Char ch; */
 aas tmpa;
 char *progname;
-tree* curtree;
+tree *curtree, *bestree, *priortree;
 
 /* Local variables for maketree, propagated globally for C version: */
 long minwhich;
@@ -1618,12 +1618,13 @@ void maketree(void)                     // RSGbugfix
      then rearranges the tree for greatest "likelihood" */
   long i, j, numtrees;
   boolean done; /* tst */
+  double bestfound;
 
   if (!usertree)
   {
-    lastrearr=false;    /* tst */
-    hsbut(curtree, bestree, priortree, false, jumble, seed, progress);
-    TESTING('1');        /* testing      */
+    lastrearr=false;
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed, progress,
+           &bestfound);     /* sequential addition and local rearrangements */
     if (progress)
     {
       sprintf(progbuf, "\nDoing global rearrangements");
@@ -1656,7 +1657,7 @@ void maketree(void)                     // RSGbugfix
     (void)done;                         // RSGnote: Variable set but never used.
 
     lastrearr = true;
-    grandrearr(curtree, bestree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
 
     if (progress)
     {
@@ -1777,7 +1778,7 @@ void protparsrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* protparsrun */
 
 
 void protpars(
@@ -2096,7 +2097,7 @@ void protpars(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* protpars */
 
 
 int main(int argc, Char *argv[])
