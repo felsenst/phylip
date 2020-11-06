@@ -97,12 +97,12 @@ void   describe(void);
 void   maketree(void);
 void   reallocnode(node* p);
 void   reallocchars(void);
-node * protpars_node_new(node_type type, long index);
-tree * protpars_tree_new(long nonodes, long spp);
-void   protpars_node_init(node* n, node_type type, long index);
-void   protpars_tree_init(tree *t, long nonodes, long spp);
+node * protpars_node_new(node_type, long);
+tree * protpars_tree_new(long, long);
+void   protpars_node_init(node*, node_type, long);
+void   protpars_tree_init(tree*, long, long);
 void   protpars_tree_nuview(tree* t, node* p);
-double protpars_tree_evaluate(tree* t, node* p, boolean );
+double protpars_tree_evaluate(tree*, node*, boolean);
 void protparsrun(void);
 void protpars(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * weightsfilename,
               char * outtreename, char * outtreeopt, int searchbest, int treesave, int inputorder, int RandNum,
@@ -152,6 +152,7 @@ tree* protpars_tree_new(long nonodes, long spp)
   /* appropriate initialization for a tree */
   tree* t = Malloc(sizeof(protpars_tree));
 
+  generic_tree_init(t, nonodes, spp);
   protpars_tree_init(t, nonodes, spp);
 
   return t;
@@ -681,14 +682,12 @@ void doinit(void)
 {
   /* initializes variables */
   fprintf(outfile, "\nProtein parsimony algorithm, version %s\n\n", VERSION);
-
+  inputnumbers(&spp, &chars, &nonodes, 1);
+  endsite = chars;
   if (!javarun)
   {
     getoptions();
   }
-
-  inputnumbers(&spp, &chars, &nonodes, 1);
-  endsite = chars;
 
   if (printdata)
     fprintf(outfile, "%2ld species, %3ld  sites\n\n", spp, chars);
@@ -876,19 +875,18 @@ void prot_makevalues(tree* t, boolean usertree)
   long i, j;
   node *p;
 
-  (void)usertree;                       // RSGnote: Parameter never used.
-
 #ifdef DEBUG
   fprintf(outfile, "protpars:protmakevalues\n");   /* debug */
 #endif
-  for (i = 1; i <= nonodes; i++)
+  for (i = 1; i <= spp; i++)
   {
     ((node*)t->nodep[i - 1])->back = NULL;
     ((node*)t->nodep[i - 1])->tip = (i <= spp);
     ((node*)t->nodep[i - 1])->index = i;
     for (j = 0; j < chars; j++)
       ((pars_node*)t->nodep[i - 1])->numsteps[j] = 0;
-    if (i > spp)
+#if 0
+    if (i > spp)             /* may be no such nodes on tree */
     {
       p = ((node*)t->nodep[i - 1])->next;
       while (p != ((node*)t->nodep[i - 1]))
@@ -901,6 +899,7 @@ void prot_makevalues(tree* t, boolean usertree)
         p = p->next;
       }
     }
+#endif
   }
 }  /* prot_makevalues */
 
@@ -999,7 +998,9 @@ void protpars_tree_nuview(tree* t, node* p)
 {
   /* do nuview appropriate for protein sequences */
 
+/* debug:  I think this next one gets into circular calls 
   generic_tree_nuview(t, p);
+debug */
   protfillin(p, p->next->back, p->next->next->back);
 } /* protpars_tree_nuview */
 
@@ -1241,7 +1242,7 @@ void prottreeread(void)
   long nextnode, lparens, i;
   char ch;
 
-  curtree->root = curtree->nodep[spp];
+  curtree->root = curtree->nodep[0];
   nextnode = spp;
   curtree->root->back = NULL;
   names = (boolean *)Malloc(spp * sizeof(boolean));
@@ -1627,7 +1628,7 @@ void describe(void)
 void maketree(void)                     // RSGbugfix
 {
   /* constructs a binary tree from the pointers in curtree->nodep.
-     adds each node at location which yields highest "likelihood"
+     add1 each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, numtrees;
   boolean done; /* tst */
@@ -1698,7 +1699,7 @@ void maketree(void)                     // RSGbugfix
       if (treeprint)
         putc('\n', outfile);
       recompute = false;
-      for (i = 0; i <= (nextree - 2); i++)
+      for (i = 0; i <= (nextree - 1); i++)
       {
         load_tree(curtree, i, bestrees);
         curtree->evaluate(curtree, curtree->root, 0);
