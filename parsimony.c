@@ -1546,9 +1546,6 @@ void initparsnode(tree *treep, node **p, long len, long nodei, long *ntips, long
   boolean minusread;
   double valyew, divisor;
 
-  (void)len;                            // RSGnote: Parameter never used.
-  (void)ntips;                          // RSGnote: Parameter never used.
-
   switch (whichinit)
   {
     case bottom:

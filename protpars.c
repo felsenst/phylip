@@ -1264,8 +1264,7 @@ void prottreeread(void)
     print_progress(progbuf);
   }
   scan_eoln(intree);
-/********  gettc(intree);
-  what was this here for?  ***/
+/* debug:  gettc(intree);    what was this here for?  ***/
   free(names);
 }  /* prottreeread */
 
@@ -1631,7 +1630,7 @@ void maketree(void)                     // RSGbugfix
      add1 each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, numtrees;
-  boolean done; /* tst */
+  boolean done, goteof;
   double bestfound;
 
   if (!usertree)
@@ -1726,7 +1725,10 @@ void maketree(void)                     // RSGbugfix
     which = 1;
     while (which <= numtrees)
     {
-      prottreeread();
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &firsttree, &nextnode, &haslengths, initparsnode, false,
+                nonodes);
+/* debug:     prottreeread();  */
       if (outgropt)
         protreroot(curtree->nodep[outgrno - 1]);
       curtree->evaluate(curtree, curtree->root, 0);

@@ -2938,7 +2938,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
     /* do what needs to be done at bottom */
     (*initnode)(treep, p, len, nodei, ntips, parens,
                  bottom, nodep, str, ch, treefile);
-    pfirst      = (*p);
+    pfirst = (*p);
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
       furcs++;
