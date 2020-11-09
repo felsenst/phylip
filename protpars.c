@@ -118,12 +118,11 @@ long chars, col, msets, ith, njumble;
 extern long maxtrees;
 extern long nextree;
 long inseed, inseed0, minwhich;
-boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst = true;
-double bestfound;
+boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst;
 codetype whichcode;
 steptr oldweight; /* to make writesteps happy */
 long fullset, fulldel;
-double threshold;
+double threshold, bestfound;
 double *threshwt;
 longer seed;
 long *enterorder;
@@ -387,6 +386,7 @@ void getoptions(void)
   thresh = false;
   trout = true;
   usertree = false;
+  rearrfirst = false;
   weights = false;
   whichcode = universal;
   printdata = false;

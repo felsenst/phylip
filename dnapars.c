@@ -45,7 +45,7 @@ long jumb = 0, nonodes = 0;
 long spp, chars, col, msets, ith, njumble;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
-double threshold;
+double threshold, bestfound;
 boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress,
          stepbox, ancseq, mulsets, justwts, firstset, multf;
 extern boolean usertree;
@@ -478,7 +478,6 @@ void maketree(void)
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode, oldnextree;
   boolean firsttree, goteof, haslengths;
-  double bestfound;   /* debug: shouldn't this be defined globally? */
 
   long numtrees = 0;
 

@@ -44,9 +44,9 @@ void   maketree(void);
 void   reallocchars(void);
 tree*  dnapenny_tree_new(long nonodes, long spp);
 void   dnapenny_tree_init(tree* t, long nonodes, long spp);
-boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where,
-                                   double *bestyet, tree* dummy, tree* dummy2,
-                                   boolean dummy3, boolean*multf);
+boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node* where,
+                                   double *bestyet, tree* dummy, boolean,
+                                   boolean, boolean, double*);
 long calculate_supplement(long i);
 void nodeshellsort(double *a, node **b, long n);
 void dnapennyrun(void);
@@ -582,18 +582,12 @@ long calculate_supplement(long i)
 }  /* supplement */
 
 
-boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, double *bestyet, tree* dummy, tree* dummy2, boolean dummy3, boolean* multf)
+boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node* where, double *bestyet, tree* dummy, boolean thorough, boolean dummy3, boolean multf, double* bestfound)
 {
   node* qwhere;
   double like;
   boolean root = false;
   long i;
-
-  (void)where;                          // RSGnote: Parameter never used.
-  (void)dummy;                          // RSGnote: Parameter never used.
-  (void)dummy2;                         // RSGnote: Parameter never used.
-  (void)dummy3;                         // RSGnote: Parameter never used.
-  (void)multf;                          // RSGnote: Parameter never used.
 
   if (done)
     return true;
@@ -654,7 +648,7 @@ boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, do
     ((dnapenny_tree*)t)->place[(((dnapenny_tree*)t)->n) - 1] = p;
   }
   return true;
-}
+} /* dnapenny_tree_try_insert */
 
 
 void addit(long m)
@@ -683,7 +677,7 @@ void addit(long m)
     dcurtree->place = place;
     dcurtree->n = n;
     curtree->addtraverse(curtree, curtree->nodep[order[m - 1] - 1],
-                          curtree->root, true, &bestyet, NULL, true, multf);
+     curtree->root, qwhere, true, &bestyet, bestree, true, multf, &bestfound);
     n = dcurtree->n;
     besttoadd = order[m - 1];
     memcpy(bestplace, place, nonodes * sizeof(long));
