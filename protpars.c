@@ -41,7 +41,6 @@
 #include "seq.h"
 #include "parsimony.h"
 
-extern long nextree;
 
 typedef enum {
   universal, ciliate, mito, vertmito, flymito, yeastmito
@@ -117,7 +116,8 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreen
 long chars, col, msets, ith, njumble;
 /*   chars = number of sites in actual sequences */
 extern long maxtrees;
-long inseed, inseed0;
+extern long nextree;
+long inseed, inseed0, minwhich;
 boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst = true;
 codetype whichcode;
 steptr oldweight; /* to make writesteps happy */
@@ -138,7 +138,6 @@ char *progname;
 tree *curtree, *bestree, *priortree;
 
 /* Local variables for maketree, propagated globally for C version: */
-long minwhich;
 double like, bestyet, bestlike, minsteps, bstlike2;
 boolean lastrearr, recompute;
 node *there;
@@ -990,6 +989,20 @@ double protpars_tree_evaluate(tree* t, node* p, boolean dummy)
   }
   t->score = -sum;
   TEST3('a');
+  if (usertree && which <= maxuser)
+  {
+    nsteps[which - 1] = sum;
+    if (which == 1)
+    {
+      minwhich = 1;
+      minsteps = sum;
+    }
+    else if (sum < minsteps)
+    {
+      minwhich = which;
+      minsteps = sum;
+    }
+  }
   return -sum;
 } /* protpars_tree_evaluate */
 
@@ -1629,9 +1642,10 @@ void maketree(void)                     // RSGbugfix
   /* constructs a binary tree from the pointers in curtree->nodep.
      add1 each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, numtrees;
-  boolean done, goteof;
+  long i, j, numtrees, nextnode;
+  boolean firsttree, done, goteof, haslengths;
   double bestfound;
+
 
   if (!usertree)
   {
