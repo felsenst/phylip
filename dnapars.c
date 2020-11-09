@@ -478,7 +478,7 @@ void maketree(void)
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode, oldnextree;
   boolean firsttree, goteof, haslengths;
-  double bestfound;
+  double bestfound;   /* debug: shouldn't this be defined globally? */
 
   long numtrees = 0;
 

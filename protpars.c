@@ -119,6 +119,7 @@ extern long maxtrees;
 extern long nextree;
 long inseed, inseed0, minwhich;
 boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst = true;
+double bestfound;
 codetype whichcode;
 steptr oldweight; /* to make writesteps happy */
 long fullset, fulldel;
@@ -1644,7 +1645,6 @@ void maketree(void)                     // RSGbugfix
      then rearranges the tree for greatest "likelihood" */
   long i, j, numtrees, nextnode;
   boolean firsttree, done, goteof, haslengths;
-  double bestfound;
 
 
   if (!usertree)
@@ -1758,7 +1758,7 @@ void maketree(void)                     // RSGbugfix
 
   if (jumb == njumble && progress)
   {
-    sprintf(progbuf, "Output written to file \"%s\".\n\n", outfilename);
+    sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);
     print_progress(progbuf);
     if (trout)
     {
@@ -2259,4 +2259,4 @@ void debugtree(tree* t, FILE *f)
 #endif
 
 
-// End.
+/* End. */
