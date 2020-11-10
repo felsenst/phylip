@@ -124,12 +124,15 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
+printf(" score = %lf, bestyet = %lf, bestfound = %lf", like, *bestyet, *bestfound); /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
+printf(" (new bestyet)");  /* debug */
     if (!storing)
       *bestyet = like;
     there = p;
   }
+/* debug */ printf("\n");
   if (storing) {
     savetree(t, place);           /* make coded representation of this tree */
     if (atstart) {                    /* case when this is first tree tried */
@@ -137,7 +140,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
       found = false;
       if (nextree == 0) {
         *bestfound = like;
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
+printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  /* debug */
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
       }
@@ -157,11 +160,12 @@ printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
       } else {
         if (like > *bestfound) {       /* replacing all or adding one more? */
           *bestfound = like;
+          *bestyet = like;
           pos = 0;                   /* put it at the beginning of bestrees */
           found = false;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added new best tree to bestrees, now %ld of them\n", nextree);
+printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);
           succeeded = true;
           *bestyet = like;
         }
@@ -1080,7 +1084,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   boolean mulf;
   node* removed;
 
-  bestyet = curtree->evaluate(curtree, curtree->root, 0);
+  bestyet = curtree->evaluate(bestree, bestree->root, 0);
 
   if (progress)
   {
@@ -1092,7 +1096,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   {
     sib_ptr  = curtree->nodep[i];
     if (sib_ptr == NULL)
-      continue;         /* skip this case if no interior node circle there */
+      continue;          /* skip this case if no interior node circle there */
     if ( sib_ptr->tip )
       num_sibs = 0;
     else
@@ -1136,7 +1140,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         }
         curtree->insert_(curtree, removed, qwhere, false);
         curtree->root = curtree->nodep[0]->back;
-/* debug:        bestyet = curtree->evaluate(curtree, curtree->root, 0); */
+/* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
       }
     }
   }
