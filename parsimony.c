@@ -107,7 +107,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
                           double* bestyet, tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
 {
-  /* insert item at p, if the resulting tree has a better score, update bestyet
+  /* insert item at p, if resulting tree has a better score, update bestyet
    * and there
    * This version actually does the hookups which are quickly dissolved,
    * however none of the changes are propegated in the tree and it is as
@@ -121,15 +121,15 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   boolean found = false;
   long pos = 0;
 
-  /* debug    t->save_traverses(t, item, p);  may need to restore to leave tree same  */
+  t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
   like = t->evaluate(t, p, false);
+  t->score = like;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf", like, *bestyet, *bestfound); /* debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
 printf(" (new bestyet)");  /* debug */
-    if (!storing)
-      *bestyet = like;
+    *bestyet = like;
     there = p;
   }
 /* debug */ printf("\n");
@@ -177,9 +177,9 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
     there = p;
 /* debug:    *multf = false;   */
   }
-  t->re_move(t, item, &dummy, true);/* pull the branch back off the tree */
+  t->re_move(t, item, &dummy, true);   /* pull the branch back off the tree */
 /* debug:  is preceding statement correct?  &dummy?  */
-/* debug:   t->restore_traverses(t, item, p);   */
+  t->restore_traverses(t, item, p);
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
 
