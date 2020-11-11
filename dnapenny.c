@@ -67,9 +67,9 @@ node *p;
 long chars, howmanny, howoften, col, msets, ith, nonodes = 0;
 boolean weights, thresh, simple, trout, progress, stepbox, ancseq, mulsets,
          firstset, justwts;
-double threshold;
+double threshold, bestfound;
 steptr oldweight;
-tree *curtree;
+tree *curtree, *bestree;
 dnapenny_tree* dcurtree;
 double fracdone, fracinc;
 boolean *added;
@@ -133,6 +133,7 @@ tree* dnapenny_tree_new(long nonodes, long spp)
 {
   /* allocate a new tree and call function to initialize it */
   tree *t = Malloc(sizeof(dnapenny_tree));
+  generic_tree_init(t, nonodes, spp);
   dnapenny_tree_init(t, nonodes, spp);
   return t;
 } /* dnapenny_tree_new */
@@ -662,7 +663,7 @@ void addit(long m)
   placeptr place;
   boolean multf;
   boolean root=false;
-  node* dum;
+  node *dum, *qwhere;
   long n = 0;                           // RSGnote: Formerly not initialized and later potentially referenced before before being set.
 
   valyew = mvalyew[m-1];
@@ -677,7 +678,7 @@ void addit(long m)
     dcurtree->place = place;
     dcurtree->n = n;
     curtree->addtraverse(curtree, curtree->nodep[order[m - 1] - 1],
-     curtree->root, qwhere, true, &bestyet, bestree, true, multf, &bestfound);
+     curtree->root, true, qwhere, &bestyet, bestree, true, true, true, &bestfound);
     n = dcurtree->n;
     besttoadd = order[m - 1];
     memcpy(bestplace, place, nonodes * sizeof(long));
@@ -697,7 +698,15 @@ void addit(long m)
         dcurtree->place = place;
         dcurtree->n = n;
         curtree->addtraverse(curtree, curtree->nodep[i - 1], curtree->root,
-                              true, &bestyet, NULL, true, multf);
+            true, qwhere, &bestyet, bestree, true, true, multf, &bestfound);
+/* debug
+boolean	pars_addtraverse(tree*, node*, node*, boolean, node*, double*,
+                       bestelm*, boolean, boolean, boolean, double*);
+boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
+                           node* qwherein, double* bestyet,
+                           tree* bestree, boolean thorough, boolean storing,
+                           boolean atstart, double* bestfound)
+debug  */
         n = dcurtree->n;
         added[i - 1] = false;
         sum = 0.0;
@@ -808,6 +817,8 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
+  long indent;
+
   if (treeprint)
   {
     fprintf(outfile, "\n  between      and       length\n");
@@ -825,7 +836,8 @@ void describe(void)
   if (trout)
   {
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    indent = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
