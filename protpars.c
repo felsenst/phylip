@@ -1715,6 +1715,9 @@ void maketree(void)                     // RSGbugfix
       for (i = 0; i <= (nextree - 1); i++)
       {
         load_tree(curtree, i, bestrees);
+        reroot(curtree->nodep[outgrno - 1], curtree->root);
+        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, 0);
         curtree->root = root_tree(curtree, curtree->root);
         protreroot(curtree->nodep[outgrno - 1]);
