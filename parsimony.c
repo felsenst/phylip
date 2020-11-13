@@ -123,6 +123,8 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
+  initializetrav(t, t->root);
+  initializetrav(t, t->root->back);
   like = t->evaluate(t, p, false);
   t->score = like;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf", like, *bestyet, *bestfound); /* debug */
@@ -480,13 +482,11 @@ void oldsavetree(tree* t, long *place)
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
   boolean done, newfork;
 
-#if 0
   binroot = NULL;
   lastdesc = NULL;
   root2 = NULL;
   flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
-#endif
   lineagenumber = (long *)Malloc(nonodes*sizeof(long));
   setbottomtraverse(t->root);  /* set booleans indicating which way is down */
   nextnode = spp + 1;
@@ -525,8 +525,6 @@ void oldsavetree(tree* t, long *place)
         }
       }
     }
-/* debug: maybe we don't need any of this from here ... */
-#if 0
     if (i > 1)
     {
       q = t->nodep[i - 1];
@@ -566,9 +564,10 @@ void oldsavetree(tree* t, long *place)
         while (!done)
         {
           place[p->index - 1] = nextnode;
-          while (!p->bottom)
+          while (!p->bottom) {
             p = p->next;
-            p = p->back;
+          }
+          p = p->back;
           done = (p == NULL);
           if (!done)
             done = (place[p->index - 1] != j);
@@ -578,6 +577,7 @@ void oldsavetree(tree* t, long *place)
           }
         }
       }
+    }
     if (flipback)
       flipnodes(outgrnode, flipback->back);
     else
@@ -590,7 +590,6 @@ void oldsavetree(tree* t, long *place)
     }
     if (binroot)
       backtobinary(t, &t->root, binroot);
-#endif
   }
 }  /* oldsavetree */
 
@@ -733,7 +732,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 } /* pars_addtraverse */
 
 
-static void flipnodes(node *nodea, node *nodeb)
+void flipnodes(node *nodea, node *nodeb)
 {
   /* flip nodes */
   node *backa, *backb;
@@ -747,7 +746,7 @@ static void flipnodes(node *nodea, node *nodeb)
 } /* flipnodes */
 
 
-static void moveleft(node *root, node *outgrnode, node **flipback)
+void moveleft(node *root, node *outgrnode, node **flipback)
 {
   /* makes outgroup node to leftmost child of root */
   node *p;
@@ -861,13 +860,14 @@ void flipindexes(long nextnode, pointarray treenode)
 
 long sibsvisited(node *anode, long *place)
 {
-  /* computes the number of nodes which are visited earlier than anode among
-     its siblings */
+  /* computes the number of nodes which are visited after anode among
+     the siblings of its fork circle */
   node *p;
   long nvisited;
 
-  while (!anode->bottom) anode = anode->next;
-  p = anode->back->next;
+  while (!anode->bottom)                   /* go around circle, find bottom */
+    anode = anode->next;
+  p = anode->back->next; /* go down to ancestor, and on to its next sibling */
   nvisited = 0;
   do {
     if (!p->bottom && place[p->back->index - 1] != 0)
@@ -883,7 +883,8 @@ boolean parentinmulti(node *anode, node* root)
   /* sees if anode's parent has more than 2 children */
   node *p;
 
-  while (!anode->bottom) anode = anode->next;
+  while (!anode->bottom)
+    anode = anode->next;
   p = anode->back;
   while (!p->bottom)
     p = p->next;
@@ -1031,7 +1032,6 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   }
 
   t->root = t->nodep[outgrno - 1]->back;
-  t->score = bestyet;
 } /* load_tree */
 
 
@@ -1056,7 +1056,7 @@ void setbottomtraverse(node *p)
 }  /* setbottomtraverse */
 
 
-static boolean outgrin(node *root, node *outgrnode)
+boolean outgrin(node *root, node *outgrnode)
 {
   /* checks if outgroup node is a child of root */
   node *p;
