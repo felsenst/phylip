@@ -525,8 +525,9 @@ void oldsavetree(tree* t, long *place)
         }
       }
     }
-    if (i > 1)
+    if (i > 1)         /* this is for dealing with multifurcations, somehow */
     {
+#if 0                  /* debug: commenting out for now  */
       q = t->nodep[i - 1];
       newfork = true;
       nvisited = sibsvisited(q, place);
@@ -577,6 +578,7 @@ void oldsavetree(tree* t, long *place)
           }
         }
       }
+#endif     /* debug: end of commented-out code */
     }
     if (flipback)
       flipnodes(outgrnode, flipback->back);
@@ -622,8 +624,8 @@ void savetree(tree* t, long *place)
     oldroot = q;
   }
   else {
-    t->root = root_tree(t, p);                 /* put in a "fake" root fork */
     oldroot = t->root;
+    t->root = root_tree(t, p);                 /* put in a "fake" root fork */
   }
   oldsavetree(t, place);        /* now save this rooted tree in array place */
   if (!wasrooted) {                /* remove the fake root if one was added */
@@ -869,7 +871,7 @@ long sibsvisited(node *anode, long *place)
     anode = anode->next;
   p = anode->back->next; /* go down to ancestor, and on to its next sibling */
   nvisited = 0;
-  do {
+  do {       /* how many of those aunts/uncles are tips already encountered */
     if (!p->bottom && place[p->back->index - 1] != 0)
       nvisited++;
     p = p->next;

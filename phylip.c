@@ -5024,13 +5024,13 @@ void seetree(tree * t)
   long int nonodes = t->nonodes;
   boolean malformed;
 
-  for (i = 0; i < nonodes; ++i)
+  for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
     qq = t->nodep[i];
 
-    if (i < spp)
+    if (i < spp)                                  /* ,,, if it is a tip ... */
     {
-      if (qq->back == NULL)
+      if (qq->back == NULL)         /* print who, if anyone, it connects to */
       {
         printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
                qq->index);
@@ -5041,7 +5041,7 @@ void seetree(tree * t)
                (void *)qq, qq->index, (void *)qq->back, qq->back->index);
       }
     }
-    else
+    else                            /* ... or if it is an interior node ... */
     {
       if (qq == NULL) {
         printf(" node: %ld is (nil)\n", i+1);
@@ -5051,7 +5051,7 @@ void seetree(tree * t)
         pp = qq;
         malformed = false;
         n = 0;
-        do
+        do     /* ... find out if any node in the fork points to same fork */
         {
           malformed = ((qq->next == qq) || (qq->next->next == qq));
           if (malformed)
@@ -5083,11 +5083,11 @@ void seetree(tree * t)
 
           qq = qq->next;
           n++;
-          if ((qq != pp) && (n < 4))
+          if ((qq != pp) && (n < 3))
           {
             printf(",");
           }
-        } while ((n < 4) && !malformed);
+        } while ((n < 3) && !malformed);
 
         printf("\n");
       }
