@@ -92,7 +92,7 @@ void reroot_tree(tree* t, node* fakeroot)
   }
   if ( t->root == fakeroot) /* set root of tree if was pointing to fakeroot */
   {
-    if (t->nodep[outgrno-1]->back != NULL)   /* if that tip not on the tree */
+    if (t->nodep[outgrno-1]->back != NULL)    /* if that tip is on the tree */
       t->root = t->nodep[outgrno - 1]->back;
     else {            /* find the tip of lowest number actually on the tree */
       for (i = 0; t->nodep[i]->back == NULL; i++) { }
@@ -100,6 +100,7 @@ void reroot_tree(tree* t, node* fakeroot)
       }
   }
   t->release_fork(t, fakeroot);
+  t->root = t->nodep[outgrno - 1]->back;
 } /* reroot_tree */
 
 
