@@ -4725,7 +4725,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
     if ( do_newbl ) {      /* set not-initialized on branches looking in ... */
       inittrav(t, *where);                       /* ... towards this branch */
       inittrav(t, (*where)->back);
-    }
+    
   }
 } /* generic_tree_re_move */
 

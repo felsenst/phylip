@@ -528,8 +528,8 @@ void oldsavetree(tree* t, long *place)
     }
     if (i > 1)         /* this is for dealing with multifurcations, somehow */
     {
-#if 0                  /* debug: commenting out for now  */
-      q = t->nodep[i - 1];
+#if 0                  /* debug: commenting out for now.  Not sure how this */
+      q = t->nodep[i - 1];  /* ... works, how  r  is initialized */
       newfork = true;
       nvisited = sibsvisited(q, place);
       if (nvisited == 0)
