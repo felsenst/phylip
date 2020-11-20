@@ -81,7 +81,6 @@ void   doinput(void);
 void   protfillin(node *, node *, node *);
 void   protpreorder(node *);
 void   protadd(node *, node *, node *);
-void   protre_move(node **, node **);
 void   evaluate(node *);
 void   protreroot(node *);
 void   protgetch(Char *);
