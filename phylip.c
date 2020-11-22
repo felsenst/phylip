@@ -4681,9 +4681,10 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
    * at node "fork", setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
 
-  node *q, *p;
+  node *q, *p, *oldroot;
   long num_sibs;
 
+  oldroot = t->root;
   if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
     fork->back = NULL;                                   /* debug: why?  */
     return;
@@ -4716,16 +4717,17 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
     if ((fork->next == t->root) || (fork->next->next == t->root))
-      t->root = *where;                      /* set root */
+      t->root = *where;                                         /* set root */
     fork->next->back = NULL;
     fork->next->next->back = NULL;
 
     t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
 
-    if ( do_newbl ) {      /* set not-initialized on branches looking in ... */
+    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
       inittrav(t, *where);                       /* ... towards this branch */
       inittrav(t, (*where)->back);
     }   
+    t->root = oldroot;
   }
 } /* generic_tree_re_move */
 
