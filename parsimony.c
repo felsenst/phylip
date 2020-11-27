@@ -180,7 +180,7 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
     there = p;
 /* debug:    *multf = false;   */
   }
-  t->re_move(t, item, p, true);   /* pull the branch back off the tree */
+  t->re_move(t, item, &p, true);       /* pull the branch back off the tree */
 /* debug:  is preceding statement correct?  &dummy?  */
   t->restore_traverses(t, item, p);
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
