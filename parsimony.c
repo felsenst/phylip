@@ -80,7 +80,7 @@ void reroot_tree(tree* t, node* fakeroot)
   node *p;
 
   if ( count_sibs(fakeroot) > 2 )
-  {
+  {                         /* debug:  doing what?  for multifurcation case */
     for (p = fakeroot ; p->next != fakeroot ; p = p->next)
       p->next = fakeroot->next;           /* bypass node fakeroot points to */
     if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
@@ -182,7 +182,7 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
   }
   t->re_move(t, item, t->root, true);       /* pull the branch back off the tree */
 /* debug:  is preceding statement correct?  &dummy?  */
-  t->restore_traverses(t, item, p);
+  t->restore_traverses(t, item, p);           /* debug: what is tis doing? */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
 
@@ -602,24 +602,29 @@ void savetree(tree* t, long *place)
   /* Record in  place  where each species has to be added to reconstruct
    * this tree. This code finds out whether there is already a root fork
    * that has a NULL ancestor, if not it  roots the tree.  Then it calls
-   * and calls oldsavetree to save it. */
+   * and calls oldsavetree to save it.  Then, if necessary, it removes
+   * the new temporary root fork */
   boolean wasrooted;
   node *oldroot, *p, *q, *outgrnode;
 
   wasrooted = false;
   outgrnode = t->nodep[outgrno - 1];
   p = outgrnode->back;
-  wasrooted = (p->back == NULL); /* find out whether was already rooted by */
-  q = p;                      /* going around circle to see whether it was */
-  if (!wasrooted) {
-    q = q->next;
-    while (q != p) {
-      if (q->back == NULL) {
-        wasrooted = true;
-        oldroot = q;
-        break;
-      }
+  if (p == NULL) {
+    wasrooted = (p->back == NULL);  /* Check: was it already rooted by ... */
+  }
+  else {
+    q = p;                    /* going around circle to see whether it was */
+    if (!wasrooted) {
       q = q->next;
+      while (q != p) {
+        if (q->back == NULL) {
+          wasrooted = true;
+          oldroot = q;
+          break;
+        }
+        q = q->next;
+      }
     }
   }
   else {
