@@ -56,6 +56,7 @@ steptr oldweight;
 longer seed;
 tree* curtree;            /* pointers to all nodes in tree */
 long *enterorder;
+tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
 char *progname;
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
@@ -471,6 +472,7 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
+  long indent;
 
   if (treeprint)
   {
@@ -490,7 +492,8 @@ void describe(void)
   if (trout)
   {
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    indent = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
