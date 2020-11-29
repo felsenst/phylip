@@ -691,7 +691,7 @@ void maketree(void)                     // RSGbugfix
       preparetree(curtree);
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
       fixtree(curtree);
-      reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+      reroot_tree(curtree);
       curtree->evaluate(curtree, curtree->root, false);
 
       if ( reusertree )
