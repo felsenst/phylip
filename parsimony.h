@@ -32,7 +32,7 @@ tree*   pars_tree_new(long nonodes, long spp);
 void    pars_tree_init(tree* t, long nonodes, long spp);
 
 #if 0                                   // RSGbugfix: Never used.
-void    pars_tree_re_move(tree *, node **, node **, boolean);
+void    pars_tree_re_move(tree *, node **, node *, boolean);
 #endif
 
 void    updatenumdesc(node *, node *, long);
@@ -76,7 +76,7 @@ boolean pars_tree_try_insert_(tree*, node *, node *, node *, double *,
 void    coordinates(tree*, node *, double, long *, double *);
 void    printree(tree*);
 node*   root_tree(tree*, node*);
-void    reroot_tree(tree*, node*); // RSGbugfix: Name change.
+void    reroot_tree(tree*);
 void    initparsnode(tree *, node **, long, long, long *, long *, initops,
                       pointarray, Char *, Char *, FILE *);
 double  pars_tree_evaluate(tree*, node*, boolean);

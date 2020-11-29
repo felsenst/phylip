@@ -1722,7 +1722,7 @@ void maketree(void)                     // RSGbugfix
         protreroot(curtree->nodep[outgrno - 1]);
         printree(curtree);
         describe();
-        reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+        reroot_tree(curtree);
       }
     }
   }

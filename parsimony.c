@@ -69,16 +69,18 @@ node* root_tree(tree* t, node* here)
 } /* root_tree */
 
 
-void reroot_tree(tree* t, node* fakeroot)
+void reroot_tree(tree* t)
 {
   /* Removes a root from a tree; useful after a return from functions that
    * expect a rooted tree (e.g. oldsavetree()). Then reroots the tree before
    * releasing a forknode to the freelist, to avoid tree components
    * pointing (even temporarily) into garbage. */
-/* debug:  make sure that fakeroot was pointing to "bottom" node in fork circle */
   long i;
-  node *p;
+  node *p, *fakeroot;
 
+  fakeroot = t->root;     /* make sure it becomes the bottom node in circle */
+  while (fakeroot->back != NULL)
+    fakeroot = fakeroot->next;
   if ( count_sibs(fakeroot) > 2 )
   {                         /* debug:  doing what?  for multifurcation case */
     for (p = fakeroot ; p->next != fakeroot ; p = p->next)
@@ -610,10 +612,8 @@ void savetree(tree* t, long *place)
   wasrooted = false;
   outgrnode = t->nodep[outgrno - 1];
   p = outgrnode->back;
-  if (p == NULL) {
+  if (p != NULL) {
     wasrooted = (p->back == NULL);  /* Check: was it already rooted by ... */
-  }
-  else {
     q = p;                    /* going around circle to see whether it was */
     if (!wasrooted) {
       q = q->next;
@@ -627,13 +627,13 @@ void savetree(tree* t, long *place)
       }
     }
   }
-  else {
-    oldroot = t->root;
-    t->root = root_tree(t, p);                 /* put in a "fake" root fork */
+  if (!wasrooted) {
+    oldroot = t->nodep[outgrno-1];
+    t->root = root_tree(t, oldroot);           /* put in a "fake" root fork */
   }
   oldsavetree(t, place);        /* now save this rooted tree in array place */
   if (!wasrooted) {                /* remove the fake root if one was added */
-    reroot_tree(t, oldroot); 
+    reroot_tree(t); 
     t->root = oldroot;
   }
 }  /* savetree */

@@ -887,7 +887,7 @@ void maketree(void)
         curtree->nodep[curtree->root->index - 1] = curtree->root;
         printree(curtree);
         describe();
-        reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+        reroot_tree(curtree);
       }
     }
   }
@@ -933,7 +933,7 @@ void maketree(void)
           i = j;
       }
       mincomp(i+1);
-      reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+      reroot_tree(curtree);
       curtree->evaluate(curtree, curtree->root, false);
       curtree->root = root_tree(curtree, curtree->root);
       if (outgropt)

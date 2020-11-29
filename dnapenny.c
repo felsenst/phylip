@@ -944,7 +944,7 @@ void maketree(void)                     // RSGbugfix
     dna_treelength(curtree->root, chars, curtree->nodep);
     printree(curtree);
     describe();
-    reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+    reroot_tree(curtree);
   }
 
   if (progress)
