@@ -35,7 +35,7 @@ struct node_vtable node_vtable = {
 };
 
 
-void no_op(void)
+void no_op (void)
 { /* Do nothing. Used as a dummy pointer to a function that */
 } /* doesn't need to do anything (e.g. smooth for parsimony)*/
 
@@ -69,7 +69,7 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 } /* where_in_dest */
 
 
-void generic_tree_copy(tree* src, tree* dst)
+void generic_tree_copy (tree* src, tree* dst)
 { /* copies tree src to tree dst*/
   long i, j, num_sibs, src_sibs, dst_sibs,  src_num, dst_num, maxcircles;
   boolean doingacircle;
@@ -173,7 +173,7 @@ void generic_tree_copy(tree* src, tree* dst)
 } /* generic_tree_copy */
 
 
-void generic_node_copy(node* src, node* dst)
+void generic_node_copy (node* src, node* dst)
 {
   /* Copy node data from src to dst.
    *
@@ -194,7 +194,7 @@ void generic_node_copy(node* src, node* dst)
 } /* generic_node_copy */
 
 
-void generic_fork_print(node * n)
+void generic_fork_print (node * n)
 {
   /* a debugging function to print out information about a fork */
   boolean firstTime = true;
@@ -218,7 +218,7 @@ void generic_fork_print(node * n)
 } /* generic_fork_print */
 
 
-void generic_node_print(node *n)
+void generic_node_print (node *n)
 {
   /* a debugging function to print out information about a node */
 
@@ -243,7 +243,7 @@ void generic_node_print(node *n)
 } /* generic_node_print */
 
 
-void generic_node_free(node **n)
+void generic_node_free (node **n)
 {
   /* Release a node's memory */
   free(*n);
@@ -251,7 +251,7 @@ void generic_node_free(node **n)
 } /* generic_node_free */
 
 
-void generic_node_init(node* n, node_type type, long index)
+void generic_node_init (node* n, node_type type, long index)
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.
@@ -280,7 +280,7 @@ void generic_node_init(node* n, node_type type, long index)
 } /* generic_node_init */
 
 
-void generic_node_reinit(node * n)
+void generic_node_reinit (node * n)
 {
   /*  re-initialize node */
   n->back = NULL;
@@ -295,7 +295,7 @@ void generic_node_reinit(node * n)
 } /* generic_node_reinit */
 
 
-node* generic_new_node(node_type type, long index)
+node* generic_new_node (node_type type, long index)
 { /* Allocate, initialize, and return a new node, setting tip and index. */
   node* n = Malloc(sizeof(node));
 
@@ -304,7 +304,7 @@ node* generic_new_node(node_type type, long index)
 } /* generic_new_node */
 
 
-void setupnode(node *p, long i)
+void setupnode (node *p, long i)
 { /* initialization of node pointers, variables */
 
   p->next = NULL;
@@ -345,7 +345,7 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-void verify_nuview(node *p)
+void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
@@ -353,7 +353,7 @@ void verify_nuview(node *p)
 } /* verify_nuview */
 
 
-void invalidate_nuview(node *p)
+void invalidate_nuview (node *p)
 { /* Invalidate all views looking toward p. Must be called on a node
    * after changing its tyme or branch lengths before evaluating at any other
    * node. */
@@ -364,7 +364,7 @@ void invalidate_nuview(node *p)
 } /* invalidate_nuview */
 
 
-void invalidate_traverse(node *p)
+void invalidate_traverse (node *p)
 { /* Invalidates p's view and all views looking toward p from p->back
    * on out. */
   /* debug: is this needed in view of function inittrav? */
@@ -389,7 +389,7 @@ void invalidate_traverse(node *p)
 } /* invalidate_traverse */
 
 
-void inittrav_all(tree *t)
+void inittrav_all (tree *t)
 {
   /* Set initialized false on all interior fork nodes on tree, so
    * that views are regenerated regardless. For debugging nuview
@@ -467,14 +467,14 @@ void inittrav (tree* t, node *p)
 
 /********* Error handling ***********/
 
-void EOF_error(void)
+void EOF_error (void)
 { /* Print a message and exit when EOF is reached prematurely. */
   puts("\n\nERROR:  Unexpected End-of-File.\n");
   exxit(-1);
 } /* EOF-error */
 
 
-void crash_handler(int sig_num)
+void crash_handler (int sig_num)
 { /* If (when?) we crash, print out something useful */
   boolean segorbus;
   sprintf(progbuf, "ERROR:  ");
@@ -613,7 +613,7 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
 
 /************* File reading *************/
 
-void scan_eoln(FILE *f)
+void scan_eoln (FILE *f)
 { /* Eat everything up to EOF or newline, including newline */
   while (!eoff(f) && !eoln(f))
     (void)gettc(f);
@@ -635,7 +635,7 @@ boolean eoff(FILE *f)
   }
   ungetc(ch, f);
   return false;
-}  /*eoff*/
+}  /* eoff */
 
 
 boolean eoln(FILE *f)
@@ -4508,8 +4508,8 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(tree* t, node* p)
 {
-  /*  calls the current nongeneric t->nuview on this branch, first
-   *  recursing through all children in this direction, as needed,
+  /*  calls the current nongeneric t->nuview on this branch, after first
+   *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
   node *sib_ptr;
 

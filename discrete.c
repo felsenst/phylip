@@ -27,31 +27,39 @@ extern double nsteps[maxuser], minsteps;
 
 tree* discretepars_tree_new(long nonodes, long spp)
 {
+  /* allocate and call initialization routines for a discrete
+   * characterrs parsimony method tree */
+
   tree* t = Malloc(sizeof(discretepars_tree));
   discretepars_tree_init(t, nonodes, spp);
   return t;
-}
+} /* discretepars_tree_new */
 
 
 void discretepars_tree_init(tree* t, long nonodes, long spp)
 {
+  /* initialize a tree for discrete-character parsimony methods */
+
   pars_tree_init(t, nonodes, spp);
   t->nuview = discretepars_tree_nuview;
   t->evaluate = discretepars_tree_evaluate;
   ((pars_tree*)t)->branchcollapsible = discretepars_tree_branchcollapsible;
-}
+} /* discretepars_tree_init */
 
 
 node * discretepars_node_new(node_type type, long index) // RSGbugfix
 {
+  /* allocate and initialize a node for a discrete data parsimony method */
+
   node *n = Malloc(sizeof(discretepars_node));
   discretepars_node_init(n, type, index);
   return n;
-}
+} /* discretepars_node */
 
 
 void discretepars_node_init(node* node, node_type type, long index)
 {
+  /* initialize a discrete characters parsimony method node */
   discretepars_node *n = (discretepars_node *)node;
 
   pars_node_init(node, type, index);
@@ -59,13 +67,14 @@ void discretepars_node_init(node* node, node_type type, long index)
 
   n->discbase = (discbaseptr)Malloc(endsite * sizeof(unsigned char));
   n->discnumnuc = (discnucarray *)Malloc(endsite * sizeof(discnucarray));
-}
+} /* discretepars_node_init */
 
 
 void discretepars_node_free(node **n)
 {
+  /* free a discrete characters parsimony method node */
   pars_node_free(n);
-}
+} /* discretepars_node_free */
 
 
 void inputdata(long chars)
@@ -1073,6 +1082,7 @@ void disccompmin(node *p, node *desc)
 
 void discretepars_tree_nuview(tree* t, node*p)
 {
+  /* nuview for multistate discrete characters parsimony methods */
   node *q;
   discretepars_node *qback;
   long i, j, steps, largest;
@@ -1081,7 +1091,7 @@ void discretepars_tree_nuview(tree* t, node*p)
   boolean bif;
   long root = 0;
 
-  generic_tree_nuview(t, p);
+/* debug: already called?     generic_tree_nuview(t, p);  */
   bif = (count_sibs(p) == 2);
 
   for ( i = 0 ; i < endsite ; i++ )
@@ -1139,7 +1149,7 @@ void discretepars_tree_nuview(tree* t, node*p)
     ((pars_node*)p)->numsteps[i] = steps;
   }
   p->initialized = true;
-}
+} /* discretepars_tree_nuview */
 
 
 double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
@@ -1196,6 +1206,8 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
 
 boolean discretepars_tree_branchcollapsible(tree* t, node* n)
 {
+  /* is this branch in a discrete characters parsimony tree
+   * collapsible without altering the number of steps in the tree? */
   boolean collapsible = true;
   long i;
   node* q;
@@ -1214,7 +1226,7 @@ boolean discretepars_tree_branchcollapsible(tree* t, node* n)
       return false;
   }
   return collapsible;
-}
+} /* discretechars_tree_branchcollapsible */
 
 
 // End.

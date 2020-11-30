@@ -73,15 +73,14 @@ discbaseptr nothing;
 boolean *names;
 
 
-void pars_tree_setup(long nonodes, long spp)
+void pars_tree_setup(long spp, long nonodes)
 {
   /* allocate new tree(s) */
 
-  curtree = pars_tree_new(nonodes, spp);
-  bestree = pars_tree_new(nonodes, spp);
-  priortree = pars_tree_new(nonodes, spp);
+  curtree = discretepars_tree_new(nonodes, spp);
+  bestree = discretepars_tree_new(nonodes, spp);
+  priortree = discretepars_tree_new(nonodes, spp);
 } /* pars_tree_setup */
-
 
 
 void getoptions(void)
