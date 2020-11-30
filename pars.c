@@ -16,6 +16,7 @@ extern long nextree;    /* parsimony.c */
 
 #ifndef OLDC
 /* function prototypes */
+void   pars_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -50,11 +51,10 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreen
 long chars, col, msets, ith, njumble, jumb = 0, nonodes = 0;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
-double threshold;
+double threshold, bestfound;
 boolean jumble, usertree, reusertree, thresh, weights, thorough, rearrfirst, trout, progress, stepbox, ancseq, mulsets, justwts, firstset, mulf, multf;
 steptr oldweight;
 longer seed;
-tree* curtree;            /* pointers to all nodes in tree */
 long *enterorder;
 tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
 char *progname;
@@ -71,6 +71,17 @@ extern bestelm *bestrees, **rebestrees;
 double *threshwt;
 discbaseptr nothing;
 boolean *names;
+
+
+void pars_tree_setup(long nonodes, long spp)
+{
+  /* allocate new tree(s) */
+
+  curtree = pars_tree_new(nonodes, spp);
+  bestree = pars_tree_new(nonodes, spp);
+  priortree = pars_tree_new(nonodes, spp);
+} /* pars_tree_setup */
+
 
 
 void getoptions(void)
@@ -464,6 +475,7 @@ void doinput(void)
   }
   makeweights();
   curtree = (tree*)discretepars_tree_new(nonodes, spp);
+  pars_tree_setup(spp, nonodes);
   makevalues(curtree, usertree);
 }  /* doinput */
 
@@ -579,7 +591,8 @@ void maketree(void)                     // RSGbugfix
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, bestree, priortree, false, jumble, seed, progress);
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed,
+           progress, &bestfound);
 
     if (progress)
     {
@@ -605,7 +618,7 @@ void maketree(void)                     // RSGbugfix
     }
 
     phyFillScreenColor();
-    grandrearr(curtree, bestree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
 
     if (progress)
     {
@@ -628,7 +641,8 @@ void maketree(void)                     // RSGbugfix
         {
           if (missedCount > 0)
           {
-            fprintf(outfile, "as many as %ld trees may have been found\n", missedCount + outCount);
+            fprintf(outfile, "as many as %ld trees may have been found\n",
+                     missedCount + outCount);
             fprintf(outfile, "here are the first %4ld of them\n", outCount );
           }
           else
@@ -701,7 +715,7 @@ void maketree(void)                     // RSGbugfix
       {
         rebestyet = curtree->score;
         bestrees = rebestrees[0];
-        grandrearr(curtree, progress, rearrfirst);
+        grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
         which++;
       }
       else
@@ -1186,12 +1200,15 @@ int main(int argc, Char *argv[])
 
   FClose(infile);
   FClose(outfile);
-  if (weights || justwts)
+  if (weights || justwts) {
     FClose(weightfile);
-  if (trout)
+  }
+  if (trout) {
     FClose(outtree);
-  if (usertree)
+  }
+  if (usertree) {
     FClose(intree);
+  }
 #ifdef MAC
   fixmacfile(outfilename);
   fixmacfile(outtreename);

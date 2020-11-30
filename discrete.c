@@ -344,8 +344,6 @@ void makevalues(tree *t, boolean usertree)
   long i, j;
   unsigned char ns=0;
 
-  (void)usertree;                       // RSGnote: Parameter never referenced.
-
   for (j = 0; j < endsite; j++)
   {
     for (i = 0; i < spp; i++)
