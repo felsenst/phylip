@@ -227,8 +227,11 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
 tree* pars_tree_new(long nonodes, long spp)
 {
   /* make a new pars_tree */
-  tree* t = Malloc(sizeof(pars_tree));
+/* debug:    tree* t = Malloc(sizeof(pars_tree));  for moment using the
+ * allocation in  generic_tree_new but this may be too few bytes       */
+  tree* t;
 
+  t = generic_tree_new(nonodes, spp);
   generic_tree_init(t, nonodes, spp);
   pars_tree_init(t, nonodes, spp);
   return t;

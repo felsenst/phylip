@@ -955,15 +955,15 @@ void uppercase(Char *ch)
 /**************  Random number generation *********/
 
 double randum(longer seed)
-{ /* random number generator -- slow but machine independent
-     This is a multiplicative congruential 32-bit generator
-     x(t+1) = 1664525 * x(t) mod 2^32, one that passes the
-     Coveyou-Macpherson and Lehmer tests, see Knuth ACP vol. 2
-     We here implement it representing each integer in base-64
-     notation -- i.e. as an array of 6 six-bit chunks   */
+{ /* random number generator -- slow but machine independent.  This is a
+   * multiplicative congruential 32-bit generator:
+   *   x(t+1) = 1664525 * x(t) mod 2^32,  one that passes the
+   * Coveyou-Macpherson and Lehmer tests, see Knuth "The Art of Computer
+   * Programming", vol. 2.  We here implement it representing each integer
+   * in base-64 notation -- i.e. as an array of 6 six-bit chunks         */
 
   long i, j, k, sum;
-  longer mult, newseed;
+  longer mult, newseed;  /* arrays of longs */
   double x;
 
   mult[0] = 13;   /* these four statements set the multiplier */
@@ -978,16 +978,16 @@ double randum(longer seed)
     if (i > 3)
       k = 3;
     for (j = 0; j <= k; j++)
-      sum += mult[j] * seed[i - j];
+      sum += mult[j] * seed[i-j];
     newseed[i] = sum;
     for (j = i; j <= 4; j++) {
-      newseed[j + 1] += newseed[j] / 64;
+      newseed[j+1] += newseed[j] / 64;
       newseed[j] &= 63;
     }
   }
-  memcpy(seed, newseed, sizeof(longer));       /* new seed replaces old one */
-  seed[5] &= 3;         /* from the new seed, get a floating point fraction */
-  x = 0.0;
+  memcpy(seed, newseed, sizeof(longer));   /* new seed replaces old one ... */
+  seed[5] &= 3;          /* seed is a pointer so remains updated after exit */
+  x = 0.0;              /* from the new seed, get a floating point fraction */
   for (i = 0; i <= 5; i++)
     x = x / 64.0 + seed[i];
   x /= 4.0;
@@ -999,17 +999,18 @@ void randumize(longer seed, long *enterorder)
 { /* randomize input order of species -- randomly permute array enterorder */
   long i, j, k;
 
-  for (i = 0; i < spp; i++) {
+  for (i = 1; i < spp; i++) {         /* for all but the first element, ... */
     j = (long)(randum(seed) * (i+1));  /* choose a random preceding species */
-    k = enterorder[j];
-    enterorder[j] = enterorder[i];     /* and swap with it */
+    k = enterorder[j];                    /* (including possibly it itself) */
+    enterorder[j] = enterorder[i];                      /* and swap with it */
     enterorder[i] = k;
   }
 } /* randumize */
 
 
 double normrand(longer seed)
-{/* standardized Normal random variate */
+{/* standardized Normal random variate, convolution of 12 uniform variables
+  * then relocated to have mean zero.  Not perfect but good enough.       */
   double x;
 
   x = randum(seed)+randum(seed)+randum(seed)+randum(seed)
@@ -1198,7 +1199,7 @@ void initprobcat(long categs, double *probsum, double *probcat)
 void lgr(long m, double b, raterootarray lgroot)
 { /* For use by initgammacat.  Get roots of m-th Generalized Laguerre
      polynomial, given roots of (m-1)-th, these are to be
-     stored in lgroot[m][] */
+     stored in lgroot[m][].  Written by Lindsey Dubb. */
   long i;
   double upper, lower, x, y;
   boolean dwn;   /* is function declining in this interval? */
@@ -1246,7 +1247,7 @@ void lgr(long m, double b, raterootarray lgroot)
 
 double logfac (long n)
 { /* log(n!) values were calculated with Mathematica
-     with a precision of 30 digits */
+     with a precision of 30 digits.  Written by Lindsey Dubb. */
   long i;
   double x;
 
@@ -1289,7 +1290,7 @@ double logfac (long n)
 
 double glaguerre(long m, double b, double x)
 { /* Generalized Laguerre polynomial computed recursively.
-     For use by initgammacat.  Thanks to Lindsey Dubb */
+     For use by initgammacat.  Many thanks to Lindsey Dubb */
   long i;
   double gln, glnm1, glnp1; /* L_n, L_(n-1), L_(n+1) */
 
@@ -2044,6 +2045,7 @@ void matchoptions(Char *ch, const char *options)
 
 void headings(long chars, const char *letters1, const char *letters2)
 {
+  /* Write out headings with list of species names */
   long i, j;
 
   putc('\n', outfile);
@@ -2086,7 +2088,8 @@ void initname(long i)
           || (nayme[i][j] == ',') || (nayme[i][j] == ';')
           || (nayme[i][j] == '[') || (nayme[i][j] == ']'))
       {
-        sprintf(progbuf, "\nERROR:  Species name may not contain characters ( ) : ; , [ ] \n");
+        sprintf(progbuf,
+        "\nERROR:  Species name may not contain characters ( ) : ; , [ ] \n");
         print_progress(progbuf);
         sprintf(progbuf,
         "        In the name of species number %ld at position number %ld.\n",
@@ -2122,10 +2125,12 @@ void checknames(long int num_species)
     for (j = i + 1; j < num_species; ++j)
     {
       if (strncmp(nayme[i], nayme[j], MAXNCH) == 0)
-      {
-        // RSGnote: This should print a name space-padded to 'nmlngth' chars,
-        // with null chars following (to MAXNCH = 2 * nmlngth) to denote end-of-string.
-        sprintf(progbuf, "\nERROR:  Duplicate species name: \"%s\" in slots %ld and %ld.\n", nayme[i], i, j);
+      { /* This should print a name space-padded to 'nmlngth' chars,
+         * with null chars following (to MAXNCH = 2 * nmlngth) to denote
+         * end-of-string.                                               */
+        sprintf(progbuf,
+           "\nERROR:  Duplicate species name: \"%s\" in slots %ld and %ld.\n",
+           nayme[i], i, j);
         print_progress(progbuf);
         uh_oh = true;
       }
@@ -2137,7 +2142,7 @@ void checknames(long int num_species)
     putchar('\n');
     exxit(-1);
   }
-}
+} /* checknames */
 
 
 /*********** Weight file routines **********/
@@ -2447,7 +2452,7 @@ void shellsort(double *a, long *b, long n)
       }
     }
     gap /= 2;    /* integer division: shrink the gap size by half each time */
-  }
+  }    /* after pass all the way through with a gap of 1, it must be sorted */
 }  /* shellsort */
 
 
@@ -3452,13 +3457,14 @@ void destruct_tree(tree* t)
     if (t->nodep[j] != NULL)
       t->release_forknode(t, t->nodep[j]);
   }
-  release_all_forks(t);
+  release_all_forks(t);      /* call that function to release all forks too */
 } /* destruct_tree */
 
 
 void rooted_tree_init(tree* t, long nonodes, long spp)
 {
   /* a few extra things for a rooted tree*/
+
   generic_tree_init(t, nonodes, spp);
   t->globrearrange = rooted_globrearrange;
   t->insert_ = (tree_insert_t)rooted_tree_insert_;

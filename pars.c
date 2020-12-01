@@ -473,7 +473,7 @@ void doinput(void)
     }
   }
   makeweights();
-  curtree = (tree*)discretepars_tree_new(nonodes, spp);
+  /* debug:  necessary? curtree = (tree*)discretepars_tree_new(nonodes, spp); */
   pars_tree_setup(spp, nonodes);
   makevalues(curtree, usertree);
 }  /* doinput */

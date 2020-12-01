@@ -40,7 +40,7 @@ void discretepars_tree_init(tree* t, long nonodes, long spp)
 {
   /* initialize a tree for discrete-character parsimony methods */
 
-  pars_tree_init(t, nonodes, spp);
+  t = pars_tree_new(nonodes, spp);
   t->nuview = discretepars_tree_nuview;
   t->evaluate = discretepars_tree_evaluate;
   ((pars_tree*)t)->branchcollapsible = discretepars_tree_branchcollapsible;
