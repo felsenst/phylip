@@ -329,8 +329,8 @@ dnaparsimony.o:  dnaparsimony.c phylip.h parsimony.h dnaparsimony.h
 disc.o:       disc.c phylip.h disc.h
 	$(CC) -c disc.c -shared -fPIC
 
-discrete.o:   discrete.c discrete.h phylip.h parsimony.h
-	$(CC) -c discrete.c -shared -fPIC
+discreteparsimony.o:   discreteparsimony.c discreteparsimony.h phylip.h parsimony.h
+	$(CC) -c discreteparsimony.c -shared -fPIC
 
 dollo.o:      dollo.c phylip.h dollo.h
 	$(CC) -c dollo.c -shared -fPIC
@@ -447,7 +447,7 @@ move.o:       move.c disc.h moves.h wagner.h phylip.h
 neighbor.o:   neighbor.c dist.h phylip.h
 	$(CC) -c neighbor.c -shared -fPIC
 
-pars.o:       pars.c discrete.h phylip.h parsimony.h
+pars.o:       pars.c discreteparsimony.h phylip.h parsimony.h
 	$(CC) -c pars.c -shared -fPIC
 
 penny.o:      penny.c disc.h wagner.h phylip.h
@@ -562,7 +562,7 @@ move:         move.o disc.o moves.o wagner.o $(LIBS)
 neighbor:     neighbor.o dist.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-pars:         pars.o discrete.o parsimony.o $(LIBS)
+pars:         pars.o discreteparsimony.o parsimony.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 penny:        penny.o disc.o wagner.o $(LIBS)

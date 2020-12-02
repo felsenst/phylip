@@ -28,11 +28,11 @@ void    pars_node_init(node* p, node_type type, long index);
 void    pars_node_copy(node* src, node* dst);
 void    pars_node_print(node* n);
 void    pars_node_reinit(node* p);
-tree*   pars_tree_new(long nonodes, long spp);
-void    pars_tree_init(tree* t, long nonodes, long spp);
+tree*   parsimony_tree_new(long nonodes, long spp);
+void    parsimony_tree_init(tree* t, long nonodes, long spp);
 
 #if 0                                   // RSGbugfix: Never used.
-void    pars_tree_re_move(tree *, node **, node *, boolean);
+void    parsimony_tree_re_move(tree *, node **, node *, boolean);
 #endif
 
 void    updatenumdesc(node *, node *, long);

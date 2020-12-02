@@ -224,33 +224,20 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
 } /* pars_tree_try_insert */
 
 
-tree* pars_tree_new(long nonodes, long spp)
+void parsimony_tree_init(tree* t, long nonodes, long spp)
 {
-  /* make a new pars_tree */
-/* debug:    tree* t = Malloc(sizeof(pars_tree));  for moment using the
- * allocation in  generic_tree_new but this may be too few bytes       */
-  tree* t;
-
-  t = generic_tree_new(nonodes, spp);
-  generic_tree_init(t, nonodes, spp);
-  pars_tree_init(t, nonodes, spp);
-  return t;
-} /* pars_tree_new */
-
-
-void pars_tree_init(tree* t, long nonodes, long spp)
-{
-  /* setup of a new tree  with  spp  tips */
+  /* setup some functions of a new tree,  t,   with  spp  tips */
+/* debug: are nonodes and spp arguments needed in this function? */
 
   t->globrearrange = pars_globrearrange;
   t->try_insert_ = (tree_try_insert_t)pars_tree_try_insert_;
   t->evaluate = pars_tree_evaluate;
-} /* pars_tree_init */
+} /* parsimony_tree_init */
 
 
 void pars_node_init(node* p, node_type type, long index)
 {
-  /* set up a new node for a pars_tree */
+  /* set up an already-allocated new node for a parsimony_tree */
   pars_node *pn = (pars_node *)p;
 
   generic_node_init(p, type, index);
