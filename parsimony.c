@@ -50,8 +50,8 @@ node* root_tree(tree* t, node* here)
    * that all nodep pointers point to the rootmost node of that interior
    * node.  */
   long k;
-  node *nuroot1, *nuroot2, *nuroot3, *there;  /* the three nodes in the new circle
-                                               * and a saving of  here->back */
+  node *nuroot1, *nuroot2, *nuroot3, *there;  /* the three nodes in new circle
+                                               * and a saving of here->back */
 
   k = generic_tree_findemptyfork(t);
   there = here->back;

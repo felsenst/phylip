@@ -4916,7 +4916,7 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
     item = curtree->get_fork(curtree, k);
     hookup(item, p);                      /* hook the next tip to this fork */
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
-    if ((jumb == 1) && (i == spp))    /* last of first  time through set it */
+    if ((jumb == 1) && (i == spp)) /* on adding last species of first jumble */
       *bestfound = bestyet;
     curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
                    bestree, true, (i == spp), true, bestfound);   /* store? */

@@ -30,7 +30,7 @@ tree* dnapars_tree_new(long nonodes, long spp)
   tree *t;
   
   t = generic_tree_new(nonodes, spp);
-  pars_tree_init(t, nonodes, spp);
+  parsimony_tree_init(t, nonodes, spp);
   dnapars_tree_init(t, nonodes, spp);
   return t;
 } /* dnapars_tree_new */
