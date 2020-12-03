@@ -11,8 +11,8 @@
 #include "phylip.h"
 #include "discrete.h"
 
-extern long maxtrees; /* parsimony.c */
-extern long nextree;    /* parsimony.c */
+extern long maxtrees;   /* from parsimony.c */
+extern long nextree;    /* from parsimony.c */
 
 #ifndef OLDC
 /* function prototypes */
@@ -52,7 +52,8 @@ long chars, col, msets, ith, njumble, jumb = 0, nonodes = 0;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
 double threshold, bestfound;
-boolean jumble, usertree, reusertree, thresh, weights, thorough, rearrfirst, trout, progress, stepbox, ancseq, mulsets, justwts, firstset, mulf, multf;
+boolean jumble, usertree, reusertree, thresh, weights, thorough, rearrfirst,
+    trout, progress, stepbox, ancseq, mulsets, justwts, firstset, mulf, multf;
 steptr oldweight;
 longer seed;
 long *enterorder;
@@ -73,9 +74,9 @@ discbaseptr nothing;
 boolean *names;
 
 
-void pars_tree_setup(long spp, long nonodes)
+void pars_tree_setup(long nonodes, long spp)
 {
-  /* allocate new tree(s) */
+  /* call allocation and initialization of three new tree(s) */
 
   curtree = discretepars_tree_new(nonodes, spp);
   bestree = discretepars_tree_new(nonodes, spp);
@@ -473,9 +474,8 @@ void doinput(void)
     }
   }
   makeweights();
-  /* debug:  necessary? curtree = (tree*)discretepars_tree_new(nonodes, spp); */
-  pars_tree_setup(spp, nonodes);
-  makevalues(curtree, usertree);
+  pars_tree_setup(nonodes, spp);                  /* set up the three trees */
+  makevalues(curtree, usertree);   /* put information on characters at tips */
 }  /* doinput */
 
 
@@ -787,9 +787,9 @@ void freerest(void)
 
 void parsrun(void)
 {
-  /* run parsimony inference */
+  /* run the inference of trees, for all data sets and all addition orders
+   * of species */
 
-  // debug printout // JRMdebug
   /*
     printf("jumble: %i\n", jumble);
     printf("njumble: %li\n", njumble);
@@ -813,21 +813,21 @@ void parsrun(void)
     printf("interleaved: %i\n", interleaved);
     printf("justwts: %i\n", justwts);
   */
-  // do the work
-  for (ith = 1; ith <= msets; ith++) {
+
+  for (ith = 1; ith <= msets; ith++) {                /* for each data set */
     if (msets > 1 && !justwts) {
       fprintf(outfile, "\nData set # %ld:\n\n", ith);
       if (progress)
-      {
+      {                        /* print notification of progress on screen */
         sprintf(progbuf, "\nData set # %ld:\n\n", ith);
         print_progress(progbuf);
       }
     }
-    doinput();
+    doinput();                /* get input and set up tips of tree with it */
     if (ith == 1)
       firstset = false;
-    for (jumb = 1; jumb <= njumble; jumb++)
-      maketree();
+    for (jumb = 1; jumb <= njumble; jumb++) /* for jumbling addition order */
+      maketree(); /* reconstruct tree for one order of addition of species */
     fflush(outfile);
     fflush(outtree);
     freerest();

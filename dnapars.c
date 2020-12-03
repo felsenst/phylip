@@ -73,7 +73,7 @@ char *progname;
 
 void dnapars_tree_setup(long nonodes, long spp)
 {
-  /* allocate new tree(s) */
+  /* call allocation and initialization of three new trees */
 
   curtree = dnapars_tree_new(nonodes, spp);
   bestree = dnapars_tree_new(nonodes, spp);
@@ -404,8 +404,8 @@ void doinput(void)
     }
   }
   makeweights();
-  dnapars_tree_setup(nonodes, spp);
-  dna_makevalues(curtree, usertree);
+  dnapars_tree_setup(nonodes, spp);               /* set up the three trees */
+  dna_makevalues(curtree, usertree);    /* put information on sites at tips */
 }  /* doinput */
 
 
@@ -702,7 +702,8 @@ void freerest(void)
 
 void dnaparsrun(void)
 {
-  // debug printout // JRMdebug
+  /* run the inference of trees, for all data sets and all addition orders
+   * of species */
   /*
   printf("jumble: %i\n", jumble);
   printf("njumble: %li\n", njumble);
@@ -727,27 +728,25 @@ void dnaparsrun(void)
   printf("interleaved: %i\n", interleaved);
   printf("justwts: %i\n", justwts);
 */
-  for (ith = 1; ith <= msets; ith++) {
+  for (ith = 1; ith <= msets; ith++) {                 /* for each data set */
     if (!(justwts && !firstset))
     {
-      //printf("calling allocrest\n"); // JRMdebug
-      allocrest();
+      allocrest();                                       /* allocate things */
     }
     if (msets > 1 && !justwts) {
       fprintf(outfile, "\nData set # %ld:\n\n", ith);
       if (progress)
-      {
+      {                         /* print notification of progress on screen */
         sprintf(progbuf, "\nData set # %ld:\n\n", ith);
         print_progress(progbuf);
       }
     }
-    //printf("calling doinput\n"); // JRMdebug
-    doinput();
+    doinput();                 /* get input and set up tips of tree with it */
     if (ith == 1)
       firstset = false;
-    for (jumb = 1; jumb <= njumble; jumb++)
+    for (jumb = 1; jumb <= njumble; jumb++)  /* for jumbling addition order */
     {
-      maketree();
+      maketree();  /* reconstruct tree for one order of addition of species */
     }
     if (!justwts)
       freerest();
@@ -755,7 +754,7 @@ void dnaparsrun(void)
     fflush(outtree);
   }
 
-/* debug   curtree->free(curtree);     commented out because crashes */
+/* debug:  curtree->free(curtree);     commented out because crashes */
 } /* dnaparsrun */
 
 
@@ -793,9 +792,6 @@ void dnapars(
   )
 {
   initdata funcs;
-
-  //printf("Hello from DnaPars!\n"); // JRMdebug
-
   int argc;
   Char *argv[1];
   argc = 1;
@@ -1072,7 +1068,7 @@ void dnapars(
     initjumble(&inseed, &inseed0, seed, &njumble);
   }
 
-  dnaparsrun();  // do the actual work
+  dnaparsrun();  /* do the actual work */
 
   FClose(infile);
   FClose(outfile);
@@ -1092,7 +1088,7 @@ void dnapars(
     FClose(intree);
   }
 
-  //printf("\ndone\n"); // JRMdebug
+  /* printf("\ndone\n");  JRMdebug   */
 } /* dnapars */
 
 

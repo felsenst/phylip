@@ -258,12 +258,13 @@ void generic_node_init (node* n, node_type type, long index)
   */
   if ( type == TIP_NODE )
     n->tip = true;
-  else if ( type == FORK_NODE )
-    n->tip = false;
-  else
-    /* Since we used to simply pass type = true for tips, any other value
-     * will be a tip... for now. */
-    n->tip = true;
+  else {
+    if ( type == FORK_NODE )
+      n->tip = false;
+    else /* Since we used to simply pass type = true for tips, any other value
+          * will be a tip... for now. */
+      n->tip = true;
+    }
 
   n->index = index;
   n->v = initialv;
@@ -271,7 +272,7 @@ void generic_node_init (node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;   /* debug: are these overriding more local assignments? */
+  n->init = generic_node_init;          /* hope to override these as needed */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -597,7 +598,7 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
     functions.node_new = generic_new_node;
-    functions.tree_new = generic_tree_new;
+    functions.tree_new = generic_tree_new;   /* debug: ever used from this? */
   } else {
     if ( ini->node_new != NULL )
       functions.node_new = ini->node_new;
@@ -623,7 +624,8 @@ void scan_eoln (FILE *f)
 
 
 boolean eoff(FILE *f)
-{ /* Return true iff next getc() is EOF */
+{
+  /* Return true iff next getc() is EOF */
   int ch;
 
   if (feof(f))
@@ -639,7 +641,8 @@ boolean eoff(FILE *f)
 
 
 boolean eoln(FILE *f)
-{ /* Return true iff next getc() is EOL or EOF */
+{ 
+  /* Return true iff next getc() is EOL or EOF */
   register int ch;
 
   ch = getc(f);
@@ -647,12 +650,14 @@ boolean eoln(FILE *f)
     return true;
   ungetc(ch, f);
   return ((ch == '\n') || (ch == '\r'));
-}  /*eoln*/
+}  /* eoln */
 
 
 boolean filexists(const char *filename)
-{ /* Return true iff file already exists */
+{
+  /* Return true if and only if file already exists */
   FILE *fp;
+
   fp = fopen(filename,"r");
   if (fp) {
     fclose(fp);
@@ -774,7 +779,7 @@ void openfile(
           exxit(-1);
       }
     }
-    countup(&loopcount, 20);
+    countup(&loopcount, 20);     /* depart loop without reading if too many */
   }
   *fp = of;
   if (perm != NULL)
@@ -3526,19 +3531,19 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes * sizeof(node *));
+  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = functions.node_new(true, i+1);
+    t->nodep[i] = functions.node_new(true, i+1);               /* ... tips */
     t->nodep[i]->tip = true;
   }
-  for ( i = spp ; i < nonodes ; i++ ) {
-    q = functions.node_new(false, i+1 );
+  for ( i = spp ; i < nonodes ; i++ ) {       /* ... and to interior forks */
+    q = functions.node_new(false, i+1 ); /* set up a circle of three nodes */
     p = q;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);;
+    p->next = functions.node_new(false, i+1);    /* ... the second one ... */
     p = p->next;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);;
+    p->next = functions.node_new(false, i+1);    /* ... and the third one. */
     p = p->next;
     p->tip = false;
     p->next = q;
@@ -3546,15 +3551,15 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   }
 
   /* Create garbage lists */
-  t->free_fork_nodes = Slist_new();
+  t->free_fork_nodes = Slist_new();   /* where the fork nodes will be kept */
 
   /* Put all interior nodes on garbage lists by "releasing" them */
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
-  t->nodep[nonodes] = NULL;   /* might need this */
+  t->nodep[nonodes] = NULL; /* might need if unrooted tree is later rooted */
   t->root = t->nodep[0];   /* debug:  what if enterorder? */
-  generic_tree_setupfunctions(t);
+  generic_tree_setupfunctions(t);            /* set up some more functions */
 } /* generic_tree_init */
 
 
@@ -3607,8 +3612,8 @@ tree* generic_tree_new(long nonodes, long spp)
  /* debug:  allocate size of tree here or in the local tree_new functions? */
   tree* t;
 
-  t = Malloc(sizeof(tree));
-  generic_tree_init(t, nonodes, spp);
+  t = Malloc(sizeof(tree));     /* debug: add a size argument intead? */
+  generic_tree_init(t, nonodes, spp);       /* generic initialization steps */
   return t;
 } /* generic_tree_new */
 
