@@ -9,7 +9,7 @@
 #endif
 
 #include "phylip.h"
-#include "discrete.h"
+#include "discreteparsimony.h"
 
 extern long maxtrees;   /* from parsimony.c */
 extern long nextree;    /* from parsimony.c */
@@ -23,14 +23,14 @@ void   doinit(void);
 void   makeweights(void);
 void   doinput(void);
 void   evaluate(node *);
-void   tryadd(node *, node *, node *);
-void   addpreorder(node *, node *, node *);
-void   trydescendants(node *, node *, node *, node *, boolean);
-void   trylocal(node *, node *);
-void   trylocal2(node *, node *, node *);
-void   tryrearr(node *p, boolean *);
-void   repreorder(node *p, boolean *);
-void   rearrange(node **);
+void   tryadd(node *, node *, node *);         /* debug: used at all? */
+void   addpreorder(node *, node *, node *);         /* debug: used at all? */
+void   trydescendants(node *, node *, node *, node *, boolean);         /* debug: used at all? */
+void   trylocal(node *, node *);         /* debug: used at all? */
+void   trylocal2(node *, node *, node *);         /* debug: used at all? */
+void   tryrearr(node *p, boolean *);         /* debug: used at all? */
+void   repreorder(node *p, boolean *);         /* debug: used at all? */
+void   rearrange(node **);         /* debug: used at all? */
 void   describe(void);
 void   pars_coordinates(node *, double, long *, double *);
 void   pars_printree(void);
@@ -572,16 +572,13 @@ void pars_printree(void)
 }  /* pars_printree */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode;
   boolean firsttree, goteof, haslengths;
-#if 0                                   // RSGbugfix: Global variable never used.
-  pointarray nodep;
-#endif
 
   // RSGnote: This was formerly uninitialized and potentially referenced before being set
   // below, depending on which branch of the first IF below was taken.
@@ -766,7 +763,7 @@ void maketree(void)                     // RSGbugfix
         sprintf(progbuf, "Tree");
         print_progress(progbuf);
         // RSGnote: If IF branch of first conditional is taken, "numtrees" would have been uninitialized here.
-        if ((usertree && numtrees > 1) || (!usertree && nextree != 2))
+        if ((usertree && numtrees > 1) || (!usertree && nextree != 1))
         {
           sprintf(progbuf, "s");
           print_progress(progbuf);
@@ -1171,7 +1168,7 @@ void pars(
 int main(int argc, Char *argv[])
 {  /* Discrete character parsimony by uphill search */
 
-  /* reads in spp, chars, and the data. Then calls maketree to construct the tree */
+  /* reads in spp, chars, and data. Calls maketree to construct the tree */
   initdata *funcs;
 #ifdef MAC
   argc = 1;                /* macsetup("Pars", "");                */
