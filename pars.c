@@ -701,7 +701,7 @@ void maketree(void)
       firsttree = true;
       nextnode = 0;
       haslengths = true;
-      preparetree(curtree);
+/* debug:      preparetree(curtree);     need it?  */
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
       fixtree(curtree);
       reroot_tree(curtree);
