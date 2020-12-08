@@ -652,8 +652,9 @@ void maketree(void)
       for (i = 0; i < outCount ; i++)
       {
         load_tree(curtree, i, bestrees);
-        curtree->evaluate(curtree, curtree->root, 0);
         curtree->root = root_tree(curtree, curtree->root);
+        initializetrav(curtree, curtree->root);
+        curtree->evaluate(curtree, curtree->root, 0);
         disc_treelength(curtree->root, chars, curtree->nodep);
         pars_printree();
         describe();
