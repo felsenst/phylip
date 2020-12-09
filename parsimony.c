@@ -59,7 +59,8 @@ node* root_tree(tree* t, node* here)
   hookup(here, nuroot1);
   nuroot2 = t->get_forknode(t, k+1);
   nuroot1->next = nuroot2;
-  hookup(nuroot2, there);
+  if (there != NULL)
+    hookup(nuroot2, there);
   nuroot3 = t->get_forknode(t, k+1);
   nuroot2->next = nuroot3;
   nuroot3->next = nuroot1;
@@ -772,18 +773,19 @@ void printbranchlengths(node *p)
   if (p->tip)
     return;
   q = p->next;
-  do {
-    fprintf(outfile, "%6ld      ", q->index - spp);
-    if (q->back->tip)
-    {
-      for (i = 0; i < nmlngth; i++)
-        putc(nayme[q->back->index - 1][i], outfile);
+  do {                    /* go around fork circle, recursing out as needed */
+    if (q->back != NULL) {  /* unless are at the bottom fork of rooted tree */
+      fprintf(outfile, "%6ld      ", q->index - spp); /* print fork number, */
+      if (q->back->tip)
+      {
+        for (i = 0; i < nmlngth; i++)         /* ... then name if a tip ... */
+          putc(nayme[q->back->index - 1][i], outfile);
+      }
+      else
+        fprintf(outfile, "%6ld    ", q->back->index - spp);  /* else number */
+      fprintf(outfile, "   %f\n", q->v);
+      printbranchlengths(q->back);       /* on our way out through the tree */
     }
-    else
-      fprintf(outfile, "%6ld    ", q->back->index - spp);
-    fprintf(outfile, "   %f\n", q->v);
-    if (q->back)
-      printbranchlengths(q->back);
     q = q->next;
   } while (q != p);
 } /* printbranchlengths */
@@ -795,20 +797,21 @@ void initbranchlen(node *p)
   node *q;
 
   p->v = 0.0;
-  if (p->back)
+  if (p->back != NULL)             /* set length at start of branch to zero */
     p->back->v = 0.0;
   if (p->tip)
     return;
   q = p->next;
   while (q != p)
   {
-    initbranchlen(q->back);
+    if (q->back != NULL)                        /* recurse out through tree */
+      initbranchlen(q->back);
     q = q->next;
   }
   q = p->next;
   while (q != p)
   {
-    q->v = 0.0;
+    q->v = 0.0;      /* ... then set branch length at end of branch to zero */
     q = q->next;
   }
 } /* initbranchlen */
@@ -1280,8 +1283,8 @@ void coordinates(tree* t, node *p, double lengthsum, long *tipy,
 
 void drawline3(long i, double scale, node *start)
 {
-  /* draws one row of the tree diagram by moving up tree */
-  /* used in dnapars */
+  /* draws one row of the tree diagram by moving up tree
+   * used in pars and dnapars */
   node *p, *q;
   long n, j;
   boolean extra;
@@ -1291,7 +1294,7 @@ void drawline3(long i, double scale, node *start)
   p = start;
   q = start;
   extra = false;
-  if (i == (long)p->ycoord)
+  if (i == (long)p->ycoord)                /* print number of interior fork */
   {
     if (p->index - spp >= 10)
       fprintf(outfile, " %2ld", p->index - spp);
@@ -1314,15 +1317,17 @@ void drawline3(long i, double scale, node *start)
         }
         r = r->next;
       } while (!(done || (r == p)));
-      first = p->next->back;
+      first = p->next->back;         /* find first immediate descendant ,,, */
       r = p;
-      while (r->next != p)
+      while (r->next != p) {
         r = r->next;
-      last = r->back;
+        if (r->back != NULL)                            /* ... and last one */
+          last = r->back;
+      }
     }
     done = (p->tip || p == q);
     n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);
-    if (n < 3 && !q->tip)
+    if (n < 3 && !q->tip)      /* branch must be at least 3 characters long */
       n = 3;
     if (extra)
     {
@@ -1331,28 +1336,28 @@ void drawline3(long i, double scale, node *start)
     }
     if ((long)q->ycoord == i && !done)
     {
-      if ((long)p->ycoord != (long)q->ycoord)
+      if ((long)p->ycoord != (long)q->ycoord)     /* if at corner of branch */
         putc('+', outfile);
-      else
+      else                                  /* otherwise print another dash */
         putc('-', outfile);
       if (!q->tip)
       {
-        for (j = 1; j <= n - 2; j++)
+        for (j = 1; j <= n - 2; j++)  /* print enough dashes to get to fork */
           putc('-', outfile);
-        if (q->index - spp >= 10)
+        if (q->index - spp >= 10)                   /* print number at fork */
           fprintf(outfile, "%2ld", q->index - spp);
         else
           fprintf(outfile, "-%ld", q->index - spp);
         extra = true;
       }
       else
-      {
+      {      /* if it's to lead to a tip, print enough dashes but no number */
         for (j = 1; j < n; j++)
           putc('-', outfile);
       }
     }
     else if (!p->tip)
-    {
+    {                     /* if a branch crosses here, print a vertical bar */
       if ((long)last->ycoord > i && (long)first->ycoord < i &&
           (i != (long)p->ycoord || p == start))
       {
@@ -1374,7 +1379,7 @@ void drawline3(long i, double scale, node *start)
     if (q != p)
       p = q;
   } while (!done);
-  if ((long)p->ycoord == i && p->tip)
+  if ((long)p->ycoord == i && p->tip)      /* now we print the species name */
   {
     for (j = 0; j < nmlngth; j++)
       putc(nayme[p->index-1][j], outfile);
@@ -1466,24 +1471,27 @@ debug:   */
 
 void treeout3(node *p, long nextree, long *col, long indent, node *root)
 {
-  /* write out file with representation of final tree */
-  /* used in dnapars -- writes branch lengths */
+  /* write out file with representation of final tree
+   * used in pars and dnapars -- writes branch lengths
+   * This version also indents additional lines of trees appropriately */
   node *q;
   long i, n, w;
   double x;
   Char c;
 
+  if (p == NULL)                                /* bail out if no node here */
+    return;
   if (p == root)
     indent = 0;
   if (p->tip)
   {
     n = 0;
     for (i = 1; i <= nmlngth; i++)
-    {
+    {                                           /* how long is species name */
       if (nayme[p->index - 1][i - 1] != ' ')
         n = i;
     }
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++)                       /* write out species name */
     {
       c = nayme[p->index - 1][i];
       if (c == ' ')
@@ -1494,19 +1502,19 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
   }
   else
   {
-    putc('(', outtree);
+    putc('(', outtree);                   /* left paren if encounter a fork */
     (*col)++;
-    indent++;                         /* increment amount of line indent */
+    indent++;                            /* increment amount of line indent */
     q = p->next;
     while (q != p)
     {
-      treeout3(q->back, nextree, col, indent, root);
+      treeout3(q->back, nextree, col, indent, root);         /* recurse out */
       q = q->next;
-      if (q == p)
+      if (q == p)                       /* ... unless we are done with fork */
         break;
-      putc(',', outtree);
+      putc(',', outtree);             /* ... printing a comma for next furc */
       (*col)++;
-      if (*col > 60)
+      if (*col > 60)    /* move on to new line if get too far right on line */
       {
         putc('\n', outtree);
         *col = 0;
@@ -1514,26 +1522,27 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
           putc(' ', outtree);
       }
     }
-    putc(')', outtree);
+    putc(')', outtree);        /* finish with fork by printing right-paren */
     (*col)++;
   }
-  x = p->v;
-  if (x > 0.0)
+  x = p->v;                                      /* printing branch length */
+  if (x > 0.0)       /* hard part is figuring out how wide number is to be */
     w = (long)(0.43429448222 * log(x));
-  else if (x == 0.0)
-    w = 0;
-  else
-    w = (long)(0.43429448222 * log(-x)) + 1;
-  if (w < 0)
+  else { if (x == 0.0)
+      w = 0;
+    else
+      w = (long)(0.43429448222 * log(-x)) + 1;
+  }
+  if (w < 0)                                           /* gets bizarre ... */
     w = 0;
   if (p != root)
   {
     fprintf(outtree, ":%*.5f", (int)(w + 7), x);
     *col += w + 8;
   }
-  if (p != root)
+  if (p != root)                                       /* end of a recurse */
     return;
-  if (nextree > 2)
+  if (nextree > 2)              /* weights of trees if there are tied ones */
     fprintf(outtree, "[%6.4f];\n", 1.0 / (nextree - 1));
   else
     fprintf(outtree, ";\n");

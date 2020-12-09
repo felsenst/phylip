@@ -565,7 +565,8 @@ void discinitbase(node *p, long sitei)
   q = p->next;
   while (q != p)
   {
-    discinitbase(q->back, sitei);
+    if (q->back != NULL)
+      discinitbase(q->back, sitei);
     q = q->next;
   }
 } /* initbase */
@@ -576,22 +577,25 @@ void inittreetrav(node *p, long sitei)
   /* traverse tree to clear boolean initialized and set up base */
   node *q;
 
+  if (p == NULL)                                /* unless it's an empty tip */
+    return;
   if (p->tip)
   {
-    discinitmin((discretepars_node*)p, sitei, false);
-    p->initialized = true;
+    discinitmin((discretepars_node*)p, sitei, false);   /* initialize state */
+    p->initialized = true;                       /* mark tip as initialized */
     return;
   }
-  q = p->next;
+  q = p->next;                                  /* for an interior fork ... */
   while (q != p)
   {
-    inittreetrav(q->back, sitei);
+    if (q != NULL)
+      inittreetrav(q->back, sitei);          /* ... go recursively outwards */
     q = q->next;
   }
-  discinitmin((discretepars_node*)p, sitei, true);
-  p->initialized = false;
+  discinitmin((discretepars_node*)p, sitei, true); /* initializing state,,, */
+  p->initialized = false;      /* ... marking them as needing to be updated */
   q = p->next;
-  while (q != p)
+  while (q != p)                 /* ,,, and continue around fork doing that */
   {
     discinitmin((discretepars_node*)q, sitei, true);
     q->initialized = false;
@@ -1155,7 +1159,7 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
   /* determines the number of steps needed for a tree. this is
      the minimum number of steps needed to evolve sequences on
      this tree */
-  long i, steps;
+  long i, steps = 0;
   double term;
   double sum = 0.0;
   discretepars_node* p = (discretepars_node*)n;
@@ -1166,24 +1170,31 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
 
   for (i = 0; i < endsite; i++)
   {
-    steps = ((pars_node*)p)->numsteps[i] + ((pars_node*)q)->numsteps[i];
-    base1 = p->discbase[i];
-    base2 = q->discbase[i];
-    if ( (base1 & base2) == 0 )
-      steps += weight[i];
-    if ( ((pars_tree*)t)->supplement)
+    if (p != NULL) {
+      steps = ((pars_node*)p)->numsteps[i];
+      base1 = p->discbase[i];
+    }
+    if (q != NULL) {
+      steps += ((pars_node*)q)->numsteps[i];
+      base2 = q->discbase[i];
+    }
+    if ((p != NULL) && (q != NULL)) {  /* if neither end of branch is empty */
+      if ( ((base1 & base2) == 0) )
+        steps += weight[i];       /* a step in this branch if sets disjunct */
+    }
+    if ( ((pars_tree*)t)->supplement)    /* add steps from polymorphic tips */
       steps += ((pars_tree*)t)->supplement(t, i);
 
-    if (steps <= threshwt[i])
+    if (steps <= threshwt[i])                    /* for threshold parsimony */
       term = steps;
     else
       term = threshwt[i];
     sum += term;
-    if (usertree && which <= maxuser && !reusertree)
-      fsteps[which - 1][i] = term;
+    if (usertree && which <= maxuser && !reusertree) /* make array of steps */
+      fsteps[which - 1][i] = term; /* ... for up to maximum number of trees */
   }
   if (usertree && which <= maxuser && !reusertree)
-  {
+  {             /* find which tree has fewest steps and how many there were */
     nsteps[which - 1] = sum;
     if (which == 1)
     {

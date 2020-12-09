@@ -512,43 +512,48 @@ void describe(void)
 void pars_coordinates(node *p, double lengthsum, long *tipy,
                       double *tipmax)
 {
-  /* establishes coordinates of nodes */
+  /* establishes coordinates of nodes where tree is drawn left to right
+   * so y coordinate is across tips and x coordinate is along branches */
   node *q, *first, *last;
   double xx;
 
   if (p == NULL)
     return;
   if (p->tip)
-  {
+  {                       /* if it is a tip, assign ycoord next amount down */
     p->xcoord = (long)(over * lengthsum + 0.5);
     p->ycoord = (*tipy);
     p->ymin = (*tipy);
     p->ymax = (*tipy);
     (*tipy) += down;
-    if (lengthsum > (*tipmax))
+    if (lengthsum > (*tipmax))     /* keep track of how far to right tip is */
       (*tipmax) = lengthsum;
     return;
   }
   q = p->next;
-  do {
+  do { 
     xx = q->v;
-    if (xx > 100.0)
+    if (xx > 100.0)     /* make sure tree doesn't stick out too far on line */
       xx = 100.0;
-    pars_coordinates(q->back, lengthsum + xx, tipy, tipmax);
+    pars_coordinates(q->back, lengthsum + xx, tipy, tipmax); /* recurse out */
     q = q->next;
   } while (p != q);
-  first = p->next->back;
+  first = p->next->back;             /* find immediate first descendant ,,, */
   q = p;
-  while (q->next != p)
+  while (q->next != p) {
     q = q->next;
-  last = q->back;
+    if (q->back != NULL)
+      last = q->back;                                   /* ... and last one */
+  }
   p->xcoord = (long)(over * lengthsum + 0.5);
-  if ((p == curtree->root) || count_sibs(p) > 2)
-    p->ycoord = p->next->next->back->ycoord;
-  else
+  if ( (count_sibs(p) > 2) || ((p == curtree->root) 
+                               && (p->next->next->back != NULL)) ) {
+      p->ycoord = p->next->next->back->ycoord;
+  }
+  else   /* y coordinate is halfway between that of first, last descendants */
     p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
-  p->ymax = last->ymax;
+  p->ymin = first->ymin;                   /* y coordinates of leftmost ... */
+  p->ymax = last->ymax;   /* ... and rightmost tips descended from this one */
 }  /* pars_coordinates */
 
 
@@ -653,11 +658,16 @@ void maketree(void)
       {
         load_tree(curtree, i, bestrees);
         curtree->root = root_tree(curtree, curtree->root);
+        reroot(curtree->nodep[outgrno - 1], curtree->root);
         initializetrav(curtree, curtree->root);
-        curtree->evaluate(curtree, curtree->root, 0);
+        initializetrav(curtree, curtree->root->back);
+        curtree->evaluate(curtree, curtree->root, false);
+        curtree->root = root_tree(curtree, curtree->root);
+        curtree->nodep[curtree->root->index - 1] = curtree->root;
         disc_treelength(curtree->root, chars, curtree->nodep);
         pars_printree();
         describe();
+        reroot_tree(curtree);
       }
     }
   }
