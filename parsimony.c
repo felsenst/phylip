@@ -127,7 +127,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
   t->insert_(t, item, p->back, false);
-  initializetrav(t, t->root);
+  initializetrav(t, t->root);                /* make sure updates all views */
   initializetrav(t, t->root->back);
   like = t->evaluate(t, p, false);
   t->score = like;

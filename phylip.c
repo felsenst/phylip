@@ -397,7 +397,7 @@ void inittrav_all (tree *t)
    * problems. Not needed for regular program execution --
    * replaced by function initializetrav */
 
-  node *p;
+  node *p, *q;
   long index;
 
   /* For each fork node (spp..nonodes-1) */
@@ -406,8 +406,8 @@ void inittrav_all (tree *t)
 
     /* Go around circle, set initialized false on all nodes in fork */
     p->initialized = false;
-    for ( p = p->next; p != t->nodep[index]; p = p->next ) {
-      p->initialized = false;
+    for ( q = p->next; q != p; q = q->next ) {
+      q->initialized = false;
     }
   }
 } /* inittrav_all */
@@ -433,10 +433,10 @@ void initializetrav (tree* t, node *p)
       else
         p->back->initialized = false;
     }
-    if (p->tip)                            /* bail if at a tip */
+    if (p->tip)                                         /* bail if at a tip */
       return;
-    for (q = p->next; q != p; q = q->next) { /* go to rest of fork circle */
-      q->initialized = false;                /* setting nodes uninitialized */
+    for (q = p->next; q != p; q = q->next) {   /* go to rest of fork circle */
+      q->initialized = false;            /* ... setting nodes uninitialized */
       initializetrav (t, q->back);        /* ... and on outwards from there */
     }
   }
@@ -4781,6 +4781,8 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
 
   succeeded = false;
   t->insert_(t, p, q, false);
+  initializetrav(t, t->root);
+  initializetrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
   if (atstart)
     bettertree = true;

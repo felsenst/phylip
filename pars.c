@@ -658,7 +658,6 @@ void maketree(void)
       {
         load_tree(curtree, i, bestrees);
         curtree->root = root_tree(curtree, curtree->root);
-        reroot(curtree->nodep[outgrno - 1], curtree->root);
         initializetrav(curtree, curtree->root);
         initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
@@ -667,7 +666,6 @@ void maketree(void)
         disc_treelength(curtree->root, chars, curtree->nodep);
         pars_printree();
         describe();
-        reroot_tree(curtree);
       }
     }
   }
