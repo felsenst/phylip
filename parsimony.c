@@ -319,7 +319,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   {
     bestrees[i].collapse = true;
   }
-  if(progress)
+  if (progress)
   {
     sprintf(progbuf, "\nCollapsing best trees\n   ");
     print_progress(progbuf);
@@ -334,10 +334,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
         print_progress(progbuf);
       }
     }
-    while(!bestrees[k].collapse)
+    while (!bestrees[k].collapse)
       k++;
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
-    while ( treecollapsible(t, t->nodep[0]))
+    while ( treecollapsible(t, t->nodep[0]) )
       collapsetree(t, t->nodep[0]);
     savetree(t, place);          /* set aside collapsed tree in place array */
     if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
@@ -663,7 +663,8 @@ void addbestever(long pos, long *nextree, long maxtrees, boolean collapse,
 } /* addbestever */
 
 
-void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse, long *place, bestelm *bestrees, double score)
+void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse,
+                  long *place, bestelm *bestrees, double score)
 {
   /* add a tied tree.   pos is the position in the range  0 .. (nextree-1) */
   boolean found;

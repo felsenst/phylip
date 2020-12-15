@@ -2347,7 +2347,7 @@ void findtree(boolean *found, long *pos, long nextree,
                long *place, bestelm *bestrees)
 {
   /* finds tree given by array place in array bestrees by binary search */
-  /* used by Dnacomp, Dnapars, Dollop, Mix, and Protpars */
+  /* used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars */
   long i, lower, upper;
   boolean below, done;
 
@@ -2355,30 +2355,31 @@ void findtree(boolean *found, long *pos, long nextree,
   lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
-  while (!(*found) && lower <= upper) {   /* debug: <= or <  ? */
+  while (!(*found) && (lower < upper)) {   /* debug: <= or <  ? */
     (*pos) = (lower + upper) / 2;  /* look in the middle of current region */
-    i = 3;                 /* first two positions are always  1, 2 so skip */
+    i = 3;                /* first two positions are always  1, 1, so skip */
     done = false;
     while (!done) {                 /* go along place array checking match */
       done = (i > spp);
-      if (!done)
-        done = (place[i-1] != bestrees[*pos].btree[i - 1]);
-      if (!done)
-        i++;
+      if (done)      /* blast out of while loop do if reached last species */
+        break;
+      done = (place[i-1] != bestrees[*pos].btree[i - 1]);
+      i++;
     }
     (*found) = (i > spp);
     if (*found)                    /* you found a match, blast your way out */
       break;
-    below = (place[i-1] <  bestrees[*pos].btree[i - 1]);
+    below = (place[i-1] < bestrees[*pos].btree[i - 1]);
     if (below)                    /* set limits to subregion below or above */
       upper = (*pos) - 1;
     else
       lower = (*pos) + 1;
   }
-  if (!((*pos) == (nextree-1)))                          /* if not past end */
-    if (!(*found))                                  /* and didn't find tree */
+  if (!((*pos) >= nextree))                          /* if not past end */
+    if (!(*found)) {                                /* and didn't find tree */
       if (!below)                               /* and it may be above here */
-    (*pos)++;
+        (*pos)++;
+    }
 }  /* findtree */
 
 
@@ -2386,7 +2387,7 @@ void addtree(long pos, long *nextree, boolean collapse,
               long *place, bestelm *bestrees)
 {
   /* puts tree from array place in its proper position in array bestrees
-   * used by Dnacomp, Dnapars, Dollop, Mix, and Protpars
+   * used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars
    * pos takes range 0 .. nextree-1.  There are currently  nextree trees
    * occupying that range, and once it is added there will then be
    * nextree+1 trees occupying range  0 .. nextree  */
@@ -2396,14 +2397,13 @@ void addtree(long pos, long *nextree, boolean collapse,
   {                          /* shift information for tree up by one tree */
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
-    bestrees[i - 1].gloreange = false;
     bestrees[i].locreange = bestrees[i - 1].locreange;
-    bestrees[i - 1].locreange = false;
     bestrees[i].collapse = bestrees[i - 1].collapse;
   }
-  for (i = 0; i < spp; i++)
+  for (i = 0; i < spp; i++)         /* write the place[i] entries in here */
     bestrees[pos].btree[i] = place[i];
-  /*  bestrees[pos - 1].gloreange = false;  debug:  do we need this? */
+  bestrees[pos].gloreange = false;
+  bestrees[pos].locreange = false;
   bestrees[pos].collapse = false;
 
   (*nextree)++;
