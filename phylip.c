@@ -2355,7 +2355,7 @@ void findtree(boolean *found, long *pos, long nextree,
   lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
-  while (!(*found) && (lower < upper)) {   /* debug: <= or <  ? */
+  while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ? */
     (*pos) = (lower + upper) / 2;  /* look in the middle of current region */
     i = 3;                /* first two positions are always  1, 1, so skip */
     done = false;
@@ -2375,9 +2375,9 @@ void findtree(boolean *found, long *pos, long nextree,
     else
       lower = (*pos) + 1;
   }
-  if (!((*pos) >= nextree))                          /* if not past end */
+  if (!((*pos) >= nextree))                              /* if not past end */
     if (!(*found)) {                                /* and didn't find tree */
-      if (!below)                               /* and it may be above here */
+      if (below)                         /* so need to insert it above here */
         (*pos)++;
     }
 }  /* findtree */

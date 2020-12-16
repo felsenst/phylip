@@ -590,13 +590,13 @@ void maketree(void)
   long numtrees = 0;
 
   if (!usertree)
-  {
+  {                            /* if sequentially adding, rearranging trees */
     lastrearr = false;
     hsbut(curtree, bestree, priortree, false, jumble, jumb, seed,
-           progress, &bestfound);
+           progress, &bestfound);      /* call adding and local rearranging */
 
     if (progress)
-    {
+    {      /* announce doing SPR rearrangements, print head of progress bar */
       sprintf(progbuf, "\nDoing global rearrangements");
       print_progress(progbuf);
       if (rearrfirst)
@@ -620,7 +620,7 @@ void maketree(void)
 
     phyFillScreenColor();
     grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
-
+        /* call function doing collapsing of best trees, SPR rearrangements */
     if (progress)
     {
       sprintf(progbuf, "\n");
@@ -636,25 +636,26 @@ void maketree(void)
       if (treeprint)
       {
         putc('\n', outfile);
-        if (outCount == 2)
+        if (outCount == 0)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
         {
           if (missedCount > 0)
           {
             fprintf(outfile, "as many as %ld trees may have been found\n",
-                     missedCount + outCount);
-            fprintf(outfile, "here are the first %4ld of them\n", outCount );
+                     missedCount + outCount + 1);
+            fprintf(outfile, "here are the first %4ld of them\n",
+                               outCount + 1 );
           }
           else
           {
-            fprintf(outfile, "%6ld trees in all found\n", outCount);
+            fprintf(outfile, "%6ld trees in all found\n", outCount + 1);
           }
         }
       }
       if (treeprint)
         putc('\n', outfile);
-      for (i = 0; i < outCount ; i++)
+      for (i = 0; i <= outCount ; i++)          /* print out the best trees */
       {
         load_tree(curtree, i, bestrees);
         curtree->root = root_tree(curtree, curtree->root);
@@ -691,7 +692,7 @@ void maketree(void)
         putc('s', outfile);
       fprintf(outfile, ":\n");
     }
-    if (!reusertree)
+    if (!reusertree)       /* if not rearranging the trees that are read in */
     {
       fsteps = (long **)Malloc(maxuser * sizeof(long *));
       for (j = 1; j <= maxuser; j++)
@@ -716,15 +717,15 @@ void maketree(void)
       reroot_tree(curtree);
       curtree->evaluate(curtree, curtree->root, false);
 
-      if ( reusertree )
-      {
+      if ( reusertree )                      /* if rearrange the user trees */
+      {                          /* but don't print them out till done that */
         rebestyet = curtree->score;
         bestrees = rebestrees[0];
         grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
         which++;
       }
       else
-      {
+      {                                         /* print out this user tree */
         curtree->root = root_tree(curtree, curtree->root);
         if (treeprint)
           fprintf(outfile, "\n\n");
@@ -737,7 +738,7 @@ void maketree(void)
       }
     }
     if ( reusertree )
-    {
+    {        /* if user trees were rearranged, now, finally, print them out */
       for (i = 0; i <= (nextree - 2); i++)
       {
         load_tree(curtree, i, bestrees);
@@ -751,7 +752,7 @@ void maketree(void)
 
     FClose(intree);
     putc('\n', outfile);
-    if (numtrees > 1 && chars > 1  && !reusertree)
+    if (numtrees > 1 && chars > 1  && !reusertree)     /* do KHT or SH Test */
       standev(chars, numtrees, minwhich, minsteps, nsteps, fsteps, seed);
     if ( !reusertree)
     {
@@ -761,13 +762,13 @@ void maketree(void)
     }
   }
 
-  if (jumb == njumble)
+  if (jumb == njumble)        /* if at end of last jumble or if no jumbling */
   {
-    if (progress)
+    if (progress)    /* announce that the trees were written to output file */
     {
       sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);
       print_progress(progbuf);
-      if (trout)
+      if (trout)          /* ... and if needed, to the output tree file too */
       {
         sprintf(progbuf, "Tree");
         print_progress(progbuf);

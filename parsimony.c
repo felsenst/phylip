@@ -345,8 +345,8 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       {
         memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
         bestrees[j].gloreange = bestrees[j + 1].gloreange;
-        bestrees[j + 1].gloreange = false;
         bestrees[j].locreange = bestrees[j + 1].locreange;
+        bestrees[j + 1].gloreange = false;
         bestrees[j + 1].locreange = false;
         bestrees[j].collapse = bestrees[j + 1].collapse;
       }
