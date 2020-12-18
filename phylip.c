@@ -2351,24 +2351,39 @@ void findtree(boolean *found, long *pos, long nextree,
   long i, lower, upper;
   boolean below, done;
 
+for (i = 0; i < nextree; i++) {
+printf("Stored: (%ld) %3ld %3ld %3ld %3ld %3ld %3ld %3ld\n", i+1, bestrees[i].btree[0],bestrees[i].btree[1], bestrees[i].btree[2], bestrees[i].btree[3], bestrees[i].btree[4], bestrees[i].btree[5], bestrees[i].btree[6]);
+}
+printf("-----------------------\n");
+printf("finding:    %3ld %3ld %3ld %3ld %3ld %3ld %3ld\n", place[0], place[1], place[2], place[3], place[4], place[5], place[6]);
+printf("-----------------------\n");
   below = false;
   lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
   while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ?? */
     (*pos) = (lower + upper) / 2;   /* look in the middle of current region */
+printf(" lower = %ld, upper = %ld, looking at: pos = %ld\n",lower, upper, *pos);
     i = 3;                 /* first two positions are always  1, 1, so skip */
     done = false;
     while (!done) {                  /* go along place array checking match */
       done = (i > spp);
-      if (done)       /* blast out of while loop do if reached last species */
+      if (done)          /* blast out of while loop if reached last species */
         break;
+printf("   look at position %ld, it",i-1);
       done = (place[i-1] != bestrees[*pos].btree[i - 1]);
-      i++;                          /* get ready to look at next array item */
+if (done)
+printf(" doesn't match\n");
+else
+printf(" matches\n");
+      if (!done)                      /* if matches so far, */
+        i++;                        /* get ready to look at next array item */
     }
     (*found) = (i > spp);
-    if (*found)                    /* you found a match, blast your way out */
+    if (*found) {                  /* you found a match, blast your way out */
+printf(" found match at %ld\n", *pos);
       break;
+    }
     below = (place[i-1] < bestrees[*pos].btree[i - 1]);
     if (below)                    /* set limits to subregion below or above */
       upper = (*pos) - 1;
@@ -2377,7 +2392,7 @@ void findtree(boolean *found, long *pos, long nextree,
   }
   if (!((*pos) >= nextree))                              /* if not past end */
     if (!(*found)) {                                /* and didn't find tree */
-      if (!below)                         /* so need to insert it above here */
+      if (!below)                        /* so need to insert it above here */
         (*pos)++;
     }
 }  /* findtree */
