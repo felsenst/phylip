@@ -52,7 +52,6 @@ node* root_tree(tree* t, node* here)
   long k;
   node *nuroot1, *nuroot2, *nuroot3, *there;  /* the three nodes in new circle
                                                * and a saving of here->back */
-
   k = generic_tree_findemptyfork(t);
   there = here->back;
   nuroot1 = t->get_forknode(t, k+1);
@@ -1495,7 +1494,7 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
     for (i = 0; i < n; i++)                       /* write out species name */
     {
       c = nayme[p->index - 1][i];
-      if (c == ' ')
+      if (c == ' ')                    /* with underscores replacing blanks */
         c = '_';
       putc(c, outtree);
     }
@@ -1511,16 +1510,16 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
     {
       treeout3(q->back, nextree, col, indent, root);         /* recurse out */
       q = q->next;
-      if (q == p)                       /* ... unless we are done with fork */
-        break;
-      putc(',', outtree);             /* ... printing a comma for next furc */
-      (*col)++;
-      if (*col > 60)    /* move on to new line if get too far right on line */
-      {
-        putc('\n', outtree);
-        *col = 0;
-        for (i = 1; i <= indent; i++) /* write indent at beginning of line */
-          putc(' ', outtree);
+      if (q != p) {                     /* ... unless we are done with fork */
+        putc(',', outtree);             /* ... printing a comma for next furc */
+        (*col)++;
+        if (*col > 60)    /* move on to new line if get too far right on line */
+        {
+          putc('\n', outtree);
+          *col = 0;
+          for (i = 1; i <= indent; i++) /* write indent at beginning of line */
+            putc(' ', outtree);
+        }
       }
     }
     putc(')', outtree);        /* finish with fork by printing right-paren */

@@ -631,7 +631,9 @@ void maketree(void)
     if (jumb == njumble)
     {
       long outCount = 0;
-      collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
+/* debug:  */   outCount = nextree - 1;   /* short-circuiting collapsing for now */
+for (i = 0; i < nextree; i++) {
+/* debug: for now:      collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);  */
       long missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
@@ -655,7 +657,7 @@ void maketree(void)
       }
       if (treeprint)
         putc('\n', outfile);
-      for (i = 0; i <= outCount ; i++)          /* print out the best trees */
+      for (i = 0; i < outCount ; i++)           /* print out the best trees */
       {
         load_tree(curtree, i, bestrees);
         curtree->root = root_tree(curtree, curtree->root);
