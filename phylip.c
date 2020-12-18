@@ -2355,16 +2355,16 @@ void findtree(boolean *found, long *pos, long nextree,
   lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
-  while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ? */
-    (*pos) = (lower + upper) / 2;  /* look in the middle of current region */
-    i = 3;                /* first two positions are always  1, 1, so skip */
+  while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ?? */
+    (*pos) = (lower + upper) / 2;   /* look in the middle of current region */
+    i = 3;                 /* first two positions are always  1, 1, so skip */
     done = false;
-    while (!done) {                 /* go along place array checking match */
+    while (!done) {                  /* go along place array checking match */
       done = (i > spp);
-      if (done)      /* blast out of while loop do if reached last species */
+      if (done)       /* blast out of while loop do if reached last species */
         break;
       done = (place[i-1] != bestrees[*pos].btree[i - 1]);
-      i++;
+      i++;                          /* get ready to look at next array item */
     }
     (*found) = (i > spp);
     if (*found)                    /* you found a match, blast your way out */
@@ -2377,7 +2377,7 @@ void findtree(boolean *found, long *pos, long nextree,
   }
   if (!((*pos) >= nextree))                              /* if not past end */
     if (!(*found)) {                                /* and didn't find tree */
-      if (below)                         /* so need to insert it above here */
+      if (!below)                         /* so need to insert it above here */
         (*pos)++;
     }
 }  /* findtree */
@@ -2393,7 +2393,7 @@ void addtree(long pos, long *nextree, boolean collapse,
    * nextree+1 trees occupying range  0 .. nextree  */
   long i;
 
-  for (i = *nextree; i > pos; i--)
+  for (i = *nextree; i > pos; i--) /* coming down from just above end ... */
   {                          /* shift information for tree up by one tree */
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
