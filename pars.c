@@ -631,9 +631,11 @@ void maketree(void)
     if (jumb == njumble)
     {
       long outCount = 0;
-/* debug:  */   outCount = nextree - 1;   /* short-circuiting collapsing for now */
-for (i = 0; i < nextree; i++) {
-/* debug: for now:      collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);  */
+      outCount = nextree - 1;
+      for (i = 0; i < nextree; i++) {
+        collapsebestrees(curtree, bestrees, place,
+                          chars, progress, &outCount);
+      }
       long missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
@@ -645,7 +647,7 @@ for (i = 0; i < nextree; i++) {
           if (missedCount > 0)
           {
             fprintf(outfile, "as many as %ld trees may have been found\n",
-                     missedCount + outCount + 1);
+                               missedCount + outCount + 1);
             fprintf(outfile, "here are the first %4ld of them\n",
                                outCount + 1 );
           }

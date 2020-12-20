@@ -314,7 +314,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   boolean found;
   long treeLimit = nextree < maxtrees ? nextree : maxtrees;
 
-  for(i = 0 ; i < treeLimit ; i++)
+  for(i = 0 ; i < treeLimit ; i++)            /* mark all trees collapsible */
   {
     bestrees[i].collapse = true;
   }
@@ -327,8 +327,8 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   for(i = 0 ; i < treeLimit ; i++) {
     if(progress)
     {
-      if(i % ((treeLimit / 72) + 1) == 0)
-      {
+      if(i % ((treeLimit / 72) + 1) == 0)  /* print progress as row of dots */
+      {                                     /* ... up to 71 long */
         sprintf(progbuf, ".");
         print_progress(progbuf);
       }
@@ -336,12 +336,12 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     while (!bestrees[k].collapse)
       k++;
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
-    while ( treecollapsible(t, t->nodep[0]) )
-      collapsetree(t, t->nodep[0]);
+    while ( treecollapsible(t, t->nodep[outgrno]) )
+      collapsetree(t, t->nodep[0]);         /* collapse tree  t  if you can */
     savetree(t, place);          /* set aside collapsed tree in place array */
     if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
       for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees forward */
-      {
+      {                       /* (in the process, overwriting the k-th tree */
         memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
         bestrees[j].gloreange = bestrees[j + 1].gloreange;
         bestrees[j].locreange = bestrees[j + 1].locreange;
@@ -352,10 +352,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     treeLimit--;         /* because there is now one fewer tree in bestrees */
     pos = 0;
-    findtree(&found, &pos, treeLimit, place, bestrees);
-
+    findtree(&found, &pos, treeLimit, place, bestrees);  /* find where the  */
+                       /* collapsed tree is to go, or whether already there */
     if (!found)      /* put the new tree in the the list if it wasn't found */
-    {
+    {                           /* (note: treeLimit is increased as needed) */
       addtree(pos, &treeLimit, false, place, bestrees);
     }
   }
