@@ -336,7 +336,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     while (!bestrees[k].collapse)
       k++;
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
-    while ( treecollapsible(t, t->nodep[outgrno]) )
+    while ( treecollapsible(t, t->nodep[outgrno-1]) )
       collapsetree(t, t->nodep[0]);         /* collapse tree  t  if you can */
     savetree(t, place);          /* set aside collapsed tree in place array */
     if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
@@ -1153,18 +1153,23 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
 boolean treecollapsible(tree* t, node* n)
 {
- /* find out whether there is any collapsible branch on the tree */
+ /* find out whether there is any collapsible branch on the tree.
+  * In initial call of the recursion,  n  should be a node that
+  * is not a tip */
   node *sib;
   boolean collapsible = false;
 
-  if ( ((pars_tree*)t)->branchcollapsible(t, n) )
+  if ( n == NULL )                /* in case it is called on branch at root */
+    return false;
+
+  if ( ((pars_tree*)t)->branchcollapsible(t, n) )      /* check this branch */
     return true;
 
-  if ( n->back->tip == true )
+  if ( n->back->tip == true )         /* in case we've reached a tip branch */
     return false;
 
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
-  {
+  {                                                  /* recurse further out */
     collapsible =  treecollapsible(t, sib) || collapsible;
   }
   return collapsible;

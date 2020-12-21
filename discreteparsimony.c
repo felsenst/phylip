@@ -1221,7 +1221,7 @@ boolean discretepars_tree_branchcollapsible(tree* t, node* n)
   long i;
   node* q;
 
-  if ( n->tip == true || n->back->tip == true )
+  if ( (n->tip == true) || (n->back->tip == true) )
     return false;
 
   q = n->back;
