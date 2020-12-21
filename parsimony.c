@@ -314,7 +314,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   boolean found;
   long treeLimit = nextree < maxtrees ? nextree : maxtrees;
 
-  for(i = 0 ; i < treeLimit ; i++)            /* mark all trees collapsible */
+  for (i = 0 ; i < treeLimit ; i++)           /* mark all trees collapsible */
   {
     bestrees[i].collapse = true;
   }
@@ -325,10 +325,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   }
   k = 0;
   for(i = 0 ; i < treeLimit ; i++) {
-    if(progress)
+    if (progress)
     {
-      if(i % ((treeLimit / 72) + 1) == 0)  /* print progress as row of dots */
-      {                                     /* ... up to 71 long */
+      if ( (i % ((treeLimit / 72) + 1) ) == 0)    /* (% = mod) progress as  */
+      { /* debug: fix formula for 72 */    /* ... row of dots up to 71 long */
         sprintf(progbuf, ".");
         print_progress(progbuf);
       }
