@@ -631,11 +631,9 @@ void maketree(void)
     if (jumb == njumble)
     {
       long outCount = 0;
-      outCount = nextree - 1;
-      for (i = 0; i < nextree; i++) {
-        collapsebestrees(curtree, bestrees, place,
-                          chars, progress, &outCount);
-      }
+      outCount = nextree;
+      collapsebestrees(curtree, bestrees, place,
+                        chars, progress, &outCount);
       long missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
