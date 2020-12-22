@@ -1177,44 +1177,47 @@ boolean treecollapsible(tree* t, node* n)
 
 
 void collapsebranch(tree* t, node* n)
-{ /* remove a branch and merge the forks at both ends */
+{ /* remove a branch and merge the forks at both ends
+   * node  n  must have its back pointer point to a fork circle */
   node* m, *sib, *newfork;
   long nsibs;
 
-  m = n->back;
-
-  nsibs = count_sibs(m);
-  (void)nsibs;               // RSGnote: Variable set but never referenced.
-
-  for ( sib = m->next ; sib != m ; sib = sib->next )
+  m = n->back;                               /* get other end of branch too */
+  nsibs = count_sibs(m);  /* debug:  is nsibs ever used? */
+  for ( sib = m->next ; sib != m ; sib = sib->next )    /* go around circle */
   {
-    if ( sib == m->next )
+    if ( sib == m->next )   /* debug:   huh?  check! */
       newfork = n;
     else
     {
-      newfork = t->get_forknode(t, n->index);
-      newfork->next = n->next;
+      newfork = t->get_forknode(t, n->index);            /* get a new node */
+      newfork->next = n->next;                /* put it in the fork circle */
       n->next = newfork;
     }
-    hookup(sib->back, newfork);
+    hookup(sib->back, newfork);       /* hook stuff in back to the new node */
   }
-  t->release_fork(t, m); 
-
-  inittrav(t, n);   /* now make initialized pointer false (ones looking in? */
-  inittrav(t, n->back);
-  n->initialized = false;
+  t->release_fork(t, m);               /* toss  m  back onto free node list */
+  inittrav(t, n);      /* now make initialized pointers looking in be false */
+  inittrav(t, n->back);       /* and also those looking in to the other end */
+    /* debug:  the preceding may be unnecessary, they may already be OK */
+  n->initialized = false;   /* debug: actually needed? */
+  n->back->initialized = false;
 } /* collapsebranch */
 
 
 void collapsetree(tree* t, node* n)
-{  /* collapse all branches that are designated as collapsible */
+{  /* collapse all branches that are designated as collapsible
+    * node  n  should be an outgroup tip or a fork circle node from
+    * which we are proceeding out the backs of each node in the
+    * circle except for the one where we reached the circle  */
   node *sib;
+
   if ( ((pars_tree*)t)->branchcollapsible(t, n) )
-    collapsebranch(t, n);
-  if ( n->back->tip == true)
+    collapsebranch(t, n);                 /* collapse this branch if we can */
+  if ( n->back->tip == true)      /* if have reached a tip don't go further */
     return;
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
-  {
+  {     /* go around circle, for all but initial node collapse back subtree */
     collapsetree(t, sib);
   }
 } /* collapsetree */
