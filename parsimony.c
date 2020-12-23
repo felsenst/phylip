@@ -1179,11 +1179,42 @@ boolean treecollapsible(tree* t, node* n)
 void collapsebranch(tree* t, node* n)
 { /* remove a branch and merge the forks at both ends
    * node  n  must have its back pointer point to a fork circle */
-  node* m, *sib, *newfork;
+  node *m, *prem, *pren, *p, *q; 
+  long i, j, k;
+  node *sib, *newfork;  /* debug: can delete this once code block deleted */
   long nsibs;
 
-  m = n->back;                               /* get other end of branch too */
-  nsibs = count_sibs(m);  /* debug:  is nsibs ever used? */
+
+  if (n == NULL)      /* make sure both ends of branch exist and are forks */
+    return;
+  if (n->tip)
+    return;
+  m = n->back;              /* get other end of branch too, do same checks */
+  if (m == NULL)
+    return;
+  if (m->tip)
+    return;
+  prem = precursor(m);            /* node in fork circle that precedes  m  */
+  pren = precursor(n);                            /* ... and ditto for  n  */
+  i = n->index;                          /* get indexes of the two circles */
+  j = m->index;
+  prem->next = n->next;                      /* merge the two fork circles */
+  pren->next = m->next;
+  if (i > j) {                 /* find the smaller of the fork indexes ... */
+    k = j;
+    k = i;
+    i = k;                                           /* ... it will be  i  */
+  }
+  t->release_forknode(t, m); /* now recycle  m, n  as are no longer needed */
+  t->release_forknode(t, n);
+  p = t->nodep[i-1];                               /* start of merged fork */
+  p->index = i; 
+  for (q = p->next; q != p; q = q->next) { /* renumber nodes in one of ... */
+    q->index = i;                         /* ... the original fork circles */
+  }
+  t->nodep[j-1] = NULL;    /* debug: necessary? Done by release_forknode? */
+/* debug:  need to replace all this code ... */
+#if 0
   for ( sib = m->next ; sib != m ; sib = sib->next )    /* go around circle */
   {
     if ( sib == m->next )   /* debug:   huh?  check! */
@@ -1197,11 +1228,11 @@ void collapsebranch(tree* t, node* n)
     hookup(sib->back, newfork);       /* hook stuff in back to the new node */
   }
   t->release_fork(t, m);               /* toss  m  back onto free node list */
-  inittrav(t, n);      /* now make initialized pointers looking in be false */
-  inittrav(t, n->back);       /* and also those looking in to the other end */
+#endif
+  inittrav(t, p);    /* make initialized pointers looking in to fork  false */
+  p->initialized = false;            /* (to make sure gets reset false too) */
+  inittrav(t, p->back);        /* (recurse out from fork circle doing that) */
     /* debug:  the preceding may be unnecessary, they may already be OK */
-  n->initialized = false;   /* debug: actually needed? */
-  n->back->initialized = false;
 } /* collapsebranch */
 
 

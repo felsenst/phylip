@@ -773,6 +773,7 @@ void            odd_malloc(long);
 MALLOCRETURN    *mymalloc(long);
 
 void            hookup(node*, node*);
+node*           precursor(node*);
 void            link_trees(long, long , long, pointarray);
 void            allocate_nodep(pointarray*, FILE*, long*);
 long            take_name_from_tree (Char*, Char*, FILE*);

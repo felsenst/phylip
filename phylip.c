@@ -288,11 +288,8 @@ void generic_node_reinit (node * n)
   n->v = initialv;
   n->iter = true;
   n->initialized = false;
-  /*
-    don't change n->index !!!
-    code relies upon having a unique index for each node
-    whether or not it's currently in the tree
-  */
+  /* may or may not want to change  n->index, depending
+   * on whether it is going onto the free forknode list */
 } /* generic_node_reinit */
 
 
@@ -2188,16 +2185,18 @@ void inputweights(long chars, steptr weight, boolean *weights)
 void inputweights2(long a, long b, long *weightsum,
                    steptr weight, boolean *weights, const char *prog)
 {
-  /* input the character weights, 0 or 1 */
+  /* input the character weights,  0 or 1, for characters  a  through b.
+   * Doing this only for a range of weights because possibly have
+   * interleaved format, so only inputting a range of sites at a time */
   Char ch;
   long i;
 
   *weightsum = 0;
-  for (i = a; i < b; i++) {
+  for (i = a-1; i < b; i++) {    /*  i  is off-by-one from character number */
     do {
       if (eoln(weightfile))
         scan_eoln(weightfile);
-      ch = gettc(weightfile);
+      ch = gettc(weightfile);    /* get the character specifying the weight */
     } while (ch == ' ');
     weight[i] = 1;
     if (ch == '0' || ch == '1')
@@ -2209,7 +2208,7 @@ void inputweights2(long a, long b, long *weightsum,
       print_progress(progbuf);
       exxit(-1);
     }
-    *weightsum += weight[i];
+    *weightsum += weight[i];               /* add to the sum of the weights */
   }
   *weights = true;
   scan_eoln(weightfile);
@@ -2651,7 +2650,7 @@ void commentskipper(FILE *intree, long *bracket)
 
 long countcomma(FILE *treefile, long *comma)
 {
-  /* Modified by Dan F. 11/10/96: 
+  /* Modified by Dan Fineman, 11/10/96: 
    * countcomma rewritten so it passes back both lparen+comma to allocate
    * nodep and a pointer to the comma variable.  This allows the tree to know
    * how many species exist, and the tips to be placed in the front of the
@@ -2708,7 +2707,7 @@ long countsemic(FILE *treefile)
   }
 
   /* Then figure out if the first non-white character is a digit; if
-     so, return it */
+     so, return it.  Note: may not allow tree to be just one node */
   if (isdigit (c))
   {
     ungetc(c, treefile);
@@ -2811,6 +2810,16 @@ void hookup(node *p, node *q)
   p->back = q;
   q->back = p;
 }  /* hookup */
+
+
+node* precursor (node* n)
+{ /* go around a fork circle until we find the node that has  n  as next
+   * note -- will crash if  p  is NULL or maybe if  p  is a tip */
+ node *p;
+
+ for (p = n; p->next != n; p = p->next) {};   /* loop till you get there */
+ return p;
+} /* precursor */
 
 
 void link_trees(long local_nextnum, long nodenum, long local_nodenum,
@@ -2930,8 +2939,8 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
   long furcs = 0;
 
   if ((*ch) == '(') {
-    (*nextnode)++;          /* get ready to use new interior node */
-    nodei = *nextnode;      /* do what needs to be done at bottom */
+    (*nextnode)++;                    /* get ready to use new interior node */
+    nodei = *nextnode;                /* do what needs to be done at bottom */
     if ( (maxnodes != -1) && (nodei > maxnodes)) {
       sprintf(progbuf,
                "ERROR in input tree file: Attempting to allocate too\n");
@@ -3078,8 +3087,7 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
              nodep, goteof, first, nextnode, &ntips,
              haslengths, initnode, unifok, maxnodes);
 
-  /* Eat blank lines and end of current line*/
-  do {
+  do {                           /* Eat blank lines and end of current line */
     scan_eoln(treefile);
   }
   while (eoln(treefile) && !eoff(treefile));
@@ -3114,11 +3122,14 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     (*nextnode)++;
 
     if ( maxnodes != -1 && current_loop_index > maxnodes) {
-      sprintf(progbuf, "ERROR in intree file: Attempting to allocate too many nodes.\n");
+      sprintf(progbuf,
+            "ERROR in intree file: Attempting to allocate too many nodes.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "This is usually caused by a unifurcation.  To use this\n");
+      sprintf(progbuf,
+                  "This is usually caused by a unifurcation.  To use this\n");
       print_progress(progbuf);
-      sprintf(progbuf, "intree with this program, use Retree to read and write\n");
+      sprintf(progbuf,
+                  "intree with this program, use Retree to read and write\n");
       print_progress(progbuf);
       sprintf(progbuf, "this tree.\n");
       print_progress(progbuf);
@@ -3128,10 +3139,9 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     p = treenode[current_loop_index];
     pfirst = p;
     notlast = true;
-    while (notlast) {
+    while (notlast) {      /* This while loop goes through a circle (triad for
+                                         the case of bifurcations) of nodes */
       furcs++;
-      /* This while loop goes through a circle (triad for
-         bifurcations) of nodes */
       p = p->next;
       /* added to ensure that non base nodes in loops have indices */
       p->index = current_loop_index + 1;
@@ -3140,7 +3150,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
       addelement2(p, ch, parens, treefile, treenode, lngths, trweight,
                   goteof, nextnode, ntips, no_species, haslengths, unifok,
-                  maxnodes);
+                  maxnodes);                 /* recursive call for subtrees */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -3151,16 +3161,18 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       }
     }
     if ( furcs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in intree file: A Unifurcation was detected.\n");
+      sprintf(progbuf,
+               "ERROR in intree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this intree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+            "To use this intree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
       exxit(-1);
     }
 
-  } else if ((*ch) != ')') {
+  } else if ((*ch) != ')') {                       /* read the species name */
     for (i = 0; i < MAXNCH; i++)
       str[i] = '\0';
     len = take_name_from_tree (ch, str, treefile);
@@ -3173,7 +3185,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
   } else
     getch(ch, parens, treefile);
 
-  if ((*ch) == '[')                     /* getting tree weight from last comment field */
+  if ((*ch) == '[')          /* getting tree weight from last comment field */
   {
     if (!eoln(treefile))
     {
@@ -3193,7 +3205,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       {
         getch(ch, parens, treefile);
         if (*ch != ';') {
-          sprintf(progbuf, "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
           print_progress(progbuf);
           exxit(-1);
         }
@@ -3211,14 +3224,14 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
   if (q != NULL)
     hookup(q, pfirst);
-  /*if (q != NULL) {
+  /* debug:   if (q != NULL) {
     if (q->branchnum < pfirst->branchnum)
     pfirst->branchnum = q->branchnum;
     else
     q->branchnum = pfirst->branchnum;
-    } debug: FIXME check if we need this for restml */
+    }  FIXME check if we need this for restml */
 
-  if ((*ch) == ':') {
+  if ((*ch) == ':') {                              /* read a branch length */
     processlength(&valyew, &divisor, ch,
                   &minusread, treefile, parens);
     if (q != NULL) {
@@ -3271,7 +3284,8 @@ void treeread2 (FILE *treefile, node **root, pointarray treenode,
   }
 
   addelement2(NULL, &ch, &parens, treefile, treenode, lngths, trweight,
-              goteof, &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
+              goteof, &nextnode, &ntips, (*no_species), haslengths,
+              unifok, maxnodes);
   (*root) = treenode[*no_species];
 
   /*eat blank lines */
@@ -3290,7 +3304,7 @@ void treeread2 (FILE *treefile, node **root, pointarray treenode,
 
 void exxit(int exitcode)
 { /* Terminate the program with exit code exitcode.
-   * On Windows, supplying a nonzero exitcode will print a message and wait
+   * In Windows, supplying a nonzero exitcode will print a message and wait
    * for the user to hit enter. */
 
 #if defined(WIN32) || defined(MAC)
@@ -3691,12 +3705,6 @@ boolean generic_fork_good(tree *t, node * n)
     }
     else
     {
-#if 0  // RSGdebug: Variables set but never used.
-      if (p->back == NULL)
-        hasNullBack = true;
-      else
-        hasGoodBack = true;
-#endif
       boolean nodeGood = t->node_good_f(t,p);
       if ( !nodeGood )
       {
@@ -4621,7 +4629,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! p->next->next->initialized );   debug */
 
   }
-  else {                /* if is at a multifurcating node */
+  else {                                  /* if is at a multifurcating node */
     newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
     newnode->next = q->next;
     q->next = newnode;
@@ -4752,11 +4760,11 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 
 
 void generic_tree_release_forknode(tree* t, node* n)
-{ /* put a fork circle node onto the garbage list */
+{ /* put a fork circle node onto the tree's garbage list */
 
   n->reinit(n);
-  n->next = NULL;   // node_reinit(n) sets n->back to NULL
-  Slist_push(t->free_fork_nodes, n);
+  n->next = NULL;                    /* node_reinit(n) sets n->back to NULL */
+  Slist_push(t->free_fork_nodes, n); /* put it on the tree's free node list */
 } /* generic_tree_release_forknode */
 
 
