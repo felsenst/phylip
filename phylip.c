@@ -5043,7 +5043,7 @@ void print_progress(char *outstr)
 void seetree(tree * t)
 {
   /* prints out list of who connects to who.  For debugging */
-  /* Minor variation added by BobGian based on sample code from Joe. */
+  /* Minor variation by Bob Giansiracusa based on sample code from Joe. */
   node *pp, *qq;
   long int i, n;
   long int nonodes = t->nonodes;
@@ -5112,7 +5112,7 @@ void seetree(tree * t)
           {
             printf(",");
           }
-        } while ((n < 3) && !malformed);
+        } while ((qq != pp) && (n < 6) && !malformed);
 
         printf("\n");
       }

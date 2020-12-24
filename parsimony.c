@@ -312,9 +312,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * and deleting trees that are not unique. Continues this until
    * there are no further changes.   */
   long i, j, k, pos ;
-  boolean found;
+  boolean found, collapsible;
   boolean *collapsed;
   long treeLimit = nextree < maxtrees ? nextree : maxtrees;
+  node* p;
 
   for (i = 0 ; i < treeLimit ; i++)           /* mark all trees collapsible */
   {
@@ -335,32 +336,36 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
         print_progress(progbuf);
       }
     }
-    while (!bestrees[k].collapse)
-      k++;
+    while (!bestrees[k].collapse)   /* go along bestrees until find one ... */
+      k++;                                     /* that might be collapsible */
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
     *collapsed = false;
-    while ( treecollapsible(t, t->nodep[outgrno-1]) )
-      collapsetree(t, t->nodep[outgrno-1], collapsed);   /* collapse if can */
-    if (*collapsed)   
-      savetree(t, place);        /* set aside collapsed tree in place array */
-    if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
-      for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees forward */
-      {                       /* (in the process, overwriting the k-th tree */
-        memcpy(bestrees[j].btree, bestrees[j + 1].btree, spp * sizeof(long));
-        bestrees[j].gloreange = bestrees[j + 1].gloreange;
-        bestrees[j].locreange = bestrees[j + 1].locreange;
-        bestrees[j + 1].gloreange = false;
-        bestrees[j + 1].locreange = false;
-        bestrees[j].collapse = bestrees[j + 1].collapse;
+    p = NULL;                  /* for recording where tree can be collapsed */
+    collapsible = false; 
+printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
+    while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
+      collapsetree(t, p, collapsed);  /* collapse at that branch if we can */
+    if (*collapsed) {
+      savetree(t, place);           /* record collapsed tree in place array */
+      if ( k != (treeLimit-1) ) {        /* if not at the last tree already */
+        for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees */
+        {                     /* (in the process, overwriting the k-th tree */
+          memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
+          bestrees[j].gloreange = bestrees[j + 1].gloreange;
+          bestrees[j].locreange = bestrees[j + 1].locreange;
+          bestrees[j + 1].gloreange = false;
+          bestrees[j + 1].locreange = false;
+          bestrees[j].collapse = bestrees[j + 1].collapse;
+        }
       }
-    }
-    treeLimit--;         /* because there is now one fewer tree in bestrees */
-    pos = 0;
-    findtree(&found, &pos, treeLimit, place, bestrees);  /* find where the  */
-                       /* collapsed tree is to go, or whether already there */
-    if (!found)      /* put the new tree in the the list if it wasn't found */
-    {                           /* (note: treeLimit is increased as needed) */
-      addtree(pos, &treeLimit, false, place, bestrees);
+      treeLimit--;       /* because there is now one fewer tree in bestrees */
+      pos = 0;
+      findtree(&found, &pos, treeLimit, place, bestrees);/* find where ...  */
+               /* ... the collapsed tree is to go, or whether already there */
+      if (!found)    /* put the new tree in the the list if it wasn't found */
+      {                         /* (note: treeLimit is increased as needed) */
+        addtree(pos, &treeLimit, false, place, bestrees);
+      }
     }
   }
   if (progress)
@@ -1155,29 +1160,35 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
 } /* pars_globrearrange */
 
 
-boolean treecollapsible(tree* t, node* n)
+boolean treecollapsible(tree* t, node* n, node** p, boolean collapsible)
 {
  /* find out whether there is any collapsible branch on the tree.
-  * In initial call of the recursion,  n  should be a node that
-  * is not a tip */
-  node *sib;
-  boolean collapsible = false;
+  * In initial call of the recursion,  n  should be a node that is
+  * not a tip.  p is initially NULL but is set to n if that branch
+  * can be collapsed */
 
-printf("starting collapsetree with %ld:%ld\n", n->index, n->back->index);
+  node *sib;
+
+printf("called treecollapsible with %ld:%ld\n", n->index, n->back->index);
   if ( n == NULL )                /* in case it is called on branch at root */
     return false;
 
 printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index);
-  if ( ((pars_tree*)t)->branchcollapsible(t, n) )      /* check this branch */
-    return true;
+  if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {    /* check this branch */
+    printf(" (collapsible) \n");   /* debug */
+    *p = n;                     /* record the node where it can be collapsed */
+    return true;             /* then bail out and do not recurse further in */
+  }
+  else   /* debug */
+    printf(" (not collapsible) \n");   /* debug */
 
   if ( n->back->tip == true )         /* in case we've reached a tip branch */
     return false;
 printf("going around circle for fork %ld\n", n->back->index);
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
   {                                                  /* recurse further out */
-printf("collapsible was %ld, now do recursive call on %ld-%ld\n", collapsible, sib->index, sib->back->index);
-    collapsible =  treecollapsible(t, sib) || collapsible;
+printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);
+    collapsible = treecollapsible(t, sib, p, collapsible) || collapsible;
   }
   return collapsible;
 } /* treecollapsible */
@@ -1197,6 +1208,7 @@ void collapsebranch(tree* t, node* n)
   if (n->tip)
     return;
   m = n->back;              /* get other end of branch too, do same checks */
+printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); /* debug */
   if (m == NULL)
     return;
   if (m->tip)
@@ -1259,7 +1271,7 @@ void collapsetree(tree* t, node* n, boolean* collapsed)
   }
   else /* go around circle, for all but initial node, collapse back subtree */
     for ( sib = n->back->next ; sib != n->back ; sib = sib->next ) {
-      collapsetree(t, sib, &collapsed);                   /* try further on */
+      collapsetree(t, sib, collapsed);                    /* try further on */
     }
 } /* collapsetree */
 
