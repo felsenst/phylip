@@ -309,9 +309,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
                        boolean progress, long *finalTotal)
 {
   /* Goes through all best trees, collapsing trees where possible,
-   * and deleting trees that are not unique.    */
+   * and deleting trees that are not unique. Continues this until
+   * there are no further changes.   */
   long i, j, k, pos ;
   boolean found;
+  boolean *collapsed;
   long treeLimit = nextree < maxtrees ? nextree : maxtrees;
 
   for (i = 0 ; i < treeLimit ; i++)           /* mark all trees collapsible */
@@ -336,9 +338,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     while (!bestrees[k].collapse)
       k++;
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
+    *collapsed = false;
     while ( treecollapsible(t, t->nodep[outgrno-1]) )
-      collapsetree(t, t->nodep[0]);         /* collapse tree  t  if you can */
-    savetree(t, place);          /* set aside collapsed tree in place array */
+      collapsetree(t, t->nodep[outgrno-1], collapsed);   /* collapse if can */
+    if (*collapsed)   
+      savetree(t, place);        /* set aside collapsed tree in place array */
     if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
       for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees forward */
       {                       /* (in the process, overwriting the k-th tree */
@@ -1159,17 +1163,20 @@ boolean treecollapsible(tree* t, node* n)
   node *sib;
   boolean collapsible = false;
 
+printf("starting collapsetree with %ld:%ld\n", n->index, n->back->index);
   if ( n == NULL )                /* in case it is called on branch at root */
     return false;
 
+printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index);
   if ( ((pars_tree*)t)->branchcollapsible(t, n) )      /* check this branch */
     return true;
 
   if ( n->back->tip == true )         /* in case we've reached a tip branch */
     return false;
-
+printf("going around circle for fork %ld\n", n->back->index);
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
   {                                                  /* recurse further out */
+printf("collapsible was %ld, now do recursive call on %ld-%ld\n", collapsible, sib->index, sib->back->index);
     collapsible =  treecollapsible(t, sib) || collapsible;
   }
   return collapsible;
@@ -1236,21 +1243,24 @@ void collapsebranch(tree* t, node* n)
 } /* collapsebranch */
 
 
-void collapsetree(tree* t, node* n)
+void collapsetree(tree* t, node* n, boolean* collapsed)
 {  /* collapse all branches that are designated as collapsible
     * node  n  should be an outgroup tip or a fork circle node from
-    * which we are proceeding out the backs of each node in the
-    * circle except for the one where we reached the circle  */
+    * which we are proceeding out the back subtree of that node */
   node *sib;
 
-  if ( ((pars_tree*)t)->branchcollapsible(t, n) )
-    collapsebranch(t, n);                 /* collapse this branch if we can */
-  if ( n->back->tip == true)      /* if have reached a tip don't go further */
+  if (*collapsed)       /* if a branch recently collapsed, bail on recursion */
     return;
-  for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
-  {     /* go around circle, for all but initial node collapse back subtree */
-    collapsetree(t, sib);
+  if ( n->back->tip == true)           /* if back is a tip don't go further */
+    return;
+  if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {
+    collapsebranch(t, n);                 /* collapse this branch if we can */
+    *collapsed = true;
   }
+  else /* go around circle, for all but initial node, collapse back subtree */
+    for ( sib = n->back->next ; sib != n->back ; sib = sib->next ) {
+      collapsetree(t, sib, &collapsed);                   /* try further on */
+    }
 } /* collapsetree */
 
 
