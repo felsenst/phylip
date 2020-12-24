@@ -1189,7 +1189,7 @@ void collapsebranch(tree* t, node* n)
   node *m, *prem, *pren, *p, *q; 
   long i, j, k;
   node *sib, *newfork;  /* debug: can delete this once code block deleted */
-  long nsibs;
+  long nsibs;   /* debug: this too */
 
 
   if (n == NULL)      /* make sure both ends of branch exist and are forks */
@@ -1209,7 +1209,7 @@ void collapsebranch(tree* t, node* n)
   pren->next = m->next;
   if (i > j) {                 /* find the smaller of the fork indexes ... */
     k = j;
-    k = i;
+    j = i;
     i = k;                                           /* ... it will be  i  */
   }
   t->release_forknode(t, m); /* now recycle  m, n  as are no longer needed */
