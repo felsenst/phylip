@@ -1232,6 +1232,7 @@ printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); /* debug */
     q->index = i;                         /* ... the original fork circles */
   }
   t->nodep[j-1] = NULL;    /* debug: necessary? Done by release_forknode? */
+  t->score = t->evaluate(t, t->nodep[outgrno-1], false); 
 /* debug:  need to replace all this code ... */
 #if 0
   for ( sib = m->next ; sib != m ; sib = sib->next )    /* go around circle */
