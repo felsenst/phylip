@@ -477,8 +477,8 @@ void oldsavetree(tree* t, long *place)
 {
    /* record in array  place  where each species has to be
     * added to reconstruct this tree. This code assumes a root
-    * this is the older function,  a new function roots the tree and calls this
-    * function to save the tree */
+    * this is the older function, a new function roots the tree
+    * and calls this function to save the tree */
   long i, j, nextnode, nvisited, newforknum;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
@@ -505,7 +505,7 @@ void oldsavetree(tree* t, long *place)
       p = p->back;               /* go to the interior node connected to it */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
-        lineagenumber[p->index - 1] = i;  /* set value to index of that tip */
+        lineagenumber[p->index - 1] = -i;  /* negative of index of that tip */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
