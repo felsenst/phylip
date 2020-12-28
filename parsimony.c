@@ -482,19 +482,18 @@ void oldsavetree(tree* t, long *place)
   long i, j, nextnode, nvisited, newforknum;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
-  boolean done, newfork;
+  boolean done, atbottom, newfork, justhitfork;
 
-  binroot = NULL;
+  flipback = NULL;
   lastdesc = NULL;
   root2 = NULL;
-  flipback = NULL;
   outgrnode = t->nodep[outgrno - 1];
   lineagenumber = (long *)Malloc(nonodes*sizeof(long));
   setbottomtraverse(t->root);  /* set booleans indicating which way is down */
   nextnode = spp + 1;
   for (i = 0; i < spp; i++)                     /* initialize "place" array */
     place[i] = 0;
-  for (i = 0; i < nonodes; i++)          /* which lineage each tree node is */
+  for (i = 0; i < nonodes; i++)      /* which lineage each tree node is ... */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
@@ -505,95 +504,36 @@ void oldsavetree(tree* t, long *place)
       p = p->back;               /* go to the interior node connected to it */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
-        lineagenumber[p->index - 1] = -i;  /* negative of index of that tip */
+        lineagenumber[p->index - 1] = i;       /* set to number of that tip */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
-        if (p == NULL)                   /* if we went past bottom fork ... */
-          break;                                 /* blast out of while loop */
+        if (p == NULL)                     /* if we went past bottom fork ... */
+          break;                                  /* bail out of while loop */
       }
       if (p != NULL) {              /* we ran into a nonzero lineage number */
         place[i-1] = lineagenumber[p->index -1];   /* record in place array */
-        newforknum = spp + i - 1;       /* number of new fork when attaches */
-        while (lineagenumber[p->index - 1] == place[i-1])  /* going on down */
-        {
-          lineagenumber[p->index - 1] = newforknum;       /* from here down */
-          while (!p->bottom)           /* go around circle to find way down */
-            p = p->next;
-          if (p->back == NULL)         /* blast out of loop if reached root */
-            break;
-          else
-            p = p->back;                         /* go down to earlier fork */
-        }
-      }
-    }
-    if (i > 1)         /* this is for dealing with multifurcations, somehow */
-    {
-#if 0                  /* debug: commenting out for now.  Not sure how this */
-      q = t->nodep[i - 1];  /* ... works, how  r  is initialized */
-      newfork = true;
-      nvisited = sibsvisited(q, place);
-      if (nvisited == 0)
-      {
-        if (parentinmulti(r, t->root))
-        {
-          nvisited = sibsvisited(r, place);
-          if (nvisited == 0)
-            place[i - 1] = place[p->index - 1];
-          else if (nvisited == 1)
-            place[i - 1] = smallest(r, place);
-          else
-          {
-            place[i - 1] = -smallest(r, place);
-            newfork = false;
-          }
-        }
-        else
-          place[i - 1] = place[p->index - 1];
-      }
-      else if (nvisited == 1)
-      {
-        place[i - 1] = place[p->index - 1];
-      }
-      else
-      {
-        place[i - 1] = -smallest(q, place);
-        newfork = false;
-      }
-      if (newfork)
-      {
-        j = place[p->index - 1];
-        done = false;
-        while (!done)
-        {
-          place[p->index - 1] = nextnode;
-          while (!p->bottom) {
-            p = p->next;
-          }
-          p = p->back;
-          done = (p == NULL);
-          if (!done)
-            done = (place[p->index - 1] != j);
-          if (done)
-          {
-            nextnode++;
+        if (place[i-1] > 0) {          /* if a branch, not already run into */
+          justhitfork = true;
+          newforknum = spp + i - 1;     /* number of new fork when attaches */
+          while (lineagenumber[p->index - 1] == place[i-1])   /* go on down */
+          {           /* ... while still on same branch and no new fork yet */
+            if (justhitfork) {
+              lineagenumber[p->index - 1] = -newforknum; /* new fork is < 0 */
+              justhitfork = false;
+            }
+            else                      /* if continuing down that branch ... */
+              lineagenumber[p->index - 1] = newforknum; /* ... set positive */
+            while (!p->bottom)         /* go around circle to find way down */
+              p = p->next;
+            if (p->back == NULL)       /* blast out of loop if reached root */
+              break;
+            else
+              p = p->back;                       /* go down to earlier fork */
           }
         }
       }
-#endif     /* debug: end of commented-out code */
     }
-    if (flipback)
-      flipnodes(outgrnode, flipback->back);
-    else
-    {
-      if (root2)
-      {
-        reroot3(t, outgrnode, t->root, root2, lastdesc);
-        t->root = root2;
-      }
-    }
-    if (binroot)
-      backtobinary(t, &t->root, binroot);
   }
 }  /* oldsavetree */
 
@@ -730,7 +670,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
 /* debug:  not yet called from anywhere */
    boolean success;
 
-/* debug:  does this make any sense?  Already saving best tree yet in generic version
+/* debug:  does this make any sense?  Already saving best tree yet in generic version ...
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
                    bestyet, &bestree, thorough, storing, atstart, bestfound);
    add_to_besttrees(t, t->score, bestrees, bestfound);     debug */
