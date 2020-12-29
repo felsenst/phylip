@@ -314,9 +314,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   long i, j, k, pos ;
   boolean found, collapsible;
   boolean *collapsed;
-  long treeLimit = nextree < maxtrees ? nextree : maxtrees;
+  long treeLimit;
   node* p;
 
+  treeLimit = nextree < maxtrees ? nextree : maxtrees;
   for (i = 0 ; i < treeLimit ; i++)           /* mark all trees collapsible */
   {
     bestrees[i].collapse = true;
@@ -327,7 +328,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     print_progress(progbuf);
   }
   k = 0;
-  for(i = 0 ; i < treeLimit ; i++) {
+  for (i = 0 ; i < treeLimit ; i++) {         /* loop over all stored trees */
     if (progress)
     {
       if ( (i % ((treeLimit / 72) + 1) ) == 0)    /* (% = mod) progress as  */
@@ -344,11 +345,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     collapsible = false; 
 printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
-      collapsetree(t, p, collapsed);  /* collapse at that branch if we can */
-    if (*collapsed) {
+      collapsetree(t, p, collapsed);   /* collapse at that branch if we can */
+    if (*collapsed) {                         /* if something was collapsed */
       savetree(t, place);           /* record collapsed tree in place array */
       if ( k != (treeLimit-1) ) {        /* if not at the last tree already */
-        for (j = k ; j < (treeLimit - 1) ; j++) /* move rest of trees */
+        for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
         {                     /* (in the process, overwriting the k-th tree */
           memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
           bestrees[j].gloreange = bestrees[j + 1].gloreange;
@@ -359,6 +360,7 @@ printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
         }
       }
       treeLimit--;       /* because there is now one fewer tree in bestrees */
+      nextree--;
       pos = 0;
       findtree(&found, &pos, treeLimit, place, bestrees);/* find where ...  */
                /* ... the collapsed tree is to go, or whether already there */
@@ -902,19 +904,19 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores tree  treei  from array bestrees (treei is the index
    * of the array, so tree 5 has treei = 4).  Add all the tips to a tree one
-   * by one in order.  The array element  bestree[treei].btree[k]  indicates
-   * that the k-th tip is to be connected to a new fork that is below tip or
-   * fork  btree[k].  If negative, it indicates that it is to be added as an
-   * extra furc to the fork that is already at the bottom of the branch that
-   * is below fork (or tip) abs(btree[k])  */
+   * by one in order.  The array element  bestree[treei].btree[k], if positive,
+   * indicates that the k-th tip is to be connected to a new fork that is
+   * below tip or fork  btree[k].  If negative, it indicates that it is to be
+   * added as an extra furc to the fork that is already at the top of the
+   * branch that is below fork (or tip) abs(btree[k])  */
   long i, j, nsibs;
   boolean foundit = false;
-  node *p, *q, *below, *bback, *forknode, *newtip, *beforewhere, *afterwhere;
+  node *p, *q, *below, *bback, *forknode, *newtip, *afterwhere;
 
   release_all_forks(t);              /* to make sure all interior nodes
                                         are on the list at free_fork_nodes  */
                                      /* then make tree of first two species */
-  forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
+  forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
 
@@ -923,29 +925,25 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     newtip = t->nodep[j-1];
 
     if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
-    {                                                    /*  if bifurcation */
+    {                                /*  if the fork is to be a bifurcation */
       forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
       hookup(newtip, forknode);
-      below = t->nodep[bestrees[treei].btree[j - 1] - 1];
+      below = t->nodep[bestrees[treei].btree[j - 1] - 1];  /* where it goes */
       bback = below->back;
       hookup(forknode->next, below);
-      if ( bback )
+      if ( bback )              /* if below the new fork is not a NULL node */
         hookup(forknode->next->next, bback);
-      t->nodep[spp+j-2] = forknode->next->next;   /* know which way is down */
+      t->nodep[spp+j-2] = forknode->next->next;   /* nodep points to bottom */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
       bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
-      beforewhere = bback->next;            /* where will that node be put? */ 
-      afterwhere = bback->next->next;   /* ... the nodes before, after that */
-      do {   /* move around fork circle until just before the downward link */
-        beforewhere = afterwhere;
-        afterwhere = afterwhere->next;
-      } while ((afterwhere->next) != bback);
+                      /* get bottom node in that fork circle, call it bback */
+      afterwhere = precursor(bback);    /* find fork node that points to it */
       forknode = t->get_forknode(t, below->index);        /* get a new node */
       hookup(newtip, forknode);             /* hook the tip to the new node */
-      beforewhere->next = forknode;               /* put it the right place */
-      forknode->next = afterwhere;
+      afterwhere->next = forknode;                /* put it the right place */
+      forknode->next = bback;             /* namely, the last in the circle */
     }
   }
 
