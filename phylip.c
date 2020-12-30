@@ -2360,13 +2360,13 @@ void findtree(boolean *found, long *pos, long nextree,
     done = false;
     while (!done) {                  /* go along place array checking match */
       done = (i > spp);
-      if (done)          /* blast out of while loop if reached last species */
+      if (done)           /* blast out of while loop if passed last species */
         break;
       done = (place[i-1] != bestrees[*pos].btree[i - 1]);
-      if (!done)                      /* if matches so far, */
-        i++;                        /* get ready to look at next array item */
+      if (!done)                /* if it matches so far ... */
+        i++;                    /* ... get ready to look at next array item */
     }
-    (*found) = (i > spp);
+    (*found) = (i > spp);            /* true if all  spp  tips have matched */
     if (*found) {                  /* you found a match, blast your way out */
       break;
     }
@@ -2389,9 +2389,9 @@ void addtree(long pos, long *nextree, boolean collapse,
 {
   /* puts tree from array place in its proper position in array bestrees
    * used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars
-   * pos takes range 0 .. nextree-1.  There are currently  nextree trees
+   * pos takes range 0 ... nextree-1.  There are currently  nextree trees
    * occupying that range, and once it is added there will then be
-   * nextree+1 trees occupying range  0 .. nextree  */
+   * nextree+1 trees occupying range  0 ... nextree  */
   long i;
 
   for (i = *nextree; i > pos; i--) /* coming down from just above end ... */

@@ -309,8 +309,8 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
                        boolean progress, long *finalTotal)
 {
   /* Goes through all best trees, collapsing trees where possible,
-   * and deleting trees that are not unique. Continues this until
-   * there are no further changes.   */
+   * and deleting trees that can be further collapsed. Continues this
+   * until there are no further changes.   */
   long i, j, k, pos ;
   boolean found, collapsible;
   boolean collapsed;
@@ -347,10 +347,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     collapsible = false; 
 printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
-      collapsetree(t, p, &collapsed);  /* collapse at that branch if we can */
+      collapsetree(t, p, &collapsed);  /* traverse: find collapsible branch */
     if (collapsed) {                          /* if something was collapsed */
       savetree(t, place);           /* record collapsed tree in place array */
-      if ( k != (treeLimit-1) ) {        /* if not at the last tree already */
+      if ( k < (treeLimit-1) ) {         /* if not at the last tree already */
         for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
         {                     /* (in the process, overwriting the k-th tree */
           memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
@@ -496,13 +496,13 @@ void oldsavetree(tree* t, long *place)
   outgrnode = t->nodep[outgrno - 1];
   lineagenumber = (long *)Malloc(nonodes*sizeof(long));
   setbottomtraverse(t->root);  /* set booleans indicating which way is down */
-  nextnode = spp + 1;
   for (i = 0; i < spp; i++)                     /* initialize "place" array */
     place[i] = 0;
   for (i = 0; i < nonodes; i++)      /* which lineage each tree node is ... */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
+  newforknum = spp + 1;                 /* number of new fork when attaches */
   for (i = 1; i <= spp; i++)                           /* for each tip, ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
@@ -521,7 +521,6 @@ void oldsavetree(tree* t, long *place)
         place[i-1] = lineagenumber[p->index -1];   /* record in place array */
         if (place[i-1] > 0) {          /* if a branch, not already run into */
           justhitfork = true;
-          newforknum = spp + i - 1;     /* number of new fork when attaches */
           while (lineagenumber[p->index - 1] == place[i-1])   /* go on down */
           {           /* ... while still on same branch and no new fork yet */
             if (justhitfork) {
@@ -944,7 +943,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
                       /* get bottom node in that fork circle, call it bback */
       afterwhere = precursor(bback);    /* find fork node that points to it */
-      forknode = t->get_forknode(t, below->index);        /* get a new node */
+      forknode = t->get_forknode(t, bback->index);        /* get a new node */
       hookup(newtip, forknode);             /* hook the tip to the new node */
       afterwhere->next = forknode;                /* put it the right place */
       forknode->next = bback;             /* namely, the last in the circle */
