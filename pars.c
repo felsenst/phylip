@@ -582,7 +582,7 @@ void maketree(void)
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, nextnode;
+  long i, j, nextnode, outCount, missedCount;
   boolean firsttree, goteof, haslengths;
 
   // RSGnote: This was formerly uninitialized and potentially referenced before being set
@@ -630,11 +630,11 @@ void maketree(void)
     recompute = false;
     if (jumb == njumble)
     {
-      long outCount = 0;
+      missedCount = 0;
       outCount = nextree;
       collapsebestrees(curtree, bestrees, place,
                         chars, progress, &outCount);
-      long missedCount = nextree - 1 - maxtrees;
+      missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
         putc('\n', outfile);
