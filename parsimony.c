@@ -313,7 +313,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * there are no further changes.   */
   long i, j, k, pos ;
   boolean found, collapsible;
-  boolean *collapsed;
+  boolean collapsed;
   long treeLimit;
   node* p;
 
@@ -328,7 +328,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     print_progress(progbuf);
   }
   k = 0;
-  for (i = 0 ; i < treeLimit ; i++) {         /* loop over all stored trees */
+  do {
     if (progress)
     {
       if ( (i % ((treeLimit / 72) + 1) ) == 0)    /* (% = mod) progress as  */
@@ -339,14 +339,16 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     }
     while (!bestrees[k].collapse)   /* go along bestrees until find one ... */
       k++;                                     /* that might be collapsible */
+    if (k >= treeLimit)            /* bail if all trees have been looked at */
+      break;
     load_tree(t, k, bestrees);                         /* Reconstruct tree. */
-    *collapsed = false;
+    collapsed = false;
     p = NULL;                  /* for recording where tree can be collapsed */
     collapsible = false; 
 printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
-      collapsetree(t, p, collapsed);   /* collapse at that branch if we can */
-    if (*collapsed) {                         /* if something was collapsed */
+      collapsetree(t, p, &collapsed);  /* collapse at that branch if we can */
+    if (collapsed) {                          /* if something was collapsed */
       savetree(t, place);           /* record collapsed tree in place array */
       if ( k != (treeLimit-1) ) {        /* if not at the last tree already */
         for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
@@ -367,16 +369,18 @@ printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
       if (!found)    /* put the new tree in the the list if it wasn't found */
       {                         /* (note: treeLimit is increased as needed) */
         addtree(pos, &treeLimit, false, place, bestrees);
+        if (pos >= k)          /* keep  k  pointing at next tree to examine */
+          k++;
       }
     }
-  }
+  } while (k < treeLimit);
   if (progress)
   {
     sprintf(progbuf, "\n");
     print_progress(progbuf);
     phyFillScreenColor();
   }
-  *finalTotal = treeLimit;
+  finalTotal = treeLimit;
 } /* collapsebesttrees */
 
 

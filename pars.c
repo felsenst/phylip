@@ -790,7 +790,7 @@ void maketree(void)
 
 void freerest(void)
 {
-  free(threshwt);
+/* debug    free(threshwt);    for some reasons blows up so commented out, as in Dnapars */
 }  /* freerest*/
 
 
