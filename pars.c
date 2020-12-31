@@ -651,7 +651,7 @@ void maketree(void)
           }
           else
           {
-            fprintf(outfile, "%6ld trees in all found\n", outCount + 1);
+            fprintf(outfile, "%6ld trees in all found\n", outCount);
           }
         }
       }
