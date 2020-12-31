@@ -660,6 +660,10 @@ void maketree(void)
       for (i = 0; i < outCount ; i++)           /* print out the best trees */
       {
         load_tree(curtree, i, bestrees);
+/* debug */
+printf("PRINT TREE %ld: ",i+1);
+for(j = 0; j < spp; j++) printf("%ld ",bestrees[i].btree[j]);printf("\n");
+/* debug */
         curtree->root = root_tree(curtree, curtree->root);
         initializetrav(curtree, curtree->root);
         initializetrav(curtree, curtree->root->back);

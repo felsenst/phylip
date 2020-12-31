@@ -371,6 +371,10 @@ printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
         addtree(pos, &treeLimit, false, place, bestrees);
         if (pos >= k)          /* keep  k  pointing at next tree to examine */
           k++;
+/* debug */
+printf("ADDING NEW TREE: number %ld: ", pos);
+for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");
+/* debug */
       }
     }
   } while (k < treeLimit);
@@ -485,10 +489,10 @@ void oldsavetree(tree* t, long *place)
     * added to reconstruct this tree. This code assumes a root
     * this is the older function, a new function roots the tree
     * and calls this function to save the tree */
-  long i, j, nextnode, nvisited, newforknum;
+  long i, j, nextnode, nvisited, newforknum, forknum;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
-  boolean done, atbottom, newfork, justhitlineage, hitfork;
+  boolean done, atbottom, newfork, justhitlineage, hitfork, topfork;
 
   flipback = NULL;
   lastdesc = NULL;
@@ -523,9 +527,18 @@ void oldsavetree(tree* t, long *place)
         while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
         {       /* ... while still on same branch and no other new fork yet */
           if (justhitlineage) {                /* for the fork just hit ... */
-            if (   /*?? stuff here to tell if at top of lineage   debug */
-              lineagenumber[p->index - 1] = -newforknum; /* new fork is < 0 */
-            else   /* debug ... what? */
+            topfork = true;
+            q = p;
+            forknum = lineagenumber[p->index - 1];    /* get lineage number */
+            do { /* go around circle seeing if forks above are same lineage */
+              topfork = topfork && ( (q == t->nodep[p->index - 1]) ||
+                          (lineagenumber[q->back->index - 1] != forknum) );
+              q = q->next;
+            } while (p != q); /*  topfork  is true if none are same lineage */
+            if (topfork)      /* if this fork is the top one in its lineage */
+              lineagenumber[p->index - 1] = -newforknum;    /* set negative */
+            else
+              lineagenumber[p->index - 1] = newforknum;     /* set positive */
             justhitlineage = false;
           }
           else                        /* if continuing down that branch ... */

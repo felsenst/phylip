@@ -4584,7 +4584,7 @@ void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 node* generic_tree_get_forknode(tree* t, long i)
 { /* get de novo or from a linked garbage list a circle of fork nodes
    *
-   * Return an unused node with index i (not  i+1)
+   * Return an unused node with index i (not  i+1)  (careful!)
    *
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
