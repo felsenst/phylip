@@ -488,7 +488,7 @@ void oldsavetree(tree* t, long *place)
   long i, j, nextnode, nvisited, newforknum;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
-  boolean done, atbottom, newfork, justhitfork;
+  boolean done, atbottom, newfork, justhitlineage, hitfork;
 
   flipback = NULL;
   lastdesc = NULL;
@@ -502,41 +502,42 @@ void oldsavetree(tree* t, long *place)
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
-  newforknum = spp + 1;                 /* number of new fork when attaches */
-  for (i = 1; i <= spp; i++)                           /* for each tip, ... */
+  newforknum = spp + 1;             /* number of next new fork to be put in */
+  for (i = 1; i <= spp; i++)                            /* for each tip ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
-    if (p->back != NULL) {                    /* if this tip is in the tree */
-      p = p->back;               /* go to the interior node connected to it */
+    if (p->back != NULL) {               /* if this node is in the tree ... */
+      p = p->back;      /* ... go down to the interior node connected to it */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
         lineagenumber[p->index - 1] = i;       /* set to number of that tip */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
-        if (p == NULL)                     /* if we went past bottom fork ... */
-          break;                                  /* bail out of while loop */
+        if (p == NULL)                   /* if we went past bottom fork ... */
+          break;                              /* ... bail out of while loop */
       }
       if (p != NULL) {              /* we ran into a nonzero lineage number */
-        place[i-1] = lineagenumber[p->index -1];   /* record in place array */
-        if (place[i-1] > 0) {          /* if a branch, not already run into */
-          justhitfork = true;
-          while (lineagenumber[p->index - 1] == place[i-1])   /* go on down */
-          {           /* ... while still on same branch and no new fork yet */
-            if (justhitfork) {
+        place[i-1] = lineagenumber[p->index - 1];  /* record in place array */
+        justhitlineage = true;
+        while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
+        {       /* ... while still on same branch and no other new fork yet */
+          if (justhitlineage) {                /* for the fork just hit ... */
+            if (   /*?? stuff here to tell if at top of lineage   debug */
               lineagenumber[p->index - 1] = -newforknum; /* new fork is < 0 */
-              justhitfork = false;
-            }
-            else                      /* if continuing down that branch ... */
-              lineagenumber[p->index - 1] = newforknum; /* ... set positive */
-            while (!p->bottom)         /* go around circle to find way down */
-              p = p->next;
-            if (p->back == NULL)       /* blast out of loop if reached root */
-              break;
-            else
-              p = p->back;                       /* go down to earlier fork */
+            else   /* debug ... what? */
+            justhitlineage = false;
           }
+          else                        /* if continuing down that branch ... */
+            lineagenumber[p->index - 1] = newforknum;   /* ... set positive */
+          while (!p->bottom)           /* go around circle to find way down */
+            p = p->next;
+          if (p->back == NULL)         /* blast out of loop if reached root */
+            break;
+          else
+            p = p->back;                         /* go down to earlier fork */
         }
+        newforknum++;      /* get number to be assigned to next new lineage */
       }
     }
   }
