@@ -921,19 +921,24 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores tree  treei  from array bestrees (treei is the index
    * of the array, so tree 5 has treei = 4).  Add all the tips to a tree one
-   * by one in order.  The array element  bestree[treei].btree[k], if positive,
-   * indicates that the k-th tip is to be connected to a new fork that is
-   * below tip or fork  btree[k].  If negative, it indicates that it is to be
-   * added as an extra furc to the fork that is already at the top of the
-   * branch that is below fork (or tip) abs(btree[k])  */
-  long i, j, nsibs;
-  boolean foundit = false;
-  node *p, *q, *below, *bback, *forknode, *newtip, *afterwhere;
+   * by one in order.  The array element  bestree[treei].btree[k], if
+   * positive, indicates that tip  k+1  is to be connected to a new fork
+   * that is just below tip or fork  btree[k].  The numbers here are not the
+   * values of "index" but tips and forks are numbered in order of their
+   * consideration, so tips from 1 .. spp and forks are numbered from  spp+1
+   * on as they are added to the tree.  If negative, btree[k] indicates that
+   * species  k+1  is to be added as an extra furc to the fork has number
+   * -btree[k], */
+  long i, j, numofnewfork;
+  long  nsibs;  /* debug */
+  boolean foundit = false; /* debug */
+  node *p, *q, *below, *bback, *forknode, *newtip, *bbot, *afterwhere;
 
   release_all_forks(t);              /* to make sure all interior nodes
                                         are on the list at free_fork_nodes  */
                                      /* then make tree of first two species */
   forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
+  numofnewfork = spp;                           /* index-1 of next new fork */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
 
@@ -943,27 +948,28 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
 
     if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
     {                                /*  if the fork is to be a bifurcation */
-      forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
-      hookup(newtip, forknode);
+      forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
+      numofnewfork++;
+      hookup(newtip, forknode->next->next);               /* hook tip to it */
       below = t->nodep[bestrees[treei].btree[j - 1] - 1];  /* where it goes */
       bback = below->back;
       hookup(forknode->next, below);
       if ( bback )              /* if below the new fork is not a NULL node */
-        hookup(forknode->next->next, bback);
+        hookup(forknode, bback);
       t->nodep[spp+j-2] = forknode->next->next;   /* nodep points to bottom */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
-      bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
-                      /* get bottom node in that fork circle, call it bback */
-      afterwhere = precursor(bback);    /* find fork node that points to it */
-      forknode = t->get_forknode(t, bback->index);        /* get a new node */
+      bbot = t->nodep[-bestrees[treei].btree[j-1]-1];    /* its bottom node */
+      afterwhere = precursor(bbot);     /* find fork node that points to it */
+      forknode = t->get_forknode(t, bbot->index);         /* get a new node */
       hookup(newtip, forknode);             /* hook the tip to the new node */
       afterwhere->next = forknode;                /* put it the right place */
       forknode->next = bback;             /* namely, the last in the circle */
     }
   }
-
+/* debug: not sure why this stuff needed ... */
+#if 0
   forknode = NULL;
   for (i = spp; i < nonodes; i++) {      /* check all interior node circles */
     p = t->nodep[i];
@@ -993,7 +999,8 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       t->release_fork(t, forknode);        /* release the whole fork circle */
     }
   }
-
+#endif
+/* debug */
   t->root = t->nodep[outgrno - 1]->back;
 } /* load_tree */
 

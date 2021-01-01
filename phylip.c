@@ -4484,11 +4484,11 @@ stack* push(stack* oldstack, void* newdata)
 
 node* generic_tree_get_fork(tree* t, long k)
 { /* 
-   * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized
-   * to false on all, and return.
-   * The fork is assigned  k+1  as its value of  index
+   * Pop a fork (circle of 3 nodes) off the free_forks stack, set
+   * initialized to false on all, and return.
+   * The fork is assigned  k+1  as its value of  index (careful!)
    * Changed so always pulls forknodes off their list, never pulls 
-   * circles of nodes off their list
+   * circles of nodes off the now-defunct list of circles
    */
   node *retval;
 
