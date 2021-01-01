@@ -1054,7 +1054,8 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   boolean mulf;
   node* removed;
 
-  bestyet = curtree->evaluate(bestree, bestree->root, 0);
+/*  bestyet = curtree->evaluate(bestree, bestree->root, 0); debug */
+  bestyet = *bestfound;
 
   if (progress)
   {
