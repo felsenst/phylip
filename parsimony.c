@@ -938,25 +938,23 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
                                         are on the list at free_fork_nodes  */
                                      /* then make tree of first two species */
   forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
-  numofnewfork = spp;                           /* index-1 of next new fork */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
+  numofnewfork = spp + 1;                       /* index-1 of next new fork */
 
   for ( j = 3; j <= spp ; j++ )     /* adding one by one species, 3, 4, ... */
   {
     newtip = t->nodep[j-1];
-
-    if ( bestrees[treei].btree[j-1] > 0 )    /* j-th entry in "place" array */
-    {                                /*  if the fork is to be a bifurcation */
+    below = t->nodep[bestrees[treei].btree[j - 1] - 1];    /* where it goes */
+    if ( below > 0 ) {               /*  if the fork is to be a bifurcation */
       forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       numofnewfork++;
-      hookup(newtip, forknode->next->next);               /* hook tip to it */
-      below = t->nodep[bestrees[treei].btree[j - 1] - 1];  /* where it goes */
+      hookup(newtip, forknode->next);                     /* hook tip to it */
       bback = below->back;
-      hookup(forknode->next, below);
+      hookup(forknode->next->next, below);
       if ( bback )              /* if below the new fork is not a NULL node */
         hookup(forknode, bback);
-      t->nodep[spp+j-2] = forknode->next->next;   /* nodep points to bottom */
+      t->nodep[spp+j-2] = forknode;               /* nodep points to bottom */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
