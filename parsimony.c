@@ -1063,7 +1063,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
   for ( i = 0 ; i < curtree->nonodes ; i++ )
   {
-    sib_ptr  = curtree->nodep[i];
+    sib_ptr  = curtree->nodep[i]->back;
     if (sib_ptr == NULL)
       continue;          /* skip this case if no interior node circle there */
     if ( sib_ptr->tip )
@@ -1088,7 +1088,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         removed = sib_ptr;   /* debug: or is it  sib_ptr->back ? */
         mulf = 2 != count_sibs(removed->back);
         curtree->re_move(curtree, removed, &where, true);
-/* printf(" remove %ld:%ld\n", removed->index, removed->back->index);   debug */
+printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
         qwhere = where;
 
         if ( where->tip)
@@ -1107,8 +1107,10 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                      qwhere, &bestyet, bestree, true, true, false, bestfound);
           sib_ptr2 = sib_ptr2->next;
         }
+printf("inserting at %ld\n", qwhere->index); /* debug */
         curtree->insert_(curtree, removed, qwhere, false);
         curtree->root = curtree->nodep[0]->back;
+	printf("setting root as: %ld\n", curtree->root->index); /* debug */
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
       }
     }
