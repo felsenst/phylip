@@ -1042,10 +1042,10 @@ boolean outgrin(node *root, node *outgrnode)
 
 void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                          boolean thorough, double* bestfound)
-{ /* does global rearrangements */
-  /* The more general generic_unrooted_locrearrange also works but this is
-   * much faster because it gets to take advantage of some of the speedups
-   * available in the parsimony programs */
+{ /* does global rearrangements.  The more general
+   * generic_unrooted_locrearrange also works but this is much faster because
+   * it gets to take advantage of some of the speedups available in the
+   * parsimony programs */
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double bestyet;
@@ -1072,17 +1072,17 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
       num_sibs = count_sibs(sib_ptr);
 
     if ( progress && ((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 ))
-    {
+    {                      /* print progress characters, up to 71 per line */
       sprintf(progbuf, ".");
       print_progress(progbuf);
     }
 
-    for ( j = 0 ; j <= num_sibs ; j++ )
+    for ( j = 0 ; j < num_sibs ; j++ )
     {
-      sib_ptr = curtree->nodep[i];
+      sib_ptr = curtree->nodep[i]->back;
       for ( k = 0 ; k < j ; k++ ) {
         sib_ptr = sib_ptr->next;
-        if ( sib_ptr->back == NULL || sib_ptr->back->tip )
+        if ( sib_ptr == NULL || sib_ptr->tip )
           continue;                     /* skip over rest of loop this time */
 
         removed = sib_ptr;   /* debug: or is it  sib_ptr->back ? */
