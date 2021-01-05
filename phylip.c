@@ -4706,9 +4706,11 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
   long num_sibs;
 
   oldroot = t->root;
-  if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
-    fork->back = NULL;                                   /* debug: why?  */
-    return;
+  if ( fork->back != NULL) {
+    if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
+      fork->back = NULL;                                   /* debug: why?  */
+      return;
+    }
   }
 
   num_sibs = count_sibs(fork);
