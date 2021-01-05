@@ -510,7 +510,9 @@ void oldsavetree(tree* t, long *place)
   for (i = 1; i <= spp; i++)                            /* for each tip ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
-    if (p->back != NULL) {               /* if this node is in the tree ... */
+    if (p == NULL)                     /* if species  i  is not in the tree */
+      break;
+    if (p->back != NULL) {           /* if its back node is in the tree ... */
       p = p->back;      /* ... go down to the interior node connected to it */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
@@ -527,14 +529,18 @@ void oldsavetree(tree* t, long *place)
         while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
         {       /* ... while still on same branch and no other new fork yet */
           if (justhitlineage) {                /* for the fork just hit ... */
-            topfork = true;
             q = p;
             forknum = lineagenumber[p->index - 1];    /* get lineage number */
+            topfork = true;
             do { /* go around circle seeing if forks above are same lineage */
-              topfork = topfork && ( (q == t->nodep[p->index - 1]) ||
-                          (lineagenumber[q->back->index - 1] != forknum) );
+              if (q != t->nodep[p->index - 1]) { /* node doesn't point down */
+                if (q->back != NULL) {
+                  topfork = topfork &&
+                              (lineagenumber[q->back->index - 1] != forknum);
+                }
+              }
               q = q->next;
-            } while (p != q); /*  topfork  is true if none are same lineage */
+            } while (q != p); /*  topfork  is true if none are same lineage */
             if (topfork)      /* if this fork is the top one in its lineage */
               lineagenumber[p->index - 1] = -newforknum;    /* set negative */
             else
@@ -1011,6 +1017,8 @@ void setbottomtraverse(node *p)
    * to do this on all nodes.  */
   node *q;
 
+  if (p == NULL)                  /* return if this node is not on the tree */
+    return;
   p->bottom = true;                       /* set the one you arrive at true */
   if (p->tip)
     return;
@@ -1063,6 +1071,9 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
   for ( i = 0 ; i < curtree->nonodes ; i++ )
   {
+    if ( (curtree->root->index == (i+1)) ||
+         (curtree->root->back->index == (i+1)) )
+      continue;           /* skip this case if this branch connects to root */
     sib_ptr  = curtree->nodep[i]->back;
     if (sib_ptr == NULL)
       continue;          /* skip this case if no interior node circle there */
