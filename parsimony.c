@@ -1057,7 +1057,6 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double bestyet;
-  boolean mulf;
   node* removed;
 
 /*  bestyet = curtree->evaluate(bestree, bestree->root, 0); debug */
@@ -1088,42 +1087,39 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
       print_progress(progbuf);
     }
 
-    for ( j = 0 ; j < num_sibs ; j++ )
-    {
-      sib_ptr = curtree->nodep[i]->back;
-      for ( k = 0 ; k < j ; k++ ) {
-        sib_ptr = sib_ptr->next;
-        if ( sib_ptr == NULL || sib_ptr->tip )
-          continue;                     /* skip over rest of loop this time */
-
-        removed = sib_ptr;   /* debug: or is it  sib_ptr->back ? */
-        mulf = 2 != count_sibs(removed->back);
-        curtree->re_move(curtree, removed, &where, true);
+    sib_ptr = curtree->nodep[i]->back; /* for fork connected to tip i+1 ... */
+    for ( j = 0 ; j < num_sibs ; j++ )  /* loop over remainder of its nodes */
+    {               
+      if ( sib_ptr->back == NULL || sib_ptr->back->tip ) /* skip to next .. */
+        continue;               /* ... if tip or nothing connected here ... */
+      sib_ptr = sib_ptr->next; /* remove fork and tree behind this node ... */
+      removed = sib_ptr; 
+      curtree->re_move(curtree, removed, &where, true);
 printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
-        qwhere = where;
-
-        if ( where->tip)
-        {
-          num_sibs2 = 0;
-          sib_ptr2 = where->back;
-        }
-        else
-        {
-          num_sibs2 = count_sibs(where);
-          sib_ptr2 = where;
-        }
+      qwhere = where;                  /* where it was removed from in tree */
+      if ( !where->tip ) {
+        sib_ptr2 = where;           /* get ready to loop around other furcs */
         for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {
+        {                          /* traverse from all other furcs of fork */
+          sib_ptr2 = sib_ptr2->next;     /* ... inserting "removed" subtree */
           curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
                      qwhere, &bestyet, bestree, true, true, false, bestfound);
-          sib_ptr2 = sib_ptr2->next;
         }
-printf("inserting at %ld\n", qwhere->index); /* debug */
-        curtree->insert_(curtree, removed, qwhere, false);
-        curtree->root = curtree->nodep[0]->back;
-	printf("setting root as: %ld\n", curtree->root->index); /* debug */
-/* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
       }
+      if ( !where->back->tip ) {      /* now do same at other end of branch */
+        sib_ptr2 = where->back;     /* get ready to loop around other furcs */
+        for ( k = 0 ; k <= num_sibs2 ; k++ )
+        {                          /* traverse from all other furcs of fork */
+          sib_ptr2 = sib_ptr2->next;     /* ... inserting "removed" subtree */
+          curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
+                     qwhere, &bestyet, bestree, true, true, false, bestfound);
+        }
+      }
+printf("inserting at %ld\n", qwhere->index); /* debug */
+      curtree->insert_(curtree, removed, qwhere, false); /* into best place */
+      curtree->root = curtree->nodep[outgrno-1]->back;          /* set root */
+printf("setting root as: %ld\n", curtree->root->index); /* debug */
+/* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
     }
   }
   if (progress)
