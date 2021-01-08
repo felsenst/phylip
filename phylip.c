@@ -4008,7 +4008,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                              boolean atstart, double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
-   * from one end of that branch
+   * from one end of that branch (if  q  was not a tip)
    * succeeded  tells whether any location was found better
    * than the original location, q
    * contin  indicates whether one proceeds through the subtree

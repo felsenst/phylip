@@ -1064,76 +1064,84 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double bestyet;
+  boolean success;
   node* removed;
 
 /*  bestyet = curtree->evaluate(bestree, bestree->root, 0); debug */
   bestyet = *bestfound;
 
-  if (progress)
-  {
-    sprintf(progbuf, "   ");
-    print_progress(progbuf);
-  }
-
-  for ( i = 0 ; i < curtree->nonodes ; i++ )
-  {
-    if ( (curtree->root->index == (i+1)) ||
-         (curtree->root->back->index == (i+1)) )
-      continue;           /* skip this case if this branch connects to root */
-    sib_ptr  = curtree->nodep[i]->back;
-    if (sib_ptr == NULL)
-      continue;          /* skip this case if no interior node circle there */
-    if ( sib_ptr->tip )
-      num_sibs = 0;
-    else
-      num_sibs = count_sibs(sib_ptr);
-
-    if ( progress && ((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 ))
-    {                      /* print progress characters, up to 71 per line */
-      sprintf(progbuf, ".");
+  success = false;        /* to be  true  when a better tree has been found */
+  do {           /* loop until a global rearrangement pass does not improve */
+    if (progress)
+    {
+      sprintf(progbuf, "   ");
       print_progress(progbuf);
     }
+    for ( i = 0 ; i < curtree->nonodes ; i++ )
+    {
+      if ( (curtree->root->index == (i+1)) ||
+           (curtree->root->back->index == (i+1)) )
+        continue;         /* skip this case if this branch connects to root */
+      sib_ptr  = curtree->nodep[i]->back;
+      if (sib_ptr == NULL)
+        continue;        /* skip this case if no interior node circle there */
+      if ( sib_ptr->tip )
+        num_sibs = 0;
+      else
+        num_sibs = count_sibs(sib_ptr);
 
-    sib_ptr = curtree->nodep[i]->back; /* for fork connected to tip i+1 ... */
-    for ( j = 0 ; j < num_sibs ; j++ )  /* loop over remainder of its nodes */
-    {               
-      if ( sib_ptr->back == NULL || sib_ptr->back->tip ) /* skip to next .. */
-        continue;               /* ... if tip or nothing connected here ... */
-      sib_ptr = sib_ptr->next; /* remove fork and tree behind this node ... */
-      removed = sib_ptr; 
-      curtree->re_move(curtree, removed, &where, true);
+
+      if ( progress && ((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 ))
+      {                     /* print progress characters, up to 71 per line */
+        sprintf(progbuf, ".");
+        print_progress(progbuf);
+      }
+
+      sib_ptr = curtree->nodep[i]->back;   /* fork connected to tip i+1 ... */
+      for ( j = 0 ; j < num_sibs ; j++ )   /* loop over remainder of circle */
+      {               
+        if ( sib_ptr->back == NULL || sib_ptr->back->tip )  /* skip to next */
+          continue;             /* ... if tip or nothing connected here ... */
+        sib_ptr = sib_ptr->next;   /* remove fork and tree behind this node */
+        removed = sib_ptr; 
+        curtree->re_move(curtree, removed, &where, true);
 printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
-      qwhere = where;                  /* where it was removed from in tree */
-      if ( !where->tip ) {
-        sib_ptr2 = where;           /* get ready to loop around other furcs */
-        for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {                          /* traverse from all other furcs of fork */
-          sib_ptr2 = sib_ptr2->next;     /* ... inserting "removed" subtree */
-          curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                     qwhere, &bestyet, bestree, true, true, false, bestfound);
+        qwhere = where;                /* where it was removed from in tree */
+        if ( !where->tip ) {
+          sib_ptr2 = where;         /* get ready to loop around other furcs */
+          for ( k = 0 ; k <= num_sibs2 ; k++ )
+          {                        /* traverse from all other furcs of fork */
+            sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
+            success = success || generic_tree_addtraverse_1way(curtree,
+                                   removed, sib_ptr2->back, true, qwhere,
+                                   &bestyet, bestree, true, true, false,
+                                   bestfound);
+          }
         }
-      }
-      if ( !where->back->tip ) {      /* now do same at other end of branch */
-        sib_ptr2 = where->back;     /* get ready to loop around other furcs */
-        for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {                          /* traverse from all other furcs of fork */
-          sib_ptr2 = sib_ptr2->next;     /* ... inserting "removed" subtree */
-          curtree->addtraverse(curtree, removed, sib_ptr2->back, true,
-                     qwhere, &bestyet, bestree, true, true, false, bestfound);
-        }
-      }
+        if ( !where->back->tip ) {    /* now do same at other end of branch */
+          sib_ptr2 = where->back;   /* get ready to loop around other furcs */
+          for ( k = 0 ; k <= num_sibs2 ; k++ )
+          {                        /* traverse from all other furcs of fork */
+            sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
+            success = success || generic_tree_addtraverse_1way(curtree,
+                                   removed, sib_ptr2->back, true, qwhere,
+                                   &bestyet, bestree, true, true, false,
+                                   bestfound);
+          }
+        }  /* debug: could all this be replaced by one addtraverse call? */
 printf("inserting at %ld\n", qwhere->index); /* debug */
-      curtree->insert_(curtree, removed, qwhere, false); /* into best place */
-      curtree->root = curtree->nodep[outgrno-1]->back;          /* set root */
+        curtree->insert_(curtree, removed, qwhere, false); /* in best place */
+        curtree->root = curtree->nodep[outgrno-1]->back;        /* set root */
 printf("setting root as: %ld\n", curtree->root->index); /* debug */
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
+      }
+      if (progress)
+      {
+        sprintf(progbuf, "\n");
+        print_progress(progbuf);
+      }
     }
-  }
-  if (progress)
-  {
-    sprintf(progbuf, "\n");
-    print_progress(progbuf);
-  }
+  } while (!success);
 } /* pars_globrearrange */
 
 
