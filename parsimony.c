@@ -139,18 +139,18 @@ printf(" (new bestyet)");  /* debug */
   }
 /* debug */ printf("\n");
   if (storing) {
-    savetree(t, place);           /* make coded representation of this tree */
-    if (atstart) {                    /* case when this is first tree tried */
+    savetree(t, place);  /* make storable coded representation of this tree */
+    if (atstart) {                         /* when this is first tree tried */
       pos = 0;                       /* put it at the beginning of bestrees */
       found = false;
       if (nextree == 0) {
-        *bestfound = like;
+        *bestfound = like;                     /* score of the stored trees */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  /* debug */
         addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
       }
-      *bestyet = like;
-      succeeded = true;
+      *bestyet = like;            /* same value as *bestfound.  Why needed? */
+      succeeded = true;           /* to be updated when "tryinsert" returns */
     } 
     else {
       if ( like == *bestfound )                 /* deciding on a later tree */
@@ -162,8 +162,8 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet,
           addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
         }
-      } else {
-        if (like > *bestfound) {       /* replacing all or adding one more? */
+      } else {            /* since  like  is not the same as the best score */
+        if (like > *bestfound) {                          /* replacing all? */
           *bestfound = like;
           *bestyet = like;
           pos = 0;                   /* put it at the beginning of bestrees */
@@ -486,24 +486,31 @@ static void bintomulti(tree *t, node **root, node **binroot)
 void oldsavetree(tree* t, long *place)
 {
    /* record in array  place  where each species has to be
-    * added to reconstruct this tree. This code assumes a root
-    * this is the older function, a new function roots the tree
-    * and calls this function to save the tree */
+    * added to reconstruct this tree. This code assumes a root.
+    * Trees get saved by storing that array in a 2D array.
+    * This is the older function, a new function roots the tree
+    * and calls this function, then stores "place" to save the tree.
+    * The code imagines us adding tips to a tree and giving numbers
+    * to the new interior forks, those numbers are the "lineage
+    * numbers", which are not same as the current node index. */
   long i, j, nextnode, nvisited, newforknum, forknum;
   long* lineagenumber;
-  node *p, *q, *r = NULL, *root2, *lastdesc, *outgrnode, *binroot, *flipback;
+  node *p, *q, *r = NULL, *root2, *lastdesc, *rootnode, *binroot, *flipback;
   boolean done, atbottom, newfork, justhitlineage, hitfork, topfork;
 
   flipback = NULL;
   lastdesc = NULL;
   root2 = NULL;
-  outgrnode = t->nodep[outgrno - 1];
+  rootnode = t->nodep[outgrno - 1]->back; /* find fork attached to outgroup */
+  while ( !(rootnode->back == NULL) ) {  /* which node in fork is at bottom */
+    rootnode = rootnode->next;
+  }                                         /* then call recursively to ... */
+  setbottomtraverse(rootnode); /* set booleans indicating which way is down */
   lineagenumber = (long *)Malloc(nonodes*sizeof(long));
-  setbottomtraverse(t->root);  /* set booleans indicating which way is down */
-  for (i = 0; i < spp; i++)                     /* initialize "place" array */
-    place[i] = 0;
   for (i = 0; i < nonodes; i++)      /* which lineage each tree node is ... */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
+  for (i = 0; i < spp; i++)                     /* initialize "place" array */
+    place[i] = 0;
   place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
   newforknum = spp + 1;             /* number of next new fork to be put in */
@@ -511,9 +518,9 @@ void oldsavetree(tree* t, long *place)
   {
     p = t->nodep[i - 1];                           /* start with species  i */
     if (p == NULL)                     /* if species  i  is not in the tree */
-      break;
+      break;                          /* ... then go on to the next species */
     if (p->back != NULL) {           /* if its back node is in the tree ... */
-      p = p->back;      /* ... go down to the interior node connected to it */
+      p = p->back;                     /* ... go down to that interior node */
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
         lineagenumber[p->index - 1] = i;       /* set to number of that tip */
