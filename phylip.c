@@ -3977,10 +3977,10 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
 
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart, bestfound);
-  succeeded = true;   /* debug: why this boolean? for first location we try */
+  succeeded = true; /* debug: why? */
   atstart = false;
-  if (!q->tip) {     /* in one direction, try immediate descendant branches,
-                      * maybe further unless just local rearrangements */
+  if (!q->tip) {          /* in one direction, try descendants,
+                           * maybe further unless just local rearrangements */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
@@ -4015,14 +4015,17 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
    * recursively instead of just trying this one branch, as in
    * local rearrangementboolean storing,  storing indicates that any trees
    * that are found that are tied or better should be stored in bestrees */
+  /* NOTE: will back out if comes to fork connected to outgroup */
   node *sib_ptr;
   boolean succeeded = false;
+  boolean outgroupfork;
 
 /* printf("  beginning addtraverse of %ld", q->index); debug */
   succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
                               thorough, storing, atstart, bestfound);
-
-  if (contin && !q->tip) {        /* go to all branches leading beyond fork */
+  outgroupfork = (q->index == t->root->index);
+  if (contin && !q->tip && !outgroupfork) {          /* go to all branches
+                                                        leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,

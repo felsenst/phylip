@@ -1064,7 +1064,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double bestyet;
-  boolean success;
+  boolean success, atrootfork;
   node* removed;
 
 /*  bestyet = curtree->evaluate(bestree, bestree->root, 0); debug */
@@ -1107,7 +1107,8 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         curtree->re_move(curtree, removed, &where, true);
 printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
         qwhere = where;                /* where it was removed from in tree */
-        if ( !where->tip ) {
+        atrootfork = (where->index == curtree->root->index);
+        if ( !where->tip && !atrootfork) {
           sib_ptr2 = where;         /* get ready to loop around other furcs */
           for ( k = 0 ; k <= num_sibs2 ; k++ )
           {                        /* traverse from all other furcs of fork */
@@ -1118,7 +1119,8 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
                                    bestfound);
           }
         }
-        if ( !where->back->tip ) {    /* now do same at other end of branch */
+        atrootfork = (where->back->index == curtree->root->index);
+        if ( !where->back->tip && !atrootfork) {    /* do same at other end */
           sib_ptr2 = where->back;   /* get ready to loop around other furcs */
           for ( k = 0 ; k <= num_sibs2 ; k++ )
           {                        /* traverse from all other furcs of fork */
