@@ -1100,7 +1100,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
       sib_ptr = curtree->nodep[i]->back;   /* fork connected to tip i+1 ... */
       for ( j = 0 ; j < num_sibs ; j++ )   /* loop over remainder of circle */
       {               
-        if ( sib_ptr->back == NULL || sib_ptr->back->tip )  /* skip to next */
+        if ( sib_ptr->back == NULL )                        /* skip to next */
           continue;             /* ... if tip or nothing connected here ... */
         sib_ptr = sib_ptr->next;   /* remove fork and tree behind this node */
         dontremove = (sib_ptr->index == curtree->root->index) ||
@@ -1111,15 +1111,17 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
           curtree->re_move(curtree, removed, &where, true);
           qwhere = where;              /* where it was removed from in tree */
           sib_ptr2 = where;         /* get ready to loop around other furcs */
-          for ( k = 0 ; k <= num_sibs2 ; k++ )
-          {                        /* traverse from all other furcs of fork */
-            sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
-            donttrythere = (sib_ptr2->back == curtree->root->index);
-/* debug: does this work if curtree-_root is multifurcating? */
-            success = success || generic_tree_addtraverse_1way(curtree,
-                                   removed, sib_ptr2->back, true, qwhere,
-                                   &bestyet, bestree, true, true, false,
-                                   bestfound);
+          donttrythere = (sib_ptr2->tip ||
+                              sib_ptr2->back == curtree->root->index);
+          if (!donttrythere) {
+            for ( k = 0 ; k <= num_sibs2 ; k++ )
+            {                        /* traverse from all other furcs of fork */
+              sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
+              success = success || generic_tree_addtraverse_1way(curtree,
+                                     removed, sib_ptr2->back, true, qwhere,
+                                     &bestyet, bestree, true, true, false,
+                                     bestfound);
+            }
           }
         }
         donttrythere = (where->back->index == curtree->root->index) ||
