@@ -183,8 +183,8 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
     there = p;
 /* debug:    *multf = false;   */
   }
-printf("then remove %ld from %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
   t->re_move(t, item, &dummy, true);   /* pull the branch back off the tree */
+printf("then remove %ld from %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
 /* debug:  is preceding statement correct?  &dummy?  */
   t->restore_traverses(t, item, p);           /* debug: what is this doing? */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
@@ -1066,7 +1066,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double bestyet;
-  boolean success, dontremove, donttrythere;
+  boolean success, successaftertraverse, dontremove, donttrythere;
   node* removed;
 
 /*  bestyet = curtree->evaluate(bestree, bestree->root, 0); debug */
@@ -1119,10 +1119,11 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
             for ( k = 0 ; k <= num_sibs2 ; k++ )
             {                        /* traverse from all other furcs of fork */
               sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
-              success = success || generic_tree_addtraverse_1way(curtree,
-                                     removed, sib_ptr2->back, true, qwhere,
-                                     &bestyet, bestree, true, true, false,
-                                     bestfound);
+              successaftertraverse = generic_tree_addtraverse_1way(curtree,
+                                       removed, sib_ptr2->back, true, qwhere,
+                                       &bestyet, bestree, true, true, false,
+                                       bestfound);
+              success = success || successaftertraverse;
             }
           }
         }
@@ -1130,13 +1131,15 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
                          (where->back->tip);       /* tip or rootmost fork? */
         if ( !donttrythere ) {    /* if not, do traversal also at other end */
           sib_ptr2 = where->back;   /* get ready to loop around other furcs */
+          num_sibs2 = count_sibs(sib_ptr2);
           for ( k = 0 ; k <= num_sibs2 ; k++ )
           {                        /* traverse from all other furcs of fork */
             sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
-            success = success || generic_tree_addtraverse_1way(curtree,
-                                   removed, sib_ptr2->back, true, qwhere,
-                                   &bestyet, bestree, true, true, false,
-                                   bestfound);
+            successaftertraverse = generic_tree_addtraverse_1way(curtree,
+                                     removed, sib_ptr2->back, true, qwhere,
+                                     &bestyet, bestree, true, true, false,
+                                     bestfound);
+            success = success || successaftertraverse;
           }
         }  /* debug: could all this be replaced by one addtraverse call? */
 printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); /* debug */
