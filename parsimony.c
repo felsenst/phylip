@@ -1137,7 +1137,7 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
                                    bestfound);
           }
         }  /* debug: could all this be replaced by one addtraverse call? */
-printf("inserting at %ld\n", qwhere->index); /* debug */
+printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); /* debug */
         curtree->insert_(curtree, removed, qwhere, false); /* in best place */
         curtree->root = curtree->nodep[outgrno-1]->back;        /* set root */
 printf("setting root as: %ld\n", curtree->root->index); /* debug */
