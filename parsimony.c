@@ -125,6 +125,7 @@ boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
   long pos = 0;
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
+printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
   t->insert_(t, item, p->back, false);
   initializetrav(t, t->root);                /* make sure updates all views */
   initializetrav(t, t->root->back);
@@ -182,6 +183,7 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
     there = p;
 /* debug:    *multf = false;   */
   }
+printf("then remove %ld from %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
   t->re_move(t, item, &dummy, true);   /* pull the branch back off the tree */
 /* debug:  is preceding statement correct?  &dummy?  */
   t->restore_traverses(t, item, p);           /* debug: what is this doing? */
@@ -192,8 +194,8 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
   pos = 0;
 
   /* debug:  Uncommenting the following code will allow for a multifurcating
-   * search, However you will generally find every multifurcation as a
-   * separate tree including ambiguous ones.  */
+   * search, However doing a search only of resolved trees will also find
+   * multifurcations when collapsible branches are collapsed */
 #if 0
   if ( p->tip == false )
   {
