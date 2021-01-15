@@ -3838,6 +3838,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
   int success = false;
   boolean succeeded = true;
   node* removed;
+/* debug:  Check to make it parallel pars_globrearr's new structure */
 
   if ( progress ) {
     sprintf(progbuf, "Doing global rearrangements\n");
