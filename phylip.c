@@ -3962,22 +3962,22 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                           node* qwherein, double* bestyet,
-                           tree* bestree, boolean thorough, boolean storing,
-                           boolean atstart, double* bestfound)
+                           node* qwherein, double* bestyet, tree* bestree,
+                           boolean thorough, boolean storing, boolean atstart,
+                           double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
    * is just doing local rearragements. 
-   * thorough indicates whether need to adjust parameters
+   * thorough  indicates whether need to adjust parameters
    * further out than  q  to assess that location
    * p  should be a fork subtree connected to it so root of subtree 
    * is at  p->back  */
   node *sib_ptr;
-  boolean succeeded;
+  boolean succeeded;     /* a dummy result for calls that have side effects */
 
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                              thorough, storing, atstart, bestfound);
-  succeeded = true; /* debug: why? */
+  succeeded = true;             /* in case can't try more inserts than this */
   atstart = false;
   if (!q->tip) {          /* in one direction, try descendants,
                            * maybe further unless just local rearrangements */
@@ -3991,7 +3991,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   if (contin && !q->back->tip) {
     /* we need to go both ways, if we start in an interior branch
      * of an unrooted tree and are not doing just local rearrangements */
-    for ( sib_ptr = q->back->next; sib_ptr != q->back; sib_ptr = sib_ptr->next)
+    for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                     sib_ptr = sib_ptr->next)
     {
       succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                           contin, qwherein, bestyet, bestree,
@@ -4021,7 +4022,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean outgroupfork;
 
 /* printf("  beginning addtraverse of %ld", q->index); debug */
-  succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
+  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                               thorough, storing, atstart, bestfound);
   outgroupfork = (q->index == t->root->index);
   if (contin && !q->tip && !outgroupfork) {          /* go to all branches

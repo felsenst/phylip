@@ -106,7 +106,7 @@ void reroot_tree(tree* t)
 } /* reroot_tree */
 
 
-boolean pars_tree_try_insert_(tree * t, node * item, node * p, node * there,
+boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
                           double* bestyet, tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
 {
@@ -1063,8 +1063,8 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
    * generic_unrooted_locrearrange also works but this is much faster because
    * it gets to take advantage of some of the speedups available in the
    * parsimony programs */
-  int i, j, k, num_sibs, num_sibs2;
-  node *where, *sib_ptr, *sib_ptr2, *qwhere;
+  int i, j, k, num_sibs;
+  node *where, *there, *sib_ptr, *qwhere;
   double bestyet;
   boolean success, successaftertraverse, dontremove, donttrythere;
   node* removed;
@@ -1092,61 +1092,50 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
       else
         num_sibs = count_sibs(sib_ptr);
 
-      if ( progress && (((i-spp)+1) % (( (curtree->nonodes - 1) / 72 ) + 1 )
-                          == 0 ))
+      if ( progress &&
+             (((i-spp)+1) % (( (curtree->nonodes - 1) / 72 ) + 1 ) == 0 ))
       {                     /* print progress characters, up to 72 per line */
         sprintf(progbuf, ".");
         print_progress(progbuf);
       }
 
-      sib_ptr = curtree->nodep[i]->back;   /* fork connected to tip i+1 ... */
-      for ( j = 0 ; j < num_sibs ; j++ )   /* loop over remainder of circle */
+      for ( j = 0 ; j <= num_sibs ; j++ )      /* loop over nodes in circle */
       {               
         if ( sib_ptr->back == NULL )                        /* skip to next */
-          continue;             /* ... if tip or nothing connected here ... */
-        sib_ptr = sib_ptr->next;   /* remove fork and tree behind this node */
+          continue;                    /* ... if nothing connected here ... */
         dontremove = (sib_ptr->index == curtree->root->index) ||
                       (sib_ptr->back->index == curtree->root->index);
         if (!dontremove) {
           removed = sib_ptr; 
 printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
           curtree->re_move(curtree, removed, &where, true);
-          qwhere = where;              /* where it was removed from in tree */
-          sib_ptr2 = where;         /* get ready to loop around other furcs */
-          donttrythere = (sib_ptr2->tip ||
-                              sib_ptr2->back == curtree->root->index);
+          qwhere = where;                /* to hold best place to insert it */
+          success = pars_tree_try_insert_(curtree, removed, where, there,
+                          &bestyet, bestree, true, true, true, &bestfound);
+          donttrythere = (where->tip ||
+                              where->back == curtree->root->index);
           if (!donttrythere) {
-            for ( k = 0 ; k <= num_sibs2 ; k++ )
-            {                        /* traverse from all other furcs of fork */
-              sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
-              successaftertraverse = generic_tree_addtraverse_1way(curtree,
-                                       removed, sib_ptr2->back, true, qwhere,
-                                       &bestyet, bestree, true, true, false,
-                                       bestfound);
-              success = success || successaftertraverse;
-            }
+            successaftertraverse = generic_tree_addtraverse_1way(curtree,
+                                     removed, where, true, qwhere, &bestyet,
+                                     bestree, true, true, false, bestfound);
+            success = success || successaftertraverse;
           }
         }
         donttrythere = (where->back->index == curtree->root->index) ||
-                         (where->back->tip);       /* tip or rootmost fork? */
+                         (where->back->tip);     /* a tip or rootmost fork? */
         if ( !donttrythere ) {    /* if not, do traversal also at other end */
-          sib_ptr2 = where->back;   /* get ready to loop around other furcs */
-          num_sibs2 = count_sibs(sib_ptr2);
-          for ( k = 0 ; k <= num_sibs2 ; k++ )
-          {                        /* traverse from all other furcs of fork */
-            sib_ptr2 = sib_ptr2->next;   /* ... inserting "removed" subtree */
-            successaftertraverse = generic_tree_addtraverse_1way(curtree,
-                                     removed, sib_ptr2->back, true, qwhere,
-                                     &bestyet, bestree, true, true, false,
-                                     bestfound);
-            success = success || successaftertraverse;
-          }
+          successaftertraverse = generic_tree_addtraverse_1way(curtree,
+                                   removed, where->back, true, qwhere,
+                                   &bestyet, bestree, true, true, false,
+                                   bestfound);
+          success = success || successaftertraverse;
         }  /* debug: could all this be replaced by one addtraverse call? */
 printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); /* debug */
         curtree->insert_(curtree, removed, qwhere, false); /* in best place */
         curtree->root = curtree->nodep[outgrno-1]->back;        /* set root */
 printf("setting root as: %ld\n", curtree->root->index); /* debug */
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
+        sib_ptr = sib_ptr->next;
       }
     }
     if (progress)
