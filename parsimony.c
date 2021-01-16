@@ -351,6 +351,9 @@ printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
       collapsetree(t, p, &collapsed);  /* traverse: find collapsible branch */
     if (collapsed) {                          /* if something was collapsed */
+printf("(nextree before: %ld)\n", nextree);
+printf("TREE #%ld collapsed\n", k);
+printf("(nextree now %ld)\n", nextree);
       savetree(t, place);           /* record collapsed tree in place array */
       if ( k < (treeLimit-1) ) {         /* if not at the last tree already */
         for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
@@ -378,6 +381,7 @@ printf("ADDING NEW TREE: number %ld: ", pos);
 for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");
 /* debug */
       }
+else printf("ALREADY THERE\n");
     }
   } while (k < treeLimit);
   if (progress)
