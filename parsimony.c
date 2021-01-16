@@ -1063,8 +1063,8 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
    * generic_unrooted_locrearrange also works but this is much faster because
    * it gets to take advantage of some of the speedups available in the
    * parsimony programs */
-  int i, j, k, num_sibs;
-  node *where, *there, *sib_ptr, *qwhere;
+  int i;
+  node *p, *where, *there, *qwhere;
   double bestyet;
   boolean success, successaftertraverse, dontremove, donttrythere;
   node* removed;
@@ -1084,13 +1084,9 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
       if ( (curtree->root->index == (i+1)) ||
            (curtree->root->back->index == (i+1)) )
         continue;    /* skip this case if this branch connects to root fork */
-      sib_ptr  = curtree->nodep[i]->back;
-      if (sib_ptr == NULL)
+      p = curtree->nodep[i]->back;
+      if (p == NULL)
         continue;        /* skip this case if no interior node circle there */
-      if ( sib_ptr->tip )
-        num_sibs = 0;
-      else
-        num_sibs = count_sibs(sib_ptr);
 
       if ( progress &&
              (((i-spp)+1) % (( (curtree->nonodes - 1) / 72 ) + 1 ) == 0 ))
@@ -1099,27 +1095,24 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         print_progress(progbuf);
       }
 
-      for ( j = 0 ; j <= num_sibs ; j++ )      /* loop over nodes in circle */
-      {               
-        if ( sib_ptr->back == NULL )                        /* skip to next */
-          continue;                    /* ... if nothing connected here ... */
-        dontremove = (sib_ptr->index == curtree->root->index) ||
-                      (sib_ptr->back->index == curtree->root->index);
-        if (!dontremove) {
-          removed = sib_ptr; 
+      if ( p->back == NULL )                               /* skip to next */
+        continue;                      /* ... if nothing connected here ... */
+      dontremove = (p->index == curtree->root->index) ||
+                    (p->back->index == curtree->root->index);
+      if (!dontremove) {
+        removed = p; 
 printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
-          curtree->re_move(curtree, removed, &where, true);
-          qwhere = where;                /* to hold best place to insert it */
-          success = pars_tree_try_insert_(curtree, removed, where, there,
-                          &bestyet, bestree, true, true, true, &bestfound);
-          donttrythere = (where->tip ||
-                              where->back == curtree->root->index);
-          if (!donttrythere) {
-            successaftertraverse = generic_tree_addtraverse_1way(curtree,
-                                     removed, where, true, qwhere, &bestyet,
-                                     bestree, true, true, false, bestfound);
-            success = success || successaftertraverse;
-          }
+        curtree->re_move(curtree, removed, &where, true);
+        qwhere = where;                  /* to hold best place to insert it */
+        success = pars_tree_try_insert_(curtree, removed, where, there,
+                        &bestyet, bestree, true, true, true, bestfound);
+        donttrythere = (where->tip ||
+                            where->back == curtree->root->index);
+        if (!donttrythere) {
+          successaftertraverse = generic_tree_addtraverse_1way(curtree,
+                                   removed, where, true, qwhere, &bestyet,
+                                   bestree, true, true, false, bestfound);
+          success = success || successaftertraverse;
         }
         donttrythere = (where->back->index == curtree->root->index) ||
                          (where->back->tip);     /* a tip or rootmost fork? */
@@ -1128,22 +1121,21 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
                                    removed, where->back, true, qwhere,
                                    &bestyet, bestree, true, true, false,
                                    bestfound);
-          success = success || successaftertraverse;
-        }  /* debug: could all this be replaced by one addtraverse call? */
+        }
+        success = success || successaftertraverse;
 printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); /* debug */
         curtree->insert_(curtree, removed, qwhere, false); /* in best place */
         curtree->root = curtree->nodep[outgrno-1]->back;        /* set root */
 printf("setting root as: %ld\n", curtree->root->index); /* debug */
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
-        sib_ptr = sib_ptr->next;
       }
     }
-    if (progress)
-    {
-      sprintf(progbuf, "\n");
-      print_progress(progbuf);
-    }
   } while (!success);
+  if (progress)
+  {
+    sprintf(progbuf, "\n");
+    print_progress(progbuf);
+  }
 } /* pars_globrearrange */
 
 
