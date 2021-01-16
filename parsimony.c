@@ -1148,7 +1148,7 @@ boolean treecollapsible(tree* t, node* n, node** p, boolean collapsible)
 
   node *sib;
 
-printf("called treecollapsible with %ld:%ld\n", n->index, n->back->index);
+printf("\ncalled treecollapsible with %ld:%ld\n", n->index, n->back->index);
   if ( n == NULL )                /* in case it is called on branch at root */
     return false;
 
@@ -1166,8 +1166,12 @@ printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->ind
 printf("going around circle for fork %ld\n", n->back->index);
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
   {                                                  /* recurse further out */
+    if (sib->back != NULL) {
 printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);
     collapsible = treecollapsible(t, sib, p, collapsible) || collapsible;
+    }
+    else
+      printf("root branch skipped\n");
   }
   return collapsible;
 } /* treecollapsible */
@@ -1241,13 +1245,12 @@ void collapsetree(tree* t, node* n, boolean* collapsed)
     * which we are proceeding out the back subtree of that node */
   node *sib;
 
-  if (*collapsed)       /* if a branch recently collapsed, bail on recursion */
-    return;
   if ( n->back->tip == true)           /* if back is a tip don't go further */
     return;
   if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {
     collapsebranch(t, n);                 /* collapse this branch if we can */
     *collapsed = true;
+    return;
   }
   else /* go around circle, for all but initial node, collapse back subtree */
     for ( sib = n->back->next ; sib != n->back ; sib = sib->next ) {
