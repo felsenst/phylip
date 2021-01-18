@@ -520,6 +520,7 @@ void oldsavetree(tree* t, long *place)
   place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
   newforknum = spp + 1;             /* number of next new fork to be put in */
+  topfork = true;
   for (i = 1; i <= spp; i++)                            /* for each tip ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
@@ -539,12 +540,12 @@ void oldsavetree(tree* t, long *place)
       if (p != NULL) {              /* we ran into a nonzero lineage number */
         place[i-1] = lineagenumber[p->index - 1];  /* record in place array */
         justhitlineage = true;
+        topfork = true;
         while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
         {       /* ... while still on same branch and no other new fork yet */
           if (justhitlineage) {                /* for the fork just hit ... */
             q = p;
             forknum = lineagenumber[p->index - 1];    /* get lineage number */
-            topfork = true;
             do { /* go around circle seeing if forks above are same lineage */
               if (q != t->nodep[p->index - 1]) { /* node doesn't point down */
                 if (q->back != NULL) {
@@ -554,9 +555,9 @@ void oldsavetree(tree* t, long *place)
               }
               q = q->next;
             } while (q != p); /*  topfork  is true if none are same lineage */
-            if (topfork)      /* if this fork is the top one in its lineage */
-              lineagenumber[p->index - 1] = -newforknum;    /* set negative */
-            else
+            if (topfork) {    /* if this fork is the top one in its lineage */
+              lineagenumber[p->index - 1] = -abs(newforknum);   /* negative */
+            } else
               lineagenumber[p->index - 1] = newforknum;     /* set positive */
             justhitlineage = false;
           }
@@ -569,7 +570,8 @@ void oldsavetree(tree* t, long *place)
           else
             p = p->back;                         /* go down to earlier fork */
         }
-        newforknum++;      /* get number to be assigned to next new lineage */
+        if (topfork)
+          newforknum++;    /* get number to be assigned to next new lineage */
       }
     }
   }
@@ -1211,14 +1213,14 @@ printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); /* debug */
     j = i;
     i = k;                                           /* ... it will be  i  */
   }
-  t->release_forknode(t, m); /* now recycle  m, n  as are no longer needed */
-  t->release_forknode(t, n);
   p = t->nodep[i-1];                               /* start of merged fork */
   p->index = i; 
   for (q = p->next; q != p; q = q->next) { /* renumber nodes in one of ... */
     q->index = i;                         /* ... the original fork circles */
   }
-  t->nodep[j-1] = NULL;    /* debug: necessary? Done by release_forknode? */
+  t->nodep[j-1]->back = NULL;/* debug: necessary? Done by release_forknode? */
+  t->release_forknode(t, m); /* now recycle  m, n  as are no longer needed */
+  t->release_forknode(t, n);
   t->score = t->evaluate(t, t->nodep[outgrno-1], false); 
 /* debug:  need to replace all this code ... */
 #if 0
