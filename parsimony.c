@@ -570,7 +570,7 @@ void oldsavetree(tree* t, long *place)
           else
             p = p->back;                         /* go down to earlier fork */
         }
-        if (topfork)
+        if (topfork && (place[i-1] > 0))
           newforknum++;    /* get number to be assigned to next new lineage */
       }
     }

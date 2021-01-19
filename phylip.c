@@ -5059,25 +5059,22 @@ void seetree(tree * t)
   for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
     qq = t->nodep[i];
-
-    if (i < spp)                                  /* ,,, if it is a tip ... */
-    {
-      if (qq->back == NULL)         /* print who, if anyone, it connects to */
+    if (qq == NULL) {
+      printf(" node: %ld is (nil)\n", i+1);
+    } else {
+      if (i < spp)                                /* ,,, if it is a tip ... */
       {
-        printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
-               qq->index);
-      }
-      else
-      {
-        printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
+        if (qq->back == NULL)       /* print who, if anyone, it connects to */
+        {
+          printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
+                 qq->index);
+        }
+        else
+        {
+          printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
                (void *)qq, qq->index, (void *)qq->back, qq->back->index);
-      }
-    }
-    else                            /* ... or if it is an interior node ... */
-    {
-      if (qq == NULL) {
-        printf(" node: %ld is (nil)\n", i+1);
-      } else {
+        }
+      } else {                      /* ... or if it is an interior node ... */
         printf(" node: %p index:%ld  connects to nodes:",
                  (void *)qq, qq->index);
         pp = qq;
@@ -5107,7 +5104,7 @@ void seetree(tree * t)
             }
             else
             {
-              printf(" %p index:%ld", (void *)qq->back, qq->back->index);
+              printf(" %p index:%ld", (void *)qq, qq->back->index);
             }
           }
 
