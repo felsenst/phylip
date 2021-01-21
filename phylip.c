@@ -4213,29 +4213,36 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                              boolean thorough, tree* priortree, tree* bestree,
                              boolean storing, double* bestfound)
 {
-  /* rearranges the tree locally by removing a subtree
+  /* Rearranges the tree locally by removing a subtree
    * connected to an interior node, keeping it together and trying to
    * insert it in two neighboring branches.  p->back->next->next  points to
    * the interior node that is to be removed, p->back->next->next->back  is
    * the root of the removed subtree.  The two target branches to try are the
    * other two connected to interior node  p.  
+   * Avoid trying to insert it between the outgroup tip and the
+   * fork nearest to it, or on the branch leading down from that
+   * fork rootwards, which points to the null node (nil).
    * debug:  (this function doesn't yet handle multifurcations)
    */
   node *q, *r, *qwhere;
-  boolean succeeded = false;
+  boolean succeeded = false, oktodohere;
   double oldbestyet;    /* debug:  ever used?  */
 
   qwhere = NULL;
 
-  if ((!p->tip) && !p->back->tip)   /* if this is an interior branch ...  */
-  {
+  oktodohere = !(p->back == NULL);
+  if (oktodohere)
+    oktodohere = !(t->root->index == p->index) &&   /* if not rootmost fork */
+                   !(t->root->index == p->back->index) &&
+                   !(p->tip) && !(p->back->tip);    /*  or exterior branch  */
+  if (oktodohere) {
 /* printf("locrearrange at node %2ld\n", p->index);  debug */
     oldbestyet = *bestyet;
-    r = p->back->next->next;           /* these are the two connected ... */
+    r = p->back->next->next;             /* these are the two connected ... */
     if (!thorough)
-      t->save_lr_nodes(t, p, r);  /* save the views at the fork 
-                                   containing  r  and inward-looking at p */
-    t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
+      t->save_lr_nodes(t, p, r);    /* save the views at the fork 
+                                     containing  r  and inward-looking at p */
+    t->re_move(t, r, &q, false);     /* remove r with subtree to back of it */
 
     if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
@@ -4248,7 +4255,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     t->addtraverse(t, r, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
-/* debug:  the previous addtraverse already tries both local rearrangements */
+  /* debug:  the previous addtraverse already tries both local rearrangements */
 #if 0
     if (qwhere == q)   /* don't continue if we've already got a better tree */
     {
@@ -4259,8 +4266,8 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
     if (thorough)
       bestree->copy(bestree, t);
-    else {                /* for case where one is rearranging only locally */
-      t->insert_(t, r, qwhere, false);           /* put it in best location */
+    else {                  /* for case where one is rearranging only locally */
+      t->insert_(t, r, qwhere, false);             /* put it in best location */
       if (qwhere == q ) {
 /* debug:       assert(*bestyet <= oldbestyet);     */
         t->restore_lr_nodes(t, p, r);
@@ -4271,7 +4278,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
         succeeded = true;
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
-        /* debug        double otherbest = *bestyet;      JF:  is this needed? */
+      /* debug        double otherbest = *bestyet;      JF:  is this needed? */
       }
     }
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
