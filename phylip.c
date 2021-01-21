@@ -3976,17 +3976,21 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
-  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                             thorough, storing, atstart, bestfound);
+  if ( !(q == t->root) ) {        /* don't insert between outgroup and fork */
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+                                thorough, storing, atstart, bestfound);
+  }
   succeeded = true;             /* in case can't try more inserts than this */
   atstart = false;
   if (!q->tip) {          /* in one direction, try descendants,
                            * maybe further unless just local rearrangements */
     for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
-      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+      if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                           contin, qwherein, bestyet, bestree, 
                           thorough, storing, atstart, bestfound) || succeeded;
+      }
     }
   }
   if (contin && !q->back->tip) {
