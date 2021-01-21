@@ -4025,7 +4025,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
 /* printf("  beginning addtraverse of %ld", q->index); debug */
   succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                               thorough, storing, atstart, bestfound);
-  outgroupfork = (q->index == t->root->index);
+  outgroupfork = (q == t->root);
   if (contin && !q->tip && !outgroupfork) {          /* go to all branches
                                                         leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
@@ -4821,20 +4821,24 @@ void buildsimpletree(tree *t, long* enterorder)
 {
   /* build a simple three-tip tree with interior fork, by hooking
      up two tips, then inserting third tip hooked to fork, also set root */
-  long k;
-  node *p, *q, *r, *newnode;
+  long k, m;
+  node *p, *q, *r, *newnode1, *newnode2;
 
   p = t->nodep[enterorder[0] - 1];
   q = t->nodep[enterorder[1] - 1];
   r = t->nodep[enterorder[2] - 1];
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
-  newnode = t->get_fork(t, k);                  /* get a three-species fork */
-  hookup(r, newnode);                      /* connect third tip to new fork */
-  hookup(p,q);                             /* connect first and second tips */
+  newnode1 = t->get_fork(t, k);                 /* get a three-species fork */
+  hookup(p, newnode1);                     /* connect third tip to new fork */
+  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode2 = t->get_fork(t, m);                 /* get a three-species fork */
+  hookup(p, newnode1);                    /* connect first tip to root fork */
+  hookup(newnode1->next, q);             /* connect root fork to second tip */
+  newnode1->next->next->back = NULL;      /* root connects to empty pointer */
+  hookup(r, newnode2);               /* connect third species to a new fork */
+  t->insert_(t, newnode2, q, false);                 /* connect all of them */
 
-  t->insert_(t, newnode, q, false);                  /* connect all of them */
-
-  t->root = p;
+  t->root = newnode1;
 
 }  /* buildsimpletree */
 
