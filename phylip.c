@@ -3962,6 +3962,20 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 } /* generic_globrearrange */
 
 
+boolean oktoputthere(tree* t, node* p) {
+  /* Check whether this branch is internal and is not connected at
+   * either end to the root fork */
+  boolean ok;
+
+  ok = !(p->back == NULL) && !(p == NULL);
+  if (ok)
+    ok = !(t->root->index == p->index) &&           /* if not rootmost fork */
+           !(t->root->index == p->back->index) &&      /* at either end ... */
+             !(p->tip) && !(p->back->tip);      /* ...  or exterior branch  */
+  return ok;
+} /* oktoputthere */
+
+
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                            node* qwherein, double* bestyet, tree* bestree,
                            boolean thorough, boolean storing, boolean atstart,
@@ -3975,14 +3989,8 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * is at  p->back  */
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
-  boolean oktodohere;
 
-  oktodohere = !(q->back == NULL);
-  if (oktodohere)
-    oktodohere = !(t->root->index == q->index) &&   /* if not rootmost fork */
-                   !(t->root->index == q->back->index) &&
-                   !(q->tip) && !(q->back->tip);    /*  or exterior branch  */
-  if (oktodohere) {
+  if (oktoputthere(t, p)) {
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
   }
@@ -4032,10 +4040,12 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean succeeded = false;
   boolean outgroupfork;
 
+  if (oktoputthere(t, p)) {
 /* printf("  beginning addtraverse of %ld", q->index); debug */
-  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                              thorough, storing, atstart, bestfound);
-  outgroupfork = (q == t->root);
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+                                thorough, storing, atstart, bestfound);
+    outgroupfork = (q == t->root);
+  }
   if (contin && !q->tip && !outgroupfork) {          /* go to all branches
                                                         leading beyond fork */
     for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
