@@ -3975,8 +3975,14 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
    * is at  p->back  */
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
+  boolean oktodohere;
 
-  if ( !(q == t->root) ) {        /* don't insert between outgroup and fork */
+  oktodohere = !(q->back == NULL);
+  if (oktodohere)
+    oktodohere = !(t->root->index == q->index) &&   /* if not rootmost fork */
+                   !(t->root->index == q->back->index) &&
+                   !(q->tip) && !(q->back->tip);    /*  or exterior branch  */
+  if (oktodohere) {
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
   }
