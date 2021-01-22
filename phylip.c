@@ -4286,7 +4286,12 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   /* go on to rearrange rest of tree, pulling off other parts */
   if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                      *  when we find one that improves the score. */
-    if (!p->tip) {
+    oktodohere = !(p->back == NULL);
+    if (oktodohere)
+      oktodohere = !(t->root->index == p->index) &&   /* if not rootmost fork */
+                     !(t->root->index == p->back->index) &&
+                     !(p->tip) && !(p->back->tip);    /*  or exterior branch  */
+    if (oktodohere) {
       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                    bestyet, thorough, priortree, bestree, storing, bestfound);
       if (!succeeded)
