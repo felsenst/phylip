@@ -3962,18 +3962,38 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 } /* generic_globrearrange */
 
 
-boolean oktoputthere(tree* t, node* p) {
-  /* Check whether this branch is internal and is not connected at
-   * either end to the root fork */
+boolean oktoinsertthere(tree* t, node* p) {
+  /* Check whether this branch is not NULL at either end and is not between
+   * the outgroup and the fork to which it is attached */
   boolean ok;
 
-  ok = !(p->back == NULL) && !(p == NULL);
-  if (ok)
-    ok = !(t->root->index == p->index) &&           /* if not rootmost fork */
-           !(t->root->index == p->back->index) &&      /* at either end ... */
-             !(p->tip) && !(p->back->tip);      /* ...  or exterior branch  */
+  ok = (!(p->back == NULL)) && (!(p == NULL));
+  if (ok) {
+    ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
+  }
   return ok;
-} /* oktoputthere */
+} /* oktoinsertthere */
+
+
+boolean oktorearrangethere(tree* t, node* p) {
+  /* Check whether branch from which this will be removed is internal and
+   * is not connected at either end to the root fork */
+  boolean ok = false;
+  node *r;
+
+  if (p != NULL) {
+    if ( !(p->tip) ) {
+      r = p->back;             /* this will be the other end of this branch */
+      ok = !( (r == NULL) );                         /* neither end if NULL */
+      if (ok) {
+        ok = (!(r->tip)) &&    /* nodes  p  and  r  not in exterior branch  */
+             (!(t->root->index == p->index)) &&  /* both  p  and  r not ... */
+             (!(t->root->index == r->index));      /* ... the rootmost fork */
+      }
+    }
+  }
+  return ok;
+} /* oktorearrangethere */
 
 
 boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
@@ -3990,7 +4010,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
-  if (oktoputthere(t, p)) {
+  if (oktoinsertthere(t, q)) {
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
   }
@@ -4040,7 +4060,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean succeeded = false;
   boolean outgroupfork;
 
-  if (oktoputthere(t, p)) {
+  if (oktoinsertthere(t, q)) {
 /* printf("  beginning addtraverse of %ld", q->index); debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
@@ -4214,7 +4234,7 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
  /* generic wrapper for local rearrangement, do until does not succeed */
   boolean succeeded;
 
-  if (start->tip)                  /* make sure that start at interior node */
+  if (start->tip)           /* should make sure that start at interior node */
     start = start->back;                   /* that is connected to outgroup */
   succeeded = true;
   while(succeeded)
@@ -4241,20 +4261,14 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * debug:  (this function doesn't yet handle multifurcations)
    */
   node *q, *r, *qwhere;
-  boolean succeeded = false, oktodohere;
+  boolean succeeded = false;
   double oldbestyet;    /* debug:  ever used?  */
 
   qwhere = NULL;
-
-  oktodohere = !(p->back == NULL);
-  if (oktodohere)
-    oktodohere = !(t->root->index == p->index) &&   /* if not rootmost fork */
-                   !(t->root->index == p->back->index) &&
-                   !(p->tip) && !(p->back->tip);    /*  or exterior branch  */
-  if (oktodohere) {
+  if (oktorearrangethere(t, p)) {
 /* printf("locrearrange at node %2ld\n", p->index);  debug */
     oldbestyet = *bestyet;
-    r = p->back->next->next;             /* these are the two connected ... */
+    r = p->back;        /* these are the two connected and might be removed */
     if (!thorough)
       t->save_lr_nodes(t, p, r);    /* save the views at the fork 
                                      containing  r  and inward-looking at p */
@@ -4302,12 +4316,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
   /* go on to rearrange rest of tree, pulling off other parts */
   if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                      *  when we find one that improves the score. */
-    oktodohere = !(p->back == NULL);
-    if (oktodohere)
-      oktodohere = !(t->root->index == p->index) &&   /* if not rootmost fork */
-                     !(t->root->index == p->back->index) &&
-                     !(p->tip) && !(p->back->tip);    /*  or exterior branch  */
-    if (oktodohere) {
+    if ( !(p->tip)) {
       succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                    bestyet, thorough, priortree, bestree, storing, bestfound);
       if (!succeeded)
@@ -4316,7 +4325,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
                                      priortree, bestree, storing, bestfound);
     }
   }
-
   return succeeded;
 } /* unrooted_tree_locrearrange_recurs */
 
