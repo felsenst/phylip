@@ -4260,19 +4260,20 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * fork rootwards, which points to the null node (nil).
    * debug:  (this function doesn't yet handle multifurcations)
    */
-  node *q, *r, *qwhere;
+  node *q, *r, *rr, *qwhere;
   boolean succeeded = false;
   double oldbestyet;    /* debug:  ever used?  */
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
-/* printf("locrearrange at node %2ld\n", p->index);  debug */
+printf("locrearrange at node %2ld\n", p->index); /*  debug */
     oldbestyet = *bestyet;
     r = p->back;        /* these are the two connected and might be removed */
+    rr = r->next;                   /* pointer to fork node used in removal */
     if (!thorough)
-      t->save_lr_nodes(t, p, r);    /* save the views at the fork 
-                                     containing  r  and inward-looking at p */
-    t->re_move(t, r->next, &q, false);   /* remove r with subtree ,,, */
+      t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
+                                    containing  rr  and inward-looking at p */
+    t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
                                                        /* ... to back of it */
     if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
@@ -4282,30 +4283,23 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
-    t->addtraverse(t, r, q, false, qwhere,
+    t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
   /* debug:  the previous addtraverse already tries both local rearrangements */
-#if 0
-    if (qwhere == q)   /* don't continue if we've already got a better tree */
-    {
-      t->addtraverse(t, r, p->next->next->back, false, qwhere, bestyet,
-                      bestree, thorough, storing, false, bestfound);
-    }
-#endif
 
     if (thorough)
       bestree->copy(bestree, t);
     else {                  /* for case where one is rearranging only locally */
-      t->insert_(t, r, qwhere, false);             /* put it in best location */
-      if (qwhere == q ) {
+      t->insert_(t, rr, qwhere, false);            /* put it in best location */
+      if ((qwhere == q) || (qwhere == q->back) ) {
 /* debug:       assert(*bestyet <= oldbestyet);     */
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
       else {
-        assert(*bestyet > oldbestyet);
-        succeeded = true;
+/* debug:  need?        assert(*bestyet > oldbestyet);  */
+/* debug:        succeeded = true;   */
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
       /* debug        double otherbest = *bestyet;      JF:  is this needed? */
