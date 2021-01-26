@@ -4272,8 +4272,8 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     if (!thorough)
       t->save_lr_nodes(t, p, r);    /* save the views at the fork 
                                      containing  r  and inward-looking at p */
-    t->re_move(t, r, &q, false);     /* remove r with subtree to back of it */
-
+    t->re_move(t, r->next, &q, false);   /* remove r with subtree ,,, */
+                                                       /* ... to back of it */
     if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
     else
