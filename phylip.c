@@ -4311,12 +4311,16 @@ printf("locrearrange at node %2ld\n", p->index); /*  debug */
   if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                      *  when we find one that improves the score. */
     if ( !(p->tip)) {
-      succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+      if (p->next->back != NULL) {
+        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                    bestyet, thorough, priortree, bestree, storing, bestfound);
-      if (!succeeded)
-        succeeded = unrooted_tree_locrearrange_recurs(t,
+      }
+      if (!succeeded) {
+        if (p->next->next->back != NULL)
+          succeeded = unrooted_tree_locrearrange_recurs(t,
                                      p->next->next->back, bestyet, thorough,
                                      priortree, bestree, storing, bestfound);
+      }
     }
   }
   return succeeded;
