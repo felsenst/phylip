@@ -3967,7 +3967,9 @@ boolean oktoinsertthere(tree* t, node* p) {
    * the outgroup and the fork to which it is attached */
   boolean ok;
 
-  ok = (!(p->back == NULL)) && (!(p == NULL));
+  ok = !(p == NULL);
+  if (ok)
+    ok = !(p->back == NULL);
   if (ok) {
     ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
   }
@@ -4066,13 +4068,15 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                                 thorough, storing, atstart, bestfound);
     outgroupfork = (q == t->root);
   }
-  if (contin && !q->tip && !outgroupfork) {          /* go to all branches
+  if ( !(q == NULL) ) {
+    if (contin && !q->tip && !outgroupfork) {        /* go to all branches
                                                         leading beyond fork */
-    for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
-    {
-      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+      for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
+      {
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
                                  storing, atstart, bestfound) || succeeded;
+      }
     }
   }
   return succeeded;
