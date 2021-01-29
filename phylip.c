@@ -4535,7 +4535,7 @@ node* generic_tree_get_fork(tree* t, long k)
    * initialized to false on all, and return.
    * The fork is assigned  k+1  as its value of  index (careful!)
    * Changed so always pulls forknodes off their list, never pulls 
-   * circles of nodes off the now-defunct list of circles
+   * circles of nodes off the now-defunct list-of-circles
    */
   node *retval;
 

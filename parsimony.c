@@ -1212,9 +1212,13 @@ printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); /* debug */
     j = i;
     i = k;                                           /* ... it will be  i  */
   }
+  if ( (t->nodep[i-1] == n) )
+    t->nodep[i-1] = n->next;
+  if ( (t->nodep[i-1] == m) )
+    t->nodep[i-1] = m->next;
+  t->nodep[j-1] = NULL;     /* debug: necessary? Done by release_forknode? */
   m->next = NULL;         /* set these disconnected nodes to point nowhere */
   n->next = NULL;
-  t->nodep[j-1] = NULL;     /* debug: necessary? Done by release_forknode? */
   p = t->nodep[i-1];                               /* start of merged fork */
   p->index = i; 
   for (q = p->next; q != p; q = q->next) { /* renumber nodes in one of ... */
