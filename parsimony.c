@@ -132,48 +132,48 @@ printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index);
   like = t->evaluate(t, p, false);
   t->score = like;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf", like, *bestyet, *bestfound); /* debug */
-  if (like > *bestyet) {
+  if (like >= *bestyet) {
     generic_tree_copy(t, bestree);
 printf(" (new bestyet)");  /* debug */
     *bestyet = like;
     there = p;
-  }
 /* debug */ printf("\n");
-  if (storing) {
-    savetree(t, place);  /* make storable coded representation of this tree */
-    if (atstart) {                         /* when this is first tree tried */
-      pos = 0;                       /* put it at the beginning of bestrees */
-      found = false;
-      if (nextree == 0) {
-        *bestfound = like;                     /* score of the stored trees */
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  /* debug */
-        addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
-      }
-      *bestyet = like;            /* same value as *bestfound.  Why needed? */
-      succeeded = true;           /* to be updated when "tryinsert" returns */
-    } 
-    else {
-      if ( like == *bestfound )                 /* deciding on a later tree */
-      {                /* find where it goes in numerical order in bestrees */
-        findtree(&found, &pos, nextree, place, bestrees);
-        succeeded = true;
-        if (!found) {                  /* if found same tree, do not add it */
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet, *bestfound);  /* debug */
-          addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
-        }
-      } else {            /* since  like  is not the same as the best score */
-        if (like > *bestfound) {                          /* replacing all? */
-          *bestfound = like;
-          *bestyet = like;
-          pos = 0;                   /* put it at the beginning of bestrees */
-          found = false;
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
+    if (storing) {
+      savetree(t, place);     /* storable coded representation of this tree */
+      if (atstart) {                       /* when this is first tree tried */
+        pos = 0;                     /* put it at the beginning of bestrees */
+        found = false;
+        if (nextree == 0) {
+          *bestfound = like;                   /* score of the stored trees */
+  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  /* debug */
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);
+  printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
+        }
+        *bestyet = like;          /* same value as *bestfound.  Why needed? */
+        succeeded = true;         /* to be updated when "tryinsert" returns */
+      } 
+      else {
+        if ( like == *bestfound )               /* deciding on a later tree */
+        {              /* find where it goes in numerical order in bestrees */
+          findtree(&found, &pos, nextree, place, bestrees);
           succeeded = true;
-          *bestyet = like;
+          if (!found) {                /* if found same tree, do not add it */
+  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet, *bestfound);  /* debug */
+            addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+  printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
+          }
+        } else {          /* since  like  is not the same as the best score */
+          if (like > *bestfound) {                        /* replacing all? */
+            *bestfound = like;
+            *bestyet = like;
+            pos = 0;                 /* put it at the beginning of bestrees */
+            found = false;
+  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
+            addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+  printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);
+            succeeded = true;
+            *bestyet = like;
+          }
         }
       }
     }
@@ -531,6 +531,7 @@ void oldsavetree(tree* t, long *place)
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
         lineagenumber[p->index - 1] = i;       /* set to number of that tip */
+printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
@@ -539,6 +540,7 @@ void oldsavetree(tree* t, long *place)
       }
       if (p != NULL) {              /* we ran into a nonzero lineage number */
         place[i-1] = lineagenumber[p->index - 1];  /* record in place array */
+printf("set place[%ld] to %ld\n", i-1, lineagenumber[p->index-1]); /* debug */
         justhitlineage = true;
         topfork = true;
         while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
@@ -557,12 +559,17 @@ void oldsavetree(tree* t, long *place)
             } while (q != p); /*  topfork  is true if none are same lineage */
             if (topfork) {    /* if this fork is the top one in its lineage */
               lineagenumber[p->index - 1] = -abs(newforknum);   /* negative */
-            } else
+printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
+            } else {
               lineagenumber[p->index - 1] = newforknum;     /* set positive */
+printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
+            }
             justhitlineage = false;
           }
-          else                        /* if continuing down that branch ... */
+          else {                      /* if continuing down that branch ... */
             lineagenumber[p->index - 1] = newforknum;   /* ... set positive */
+printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); /* debug */
+          }
           while (!p->bottom)           /* go around circle to find way down */
             p = p->next;
           if (p->back == NULL)         /* blast out of loop if reached root */
@@ -575,6 +582,8 @@ void oldsavetree(tree* t, long *place)
       }
     }
   }
+printf("got place values for that tree: ");  /* debug */
+for (i=0; i<spp; i++) printf(" %ld", place[i]); printf("\n");  /* debug */
 }  /* oldsavetree */
 
 
@@ -688,10 +697,15 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
     savetree(t, place);
     if (score > *bestfound) {        /* if it will be the lone new best one */
       addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
+printf("Adding as new best tree\n");  /* debug */
     } else {                            /* it is another tree tied for best */
       findtree(&found, pos, nextree-1, place, bestrees);  /* already there? */
-      if (!found)                      /* save it only if not already there */
+      if (!found) {                    /* save it only if not already there */
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
+printf("Adding as tied tree\n");  /* debug */
+      } else {
+printf("found that tree already there\n");  /* debug */
+      }
     }
   }
 } /* add_to_besttrees */
