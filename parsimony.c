@@ -549,7 +549,7 @@ printf("set place[%ld] to %ld\n", i-1, lineagenumber[p->index-1]); /* debug */
             q = p;
             forknum = lineagenumber[p->index - 1];    /* get lineage number */
             do { /* go around circle seeing if forks above are same lineage */
-              if (q != t->nodep[p->index - 1]) { /* node doesn't point down */
+              if ( !(q->bottom) ) {              /* node doesn't point down */
                 if (q->back != NULL) {
                   topfork = topfork &&
                               (lineagenumber[q->back->index - 1] != forknum);
