@@ -499,7 +499,7 @@ void oldsavetree(tree* t, long *place)
     * The code imagines us adding tips to a tree and giving numbers
     * to the new interior forks, those numbers are the "lineage
     * numbers", which are not same as the current node index. */
-  long i, j, nextnode, nvisited, newforknum, forknum;
+  long i, j, nextnode, nvisited, newforknum, forknum, prevlineage;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *rootnode, *binroot, *flipback;
   boolean done, atbottom, newfork, justhitlineage, hitfork, topfork;
@@ -513,11 +513,9 @@ void oldsavetree(tree* t, long *place)
   }                                         /* then call recursively to ... */
   setbottomtraverse(rootnode); /* set booleans indicating which way is down */
   lineagenumber = (long *)Malloc(nonodes*sizeof(long));
+  /* find out where lineage down from each species connects */
   for (i = 0; i < nonodes; i++)      /* which lineage each tree node is ... */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
-  for (i = 0; i < spp; i++)                     /* initialize "place" array */
-    place[i] = 0;
-  place[0] = 1;                                     /* this one is always 1 */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
   newforknum = spp + 1;             /* number of next new fork to be put in */
   topfork = true;
@@ -538,13 +536,13 @@ printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
         if (p == NULL)                   /* if we went past bottom fork ... */
           break;                              /* ... bail out of while loop */
       }
-      if (p != NULL) {              /* we ran into a nonzero lineage number */
-        place[i-1] = lineagenumber[p->index - 1];  /* record in place array */
-printf("set place[%ld] to %ld\n", i-1, lineagenumber[p->index-1]); /* debug */
+      /* start a new lineage from where it connects, unless already a fork */
+      if (p != NULL) {           /* if we ran into a nonzero lineage number */
         justhitlineage = true;
-        topfork = true;
-        while (lineagenumber[p->index - 1] == place[i-1])     /* go on down */
-        {       /* ... while still on same branch and no other new fork yet */
+        topfork = true;   /* debug: necessary? */
+        prevlineage = lineagenumber[p->index - 1];
+        place[i] = prevlineage;
+        do {    /* ... while still on same branch and no other new fork yet */
           if (justhitlineage) {                /* for the fork just hit ... */
             q = p;
             forknum = lineagenumber[p->index - 1];    /* get lineage number */
@@ -582,6 +580,8 @@ printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); /* debug
       }
     }
   }
+  for (i = 0; i < spp; i++)     /* copy first  spp  lineage numbers to place */
+    place[i] = lineagenumber[i];
 printf("got place values for that tree: ");  /* debug */
 for (i=0; i<spp; i++) printf(" %ld", place[i]); printf("\n");  /* debug */
 }  /* oldsavetree */
