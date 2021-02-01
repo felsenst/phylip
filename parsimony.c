@@ -499,7 +499,7 @@ void oldsavetree(tree* t, long *place)
     * The code imagines us adding tips to a tree and giving numbers
     * to the new interior forks, those numbers are the "lineage
     * numbers", which are not same as the current node index. */
-  long i, j, nextnode, nvisited, newforknum, forknum;
+  long i, j, nextnode, nvisited, newforknum, hitlineage, forknum;
   long* lineagenumber;
   node *p, *q, *r = NULL, *root2, *lastdesc, *rootnode, *binroot, *flipback;
   boolean done, atbottom, newfork, hitfork, topfork, donelineage;
@@ -517,11 +517,13 @@ void oldsavetree(tree* t, long *place)
   for (i = 0; i < nonodes; i++)      /* which lineage each tree node is ... */
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
+  place[0] = 1;
   newforknum = spp + 1;             /* number of next new fork to be put in */
   topfork = true;
   for (i = 1; i <= spp; i++)                            /* for each tip ... */
   {
     p = t->nodep[i - 1];                           /* start with species  i */
+    lineagenumber[p->index - 1] = i;           /* set to number of that tip */
     if (p == NULL)                     /* if species  i  is not in the tree */
       break;                          /* ... then go on to the next species */
     if (p->back != NULL) {           /* if its back node is in the tree ... */
@@ -539,8 +541,7 @@ printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
       /* start a new lineage from where it connects, unless already a fork --
            in that case, set the lineage number negative for multifurcation */
       if (p != NULL) {           /* if we ran into a nonzero lineage number */
-        forknum = lineagenumber[p->index - 1];        /* which lineage hit? */
-        place[i] = forknum;     /* place records which lineage this one hit */
+        forknum = lineagenumber[p->index - 1];            /* which lineage? */
         topfork = true;           /* will use to see if at top of a lineage */
         q = p;                     /* checking all descendants of this fork */
         do {     /* go around circle seeing if forks above are same lineage */
@@ -552,10 +553,14 @@ printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
           }
           q = q->next;
         } while (q != p);     /*  topfork  is true if none are same lineage */
+        hitlineage = lineagenumber[p->index - 1];     /* which lineage hit? */
         if (topfork) {        /* if this fork is the top one in its lineage */
-          lineagenumber[p->index - 1] = -abs(newforknum);  /* make negative */
+          lineagenumber[p->index - 1] = -abs(hitlineage);  /* make negative */
+          place[i-1] = -abs(hitlineage);
 printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
         } else {                          /* going on down that lineage ... */
+          place[i-1] = lineagenumber[p->index - 1];      /* set place value */
+          newforknum++;
           do {  /* ... while still on that branch and no other new fork yet */
             lineagenumber[p->index - 1] = newforknum;    /* ... renumbering */
 printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
@@ -570,8 +575,6 @@ printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); /* debug
             if (!donelineage) 
               donelineage = (lineagenumber[p->index - 1] != newforknum);
           } while (!donelineage);
-          if (topfork && (place[i-1] > 0))
-          newforknum++;    /* get number to be assigned to next new lineage */
         }
       }
     }
