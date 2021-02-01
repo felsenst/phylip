@@ -125,19 +125,19 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   long pos = 0;
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
-printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
+/* printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index); debug */
   t->insert_(t, item, p->back, false);
   initializetrav(t, t->root);                /* make sure updates all views */
   initializetrav(t, t->root->back);
   like = t->evaluate(t, p, false);
   t->score = like;
-printf(" score = %lf, bestyet = %lf, bestfound = %lf", like, *bestyet, *bestfound); /* debug */
+/* printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); debug */
   if (like >= *bestyet) {
     generic_tree_copy(t, bestree);
-printf(" (new bestyet)");  /* debug */
+/* printf(" (new bestyet)");  debug */
     *bestyet = like;
     there = p;
-/* debug */ printf("\n");
+/* debug printf("\n"); */
     if (storing) {
       savetree(t, place);     /* storable coded representation of this tree */
       if (atstart) {                       /* when this is first tree tried */
@@ -145,9 +145,9 @@ printf(" (new bestyet)");  /* debug */
         found = false;
         if (nextree == 0) {
           *bestfound = like;                   /* score of the stored trees */
-  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  /* debug */
+/*   printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial)\n", like, *bestyet, *bestfound);  debug */
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-  printf("Added an initial tree to bestrees, now %ld of them\n", nextree);
+/*   printf("Added an initial tree to bestrees, now %ld of them\n", nextree);  debug */
         }
         *bestyet = like;          /* same value as *bestfound.  Why needed? */
         succeeded = true;         /* to be updated when "tryinsert" returns */
@@ -158,9 +158,9 @@ printf(" (new bestyet)");  /* debug */
           findtree(&found, &pos, nextree, place, bestrees);
           succeeded = true;
           if (!found) {                /* if found same tree, do not add it */
-  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet, *bestfound);  /* debug */
+/*   printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Tied)\n", like, *bestyet, *bestfound);  debug */
             addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
-  printf("Added another tied tree to bestrees, now %ld of them\n", nextree);
+/*  printf("Added another tied tree to bestrees, now %ld of them\n", nextree);  debug */
           }
         } else {          /* since  like  is not the same as the best score */
           if (like > *bestfound) {                        /* replacing all? */
@@ -168,9 +168,9 @@ printf(" (new bestyet)");  /* debug */
             *bestyet = like;
             pos = 0;                 /* put it at the beginning of bestrees */
             found = false;
-  printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  /* debug */
+/*   printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better)\n", like, *bestyet, *bestfound);  debug */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-  printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);
+/*  printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  debug */
             succeeded = true;
             *bestyet = like;
           }
@@ -184,7 +184,7 @@ printf(" (new bestyet)");  /* debug */
 /* debug:    *multf = false;   */
   }
   t->re_move(t, item, &dummy, true);   /* pull the branch back off the tree */
-printf("then remove %ld from %ld:%ld\n", item->index, p->back->index, p->index); /* debug */
+/* printf("then remove %ld from %ld:%ld\n", item->index, p->back->index, p->index); debug */
 /* debug:  is preceding statement correct?  &dummy?  */
   t->restore_traverses(t, item, p);           /* debug: what is this doing? */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
@@ -347,7 +347,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     collapsed = false;
     p = NULL;                  /* for recording where tree can be collapsed */
     collapsible = false; 
-printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
+/* printf("STARTING treecollapsible on tree  %ld\n", k); debug */
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
       collapsetree(t, p, &collapsed);  /* traverse: find collapsible branch */
     if (collapsed) {                          /* if something was collapsed */
@@ -376,12 +376,12 @@ printf("(nextree now %ld)\n", nextree);
         addtree(pos, &treeLimit, false, place, bestrees);
         if (pos >= k)          /* keep  k  pointing at next tree to examine */
           k++;
-/* debug */
+/* debug
 printf("ADDING NEW TREE: number %ld: ", pos);
 for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");
-/* debug */
+   debug */
       }
-else printf("ALREADY THERE\n");
+/*  else printf("ALREADY THERE\n"); debug */
     }
   } while (k < treeLimit);
   if (progress)
@@ -499,14 +499,11 @@ void oldsavetree(tree* t, long *place)
     * The code imagines us adding tips to a tree and giving numbers
     * to the new interior forks, those numbers are the "lineage
     * numbers", which are not same as the current node index. */
-  long i, j, nextnode, nvisited, newforknum, hitlineage, forknum;
+  long i, newforknum, hitlineage, hitforknum;
   long* lineagenumber;
-  node *p, *q, *r = NULL, *root2, *lastdesc, *rootnode, *binroot, *flipback;
-  boolean done, atbottom, newfork, hitfork, topfork, donelineage;
+  node *p, *q, *rootnode;
+  boolean topfork, donelineage;
 
-  flipback = NULL;
-  lastdesc = NULL;
-  root2 = NULL;
   rootnode = t->nodep[outgrno - 1]->back; /* find fork attached to outgroup */
   while ( !(rootnode->back == NULL) ) {  /* which node in fork is at bottom */
     rootnode = rootnode->next;
@@ -518,7 +515,7 @@ void oldsavetree(tree* t, long *place)
     lineagenumber[i] = 0;                          /* ... starts out zeroed */
   lineagenumber[0] = 1;                        /* first lineage is number 1 */
   place[0] = 1;
-  newforknum = spp + 1;             /* number of next new fork to be put in */
+  newforknum = spp;  /* one less than  number of next new fork to be put in */
   topfork = true;
   for (i = 1; i <= spp; i++)                            /* for each tip ... */
   {
@@ -531,7 +528,7 @@ void oldsavetree(tree* t, long *place)
       while (lineagenumber[p->index - 1] == 0)    /* if no number yet there */
       {
         lineagenumber[p->index - 1] = i;       /* set to number of that tip */
-printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
+/* printf("set species %ld lineagenumber to %ld\n", p->index, i); debug */
         while (!p->bottom)             /* go around circle to find way down */
           p = p->next;
         p = p->back;                             /* go down to earlier fork */
@@ -541,30 +538,29 @@ printf("set species %ld lineagenumber to %ld\n", p->index, i); /* debug */
       /* start a new lineage from where it connects, unless already a fork --
            in that case, set the lineage number negative for multifurcation */
       if (p != NULL) {           /* if we ran into a nonzero lineage number */
-        forknum = lineagenumber[p->index - 1];            /* which lineage? */
+        hitlineage = lineagenumber[p->index - 1];         /* which lineage? */
         topfork = true;           /* will use to see if at top of a lineage */
         q = p;                     /* checking all descendants of this fork */
         do {     /* go around circle seeing if forks above are same lineage */
           if ( !(q->bottom) ) {                  /* node doesn't point down */
-            if (q->back != NULL) {
+            if (q->back != NULL) {  /* node descendant not same lineage ... */
               topfork = topfork &&
-                               (lineagenumber[q->back->index - 1] != forknum);
+                       ( !(lineagenumber[q->back->index - 1] == hitlineage) );
             }
           }
           q = q->next;
         } while (q != p);     /*  topfork  is true if none are same lineage */
-        hitlineage = lineagenumber[p->index - 1];     /* which lineage hit? */
         if (topfork) {        /* if this fork is the top one in its lineage */
-          lineagenumber[p->index - 1] = -abs(hitlineage);  /* make negative */
-          place[i-1] = -abs(hitlineage);
-printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
+          hitforknum = hitlineage;
+          lineagenumber[p->index - 1] = -abs(hitforknum);  /* make negative */
+          place[i-1] = -abs(hitforknum);
+/* printf("set fork %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); debug */
         } else {                          /* going on down that lineage ... */
-          place[i-1] = lineagenumber[p->index - 1];      /* set place value */
+          place[i-1] = hitlineage;                       /* set place value */
           newforknum++;
           do {  /* ... while still on that branch and no other new fork yet */
             lineagenumber[p->index - 1] = newforknum;    /* ... renumbering */
-printf("set species %ld lineagenumber to %ld\n", p->index, lineagenumber[p->index-1]); /* debug */
-printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); /* debug */
+/* printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); debug */
             while (!p->bottom)           /* go around circle to find way down */
               p = p->next;
             if (p->back == NULL)         /* blast out of loop if reached root */
@@ -573,14 +569,14 @@ printf("set species %ld lineagenumber to %ld\n", p->index, newforknum); /* debug
               p = p->back;                         /* go down to earlier fork */
             donelineage = topfork;
             if (!donelineage) 
-              donelineage = (lineagenumber[p->index - 1] != newforknum);
+              donelineage = (lineagenumber[p->index - 1] != hitlineage);
           } while (!donelineage);
         }
       }
     }
   }
-printf("got place values for that tree: ");  /* debug */
-for (i=0; i<spp; i++) printf(" %ld", place[i]); printf("\n");  /* debug */
+/* printf("got place values for that tree: ");  debug */
+/* for (i=0; i<spp; i++) printf(" %ld", place[i]); printf("\n");  debug */
 }  /* oldsavetree */
 
 
@@ -694,14 +690,14 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
     savetree(t, place);
     if (score > *bestfound) {        /* if it will be the lone new best one */
       addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
-printf("Adding as new best tree\n");  /* debug */
+/* printf("Adding as new best tree\n");  debug */
     } else {                            /* it is another tree tied for best */
       findtree(&found, pos, nextree-1, place, bestrees);  /* already there? */
       if (!found) {                    /* save it only if not already there */
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
-printf("Adding as tied tree\n");  /* debug */
+/* printf("Adding as tied tree\n");  debug */
       } else {
-printf("found that tree already there\n");  /* debug */
+/* printf("found that tree already there\n");  debug */
       }
     }
   }
@@ -1118,7 +1114,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                     (p->back->index == curtree->root->index);
       if (!dontremove) {
         removed = p; 
-printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
+/*  printf(" remove %ld:%ld\n", removed->index, removed->back->index); debug */
         curtree->re_move(curtree, removed, &where, true);
         qwhere = where;                  /* to hold best place to insert it */
         success = pars_tree_try_insert_(curtree, removed, where, there,
@@ -1140,10 +1136,10 @@ printf(" remove %ld:%ld\n", removed->index, removed->back->index); /*  debug */
                                    bestfound);
         }
         success = success || successaftertraverse;
-printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); /* debug */
+/* printf("inserting at %ld:%ld\n", qwhere->index, qwhere->back->index); debug */
         curtree->insert_(curtree, removed, qwhere, false); /* in best place */
         curtree->root = curtree->nodep[outgrno-1]->back;        /* set root */
-printf("setting root as: %ld\n", curtree->root->index); /* debug */
+/* printf("setting root as: %ld\n", curtree->root->index); debug */
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
       }
     }
@@ -1165,30 +1161,30 @@ boolean treecollapsible(tree* t, node* n, node** p, boolean collapsible)
 
   node *sib;
 
-printf("\ncalled treecollapsible with %ld:%ld\n", n->index, n->back->index);
+/* printf("\ncalled treecollapsible with %ld:%ld\n", n->index, n->back->index);  debug */
   if ( n == NULL )                /* in case it is called on branch at root */
     return false;
 
-printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index);
+/* printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index);  debug */
   if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {    /* check this branch */
-    printf(" (collapsible) \n");   /* debug */
+/*     printf(" (collapsible) \n");   debug */
     *p = n;                     /* record the node where it can be collapsed */
     return true;             /* then bail out and do not recurse further in */
   }
   else   /* debug */
-    printf(" (not collapsible) \n");   /* debug */
+/*     printf(" (not collapsible) \n");   debug */
 
   if ( n->back->tip == true )         /* in case we've reached a tip branch */
     return false;
-printf("going around circle for fork %ld\n", n->back->index);
+/* printf("going around circle for fork %ld\n", n->back->index); debug */
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
   {                                                  /* recurse further out */
     if (sib->back != NULL) {
-printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);
+/* printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);  debug */
     collapsible = treecollapsible(t, sib, p, collapsible) || collapsible;
     }
-    else
-      printf("root branch skipped\n");
+/*    else
+      printf("root branch skipped\n");  debug */
   }
   return collapsible;
 } /* treecollapsible */
@@ -1207,7 +1203,7 @@ void collapsebranch(tree* t, node* n)
   if (n->tip)
     return;
   m = n->back;              /* get other end of branch too, do same checks */
-printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); /* debug */
+/* printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); debug */
   if (m == NULL)
     return;
   if (m->tip)

@@ -4270,7 +4270,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
-printf("locrearrange at node %2ld\n", p->index); /*  debug */
+/*  printf("locrearrange at node %2ld\n", p->index); debug */
     oldbestyet = *bestyet;
     r = p->back;        /* these are the two connected and might be removed */
     rr = r->next;                   /* pointer to fork node used in removal */
