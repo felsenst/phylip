@@ -990,9 +990,9 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       bbot = t->nodep[-belowindex-1];                    /* its bottom node */
       afterwhere = precursor(bbot);     /* find fork node that points to it */
       forknode = t->get_forknode(t, bbot->index);         /* get a new node */
-      hookup(newtip, forknode);             /* hook the tip to the new node */
+      hookup(newtip, afterwhere);           /* hook the tip to the new node */
       afterwhere->next = forknode;                /* put it the right place */
-      forknode->next = bback;             /* namely, the last in the circle */
+      forknode->next = bbot;              /* namely, the last in the circle */
     }
   }
 /* debug: not sure why this stuff needed ... */
