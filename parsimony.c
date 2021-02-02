@@ -313,7 +313,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   /* Goes through all best trees, collapsing trees where possible,
    * and deleting trees that can be further collapsed. Continues this
    * until there are no further changes.   */
-  long i, j, k, pos ;
+  long i, j, k, pos;
   boolean found, collapsible;
   boolean collapsed;
   long treeLimit;
@@ -367,7 +367,7 @@ printf("(nextree now %ld)\n", nextree);
         }
       }
       treeLimit--;       /* because there is now one fewer tree in bestrees */
-      nextree--;
+/*      nextree--;   debug */
       pos = 0;
       findtree(&found, &pos, treeLimit, place, bestrees);/* find where ...  */
                /* ... the collapsed tree is to go, or whether already there */
@@ -957,7 +957,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
    * on as they are added to the tree.  If negative, btree[k] indicates that
    * species  k+1  is to be added as an extra furc to the fork has number
    * -btree[k], */
-  long i, j, numofnewfork;
+  long i, j, numofnewfork, belowindex;
   long  nsibs;  /* debug */
   boolean foundit = false; /* debug */
   node *p, *q, *below, *bback, *forknode, *newtip, *bbot, *afterwhere;
@@ -973,8 +973,9 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   for ( j = 3; j <= spp ; j++ )     /* adding one by one species, 3, 4, ... */
   {
     newtip = t->nodep[j-1];
-    below = t->nodep[bestrees[treei].btree[j - 1] - 1];    /* where it goes */
-    if ( below > 0 ) {               /*  if the fork is to be a bifurcation */
+    belowindex = bestrees[treei].btree[j - 1];             /* where it goes */
+    if ( belowindex > 0 ) {          /*  if the fork is to be a bifurcation */
+      below = t->nodep[belowindex - 1]; 
       forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       numofnewfork++;
       hookup(newtip, forknode->next);                     /* hook tip to it */
@@ -986,7 +987,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
-      bbot = t->nodep[-bestrees[treei].btree[j-1]-1];    /* its bottom node */
+      bbot = t->nodep[-belowindex-1];                    /* its bottom node */
       afterwhere = precursor(bbot);     /* find fork node that points to it */
       forknode = t->get_forknode(t, bbot->index);         /* get a new node */
       hookup(newtip, forknode);             /* hook the tip to the new node */
