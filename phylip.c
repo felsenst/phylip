@@ -655,11 +655,11 @@ boolean filexists(const char *filename)
   /* Return true if and only if file already exists */
   FILE *fp;
 
-  fp = fopen(filename,"r");
-  if (fp) {
+  fp = fopen(filename,"r");                 /* try to open file for reading */
+  if (fp) {        /* if exists, close it again and report that it is there */
     fclose(fp);
     return 1;
-  } else
+  } else                             /* otherwise report failure to find it */
     return 0;
 }  /* filexists */
 
@@ -689,7 +689,7 @@ void openfile(
 
   strcpy(file, filename);
   strcpy(filemode, mode);
-  loopcount = 0;
+  loopcount = 0;                   /* we will try 10 times before giving up */
   while (1) {
     /* Ask before clobbering existing file */
     if (filemode[0] == 'w' && filexists(file)) {
@@ -711,24 +711,23 @@ void openfile(
       }
       switch (ch)
       {
-        case 'R':
-          /* do nothing special */
+        case 'R':       /* replace the existing file. So do nothing special */
           break;
-        case 'A':
+        case 'A':                     /* append to end of the existing file */
           strcpy(filemode,"a");
           continue;
-        case 'F':
+        case 'F':                    /* get a file name to look for instead */
           file[0] = '\0';
           loopcount2 = 0;
-          while (file[0] == '\0') {
+          while (file[0] == '\0') { /* loop as long as user just hits Enter */
             printf("Please enter a new file name> ");
             fflush(stdout);
             getstryng(file);
             countup(&loopcount2, 10);
           }
-          strcpy(filemode,"w");
+          strcpy(filemode,"w");   /* debug: what if that file already exists? */
           continue;
-        case 'Q':
+        case 'Q':   /* quit.  User decides it was a mistake to try this run */
           exxit(-1);
           break;
         default:        /* Shouldn't happen */
@@ -3845,7 +3844,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     print_progress(progbuf);
     sprintf(progbuf, "  !");
     print_progress(progbuf);
-    for ( i = 0 ; i < curtree->nonodes ; i++)
+    for ( i = 0 ; i < curtree->nonodes-2 ; i++)
     {
       sprintf(progbuf, "-");
       print_progress(progbuf);

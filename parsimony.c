@@ -995,20 +995,25 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       forknode->next = bbot;              /* namely, the last in the circle */
     }
   }
-  forknode = NULL;   /* if root is at multifurcation, move next to outgroup */
-  for (i = spp; i < nonodes; i++) {      /* check all interior node circles */
-    p = t->nodep[i];
-    if (p != NULL) {
-      q = p;
-      do {
-        if (q->back == NULL) {
-          forknode = q;            /* find a node that has nothing below it */
-          foundit = true;
-          }
-        q = q->next;
-      } while (q != p); 
-    }
-  }  /* debug: could all of preceding be just  q = t->nodep[outgrno - 1]?  */
+  /* if root is at multifurcation, move it to be next to outgroup instead */
+  foundit = true;
+  forknode = t->nodep[outgrno - 1];
+  if ( !(forknode->back == NULL) ) {  /* if that isn't where root is, search */
+    foundit = false;
+    for (i = spp; i < nonodes; i++) {     /* check all interior node circles */
+      p = t->nodep[i];
+      if (p != NULL) {
+        q = p;
+        do {
+          if (q->back == NULL) {
+            forknode = q;           /* find a node that has nothing below it */
+            foundit = true;
+            }
+          q = q->next;
+        } while (q != p); 
+      }
+    }  /* debug: could all of preceding be just  q = t->nodep[outgrno - 1]?  */
+  }
   if (foundit) {    /* remove the interior node which has an empty neighbor */
     nsibs = count_sibs(forknode); 
     if ( nsibs > 2 )                        /* if there is a multifurcation */
@@ -1017,6 +1022,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       q->next = forknode->next;                      /* and connect past it */
       t->nodep[q->index - 1] = q;           /* and have nodep point to that */
       t->release_forknode(t, forknode);                      /* and toss it */
+      t->root = root_tree(t, t->nodep[outgrno - 1]);    /* put root fork in */
     }
   }
   t->root = t->nodep[outgrno - 1]->back;
