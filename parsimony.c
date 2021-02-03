@@ -355,6 +355,7 @@ printf("(nextree before: %ld)\n", nextree);
 printf("TREE #%ld collapsed\n", k);
 printf("(nextree now %ld)\n", nextree);
       savetree(t, place);           /* record collapsed tree in place array */
+printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
       if ( k < (treeLimit-1) ) {         /* if not at the last tree already */
         for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
         {                     /* (in the process, overwriting the k-th tree */
@@ -376,12 +377,11 @@ printf("(nextree now %ld)\n", nextree);
         addtree(pos, &treeLimit, false, place, bestrees);
         if (pos >= k)          /* keep  k  pointing at next tree to examine */
           k++;
-/* debug
 printf("ADDING NEW TREE: number %ld: ", pos);
 for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");
-   debug */
+/*   debug */
       }
-/*  else printf("ALREADY THERE\n"); debug */
+else printf("ALREADY THERE: %ld\n", pos); /* debug */
     }
   } while (k < treeLimit);
   if (progress)
@@ -990,14 +990,12 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       bbot = t->nodep[-belowindex-1];                    /* its bottom node */
       afterwhere = precursor(bbot);     /* find fork node that points to it */
       forknode = t->get_forknode(t, bbot->index);         /* get a new node */
-      hookup(newtip, afterwhere);           /* hook the tip to the new node */
+      hookup(newtip, forknode);             /* hook the tip to the new node */
       afterwhere->next = forknode;                /* put it the right place */
       forknode->next = bbot;              /* namely, the last in the circle */
     }
   }
-/* debug: not sure why this stuff needed ... */
-#if 0
-  forknode = NULL;
+  forknode = NULL;   /* if root is at multifurcation, move next to outgroup */
   for (i = spp; i < nonodes; i++) {      /* check all interior node circles */
     p = t->nodep[i];
     if (p != NULL) {
@@ -1010,24 +1008,17 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
         q = q->next;
       } while (q != p); 
     }
-  }
+  }  /* debug: could all of preceding be just  q = t->nodep[outgrno - 1]?  */
   if (foundit) {    /* remove the interior node which has an empty neighbor */
     nsibs = count_sibs(forknode); 
-    if ( nsibs > 2 )
-    {                            /* find the circle member that precedes it */
-      for ( q = forknode ; q->next != forknode ; q = q->next);
+    if ( nsibs > 2 )                        /* if there is a multifurcation */
+    {                        
+      forknode = precursor(q);   /* find the circle member that precedes it */
       q->next = forknode->next;                      /* and connect past it */
       t->nodep[q->index - 1] = q;           /* and have nodep point to that */
       t->release_forknode(t, forknode);                      /* and toss it */
     }
-    else
-    {                   /* if the interior node has only two real neighbors */
-      hookup(forknode->next->back, forknode->next->next->back);
-      t->release_fork(t, forknode);        /* release the whole fork circle */
-    }
   }
-#endif
-/* debug */
   t->root = t->nodep[outgrno - 1]->back;
 } /* load_tree */
 
