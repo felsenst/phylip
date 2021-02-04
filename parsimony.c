@@ -368,7 +368,7 @@ printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);pr
         }
       }
       treeLimit--;       /* because there is now one fewer tree in bestrees */
-/*      nextree--;   debug */
+      nextree--;
       pos = 0;
       findtree(&found, &pos, treeLimit, place, bestrees);/* find where ...  */
                /* ... the collapsed tree is to go, or whether already there */
@@ -951,7 +951,7 @@ void moveroottooutgroup(tree* t) {
      toss the circle node, make a new fork and use it to put the root
      on the outgroup lineage. */
   boolean foundit;
-  node *forknode, *p, *q;
+  node *forknode, *preforknode, *p, *q;
 
   if (count_sibs(t->root) > 2) { /* if the root is on a multifurcating fork */
     foundit = false;
@@ -965,9 +965,9 @@ void moveroottooutgroup(tree* t) {
       q = q->next;
     } while (q != p); 
     if (foundit) {    /* remove the interior node which has an empty neighbor */
-        forknode = precursor(q);   /* find the circle member that precedes it */
-        q->next = forknode->next;                      /* and connect past it */
-        t->nodep[q->index - 1] = q;           /* and have nodep point to that */
+        preforknode = precursor(forknode);     /* find fork node preceding it */
+        preforknode->next = forknode->next;            /* and connect past it */
+        t->nodep[q->index - 1] = preforknode; /* and have nodep point to that */
         t->release_forknode(t, forknode);                      /* and toss it */
         t->root = root_tree(t, t->nodep[outgrno - 1]);    /* put root fork in */
     }
