@@ -56,6 +56,7 @@ boolean parentinmulti(node *, node*);
 long    smallest(node *, long *);
 boolean alltips(node *, node *);
 void    newindex(long, node *);
+void    moveroottooutgroup(tree*);
 void    load_tree(tree*, long, bestelm*);
 void    pars_node_free(node **);
 void    pars_globrearrange(tree*, tree*, boolean, boolean, double*);

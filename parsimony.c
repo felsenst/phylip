@@ -612,6 +612,7 @@ void savetree(tree* t, long *place)
     oldroot = t->nodep[outgrno-1];
     t->root = root_tree(t, oldroot);           /* put in a "fake" root fork */
   }
+  moveroottooutgroup(t);
   oldsavetree(t, place);        /* now save this rooted tree in array place */
   if (!wasrooted) {                /* remove the fake root if one was added */
     reroot_tree(t); 
@@ -945,6 +946,35 @@ void newindex(long i, node *p)
 } /* newindex */
 
 
+void moveroottooutgroup(tree* t) {
+  /* if root is on a multifurcating node, remove it from that fork circle,
+     toss the circle node, make a new fork and use it to put the root
+     on the outgroup lineage. */
+  boolean foundit;
+  node *forknode, *p, *q;
+
+  if (count_sibs(t->root) > 2) { /* if the root is on a multifurcating fork */
+    foundit = false;
+    p = t->nodep[outgrno - 1]->back;   /* for the fork nearest the outgroup */
+    q = p;
+    do {
+      if (q->back == NULL) {
+        forknode = q;           /* find a node that has nothing below it */
+        foundit = true;
+      }
+      q = q->next;
+    } while (q != p); 
+    if (foundit) {    /* remove the interior node which has an empty neighbor */
+        forknode = precursor(q);   /* find the circle member that precedes it */
+        q->next = forknode->next;                      /* and connect past it */
+        t->nodep[q->index - 1] = q;           /* and have nodep point to that */
+        t->release_forknode(t, forknode);                      /* and toss it */
+        t->root = root_tree(t, t->nodep[outgrno - 1]);    /* put root fork in */
+    }
+  }
+} /* moveroottooutgroup */
+
+
 void load_tree(tree* t, long treei, bestelm* bestrees)
 {
   /* restores tree  treei  from array bestrees (treei is the index
@@ -997,45 +1027,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     }
   }
   /* if root is at multifurcation, move it to be next to outgroup instead */
-  if (count_sibs(t->root) > 2) {
-#if 0
-    foundit = false;
-    for (i = spp; i < nonodes; i++) {     /* check all interior node circles */
-      p = t->nodep[i];
-      if (p != NULL) {
-        q = p;
-        do {
-          if (q->back == NULL) {
-            forknode = q;           /* find a node that has nothing below it */
-            foundit = true;
-            }
-          q = q->next;
-        } while (q != p); 
-      }
-    }  /* debug: could all of preceding be just  q = t->nodep[outgrno - 1]?  */
-#endif
-    foundit = false;
-    p = t->nodep[outgrno - 1]->back;
-    q = p;
-    do {
-      if (q->back == NULL) {
-        forknode = q;           /* find a node that has nothing below it */
-        foundit = true;
-      }
-      q = q->next;
-    } while (q != p); 
-    if (foundit) {    /* remove the interior node which has an empty neighbor */
-      nsibs = count_sibs(forknode); 
-      if ( nsibs > 2 )                        /* if there is a multifurcation */
-      {                        
-        forknode = precursor(q);   /* find the circle member that precedes it */
-        q->next = forknode->next;                      /* and connect past it */
-        t->nodep[q->index - 1] = q;           /* and have nodep point to that */
-        t->release_forknode(t, forknode);                      /* and toss it */
-        t->root = root_tree(t, t->nodep[outgrno - 1]);    /* put root fork in */
-      }
-    }
-  }
+  moveroottooutgroup(t);
 } /* load_tree */
 
 
