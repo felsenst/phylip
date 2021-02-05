@@ -347,11 +347,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     collapsed = false;
     p = NULL;                  /* for recording where tree can be collapsed */
     collapsible = false; 
-/* printf("STARTING treecollapsible on tree  %ld\n", k); debug */
+printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
+printf("(nextree before: %ld)\n", nextree);
     while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
       collapsetree(t, p, &collapsed);  /* traverse: find collapsible branch */
     if (collapsed) {                          /* if something was collapsed */
-printf("(nextree before: %ld)\n", nextree);
 printf("TREE #%ld collapsed\n", k);
 printf("(nextree now %ld)\n", nextree);
       savetree(t, place);           /* record collapsed tree in place array */
