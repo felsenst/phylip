@@ -314,8 +314,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * and deleting trees that can be further collapsed. Continues this
    * until there are no further changes.   */
   long i, j, k, pos;
-  boolean found, collapsible;
-  boolean collapsed;
+  boolean found, collapsible, collapsed, somecollapsed;
   long treeLimit;
   node* p;
 
@@ -329,61 +328,70 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     sprintf(progbuf, "\nCollapsing best trees\n   ");
     print_progress(progbuf);
   }
-  k = 0;
-  do {
-    if (progress)
-    {
-      if ( (i % ((treeLimit / 72) + 1) ) == 0)    /* (% = mod) progress as  */
-      { /* debug: fix formula for 72 */    /* ... row of dots up to 71 long */
-        sprintf(progbuf, ".");
-        print_progress(progbuf);
-      }
-    }
-    while (!bestrees[k].collapse)   /* go along bestrees until find one ... */
-      k++;                                     /* that might be collapsible */
-    if (k >= treeLimit)            /* bail if all trees have been looked at */
-      break;
-    load_tree(t, k, bestrees);                         /* Reconstruct tree. */
-    collapsed = false;
-    p = NULL;                  /* for recording where tree can be collapsed */
-    collapsible = false; 
-printf("STARTING treecollapsible on tree  %ld\n", k); /* debug */
-printf("(nextree before: %ld)\n", nextree);
-    while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) )
-      collapsetree(t, p, &collapsed);  /* traverse: find collapsible branch */
-    if (collapsed) {                          /* if something was collapsed */
-printf("TREE #%ld collapsed\n", k);
-printf("(nextree now %ld)\n", nextree);
-      savetree(t, place);           /* record collapsed tree in place array */
-printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
-      if ( k < (treeLimit-1) ) {         /* if not at the last tree already */
-        for (j = k ; j < (treeLimit - 1) ; j++) /* shift down rest of trees */
-        {                     /* (in the process, overwriting the k-th tree */
-          memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
-          bestrees[j].gloreange = bestrees[j + 1].gloreange;
-          bestrees[j].locreange = bestrees[j + 1].locreange;
-          bestrees[j + 1].gloreange = false;
-          bestrees[j + 1].locreange = false;
-          bestrees[j].collapse = bestrees[j + 1].collapse;
+  do {                     /* loop as long as some trees could be collapsed */
+    somecollapsed = false;
+    k = 0;
+    do {           /* go to end of saved trees, trying to collapse branches */
+      if (progress)
+      {
+        if ( (i % ((treeLimit / 72) + 1) ) == 0)  /* (% = mod) progress as  */
+        { /* debug: fix formula for 72 */  /* ... row of dots up to 71 long */
+          sprintf(progbuf, ".");
+          print_progress(progbuf);
         }
       }
-      treeLimit--;       /* because there is now one fewer tree in bestrees */
-      nextree--;
-      pos = 0;
-      findtree(&found, &pos, treeLimit, place, bestrees);/* find where ...  */
-               /* ... the collapsed tree is to go, or whether already there */
-      if (!found)    /* put the new tree in the the list if it wasn't found */
-      {                         /* (note: treeLimit is increased as needed) */
-        addtree(pos, &treeLimit, false, place, bestrees);
-        if (pos >= k)          /* keep  k  pointing at next tree to examine */
-          k++;
-printf("ADDING NEW TREE: number %ld: ", pos);
-for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");
-/*   debug */
+      while (!bestrees[k].collapse) /* go along bestrees until find one ... */
+        k++;                               /* ... that might be collapsible */
+      if (k >= treeLimit)          /* bail if all trees have been looked at */
+        break;
+      load_tree(t, k, bestrees);                       /* Reconstruct tree. */
+      collapsed = false;
+      p = NULL;                /* for recording where tree can be collapsed */
+      collapsible = false; 
+  printf("STARTING treecollapsible on tree  %ld\n", k+1); /* debug */
+  printf("(nextree before: %ld)\n", nextree);
+  printf("LOOKING AT TREE %ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
+      while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
+        collapsible = true;
+        collapsetree(t, p, &collapsed);    /* traverse: branch collapsible? */
       }
-else printf("ALREADY THERE: %ld\n", pos); /* debug */
-    }
-  } while (k < treeLimit);
+      if (collapsed) {                        /* if something was collapsed */
+        somecollapsed = somecollapsed || collapsible;
+  printf("TREE #%ld collapsed\n", k+1);
+  printf("(nextree now %ld)\n", nextree);
+        savetree(t, place);         /* record collapsed tree in place array */
+  printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
+        if ( k < (treeLimit-1) ) {       /* if not at the last tree already */
+          for (j = k ; j < (treeLimit - 1) ; j++)    /* shift rest of trees */
+          {                   /* (in the process, overwriting the k-th tree */
+            memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
+            bestrees[j].gloreange = bestrees[j + 1].gloreange;
+            bestrees[j].locreange = bestrees[j + 1].locreange;
+            bestrees[j + 1].gloreange = false;
+            bestrees[j + 1].locreange = false;
+            bestrees[j].collapse = bestrees[j + 1].collapse;
+          }
+        }
+        treeLimit--;      /* because there is now one fewer tree in bestrees */
+        nextree--;
+printf("(nextree now %ld)\n", nextree); /* debug */
+        pos = 0;
+        findtree(&found, &pos, treeLimit, place, bestrees); /* find where   */
+               /* ... the collapsed tree is to go, or whether already there */
+        if (!found)  /* put the new tree in the the list if it wasn't found */
+        {                       /* (note: treeLimit is increased as needed) */
+          addtree(pos, &treeLimit, false, place, bestrees);
+          nextree++;
+printf("(nextree now %ld)\n", nextree); /* debug */
+          if (pos >= k)        /* keep  k  pointing at next tree to examine */
+            k++;
+  printf("ADDING NEW TREE: number %ld: ", pos+1);
+  for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
+        }
+    else printf("ALREADY THERE: %ld\n", pos); /* debug */
+      }
+    } while (k < treeLimit);
+  } while (somecollapsed);
   if (progress)
   {
     sprintf(progbuf, "\n");
