@@ -328,8 +328,11 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     sprintf(progbuf, "\nCollapsing best trees\n   ");
     print_progress(progbuf);
   }
+/* debug:  comment out outer loop to see whether it is really necessary  */
+#if 0
   do {                     /* loop as long as some trees could be collapsed */
     somecollapsed = false;
+#endif
     k = 0;
     do {           /* go to end of saved trees, trying to collapse branches */
       if (progress)
@@ -352,8 +355,8 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   printf("(nextree before: %ld)\n", nextree);
   printf("LOOKING AT TREE %ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
       while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
-        collapsible = true;
-        collapsetree(t, p, &collapsed);    /* traverse: branch collapsible? */
+printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  /* debug */
+        collapsetree(t, p->back, &collapsed);     /* is branch collapsible? */
       }
       if (collapsed) {                        /* if something was collapsed */
         somecollapsed = somecollapsed || collapsible;
@@ -382,16 +385,19 @@ printf("(nextree now %ld)\n", nextree); /* debug */
         {                       /* (note: treeLimit is increased as needed) */
           addtree(pos, &treeLimit, false, place, bestrees);
           nextree++;
+          bestrees[pos].collapse = false;
 printf("(nextree now %ld)\n", nextree); /* debug */
           if (pos >= k)        /* keep  k  pointing at next tree to examine */
             k++;
   printf("ADDING NEW TREE: number %ld: ", pos+1);
   for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
         }
-    else printf("ALREADY THERE: %ld\n", pos); /* debug */
+    else printf("ALREADY THERE at %ld\n", pos); /* debug */
       }
     } while (k < treeLimit);
+/* debug   comment out to see whether it is necessary 
   } while (somecollapsed);
+debug   */
   if (progress)
   {
     sprintf(progbuf, "\n");
@@ -1169,13 +1175,15 @@ boolean treecollapsible(tree* t, node* n, node** p, boolean collapsible)
 
   node *sib;
 
-/* printf("\ncalled treecollapsible with %ld:%ld\n", n->index, n->back->index);  debug */
+printf("\ncalled treecollapsible with %ld:%ld\n", n->index, n->back->index); /*  debug */
   if ( n == NULL )                /* in case it is called on branch at root */
     return false;
+  if ( n->back == NULL )                /* in case it is called on branch at root */
+    return false;
 
-/* printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index);  debug */
+printf("calling branchcollapsible with branch %ld-%ld\n", n->index, n->back->index); /*  debug */
   if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {    /* check this branch */
-/*     printf(" (collapsible) \n");   debug */
+printf(" (collapsible) \n"); /*  debug */
     *p = n;                     /* record the node where it can be collapsed */
     return true;             /* then bail out and do not recurse further in */
   }
@@ -1184,16 +1192,17 @@ boolean treecollapsible(tree* t, node* n, node** p, boolean collapsible)
 
   if ( n->back->tip == true )         /* in case we've reached a tip branch */
     return false;
-/* printf("going around circle for fork %ld\n", n->back->index); debug */
+printf("going around circle for fork %ld\n", n->back->index); /* debug */
   for ( sib = n->back->next ; sib != n->back ; sib = sib->next )
   {                                                  /* recurse further out */
     if (sib->back != NULL) {
-/* printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);  debug */
+printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsible, sib->index, sib->back->index);  /* debug */
     collapsible = treecollapsible(t, sib, p, collapsible) || collapsible;
     }
-/*    else
-      printf("root branch skipped\n");  debug */
+   else
+      printf("root branch skipped\n"); /* debug */
   }
+printf("collapsible: %ld\n", collapsible);  /* debug */
   return collapsible;
 } /* treecollapsible */
 
@@ -1271,6 +1280,10 @@ void collapsetree(tree* t, node* n, boolean* collapsed)
     * which we are proceeding out the back subtree of that node */
   node *sib;
 
+  if (n == NULL)
+    return;
+  if (n->back == NULL)
+    return;
   if ( n->back->tip == true)           /* if back is a tip don't go further */
     return;
   if ( ((pars_tree*)t)->branchcollapsible(t, n) ) {
