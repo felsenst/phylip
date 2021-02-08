@@ -349,10 +349,10 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
         break;
       load_tree(t, k, bestrees);                       /* Reconstruct tree. */
       collapsed = false;
-      p = NULL;                /* for recording where tree can be collapsed */
       collapsible = false; 
+      p = NULL;                /* for recording where tree can be collapsed */
   printf("STARTING treecollapsible on tree  %ld\n", k+1); /* debug */
-  printf("(nextree before: %ld)\n", nextree);
+  printf("(nextree before is: %ld)\n", nextree);
   printf("LOOKING AT TREE %ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
       while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
 printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  /* debug */
