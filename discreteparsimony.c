@@ -1222,14 +1222,16 @@ boolean discretepars_tree_branchcollapsible(tree* t, node* n)
   node* q;
 
   if ( (n->tip == true) || (n->back->tip == true) )
-    return false;
+    return false;                   /* not if either end of branch is a tip */
+  if ( (n->index == t->root->index) || (n->back->index == t->root->index) )
+    return false;        /* not if branch is connected to the rootmost fork */
 
   q = n->back;
-  if ( q->initialized == false ) t->nuview(t, q);
+  if ( q->initialized == false ) t->nuview(t, q);      /* get updated views */
   if ( n->initialized == false ) t->nuview(t, n);
 
   for ( i = 0 ; i < endsite ; i++ )
-  {
+  {                        /* collapse only if all sites do not have a step */
     if ( (((discretepars_node*)q)->discbase[i] &
           ((discretepars_node*)n)->discbase[i] ) == 0)
       return false;
