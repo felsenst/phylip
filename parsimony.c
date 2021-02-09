@@ -348,7 +348,6 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       if (k >= treeLimit)          /* bail if all trees have been looked at */
         break;
       load_tree(t, k, bestrees);                       /* Reconstruct tree. */
-      collapsed = false;
       collapsible = false; 
       p = NULL;                /* for recording where tree can be collapsed */
   printf("STARTING treecollapsible on tree  %ld\n", k+1); /* debug */
@@ -356,6 +355,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
   printf("LOOKING AT TREE %ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
       while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
 printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  /* debug */
+        collapsed = false;
         collapsetree(t, p->back, &collapsed);     /* is branch collapsible? */
       }
       if (collapsed) {                        /* if something was collapsed */
