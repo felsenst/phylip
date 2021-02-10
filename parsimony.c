@@ -1012,7 +1012,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
-  numofnewfork = spp + 1;                       /* index-1 of next new fork */
+  numofnewfork = spp;                           /* index-1 of next new fork */
   t->root = t->nodep[0]->back;
 
   for ( j = 3; j <= spp ; j++ )     /* adding one by one species, 3, 4, ... */
@@ -1021,8 +1021,8 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     belowindex = bestrees[treei].btree[j - 1];             /* where it goes */
     if ( belowindex > 0 ) {          /*  if the fork is to be a bifurcation */
       below = t->nodep[belowindex - 1]; 
-      forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       numofnewfork++;
+      forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       hookup(newtip, forknode->next);                     /* hook tip to it */
       bback = below->back;
       hookup(forknode->next->next, below);
