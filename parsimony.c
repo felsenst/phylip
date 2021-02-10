@@ -1012,6 +1012,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
+  forknobe->back = NULL;
   numofnewfork = spp;                           /* index-1 of next new fork */
   t->root = t->nodep[0]->back;
 
@@ -1021,18 +1022,18 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     belowindex = bestrees[treei].btree[j - 1];             /* where it goes */
     if ( belowindex > 0 ) {          /*  if the fork is to be a bifurcation */
       numofnewfork++;
-      below = t->nodep[belowindex - 1]; 
       forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
-      hookup(newtip, forknode->next);                     /* hook tip to it */
+      below = t->nodep[belowindex - 1]; 
+      hookup(forknode->next, below);         /* hook to it node it is below */
+      hookup(newtip, forknode->next->next);               /* hook tip to it */
       bback = below->back;
-      hookup(forknode->next->next, below);
-      if ( bback )              /* if below the new fork is not a NULL node */
+      if ( bback != NULL )      /* if below the new fork is not a NULL node */
         hookup(forknode, bback);
-      t->nodep[spp+j-2] = forknode;             /* points to bottom of fork */
+      t->nodep[numofnewfork] = forknode;        /* points to bottom of fork */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
-      bbot = t->nodep[-belowindex-1];                    /* its bottom node */
+      bbot = t->nodep[-belowindex-1];      /* the fork circle's bottom node */
       afterwhere = precursor(bbot);     /* find fork node that points to it */
       forknode = t->get_forknode(t, bbot->index);         /* get a new node */
       hookup(newtip, forknode);             /* hook the tip to the new node */
