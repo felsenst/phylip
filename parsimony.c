@@ -1020,15 +1020,15 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
     newtip = t->nodep[j-1];
     belowindex = bestrees[treei].btree[j - 1];             /* where it goes */
     if ( belowindex > 0 ) {          /*  if the fork is to be a bifurcation */
-      below = t->nodep[belowindex - 1]; 
       numofnewfork++;
+      below = t->nodep[belowindex - 1]; 
       forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       hookup(newtip, forknode->next);                     /* hook tip to it */
       bback = below->back;
       hookup(forknode->next->next, below);
       if ( bback )              /* if below the new fork is not a NULL node */
         hookup(forknode, bback);
-      t->nodep[spp+j-2] = forknode;               /* nodep points to bottom */
+      t->nodep[spp+j-2] = forknode;             /* points to bottom of fork */
     }
     else
     {          /*  if goes into a multifurcation put a new node into circle */
