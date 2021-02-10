@@ -1215,11 +1215,14 @@ void collapsebranch(tree* t, node* n)
   node *sib, *newfork;  /* debug: can delete this once code block deleted */
   long nsibs;   /* debug: this too */
 
+  inittrav(t, n);    /* make initialized pointers looking in to fork  false */
   if (n == NULL)      /* make sure both ends of branch exist and are forks */
     return;
   if (n->tip)
     return;
   m = n->back;              /* get other end of branch too, do same checks */
+  inittrav(t, m->back);        /* (recurse out from fork circle doing that) */
+    /* debug:  the preceding may be unnecessary, they may already be OK */
 /* printf("COLLAPSING branch %ld:%ld\n",n->index,m->index); debug */
   if (m == NULL)
     return;
@@ -1267,10 +1270,6 @@ void collapsebranch(tree* t, node* n)
   }
   t->release_fork(t, m);               /* toss  m  back onto free node list */
 #endif
-  inittrav(t, p);    /* make initialized pointers looking in to fork  false */
-  p->initialized = false;            /* (to make sure gets reset false too) */
-  inittrav(t, p->back);        /* (recurse out from fork circle doing that) */
-    /* debug:  the preceding may be unnecessary, they may already be OK */
 } /* collapsebranch */
 
 

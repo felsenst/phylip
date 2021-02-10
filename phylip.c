@@ -3461,10 +3461,12 @@ void release_all_forks(tree* t)
       t->release_fork(t, p);          /* put it on the free_fork_nodes list */
     }
   }
-  for ( j = 0; j < spp; j++) {   /* set the "back" pointers of tips to NULL */
+  for ( j = 0; j < t->spp; j++) {/* set the "back" pointers of tips to NULL */
     if (t->nodep[j] != NULL)
       t->nodep[j]->back = NULL;
   }
+  for ( j = spp; j < t->nonodes; j++)   /* make sure interior pointers NULL */
+    t->nodep[j] = NULL;
 } /* release_all_forks */
 
 
