@@ -1012,7 +1012,7 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
   forknode = t->get_fork(t, spp);     /* fork put on nodep, index is  spp+1 */
   hookup(t->nodep[1], forknode->next);
   hookup(t->nodep[0], forknode->next->next);
-  forknobe->back = NULL;
+  forknode->back = NULL;
   numofnewfork = spp;                           /* index-1 of next new fork */
   t->root = t->nodep[0]->back;
 
@@ -1024,9 +1024,9 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
       numofnewfork++;
       forknode = t->get_fork(t, numofnewfork);  /* put a new fork circle in */
       below = t->nodep[belowindex - 1]; 
+      bback = below->back;
       hookup(forknode->next, below);         /* hook to it node it is below */
       hookup(newtip, forknode->next->next);               /* hook tip to it */
-      bback = below->back;
       if ( bback != NULL )      /* if below the new fork is not a NULL node */
         hookup(forknode, bback);
       t->nodep[numofnewfork] = forknode;        /* points to bottom of fork */
