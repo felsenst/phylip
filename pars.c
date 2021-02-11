@@ -563,7 +563,7 @@ void pars_printree(void)
   long tipy;
   double scale, tipmax;
   long i;
-  boolean *found;
+  boolean found;
   node *p;
 
   if (!treeprint)
@@ -572,7 +572,7 @@ void pars_printree(void)
   tipy = 1;
   tipmax = 0.0;
   
-  p = findbottom(curtree, curtree->root, found);
+  p = findbottom(curtree, curtree->root, &found);
   pars_coordinates(p, 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)

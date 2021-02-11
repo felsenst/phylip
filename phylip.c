@@ -343,7 +343,7 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-node* findbottom (tree* t; node* p; boolean* found) {
+node* findbottom (tree* t, node* p, boolean* found) {
   /* find the node in a fork circle that points downward */
   node *q, *r;
 
