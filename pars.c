@@ -563,13 +563,17 @@ void pars_printree(void)
   long tipy;
   double scale, tipmax;
   long i;
+  boolean *found;
+  node *p;
 
   if (!treeprint)
     return;
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  pars_coordinates(curtree->root, 0.0, &tipy, &tipmax);
+  
+  p = findbottom(curtree, curtree->root, found);
+  pars_coordinates(p, 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)
     drawline3(i, scale, curtree->root);
