@@ -343,11 +343,11 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-node* findbottom (tree* t, node* p, boolean* found) {
-  /* find the node in a fork circle that points downward */
+node* findroot (tree* t, node* p, boolean* found) {
+  /* find the node in the rootmost fork circle that has a null back pointer */
   node *q, *r;
 
-  r = p;                         /* return same node if never find way down */
+  r = p;                /* return same node if never find the rootmost node */
   *found = false;
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
     if (q->back == NULL) {          /* ... until find one with  back  empty */
@@ -356,7 +356,7 @@ node* findbottom (tree* t, node* p, boolean* found) {
     }
   }
   return r;
-} /* findbottom */
+} /* findroot */
 
 
 void verify_nuview (node *p)

@@ -564,19 +564,20 @@ void pars_printree(void)
   double scale, tipmax;
   long i;
   boolean found;
-  node *p;
+  node *p, *q;
 
   if (!treeprint)
     return;
   putc('\n', outfile);
-  tipy = 1;
-  tipmax = 0.0;
+  tipy = 1;                   /* line in the diagram that has the first tip */
+  tipmax = 0.0;      /* this ends up with how far to right the tree extends */
   
-  p = findbottom(curtree, curtree->root, &found);
-  pars_coordinates(p, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
-  for (i = 1; i <= (tipy - down); i++)
-    drawline3(i, scale, curtree->root);
+  p = findroot(curtree, curtree->root, &found);    /* get to real root node */
+  q = p;                                            /* save a pointer to it */
+  pars_coordinates(p, 0.0, &tipy, &tipmax);     /* get coordinates of nodes */
+  scale = 1.0 / (long)(tipmax + 1.000);      /* rescale to right tree width */
+  for (i = 1; i <= (tipy - down); i++)   /* draw rows of diagram one by one */
+    drawline3(i, scale, q);      /* each starts from root, works way to tip */
   putc('\n', outfile);
 }  /* pars_printree */
 
@@ -610,8 +611,8 @@ void maketree(void)
       print_progress(progbuf);
       sprintf(progbuf, "  !");
       print_progress(progbuf);
-      for (j = 0; j < nonodes; j++)
-      {
+      for (j = 0; j < nonodes; j++) 
+      {                             /* printing reasonable number of dashes */
         if (j % ((nonodes / 72) + 1) == 0)
         {
           sprintf(progbuf, "-");
@@ -632,12 +633,11 @@ void maketree(void)
       phyFillScreenColor();
     }
     recompute = false;
-    if (jumb == njumble)
+    if (jumb == njumble)  /* when at the last (or only) tree reconstruction */
     {
-      missedCount = 0;
-      outCount = nextree;
-      collapsebestrees(curtree, bestrees, place,
-                        chars, progress, &outCount);
+      missedCount = 0;       /* will count how many tied trees we leave out */
+      outCount = nextree;    /* will count how many tied trees we print out */
+      collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
       missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
@@ -669,7 +669,7 @@ printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) printf("%ld ",bestrees[i].btree[j]);printf("\n");
 /* debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
-        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root);    /* ready to update views */
         initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */

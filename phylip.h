@@ -684,7 +684,7 @@ void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);
 long            count_sibs(node*);
-node*           findbottom(tree*, node*, boolean*);
+node*           findroot(tree*, node*, boolean*);
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);

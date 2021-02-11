@@ -367,13 +367,13 @@ void doinput(void)
   /* reads the input data */
   long i;
 
-  if (justwts)
+  if (justwts)             /* if data sets are reweightings of one data set */
   {
     if (firstset)
-      inputdata(chars);
+      inputdata(chars);                  /* get that first set of sequences */
     for (i = 0; i < chars; i++)
       weight[i] = 1;
-    inputweights(chars, weight, &weights);
+    inputweights(chars, weight, &weights);       /* read the set of weights */
     if (justwts)
     {
       fprintf(outfile, "\n\nWeights set # %ld:\n\n", ith);
@@ -383,27 +383,27 @@ void doinput(void)
         print_progress(progbuf);
       }
     }
-    if (printdata)
+    if (printdata)                       /* print out the weights if needed */
       printweights(outfile, 0, chars, weight, "Sites");
   }
   else
-  {
+  {                    /* if we're reading a new set of sequences each time */
     if (!firstset)
     {
-      samenumsp(&chars, ith);
+      samenumsp(&chars, ith); /* check that number of sequences is the same */
       reallocchars();
     }
-    inputdata(chars);
+    inputdata(chars);                          /* input the number of sites */
     for (i = 0; i < chars; i++)
       weight[i] = 1;
     if (weights)
     {
-      inputweights(chars, weight, &weights);
-      if (printdata)
+      inputweights(chars, weight, &weights);  /* and their weights if needed */
+      if (printdata)             /* print out the table of weights if needed */
         printweights(outfile, 0, chars, weight, "Sites");
     }
   }
-  makeweights();
+  makeweights();             /* make weights vectors to allow site-aliasing */
   dnapars_tree_setup(nonodes, spp);               /* set up the three trees */
   dna_makevalues(curtree, usertree);    /* put information on sites at tips */
 }  /* doinput */
@@ -415,27 +415,27 @@ void makeweights(void)
   long i;
 
   for (i = 1; i <= chars; i++)
-  {
-    alias[i - 1] = i;
-    oldweight[i - 1] = weight[i - 1];
-    ally[i - 1] = i;
+  {   /* debug: correct the descriptions of alias, ally as needed */
+    alias[i - 1] = i; /* to be the number of the site that stands in for  i? */           
+    oldweight[i - 1] = weight[i - 1];           /* the weights of the sites */
+    ally[i - 1] = i;  /* to be the number of the site that stands in for  i? */
   }
-  sitesort(chars, weight);
-  sitecombine(chars);
-  sitescrunch(chars);
+  sitesort(chars, weight);   /* tag-sort the site columns lexicographically */
+  sitecombine(chars);   /* record where the groups of identical columns are */
+  sitescrunch(chars);    /* now get the representative sites for each group */
   endsite = 0;
   for (i = 1; i <= chars; i++)
-  {
+  {     /* if this site stands in for a group, counting the representatives */
     if (ally[i - 1] == i)
       endsite++;
   }
-  for (i = 1; i <= endsite; i++)
-    location[alias[i - 1] - 1] = i;
-  if (!thresh)
+  for (i = 1; i <= endsite; i++) /* for each site which is a representative */
+    location[alias[i - 1] - 1] = i;      /* where in representatives its is */
+  if (!thresh)            /* if no threshold parsimony, set thresholds high */
     threshold = spp;
   threshwt = (double *)Malloc(endsite * sizeof(double));
   for (i = 0; i < endsite; i++)
-  {
+  {                                      /* the threshold x weight for each */
     threshwt[i] = (threshold * weight[i]);
   }
 }  /* makeweights */
@@ -448,22 +448,22 @@ void describe(void)
   long indent;
 
   if (treeprint)
-  {
+  {                                    /* print out number of steps in tree */
     fprintf(outfile, "\nrequires a total of %10.3f\n", -(curtree->score));
     fprintf(outfile, "\n  between      and       length\n");
     fprintf(outfile, "  -------      ---       ------\n");
-    printbranchlengths(curtree->root);
+    printbranchlengths(curtree->root); /* print the table of branch lengths */
   }
-  if (stepbox)
+  if (stepbox)                          /* the number of steps in each site */
     writesteps(curtree, chars, weights, oldweight);
   if (ancseq)
-  {
+  {                         /* and the most parsimonious ancestor sequences */
     dna_hypstates(curtree, chars, basechar);
     putc('\n', outfile);
   }
   putc('\n', outfile);
   if (trout)
-  {
+  {                       /* and write out the tree to the output tree file */
     col = 0;
     indent = 0;
     treeout3(curtree->root, nextree, &col, indent, curtree->root);

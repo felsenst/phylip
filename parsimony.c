@@ -36,7 +36,6 @@ static void oldsavetree(tree* t, long *place);
 static void bintomulti(tree *t, node **root, node **binroot);
 static void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc);
 static void backtobinary(tree* t, node **root, node *binroot);
-static boolean outgrin(node *root, node *outgrnode);
 static long get_numdesc(node* root, node* p);
 static void moveleft(node *root, node *outgrnode, node **flipback);
 static void flipnodes(node *nodea, node *nodeb);
@@ -1069,22 +1068,6 @@ void setbottomtraverse(node *p)
 }  /* setbottomtraverse */
 
 
-boolean outgrin(node *root, node *outgrnode)
-{
-  /* checks if outgroup node is a child of root */
-  node *p;
-
-  p = root->next;
-  while (p != root)
-  {
-    if (p->back == outgrnode)
-      return true;
-    p = p->next;
-  }
-  return false;
-} /* outgrin */
-
-
 void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                          boolean thorough, double* bestfound)
 { /* does global rearrangements.  The more general
@@ -1303,16 +1286,20 @@ void printree(tree* t)
   long tipy;
   double scale, tipmax;
   long i;
+  boolean *found;
+  node *p, *q;
 
   if (!treeprint)
     return;
   putc('\n', outfile);
-  tipy = 1;
-  tipmax = 0.0;
-  coordinates(t, t->root, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
-  for (i = 1; i <= (tipy - down); i++)
-    drawline3(i, scale, t->root);
+  tipy = 1;            /* this will be the number for each line printed out */
+  tipmax = 0.0;     /* will keep track of how far to right the tree extends */
+  p = findroot(t, t->root, found);     /* find node which null back pointer */
+  q = p;
+  coordinates(t, p, 0.0, &tipy, &tipmax);       /* get coordinates of nodes */
+  scale = 1.0 / (long)(tipmax + 1.000);      /* horizontal scaling for tree */
+  for (i = 1; i <= (tipy - down); i++)       /* draw one line at a time ... */
+    drawline3(i, scale, p);      /* ... each time going up from root to tip */
   fprintf(outfile, "\n  remember:");
   if (outgropt)
     fprintf(outfile, " (although rooted by outgroup)");
@@ -1330,37 +1317,37 @@ void coordinates(tree* t, node *p, double lengthsum, long *tipy,
 
   if (p == NULL)
     return;
-  if (p->tip)
+  if (p->tip)                                            /* if at a tip ... */
   {
-    p->xcoord = (long)(over * lengthsum + 0.5);
+    p->xcoord = (long)(over * lengthsum + 0.5);      /* set coordinates ... */
     p->ycoord = (*tipy);
-    p->ymin = (*tipy);
-    p->ymax = (*tipy);
-    (*tipy) += down;
-    if (lengthsum > (*tipmax))
+    p->ymin = (*tipy);        /* ... as well as min, max  y  coordinate ... */
+    p->ymax = (*tipy);    /* ... which for a tip is just its  y cooprdinate */
+    (*tipy) += down;      /* increment the  tipy  value, ready for next tip */
+    if (lengthsum > (*tipmax))  /* update how far out to right tree extends */
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;
+  q = p->next;      /* for interior fork, go around the circle of nodes ... */
   do {
-    xx = q->v;
-    if (xx > 100.0)
-      xx = 100.0;
-    coordinates(t, q->back, lengthsum + xx, tipy, tipmax);
-    q = q->next;
+    xx = q->v;        /* get the value of the branch length leading out ... */
+    if (xx > 100.0)                /* ... from that node in the fork circle */
+      xx = 100.0;      /*   debug:  why this?  I think it works */
+    coordinates(t, q->back, lengthsum + xx, tipy, tipmax);   /* recurse out */
+    q = q->next;                /* continue around the fork circle of nodes */
   } while (p != q);
-  first = p->next->back;
-  q = p;
-  while (q->next != p)
+  first = p->next->back;    /* around circle again, getting pointers to ... */
+  q = p;       /* ... the descendants of first and last nodes in the circle */
+  while (q->next != p)           /* ... not counting the one you arrived to */
     q = q->next;
-  last = q->back;
+  last = q->back;   /* here's the pointer to the descendant of the last one */
   p->xcoord = (long)(over * lengthsum + 0.5);
   if ((p == t->root) || count_sibs(p) > 2)
-    p->ycoord = p->next->next->back->ycoord;
-  else
-    p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
-  p->ymax = last->ymax;
+    p->ycoord = p->next->next->back->ycoord;     /* where 2nd descendant is */
+  else                              /* (that works OK for 3, 4 descendants) */
+    p->ycoord = (first->ycoord + last->ycoord) / 2;  /* mean, if bifurcates */
+  p->ymin = first->ymin;  /* on way back down tree propagate ymin, ymax ... */
+  p->ymax = last->ymax;            /* ... to come from first, last subtrees */
 }  /* coordinates */
 
 
@@ -1409,7 +1396,7 @@ void drawline3(long i, double scale, node *start)
       }
     }
     done = (p->tip || p == q);
-    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);
+    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);    /* how many chars */
     if (n < 3 && !q->tip)      /* branch must be at least 3 characters long */
       n = 3;
     if (extra)
@@ -1417,13 +1404,13 @@ void drawline3(long i, double scale, node *start)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i && !done)
+    if ((long)q->ycoord == i && !done)  /* are we where a corner is needed? */
     {
       if ((long)p->ycoord != (long)q->ycoord)     /* if at corner of branch */
         putc('+', outfile);
       else                                  /* otherwise print another dash */
         putc('-', outfile);
-      if (!q->tip)
+      if (!q->tip)                         /* if we're not yet at a tip ... */
       {
         for (j = 1; j <= n - 2; j++)  /* print enough dashes to get to fork */
           putc('-', outfile);
@@ -1442,20 +1429,20 @@ void drawline3(long i, double scale, node *start)
     else if (!p->tip)
     {                     /* if a branch crosses here, print a vertical bar */
       if ((long)last->ycoord > i && (long)first->ycoord < i &&
-          (i != (long)p->ycoord || p == start))
+          (i != (long)p->ycoord))
       {
-        putc('|', outfile);
-        for (j = 1; j < n; j++)
+        putc('|', outfile);      /* print the vertical bar where it crosses */
+        for (j = 1; j < n; j++)             /* ... then print enough spaces */
           putc(' ', outfile);
       }
       else
-      {
+      {                                  /* ... otherwise just print spaces */
         for (j = 1; j <= n; j++)
           putc(' ', outfile);
       }
     }
     else
-    {
+    {             /*  debug: (correct?)  if  p  is a tip, print spaces */
       for (j = 1; j <= n; j++)
         putc(' ', outfile);
     }
