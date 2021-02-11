@@ -1203,7 +1203,7 @@ printf("collapsible was %ld, now do recursive call on %ld-%ld\n", (long)collapsi
    else
       printf("root branch skipped\n"); /* debug */
   }
-printf("collapsible: %ld\n", collapsible);  /* debug */
+printf("collapsible: %d\n", collapsible);  /* debug */
   return collapsible;
 } /* treecollapsible */
 

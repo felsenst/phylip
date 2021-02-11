@@ -343,6 +343,22 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
+node* findbottom (tree* t; node* p; boolean* found) {
+  /* find the node in a fork circle that points downward */
+  node *q, *r;
+
+  r = p;                         /* return same node if never find way down */
+  *found = false;
+  for (q = p->next; q != p; q = q->next) {              /* go around circle */
+    if (q->back == NULL) {          /* ... until find one with  back  empty */
+      r = q;
+      *found = true;
+    }
+  }
+  return r;
+} /* findbottom */
+
+
 void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
@@ -5049,7 +5065,6 @@ void arbitrary_resolve(tree* t)
     }
   }
 } /* arbitrary_resolve */
-
 
 
 /* ---------------------------------------------------------------- */
