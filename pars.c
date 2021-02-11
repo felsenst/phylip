@@ -664,11 +664,11 @@ void maketree(void)
 printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) printf("%ld ",bestrees[i].btree[j]);printf("\n");
 /* debug */
-        curtree->root = root_tree(curtree, curtree->root);
+/* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
         initializetrav(curtree, curtree->root);
         initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
-        curtree->root = root_tree(curtree, curtree->root);
+/* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
         curtree->nodep[curtree->root->index - 1] = curtree->root;
         disc_treelength(curtree->root, chars, curtree->nodep);
         pars_printree();
