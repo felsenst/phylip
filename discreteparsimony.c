@@ -655,7 +655,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   minpostorder(subtr2, treenode);
   minn = 10 * spp;
   nom = 0;
-  denom = 0;
+  denom = 1;
   for (i = (long)zero; i <= (long)seven; i++)
   {
     for (j = (long)zero; j <= (long)seven; j++)
@@ -673,7 +673,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
           minn = ((discretepars_node*)subtr1)->disccumlengths[i] + cost +
             ((discretepars_node*)subtr2)->disccumlengths[j];
           nom = 0;
-          denom = 0;
+          denom = 1;
         }
         if (((discretepars_node*)subtr1)->disccumlengths[i] + cost +
             ((discretepars_node*)subtr2)->disccumlengths[j] == minn)
