@@ -128,9 +128,9 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   t->insert_(t, item, p->back, false);
   initializetrav(t, t->root);                /* make sure updates all views */
   initializetrav(t, t->root->back);
-printf("\n"); /* debug */
+/* printf("\n"); debug */
   like = t->evaluate(t, p, false);
-printf("\n"); /* debug */
+/* printf("\n"); debug */
   t->score = like;
 /* printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); debug */
   if (like >= *bestyet) {
@@ -191,7 +191,6 @@ printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);p
 /* debug:  is preceding statement correct?  &dummy?  */
   t->restore_traverses(t, item, p);           /* debug: what is this doing? */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
-
 
   found = false;                /* debug: why this? May not have any effect */
   pos = 0;
@@ -395,7 +394,7 @@ printf("(nextree now %ld)\n", nextree); /* debug */
   for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
 if (pos < treeLimit) {  /* debug */
 printf(" and shifting trees %ld through %ld up one\n", pos+2, treeLimit); }/* debug*/
-          if (pos >= k)        /* keep  k  pointing at next tree to examine */
+          if (pos <= k)        /* keep  k  pointing at next tree to examine */
             k++;
 printf("(nextree now %ld)\n", nextree); /* debug */
 printf("Next tree to examine is tree #%ld\n", k+1);  /* debug */
