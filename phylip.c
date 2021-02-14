@@ -4417,6 +4417,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
   t->re_move(t, p, &where, false);
   t->insert_(t, p, whereto, false);
   like = t->evaluate(t, p, false);
+  t->score = like;
   if (like - oldlike < LIKE_EPSILON) {
     t->restore_lr_nodes(t, p, whereto);
     t->score = oldlike;
@@ -4864,6 +4865,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   initializetrav(t, t->root);
   initializetrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
+  t->score = like;
   if (atstart)
     bettertree = true;
   else {

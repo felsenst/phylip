@@ -121,7 +121,7 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   boolean succeeded = false;
   node* dummy;
   boolean found = false;
-  long pos = 0;
+  long i, pos = 0;
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
 /* printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index); debug */
@@ -161,6 +161,7 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n",
           if (!found) {                /* if found same tree, do not add it */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", like, *bestyet, *bestfound, pos+1);  /* debug */
             addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
+printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
 /*  printf("Added another tied tree to bestrees, now %ld of them\n", nextree);  debug */
           }
         } else {          /* since  like  is not the same as the best score */
@@ -171,6 +172,7 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", li
             found = false;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); /* debug */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
+printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
 /* `printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  debug */
             succeeded = true;
             *bestyet = like;
@@ -202,6 +204,7 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", l
   {
     t->insert_(t, item, p, false);
     like = t->evaluate(t, p, false);
+    t->score = like;
     if (like >= *bestyet || *bestyet == UNDEFINED)
     {
       *multf = true;
@@ -315,6 +318,7 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * and deleting trees that can be further collapsed. Continues this
    * until there are no further changes.   */
   long i, j, k, pos;
+  double like;
   boolean found, collapsible, collapsed, somecollapsed;
   long treeLimit;
   node* p;
@@ -330,10 +334,6 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
     print_progress(progbuf);
   }
 /* debug:  comment out outer loop to see whether it is really necessary  */
-#if 0
-  do {                     /* loop as long as some trees could be collapsed */
-    somecollapsed = false;
-#endif
     k = 0;
     do {           /* go to end of saved trees, trying to collapse branches */
       if (progress)
@@ -349,23 +349,27 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       if (k >= treeLimit)          /* bail if all trees have been looked at */
         break;
       load_tree(t, k, bestrees);                       /* Reconstruct tree. */
+      initializetrav(t, t->root);            /* make sure updates all views */
+      initializetrav(t, t->root->back);
+      like = t->evaluate(t, t->root, false);
+      t->score = like;
       collapsible = false; 
       p = NULL;                /* for recording where tree can be collapsed */
+  printf("(nextree before checking collapsibility is: %ld)\n", nextree);
   printf("STARTING treecollapsible on tree  %ld\n", k+1); /* debug */
-  printf("(nextree before is: %ld)\n", nextree);
-  printf("LOOKING AT TREE %ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
+  printf("LOOKING AT TREE #%ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
       while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
 printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  /* debug */
         collapsed = false;
-        collapsetree(t, p->back, &collapsed);     /* is branch collapsible? */
+        collapsetree(t, p->back, &collapsed);     /* collapse branch if can */
       }
       if (collapsed) {                        /* if something was collapsed */
         somecollapsed = somecollapsed || collapsible;
   printf("TREE #%ld collapsed\n", k+1);
-  printf("(nextree now %ld)\n", nextree);
         savetree(t, place);         /* record collapsed tree in place array */
   printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
         if ( k < (treeLimit-1) ) {       /* if not at the last tree already */
+  printf("Shifting trees %ld through %ld down one\n", k+2, treeLimit);  /* debug */
           for (j = k ; j < (treeLimit - 1) ; j++)    /* shift rest of trees */
           {                   /* (in the process, overwriting the k-th tree */
             memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
@@ -387,18 +391,18 @@ printf("(nextree now %ld)\n", nextree); /* debug */
           addtree(pos, &treeLimit, false, place, bestrees);
           nextree++;
           bestrees[pos].collapse = false;
-printf("(nextree now %ld)\n", nextree); /* debug */
+  printf("ADDING NEW TREE: as number %ld: ", pos+1);
+  for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
+if (pos < treeLimit) {  /* debug */
+printf(" and shifting trees %ld through %ld up one\n", pos+2, treeLimit); }/* debug*/
           if (pos >= k)        /* keep  k  pointing at next tree to examine */
             k++;
-  printf("ADDING NEW TREE: number %ld: ", pos+1);
-  for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
+printf("(nextree now %ld)\n", nextree); /* debug */
+printf("Next tree to examine is tree #%ld\n", k+1);  /* debug */
         }
     else printf("ALREADY THERE at %ld\n", pos); /* debug */
-      }
-    } while (k < treeLimit);
-/* debug   comment out to see whether it is necessary 
-  } while (somecollapsed);
-debug   */
+    }
+  } while (k < treeLimit);
   if (progress)
   {
     sprintf(progbuf, "\n");
