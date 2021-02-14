@@ -1552,12 +1552,15 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
   node *q;
   long i, n, w;
   double x;
+  boolean atstart = false;
   Char c;
 
   if (p == NULL)                                /* bail out if no node here */
     return;
-  if (p == root)
+  if (p == root) {
     indent = 0;
+    atstart = true;
+  }
   if (p->tip)
   {
     n = 0;
@@ -1583,12 +1586,13 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
     q = p;
     do                                           /* loop over nodes in fork */
     {
-      treeout3(q->back, nextree, col, indent, root);         /* recurse out */
-      q = q->next;
-      if (q != p) {                     /* ... unless we are done with fork */
-        putc(',', outtree);            /* ... printing a comma for next furc */
+      if ((q != p) || atstart) {        /* ... unless we are done with fork */
+        treeout3(q->back, nextree, col, indent, root);       /* recurse out */
+        atstart = false;
+        if ((q->back != NULL) && (q->next != p))
+          putc(',', outtree);         /* ... printing a comma for next furc */
         (*col)++;
-        if (*col > 60)    /* move on to new line if get too far right on line */
+        if (*col > 60)  /* move on to new line if get too far right on line */
         {
           putc('\n', outtree);
           *col = 0;
@@ -1596,6 +1600,7 @@ void treeout3(node *p, long nextree, long *col, long indent, node *root)
             putc(' ', outtree);
         }
       }
+      q = q->next;
     } while (q != p);
     putc(')', outtree);        /* finish with fork by printing right-paren */
     (*col)++;
