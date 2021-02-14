@@ -1096,12 +1096,12 @@ void discretepars_tree_nuview(tree* t, node*p)
 /* debug: already called?     generic_tree_nuview(t, p);  */
   bif = (count_sibs(p) == 2);
 
-  for ( i = 0 ; i < endsite ; i++ )
+  for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
     steps = 0;
     for ( q = p->next ; q != p ; q = q->next )
-    {
+    {                                    /* go around the loop at this fork */
       qback = (discretepars_node*)q->back;
       if ( qback == NULL )
       {
@@ -1110,13 +1110,13 @@ void discretepars_tree_nuview(tree* t, node*p)
       }
       /* if we root the tree we can safely ignore the root */
       base1 = qback->discbase[i];
-      newbase &= base1;
+      newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
     }
     if ( newbase == 0 )
     {
       if ( !bif )
-      {
+      {                                /* case where fork is multifurcating */
         memset(numnuc, 0, sizeof(numnuc));
         for (j = (long)zero; j <= (long)seven; j++)
         {
@@ -1130,17 +1130,16 @@ void discretepars_tree_nuview(tree* t, node*p)
           }
         }
         largest = discgetlargest(numnuc);
-        for (j = (long)A; j <= (long)O; j++)
-        {
-          if (numnuc[j] == largest )
-          {
+        for (j = (long)zero; j <= (long)seven; j++) {
+          if (numnuc[j] == largest )   /* make set of states that tie */
+          {                             /* for most parsimonious here */
             newbase |= 1 << j;
           }
         }
         steps += (weight[i]) * (count_sibs(p) - largest - root);
-      }
+      } /* above counts descendants that don't have most parsimonious */
       else
-      { /* optimization for bifurcation, code above still works though */
+      {   /* optimized for bifurcation, code above still works though */
         newbase = ((discretepars_node*)p->next->back)->discbase[i] |
           ((discretepars_node*)p->next->next->back)->discbase[i];
         steps += weight[i];
