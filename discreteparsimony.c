@@ -286,8 +286,8 @@ void sitecombine(long chars)
       k = 1;
       while (k <= spp && tied)
       {
-        tied = (tied &&
-                inputSequences[k - 1][alias[i - 1] - 1] == inputSequences[k - 1][alias[j - 1] - 1]);
+        tied = (tied && inputSequences[k - 1][alias[i - 1] - 1] == 
+                          inputSequences[k - 1][alias[j - 1] - 1]);
         k++;
       }
       if (tied)
@@ -349,15 +349,16 @@ void sitescrunch(long chars)
 
 
 void makevalues(tree *t, boolean usertree)
-{
+{  /* set up states at tip nodes by filling in bits in a byte
+    * The "unknown" state has all seven bits filled in */
   long i, j;
   unsigned char ns=0;
 
-  for (j = 0; j < endsite; j++)
+  for (j = 0; j < endsite; j++)        /* for all representative characters */
   {
-    for (i = 0; i < spp; i++)
+    for (i = 0; i < spp; i++)                               /* for all tips */
     {
-      switch (inputSequences[i][alias[j] - 1])
+      switch (inputSequences[i][alias[j] - 1])         /* look at the state */
       {
         case '0':
           ns = 1 << zero;
@@ -396,9 +397,9 @@ void makevalues(tree *t, boolean usertree)
             (1 << four) | (1 << five) | (1 << six) | (1 << seven);
           break;
       }
-      ((discretepars_node*)t->nodep[i])->discbase[j] = ns;
-      ((pars_node*)t->nodep[i])->numsteps[j] = 0;
-    }
+      ((discretepars_node*)t->nodep[i])->discbase[j] = ns; /* store the set */
+      ((pars_node*)t->nodep[i])->numsteps[j] = 0;    /* no steps needed ... */
+    }                                              /* ... at or above there */
   }
 }  /* makevalues */
 
@@ -530,24 +531,24 @@ void discinitbase(node *p, long sitei)
   node *q;
   long i, largest;
 
-  if (p->tip)
+  if (p->tip)                                     /* back out if it is a tip */
     return;
   q = p->next;
-  while (q != p)
+  while (q != p)                            /* loop over this fork's nodes */
   {
     if (q->back)
     {
       memcpy(((discretepars_node*)q)->discnumnuc,
-             ((discretepars_node*)p)->discnumnuc, endsite * sizeof(discnucarray));
+         ((discretepars_node*)p)->discnumnuc, endsite * sizeof(discnucarray));
       for (i = (long)zero; i <= (long)seven; i++)
-      {
+      {        /* if state  i  is at  q->back, reduce count of steps needed */
         if (((discretepars_node*)q->back)->discbase[sitei - 1] & (1 << i))
           ((discretepars_node*)q)->discnumnuc[sitei - 1][i]--;
       }
       if (p->back)
-      {
+      {            /* if there is a node at the other end of the branch ... */
         for (i = (long)zero; i <= (long)seven; i++)
-        {
+        {      /* if  p->back  has state  i  increase count of steps needed */
           if (((discretepars_node*)p->back)->discbase[sitei - 1] & (1 << i))
             ((discretepars_node*)q)->discnumnuc[sitei - 1][i]++;
         }
@@ -555,14 +556,14 @@ void discinitbase(node *p, long sitei)
       largest = discgetlargest(((discretepars_node*)q)->discnumnuc[sitei - 1]);
       ((discretepars_node*)q)->discbase[sitei - 1] = 0;
       for (i = (long)zero; i <= (long)seven; i++)
-      {
+      {         /* set up state as those states that require fewest changes */
         if (((discretepars_node*)q)->discnumnuc[sitei - 1][i] == largest)
           ((discretepars_node*)q)->discbase[sitei - 1] |= (1 << i);
       }
     }
     q = q->next;
   }
-  q = p->next;
+  q = p->next;    /* go around circle again initializing bases for  q->back */
   while (q != p)
   {
     if (q->back != NULL)
@@ -655,7 +656,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   minpostorder(subtr2, treenode);
   minn = 10 * spp;
   nom = 0;
-  denom = 1;
+  denom = 0;
   for (i = (long)zero; i <= (long)seven; i++)
   {
     for (j = (long)zero; j <= (long)seven; j++)
@@ -673,7 +674,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
           minn = ((discretepars_node*)subtr1)->disccumlengths[i] + cost +
             ((discretepars_node*)subtr2)->disccumlengths[j];
           nom = 0;
-          denom = 1;
+          denom = 0;
         }
         if (((discretepars_node*)subtr1)->disccumlengths[i] + cost +
             ((discretepars_node*)subtr2)->disccumlengths[j] == minn)
@@ -686,7 +687,10 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
       }
     }
   }
-  *brlen = (double)nom/(double)denom;
+  if (denom == 0)
+    *brlen = 0.0;
+  else
+    *brlen = (double)nom/(double)denom;
 } /* branchlength */
 
 
@@ -712,7 +716,6 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
     q = q->next;
   } while (q != p);
 }  /* branchlentrav */
-
 
 
 void treeout(node *p, long nextree, long *col, node *root)
