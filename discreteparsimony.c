@@ -594,7 +594,7 @@ void inittreetrav(node *p, long sitei)
     q = q->next;
   }
   discinitmin((discretepars_node*)p, sitei, true); /* initializing state,,, */
-  p->initialized = false;      /* ... marking them as needing to be updated */
+  p->initialized = true;       /* ... marking them as needing to be updated */
   q = p->next;
   while (q != p)                 /* ,,, and continue around fork doing that */
   {
@@ -610,10 +610,13 @@ void minpostorder(node *p, pointarray treenode)
   /* traverses an n-ary tree, computing minimum steps at each node */
   node *q;
 
+  if (p == NULL)
+    return;
   if (p->tip)
   {
     return;
   }
+printf("minpostorder on node  %ld\n", p->index);  /* debug */
   q = p->next;
   while (q != p)
   {
@@ -627,7 +630,10 @@ void minpostorder(node *p, pointarray treenode)
     while (q != p)
     {
       if (q->back)
-        disccompmin(p, q->back);
+{ /* debug */
+printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* debug */
+         disccompmin(p, q->back);
+} /* debug */
       q = q->next;
     }
   }
@@ -707,14 +713,19 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
   do {
     if (q->back)
     {
+printf("computing branch length for branch %ld:%ld for site %ld\n", q->index, q->back->index, sitei); /* debug */
       branchlength(q, q->back, brlen, treenode);
+printf("branch length for site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, *brlen); /* debug */
       q->v += (weight[sitei - 1]  * (*brlen));
       q->back->v += (weight[sitei - 1] * (*brlen));
+printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); /* debug */
       if (!q->back->tip)
         branchlentrav(q->back, root, sitei, chars, brlen, treenode);
     }
     q = q->next;
   } while (q != p);
+  branchlength(p, p->back, brlen, treenode); /* finally, branch to outgroup */
+printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); /* debug */
 }  /* branchlentrav */
 
 
@@ -1080,6 +1091,7 @@ void disccompmin(node *p, node *desc)
     }
     ((discretepars_node*)p)->disccumlengths[i] += minn;
     ((discretepars_node*)p)->discnumreconst[i] *= descrecon;
+printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon); /* debug */
   }
   p->initialized = true;
 } /* compmin */
