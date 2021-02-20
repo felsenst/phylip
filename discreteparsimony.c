@@ -620,7 +620,7 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
   q = p->next;
   while (q != p)
   {
-    if (q->back)
+    if (((q->back) != NULL) && (!(q->back->initialized)))
       minpostorder(q->back, treenode);
     q = q->next;
   }
@@ -705,13 +705,17 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
   /*  traverses the tree computing tree length at each branch */
   node *q;
 
+if (p->back == NULL)
+printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); /* debug */
+else
+printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); /* debug */
   if (p->tip)
     return;
   if (p->index == outgrno)
     p = p->back;
   q = p->next;
   do {
-    if (q->back)
+    if (q->back != NULL)
     {
 printf("computing branch length for branch %ld:%ld for site %ld\n", q->index, q->back->index, sitei); /* debug */
       branchlength(q, q->back, brlen, treenode);
@@ -724,8 +728,10 @@ printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, 
     }
     q = q->next;
   } while (q != p);
-  branchlength(p, p->back, brlen, treenode); /* finally, branch to outgroup */
-printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); /* debug */
+  if (p->back != NULL) {
+    branchlength(p, p->back, brlen, treenode); /* finally, branch to outgroup */
+printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, p->index, p->back->index, q->v); /* debug */
+  }
 }  /* branchlentrav */
 
 
@@ -1127,6 +1133,7 @@ void discretepars_tree_nuview(tree* t, node*p)
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
+printf("site: %ld, steps = %ld\n", i, steps); /* debug */
     }
     if ( newbase == 0 )
     {
