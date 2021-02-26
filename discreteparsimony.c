@@ -620,9 +620,12 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
   q = p->next;
   while (q != p)
   {
-    if (((q->back) != NULL) && (!(q->back->initialized)))
-      minpostorder(q->back, treenode);
+    if (((q->back) != NULL)) {
+      if (!(q->back->initialized)) {
+        minpostorder(q->back, treenode);
+      }
     q = q->next;
+    }
   }
   if (!p->initialized)
   {
