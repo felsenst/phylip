@@ -360,7 +360,7 @@ void makevalues(tree *t, boolean usertree)
     {
       switch (inputSequences[i][alias[j] - 1])         /* look at the state */
       {
-        case '0':
+        case '0':                /* shift a 1 left that number of positions */
           ns = 1 << zero;
           break;
 
@@ -624,8 +624,8 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
       if (!(q->back->initialized)) {
         minpostorder(q->back, treenode);
       }
-    q = q->next;
     }
+    q = q->next;
   }
   if (!p->initialized)
   {
