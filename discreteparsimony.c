@@ -586,24 +586,21 @@ void inittreetrav(node *p, long sitei)
 printf("initialize it in node %ld\n", p->index); /* debug */
     p->initialized = true;                       /* mark tip as initialized */
     return;
-  }
-  q = p->next;                                  /* for an interior fork ... */
-  while (q != p)
-  {
-    if (q != NULL)
-      inittreetrav(q->back, sitei);          /* ... go recursively outwards */
-    q = q->next;
-  }
-  discinitmin((discretepars_node*)p, sitei, true); /* initializing state,,, */
-printf("initialize it in node %ld\n", p->index); /* debug */
-  p->initialized = true;       /* ... marking them as needing to be updated */
-  q = p->next;
-  while (q != p)                 /* ,,, and continue around fork doing that */
-  {
-    discinitmin((discretepars_node*)q, sitei, true);
+  } else {
+    q = p->next;                                /* for an interior fork ... */
+    while (q != p)
+    {                            /* go around the fork circle, for each ... */
+      if (q != NULL) {
+        inittreetrav(q->back, sitei);        /* ... go recursively outwards */
+        discinitmin((discretepars_node*)q, sitei, true);
 printf("initialize it in node %ld\n", q->index); /* debug */
-    q->initialized = false;
-    q = q->next;
+        q->initialized = false;
+      }
+      q = q->next;
+    }
+    discinitmin((discretepars_node*)p, sitei, true);  /* initializing state */
+printf("initialize it in node %ld\n", p->index); /* debug */
+    p->initialized = true;     /* ... marking them as needing to be updated */
   }
 } /* inittreetrav */
 
@@ -971,6 +968,7 @@ void disc_treelength(node *root, long chars, pointarray treenode)
     discinitbase(root, sitei);
 printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);
+    inittreetrav(root->back, sitei);
     branchlentrav(root, root, sitei, chars, &trlen, treenode);
   }
 } /* treelength */
