@@ -530,12 +530,16 @@ void pars_coordinates(node *p, double lengthsum, long *tipy,
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;
+  if (p == curtree->root)
+    q = p;                      /* q will point to nodes along fork circle */
+  else
+    q = p->next;                  /* if not at rootmost fork don't go back */
   do { 
     xx = q->v;
     if (xx > 100.0)     /* make sure tree doesn't stick out too far on line */
       xx = 100.0;
-    pars_coordinates(q->back, lengthsum + xx, tipy, tipmax); /* recurse out */
+    if (q->back != NULL)
+      pars_coordinates(q->back, lengthsum + xx, tipy, tipmax);   /* recurse */
     q = q->next;
   } while (p != q);
   first = p->next->back;             /* find immediate first descendant ,,, */
@@ -666,7 +670,7 @@ void maketree(void)
         load_tree(curtree, i, bestrees);
 /* debug */
 printf("PRINT TREE %ld: ",i+1);
-for(j = 0; j < spp; j++) printf("%ld ",bestrees[i].btree[j]);printf("\n");
+for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
 /* debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
         initializetrav(curtree, curtree->root);    /* ready to update views */
