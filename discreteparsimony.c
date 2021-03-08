@@ -1,7 +1,9 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
+
+/* This file has functions for non-DNA discrete state parsimony methods */
 
 
 #ifdef HAVE_CONFIG_H
@@ -85,13 +87,12 @@ void inputdata(long chars)
   Char charstate;
   boolean allread, done, found;
 
-  if (printdata)
+  if (printdata)   /* debug: for discrete states maybe not call them "sequences"? */
     headings(chars, "Sequences", "---------");
   basesread = 0;
   allread = false;
   while (!(allread))
-  {
-    /* eat white space -- if the separator line has spaces on it*/
+  {                  /* eat white space -- if the separator line has spaces on it */
     do {
       charstate = gettc(infile);
     } while (charstate == ' ' || charstate == '\t');
@@ -112,15 +113,17 @@ void inputdata(long chars)
         while (j < chars && !(eoln(infile) || eoff(infile)))
         {
           charstate = gettc(infile);
-          if (charstate == '\n' || charstate == '\t')
-            charstate = ' ';
-          if (charstate == ' ')
+          if (charstate == '\n' || charstate == '\t')  /* a newline or tab  */
+            charstate = ' ';                     /* will be seen as a blank */
+          if (charstate == ' ')                 /* if it's a blank, move on */
             continue;
           if ((strchr("!\"#$%&'()*+,-./0123456789:;<=>?@\
                        ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`                \
                        abcdefghijklmnopqrstuvwxyz{|}~", charstate)) == NULL)
           {
-            printf("\nERROR:  Bad symbol: %c at position %ld of species %ld.\n\n", charstate, j+1, i);
+            printf(
+               "\nERROR:  Bad symbol: %c at position %ld of species %ld.\n\n",
+                charstate, j+1, i);
             exxit(-1);
           }
           j++;
@@ -417,9 +420,10 @@ long discgetlargest(long *discnumnuc)
 } /* discgetlargest */
 
 
-void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2, boolean bottom_)
+void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2,
+                  boolean bottom_)
 {
-  /*  compute, print out states at one interior node */
+  /*  compute, print out states at one interior node for a range of sites */
   struct LOC_hyptrav Vars;
   long i, j, k;
   long largest;
@@ -434,63 +438,66 @@ void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2, boole
   tempnuc = (discnucarray *)Malloc(endsite * sizeof(discnucarray));
   Vars.maybe = false;
   Vars.nonzero = false;
-  if (!Vars.r->tip)
-    memset(((discretepars_node*)Vars.r)->discnumnuc, 0, endsite * sizeof(discnucarray));
-  for (i = b1 - 1; i < b2; i++)
+  if (!Vars.r->tip)  /* if not a tip, step numbers conditional on states */
+    memset(((discretepars_node*)Vars.r)->discnumnuc, 0,
+             endsite * sizeof(discnucarray));
+  for (i = b1 - 1; i < b2; i++)              /* for this range of sites ... */
   {
     j = location[ally[i] - 1];
     Vars.anc = Vars.hypset[j - 1];
     if (!Vars.r->tip)
     {
       p = Vars.r->next;
-      for (k = (long)zero; k <= (long)seven; k++)
-        if (Vars.anc & (1 << k))
+      for (k = (long)zero; k <= (long)seven; k++)  /* check possible states */
+        if (Vars.anc & (1 << k))            /* if this state is not in  anc */ 
           ((discretepars_node*)Vars.r)->discnumnuc[j - 1][k]++;
-      do {
+      do {    /* go around fork circle checking for each state if not there */
         for (k = (long)zero; k <= (long)seven; k++)
           if (((discretepars_node*)p->back)->discbase[j - 1] & (1 << k))
             ((discretepars_node*)Vars.r)->discnumnuc[j - 1][k]++;
         p = p->next;
       } while (p != Vars.r);
-      largest =
+      largest =                         /* find the smallest count of steps */
         discgetlargest(((discretepars_node*)Vars.r)->discnumnuc[j - 1]);
       Vars.tempset = 0;
       for (k = (long)zero; k <= (long)seven; k++)
-      {
+      {                                      /* for each possible state ... */
         if (((discretepars_node*)Vars.r)->discnumnuc[j - 1][k] == largest)
-          Vars.tempset |= (1 << k);
+          Vars.tempset |= (1 << k);    /* ... add it into state set if tied */
       }
       ((discretepars_node*)Vars.r)->discbase[j - 1] = Vars.tempset;
     }
-    if (!Vars.bottom)
-      Vars.anc = ((discretepars_node*)t->nodep[Vars.r->back->index - 1]) ->discbase[j - 1];
-    Vars.nonzero = (Vars.nonzero || (((discretepars_node*)Vars.r)->discbase[j - 1] & Vars.anc) == 0);
-    Vars.maybe = (Vars.maybe || ((discretepars_node*)Vars.r)->discbase[j - 1] != Vars.anc);
+    if (!Vars.bottom)   /* debug: explain */
+      Vars.anc = ((discretepars_node*)t->nodep[Vars.r->back->index - 1])->discbase[j - 1];
+    Vars.nonzero = (Vars.nonzero || (((discretepars_node*)Vars.r)->discbase[j - 1]
+                                      & Vars.anc) == 0);
+    Vars.maybe = (Vars.maybe || ((discretepars_node*)Vars.r)->discbase[j - 1]
+                                   != Vars.anc);
   }
-  dischyprint(t, b1, b2, &Vars);
+  dischyprint(t, b1, b2, &Vars); /* print the symbol for the possible state */
   Vars.bottom = false;
   if (!Vars.r->tip)
   {
     memcpy(tempnuc, ((discretepars_node*)Vars.r)->discnumnuc, endsite * sizeof(discnucarray));
     q = Vars.r->next;
-    do {
+    do {  /* debug: need to comment next part */
       memcpy(((discretepars_node*)Vars.r)->discnumnuc, tempnuc, endsite * sizeof(discnucarray));
-      for (i = b1 - 1; i < b2; i++)
+      for (i = b1 - 1; i < b2; i++)       /* go through range of characters */
       {
-        j = location[ally[i] - 1];
+        j = location[ally[i] - 1];      /* number of character representing */
         for (k = (long)zero; k <= (long)seven; k++)
           if (((discretepars_node*)q->back)->discbase[j - 1] & (1 << k))
             ((discretepars_node*)Vars.r)->discnumnuc[j - 1][k]--;
         largest = discgetlargest(((discretepars_node*)Vars.r)->
-                                 discnumnuc[j - 1]);
+                                 discnumnuc[j - 1]);     /* find most steps */
         ancset[j - 1] = 0;
-        for (k = (long)zero; k <= (long)seven; k++)
+        for (k = (long)zero; k <= (long)seven; k++)  /* for possible states */
           if (((discretepars_node*)Vars.r)->discnumnuc[j - 1][k] == largest)
-            ancset[j - 1] |= (1 << k);
+            ancset[j - 1] |= (1 << k); /* ... remove if tied for most steps */
         if (!Vars.bottom)
           Vars.anc = ancset[j - 1];
       }
-      dischyptrav(t, q->back, ancset, b1, b2, Vars.bottom);
+      dischyptrav(t, q->back, ancset, b1, b2, Vars.bottom);   /* recurse on */
       q = q->next;
     } while (q != Vars.r);
   }
@@ -507,22 +514,21 @@ void disc_hypstates(tree* t, long chars)
 
   fprintf(outfile, "\nFrom    To     Any Steps?    State at upper node\n");
   fprintf(outfile, "                            ");
-  if (dotdiff)
+  if (dotdiff)                         /* if using dot-differencing, say so */
     fprintf(outfile, " ( . means same as in the node below it on tree)\n");
   nothing = (discbaseptr)Malloc(endsite * sizeof(unsigned char));
-  for (i = 0; i < endsite; i++)
+  for (i = 0; i < endsite; i++)            /* initialize for representative */
     nothing[i] = 0;
-  for (i = 1; i <= ((chars - 1) / 40 + 1); i++)
+  for (i = 1; i <= ((chars - 1) / 40 + 1); i++)    /* loop over char groups */
   {
     putc('\n', outfile);
-    n = i * 40;
-    if (n > chars)
+    n = i * 40;                             /* last character of this group */
+    if (n > chars)                    /* if  n  got past last character ... */
       n = chars;
-    dischyptrav(t, t->root, nothing, i * 40 - 39, n, true);
+    dischyptrav(t, t->root, nothing, i * 40 - 39, n, true);  /* reconstruct */
   }
   free(nothing);
 }  /* hypstates */
-
 
 
 void discinitbase(node *p, long sitei)
@@ -699,7 +705,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   if (denom == 1)
     *brlen = 0.0;
   else
-    *brlen = (double)nom/(double)denom;
+    *brlen = (double)nom/(double)denom;    /* cast to doubles so get double */
 } /* branchlength */
 
 
@@ -712,27 +718,27 @@ if (p->back == NULL)
 printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); /* debug */
 else
 printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); /* debug */
-  if (p->tip)
+  if (p->tip)         /* bail if  p  is a tip as already have branch length */
     return;
-  if (p->index == outgrno)
+  if (p->index == outgrno)   /* if outgroup tip go to nearest interior fork */
     p = p->back;
   q = p->next;
   do {
-    if (q->back != NULL)
+    if (q->back != NULL)        /* if this node does not connect to nothing */
     {
 printf("computing branch length for branch %ld:%ld for site %ld\n", q->index, q->back->index, sitei); /* debug */
-      branchlength(q, q->back, brlen, treenode);
+      branchlength(q, q->back, brlen, treenode);  /* get branch length here */
 printf("branch length for site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, *brlen); /* debug */
-      q->v += (weight[sitei - 1]  * (*brlen));
+      q->v += (weight[sitei - 1]  * (*brlen));   /* set node branch lengths */
       q->back->v += (weight[sitei - 1] * (*brlen));
 printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); /* debug */
-      if (!q->back->tip)
+      if (!q->back->tip)                        /* traverse out of  q->back */
         branchlentrav(q->back, root, sitei, chars, brlen, treenode);
     }
-    q = q->next;
+    q = q->next;                              /* move on around fork circle */
   } while (q != p);
   if (p->back != NULL) {
-    branchlength(p, p->back, brlen, treenode); /* finally, branch to outgroup */
+    branchlength(p, p->back, brlen, treenode);  /* finally, do for outgroup */
 printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, p->index, p->back->index, q->v); /* debug */
   }
 }  /* branchlentrav */
@@ -746,48 +752,48 @@ void treeout(node *p, long nextree, long *col, node *root)
   long i, n;
   Char c;
 
-  if (p->tip)
+  if (p->tip)                                        /* if are at a tip ... */
   {
     n = 0;
-    for (i = 1; i <= nmlngth; i++)
+    for (i = 1; i <= nmlngth; i++)         /* figure out length of tip name */
     {
       if (nayme[p->index - 1][i - 1] != ' ')
         n = i;
     }
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++)   /* write name, making blanks into underscores */
     {
       c = nayme[p->index - 1][i];
       if (c == ' ')
         c = '_';
       putc(c, outtree);
     }
-    *col += n;
+    *col += n;        /* this keeps track of which column on line we are at */
   }
   else
-  {
-    putc('(', outtree);
+  {                                               /* if at an interior fork */
+    putc('(', outtree);                       /* put a left parenthesis ... */
     (*col)++;
     q = p->next;
     while (q != p)
     {
-      treeout(q->back, nextree, col, root);
+      treeout(q->back, nextree, col, root);   /* ... then print subtree ... */
       q = q->next;
-      if (q == p)
+      if (q == p)                      /* ... if at last furc, no comma ... */
         break;
-      putc(',', outtree);
+      putc(',', outtree);              /* ... if not, put a comma there ... */
       (*col)++;
       if (*col > 60)
-      {
+      {                   /* ... go to a new line if got past column 60 ... */
         putc('\n', outtree);
         *col = 0;
       }
     }
-    putc(')', outtree);
+    putc(')', outtree);           /* ... close with a right parenthesis ... */
     (*col)++;
   }
-  if (p != root)
-    return;
-  if (nextree > 2)
+  if (p != root)                 /* if not done tree, bail out of recursion */
+    return;                                    /* otherwise if are done ... */
+  if (nextree > 2)    /* write tree weight after tree if more than one tree */
     fprintf(outtree, "[%6.4f];\n", 1.0 / (nextree - 1));
   else
     fprintf(outtree, ";\n");
@@ -961,15 +967,15 @@ void disc_treelength(node *root, long chars, pointarray treenode)
   long sitei;
   double trlen;
 
-  initbranchlen(root);
-  for (sitei = 1; sitei <= endsite; sitei++)
+  initbranchlen(root);      /* debug:  initialize something-or-other ... */
+  for (sitei = 1; sitei <= endsite; sitei++)    /* for representative chars */
   {
     trlen = 0.0;
-    discinitbase(root, sitei);
+    discinitbase(root, sitei)              /* initialize for this character */
 printf("initialize site %ld\n", sitei); /* debug */
-    inittreetrav(root, sitei);
-    inittreetrav(root->back, sitei);
-    branchlentrav(root, root, sitei, chars, &trlen, treenode);
+    inittreetrav(root, sitei);                    /* traverse to initialize */
+    inittreetrav(root->back, sitei);                   /* ... both ways out */
+    branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* call ... */
   }
 } /* treelength */
 
@@ -979,27 +985,27 @@ void discinitmin(discretepars_node *p, long sitei, boolean internal)
   long i;
 
 printf("doing discinitmin on node at %ld, for site %ld, internal = %d\n", ((node*)p)->index, sitei, internal);  /* debug */
-  if (internal)
+  if (internal)                              /* for internal fork nodes ... */
   {
-    for (i = (long)zero; i <= (long)seven; i++)
+    for (i = (long)zero; i <= (long)seven; i++)   /* ... for each state ... */
     {
-      p->disccumlengths[i] = 0;
-      p->discnumreconst[i] = 1;
+      p->disccumlengths[i] = 0;     /* initialize lengths beyond there zero */
+      p->discnumreconst[i] = 1;     /* initialize number of reconstructions */
     }
   }
-  else
+  else                                                /* for a tip node ... */
   {
-    for (i = (long)zero; i <= (long)seven; i++)
+    for (i = (long)zero; i <= (long)seven; i++)   /* ... for each state ... */
     {
-      if (p->discbase[sitei - 1] & (1 << i))
+      if (p->discbase[sitei - 1] & (1 << i))  /* if that state is there ... */
       {
-        p->disccumlengths[i] = 0;
-        p->discnumreconst[i] = 1;
+        p->disccumlengths[i] = 0;   /* ... set length from there on to zero */
+        p->discnumreconst[i] = 1;   /* ...  and there is one reconstruction */
       }
       else
       {
-        p->disccumlengths[i] = -1;
-        p->discnumreconst[i] = 0;
+        p->disccumlengths[i] = -1;  /* ... if state is not there, signal it */
+        p->discnumreconst[i] = 0;    /* ... and no possible reconstructions */
       }
     }
   }
@@ -1012,23 +1018,23 @@ void dischyprint(tree* t, long b1, long b2, struct LOC_hyptrav *htrav)
   long i, j, k;
   boolean dot, found;
 
-  if (htrav->bottom)
+  if (htrav->bottom)                            /* if at bottom of tree ... */
   {
-    if (!outgropt)
-      fprintf(outfile, "       ");
+    if (!outgropt)                       /* ... if there is no outgroup ... */
+      fprintf(outfile, "       ");                          /* print blanks */
     else
-      fprintf(outfile, "root   ");
+      fprintf(outfile, "root   ");         /* ... otherwise the word "root" */
   }
-  else
-    fprintf(outfile, "%4ld   ", htrav->r->back->index - spp);
-  if (htrav->r->tip)
+  else                                                /* for most nodes ... */
+    fprintf(outfile, "%4ld   ", htrav->r->back->index - spp); /* ... number */
+  if (htrav->r->tip)                                  /* for tips, the name */
   {
     for (i = 0; i < nmlngth; i++)
       putc(nayme[htrav->r->index - 1][i], outfile);
   }
-  else
+  else                                          /* for non-tips, the number */
     fprintf(outfile, "%4ld      ", htrav->r->index - spp);
-  if (htrav->bottom)
+  if (htrav->bottom)       /* this prints whether or not can be a step here */
     fprintf(outfile, "          ");
   else if (htrav->nonzero)
     fprintf(outfile, "   yes    ");
@@ -1036,76 +1042,78 @@ void dischyprint(tree* t, long b1, long b2, struct LOC_hyptrav *htrav)
     fprintf(outfile, "  maybe   ");
   else
     fprintf(outfile, "   no     ");
-  for (i = b1; i <= b2; i++)
+  for (i = b1; i <= b2; i++)               /* for a block of characters ... */
   {
     j = location[ally[i - 1] - 1];
     htrav->tempset = ((discretepars_node*)htrav->r)->discbase[j - 1];
     htrav->anc = htrav->hypset[j - 1];
     if (!htrav->bottom)
-      htrav->anc = ((discretepars_node*)t->nodep[htrav->r->back->index - 1]) ->discbase[j - 1];
+      htrav->anc =
+       ((discretepars_node*)t->nodep[htrav->r->back->index-1])->discbase[j-1];
     dot = dotdiff && (htrav->tempset == htrav->anc && !htrav->bottom);
-    if (dot)
+    if (dot)                 /* if dot-differencing, print a dot if need to */
       putc('.', outfile);
     else
     {
       found = false;
-      k = (long)zero;
+      k = (long)zero;                        /* look at all possible states */
       do {
-        if (htrav->tempset == (1 << k))
+        if (htrav->tempset == (1 << k))    /* if there's one possible state */
         {
-          putc(convtab[k][i - 1], outfile);
+          putc(convtab[k][i - 1], outfile);    /* write actual state symbol */
           found = true;
         }
         k++;
-      } while (!found && k <= (long)seven);
+      } while (!found && k <= (long)seven);    /* see if need to keep going */
       if (!found)
-        putc('?', outfile);
+        putc('?', outfile);        /* write ambiguity symbol if appropriate */
     }
-    if (i % 10 == 0)
+    if (i % 10 == 0)                        /* a blank every ten characters */
       putc(' ', outfile);
   }
-  putc('\n', outfile);
+  putc('\n', outfile);             /* a newline character if at end of line */
 }  /* hyprint */
 
 
 void disccompmin(node *p, node *desc)
 {
-  /* computes minimum lengths up to p */
+  /* computes minimum lengths up to p, where we are going around a fork 
+   * circle and have got to node  p  in the circle */
   long i, j, minn, cost, desclen, descrecon=0, maxx;
 
-  maxx = 10 * spp;
-  for (i = (long)zero; i <= (long)seven; i++)
+  maxx = 10 * spp;          /* a value bigger than number of steps could be */
+  for (i = (long)zero; i <= (long)seven; i++)    /* for all possible states */
   {
     minn = maxx;
-    for (j = (long)zero; j <= (long)seven; j++)
+    for (j = (long)zero; j <= (long)seven; j++)  /* for each pair of states */
     {
-      if (i == j)
+      if (i == j)                  /* set cost of change zero if same state */
         cost = 0;
-      else
+      else                                       /* otherwise set it to one */
         cost = 1;
       if (((discretepars_node*)desc)->disccumlengths[j] == -1)
       {
-        desclen = maxx;
+        desclen = maxx;          /* if not possible, set to too big a value */
       }
       else
       {
         desclen = ((discretepars_node*)desc)->disccumlengths[j];
       }
-      if (minn > cost + desclen)
+      if (minn > cost + desclen)                 /* if too many changes ... */
       {
         minn = cost + desclen;
         descrecon = 0;
       }
-      if (minn == cost + desclen)
-      {
+      if (minn == cost + desclen)         /* if  j  is a possible state ... */
+      {        /* ... then increment the number of possible reconstructions */
         descrecon += ((discretepars_node*)desc)->discnumreconst[j];
       }
     }
-    ((discretepars_node*)p)->disccumlengths[i] += minn;
-    ((discretepars_node*)p)->discnumreconst[i] *= descrecon;
+    ((discretepars_node*)p)->disccumlengths[i] += minn;    /* add to length */
+    ((discretepars_node*)p)->discnumreconst[i] *= descrecon;    /* multiply */
 printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon); /* debug */
   }
-  p->initialized = true;
+  p->initialized = true;     /* mark stuff from here on out as already done */
 } /* compmin */
 
 
@@ -1143,31 +1151,31 @@ printf("site: %ld, steps = %ld\n", i, steps); /* debug */
     }
     if ( newbase == 0 )
     {
-      if ( !bif )
+      if ( !bif ) 
       {                                /* case where fork is multifurcating */
         memset(numnuc, 0, sizeof(numnuc));
-        for (j = (long)zero; j <= (long)seven; j++)
-        {
-          for ( q = p->next ; q != p ; q = q->next )
+        for (j = (long)zero; j <= (long)seven; j++) /* for all possible ... */
+        {                              /* ... states that might be here ... */
+          for ( q = p->next ; q != p ; q = q->next )    /* go around circle */
           {
-            qback = (discretepars_node*) q->back;
-            if ( qback == NULL )
+            qback = (discretepars_node*)q->back;
+            if ( qback == NULL )         /* bail out if nothing behind node */
               continue;
-            if ( qback->discbase[i] & (1 << j) )
-              numnuc[j]++;
+            if ( qback->discbase[i] & (1 << j) )       /* is bit  j  there? */
+              numnuc[j]++;     /* increment count of how many states in set */
           }
         }
         largest = discgetlargest(numnuc);
         for (j = (long)zero; j <= (long)seven; j++) {
-          if (numnuc[j] == largest )   /* make set of states that tie */
-          {                             /* for most parsimonious here */
+          if (numnuc[j] == largest )         /* make set of states that tie */
+          {                                   /* for most parsimonious here */
             newbase |= 1 << j;
           }
         }
         steps += (weight[i]) * (count_sibs(p) - largest - root);
       } /* above counts descendants that don't have most parsimonious */
       else
-      {   /* optimized for bifurcation, code above still works though */
+      {         /* optimized for bifurcation, code above still works though */
         newbase = ((discretepars_node*)p->next->back)->discbase[i] |
           ((discretepars_node*)p->next->next->back)->discbase[i];
         steps += weight[i];
@@ -1183,7 +1191,7 @@ printf("site: %ld, steps = %ld\n", i, steps); /* debug */
 
 double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
 {
-  /* determines the number of steps needed for a tree. this is
+  /* determines the number of steps needed for a tree. This is
      the minimum number of steps needed to evolve sequences on
      this tree */
   long i, steps = 0;
@@ -1197,11 +1205,11 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
 
   for (i = 0; i < endsite; i++)
   {
-    if (p != NULL) {
+    if (p != NULL) {                     /* set up state set at one end ... */
       steps = ((pars_node*)p)->numsteps[i];
       base1 = p->discbase[i];
     }
-    if (q != NULL) {
+    if (q != NULL) {                            /* ... and at the other end */
       steps += ((pars_node*)q)->numsteps[i];
       base2 = q->discbase[i];
     }
@@ -1214,7 +1222,7 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
 
     if (steps <= threshwt[i])                    /* for threshold parsimony */
       term = steps;
-    else
+    else                              /* truncate it to the threshold value */
       term = threshwt[i];
     sum += term;
     if (usertree && which <= maxuser && !reusertree) /* make array of steps */
@@ -1261,10 +1269,10 @@ boolean discretepars_tree_branchcollapsible(tree* t, node* n)
   {                        /* collapse only if all sites do not have a step */
     if ( (((discretepars_node*)q)->discbase[i] &
           ((discretepars_node*)n)->discbase[i] ) == 0)
-      return false;
-  }
-  return collapsible;
+      return false;    /* not collapsible since state sets do not share any */
+  }              /* if we finish this loop then the branch has no steps ... */
+  return collapsible;                    /* and we report it as collapsible */
 } /* discretechars_tree_branchcollapsible */
 
 
-// End.
+/* End. */
