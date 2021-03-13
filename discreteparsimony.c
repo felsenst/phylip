@@ -623,28 +623,28 @@ void minpostorder(node *p, pointarray treenode)
     return;
   }
 printf("minpostorder on node  %ld\n", p->index);  /* debug */
-  q = p->next;
-  while (q != p)
-  {
-    if (((q->back) != NULL)) {
-      if (!(q->back->initialized)) {
-        minpostorder(q->back, treenode);
-      }
-    }
-    q = q->next;
-  }
-  if (!p->initialized)
-  {
-    q = p->next;
+  if (!p->initialized) {
+    q = p->next;    /* around fork ring, do minpostorder on backs as needed */
     while (q != p)
     {
-      if (q->back)
-{ /* debug */
-printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* debug */
-         disccompmin(p, q->back);
-} /* debug */
+      if (((q->back) != NULL)) {
+        if (!(q->back->initialized)) {
+          minpostorder(q->back, treenode);
+        }
+      }
       q = q->next;
     }
+    q = p->next;                                 /* now start around again */
+    while (q != p)
+    {
+      if (((q->back) != NULL)) {
+        if (!(q->back->initialized)) {
+printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* debug */
+          disccompmin(p, q->back);                /* computing disccompmin */
+        }
+      q = q->next;
+    }
+    p->initialized = true;  /* set node initialized once one has done those */
   }
 }  /* minpostorder */
 
@@ -706,6 +706,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
     *brlen = 0.0;
   else
     *brlen = (double)nom/(double)denom;    /* cast to doubles so get double */
+printf("branch length for branch %ld:%ld is %6.2f\n", subtr1->index, subtr2->index, *brlen); /* debug */
 } /* branchlength */
 
 
@@ -971,7 +972,7 @@ void disc_treelength(node *root, long chars, pointarray treenode)
   for (sitei = 1; sitei <= endsite; sitei++)    /* for representative chars */
   {
     trlen = 0.0;
-    discinitbase(root, sitei)              /* initialize for this character */
+    discinitbase(root, sitei);             /* initialize for this character */
 printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
@@ -1128,9 +1129,10 @@ void discretepars_tree_nuview(tree* t, node*p)
   boolean bif;
   long root = 0;
 
-/* debug: already called?     generic_tree_nuview(t, p);  */
+/* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);
 
+printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
@@ -1147,7 +1149,7 @@ void discretepars_tree_nuview(tree* t, node*p)
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
-printf("site: %ld, steps = %ld\n", i, steps); /* debug */
+printf("update site: %ld, steps = %ld\n", i, steps); /* debug */
     }
     if ( newbase == 0 )
     {
