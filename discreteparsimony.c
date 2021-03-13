@@ -627,7 +627,7 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
     q = p->next;    /* around fork ring, do minpostorder on backs as needed */
     while (q != p)
     {
-      if (((q->back) != NULL)) {
+      if ((q->back) != NULL) {
         if (!(q->back->initialized)) {
           minpostorder(q->back, treenode);
         }
@@ -637,11 +637,12 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
     q = p->next;                                 /* now start around again */
     while (q != p)
     {
-      if (((q->back) != NULL)) {
+      if ((q->back) != NULL) {
         if (!(q->back->initialized)) {
 printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* debug */
           disccompmin(p, q->back);                /* computing disccompmin */
         }
+      }
       q = q->next;
     }
     p->initialized = true;  /* set node initialized once one has done those */
@@ -652,57 +653,44 @@ printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* de
 void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode)
 {
   /* computes a branch length between two subtrees for a given site */
-  long i, j, minn, cost, nom, denom;
+  long i, j, minn, cost, minsteps, numreconst, nom, denom;
   node *temp;
 
-  if (subtr1->tip)
-  {
-    temp = subtr1;
-    subtr1 = subtr2;
-    subtr2 = temp;
-  }
-  if (subtr1->index == outgrno)
-  {
-    temp = subtr1;
-    subtr1 = subtr2;
-    subtr2 = temp;
-  }
-  minpostorder(subtr1, treenode);
-  minpostorder(subtr2, treenode);
-  minn = 10 * spp;
+  minpostorder(subtr1, treenode);   /* make sure have steps further out ... */
+  minpostorder(subtr2, treenode);              /* ... at each end of branch */
+  minn = 10 * spp;                 /* a value that is too big to be correct */
   nom = 0;
   denom = 0;
-  for (i = (long)zero; i <= (long)seven; i++)
+  for (i = (long)zero; i <= (long)seven; i++) /* for all states at both ... */
   {
-    for (j = (long)zero; j <= (long)seven; j++)
+    for (j = (long)zero; j <= (long)seven; j++)       /* ... ends of branch */
     {
-      if (i == j)
+      if (i == j)                            /* count 1 for each difference */
         cost = 0;
       else
         cost = 1;
       if (((discretepars_node*)subtr1)->disccumlengths[i] != -1 &&
           (((discretepars_node*)subtr2)->disccumlengths[j] != -1))
-      {
-        if (((discretepars_node*)subtr1)->disccumlengths[i] + cost +
-            ((discretepars_node*)subtr2)->disccumlengths[j] < minn)
+      {                                  /* if both states are possible ... */
+        minsteps = ((discretepars_node*)subtr1)->disccumlengths[i] + cost +
+                    ((discretepars_node*)subtr2)->disccumlengths[j];
+        if (minsteps < minn)
         {
-          minn = ((discretepars_node*)subtr1)->disccumlengths[i] + cost +
-            ((discretepars_node*)subtr2)->disccumlengths[j];
-          nom = 0;
-          denom = 1;
+          minn = minsteps;     /* update  minn  as smallest possible so far */
+          nom = 0;               /* ... and restart accumulating tied steps */
+          denom = 0;
         }
-        if (((discretepars_node*)subtr1)->disccumlengths[i] + cost +
-            ((discretepars_node*)subtr2)->disccumlengths[j] == minn)
-        {
-          nom += ((discretepars_node*)subtr1)->discnumreconst[i] *
-            ((discretepars_node*)subtr2)->discnumreconst[j] * cost;
-          denom += ((discretepars_node*)subtr1)->discnumreconst[i] *
-            ((discretepars_node*)subtr2)->discnumreconst[j];
+        if (minsteps == minn)
+        {     /* add to numerator, denominator, weighted by reconstructions */
+          numreconst = ((discretepars_node*)subtr1)->discnumreconst[i] *
+                         ((discretepars_node*)subtr2)->discnumreconst[j];
+          nom += numreconst * cost;
+          denom += numreconst;
         }
       }
     }
   }
-  if (denom == 1)
+  if (denom == 0)
     *brlen = 0.0;
   else
     *brlen = (double)nom/(double)denom;    /* cast to doubles so get double */
