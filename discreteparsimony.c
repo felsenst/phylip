@@ -631,17 +631,7 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
         if (!(q->back->initialized)) {
           minpostorder(q->back, treenode);
         }
-      }
-      q = q->next;
-    }
-    q = p->next;                                 /* now start around again */
-    while (q != p)
-    {
-      if ((q->back) != NULL) {
-        if (!(q->back->initialized)) {
-printf("call disccompmin for branch %ld:%ld\n", p->index, q->back->index); /* debug */
-          disccompmin(p, q->back);                /* computing disccompmin */
-        }
+        disccompmin(p, q->back);   /* for that subtree, compute disccompmin */
       }
       q = q->next;
     }
@@ -663,6 +653,8 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   denom = 0;
   for (i = (long)zero; i <= (long)seven; i++) /* for all states at both ... */
   {
+printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr1->index, ((discretepars_node*)subtr1)->disccumlengths[i]); /* debug */
+printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr2->index, ((discretepars_node*)subtr2)->disccumlengths[i]); /* debug */
     for (j = (long)zero; j <= (long)seven; j++)       /* ... ends of branch */
     {
       if (i == j)                            /* count 1 for each difference */
@@ -1066,31 +1058,31 @@ void dischyprint(tree* t, long b1, long b2, struct LOC_hyptrav *htrav)
 
 void disccompmin(node *p, node *desc)
 {
-  /* computes minimum lengths up to p, where we are going around a fork 
-   * circle and have got to node  p  in the circle */
+  /* computes minimum lengths from  p  on beyond it, where we are going around
+   * a fork circle and have got to node  desc  in the circle */
   long i, j, minn, cost, desclen, descrecon=0, maxx;
 
   maxx = 10 * spp;          /* a value bigger than number of steps could be */
-  for (i = (long)zero; i <= (long)seven; i++)    /* for all possible states */
-  {
+  for (i = (long)zero; i <= (long)seven; i++) /* for all possible states... */
+  {                                           /* ,,, at node  p */
     minn = maxx;
-    for (j = (long)zero; j <= (long)seven; j++)  /* for each pair of states */
+    for (j = (long)zero; j <= (long)seven; j++)        /* for state in desc */
     {
       if (i == j)                  /* set cost of change zero if same state */
         cost = 0;
       else                                       /* otherwise set it to one */
         cost = 1;
       if (((discretepars_node*)desc)->disccumlengths[j] == -1)
-      {
-        desclen = maxx;          /* if not possible, set to too big a value */
+      {     /* if  state  i  would not be possible, make it too big a value */
+        desclen = maxx;
       }
       else
-      {
+      {                          /* number of steps from  desc  on outwards */
         desclen = ((discretepars_node*)desc)->disccumlengths[j];
       }
-      if (minn > cost + desclen)                 /* if too many changes ... */
+      if (minn > cost + desclen)         /* would it have too many changes? */
       {
-        minn = cost + desclen;
+        minn = cost + desclen;                 /* set  minn  to lower value */
         descrecon = 0;
       }
       if (minn == cost + desclen)         /* if  j  is a possible state ... */
