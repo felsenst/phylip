@@ -781,14 +781,21 @@ void moveleft(node *root, node *outgrnode, node **flipback)
 
 void printbranchlengths(node *p)
 { 
-  /* print branch lengths */
-  node *q;
+  /* print the table of branch lengths */
+  node *q, *r;
   long i;
-  boolean done;
 
   if (p->tip)
     return;
-  q = p->next;
+  r = p;                      /* save the node you start with for this fork */
+  if (p->back == NULL) {   /* don't try to go out a branch to the null root */
+    q = p->next;
+  } else {       /* ... but do if the root branch leads to the outgroup ... */
+    if (p == curtree->root)
+      q = p;
+    else                    /* ... but don't if you arrived via that branch */
+      q = p->next;
+  }
   do {                    /* go around fork circle, recursing out as needed */
     if (q->back != NULL) {  /* unless are at the bottom fork of rooted tree */
       fprintf(outfile, "%6ld      ", q->index - spp); /* print fork number, */
@@ -802,9 +809,8 @@ void printbranchlengths(node *p)
       fprintf(outfile, "   %f\n", q->v);
       printbranchlengths(q->back);       /* on our way out through the tree */
     }
-    done = (q == p);
     q = q->next;
-  } while (!done);
+  } while (q != r);
 } /* printbranchlengths */
 
 
@@ -1482,7 +1488,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
   fprintf(outfile, "      ");
   for (i = 0; i <= 9; i++)
     fprintf(outfile, "%4ld", i);
-  fprintf(outfile, "\n     -------------------------------------");
+  fprintf(outfile, "\n     ,-------------------------------------");
   fprintf(outfile, "-----\n");
   for (i = 0; i <= (chars / 10); i++)
   {

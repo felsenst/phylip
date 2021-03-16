@@ -581,7 +581,9 @@ void discinitbase(node *p, long sitei)
 
 void inittreetrav(node *p, long sitei)
 {
-  /* traverse tree to clear boolean initialized and set up base */
+  /* traverse tree to clear boolean initialized and set up base.
+   * unlike function  inittrav  this does not only set inward-looking
+   * initialized booleans to false, but all of them at all forks */
   node *q;
 
   if (p == NULL)                                /* unless it's an empty tip */
@@ -1112,7 +1114,10 @@ void discretepars_tree_nuview(tree* t, node*p)
 /* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);
 
+if (p->back != NULL)      /* debug */
 printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
+else   /* debug */
+printf("update states at node %ld facing NULL\n", p->index);  /* debug */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
