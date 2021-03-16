@@ -481,8 +481,7 @@ void doinput(void)
 
 void describe(void)
 {
-  /* prints ancestors, steps and table of numbers of steps in
-     each site */
+  /* prints ancestors, steps and table of numbers of steps in each site */
   long indent;
 
   if (treeprint)
@@ -580,7 +579,7 @@ void pars_printree(void)
   q = p;                                            /* save a pointer to it */
   pars_coordinates(p, 0.0, &tipy, &tipmax);     /* get coordinates of nodes */
   scale = 1.0 / (long)(tipmax + 1.000);      /* rescale to right tree width */
-  for (i = 1; i <= (tipy - down); i++)   /* draw rows of diagram one by one */
+  for (i = 1; i <= tipy; i++)            /* draw rows of diagram one by one */
     drawline3(i, scale, q);      /* each starts from root, works way to tip */
   putc('\n', outfile);
 }  /* pars_printree */

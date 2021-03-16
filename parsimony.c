@@ -784,6 +784,7 @@ void printbranchlengths(node *p)
   /* print branch lengths */
   node *q;
   long i;
+  boolean done;
 
   if (p->tip)
     return;
@@ -801,8 +802,9 @@ void printbranchlengths(node *p)
       fprintf(outfile, "   %f\n", q->v);
       printbranchlengths(q->back);       /* on our way out through the tree */
     }
+    done = (q == p);
     q = q->next;
-  } while (q != p);
+  } while (!done);
 } /* printbranchlengths */
 
 
@@ -1480,7 +1482,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
   fprintf(outfile, "      ");
   for (i = 0; i <= 9; i++)
     fprintf(outfile, "%4ld", i);
-  fprintf(outfile, "\n     r------------------------------------");
+  fprintf(outfile, "\n     -------------------------------------");
   fprintf(outfile, "-----\n");
   for (i = 0; i <= (chars / 10); i++)
   {

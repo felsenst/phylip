@@ -606,7 +606,7 @@ printf("initialize it in node %ld\n", q->index); /* debug */
     }
     discinitmin((discretepars_node*)p, sitei, true);  /* initializing state */
 printf("initialize it in node %ld\n", p->index); /* debug */
-    p->initialized = true;     /* ... marking them as needing to be updated */
+    p->initialized = false;    /* ... marking them as needing to be updated */
   }
 } /* inittreetrav */
 
