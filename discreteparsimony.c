@@ -157,27 +157,28 @@ void inputdata(long chars)
     else
       allread = (i > spp);
   }
-  checknames(spp);                      // Check NAYME array for duplicates.
+  checknames(spp);                      /* Check names array for duplicates */
   if (printdata)
-  {
-    for (i = 1; i <= ((chars - 1) / 60 + 1); i++)
+  {                                        /* print table of data if needed */
+    for (i = 1; i <= ((chars - 1) / 60 + 1); i++)   /* for character blocks */
     {
-      for (j = 1; j <= spp; j++)
+      for (j = 1; j <= spp; j++)             /* print one species at a time */
       {
-        for (k = 0; k < nmlngth; k++)
+        for (k = 0; k < nmlngth; k++)             /* write out species name */
           putc(nayme[j - 1][k], outfile);
         fprintf(outfile, "   ");
         l = i * 60;
         if (l > chars)
           l = chars;
-        for (k = (i - 1) * 60 + 1; k <= l; k++)
-        {
-          if (dotdiff && (j > 1 && inputSequences[j - 1][k - 1] == inputSequences[0][k - 1]))
+        for (k = (i - 1) * 60 + 1; k <= l; k++)    /* print chracter states */
+        {         /* doing dot-differencing if needed on subsequent species */
+          if (dotdiff && (j > 1 && inputSequences[j - 1][k - 1]
+                                    == inputSequences[0][k - 1]))
             charstate = '.';
           else
             charstate = inputSequences[j - 1][k - 1];
-          putc(charstate, outfile);
-          if (k % 10 == 0 && k % 60 != 0)
+          putc(charstate, outfile);                  /* print the state out */
+          if (k % 10 == 0 && k % 60 != 0)  /* add blank every 10 characters */
             putc(' ', outfile);
         }
         putc('\n', outfile);
@@ -186,8 +187,8 @@ void inputdata(long chars)
     }
     putc('\n', outfile);
   }
-  for (i = 1; i <= chars; i++)
-  {
+  for (i = 1; i <= chars; i++)               /* make for each character ... */
+  {           /* a table indicating which symbols are replaced by 0, 1, ... */
     nsymbol = 0;
     for (j = 1; j <= spp; j++)
     {
@@ -197,30 +198,30 @@ void inputdata(long chars)
         convsymboli = 1;
         convtab[0][i-1] = inputSequences[j-1][i-1];
       }
-      else if (inputSequences[j - 1][i - 1] != '?')
+      else if (inputSequences[j - 1][i - 1] != '?')    /* if a symbol there */
       {
         found = false;
         for (k = 1; k <= nsymbol; k++)
-        {
+        {                          /* check whether it has been seen before */
           if (convtab[k - 1][i - 1] == inputSequences[j - 1][i - 1])
           {
             found = true;
             convsymboli = k;
           }
         }
-        if (!found)
+        if (!found)              /* ... and if it has not been seen yet ... */
         {
           nsymbol++;
           convtab[nsymbol-1][i - 1] = inputSequences[j - 1][i - 1];
           convsymboli = nsymbol;
         }
       }
-      if (nsymbol <= 8)
+      if (nsymbol <= 8)          /* put that symbol in the conversion table */
       {
         if (inputSequences[j - 1][i - 1] != '?')
           inputSequences[j - 1][i - 1] = (Char)('0' + (convsymboli - 1));
       }
-      else
+      else     /* unless are more than 8, in which case crash informatively */
       {
         printf("\nERROR:  More than maximum of 8 symbols in column %ld.\n\n", i);
         exxit(-1);
@@ -286,11 +287,11 @@ void sitecombine(long chars)
   boolean tied;
 
   i = 1;
-  while (i < chars)
+  while (i < chars)                              /* for all characters ... */
   {
     j = i + 1;
     tied = true;
-    while (j <= chars && tied)
+    while (j <= chars && tied)        /* look for a run of tied characters */
     {
       k = 1;
       while (k <= spp && tied)                       /* check whether tied */
@@ -307,7 +308,7 @@ void sitecombine(long chars)
       }
       j++;
     }
-    i = j - 1;
+    i = j - 1;               /* go to next untied one and start from there */
   }
 }  /* sitecombine */
 
@@ -444,7 +445,7 @@ void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2,
   tempnuc = (discnucarray *)Malloc(endsite * sizeof(discnucarray));
   Vars.maybe = false;
   Vars.nonzero = false;
-  if (!Vars.r->tip)  /* if not a tip, step numbers conditional on states */
+  if (!Vars.r->tip)     /* if not a tip, step numbers conditional on states */
     memset(((discretepars_node*)Vars.r)->discnumnuc, 0,
              endsite * sizeof(discnucarray));
   for (i = b1 - 1; i < b2; i++)              /* for this range of sites ... */
@@ -474,9 +475,11 @@ void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2,
       ((discretepars_node*)Vars.r)->discbase[j - 1] = Vars.tempset;
     }
     if (!Vars.bottom)   /* debug: explain */
-      Vars.anc = ((discretepars_node*)t->nodep[Vars.r->back->index - 1])->discbase[j - 1];
-    Vars.nonzero = (Vars.nonzero || (((discretepars_node*)Vars.r)->discbase[j - 1]
-                                      & Vars.anc) == 0);
+      Vars.anc =
+     ((discretepars_node*)t->nodep[Vars.r->back->index - 1])->discbase[j - 1];
+    Vars.nonzero = (Vars.nonzero ||
+                     (((discretepars_node*)Vars.r)->discbase[j - 1]
+                      & Vars.anc) == 0);
     Vars.maybe = (Vars.maybe || ((discretepars_node*)Vars.r)->discbase[j - 1]
                                    != Vars.anc);
   }
@@ -799,13 +802,13 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
   double temp;
   double **covar, *P, *f, *r;
 
-  if (numtrees == 2)
+  if (numtrees == 2)                     /* for two species do the KHT test */
   {
     fprintf(outfile, "Kishino-Hasegawa-Templeton test\n\n");
     fprintf(outfile, "Tree    Steps   Diff Steps   Its S.D.");
     fprintf(outfile, "   Significantly worse?\n\n");
     which = 1;
-    while (which <= numtrees)
+    while (which <= numtrees)                        /* loop for both trees */
     {
       fprintf(outfile, "%3ld%10.1f", which, nsteps[which - 1]);
       if (minwhich == which)
@@ -826,11 +829,11 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
             sum2 += temp * temp / wt;
           }
         }
-        temp = sum / sumw;
+        temp = sum / sumw;           /* following statement gets SD of mean */
         sd = sqrt(sumw / (sumw - 1.0) * (sum2 - sum * sum / sumw));
         fprintf(outfile, "%9.1f %12.4f",
                 (nsteps[which - 1] - minsteps), sd);
-        if (sum > 1.95996 * sd)
+        if (sum > 1.95996 * sd)                /* if enough SD's above zero */
           fprintf(outfile, "           Yes\n");
         else
           fprintf(outfile, "           No\n");
@@ -840,10 +843,12 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
     fprintf(outfile, "\n\n");
   }
   else
-  {           /* Shimodaira-Hasegawa test using normal approximation */
+  {                  /* Shimodaira-Hasegawa test using normal approximation */
     if(numtrees > MAXSHIMOTREES)
     {
-      fprintf(outfile, "Shimodaira-Hasegawa test on first %d of %ld trees\n\n" , MAXSHIMOTREES, numtrees);
+      fprintf(outfile,
+               "Shimodaira-Hasegawa test on first %d of %ld trees\n\n",
+               MAXSHIMOTREES, numtrees);
       numtrees = MAXSHIMOTREES;
     }
     else
@@ -868,7 +873,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
           wt = weight[k];
           if (weight[k] > 0)
           {
-            temp = temp + wt*(fsteps[i][k]/(wt)-sum) *(fsteps[j][k]/(wt)-sum2);
+            temp += wt*(fsteps[i][k]/(wt)-sum) * (fsteps[j][k]/(wt)-sum2);
           }
         }
         covar[i][j] = temp;
@@ -942,7 +947,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
       }
     }
     fprintf(outfile, "\n");
-    free(P);             /* free the variables we Malloc'ed */
+    free(P);                             /* free the variables we Malloc'ed */
     free(f);
     free(r);
     for (i = 0; i < numtrees; i++)
