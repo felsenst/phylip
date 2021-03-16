@@ -232,49 +232,55 @@ void inputdata(long chars)
 
 void sitesort(long chars, steptr weight)
 {
-  /* Shell sort keeping sites, weights in same order */
+  /* Shell sort keeping sites, weights in same order.  The Shell sort is
+   * not optimally fast but is pretty good, being about O(n^(4/3)), and
+   * is easy to program.  For much agonizing about speed and optimal
+   * schemes of gap sizes, see Wikipedia.  The name "Shell" is not a
+   * reference to sleight-of-hand but is the name of its inventor */
   /* used in pars */
   long gap, i, j, jj, jg, k, itemp;
   boolean flip, tied;
 
-  gap = chars / 2;
+  gap = chars / 2;     /* start with a "gap" half the length of the array */
   while (gap > 0)
   {
-    for (i = gap + 1; i <= chars; i++)
+    for (i = gap + 1; i <= chars; i++)    /* compare pairs that far apart */
     {
-      j = i - gap;
+      j = i - gap;      /* i is the upper, j the lower member of the pair */
       flip = true;
       while (j > 0 && flip)
       {
-        jj = alias[j - 1];
-        jg = alias[j + gap - 1];
+        jj = alias[j - 1];          /* sort the pair in order of the states */
+        jg = alias[j + gap - 1];                    /* ... in their aliases */
         tied = true;
         k = 1;
-        while (k <= spp && tied)
+        while (k <= spp && tied)   /* proceed down column of the data table */
         {
-          flip = (inputSequences[k - 1][jj - 1] > inputSequences[k - 1][jg - 1]);
-          tied = (tied && inputSequences[k - 1][jj - 1] == inputSequences[k - 1][jg - 1]);
-          k++;
+          flip = (inputSequences[k - 1][jj - 1]
+                   > inputSequences[k - 1][jg - 1]);
+          tied = (tied && (inputSequences[k - 1][jj - 1]
+                            == inputSequences[k - 1][jg - 1]));
+          k++;                   /* ... until find a species where not tied */
         }
-        if (!flip)
+        if (!flip)              /* bail out of the loop if pair is in order */
           break;
-        itemp = alias[j - 1];
+        itemp = alias[j - 1];        /* exchange the order in array "alias" */
         alias[j - 1] = alias[j + gap - 1];
         alias[j + gap - 1] = itemp;
-        itemp = weight[j - 1];
+        itemp = weight[j - 1];           /* ... and in the array of weights */
         weight[j - 1] = weight[j + gap - 1];
         weight[j + gap - 1] = itemp;
         j -= gap;
       }
     }
-    gap /= 2;
+    gap /= 2;       /* reduce gap size by half. sorted then it reaches zero */
   }
 }  /* sitesort */
 
 
 void sitecombine(long chars)
 {
-  /* combine sites that have identical patterns */
+  /* combine sites that have identical patterns, starting with them sorted */
   /* used in pars */
   long i, j, k;
   boolean tied;
@@ -287,17 +293,17 @@ void sitecombine(long chars)
     while (j <= chars && tied)
     {
       k = 1;
-      while (k <= spp && tied)
+      while (k <= spp && tied)                       /* check whether tied */
       {
         tied = (tied && inputSequences[k - 1][alias[i - 1] - 1] == 
                           inputSequences[k - 1][alias[j - 1] - 1]);
         k++;
       }
-      if (tied)
+      if (tied)        /* these two are to be combined, add up weights ... */
       {
         weight[i - 1] += weight[j - 1];
         weight[j - 1] = 0;
-        ally[alias[j - 1] - 1] = alias[i - 1];
+        ally[alias[j - 1] - 1] = alias[i - 1]; /* ... and bookkeep aliases */
       }
       j++;
     }
@@ -332,10 +338,10 @@ void sitescrunch(long chars)
         if (found)
         {
           j--;
-          itemp = alias[i - 1];
+          itemp = alias[i - 1];                         /* swap aliases ... */
           alias[i - 1] = alias[j - 1];
           alias[j - 1] = itemp;
-          itemp = weight[i - 1];
+          itemp = weight[i - 1];                         /* ... and weights */
           weight[i - 1] = weight[j - 1];
           weight[j - 1] = itemp;
         }
@@ -478,10 +484,12 @@ void dischyptrav(tree* t, node *r_, discbaseptr hypset_, long b1, long b2,
   Vars.bottom = false;
   if (!Vars.r->tip)
   {
-    memcpy(tempnuc, ((discretepars_node*)Vars.r)->discnumnuc, endsite * sizeof(discnucarray));
+    memcpy(tempnuc, ((discretepars_node*)Vars.r)->discnumnuc,
+            endsite * sizeof(discnucarray));
     q = Vars.r->next;
     do {  /* debug: need to comment next part */
-      memcpy(((discretepars_node*)Vars.r)->discnumnuc, tempnuc, endsite * sizeof(discnucarray));
+      memcpy(((discretepars_node*)Vars.r)->discnumnuc, tempnuc,
+              endsite * sizeof(discnucarray));
       for (i = b1 - 1; i < b2; i++)       /* go through range of characters */
       {
         j = location[ally[i] - 1];      /* number of character representing */
@@ -537,10 +545,10 @@ void discinitbase(node *p, long sitei)
   node *q;
   long i, largest;
 
-  if (p->tip)                                     /* back out if it is a tip */
+  if (p->tip)                                    /* back out if it is a tip */
     return;
   q = p->next;
-  while (q != p)                            /* loop over this fork's nodes */
+  while (q != p)                             /* loop over this fork's nodes */
   {
     if (q->back)
     {
@@ -954,7 +962,7 @@ void disc_treelength(node *root, long chars, pointarray treenode)
   for (sitei = 1; sitei <= endsite; sitei++)    /* for representative chars */
   {
     trlen = 0.0;
-    discinitbase(root, sitei);             /* initialize for this character */
+    discinitbase(root, sitei);    /* initialize the counts, reconstructions */
 printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
