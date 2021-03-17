@@ -657,7 +657,6 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
 {
   /* computes a branch length between two subtrees for a given site */
   long i, j, minn, cost, minsteps, numreconst, nom, denom;
-  node *temp;
 
   minpostorder(subtr1, treenode);   /* make sure have steps further out ... */
   minpostorder(subtr2, treenode);              /* ... at each end of branch */
