@@ -651,7 +651,7 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
     p->initialized = true;  /* set node initialized once one has done those */
   }
 }  /* minpostorder */
-
+     
 
 void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode)
 {
@@ -661,8 +661,8 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   minpostorder(subtr1, treenode);   /* make sure have steps further out ... */
   minpostorder(subtr2, treenode);              /* ... at each end of branch */
   minn = 10 * spp;                 /* a value that is too big to be correct */
-  nom = 0;
-  denom = 0;
+  nom = 0;                       /* the numerator that is being accumulated */
+  denom = 0;                                     /* ... and the denominator */
   for (i = (long)zero; i <= (long)seven; i++) /* for all states at both ... */
   {
 printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr1->index, ((discretepars_node*)subtr1)->disccumlengths[i]); /* debug */
@@ -713,7 +713,7 @@ else
 printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); /* debug */
   if (p->tip)         /* bail if  p  is a tip as already have branch length */
     return;
-  if (p->index == outgrno)   /* if outgroup tip go to nearest interior fork */
+  if (p->index == outgrno) /* if outgroup a tip go to nearest interior fork */
     p = p->back;
   q = p->next;
   do {
@@ -970,7 +970,7 @@ void disc_treelength(node *root, long chars, pointarray treenode)
 printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
-    branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* call ... */
+    branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* go */
   }
 } /* treelength */
 
@@ -1073,7 +1073,8 @@ void dischyprint(tree* t, long b1, long b2, struct LOC_hyptrav *htrav)
 void disccompmin(node *p, node *desc)
 {
   /* computes minimum lengths from  p  on beyond it, where we are going around
-   * a fork circle and have got to node  desc  in the circle */
+   * a fork circle and have got to the node in the circle whose back node
+   * is  desc */
   long i, j, minn, cost, desclen, descrecon=0, maxx;
 
   maxx = 10 * spp;          /* a value bigger than number of steps could be */
@@ -1082,7 +1083,7 @@ void disccompmin(node *p, node *desc)
     minn = maxx;
     for (j = (long)zero; j <= (long)seven; j++)        /* for state in desc */
     {
-      if (i == j)                  /* set cost of change zero if same state */
+      if (i == j)               /* set cost of change to zero if same state */
         cost = 0;
       else                                       /* otherwise set it to one */
         cost = 1;
@@ -1101,7 +1102,7 @@ void disccompmin(node *p, node *desc)
       }
       if (minn == cost + desclen)         /* if  j  is a possible state ... */
       {        /* ... then increment the number of possible reconstructions */
-        descrecon += ((discretepars_node*)desc)->discnumreconst[j];
+        descrecon += ((discretepars_node*)desc->back)->discnumreconst[j];
       }
     }
     ((discretepars_node*)p)->disccumlengths[i] += minn;    /* add to length */
@@ -1124,7 +1125,7 @@ void discretepars_tree_nuview(tree* t, node*p)
   long root = 0;
 
 /* debug  generic_tree_nuview(t, p);   needed? */
-  bif = (count_sibs(p) == 2);
+  bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
 
 if (p->back != NULL)      /* debug */
 printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
@@ -1172,7 +1173,7 @@ printf("update site: %ld, steps = %ld\n", i, steps); /* debug */
           }
         }
         steps += (weight[i]) * (count_sibs(p) - largest - root);
-      } /* above counts descendants that don't have most parsimonious */
+      }       /* above counts descendants that don't have most parsimonious */
       else
       {         /* optimized for bifurcation, code above still works though */
         newbase = ((discretepars_node*)p->next->back)->discbase[i] |
