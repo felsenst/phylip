@@ -602,7 +602,7 @@ void inittreetrav(node *p, long sitei)
   if (p->tip)
   {
     discinitmin((discretepars_node*)p, sitei, false);   /* initialize state */
-printf("initialize it in node %ld\n", p->index); /* debug */
+ /* debug printf("initialize it in node %ld\n", p->index); */
     p->initialized = true;                       /* mark tip as initialized */
     return;
   } else {
@@ -612,13 +612,13 @@ printf("initialize it in node %ld\n", p->index); /* debug */
       if (q != NULL) {
         inittreetrav(q->back, sitei);        /* ... go recursively outwards */
         discinitmin((discretepars_node*)q, sitei, true);
-printf("initialize it in node %ld\n", q->index); /* debug */
+/* debug  printf("initialize it in node %ld\n", q->index); */
         q->initialized = false;
       }
       q = q->next;
     }
     discinitmin((discretepars_node*)p, sitei, true);  /* initializing state */
-printf("initialize it in node %ld\n", p->index); /* debug */
+/* printf("initialize it in node %ld\n", p->index); debug */
     p->initialized = false;    /* ... marking them as needing to be updated */
   }
 } /* inittreetrav */
@@ -661,7 +661,7 @@ void disccompmin(node *p, node *desc)
     }
     ((discretepars_node*)p)->disccumlengths[i] += minn;    /* add to length */
     ((discretepars_node*)p)->discnumreconst[i] *= descrecon;    /* multiply */
-printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon); /* debug */
+/*  debug printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon);*/
   }
   p->initialized = true;     /* mark stuff from here on out as already done */
 } /* disccompmin */
@@ -678,7 +678,7 @@ void minpostorder(node *p, pointarray treenode)
   {
     return;
   }
-printf("minpostorder on node  %ld\n", p->index);  /* debug */
+/* debug printf("minpostorder on node  %ld\n", p->index);  */
   if (!p->initialized) {
     q = p->next;    /* around fork ring, do minpostorder on backs as needed */
     while (q != p)
@@ -708,8 +708,8 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   denom = 0;                                     /* ... and the denominator */
   for (i = (long)zero; i <= (long)seven; i++) /* for all states at both ... */
   {
-printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr1->index, ((discretepars_node*)subtr1)->disccumlengths[i]); /* debug */
-printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr2->index, ((discretepars_node*)subtr2)->disccumlengths[i]); /* debug */
+/* debug printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr1->index, ((discretepars_node*)subtr1)->disccumlengths[i]); */
+/* debug printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr2->index, ((discretepars_node*)subtr2)->disccumlengths[i]); */
     for (j = (long)zero; j <= (long)seven; j++)       /* ... ends of branch */
     {
       if (i == j)                            /* count 1 for each difference */
@@ -741,7 +741,7 @@ printf("for state %ld at %ld, disccumlengths = %ld\n", (long)i, subtr2->index, (
     *brlen = 0.0;
   else
     *brlen = (double)nom/(double)denom;    /* cast to doubles so get double */
-printf("branch length for branch %ld:%ld is %6.2f\n", subtr1->index, subtr2->index, *brlen); /* debug */
+/* debug printf("branch length for branch %ld:%ld is %6.2f\n", subtr1->index, subtr2->index, *brlen); */
 } /* branchlength */
 
 
@@ -751,9 +751,9 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
   node *q;
 
 if (p->back == NULL)
-printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); /* debug */
-else /* debug */
-printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); /* debug */
+/* debug printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); */
+/* debug else */
+/* debug printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); */
   if (p->tip)         /* bail if  p  is a tip as already have branch length */
     return;
 /* debug:  to avoid recursive infinite loop */
@@ -765,12 +765,12 @@ printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p-
   do {
     if (q->back != NULL)        /* if this node does not connect to nothing */
     {
-printf("computing branch length for branch %ld:%ld for site %ld\n", q->index, q->back->index, sitei); /* debug */
+/* debug printf("computing branch length for branch %ld:%ld for site %ld\n", q->index, q->back->index, sitei); */
       branchlength(q, q->back, brlen, treenode);  /* get branch length here */
-printf("branch length for site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, *brlen); /* debug */
+/* debug printf("branch length for site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, *brlen); */
       q->v += (weight[sitei - 1]  * (*brlen));   /* set node branch lengths */
       q->back->v += (weight[sitei - 1] * (*brlen));
-printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); /* debug */
+/* debug printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, q->back->index, q->v); */
       if (!q->back->tip)                        /* traverse out of  q->back */
         branchlentrav(q->back, root, sitei, chars, brlen, treenode);
     }
@@ -782,7 +782,7 @@ printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, 
       p->v += (weight[sitei - 1]  * (*brlen));   /* set node branch lengths */
       p->back->v += (weight[sitei - 1] * (*brlen));
     }
-printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, p->index, p->back->index, q->v); /* debug */
+/* debug printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, p->index, p->back->index, q->v); */
   }
 }  /* branchlentrav */
 
@@ -1029,7 +1029,7 @@ void discinitmin(discretepars_node *p, long sitei, boolean internal)
 {
   long i;
 
-printf("doing discinitmin on node at %ld, for site %ld, internal = %d\n", ((node*)p)->index, sitei, internal);  /* debug */
+/* debug printf("doing discinitmin on node at %ld, for site %ld, internal = %d\n", ((node*)p)->index, sitei, internal);  */
   if (internal)                              /* for internal fork nodes ... */
   {
     for (i = (long)zero; i <= (long)seven; i++)   /* ... for each state ... */
@@ -1134,10 +1134,10 @@ void discretepars_tree_nuview(tree* t, node*p)
 /* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
 
-if (p->back != NULL)      /* debug */
-printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
-else   /* debug */
-printf("update states at node %ld facing NULL\n", p->index);  /* debug */
+/* debug if (p->back != NULL)      */
+/* debug printf("update states at node %ld facing %ld\n", p->index, p->back->index);  */
+/* debug else   */
+/* debug printf("update states at node %ld facing NULL\n", p->index);  */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
@@ -1154,7 +1154,7 @@ printf("update states at node %ld facing NULL\n", p->index);  /* debug */
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
-printf("update site: %ld, steps = %ld\n", i, steps); /* debug */
+/* debug printf("update site: %ld, steps = %ld\n", i, steps); */
     }
     if ( newbase == 0 )
     {

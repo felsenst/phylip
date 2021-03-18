@@ -170,7 +170,7 @@ printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);p
             *bestyet = like;
             pos = 0;                 /* put it at the beginning of bestrees */
             found = false;
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); /* debug */
+/* debug printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
 /* `printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  debug */
