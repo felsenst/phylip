@@ -1235,7 +1235,7 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
     if (usertree && which <= maxuser && !reusertree) /* make array of steps */
       fsteps[which - 1][i] = term; /* ... for up to maximum number of trees */
   }
-  if (usertree && which <= maxuser && !reusertree)
+  if (usertree && (which <= maxuser) && !reusertree)
   {             /* find which tree has fewest steps and how many there were */
     nsteps[which - 1] = sum;
     if (which == 1)
