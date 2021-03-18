@@ -624,6 +624,49 @@ printf("initialize it in node %ld\n", p->index); /* debug */
 } /* inittreetrav */
 
 
+void disccompmin(node *p, node *desc)
+{
+  /* computes minimum lengths from  p  on beyond it, where we are going around
+   * a fork circle and have got to the node in the circle whose back node
+   * is  desc */
+  long i, j, minn, cost, desclen, descrecon=0, maxx;
+
+  maxx = 10 * spp;          /* a value bigger than number of steps could be */
+  for (i = (long)zero; i <= (long)seven; i++) /* for all possible states... */
+  {                                           /* ,,, at node  p */
+    minn = maxx;
+    for (j = (long)zero; j <= (long)seven; j++)        /* for state in desc */
+    {
+      if (i == j)               /* set cost of change to zero if same state */
+        cost = 0;
+      else                                       /* otherwise set it to one */
+        cost = 1;
+      if (((discretepars_node*)desc)->disccumlengths[j] == -1)
+      {     /* if  state  i  would not be possible, make it too big a value */
+        desclen = maxx;
+      }
+      else
+      {                          /* number of steps from  desc  on outwards */
+        desclen = ((discretepars_node*)desc)->disccumlengths[j];
+      }
+      if (minn > cost + desclen)         /* would it have too many changes? */
+      {
+        minn = cost + desclen;                 /* set  minn  to lower value */
+        descrecon = 0;
+      }
+      if (minn == cost + desclen)         /* if  j  is a possible state ... */
+      {        /* ... then increment the number of possible reconstructions */
+        descrecon += ((discretepars_node*)desc->back)->discnumreconst[j];
+      }
+    }
+    ((discretepars_node*)p)->disccumlengths[i] += minn;    /* add to length */
+    ((discretepars_node*)p)->discnumreconst[i] *= descrecon;    /* multiply */
+printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon); /* debug */
+  }
+  p->initialized = true;     /* mark stuff from here on out as already done */
+} /* disccompmin */
+
+
 void minpostorder(node *p, pointarray treenode)
 {
   /* traverses an n-ary tree, computing minimum steps at each node */
@@ -644,7 +687,7 @@ printf("minpostorder on node  %ld\n", p->index);  /* debug */
         if (!(q->back->initialized)) {
           minpostorder(q->back, treenode);
         }
-        disccompmin(p, q->back);   /* for that subtree, compute disccompmin */
+        disccompmin(p, q->back);    /* part of conditional score for branch */
       }
       q = q->next;
     }
@@ -709,12 +752,15 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
 
 if (p->back == NULL)
 printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); /* debug */
-else
+else /* debug */
 printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); /* debug */
   if (p->tip)         /* bail if  p  is a tip as already have branch length */
     return;
+/* debug:  to avoid recursive infinite loop */
+#if 0
   if (p->index == outgrno) /* if outgroup a tip go to nearest interior fork */
     p = p->back;
+#endif
   q = p->next;
   do {
     if (q->back != NULL)        /* if this node does not connect to nothing */
@@ -731,7 +777,11 @@ printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, q->index, 
     q = q->next;                              /* move on around fork circle */
   } while (q != p);
   if (p->back != NULL) {
-    branchlength(p, p->back, brlen, treenode);  /* finally, do for outgroup */
+    if (p == root) {
+      branchlength(p, p->back, brlen, treenode); /* finally do for outgroup */
+      p->v += (weight[sitei - 1]  * (*brlen));   /* set node branch lengths */
+      p->back->v += (weight[sitei - 1] * (*brlen));
+    }
 printf("branch length up to site %ld branch %ld:%ld is: %f\n", sitei, p->index, p->back->index, q->v); /* debug */
   }
 }  /* branchlentrav */
@@ -1068,49 +1118,6 @@ void dischyprint(tree* t, long b1, long b2, struct LOC_hyptrav *htrav)
   }
   putc('\n', outfile);             /* a newline character if at end of line */
 }  /* hyprint */
-
-
-void disccompmin(node *p, node *desc)
-{
-  /* computes minimum lengths from  p  on beyond it, where we are going around
-   * a fork circle and have got to the node in the circle whose back node
-   * is  desc */
-  long i, j, minn, cost, desclen, descrecon=0, maxx;
-
-  maxx = 10 * spp;          /* a value bigger than number of steps could be */
-  for (i = (long)zero; i <= (long)seven; i++) /* for all possible states... */
-  {                                           /* ,,, at node  p */
-    minn = maxx;
-    for (j = (long)zero; j <= (long)seven; j++)        /* for state in desc */
-    {
-      if (i == j)               /* set cost of change to zero if same state */
-        cost = 0;
-      else                                       /* otherwise set it to one */
-        cost = 1;
-      if (((discretepars_node*)desc)->disccumlengths[j] == -1)
-      {     /* if  state  i  would not be possible, make it too big a value */
-        desclen = maxx;
-      }
-      else
-      {                          /* number of steps from  desc  on outwards */
-        desclen = ((discretepars_node*)desc)->disccumlengths[j];
-      }
-      if (minn > cost + desclen)         /* would it have too many changes? */
-      {
-        minn = cost + desclen;                 /* set  minn  to lower value */
-        descrecon = 0;
-      }
-      if (minn == cost + desclen)         /* if  j  is a possible state ... */
-      {        /* ... then increment the number of possible reconstructions */
-        descrecon += ((discretepars_node*)desc->back)->discnumreconst[j];
-      }
-    }
-    ((discretepars_node*)p)->disccumlengths[i] += minn;    /* add to length */
-    ((discretepars_node*)p)->discnumreconst[i] *= descrecon;    /* multiply */
-printf("state %ld: minn, descrecon are %ld, %ld\n", i, minn, descrecon); /* debug */
-  }
-  p->initialized = true;     /* mark stuff from here on out as already done */
-} /* compmin */
 
 
 void discretepars_tree_nuview(tree* t, node*p)
