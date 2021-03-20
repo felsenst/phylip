@@ -491,16 +491,16 @@ void describe(void)
     fprintf(outfile, "  -------      ---       ------\n");
     printbranchlengths(curtree->root);
   }
-  if (stepbox)
+  if (stepbox)            /* write out table of steps in each character */
     writesteps(curtree, chars, weights, oldweight);
-  if (ancseq)
+  if (ancseq)         /* write out states at interior nodes in the tree */
   {
     disc_hypstates(curtree, chars);
     putc('\n', outfile);
   }
   putc('\n', outfile);
   if (trout)
-  {
+  {                                /* write out trees to file  outtree */
     col = 0;
     indent = 0;
     treeout3(curtree->root, nextree, &col, indent, curtree->root);
