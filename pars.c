@@ -596,6 +596,8 @@ void maketree(void)
   // RSGnote: This was formerly uninitialized and potentially referenced before being set
   // below, depending on which branch of the first IF below was taken.
   long numtrees = 0;
+  boolean found;
+  node *p;
 
   if (!usertree)
   {                            /* if sequentially adding, rearranging trees */
@@ -672,12 +674,13 @@ printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
 /* debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
-        initializetrav(curtree, curtree->root);    /* ready to update views */
-        initializetrav(curtree, curtree->root->back);
-        curtree->score = curtree->evaluate(curtree, curtree->root, false);
+        p = findroot(curtree, curtree->root, &found); /* get to real root */
+        initializetrav(curtree, p);    /* ready to update views */
+/*  debug:      initializetrav(curtree, curtree->root->back); */
+        curtree->score = curtree->evaluate(curtree, p, false);
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
-        curtree->nodep[curtree->root->index - 1] = curtree->root;
-        disc_treelength(curtree->root, chars, curtree->nodep);
+/*  debug: curtree->nodep[curtree->root->index - 1] = curtree->root; */
+        disc_treelength(p, chars, curtree->nodep);
         pars_printree();
         describe();
       }
