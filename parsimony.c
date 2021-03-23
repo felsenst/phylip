@@ -1307,7 +1307,7 @@ void printree(tree* t)
   putc('\n', outfile);
   tipy = 1;            /* this will be the number for each line printed out */
   tipmax = 0.0;     /* will keep track of how far to right the tree extends */
-  p = findroot(t, t->root, found);     /* find node which null back pointer */
+  p = findroot(t, t->root, found);      /* find node with null back pointer */
   q = p;
   coordinates(t, p, 0.0, &tipy, &tipmax);       /* get coordinates of nodes */
   scale = 1.0 / (long)(tipmax + 1.000);      /* horizontal scaling for tree */
@@ -1475,10 +1475,13 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 {
   /* used in dnacomp, dnapars, & dnapenny */
   long i, j, k, l;
+  boolean *found;
+  node *p;
   k=0;
 
   /*calculate the steps */
-  if (t->root->initialized == false ) t->nuview(t, t->root);
+  p = findroot(t, t->root, &found);
+  if (t->root->initialized == false ) t->nuview(t, p);
 
   /* print them */
   putc('\n', outfile);

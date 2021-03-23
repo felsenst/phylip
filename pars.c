@@ -674,7 +674,7 @@ printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
 /* debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
-        p = findroot(curtree, curtree->root, &found); /* get to real root */
+        p = findroot(curtree, curtree->root, &found);   /* get to real root */
         initializetrav(curtree, p);    /* ready to update views */
 /*  debug:      initializetrav(curtree, curtree->root->back); */
         curtree->score = curtree->evaluate(curtree, p, false);
