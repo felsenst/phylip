@@ -1021,6 +1021,7 @@ printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
     branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* go */
+    ((pars_node*)root)->numsteps[sitei] = trlen;
   }
 } /* treelength */
 
@@ -1134,10 +1135,10 @@ void discretepars_tree_nuview(tree* t, node*p)
 /* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
 
-/* debug if (p->back != NULL)      */
-/* debug printf("update states at node %ld facing %ld\n", p->index, p->back->index);  */
-/* debug else   */
-/* debug printf("update states at node %ld facing NULL\n", p->index);  */
+if (p->back != NULL)  /* debug     */
+printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
+else  /* debug  */
+printf("update states at node %ld facing NULL\n", p->index);  /* debug */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
@@ -1154,7 +1155,7 @@ void discretepars_tree_nuview(tree* t, node*p)
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
-/* debug printf("update site: %ld, steps = %ld\n", i, steps); */
+printf("update site: %ld, steps = %ld\n", i, weight[i]*steps); /* debug */
     }
     if ( newbase == 0 )
     {
