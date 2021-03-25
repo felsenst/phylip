@@ -1483,7 +1483,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 
   /*calculate the steps */
   p = findroot(t, t->root, &found);
-  if (t->root->initialized == false ) t->nuview(t, p);
+  if (p->initialized == false ) t->nuview(t, p);
 
   /* print them */
   putc('\n', outfile);
@@ -1506,13 +1506,13 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
         fprintf(outfile, "    ");
       else
       {
-        l = location[k];
-        if (oldweight[l] > 0)
+        l = location[ally[k-1]-1];
+        if (oldweight[k] > 0)
           fprintf(outfile, "%4ld",
                    oldweight[k]
-                    * (((pars_node*)t->root)->numsteps[l-1] / weight[l - 1]));
+                    * (((pars_node*)p)->numsteps[l-1])/weight[l-1]);
         else
-          fprintf(outfile, "%4ld", (((pars_node*)t->root)->numsteps[k - 1] ));
+          fprintf(outfile, "%4ld", (((pars_node*)p)->numsteps[l - 1] ));
       }
     }
     putc('\n', outfile);
