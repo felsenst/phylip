@@ -252,8 +252,8 @@ void pars_node_init(node* p, node_type type, long index)
   p->free = pars_node_free;
   p->node_print_f = pars_node_print;
 
-  if (pn->numsteps)
-    free(pn->numsteps);
+/* debug  if (pn->numsteps)
+    free(pn->numsteps);  debug  */
   pn->numsteps = Malloc(endsite * sizeof(long));
 } /* pars_node_init */
 
@@ -263,9 +263,11 @@ void pars_node_reinit(node * n)
   /* re-setup a pars_tree node */
   generic_node_reinit(n);
   pars_node *pn = (pars_node *)n;
+/* debug
   if (pn->numsteps)
     free(pn->numsteps);
   pn->numsteps = Malloc(endsite * sizeof(long));
+debug */
 } /* pars_node_reinit */
 
 
@@ -1473,7 +1475,7 @@ void drawline3(long i, double scale, node *start)
 
 void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 {
-  /* used in dnacomp, dnapars, & dnapenny */
+  /* used in Dnacomp, Dnapars, Dnapenny, Pars, and Penny */
   long i, j, k, l;
   boolean *found;
   node *p;
@@ -1504,11 +1506,11 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
         fprintf(outfile, "    ");
       else
       {
-        l = location[ally[k - 1] - 1];
-        if (oldweight[k - 1] > 0)
+        l = location[k];
+        if (oldweight[l] > 0)
           fprintf(outfile, "%4ld",
-                   oldweight[k - 1]
-                    * (((pars_node*)t->root)->numsteps[l - 1] / weight[l - 1]));
+                   oldweight[k]
+                    * (((pars_node*)t->root)->numsteps[l-1] / weight[l - 1]));
         else
           fprintf(outfile, "%4ld", (((pars_node*)t->root)->numsteps[k - 1] ));
       }
