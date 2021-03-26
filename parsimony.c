@@ -132,13 +132,13 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   like = t->evaluate(t, p, false);
 /* printf("\n"); debug */
   t->score = like;
-/* printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); debug */
+printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); /* debug */
   if (like >= *bestyet) {
     generic_tree_copy(t, bestree);
-/* printf(" (new bestyet)");  debug */
+printf(" (new bestyet)"); /*  debug */
     *bestyet = like;
     there = p;
-/* debug printf("\n"); */
+printf("\n"); /* debug */
     if (storing) {
       savetree(t, place);     /* storable coded representation of this tree */
       if (atstart) {                       /* when this is first tree tried */
@@ -148,7 +148,7 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
           *bestfound = like;                   /* score of the stored trees */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n", like, *bestyet, *bestfound);  /* debug */
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-/*   printf("Added an initial tree to bestrees, now %ld of them\n", nextree);  debug */
+printf("Added an initial tree to bestrees, now %ld of them\n", nextree); /*    debug */
         }
         *bestyet = like;          /* same value as *bestfound.  Why needed? */
         succeeded = true;         /* to be updated when "tryinsert" returns */
@@ -162,7 +162,7 @@ printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n",
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", like, *bestyet, *bestfound, pos+1);  /* debug */
             addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
-/*  printf("Added another tied tree to bestrees, now %ld of them\n", nextree);  debug */
+printf("Added another tied tree to bestrees, now %ld of them\n", nextree); /*   debug */
           }
         } else {          /* since  like  is not the same as the best score */
           if (like > *bestfound) {                        /* replacing all? */
@@ -170,10 +170,10 @@ printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);p
             *bestyet = like;
             pos = 0;                 /* put it at the beginning of bestrees */
             found = false;
-/* debug printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); */
+printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); /* debug: */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
-/* `printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  debug */
+printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  /* debug */
             succeeded = true;
             *bestyet = like;
           }
@@ -716,7 +716,7 @@ printf("Adding as new best tree (Tree 1), %ld\n", score); /*  debug */
       findtree(&found, pos, nextree-1, place, bestrees);  /* already there? */
       if (!found) {                    /* save it only if not already there */
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
-printf("Adding as tied tree (Tree %d), %ld\n", pos, score);  /* debug */
+printf("Adding as tied tree (Tree %ld), %ld\n", *pos, score);  /* debug */
       } else {
 /* printf("found that tree already there\n");  debug */
       }

@@ -1009,6 +1009,8 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
 void disc_treelength(node *root, long chars, pointarray treenode)
 {
   /*  calls branchlentrav at each site */
+/* debug:  maybe not name thius "root" since it can be different from the
+   root pointer */
   long sitei;
   double trlen;
 
@@ -1136,9 +1138,9 @@ void discretepars_tree_nuview(tree* t, node*p)
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
 
 if (p->back != NULL)  /* debug     */
-printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug */
-else  /* debug  */
-printf("update states at node %ld facing NULL\n", p->index);  /* debug */
+/* debug printf("update states at node %ld facing %ld\n", p->index, p->back->index);  */
+/* debug  else  */
+/* debug printf("update states at node %ld facing NULL\n", p->index);  */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
@@ -1155,7 +1157,7 @@ printf("update states at node %ld facing NULL\n", p->index);  /* debug */
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
-printf("update site: %ld, steps = %ld\n", i, weight[i]*steps); /* debug */
+/* debug printf("update site: %ld, steps = %ld\n", i, weight[i]*steps); */
     }
     if ( newbase == 0 )
     {

@@ -451,7 +451,7 @@ void initializetrav (tree* t, node *p)
     for (q = p->next; q != p; q = q->next) {   /* go to rest of fork circle */
       q->initialized = false;            /* ... setting nodes uninitialized */
       initializetrav (t, q->back);        /* ... and on outwards from there */
-printf("#");  /* debug */
+/* debug printf("#");  */
     }
   }
 } /* initializetrav */
@@ -4612,7 +4612,7 @@ void generic_tree_nuview(tree* t, node* p)
   }
   t->nuview((tree*)t, p);   /* this actually calculates the view using the
                              * algorithm set up for that kind of data */
-printf("M"); /* debug */
+/* debug printf("M"); */
   p->initialized = true;
 } /* generic_tree_nuview */
 
@@ -4626,13 +4626,13 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   if ( (p->initialized == false) && (p->tip == false) )
   {
     generic_tree_nuview((tree*)t, p);
-printf("*");
+/* debug: printf("*"); */
   }
   if (p->back != NULL) {
     if ( (p->back->initialized == false) && (p->back->tip == false) )
     {
       generic_tree_nuview((tree*)t, p->back);
-printf("*");
+/* debug printf("*"); */
     }
   }
   return 0;
