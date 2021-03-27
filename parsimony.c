@@ -133,7 +133,7 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
 /* printf("\n"); debug */
   t->score = like;
 printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); /* debug */
-  if (like >= *bestyet) {
+  if (like > *bestyet) {
     generic_tree_copy(t, bestree);
 printf(" (new bestyet)"); /*  debug */
     *bestyet = like;
@@ -1156,7 +1156,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
 /* debug: why?        bestyet = curtree->evaluate(curtree, curtree->root, 0);   debug */
       }
     }
-  } while (!success);
+  } while (success);
   if (progress)
   {
     sprintf(progbuf, "\n");

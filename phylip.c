@@ -3912,8 +3912,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
           continue;
 
-        removed = sib_ptr;
-         /* pull off a subtree with an interior fork */
+        removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
         curtree->smoothall(curtree, where);
         curtree->copy(curtree, priortree);
@@ -3937,8 +3936,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         }
         if ( !thorough)      /* just put it in the next part of the subtree */
         {
-          if (succeeded && qwhere != where && qwhere != where->back
-               && bestyet > oldbestyet)
+          if (succeeded && (qwhere != where) && (qwhere != where->back)
+               && (bestyet > oldbestyet))
           {
             curtree->insert_(curtree, removed, qwhere, true);
             curtree->smoothall(curtree, where);
@@ -3964,7 +3963,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     globtree->copy(globtree, curtree);
     globtree->copy(globtree, bestree);
     globtree->copy(globtree, oldtree);
-    succeeded = success && globtree->score > oldbestyet;
+    succeeded = success && (globtree->score > oldbestyet);
 
     if (progress)
     {
