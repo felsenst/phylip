@@ -451,7 +451,7 @@ void initializetrav (tree* t, node *p)
     for (q = p->next; q != p; q = q->next) {   /* go to rest of fork circle */
       q->initialized = false;            /* ... setting nodes uninitialized */
       initializetrav (t, q->back);        /* ... and on outwards from there */
-/* printf("#");  debug */
+/* debug printf("#");  */
     }
   }
 } /* initializetrav */
@@ -3912,8 +3912,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
           continue;
 
-        removed = sib_ptr;
-         /* pull off a subtree with an interior fork */
+        removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
         curtree->smoothall(curtree, where);
         curtree->copy(curtree, priortree);
@@ -3937,8 +3936,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         }
         if ( !thorough)      /* just put it in the next part of the subtree */
         {
-          if (succeeded && qwhere != where && qwhere != where->back
-               && bestyet > oldbestyet)
+          if (succeeded && (qwhere != where) && (qwhere != where->back)
+               && (bestyet > oldbestyet))
           {
             curtree->insert_(curtree, removed, qwhere, true);
             curtree->smoothall(curtree, where);
@@ -3964,7 +3963,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     globtree->copy(globtree, curtree);
     globtree->copy(globtree, bestree);
     globtree->copy(globtree, oldtree);
-    succeeded = success && globtree->score > oldbestyet;
+    succeeded = success && (globtree->score > oldbestyet);
 
     if (progress)
     {
@@ -4612,7 +4611,7 @@ void generic_tree_nuview(tree* t, node* p)
   }
   t->nuview((tree*)t, p);   /* this actually calculates the view using the
                              * algorithm set up for that kind of data */
-/* printf("M"); debug */
+/* debug printf("M"); */
   p->initialized = true;
 } /* generic_tree_nuview */
 
@@ -4626,13 +4625,13 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   if ( (p->initialized == false) && (p->tip == false) )
   {
     generic_tree_nuview((tree*)t, p);
-printf("*");
+/* debug: printf("*"); */
   }
   if (p->back != NULL) {
     if ( (p->back->initialized == false) && (p->back->tip == false) )
     {
       generic_tree_nuview((tree*)t, p->back);
-printf("*");
+/* debug printf("*"); */
     }
   }
   return 0;
