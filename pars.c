@@ -660,7 +660,10 @@ void maketree(void)
           }
           else
           {
-            fprintf(outfile, "%6ld trees in all found\n", outCount);
+            if (outCount > 1)
+              fprintf(outfile, "%6ld trees in all found\n", outCount);
+            else
+              fprintf(outfile, "%6ld tree found\n", outCount);
           }
         }
       }
@@ -676,7 +679,7 @@ for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
         p = findroot(curtree, curtree->root, &found);   /* get to real root */
         initializetrav(curtree, p);    /* ready to update views */
-/*  debug:      initializetrav(curtree, curtree->root->back); */
+        initializetrav(curtree, curtree->root->back); /*  debug:      */
         curtree->score = curtree->evaluate(curtree, p, false);
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
 /*  debug: curtree->nodep[curtree->root->index - 1] = curtree->root; */
