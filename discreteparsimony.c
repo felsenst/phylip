@@ -408,7 +408,7 @@ void makevalues(tree *t, boolean usertree)
           break;
       }
       ((discretepars_node*)t->nodep[i])->discbase[j] = ns; /* store the set */
-      ((pars_node*)t->nodep[i])->numsteps[j] = 0;    /* no steps needed ... */
+      ((pars_node*)t->nodep[i])->numsteps[j] = 0.0;  /* no steps needed ... */
     }                                              /* ... at or above there */
   }
 }  /* makevalues */
@@ -1009,13 +1009,13 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
 void disc_treelength(node *root, long chars, pointarray treenode)
 {
   /*  calls branchlentrav at each site */
-/* debug:  maybe not name thius "root" since it can be different from the
+/* debug:  maybe not name this "root" since it can be different from the
    root pointer */
   long sitei;
   double trlen;
 
   initbranchlen(root);      /* debug:  initialize something-or-other ... */
-  for (sitei = 1; sitei <= endsite; sitei++)    /* for representative chars */
+  for (sitei = 0; sitei < endsite; sitei++)    /* for representative chars */
   {
     trlen = 0.0;
     discinitbase(root, sitei);    /* initialize the counts, reconstructions */
@@ -1023,9 +1023,11 @@ printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
     branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* go */
+printf("numsteps[%ld]  = %10.6f, %10,6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
     ((pars_node*)root)->numsteps[sitei] = trlen;
+printf("numsteps[%ld]  = %10.6f, %10,6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
   }
-} /* treelength */
+} /* disc_treelength */
 
 
 void discinitmin(discretepars_node *p, long sitei, boolean internal)

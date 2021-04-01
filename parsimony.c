@@ -254,7 +254,7 @@ void pars_node_init(node* p, node_type type, long index)
 
   if (pn->numsteps)
     free(pn->numsteps);
-  pn->numsteps = Malloc(endsite * sizeof(long));
+  pn->numsteps = Malloc(endsite * sizeof(double));
 } /* pars_node_init */
 
 
@@ -265,7 +265,7 @@ void pars_node_reinit(node * n)
   pars_node *pn = (pars_node *)n;
   if (pn->numsteps)
     free(pn->numsteps);
-  pn->numsteps = Malloc(endsite * sizeof(long));
+  pn->numsteps = Malloc(endsite * sizeof(double));
 } /* pars_node_reinit */
 
 
