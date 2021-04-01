@@ -750,8 +750,8 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
   /*  traverses the tree computing tree length at each branch */
   node *q;
 
-if (p->back == NULL)
-/* debug printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); */
+/* debug if (p->back == NULL)
+printf("computing branch length for branch %ld:(NULL) for site %ld\n", p->index, sitei); */
 /* debug else */
 /* debug printf("computing branch length for branch %ld:%ld for site %ld\n", p->index, p->back->index, sitei); */
   if (p->tip)         /* bail if  p  is a tip as already have branch length */
@@ -1023,9 +1023,9 @@ printf("initialize site %ld\n", sitei); /* debug */
     inittreetrav(root, sitei);                    /* traverse to initialize */
     inittreetrav(root->back, sitei);                   /* ... both ways out */
     branchlentrav(root, root, sitei, chars, &trlen, treenode);  /* go */
-printf("numsteps[%ld]  = %10.6f, %10,6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
+printf("numsteps[%ld]  = %10.6ld, %10.6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
     ((pars_node*)root)->numsteps[sitei] = trlen;
-printf("numsteps[%ld]  = %10.6f, %10,6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
+printf("numsteps[%ld]  = %10.6ld, %10.6f\n", sitei, ((pars_node*)root)->numsteps[sitei], trlen);  /* debug */
   }
 } /* disc_treelength */
 
