@@ -30,11 +30,6 @@
 #ifdef WIN32
 #include <windows.h>
 
-void phyClearScreen(void);
-void phySaveConsoleAttributes(void);
-void phySetConsoleAttributes(void);
-void phyRestoreConsoleAttributes(void);
-void phyFillScreenColor(void);
 
 #else
 
@@ -252,8 +247,6 @@ typedef unsigned int boolean;
  * Used in consensus programs and clique */
 #define SETBITS 31
 
-MALLOCRETURN    *mymalloc(long);
-
 /* Static memory parameters */
 
 #define FNMLNGTH        200     /* length of array to store a file name */
@@ -297,8 +290,6 @@ struct stack {
   void *data;
 };
 
-void *pop(stack**);
-stack* push(stack*,void*);
 
 typedef long *steptr;
 typedef long longer[6];
@@ -663,187 +654,202 @@ boolean javarun;
 #ifndef OLDC
 /* function prototypes */
 void            no_op(void);
-void            even_sibs(tree*t,node* src,node* dst);
-node*           where_in_dest (tree* src, tree* dst, node* nsrc);
-void            generic_tree_copy(tree* src, tree* dst);
-void            generic_node_copy(node* src,node* dest);
+void            even_sibs(tree*, node*, node*);
+node*           where_in_dest (tree*, tree*, node*);
+void            generic_tree_copy(tree*, tree*);
+void            generic_node_copy(node*, node*);
 void            generic_fork_print(node*);
 void            generic_node_print(node*);
-void            generic_node_free(node** n);
-void            generic_node_init(node* n, node_type type, long);
-void            generic_node_reinit(node * n);
-node*           generic_new_node(node_type type, long);
-void            phylipinit(int argc, char** argv, initdata* ini, boolean);
-void            scan_eoln(FILE *);
-boolean         filexists(const char *filename);
-boolean         eoff(FILE *);
-boolean         eoln(FILE *);
-const char*     get_command_name (const char *);
+void            generic_node_free(node**);
+void            generic_node_init(node*, node_type, long);
+void            generic_node_reinit(node*);
+node*           generic_new_node(node_type, long);
+void            setupnode(node*, long);
+long            count_sibs (node*);
+void            verify_nuview(node*);
+void            invalidate_nuview(node*);
+void            invalidate_traverse(node*);
+void            inittrav_all(tree*);
+void            inittrav (node*);
 void            EOF_error(void);
-char *          fgetline(FILE *);
+static void	crash_handler(int);
+void            phylipinit(int, char**, initdata*, boolean);
+void            scan_eoln(FILE*);
+boolean         eoff(FILE*);
+boolean         eoln(FILE*);
+boolean         filexists(const char*);
+void            openfile(FILE**, const char*, const char*, const char*,
+                          const char*, char*);
+const char*     get_command_name (const char*);
+static void	_fgetline_finalize(void);
+char*		fgetline(FILE*);
 char            menu_getchar(void);
-void            getstryng(char *);
-void            openfile(FILE **,const char *,const char *,const char *,const char *, char *);
+void            getstryng(char*);
+void            countup(long*, long);
 void            cleerhome(void);
-void            loopcount(long *, long);
+long            readlong(const char*);
+void            uppercase(Char*);
 double          randum(longer);
-void            randumize(longer, long *);
+void            randumize(longer, long*);
 double          normrand(longer);
-long            readlong(const char *);
-void            uppercase(Char *);
-void            initseed(long *, long *, longer);
-void            initjumble(long *, long *, longer, long *);
-void            initoutgroup(long *, long);
-void            initthreshold(double *);
-void            initcatn(long *);
-void            initcategs(long, double *);
-void            initprobcat(long, double *, double *);
-double          logfac (long);
-double          halfroot(double (*func)(long , double), long, double, double);
-double          hermite(long, double);
-void            initlaguerrecat(long, double, double *, double *);
-void            root_hermite(long, double *);
-void            hermite_weight(long, double *, double *);
-void            inithermitcat(long, double, double *, double *);
+void            initseed(long*, long*, longer);
+void            initjumble(long*, long*, longer, long*);
+void            initoutgroup(long*, long);
+void            initthreshold(double*);
+void            initcatn(long*);
+void            initcategs(long, double*);
+void            initprobcat(long, double*, double*);
 void            lgr(long, double, raterootarray);
+double          logfac (long);
 double          glaguerre(long, double, double);
-void            initgammacat(long, double, double *, double *);
-void            inithowmany(long *, long);
-void            inithowoften(long *);
-void            initlambda(double *);
-void            initfreqs(double *, double *, double *, double *);
-void            initratio(double *);
-void            initpower(double *);
-void            initdatasets(long *);
-void            justweights(long *);
-void            initterminal(boolean *, boolean *);
-void            initnumlines(long *);
-void            newline(FILE *, long, long, long);
-void            recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
-                                   boolean *goteof, boolean *first,
-                                   long *nexttip, long *nextnode, boolean *haslengths, boolean unifok);
-void            inputnumbers(long *, long *, long *, long);
-void            inputnumbers2(long *, long *, long n);
-void            inputNumbersFromTreeFile(FILE *, long * spp, long * nonodes);
-void            samenumsp(long *, long);
+void            initlaguerrecat(long, double, double*, double*);
+double          hermite(long, double);
+void            root_hermite(long, double*);
+double          halfroot(double (*func)(long , double), long, double, double);
+void            hermite_weight(long, double*, double*);
+void            inithermitcat(long, double, double*, double*);
+void            initgammacat(long, double, double*, double*);
+void            inithowmany(long*, long);
+void            inithowoften(long*);
+void            initlambda(double*);
+void            initfreqs(double*, double*, double*, double*);
+void            initratio(double*);
+void            initpower(double*);
+void            initdatasets(long*);
+void            justweights(long*);
+void            initterminal(boolean*, boolean*);
+void            initnumlines(long*);
+void            newline(FILE*, long, long, long);
+void            recursiveTreeRead( Char*, long*, FILE*, boolean*, boolean*,
+                                   long*, long*, boolean*, boolean);
+void            inputNumbersFromTreeFile(FILE*, long* spp, long*);
+void            inputnumbers(long*, long*, long*, long);
+void            inputnumbers2(long*, long*, long);
+void            samenumsp(long*, long);
 void            samenumsp2(long);
-void            readoptions(long *, const char *);
-void            matchoptions(Char *, const char *);
-void            inputweights(long, steptr, boolean *);
-void            inputweights2(long, long, long *, steptr, boolean *, const char *);
-void            printweights(FILE *, long, long, steptr, const char *);
-void            inputcategs(long, long, steptr, long, const char *);
-void            printcategs(FILE *, long, steptr, const char *);
-void            inputfactors(long, Char *, boolean *);
-void            printfactors(FILE *, long, Char *, const char *);
-void            headings(long, const char *, const char *);
+void            readoptions(long*, const char*);
+void            matchoptions(Char*, const char*);
+void            headings(long, const char*, const char*);
 void            initname(long);
-void            checknames(long int num_species);
-void            findtree(boolean *,long *,long,long *,bestelm *);
-void            addtree(long,long *,boolean,long *,bestelm *);
-long            findunrearranged(bestelm *, long, boolean);
-void            shellsort(double *, long *, long);
-void            getch(Char *, long *, FILE *);
-void            findch(Char, Char *, long);
-void            processlength(double *,double *,Char *,boolean *,FILE *,long *);
-void            writename(long, long, long *);
+void            checknames(long int);
+void            inputweights(long, steptr, boolean*);
+void            inputweights2(long, long, long*, steptr, boolean*, const char*);
+void            printweights(FILE*, long, long, steptr, const char*);
+void            inputcategs(long, long, steptr, long, const char*);
+void            printcategs(FILE*, long, steptr, const char*);
+void            inputfactors(long, Char*, boolean*);
+void            printfactors(FILE*, long, Char*, const char*);
+void            findtree(boolean*, long*, long, long*, bestelm*);
+void            addtree(long, long*, boolean, long*, bestelm*);
+long            findunrearranged(bestelm*, long, boolean);
+void            shellsort(double*, long*, long);
+void            getch(Char*, long*, FILE*);
+void            findch(Char, Char*, long);
+void            processlength(double*,double*, Char*, boolean*, FILE*, long*);
+void            commentskipper(FILE*, long*);
+long            countcomma(FILE*, long*);
+long            countsemic(FILE*);
 void            memerror(void);
 void            odd_malloc(long);
-void            chuck(node **, node *);
-void            allocdiscnontip(node *, long );
-void            allocnode(node **, long);
-void            allocdiscnode(node **, long );
-void            gnudisctreenode(node **, node **, long , long);
-void            chucktreenode(node **, node *);
-void            setupnode(node *, long);
-long            count_sibs (node *);
-void            invalidate_nuview(node *p);
-void            invalidate_traverse(node *p);
-void            inittrav_all(tree *t);
-void            inittrav (node *);
-void            commentskipper(FILE *, long *);
-long            countcomma(FILE *, long *);
-long            countsemic(FILE *);
-void            hookup(node *, node *);
+MALLOCRETURN    *mymalloc(long);
+
+void            hookup(node*, node*);
 void            link_trees(long, long , long, pointarray);
-void            allocate_nodep(pointarray *, FILE *, long  *);
-long            take_name_from_tree (Char *, Char *, FILE *);
-void            match_names_to_data (Char *, pointarray, node **, long);
-void            addelement(tree *, node **, node *, Char *, long *, FILE *, pointarray,
-                           boolean *, boolean *, long *, long *, boolean *, initptr,boolean,long);
-void            treeread (tree *, FILE *, node **, pointarray, boolean *, boolean *,
-                          long *, boolean *, initptr,boolean,long);
-void            addelement2(node *, Char *, long *, FILE *, pointarray, boolean,
-                            double *, boolean *, long *, long *, long, boolean *,boolean, long);
-void            treeread2 (FILE *, node **, pointarray, boolean, double *,
-                           boolean *, boolean *, long *,boolean,long);
+void            allocate_nodep(pointarray*, FILE*, long*);
+long            take_name_from_tree (Char*, Char*, FILE*);
+void            match_names_to_data (Char*, pointarray, node**, long);
+void            addelement(tree*, node**, node*, Char*, long*, FILE*,
+                            pointarray, boolean*, boolean*, long*, long*,
+                            boolean*, initptr, boolean, long);
+void            treeread (tree*, FILE*, node**, pointarray, boolean*, boolean*,
+                           long*, boolean*, initptr, boolean, long);
+void            addelement2(node*, Char*, long*, FILE*, pointarray, boolean,
+                             double*, boolean*, long*, long*, long, boolean*,
+                             boolean, long);
+void            treeread2 (FILE*, node**, pointarray, boolean, double*,
+                            boolean*, boolean*, long*, boolean, long);
 void            exxit (int);
-void            countup(long *loopcount, long maxcount);
-char            gettc(FILE* file);
-void            unroot_r(node* p,node ** nodep, long nonodes);
-void            unroot(tree* t,long nonodes);
-void            unroot_here(node* root, node** nodep, long nonodes);
-void            destruct_tree(tree* t);
-void            generic_globrearrange(tree*, boolean, boolean);
-tree*           tree_new(long nonodes, long spp) ;
-tree*           generic_tree_new(long nonodes, long spp);
-void            generic_tree_init(tree*, long, long);
-void            generic_tree_print(tree*);
+char            gettc(FILE*);
+void            unroot(tree*, long);
+void            unroot_here(node*, node**, long);
+void            unroot_r(node*, node**, long);
+void            destruct_tree(tree*);
 void            generic_tree_free(tree*);
-boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**, double*,
-                                         tree*, tree*, boolean, boolean*);
-void            rooted_globrearrange(tree* curtree,boolean progress, boolean thorough);
-void            generic_tree_save_lr_nodes(tree* t, node* p, node* r);
-void            generic_tree_restore_lr_nodes(tree* t, node* p, node* r);
-void            unrooted_tree_save_lr_nodes(tree* t, node* p, node* r);
-void            unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r);
-void            generic_unrooted_locrearrange(tree*,node*,boolean,tree*,tree*);
-void            generic_tree_save_traverses(tree* t, node * p, node* q);
-void            generic_tree_restore_traverses(tree* t, node *p, node* q);
-void            rooted_locrearrange(tree*,node*,boolean,tree*,tree*);
-void            rooted_tree_save_lr_nodes(tree* t, node* p, node* whereto);
-void            rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto);
-node*           generic_tree_get_fork(tree*);
-void            generic_tree_release_fork(tree*,node*);
-void            generic_tree_nuview(tree* t, node*p );
-double          generic_tree_evaluate(tree *t, node* p, boolean dummy);
-void            generic_tree_insert_(tree*,node*,node*,boolean,boolean);
-node*           generic_tree_get_forknode(tree* t,long i);
-void            generic_re_move(tree* t, node* item, node* where, boolean doinit);
-void            generic_tree_re_move(tree* t, node* item, node** where, boolean doinit);
-void            generic_tree_release_forknode(tree* t,node* n);
-void            generic_tree_reinit_forknode(tree* t,node* n);
-boolean         generic_tree_try_insert_(tree *,node *, node *,node**, double*,tree*,
-                        tree*,boolean,boolean*);
-void            buildsimpletree(tree *tr, long* enterorder);
-void            hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean progress) ;
-void            rooted_tree_init(tree* t, long nonodes, long spp);
-void            rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit, boolean multf);
-void            rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit);
-void            preparetree(tree* t);
-void            fixtree(tree* t);
-void            arbitrary_resolve(tree* t) ;
-void            generic_inittravtree(node *p);
-void            generic_treevaluate(tree*, boolean, boolean global, boolean progress);
-void            verify_nuview(node *p);
+void            rooted_tree_init(tree*, long, long);
+void            generic_tree_init(tree*, long, long);
+tree*           generic_tree_new(long, long);
+void            generic_tree_print(tree*);
+boolean         generic_tree_good(tree*);
+boolean         generic_fork_good(tree*, node*);
+boolean         generic_node_good(tree*, node*);
+void            rooted_globrearrange(tree*, boolean, boolean);
+void            generic_globrearrange(tree*, boolean, boolean);
+boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
+                                          double*, tree*, tree*, boolean,
+                                          boolean*);
+#ifdef WIN32
+void 		phySaveConsoleAttributes(void);
+void 		phySetConsoleAttributes(void);
+void 		phyRestoreConsoleAttributes(void);
+void 		phyFillScreenColor(void);
+void 		phyClearScreen(void);
+#endif
 
-void            generic_do_branchl_on_insert(tree*,node*,node*);
-void            generic_do_branchl_on_re_move(tree*,node*,node*);
-
-
-boolean         generic_tree_good(tree* t);
-boolean         generic_fork_good(tree* t, node *);
-boolean         generic_node_good(tree* t, node *);
-
+void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
+void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
+void            generic_unrooted_locrearrange(tree*, node*, boolean, tree*,
+                                               tree*);
+boolean		unrooted_tree_locrearrange_recurs(tree*, node*, node*, double*,
+                                                   boolean, tree*, tree*);
+void            generic_tree_save_traverses(tree*, node*, node*);
+void            generic_tree_restore_traverses(tree*, node*, node*);
+static void	rooted_tryrearr(tree*, node*, boolean*);
+static void	rooted_repreorder(tree*, node*, boolean*);
+void            rooted_locrearrange(tree*, node*, boolean, tree*, tree*);
+void            generic_tree_save_lr_nodes(tree*, node*, node*);
+void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
+void*		pop(stack**);
+stack* 		push(stack*,void*);
+node*           generic_tree_get_fork(tree*, long);
+void            generic_tree_release_fork(tree*, node*);
+void            generic_tree_nuview(tree*, node*);
+double          generic_tree_evaluate(tree*, node*, boolean);
+void            generic_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            generic_do_branchl_on_insert(tree*, node*, node*);
+node*           generic_tree_get_forknode(tree*,long);
+void            generic_tree_re_move(tree*, node*, node**, boolean);
+void            generic_re_move(tree*, node*, node*, boolean);
+void            generic_do_branchl_on_re_move(tree*, node*, node*);
+void            generic_tree_release_forknode(tree*, node*);
+boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
+                                          tree*, tree*, boolean, boolean*);
+void            rooted_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            buildsimpletree(tree*, long*);
+void            rooted_tree_re_move(tree*, node*, node**, boolean);
+void            hsbut(tree*, boolean, boolean, longer, boolean) ;
+void            preparetree(tree*);
+void            fixtree(tree*);
+void            arbitrary_resolve(tree*) ;
+void            writename(long, long, long*);
 void            print_progress(char*);
 
-// debug tools
-void seetree(node *p, pointarray nodep, long nonodes);
-void seetree2(tree * curtree);
-void dumpnodelinks(node *p, pointarray nodep, long nonodes);
+void 		seetree(node *p, pointarray nodep, long nonodes);
+void 		seetree2(tree * curtree);
+void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);
 
+/* following not in phylip.c */
 
+void            allocdiscnontip(node*, long );
+void            allocnode(node**, long);
+void            allocdiscnode(node**, long);
+void            gnudisctreenode(node**, node**, long, long);
+void            generic_tree_restore_lr_nodes(tree*, node*, node*);
+void            rooted_tree_save_lr_nodes(tree*, node*, node*);
+void            generic_tree_reinit_forknode(tree*, node*);
+void            generic_inittravtree(node*);
+void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
+
 #endif /* _PHYLIP_H_ */
 
 
