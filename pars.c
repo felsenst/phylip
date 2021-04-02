@@ -566,7 +566,7 @@ void pars_printree(void)
   long tipy;
   double scale, tipmax;
   long i;
-  boolean found;
+  boolean *found;
   node *p, *q;
 
   if (!treeprint)
