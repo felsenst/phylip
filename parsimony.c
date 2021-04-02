@@ -1482,7 +1482,7 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
   k=0;
 
   /*calculate the steps */
-  p = findroot(t, t->root, &found);
+  p = findroot(t, t->root, found);
   if (p->initialized == false ) t->nuview(t, p);
 
   /* print them */
