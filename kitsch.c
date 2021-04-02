@@ -348,9 +348,9 @@ void input_data(void)
       fprintf(outfile, "-------------");
     fprintf(outfile, "\n\n");
   }
-  setuptree(curtree, nonodes);
+  dist_tree_new(curtree, nonodes);
   if (!usertree && njumble > 1)
-    setuptree(bestree, nonodes);
+    dist_tree_new(bestree, nonodes);
   for (i = 0; i < spp; i++)
   {
     ((dist_node*)curtree->nodep[i])->d[i] = 0.0;

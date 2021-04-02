@@ -9,27 +9,28 @@
 #endif
 
 #include "phylip.h"
-#include "discrete.h"
+#include "discreteparsimony.h"
 
-extern long maxtrees; /* parsimony.c */
-extern long nextree;    /* parsimony.c */
+extern long maxtrees;   /* from parsimony.c */
+extern long nextree;    /* from parsimony.c */
 
 #ifndef OLDC
 /* function prototypes */
+void   pars_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
 void   makeweights(void);
 void   doinput(void);
 void   evaluate(node *);
-void   tryadd(node *, node *, node *);
-void   addpreorder(node *, node *, node *);
-void   trydescendants(node *, node *, node *, node *, boolean);
-void   trylocal(node *, node *);
-void   trylocal2(node *, node *, node *);
-void   tryrearr(node *p, boolean *);
-void   repreorder(node *p, boolean *);
-void   rearrange(node **);
+void   tryadd(node *, node *, node *);         /* debug: used at all? */
+void   addpreorder(node *, node *, node *);         /* debug: used at all? */
+void   trydescendants(node *, node *, node *, node *, boolean);         /* debug: used at all? */
+void   trylocal(node *, node *);         /* debug: used at all? */
+void   trylocal2(node *, node *, node *);         /* debug: used at all? */
+void   tryrearr(node *p, boolean *);         /* debug: used at all? */
+void   repreorder(node *p, boolean *);         /* debug: used at all? */
+void   rearrange(node **);         /* debug: used at all? */
 void   describe(void);
 void   pars_coordinates(node *, double, long *, double *);
 void   pars_printree(void);
@@ -50,12 +51,13 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreen
 long chars, col, msets, ith, njumble, jumb = 0, nonodes = 0;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
-double threshold;
-boolean jumble, usertree, reusertree, thresh, weights, thorough, rearrfirst, trout, progress, stepbox, ancseq, mulsets, justwts, firstset, mulf, multf;
+double threshold, bestfound;
+boolean jumble, usertree, reusertree, thresh, weights, thorough, rearrfirst,
+    trout, progress, stepbox, ancseq, mulsets, justwts, firstset, mulf, multf;
 steptr oldweight;
 longer seed;
-tree* curtree;            /* pointers to all nodes in tree */
 long *enterorder;
+tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
 char *progname;
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
@@ -70,6 +72,16 @@ extern bestelm *bestrees, **rebestrees;
 double *threshwt;
 discbaseptr nothing;
 boolean *names;
+
+
+void pars_tree_setup(long nonodes, long spp)
+{
+  /* call allocation and initialization of three new tree(s) */
+
+  curtree = discretepars_tree_new(nonodes, spp);
+  bestree = discretepars_tree_new(nonodes, spp);
+  priortree = discretepars_tree_new(nonodes, spp);
+} /* pars_tree_setup */
 
 
 void getoptions(void)
@@ -462,15 +474,15 @@ void doinput(void)
     }
   }
   makeweights();
-  curtree = (tree*)discretepars_tree_new(nonodes, spp);
-  makevalues(curtree, usertree);
+  pars_tree_setup(nonodes, spp);                  /* set up the three trees */
+  makevalues(curtree, usertree);   /* put information on characters at tips */
 }  /* doinput */
 
 
 void describe(void)
 {
-  /* prints ancestors, steps and table of numbers of steps in
-     each site */
+  /* prints ancestors, steps and table of numbers of steps in each site */
+  long indent;
 
   if (treeprint)
   {
@@ -479,18 +491,19 @@ void describe(void)
     fprintf(outfile, "  -------      ---       ------\n");
     printbranchlengths(curtree->root);
   }
-  if (stepbox)
+  if (stepbox)            /* write out table of steps in each character */
     writesteps(curtree, chars, weights, oldweight);
-  if (ancseq)
+  if (ancseq)         /* write out states at interior nodes in the tree */
   {
     disc_hypstates(curtree, chars);
     putc('\n', outfile);
   }
   putc('\n', outfile);
   if (trout)
-  {
+  {                                /* write out trees to file  outtree */
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    indent = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
@@ -498,43 +511,52 @@ void describe(void)
 void pars_coordinates(node *p, double lengthsum, long *tipy,
                       double *tipmax)
 {
-  /* establishes coordinates of nodes */
+  /* establishes coordinates of nodes where tree is drawn left to right
+   * so y coordinate is across tips and x coordinate is along branches */
   node *q, *first, *last;
   double xx;
 
   if (p == NULL)
     return;
   if (p->tip)
-  {
+  {                       /* if it is a tip, assign ycoord next amount down */
     p->xcoord = (long)(over * lengthsum + 0.5);
     p->ycoord = (*tipy);
     p->ymin = (*tipy);
     p->ymax = (*tipy);
     (*tipy) += down;
-    if (lengthsum > (*tipmax))
+    if (lengthsum > (*tipmax))     /* keep track of how far to right tip is */
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;
-  do {
+  if (p == curtree->root)
+    q = p;                      /* q will point to nodes along fork circle */
+  else
+    q = p->next;                  /* if not at rootmost fork don't go back */
+  do { 
     xx = q->v;
-    if (xx > 100.0)
+    if (xx > 100.0)     /* make sure tree doesn't stick out too far on line */
       xx = 100.0;
-    pars_coordinates(q->back, lengthsum + xx, tipy, tipmax);
+    if (q->back != NULL)
+      pars_coordinates(q->back, lengthsum + xx, tipy, tipmax);   /* recurse */
     q = q->next;
   } while (p != q);
-  first = p->next->back;
+  first = p->next->back;             /* find immediate first descendant ,,, */
   q = p;
-  while (q->next != p)
+  while (q->next != p) {
     q = q->next;
-  last = q->back;
+    if (q->back != NULL)
+      last = q->back;                                   /* ... and last one */
+  }
   p->xcoord = (long)(over * lengthsum + 0.5);
-  if ((p == curtree->root) || count_sibs(p) > 2)
-    p->ycoord = p->next->next->back->ycoord;
-  else
+  if ( (count_sibs(p) > 2) || ((p == curtree->root) 
+                               && (p->next->next->back != NULL)) ) {
+      p->ycoord = p->next->next->back->ycoord;
+  }
+  else   /* y coordinate is halfway between that of first, last descendants */
     p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
-  p->ymax = last->ymax;
+  p->ymin = first->ymin;                   /* y coordinates of leftmost ... */
+  p->ymax = last->ymax;   /* ... and rightmost tips descended from this one */
 }  /* pars_coordinates */
 
 
@@ -544,42 +566,47 @@ void pars_printree(void)
   long tipy;
   double scale, tipmax;
   long i;
+  boolean found;
+  node *p, *q;
 
   if (!treeprint)
     return;
   putc('\n', outfile);
-  tipy = 1;
-  tipmax = 0.0;
-  pars_coordinates(curtree->root, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
-  for (i = 1; i <= (tipy - down); i++)
-    drawline3(i, scale, curtree->root);
+  tipy = 1;                   /* line in the diagram that has the first tip */
+  tipmax = 0.0;      /* this ends up with how far to right the tree extends */
+  
+  p = findroot(curtree, curtree->root, &found);    /* get to real root node */
+  q = p;                                            /* save a pointer to it */
+  pars_coordinates(p, 0.0, &tipy, &tipmax);     /* get coordinates of nodes */
+  scale = 1.0 / (long)(tipmax + 1.000);      /* rescale to right tree width */
+  for (i = 1; i <= tipy; i++)            /* draw rows of diagram one by one */
+    drawline3(i, scale, q);      /* each starts from root, works way to tip */
   putc('\n', outfile);
 }  /* pars_printree */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, nextnode;
+  long i, j, nextnode, outCount, missedCount;
   boolean firsttree, goteof, haslengths;
-#if 0                                   // RSGbugfix: Global variable never used.
-  pointarray nodep;
-#endif
 
   // RSGnote: This was formerly uninitialized and potentially referenced before being set
   // below, depending on which branch of the first IF below was taken.
   long numtrees = 0;
+  boolean found;
+  node *p;
 
   if (!usertree)
-  {
+  {                            /* if sequentially adding, rearranging trees */
     lastrearr = false;
-    hsbut(curtree, false, jumble, seed, progress);
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed,
+           progress, &bestfound);      /* call adding and local rearranging */
 
     if (progress)
-    {
+    {      /* announce doing SPR rearrangements, print head of progress bar */
       sprintf(progbuf, "\nDoing global rearrangements");
       print_progress(progbuf);
       if (rearrfirst)
@@ -589,8 +616,8 @@ void maketree(void)                     // RSGbugfix
       print_progress(progbuf);
       sprintf(progbuf, "  !");
       print_progress(progbuf);
-      for (j = 0; j < nonodes; j++)
-      {
+      for (j = 0; j < nonodes; j++) 
+      {                             /* printing reasonable number of dashes */
         if (j % ((nonodes / 72) + 1) == 0)
         {
           sprintf(progbuf, "-");
@@ -602,8 +629,8 @@ void maketree(void)                     // RSGbugfix
     }
 
     phyFillScreenColor();
-    grandrearr(curtree, progress, rearrfirst);
-
+    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
+        /* call function doing collapsing of best trees, SPR rearrangements */
     if (progress)
     {
       sprintf(progbuf, "\n");
@@ -611,37 +638,52 @@ void maketree(void)                     // RSGbugfix
       phyFillScreenColor();
     }
     recompute = false;
-    if (jumb == njumble)
+    if (jumb == njumble)  /* when at the last (or only) tree reconstruction */
     {
-      long outCount = 0;
+      missedCount = 0;       /* will count how many tied trees we leave out */
+      outCount = nextree;    /* will count how many tied trees we print out */
       collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
-      long missedCount = nextree - 1 - maxtrees;
+      missedCount = nextree - 1 - maxtrees;
       if (treeprint)
       {
         putc('\n', outfile);
-        if (outCount == 2)
+        if (outCount == 0)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
         {
           if (missedCount > 0)
           {
-            fprintf(outfile, "as many as %ld trees may have been found\n", missedCount + outCount);
-            fprintf(outfile, "here are the first %4ld of them\n", outCount );
+            fprintf(outfile, "as many as %ld trees may have been found\n",
+                               missedCount + outCount + 1);
+            fprintf(outfile, "here are the first %4ld of them\n",
+                               outCount + 1 );
           }
           else
           {
-            fprintf(outfile, "%6ld trees in all found\n", outCount);
+            if (outCount > 1)
+              fprintf(outfile, "%6ld trees in all found\n", outCount);
+            else
+              fprintf(outfile, "%6ld tree found\n", outCount);
           }
         }
       }
       if (treeprint)
         putc('\n', outfile);
-      for (i = 0; i < outCount ; i++)
+      for (i = 0; i < outCount ; i++)           /* print out the best trees */
       {
         load_tree(curtree, i, bestrees);
-        curtree->evaluate(curtree, curtree->root, 0);
-        curtree->root = root_tree(curtree, curtree->root);
-        disc_treelength(curtree->root, chars, curtree->nodep);
+/* debug */
+printf("PRINT TREE %ld: ",i+1);
+for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
+/* debug */
+/* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
+        p = findroot(curtree, curtree->root, &found);   /* get to real root */
+        initializetrav(curtree, p);    /* ready to update views */
+        initializetrav(curtree, curtree->root->back); /*  debug:      */
+        curtree->score = curtree->evaluate(curtree, p, false);
+/* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
+/*  debug: curtree->nodep[curtree->root->index - 1] = curtree->root; */
+        disc_treelength(p, chars, curtree->nodep);
         pars_printree();
         describe();
       }
@@ -669,7 +711,7 @@ void maketree(void)                     // RSGbugfix
         putc('s', outfile);
       fprintf(outfile, ":\n");
     }
-    if (!reusertree)
+    if (!reusertree)       /* if not rearranging the trees that are read in */
     {
       fsteps = (long **)Malloc(maxuser * sizeof(long *));
       for (j = 1; j <= maxuser; j++)
@@ -688,21 +730,21 @@ void maketree(void)                     // RSGbugfix
       firsttree = true;
       nextnode = 0;
       haslengths = true;
-      preparetree(curtree);
+/* debug:      preparetree(curtree);     need it?  */
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
       fixtree(curtree);
-      reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+      reroot_tree(curtree);
       curtree->evaluate(curtree, curtree->root, false);
 
-      if ( reusertree )
-      {
+      if ( reusertree )                      /* if rearrange the user trees */
+      {                          /* but don't print them out till done that */
         rebestyet = curtree->score;
         bestrees = rebestrees[0];
-        grandrearr(curtree, progress, rearrfirst);
+        grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
         which++;
       }
       else
-      {
+      {                                         /* print out this user tree */
         curtree->root = root_tree(curtree, curtree->root);
         if (treeprint)
           fprintf(outfile, "\n\n");
@@ -715,7 +757,7 @@ void maketree(void)                     // RSGbugfix
       }
     }
     if ( reusertree )
-    {
+    {        /* if user trees were rearranged, now, finally, print them out */
       for (i = 0; i <= (nextree - 2); i++)
       {
         load_tree(curtree, i, bestrees);
@@ -729,7 +771,7 @@ void maketree(void)                     // RSGbugfix
 
     FClose(intree);
     putc('\n', outfile);
-    if (numtrees > 1 && chars > 1  && !reusertree)
+    if (numtrees > 1 && chars > 1  && !reusertree)     /* do KHT or SH Test */
       standev(chars, numtrees, minwhich, minsteps, nsteps, fsteps, seed);
     if ( !reusertree)
     {
@@ -739,18 +781,18 @@ void maketree(void)                     // RSGbugfix
     }
   }
 
-  if (jumb == njumble)
+  if (jumb == njumble)        /* if at end of last jumble or if no jumbling */
   {
-    if (progress)
+    if (progress)    /* announce that the trees were written to output file */
     {
       sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);
       print_progress(progbuf);
-      if (trout)
+      if (trout)          /* ... and if needed, to the output tree file too */
       {
         sprintf(progbuf, "Tree");
         print_progress(progbuf);
         // RSGnote: If IF branch of first conditional is taken, "numtrees" would have been uninitialized here.
-        if ((usertree && numtrees > 1) || (!usertree && nextree != 2))
+        if ((usertree && numtrees > 1) || (!usertree && nextree != 1))
         {
           sprintf(progbuf, "s");
           print_progress(progbuf);
@@ -765,13 +807,15 @@ void maketree(void)                     // RSGbugfix
 
 void freerest(void)
 {
-  free(threshwt);
+/* debug    free(threshwt);    for some reasons blows up so commented out, as in Dnapars */
 }  /* freerest*/
 
 
 void parsrun(void)
 {
-  // debug printout // JRMdebug
+  /* run the inference of trees, for all data sets and all addition orders
+   * of species */
+
   /*
     printf("jumble: %i\n", jumble);
     printf("njumble: %li\n", njumble);
@@ -795,26 +839,26 @@ void parsrun(void)
     printf("interleaved: %i\n", interleaved);
     printf("justwts: %i\n", justwts);
   */
-  // do the work
-  for (ith = 1; ith <= msets; ith++) {
+
+  for (ith = 1; ith <= msets; ith++) {                /* for each data set */
     if (msets > 1 && !justwts) {
       fprintf(outfile, "\nData set # %ld:\n\n", ith);
       if (progress)
-      {
+      {                        /* print notification of progress on screen */
         sprintf(progbuf, "\nData set # %ld:\n\n", ith);
         print_progress(progbuf);
       }
     }
-    doinput();
+    doinput();                /* get input and set up tips of tree with it */
     if (ith == 1)
       firstset = false;
-    for (jumb = 1; jumb <= njumble; jumb++)
-      maketree();
+    for (jumb = 1; jumb <= njumble; jumb++) /* for jumbling addition order */
+      maketree(); /* reconstruct tree for one order of addition of species */
     fflush(outfile);
     fflush(outtree);
     freerest();
   }
-}
+} /* parsrun */
 
 
 void pars(
@@ -848,6 +892,8 @@ void pars(
   int PrintSeq,
   int WriteTree)
 {
+  /* function that uses data sent from Java interface */
+
   initdata *funcs;
   //printf("Hello from Pars!\n"); // JRMdebug
   //fflush(stdout);
@@ -1145,13 +1191,13 @@ void pars(
     FClose(outtree);
   }
   //printf("\ndone\n"); // JRMdebug
-}
+} /* pars */
 
 
 int main(int argc, Char *argv[])
 {  /* Discrete character parsimony by uphill search */
 
-  /* reads in spp, chars, and the data. Then calls maketree to construct the tree */
+  /* reads in spp, chars, and data. Calls maketree to construct the tree */
   initdata *funcs;
 #ifdef MAC
   argc = 1;                /* macsetup("Pars", "");                */
@@ -1179,12 +1225,15 @@ int main(int argc, Char *argv[])
 
   FClose(infile);
   FClose(outfile);
-  if (weights || justwts)
+  if (weights || justwts) {
     FClose(weightfile);
-  if (trout)
+  }
+  if (trout) {
     FClose(outtree);
-  if (usertree)
+  }
+  if (usertree) {
     FClose(intree);
+  }
 #ifdef MAC
   fixmacfile(outfilename);
   fixmacfile(outtreename);

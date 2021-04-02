@@ -96,7 +96,7 @@ void getoptions(void)
   jumble = false;
   njumble = 1;
   thresh = false;
-  threshold = spp;
+  threshold = 2 * spp;
   trout = true;
   usertree = false;
   goteof = false;
@@ -495,29 +495,26 @@ void evaluate(node *r)
   double sum, term;
 
   sum = 0.0;
-  for (i = 0; i < chars; i++)
-  {
+  for (i = 0; i < chars; i++) {
     numszero[i] = 0;
     numsone[i] = 0;
   }
   for (i = 0; i < words; i++)
     zeroanc[i] = fullset;
   postorder(r);
-  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, curtree->nodep);
+  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
   for (i = 0; i < words; i++)
     zeroanc[i] = 0;
   postorder(r);
-  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, curtree->nodep);
-  for (i = 0; i < chars; i++)
-  {
-    smaller = spp * weight[i];
+  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+  for (i = 0; i < chars; i++) {
+    smaller = 2 * spp * weight[i];
     numsteps[i] = smaller;
-    if (anczero[i])
-    {
+    if (anczero[i]) {
       numsteps[i] = numszero[i];
       smaller = numszero[i];
     }
-    if (ancone[i] && numsone[i] < smaller)
+    if (ancone[i] && (numsone[i] < smaller))
       numsteps[i] = numsone[i];
     stepnum = numsteps[i] + extras[i];
     if (stepnum <= threshwt[i])
@@ -525,24 +522,20 @@ void evaluate(node *r)
     else
       term = threshwt[i];
     sum += term;
-    if (usertree && which <= maxuser)
+    if (usertree && (which <= maxuser))
       fsteps[which - 1][i] = term;
     guess[i] = '?';
-    if (!ancone[i] || (anczero[i] && numszero[i] < numsone[i]))
+    if (!ancone[i] || (anczero[i] && (numszero[i] < numsone[i])))
       guess[i] = '0';
-    else if (!anczero[i] || (ancone[i] && numsone[i] < numszero[i]))
+    else if (!anczero[i] || (ancone[i] && (numsone[i] < numszero[i])))
       guess[i] = '1';
   }
-  if (usertree && which <= maxuser)
-  {
+  if (usertree && (which <= maxuser)) {
     nsteps[which - 1] = sum;
-    if (which == 1)
-    {
+    if (which == 1) {
       minwhich = 1;
       minsteps = sum;
-    }
-    else if (sum < minsteps)
-    {
+    } else if (sum < minsteps) {
       minwhich = which;
       minsteps = sum;
     }
@@ -918,10 +911,10 @@ void maketree(void)
       if (treeprint)
       {
         putc('\n', outfile);
-        if (nextree == 2)
+        if (nextree == 1)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
-          fprintf(outfile, "%6ld trees in all found\n", nextree - 1);
+          fprintf(outfile, "%6ld trees in all found\n", nextree);
       }
       if (nextree > maxtrees + 1)
       {

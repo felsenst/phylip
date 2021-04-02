@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -14,9 +13,9 @@
 #include <unistd.h>
 
 extern long nextree;    /* (parsimony.c) */
-extern long maxtrees;   /* (parsimony.c) maximum number of trees to be printed out */
-#define often           10000 /* how often to notify how many trees examined */
-#define many            1000  /* how many multiples of howoften before stop  */
+extern long maxtrees;   /* (parsimony.c) max number trees to be printed out */
+#define often          10000 /* how often to notify how many trees examined */
+#define many           1000  /* how many multiples of howoften before stop  */
 
 typedef node **pointptr;
 typedef double *valptr;
@@ -45,25 +44,32 @@ void   maketree(void);
 void   reallocchars(void);
 tree*  dnapenny_tree_new(long nonodes, long spp);
 void   dnapenny_tree_init(tree* t, long nonodes, long spp);
-boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, double *bestyet, tree* dummy, tree* dummy2, boolean dummy3, boolean*multf);
+boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node* where,
+                                   double *bestyet, tree* dummy, boolean,
+                                   boolean, boolean, double*);
 long calculate_supplement(long i);
 void nodeshellsort(double *a, node **b, long n);
 void dnapennyrun(void);
-void dnapenny(char * infilename, char * outfilename, char * outfileopt, char * weightsfilename, char * outtreename,
-              char * outtreeopt, int TreeGroups, int ReportFreq, int BaBSimple, int OutRoot, int OutNum,
-              int ThreshPars, double ThreshVal, int SitesWeighted, int AnalyzeMult, int NumMult, int MultDataSet,
-              int InputSeq, int PrintData, int DotDiff, int PrintInd, int PrintTree, int PrintSteps,
-              int PrintSeq, int WriteTree);
+void dnapenny(char * infilename, char * outfilename, char * outfileopt,
+               char * weightsfilename, char * outtreename, char * outtreeopt,
+               int TreeGroups, int ReportFreq, int BaBSimple, int OutRoot,
+               int OutNum, int ThreshPars, double ThreshVal,
+               int SitesWeighted, int AnalyzeMult, int NumMult,
+               int MultDataSet, int InputSeq, int PrintData, int DotDiff,
+               int PrintInd, int PrintTree, int PrintSteps, int PrintSeq,
+               int WriteTree);
 /* function prototypes */
 #endif
 
-Char infilename[FNMLNGTH], outfilename[FNMLNGTH], outtreename[FNMLNGTH], weightfilename[FNMLNGTH];
+Char infilename[FNMLNGTH], outfilename[FNMLNGTH], outtreename[FNMLNGTH],
+      weightfilename[FNMLNGTH];
 node *p;
 long chars, howmanny, howoften, col, msets, ith, nonodes = 0;
-boolean weights, thresh, simple, trout, progress, stepbox, ancseq, mulsets, firstset, justwts;
-double threshold;
+boolean weights, thresh, simple, trout, progress, stepbox, ancseq, mulsets,
+         firstset, justwts;
+double threshold, bestfound;
 steptr oldweight;
-tree *curtree;
+tree *curtree, *bestree;
 dnapenny_tree* dcurtree;
 double fracdone, fracinc;
 boolean *added;
@@ -86,10 +92,10 @@ double *threshwt;
 long **supplements;
 boolean *supplement_cache;
 baseptr nothing;
-long suppno[] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4};
+long suppno[] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+                  2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4};
 
-long suppset[] =          /* this was previously a function. */
-{                                  /* in C, it doesn't need to be.    */
+long suppset[] = {          /* extra steps needed if in this state at a tip */
   1 << ((long)A),
   1 << ((long)C),
   1 << ((long)G),
@@ -125,23 +131,36 @@ long suppset[] =          /* this was previously a function. */
 
 tree* dnapenny_tree_new(long nonodes, long spp)
 {
+  /* allocate a new tree and call function to initialize it */
   tree *t = Malloc(sizeof(dnapenny_tree));
+  generic_tree_init(t, nonodes, spp);
   dnapenny_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnapenny_tree_new */
 
 
 void dnapenny_tree_init(tree* t, long nonodes, long spp)
 {
+  /* initialize variables in a new tree */
+
   dnapars_tree_init(t, nonodes, spp);
   t->try_insert_ = dnapenny_tree_try_insert_;
   ((pars_tree*)t)->supplement = dnapenny_supplement;
-}
+} /* dnapennt_tree_init */
+
+
+void dnapenny_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = dnapenny_tree_new(nonodes, spp);
+} /* proml_tree_setup */
 
 
 void nodeshellsort(double *a, node **b, long n)
-{ /* Shell sort keeping a, b in same order */
-  /* used by dnapenny, dolpenny, penny, and threshml */
+{
+  /* Shell sort keeping a, b in same order
+   * used by dnapenny, dolpenny, penny, and threshml */
   long gap, i, j;
   node* itemp;
   double rtemp;
@@ -502,7 +521,7 @@ void doinput(void)
     supplement_cache[i] = false;
     supplements[i] = (long*)Malloc(endsite  * sizeof(long));
   }
-  curtree = dnapenny_tree_new(nonodes, spp);
+  dnapenny_tree_setup(nonodes, spp);
   dcurtree = (dnapenny_tree*)curtree;
   dna_makevalues(curtree, false);
 }  /* doinput */
@@ -564,18 +583,12 @@ long calculate_supplement(long i)
 }  /* supplement */
 
 
-boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, double *bestyet, tree* dummy, tree* dummy2, boolean dummy3, boolean* multf)
+boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node* where, double *bestyet, tree* dummy, boolean thorough, boolean dummy3, boolean multf, double* bestfound)
 {
   node* qwhere;
   double like;
   boolean root = false;
   long i;
-
-  (void)where;                          // RSGnote: Parameter never used.
-  (void)dummy;                          // RSGnote: Parameter never used.
-  (void)dummy2;                         // RSGnote: Parameter never used.
-  (void)dummy3;                         // RSGnote: Parameter never used.
-  (void)multf;                          // RSGnote: Parameter never used.
 
   if (done)
     return true;
@@ -587,7 +600,7 @@ boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, do
       root= true;
     }
     else
-      t->insert_(t, item, p, false, false);
+      t->insert_(t, item, p, false);
     for ( i = 0 ; i < nonodes ; i++ )
     {
       t->nodep[i]->initialized = false;
@@ -636,7 +649,7 @@ boolean dnapenny_tree_try_insert_(tree* t, node* item, node* p, node** where, do
     ((dnapenny_tree*)t)->place[(((dnapenny_tree*)t)->n) - 1] = p;
   }
   return true;
-}
+} /* dnapenny_tree_try_insert */
 
 
 void addit(long m)
@@ -650,7 +663,7 @@ void addit(long m)
   placeptr place;
   boolean multf;
   boolean root=false;
-  node* dum;
+  node *dum, *qwhere;
   long n = 0;                           // RSGnote: Formerly not initialized and later potentially referenced before before being set.
 
   valyew = mvalyew[m-1];
@@ -664,7 +677,8 @@ void addit(long m)
     dcurtree->valyew = valyew;
     dcurtree->place = place;
     dcurtree->n = n;
-    curtree->addtraverse(curtree, curtree->nodep[order[m - 1] - 1], curtree->root, true, NULL, &bestyet, NULL, NULL, true, &multf);
+    curtree->addtraverse(curtree, curtree->nodep[order[m - 1] - 1],
+     curtree->root, true, qwhere, &bestyet, bestree, true, true, true, &bestfound);
     n = dcurtree->n;
     besttoadd = order[m - 1];
     memcpy(bestplace, place, nonodes * sizeof(long));
@@ -683,7 +697,16 @@ void addit(long m)
         dcurtree->valyew = valyew;
         dcurtree->place = place;
         dcurtree->n = n;
-        curtree->addtraverse(curtree, curtree->nodep[i - 1], curtree->root, true, NULL, &bestyet, NULL, NULL, true, &multf);
+        curtree->addtraverse(curtree, curtree->nodep[i - 1], curtree->root,
+            true, qwhere, &bestyet, bestree, true, true, multf, &bestfound);
+/* debug
+boolean	pars_addtraverse(tree*, node*, node*, boolean, node*, double*,
+                       bestelm*, boolean, boolean, boolean, double*);
+boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
+                           node* qwherein, double* bestyet,
+                           tree* bestree, boolean thorough, boolean storing,
+                           boolean atstart, double* bestfound)
+debug  */
         n = dcurtree->n;
         added[i - 1] = false;
         sum = 0.0;
@@ -724,7 +747,8 @@ void addit(long m)
         root = true;
       }
       else
-        curtree->insert_(curtree, curtree->nodep[besttoadd - 1], place[i], true, false);
+        curtree->insert_(curtree, curtree->nodep[besttoadd - 1],
+                          place[i], false);
       added[besttoadd - 1] = true;
       if (m < spp)
       {
@@ -793,6 +817,8 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
+  long indent;
+
   if (treeprint)
   {
     fprintf(outfile, "\n  between      and       length\n");
@@ -810,7 +836,8 @@ void describe(void)
   if (trout)
   {
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    indent = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
@@ -917,7 +944,7 @@ void maketree(void)                     // RSGbugfix
     dna_treelength(curtree->root, chars, curtree->nodep);
     printree(curtree);
     describe();
-    reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+    reroot_tree(curtree);
   }
 
   if (progress)

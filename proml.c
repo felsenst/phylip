@@ -1,8 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Lucas Mix, Akiko Fuseki, Sean Lamont,
    Andrew Keeffe, Dan Fineman, and Patrick Colacurcio.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -23,6 +22,9 @@ typedef struct proml_tree {
 
 #ifndef OLDC
 /* function prototypes */
+tree * proml_tree_new(long, long);
+void   proml_tree_init(tree* t, long nonodes, long spp);
+void   proml_tree_setup(long, long);
 void   getoptions(void);
 void   makeprotfreqs(void);
 void   doinit(void);
@@ -34,7 +36,8 @@ void   prot_inittable(void);
 void   getinput(void);
 void   prot_slopecurv(node *, double, double *, double *, double *);
 void   proml_tree_makenewv(tree* t, node *p);
-void   make_pmatrix(double **, double **, double **, long, double, double, double *, double **);
+void   make_pmatrix(double **, double **, double **, long,
+                     double, double, double *, double **);
 boolean   rearrange(node *, node *, double *);
 void   proml_coordinates(node *, double, long *, double *);
 void   proml_printree(void);
@@ -43,36 +46,47 @@ void   describe(node *);
 void   prot_reconstr(node *, long);
 void   rectrav(node *, long, long);
 void   summarize(void);
-void   initpromlnode(tree *, node **, long, long, long *, long *, initops, pointarray, Char *, Char *, FILE *);
-void   dnaml_treeout(node *);
+void   initpromlnode(tree *, node **, long, long, long *, long *,
+                      initops, pointarray, Char *, Char *, FILE *);
+void   proml_treeout(node *);
 void   maketree(void);
 void   proml_reroot(tree*) ;            // RSGbugfix: Name change.
-void   proml_tree_init(tree* t, long nonodes, long spp);
-double proml_tree_evaluate(tree* t, node *p, boolean saveit);
-tree * proml_tree_new(long nonodes, long spp);
+double proml_tree_evaluate(tree*, node *, boolean);
 void   prot_freetable(void);
-void   proml_tree_nuview(tree* t, node *p);
+void   proml_tree_nuview(tree*, node*);
 void   promlrun(void);
-void   proml(char * infilename, char * intreename, char * wgtsfilename, char * catsfilename,
-             char * outfilename, char * outfileopt, char * outtreename, char * outtreeopt,
-             char * TreeUseMethod, char * ProbModel, int UseLengths, int OneCat, int NumCats,
-             double SiteRate1, double SiteRate2, double SiteRate3, double SiteRate4, double SiteRate5,
-             double SiteRate6, double SiteRate7, double SiteRate8, double SiteRate9, char * RateVar,
-             int AdjCor, double BlockLen, double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
-             double HMMRate3, double HMMRate4, double HMMRate5, double HMMRate6, double HMMRate7, double HMMRate8,
-             double HMMRate9, double HMMProb1, double HMMProb2, double HMMProb3, double HMMProb4, double HMMProb5,
-             double HMMProb6, double HMMProb7, double HMMProb8, double HMMProb9, double InvarFract,
-             int SitesWeight, int SpeedAn, int GlobalRe, int RandInput, int RandNum, int Njumble,
-             int OutRoot, int OutNum, int MultData, int MultDSet, int NumSeqs, int InputSeq, int PrintData,
-             int PrintInd, int PrintTree, int WriteTree, int RecHypo);
+void   proml(char * infilename, char * intreename, char * wgtsfilename,
+             char * catsfilename, char * outfilename, char * outfileopt,
+             char * outtreename, char * outtreeopt, char * TreeUseMethod,
+             char * ProbModel, int UseLengths, int OneCat, int NumCats,
+             double SiteRate1, double SiteRate2, double SiteRate3,
+             double SiteRate4, double SiteRate5, double SiteRate6,
+             double SiteRate7, double SiteRate8, double SiteRate9,
+             char * RateVar, int AdjCor, double BlockLen, double CoeffVar,
+             int NumRates, double HMMRate1, double HMMRate2, double HMMRate3,
+             double HMMRate4, double HMMRate5, double HMMRate6,
+             double HMMRate7, double HMMRate8, double HMMRate9,
+             double HMMProb1, double HMMProb2, double HMMProb3,
+             double HMMProb4, double HMMProb5, double HMMProb6,
+             double HMMProb7, double HMMProb8, double HMMProb9,
+             double InvarFract, int SitesWeight, int SpeedAn,
+             int GlobalRe, int RandInput, int RandNum, int Njumble,
+             int OutRoot, int OutNum, int MultData, int MultDSet,
+             int NumSeqs, int InputSeq, int PrintData, int PrintInd,
+             int PrintTree, int WriteTree, int RecHypo);
 /* function prototypes */
 #endif
 
 boolean haslengths;
-Char infilename[100], outfilename[100], intreename[100], outtreename[100], catfilename[100], weightfilename[100];
+Char infilename[100], outfilename[100], intreename[100], outtreename[100],
+      catfilename[100], weightfilename[100];
 long nonodes2, weightsum, datasets, ith, jumb = 0;
 long inseed, inseed0, parens;
-boolean global, jumble, weights, trout, usertree, reusertree, ctgry, rctgry, auto_, hypstate, progress, mulsets, justwts, firstset, improve, smoothit, polishing, lngths, gama, invar, usepam;
+boolean global, jumble, weights, trout, usertree, reusertree, ctgry, rctgry,
+         auto_, hypstate, progress, mulsets, justwts, firstset, thorough,
+         improve, smoothit, polishing, lngths, gama, invar, usepam;
+tree *curtree, *bestree, *bestree2, *priortree;
+node *qwhere;
 double cv, alpha, lambda, invarfrac;
 contribarr *contribution, like, nulike, clai;
 double **term, **slopeterm, **curveterm;
@@ -94,19 +108,36 @@ vall *mp;
 
 tree* proml_tree_new(long nonodes, long spp)
 {
-  tree* t = Malloc(sizeof(proml_tree));
+  /* set up variables and then set up identities of functions */
+  tree* t;
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
   proml_tree_init(t, nonodes, spp);
   return t;
 } /* proml_tree_new */
 
 
-void proml_tree_init(tree * t, long nonodes, long spp)
+void proml_tree_init(tree* t, long nonodes, long spp)
 {
-  ml_tree_init(t, nonodes, spp);
+  /* set up functions for a proml_tree */
+
   t->evaluate = proml_tree_evaluate;
+  t->try_insert_ = ml_tree_try_insert_;
   t->nuview = proml_tree_nuview;
-  ((ml_tree*)t)->makenewv = proml_tree_makenewv;
+  t->makenewv = proml_tree_makenewv;
 } /* proml_tree_init */
+
+
+void proml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = proml_tree_new(nonodes, spp);
+  bestree = proml_tree_new(nonodes, spp);
+  bestree2 = proml_tree_new(nonodes, spp);
+  priortree = proml_tree_new(nonodes, spp);
+} /* proml_tree_setup */
 
 
 void getoptions(void)
@@ -136,7 +167,7 @@ void getoptions(void)
   gama = false;
   global = false;
   hypstate = false;
-  improve = false;
+  improve = true;
   interleaved = true;
   invar = false;
   jumble = false;
@@ -166,9 +197,12 @@ void getoptions(void)
     printf("  U                 Search for best tree?  %s\n", string);
     if (usertree && !reusertree)
     {
-      printf("  L          Use lengths from user trees?  %s\n", (lngths ? "Yes" : "No"));
+      printf("  L          Use lengths from user trees?  %s\n",
+              (lngths ? "Yes" : "No"));
     }
-    printf("  P    JTT, PMB or PAM probability model?  %s\n", usejtt ? "Jones-Taylor-Thornton" : usepmb ? "Henikoff/Tillier PMB" : "Dayhoff PAM");
+    printf("  P    JTT, PMB or PAM probability model?  %s\n",
+            usejtt ? "Jones-Taylor-Thornton" :
+            usepmb ? "Henikoff/Tillier PMB" : "Dayhoff PAM");
     printf("  C   One category of substitution rates?");
     if (!ctgry || categs == 1)
       printf("  Yes\n");
@@ -194,11 +228,14 @@ void getoptions(void)
       else
         printf("  Yes, mean block length =%6.1f\n", 1.0 / lambda);
     }
-    printf("  W                       Sites weighted?  %s\n", (weights ? "Yes" : "No"));
+    printf("  W                       Sites weighted?  %s\n",
+           (weights ? "Yes" : "No"));
     if (!usertree || reusertree)
     {
-      printf("  S        Speedier but rougher analysis?  %s\n", (improve ? "No, not rough" : "Yes"));
-      printf("  G                Global rearrangements?  %s\n", (global ? "Yes" : "No"));
+      printf("  S        Speedier but rougher analysis?  %s\n",
+              (improve ? "No, not rough" : "Yes"));
+      printf("  G                Global rearrangements?  %s\n",
+             (global ? "Yes" : "No"));
     }
     if (!usertree)
     {
@@ -208,13 +245,17 @@ void getoptions(void)
       else
         printf("  No. Use input order\n");
     }
-    printf("  O                        Outgroup root?  %s%3ld\n", (outgropt ? "Yes, at sequence number" : "No, use as outgroup species"), outgrno);
+    printf("  O                        Outgroup root?  %s%3ld\n", (outgropt ?
+            "Yes, at sequence number" : "No, use as outgroup species"),
+           outgrno);
     printf("  M           Analyze multiple data sets?");
     if (mulsets)
-      printf("  Yes, %2ld %s\n", datasets, (justwts ? "sets of weights" : "data sets"));
+      printf("  Yes, %2ld %s\n", datasets,
+             (justwts ? "sets of weights" : "data sets"));
     else
       printf("  No\n");
-    printf("  I          Input sequences interleaved?  %s\n", (interleaved ? "Yes" : "No, sequential"));
+    printf("  I          Input sequences interleaved?  %s\n",
+           (interleaved ? "Yes" : "No, sequential"));
     printf("  0   Terminal type (IBM PC, ANSI, none)?  %s\n", (ibmpc ? "IBM PC" : ansi  ? "ANSI" : "(none)"));
     printf("  1    Print out the data at start of run  %s\n", (printdata ? "Yes" : "No"));
     printf("  2  Print indications of progress of run  %s\n", (progress ? "Yes" : "No"));
@@ -830,7 +871,7 @@ void getinput(void)
   if (!justwts || firstset)
     input_protdata(sites);
   prom_makeweights();
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  proml_tree_setup(nonodes2, spp);
   prot_makevalues(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
 }  /* getinput */
 
@@ -1044,8 +1085,6 @@ void proml_tree_nuview(tree* t, node *p)
   double **pmat;
   double maxx;
   double correction;
-
-  generic_tree_nuview(t, p);
 
   /* Figure out how many siblings the current node has  */
   /* and be sure that pmatrices is large enough         */
@@ -1293,7 +1332,7 @@ void proml_tree_makenewv(tree* t, node *p)
   {
     prot_slopecurv(p, y, &like, &slope, &curve);
     better = false;
-    if (firsttime)                      /* if no older value of y to compare with */
+    if (firsttime)             /* if no older value of y to compare with */
     {
       yold = y;
       oldlike = like;
@@ -1302,7 +1341,7 @@ void proml_tree_makenewv(tree* t, node *p)
     }
     else
     {
-      if (like > oldlike)               /* update the value of yold if it was better */
+      if (like > oldlike)      /* update the value of yold if it was better */
       {
         yold = y;
         oldlike = like;
@@ -1312,7 +1351,7 @@ void proml_tree_makenewv(tree* t, node *p)
     }
     if (better)
     {
-      y = y + slope/fabs(curve);        /* Newton-Raphson, forced uphill-wards */
+      y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
       if (y < epsilon)
         y = epsilon;
     }
@@ -1326,7 +1365,7 @@ void proml_tree_makenewv(tree* t, node *p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  p->v = yold;                          /* the last one that had better likelihood */
+  p->v = yold;                   /* the last one that had better likelihood */
   q->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* proml_tree_makenewv */
@@ -1347,7 +1386,8 @@ double proml_tree_evaluate(tree *t, node *p, boolean saveit)
   y = p->v;
   for (j = 0; j < rcategs; j++)
     for (k = 0; k < categs; k++)
-      make_pmatrix(pmatrices[0][j][k], NULL, NULL, 0, y, tbl[j][k], eigmat, probmat);
+      make_pmatrix(pmatrices[0][j][k], NULL, NULL, 0,
+                    y, tbl[j][k], eigmat, probmat);
   for (i = 0; i < endsite; i++)
   {
     k = category[alias[i]-1] - 1;
@@ -1453,7 +1493,8 @@ void proml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
       xx = 100.0;
     proml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
     q = q->next;
-  } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
+  } while ((p == curtree->root || p != q)
+           && (p != curtree->root || p->next != q));
   first = p->next->back;
   q = p;
   while (q->next != p)
@@ -1670,7 +1711,7 @@ void summarize(void)
 {
   /* print out branch length information and node numbers */
   long i, j, num_sibs;
-  long mm = 0;                          // RSGnote: Formerly may have been referenced before being initialized.
+  long mm = 0;   // RSGnote: Formerly may have been referenced before being initialized.
   double mode, sum;
   double like[maxcategs], nulike[maxcategs];
   double **marginal;
@@ -1766,7 +1807,7 @@ void summarize(void)
     }
     mx0 = mx;
     fprintf(outfile,
-            "Combination of categories that contributes the most to the likelihood:\n\n");
+"Combination of categories that contributes the most to the likelihood:\n\n");
     for (i = 1; i <= nmlngth + 3; i++)
       putc(' ', outfile);
     for (i = 1; i <= sites; i++)
@@ -1893,7 +1934,9 @@ void summarize(void)
 }  /* summarize */
 
 
-void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips, long *parens, initops whichinit, pointarray treenode, Char *str, Char *ch, FILE *intree)
+void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips,
+                    long *parens, initops whichinit, pointarray treenode,
+                    Char *str, Char *ch, FILE *intree)
 {
   /* initializes a node */
   boolean minusread;
@@ -1950,7 +1993,7 @@ void initpromlnode(tree *treep, node **p, long len, long nodei, long *ntips, lon
 } /* initpromlnode */
 
 
-void dnaml_treeout(node *p)
+void proml_treeout(node *p)
 {
   /* write out file with representation of final tree2 */
   /* Only works for bifurcations! */
@@ -1996,10 +2039,10 @@ void dnaml_treeout(node *p)
         }
       }
       inloop = true;
-      dnaml_treeout(q->back);
+      proml_treeout(q->back);
       q = q->next;
-    } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
-
+    } while ((p == curtree->root || p != q) && (p != curtree->root
+             || p->next != q));
     putc(')', outtree);
     col++;
   }
@@ -2019,7 +2062,7 @@ void dnaml_treeout(node *p)
     fprintf(outtree, ":%*.5f", (int)(w + 7), x);
     col += w + 8;
   }
-}  /* dnaml_treeout */
+}  /* proml_treeout */
 
 
 void proml_reroot(tree* t)              // RSGbugfix: Name change.
@@ -2057,7 +2100,7 @@ void proml_reroot(tree* t)              // RSGbugfix: Name change.
     t->release_fork(t, r);
   }
 
-  t->root = t->nodep[0]->back;          // Reset ROOT; moved from line just after call to PROML_REROOT.
+  t->root = t->nodep[0]->back; // Reset ROOT; moved from line just after call to PROML_REROOT.
 } /* proml_reroot */
 
 
@@ -2067,8 +2110,8 @@ void maketree(void)
   boolean dummy_first, goteof;
   pointarray dummy_treenode = NULL;
   long nextnode;
-  node *qwhere;
   double bestyet;
+  node *p;
 
   prot_inittable();
 
@@ -2096,7 +2139,7 @@ void maketree(void)
     }
 
     /* This taken out of tree read, used to be [spp-1], but referring
-       to [0] produces output identical to what the pre-modified dnaml
+       to [0] produces output identical to what the pre-modified proml
        produced. */
     for ( which = 1 ; which <= numtrees ; which++)
     {
@@ -2108,9 +2151,11 @@ void maketree(void)
       dummy_first      = true;
       goteof           = false;
       preparetree(curtree);
-      treeread(curtree, intree, &curtree->root, dummy_treenode, &goteof, &dummy_first, &nextnode, &haslengths, initpromlnode, false, nonodes2);
+      treeread(curtree, intree, &curtree->root, dummy_treenode,
+                &goteof, &dummy_first, &nextnode, &haslengths,
+                initpromlnode, false, nonodes2);
       fixtree(curtree);
-      proml_reroot(curtree);                              // RSGbugfix: Name change.
+      proml_reroot(curtree);                     // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
       {
@@ -2125,7 +2170,8 @@ void maketree(void)
 
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2144,7 +2190,7 @@ void maketree(void)
       if (trout)
       {
         col = 0;
-        dnaml_treeout(curtree->root);
+        proml_treeout(curtree->root);
       }
       if(which < numtrees)
       {
@@ -2156,7 +2202,8 @@ void maketree(void)
     FClose(intree);
     putc('\n', outfile);
     if (!auto_ && numtrees > 1 && weightsum > 1 && !reusertree)
-      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl, l0gl, l0gf, aliasweight, seed);
+      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl,
+                l0gl, l0gf, aliasweight, seed);
   }
   else
   {
@@ -2179,22 +2226,28 @@ void maketree(void)
     buildsimpletree(curtree, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     smoothit = improve;
+    thorough = true;
     nextsp = 4;
 
     while (nextsp <= spp)
     {
+      curtree->copy(curtree, priortree);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+                            &bestyet, bestree, thorough);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true, false);
+        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, false);
         smoothit = false;
-        curtree->copy(curtree, bestree);
         bestyet = curtree->score;
       }
       if (progress)
@@ -2238,13 +2291,13 @@ void maketree(void)
       if (njumble > 1)
         bestree2->copy(bestree2, curtree);
       curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree );
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav );
       proml_printree();
       summarize();
       if (trout)
       {
         col = 0;
-        dnaml_treeout(curtree->root);
+        proml_treeout(curtree->root);
       }
     }
   }

@@ -1,7 +1,6 @@
-/* Version 4.0 (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -16,6 +15,7 @@ extern long nextree;    /* parsimony.c -- for counting stored trees */
 
 #ifndef OLDC
 /* function prototypes */
+void    dnapars_tree_setup(long, long);
 void    getoptions(void);
 void    allocrest(void);
 void    reallocchars(void);
@@ -26,26 +26,32 @@ void    describe(void);
 void    maketree(void);
 void    freerest(void);
 void    dnaparsrun(void);
-void    dnapars(char *infilename, char *intreename, char *outfilename, char *outfileopt, char *weightsfilename,
-                char *outtreename, char *outtreeopt, int searchbest, char *searchopts, int treesave, int inputorder,
-                int randnum, int numjumble, int outroot, int outnum, int threshpars, double threshval, int transpars,
-                int sitesweighted, int analyzemult, int multdataset, int nummult, int inputseq, int doprintdata,
-                int dodotdiff, int printprog, int printtree, int printsteps, int printseq, int writetree);
+void    dnapars(char *infilename, char *intreename, char *outfilename,
+                char *outfileopt, char *weightsfilename, char *outtreename,
+                char *outtreeopt, int searchbest, char *searchopts,
+                int treesave, int inputorder, int randnum, int numjumble,
+                int outroot, int outnum, int threshpars, double threshval,
+                int transpars, int sitesweighted, int analyzemult,
+                int multdataset, int nummult, int inputseq, int doprintdata,
+                int dodotdiff, int printprog, int printtree, int printsteps,
+                int printseq, int writetree);
 /* function prototypes */
 #endif
 
-long jumb = 0, nonodes = 0;
-Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreename[FNMLNGTH], weightfilename[FNMLNGTH];
+Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
+      outtreename[FNMLNGTH], weightfilename[FNMLNGTH];
 char basechar[32]="ACMGRSVTWYHKDBNO???????????????";
-long chars, col, msets, ith, njumble;
+long jumb = 0, nonodes = 0;
+long spp, chars, col, msets, ith, njumble;
 /*   chars = number of sites in actual sequences */
 long inseed, inseed0;
-double threshold;
-boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress, stepbox, ancseq, mulsets, justwts, firstset, multf;
+double threshold, bestfound;
+boolean jumble, thresh, weights, thorough, rearrfirst, trout, progress,
+         stepbox, ancseq, mulsets, justwts, firstset, multf;
 extern boolean usertree;
 steptr oldweight;
 longer seed;
-tree* curtree;
+tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
 extern double *threshwt;
@@ -63,6 +69,16 @@ node *there;
 baseptr nothing;
 boolean *names;
 char *progname;
+
+
+void dnapars_tree_setup(long nonodes, long spp)
+{
+  /* call allocation and initialization of three new trees */
+
+  curtree = dnapars_tree_new(nonodes, spp);
+  bestree = dnapars_tree_new(nonodes, spp);
+  priortree = dnapars_tree_new(nonodes, spp);
+} /* dnapar tree_setup */
 
 
 void getoptions(void)
@@ -336,7 +352,6 @@ void doinit(void)
   /* initializes variables */
   fprintf(outfile, "\nDNA parsimony algorithm, version %s\n\n", VERSION);
 
-  //inputnumbers(&spp, &chars, &nonodes, 2);
   inputnumbers(&spp, &chars, &nonodes, 1);
   if (!javarun)
   {
@@ -352,13 +367,13 @@ void doinput(void)
   /* reads the input data */
   long i;
 
-  if (justwts)
+  if (justwts)             /* if data sets are reweightings of one data set */
   {
     if (firstset)
-      inputdata(chars);
+      inputdata(chars);                  /* get that first set of sequences */
     for (i = 0; i < chars; i++)
       weight[i] = 1;
-    inputweights(chars, weight, &weights);
+    inputweights(chars, weight, &weights);       /* read the set of weights */
     if (justwts)
     {
       fprintf(outfile, "\n\nWeights set # %ld:\n\n", ith);
@@ -368,29 +383,29 @@ void doinput(void)
         print_progress(progbuf);
       }
     }
-    if (printdata)
+    if (printdata)                       /* print out the weights if needed */
       printweights(outfile, 0, chars, weight, "Sites");
   }
   else
-  {
+  {                    /* if we're reading a new set of sequences each time */
     if (!firstset)
     {
-      samenumsp(&chars, ith);
+      samenumsp(&chars, ith); /* check that number of sequences is the same */
       reallocchars();
     }
-    inputdata(chars);
+    inputdata(chars);                          /* input the number of sites */
     for (i = 0; i < chars; i++)
       weight[i] = 1;
     if (weights)
     {
-      inputweights(chars, weight, &weights);
-      if (printdata)
+      inputweights(chars, weight, &weights);  /* and their weights if needed */
+      if (printdata)             /* print out the table of weights if needed */
         printweights(outfile, 0, chars, weight, "Sites");
     }
   }
-  makeweights();
-  curtree = dnapars_tree_new(nonodes, spp);
-  dna_makevalues(curtree, usertree);
+  makeweights();             /* make weights vectors to allow site-aliasing */
+  dnapars_tree_setup(nonodes, spp);               /* set up the three trees */
+  dna_makevalues(curtree, usertree);    /* put information on sites at tips */
 }  /* doinput */
 
 
@@ -400,27 +415,27 @@ void makeweights(void)
   long i;
 
   for (i = 1; i <= chars; i++)
-  {
-    alias[i - 1] = i;
-    oldweight[i - 1] = weight[i - 1];
-    ally[i - 1] = i;
+  {   /* debug: correct the descriptions of alias, ally as needed */
+    alias[i - 1] = i; /* to be the number of the site that stands in for  i? */           
+    oldweight[i - 1] = weight[i - 1];           /* the weights of the sites */
+    ally[i - 1] = i;  /* to be the number of the site that stands in for  i? */
   }
-  sitesort(chars, weight);
-  sitecombine(chars);
-  sitescrunch(chars);
+  sitesort(chars, weight);   /* tag-sort the site columns lexicographically */
+  sitecombine(chars);   /* record where the groups of identical columns are */
+  sitescrunch(chars);    /* now get the representative sites for each group */
   endsite = 0;
   for (i = 1; i <= chars; i++)
-  {
+  {     /* if this site stands in for a group, counting the representatives */
     if (ally[i - 1] == i)
       endsite++;
   }
-  for (i = 1; i <= endsite; i++)
-    location[alias[i - 1] - 1] = i;
-  if (!thresh)
+  for (i = 1; i <= endsite; i++) /* for each site which is a representative */
+    location[alias[i - 1] - 1] = i;      /* where in representatives its is */
+  if (!thresh)            /* if no threshold parsimony, set thresholds high */
     threshold = spp;
   threshwt = (double *)Malloc(endsite * sizeof(double));
   for (i = 0; i < endsite; i++)
-  {
+  {                                      /* the threshold x weight for each */
     threshwt[i] = (threshold * weight[i]);
   }
 }  /* makeweights */
@@ -430,96 +445,91 @@ void describe(void)
 {
   /* prints ancestors, steps and table of numbers of steps in
      each site */
+  long indent;
+
   if (treeprint)
-  {
+  {                                    /* print out number of steps in tree */
     fprintf(outfile, "\nrequires a total of %10.3f\n", -(curtree->score));
     fprintf(outfile, "\n  between      and       length\n");
     fprintf(outfile, "  -------      ---       ------\n");
-    printbranchlengths(curtree->root);
+    printbranchlengths(curtree->root); /* print the table of branch lengths */
   }
-  if (stepbox)
+  if (stepbox)                          /* the number of steps in each site */
     writesteps(curtree, chars, weights, oldweight);
   if (ancseq)
-  {
+  {                         /* and the most parsimonious ancestor sequences */
     dna_hypstates(curtree, chars, basechar);
     putc('\n', outfile);
   }
   putc('\n', outfile);
   if (trout)
-  {
+  {                       /* and write out the tree to the output tree file */
     col = 0;
-    treeout3(curtree->root, nextree, &col, curtree->root);
+    indent = 0;
+    treeout3(curtree->root, nextree, &col, indent, curtree->root);
   }
 }  /* describe */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, nextnode;
-  boolean done, firsttree, goteof, haslengths;
+  long i, j, nextnode, oldnextree;
+  boolean firsttree, goteof, haslengths;
 
-#if 0                                   // RSGbugfix: Local variable never used.
-  pointarray nodep;
-#endif
-
-  // RSGnote: Was formerly NOT INITIALIZED here and then potentially referenced
-  // before being initialized in one branch of IF below.  This is a bug unless we can
-  // prove that the appropriate branch of that IF will always be taken.  Initialized
-  // here only to silence compiler warning.
   long numtrees = 0;
 
   if (!usertree)
   {
     lastrearr = false;
-    hsbut(curtree, false, jumble, seed, progress);
-    if (progress)
-    {
-      sprintf(progbuf, "\nDoing global rearrangements");
-      print_progress(progbuf);
-      if (rearrfirst)
+    oldnextree = nextree;    /* save this to detect when no new trees added */
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed, progress,
+           &bestfound);     /* sequential addition and local rearrangements */
+    if (nextree > oldnextree) {
+      if (progress)
       {
-        sprintf(progbuf, " on the first of the trees tied for best\n");
-      }
-      else
-      {
-        sprintf(progbuf, " on all trees tied for best\n");
-      }
-      print_progress(progbuf);
-      sprintf(progbuf, "  !");
-      print_progress(progbuf);
-      for (j = 0; j < nonodes; j++)
-      {
-        if (j % ((nonodes / 72) + 1) == 0)
+        sprintf(progbuf, "\nDoing global rearrangements");
+        print_progress(progbuf);
+        if (rearrfirst)
         {
-          sprintf(progbuf, "-");
-          print_progress(progbuf);
+          sprintf(progbuf, " on the first of the trees tied for best\n");
         }
+        else
+        {
+          sprintf(progbuf, " on all trees tied for best\n");
+        }
+        print_progress(progbuf);
+        sprintf(progbuf, "  !");
+        print_progress(progbuf);
+        for (j = 0; j < nonodes; j++)
+        {
+          if (j % ((nonodes / 72) + 1) == 0)
+          {
+            sprintf(progbuf, "-");
+            print_progress(progbuf);
+          }
+        }
+        sprintf(progbuf, "!\n");
+        print_progress(progbuf);
+        phyFillScreenColor();
       }
-      sprintf(progbuf, "!\n");
-      print_progress(progbuf);
-      phyFillScreenColor();
+
+      lastrearr = true;   /* if new trees, SPR rearrangement on saved trees */
+      grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
+      if (progress)
+      {
+        sprintf(progbuf, "\n");
+        print_progress(progbuf);
+      }
     }
-
-    done = false;
-    (void)done;                         // RSGnote: Variable set but never used.
-
-    lastrearr = true;
-    grandrearr(curtree, progress, rearrfirst);
-
-    if (progress)
-    {
-      sprintf(progbuf, "\n");
-      print_progress(progbuf);
-    }
-    if (jumb == njumble)
-    {
+    if (jumb == njumble)           /* print out and/or write out all trees, */
+    {                              /* ... without any collapsible branches  */
       long outCount = 0;
       collapsebestrees(curtree, bestrees, place, chars, progress, &outCount);
-      long missedCount = nextree - 1 - maxtrees;
-      if (treeprint)
+      long missedCount = nextree - maxtrees;
+      if (treeprint)       /* progress message that trees have been printed */
       {
         putc('\n', outfile);
         if (outCount == 1)
@@ -528,7 +538,8 @@ void maketree(void)                     // RSGbugfix
         {
           if (missedCount > 0)
           {
-            fprintf(outfile, "as many as %ld trees may have been found\n", missedCount + outCount);
+            fprintf(outfile, "as many as %ld trees may have been found\n",
+                     missedCount + outCount);
             fprintf(outfile, "here are the first %4ld of them\n", outCount );
           }
           else
@@ -540,17 +551,19 @@ void maketree(void)                     // RSGbugfix
       }
       if (treeprint)
         putc('\n', outfile);
-      for (i = 0; i < outCount ; i++)
+      for (i = 0; i < outCount ; i++)       /* print trees out onto outfile */
       {
         load_tree(curtree, i, bestrees);
         reroot(curtree->nodep[outgrno - 1], curtree->root);
+        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, false);
         curtree->root = root_tree(curtree, curtree->root);
         curtree->nodep[curtree->root->index - 1] = curtree->root;
         dna_treelength(curtree->root, chars, curtree->nodep);
         printree(curtree);
         describe();
-        reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+        reroot_tree(curtree);
       }
     }
   }
@@ -563,7 +576,8 @@ void maketree(void)                     // RSGbugfix
       initseed(&inseed, &inseed0, seed);
     if (numtrees > MAXNUMTREES)
     {
-      printf("\nERROR:  Number of input trees is read incorrectly from %s.\n", intreename);
+      printf("\nERROR:  Number of input trees is read incorrectly from %s.\n",
+              intreename);
       exxit(-1);
     }
     if (treeprint)
@@ -579,20 +593,21 @@ void maketree(void)                     // RSGbugfix
     if (trout)
       fprintf(outtree, "%ld\n", numtrees);
 
-#if 0                                   // RSGbugfix: Local variable never used.
-    nodep = NULL;
-#endif
-
     which = 1;
     while (which <= numtrees)
     {
       firsttree = true;
       nextnode = 0;
       haslengths = true;
-      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initparsnode, false, nonodes);
-      reroot_tree(curtree, curtree->root);                // RSGbugfix: Name change.
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &firsttree, &nextnode, &haslengths, initparsnode, false,
+                nonodes);
+/*      reroot_tree(curtree, curtree->root);      debug */          // RSGbugfix: Name change.
+      initializetrav(curtree, curtree->root);
+      if (curtree->root != NULL)
+        initializetrav(curtree, curtree->root->back);
       curtree->evaluate(curtree, curtree->root, false);
-      curtree->root = root_tree(curtree, curtree->root);
+/*      curtree->root = root_tree(curtree, curtree->root);   debug: need to reroot tree? */
       if (treeprint)
         fprintf(outfile, "\n\n");
       if (outgropt)
@@ -602,7 +617,7 @@ void maketree(void)                     // RSGbugfix
       describe();
       if (which < numtrees)
       {
-        // may need to free some memory here
+        /*  debug:   may need to free some memory here  */
       }
       which++;
     }
@@ -640,7 +655,9 @@ void maketree(void)                     // RSGbugfix
 
 
 void reallocchars(void)
-{ /* The amount of chars can change between runs this function reallocates all the variables whose size depends on the amount of chars */
+{
+  /* The number of chars can change between runs -- so this function
+   * reallocates all the variables whose size depends on the number of chars */
   long i;
 
   for (i=0; i < spp; i++)
@@ -659,7 +676,7 @@ void reallocchars(void)
   alias = (long *)Malloc(chars * sizeof(long));
   ally = (long *)Malloc(chars * sizeof(long));
   location = (long *)Malloc(chars * sizeof(long));
-}
+} /* reallocchars */
 
 
 void freerest(void)
@@ -679,13 +696,14 @@ void freerest(void)
   free(alias);
   free(ally);
   free(location);
-  free(threshwt);
+/*   free(threshwt);  debug: for some reason this blows up so commented out */
 }  /* freerest */
 
 
 void dnaparsrun(void)
 {
-  // debug printout // JRMdebug
+  /* run the inference of trees, for all data sets and all addition orders
+   * of species */
   /*
   printf("jumble: %i\n", jumble);
   printf("njumble: %li\n", njumble);
@@ -710,28 +728,25 @@ void dnaparsrun(void)
   printf("interleaved: %i\n", interleaved);
   printf("justwts: %i\n", justwts);
 */
-  for (ith = 1; ith <= msets; ith++) {
+  for (ith = 1; ith <= msets; ith++) {                 /* for each data set */
     if (!(justwts && !firstset))
     {
-      //printf("calling allocrest\n"); // JRMdebug
-      allocrest();
+      allocrest();                                       /* allocate things */
     }
     if (msets > 1 && !justwts) {
       fprintf(outfile, "\nData set # %ld:\n\n", ith);
       if (progress)
-      {
+      {                         /* print notification of progress on screen */
         sprintf(progbuf, "\nData set # %ld:\n\n", ith);
         print_progress(progbuf);
       }
     }
-    //printf("calling doinput\n"); // JRMdebug
-    doinput();
+    doinput();                 /* get input and set up tips of tree with it */
     if (ith == 1)
       firstset = false;
-    for (jumb = 1; jumb <= njumble; jumb++)
+    for (jumb = 1; jumb <= njumble; jumb++)  /* for jumbling addition order */
     {
-      //printf("calling maketree\n"); // JRMdebug
-      maketree();
+      maketree();  /* reconstruct tree for one order of addition of species */
     }
     if (!justwts)
       freerest();
@@ -739,8 +754,8 @@ void dnaparsrun(void)
     fflush(outtree);
   }
 
-  curtree->free(curtree);
-}
+/* debug:  curtree->free(curtree);     commented out because crashes */
+} /* dnaparsrun */
 
 
 void dnapars(
@@ -777,9 +792,6 @@ void dnapars(
   )
 {
   initdata funcs;
-
-  //printf("Hello from DnaPars!\n"); // JRMdebug
-
   int argc;
   Char *argv[1];
   argc = 1;
@@ -1056,7 +1068,7 @@ void dnapars(
     initjumble(&inseed, &inseed0, seed, &njumble);
   }
 
-  dnaparsrun();  // do the actual work
+  dnaparsrun();  /* do the actual work */
 
   FClose(infile);
   FClose(outfile);
@@ -1076,8 +1088,8 @@ void dnapars(
     FClose(intree);
   }
 
-  //printf("\ndone\n"); // JRMdebug
-}
+  /* printf("\ndone\n");  JRMdebug   */
+} /* dnapars */
 
 
 int main(int argc, Char *argv[])

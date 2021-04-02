@@ -1031,10 +1031,10 @@ void maketree(void)
     if (jumb == njumble) {
       if (treeprint) {
         putc('\n', outfile);
-        if (nextree == 2)
+        if (nextree == 1)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
-          fprintf(outfile, "%6ld trees in all found\n", nextree - 1);
+          fprintf(outfile, "%6ld trees in all found\n", nextree);
       }
       if (nextree > maxtrees + 1) {
         if (treeprint)

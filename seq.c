@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -20,17 +19,9 @@ sequence inputSequences;
 node** lrsaves;
 
 
-void inittrees(tree** curtree, tree** bestree, tree** priortree, tree** bestree2, long nonodes, long spp)
-{
-  *curtree = functions.tree_new(nonodes, spp);
-  *bestree = functions.tree_new(nonodes, spp);
-  *priortree = functions.tree_new(nonodes, spp);
-  *bestree2 = functions.tree_new(nonodes, spp);
-}
-
-
 void inputdata(long chars)
 {
+  /* read in and if needed print out sequences */
   read_sequences(chars);
   if (printdata)
   {
@@ -41,8 +32,8 @@ void inputdata(long chars)
 
 void read_sequences(long nchars)
 {
-  /* input the names and sequences for each species */
-  /* used by dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnapars, & dnapenny */
+  /* input the names and sequences for each species
+   * used by dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnapars, & dnapenny */
   long i, j, basesread, basesnew=0;
   Char charstate;
   boolean allread, done;
@@ -79,10 +70,12 @@ void read_sequences(long nchars)
           uppercase(&charstate);
           if ((strchr("ABCDGHKMNRSTUVWXY?O-", charstate)) == NULL)
           {
-            printf("\nERROR:  Bad base: %c at site %5ld of species %3ld.\n", charstate, j+1, i);
+            printf("\nERROR:  Bad base: %c at site %5ld of species %3ld.\n",
+                    charstate, j+1, i);
             if (charstate == '.')
             {
-              printf("        Periods (.) may not be used as gap characters.\n");
+              printf(
+               "        Periods (.) may not be used as gap characters.\n");
               printf("        The correct gap character is (-).\n");
             }
             exxit(-1);
@@ -120,11 +113,12 @@ void read_sequences(long nchars)
       allread = (i > spp);
   }
   checknames(spp);                      // Check NAYME array for duplicates.
-}
+} /* read_sequences */
 
 
 void output_sequences(long nchars)
 {
+  /* print out sequences */
   long i, j, k, l;
   char charstate;
 
@@ -142,7 +136,9 @@ void output_sequences(long nchars)
         l = nchars;
       for (k = (i - 1) * 60 + 1; k <= l; k++)
       {
-        if (dotdiff && (j > 1 && inputSequences[j - 1][k - 1] == inputSequences[0][k - 1]))
+        if (dotdiff &&
+            ((j > 1) &&
+             inputSequences[j - 1][k - 1] == inputSequences[0][k - 1]))
           charstate = '.';
         else
           charstate = inputSequences[j - 1][k - 1];
@@ -155,7 +151,7 @@ void output_sequences(long nchars)
     putc('\n', outfile);
   }
   putc('\n', outfile);
-}
+} /* output_sequences */
 
 
 void setuptree(pointarray treenode, long nonodes, boolean usertree)
@@ -194,6 +190,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
 
 void freetrans(transptr *trans, long nonodes, long sitelength)
 {
+  /* free array trans */
   long i, j;
   for ( i = 0 ; i < nonodes ; i++ )
   {
@@ -209,6 +206,8 @@ void freetrans(transptr *trans, long nonodes, long sitelength)
 
 void print_basefreq(FILE *fp, basefreq *freq, boolean empirical)
 {
+  /* print out empirical base freequencies */
+
   putc('\n', fp);
   if (empirical)
     fprintf(outfile, "Empirical ");
@@ -217,18 +216,22 @@ void print_basefreq(FILE *fp, basefreq *freq, boolean empirical)
   fprintf(fp, "   C    %10.5f\n", freq->c);
   fprintf(fp, "   G    %10.5f\n", freq->g);
   fprintf(fp, "  T(U)  %10.5f\n", freq->t);
-}
+} /* print_basefreq */
 
 
 void ttratio_warning(double ttratio)
 {
+  /* print wanring that this ttratio is impossible */
+
   printf("\n WARNING: This transition/transversion ratio\n"
          "  is impossible with these base frequencies!\n"
          "  Using a transition/transversion ratio of %.6f\n\n", ttratio);
-}
+} /* ttratio_warning */
 
 
-void makebasefreq(basefreq *freq, double freqa, double freqc, double freqg, double freqt, double ttratio)
+
+void makebasefreq(basefreq *freq, double freqa, double freqc,
+                   double freqg, double freqt, double ttratio)
 {
   /* Takes base frequencies and fills out a basefreq struct. If ttratio is
    * incompatible, a warning is printed and a reasonable value is returned in
@@ -280,8 +283,11 @@ void makebasefreq(basefreq *freq, double freqa, double freqc, double freqg, doub
 } /* makebasefreq */
 
 
-void getbasefreqs(double freqa, double freqc, double freqg, double freqt, double *freqr, double *freqy, double *freqar, double *freqcy,
-                  double *freqgr, double *freqty, double *ttratio, double *xi, double *xv, double *fracchange, boolean freqsfrom, boolean printdata)
+void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
+                   double *freqr, double *freqy, double *freqar,
+                   double *freqcy, double *freqgr, double *freqty,
+                   double *ttratio, double *xi, double *xv,
+                   double *fracchange, boolean freqsfrom, boolean printdata)
 {
   /* Inputs freq[acgt] and ttratio and calculates freq[ry], freq[acgt][ry],
    * and fracchange.  If ttratio is impossible, a warning is printed and a more
@@ -343,8 +349,10 @@ void sitesort(long chars, steptr weight)
         k = 1;
         while (k <= spp && tied)
         {
-          flip = (inputSequences[k - 1][jj - 1] > inputSequences[k - 1][jg - 1]);
-          tied = (tied && inputSequences[k - 1][jj - 1] == inputSequences[k - 1][jg - 1]);
+          flip = (inputSequences[k - 1][jj - 1] >
+                   inputSequences[k - 1][jg - 1]);
+          tied = (tied && inputSequences[k - 1][jj - 1]
+                           == inputSequences[k - 1][jg - 1]);
           k++;
         }
         if (!flip)
@@ -491,13 +499,12 @@ void sitesort2(long sites, steptr aliasweight)
 void sitecombine2(long sites, steptr aliasweight)
 {
   /* combine sites that have identical rate categories and patterns
-     by making one of them which "represents" them have the total weight
-     and the rest have weight 0.  They are tied if they have the same
-     rate category number and the same site pattern
-     ally[i-1] ends up as the number of the site (in the original site
-     numbering that represents the site which is  ith  in its original order.
-  */
-  /* used in dnaml, dnamlk, proml, promlk, and codml */
+   * by making one of them which "represents" them have the total weight
+   * and the rest have weight 0.  They are tied if they have the same
+   * rate category number and the same site pattern
+   * ally[i-1] ends up as the number of the site (in the original site
+   * numbering that represents the site which is  ith  in its original order.
+   * used in dnaml, dnamlk, proml, promlk, and codml */
   long i, j, k;
   boolean tied;
 
@@ -512,7 +519,8 @@ void sitecombine2(long sites, steptr aliasweight)
       k = 1;
       while (k <= spp && tied)
       {
-        tied = (tied && inputSequences[k - 1][alias[i - 1] - 1] == inputSequences[k - 1][alias[j - 1] - 1]);
+        tied = (tied && inputSequences[k - 1][alias[i - 1] - 1]
+                         == inputSequences[k - 1][alias[j - 1] - 1]);
         k++;
       }
       if (!tied)
@@ -529,8 +537,8 @@ void sitecombine2(long sites, steptr aliasweight)
 
 void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 {
-  /* move so positively weighted sites come first */
-  /* used by dnaml, dnamlk, proml, promlk, codml, dnainvar, and restml */
+  /* move so positively weighted sites come first
+   * used by dnaml, dnamlk, proml, promlk, codml, dnainvar, and restml */
   long itemp;
   boolean done, found;
 
@@ -685,8 +693,8 @@ void drawline(long i, double scale, node *root)
 
 void treeout(node *p, long nextree, long *col, node *root)
 {
-  /* write out file with representation of final tree */
-  /* used in dnacomp, dnamove, dnapars, & dnapenny */
+  /* write out file with representation of final tree
+   * used in dnacomp, dnamove, dnapars, & dnapenny */
   node *q;
   long i, n;
   Char c;
@@ -743,8 +751,8 @@ void treeout(node *p, long nextree, long *col, node *root)
 
 void drawline2(long i, double scale, tree* curtree)
 {
-  /* draws one row of the tree diagram by moving up tree */
-  /* used in dnaml, proml, & restml */
+  /* draws one row of the tree diagram by moving up tree
+   * used in dnaml, proml, & restml */
   node *p, *q;
   long n, j;
   boolean extra;
@@ -821,7 +829,8 @@ void drawline2(long i, double scale, tree* curtree)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i && (i != (long)p->ycoord || p == curtree->root))
+      if ((long)last->ycoord > i && (long)first->ycoord < i
+            && (i != (long)p->ycoord || p == curtree->root))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
@@ -850,9 +859,11 @@ void drawline2(long i, double scale, tree* curtree)
 }  /* drawline2 */
 
 
-void standev(long chars, long numtrees, long minwhich, double minsteps, double *nsteps, long **fsteps, longer seed)
-{  /* do paired sites test (KHT or SH test) on user-defined trees */
-   /* used in dnapars & protpars */
+void standev(long chars, long numtrees, long minwhich, double minsteps,
+              double *nsteps, long **fsteps, longer seed)
+{
+  /* do paired sites test (KHT or SH test) on user-defined trees
+   * used in dnapars & protpars */
   long i, j, k;
   double wt, sumw, sum, sum2, sd;
   double temp;
@@ -868,7 +879,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
     which = 1;
     while (which <= numtrees)
     {
-      fprintf(outfile, "%3ld%10.1f", which, nsteps[which - 1] / 10);
+      fprintf(outfile, "%3ld%10.1f", which, nsteps[which - 1]);
       if (minwhich == which)
         fprintf(outfile, "  <------ best\n");
       else
@@ -888,7 +899,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
           }
         }
         sd = sqrt(sumw / (sumw - 1.0) * (sum2 - sum * sum / sumw));
-        fprintf(outfile, "%10.1f%12.4f", (nsteps[which - 1] - minsteps) / 10, sd);
+        fprintf(outfile, "%10.1f%12.4f", nsteps[which - 1] - minsteps, sd);
         if ((sum > 0.0) && (sum > 1.95996 * sd))
           fprintf(outfile, "           Yes\n");
         else
@@ -902,7 +913,9 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
   {           /* Shimodaira-Hasegawa test using normal approximation */
     if(numtrees > MAXSHIMOTREES)
     {
-      fprintf(outfile, "Shimodaira-Hasegawa test on first %d of %ld trees\n\n", MAXSHIMOTREES, numtrees);
+      fprintf(outfile,
+                   "Shimodaira-Hasegawa test on first %d of %ld trees\n\n",
+                   MAXSHIMOTREES, numtrees);
       numtrees = MAXSHIMOTREES;
     }
     else
@@ -936,7 +949,8 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
           covar[j][i] = temp;
       }
     }
-    for (i = 0; i < numtrees; i++)   /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    for (i = 0; i < numtrees; i++)
     {
       sum = 0.0;
       for (j = 0; j <= i-1; j++)
@@ -989,7 +1003,7 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
     fprintf(outfile, "   Significantly worse?\n\n");
     for (i = 0; i < numtrees; i++)
     {
-      fprintf(outfile, "%3ld%10.1f", i+1, nsteps[i]/10);
+      fprintf(outfile, "%3ld%10.1f", i+1, nsteps[i]);
       if ((minwhich-1) == i)
         fprintf(outfile, "  <------ best\n");
       else
@@ -1012,9 +1026,11 @@ void standev(long chars, long numtrees, long minwhich, double minsteps, double *
 }  /* standev */
 
 
-void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, double *l0gl, double **l0gf, steptr aliasweight, longer seed)
-{  /* do paired sites test (KHT or SH) for user-defined trees */
-  /* used in dnaml, dnamlk, proml, promlk, and restml */
+void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl,
+               double *l0gl, double **l0gf, steptr aliasweight, longer seed)
+{
+  /* do paired sites test (KHT or SH) for user-defined trees
+   * used in dnaml, dnamlk, proml, promlk, and restml */
   double **covar, *P, *f, *r;
   long i, j, k;
   double wt, sumw, sum, sum2, sd;
@@ -1063,7 +1079,8 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
   {           /* Shimodaira-Hasegawa test using normal approximation */
     if(numtrees > MAXSHIMOTREES)
     {
-      fprintf(outfile, "Shimodaira-Hasegawa test on first %d of %ld trees\n\n", MAXSHIMOTREES, numtrees);
+      fprintf(outfile, "Shimodaira-Hasegawa test on first %d of %ld trees\n\n",
+                        MAXSHIMOTREES, numtrees);
       numtrees = MAXSHIMOTREES;
     }
     else
@@ -1096,7 +1113,8 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
           covar[j][i] = temp;
       }
     }
-    for (i = 0; i < numtrees; i++)  /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    for (i = 0; i < numtrees; i++)  /* in-place Cholesky decomposition
+                                       of trees x trees covariance matrix */
     {
       sum = 0.0;
       for (j = 0; j <= i-1; j++)
@@ -1117,9 +1135,9 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
           covar[j][i] = (covar[j][i] - sum)/temp;
       }
     }
-    f = (double *)Malloc(numtrees * sizeof(double)); /* resampled likelihoods */
-    P = (double *)Malloc(numtrees * sizeof(double)); /* vector of P's of trees */
-    r = (double *)Malloc(numtrees * sizeof(double)); /* store Normal variates */
+    f = (double *)Malloc(numtrees * sizeof(double)); /*resampled likelihoods*/
+    P = (double *)Malloc(numtrees * sizeof(double)); /* vector of P's */
+    r = (double *)Malloc(numtrees * sizeof(double)); /* Normal variates */
     for (i = 0; i < numtrees; i++)
       P[i] = 0.0;
     for (i = 1; i <= SAMPLES; i++)            /* loop over resampled trees */
@@ -1168,4 +1186,4 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
 }  /* standev2 */
 
 
-// End.
+/* End. */

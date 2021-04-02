@@ -10,10 +10,10 @@
 
 typedef struct dnapars_node {
   pars_node pars_node;
-  nucarray cumlengths;           /* bookkeeps cummulative minimum lengths  */
-  nucarray numreconst;           /* bookkeeps number of  reconstructions   */
-  nucarray *numnuc;              /* bookkeeps number of nucleotides        */
-  baseptr base;                  /* the sequence in dnapars/comp/penny     */
+  nucarray cumlengths;           /* bookkeeps cumulative minimum lengths    */
+  nucarray numreconst;           /* bookkeeps number of  reconstructions    */
+  nucarray *numnuc;              /* bookkeeps number of nucleotides         */
+  baseptr base;                  /* the sequence in dnapars/comp/penny      */
 } dnapars_node;
 
 
@@ -46,7 +46,7 @@ void    dnapars_node_free(node **pp);
 void    dnapars_node_copy(node* src, node* dst);
 void    dna_makevalues(tree* t, boolean usertree);
 boolean dna_branchcollapsible(tree* t, node* n);
-void    dnapars_tree_nuview(tree* t, node*p);
+void    dnapars_tree_nuview(tree* t, node* p);
 tree*   dnapars_tree_new(long nonodes, long spp);
 void    dnapars_tree_init(tree*, long, long);
 

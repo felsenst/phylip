@@ -101,15 +101,13 @@ String res[]= {
         "*.drawing_area.right: ChainRight",
         "*.dialog.label: "
           "Drawtree unrooted tree plotting program\\n"
-  "PHYLIP version 4.0 (c) Copyright 1986-2013\\n"
-  "by The University of Washington.\\n"
-  "Written by Joseph Felsenstein and Christopher A. Meacham.\\n"
-  "Additional code written by Sean Lamont, Andrew Keefe, Hisashi Horino,\\n"
+  "PHYLIP version 4.0 (c) Copyright 1986-2020\\n"
+  "Written by Joseph Felsenstein, Christopher A. Meacham,\\n"
+  "Sean Lamont, Andrew Keefe, Hisashi Horino,\\n"
   "Akiko Fuseki, Doug Buxton and Michal Palczewski.\\n"
   "Permission is granted to copy, distribute and modify this program\\n"
   "provided that\\n"
-  "(1) This copyright message is not removed and\\n"
-  "(2) no fee i charged for this program.",
+  "(2) no fee is charged for this program.",
         NULL
 };
 #endif
@@ -166,13 +164,17 @@ void   makebox(char *, double *, double *, double *, long);
 /* function prototypes */
 #endif
 
+extern void initdrawtreenode(tree *, node **, long, long, long *,
+                      long *, initops, pointarray, Char *, Char *,
+                      FILE *);
+
 
 node* drawtree_node_new(node_type type, long index)
 {
   node* n = Malloc(sizeof(drawtree_node));
   drawtree_node_init(n, type, index);
   return n;
-}
+} /* drawtree_node_new */
 
 
 void drawtree_node_init(node *n, node_type type, long index)
@@ -182,14 +184,12 @@ void drawtree_node_init(node *n, node_type type, long index)
   draw_node_init(n, type, index);
   n->init = drawtree_node_init;
   dtn->r = 0;
-}
+} /* drawtree_node_init */
 
 
 void initialparms(void)
 {
   /* initialize parameters */
-  //printf("in initialparms\n");
-  //   fflush(stdout);
   paperx = 20.6375;
   pagex  = 20.6375;
   papery = 26.9875;
@@ -210,6 +210,7 @@ void initialparms(void)
   labelrotation = 0.0;
   charht = 0.3333;
   preview = true;
+  previewer = xpreview;
   hpmargin = 0.02*pagex;
   vpmargin = 0.02*pagey;
   labelavoid = false;
@@ -806,10 +807,6 @@ void getwidth(node *p)
   /* get width and depth beyond each node */
   double nw, nd;
   node *pp, *qq;
-  //seetree(p, nodep, nextnode); //JRMDebug
-  //dumpnodelinks(p, nodep, nextnode); //JRMDebug
-
-  //printf("  in getwidth p->type: %i nayme: %s index: %li\n", p->type, p->nayme, p->index); //JRMDebug
 
   nd = 0.0;
   if (p->tip)
@@ -827,7 +824,7 @@ void getwidth(node *p)
       pp = pp->next;
     } while (((p != curtree->root) && (pp != qq)) || ((p == curtree->root) && (pp != p->next)));
   }
-  ((drawtree_node*)p)->depth = nd + p->length;
+  ((drawtree_node*)p)->depth = nd + p->v;
   ((drawtree_node*)p)->width = nw;
 }  /* getwidth */
 
@@ -2077,15 +2074,12 @@ void calculate(void)
   for (i = 0; i < nextnode; i++)
     curtree->nodep[i]->ycoord = 0.0;
 
-  //printf("after nodep->ycoord\n"); //JRMDebug
-  //dumpnodelinks(root, nodep, nextnode); //JRMDebug
-
   if (!uselengths) {
     for (i = 0; i < nextnode; i++)
-      curtree->nodep[i]->length = 1.0;
+      curtree->nodep[i]->v = 1.0;
   } else {
     for (i = 0; i < nextnode; i++)
-      curtree->nodep[i]->length = fabs(curtree->nodep[i]->oldlen);
+      curtree->nodep[i]->v = fabs(curtree->nodep[i]->oldlen);
   }
 
   /* //JRMDebug
@@ -2613,17 +2607,17 @@ void drawtree(
   else
     doplot = false;
 
-    if (!haslengths) {
-        uselengths = false;
-    }
-    else {
-        if (usebranchlengths != 0) {
-            uselengths = true;
-        }
-        else {
-            uselengths = false;
-        }
-    }
+  if (!haslengths) {
+      uselengths = false;
+  }
+  else {
+      if (usebranchlengths != 0) {
+          uselengths = true;
+      }
+      else {
+          uselengths = false;
+      }
+  }
 
   if (regularizeangles != 0)
     regular = true;

@@ -298,28 +298,45 @@ void debugtree(tree* t)
       }
     }
   }
-}
+} /* debugtree */
 
 
 tree* codon_tree_new(long nonodes, long spp)
 {
+  /* set up variables and then set up identities of functions */
   tree* t = Malloc(sizeof(codon_tree));
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
   codon_tree_init(t, nonodes, spp);
   return t;
 } /* codon_tree_new */
 
 
+
 void codon_tree_init(tree* t, long nonodes, long spp)
 {
-  ml_tree_init(t, nonodes, spp);
-  // allocx(nonodes, endsite, rcategs, (ml_node**)t->nodep);
+  /* set up functions for a proml_tree */
+
   t->evaluate = codon_tree_evaluate;
+  t->try_insert_ = ml_tree_try_insert_;
   t->nuview = codon_tree_nuview;
-  ((ml_tree*)t)->makenewv = codon_tree_makenewv;
+  t->makenewv = codon_tree_makenewv;
   t->tree_print_f = debugtree;
   t->restore_traverses = codml_restore_traverses;
   t->node_good_f = codml_node_good;
 } /* codon_tree_init */
+
+
+void codon_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = codon_tree_new(nonodes, spp);
+  bestree = codon_tree_new(nonodes, spp);
+  bestree2 = codon_tree_new(nonodes, spp);
+  priortree = codon_tree_new(nonodes, spp);
+} /* codon_tree_setup */
 
 
 void init_nucSubRates(double ttratio)
@@ -2244,7 +2261,7 @@ void getinput(void)
     input_codondata(dataSites);
   if ( !firstset ) freelrsaves();
   makeweights(inputDataIsNucleotideData);
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  codon_tree_setup(nonodes2, spp);
   codml_alloclrsaves();
 
   // BUG.969 -- probably OK already -- setuptree2(&curtree);
@@ -2403,7 +2420,7 @@ void codon_tree_nuview(tree* t, node *p)
   memcpy(((ml_node*)p)->underflows, temp_underflows, endsite * sizeof(double));
 
   p->initialized = true;
-  inittrav(p->back);
+  inittrav(t, p->back);
 
   for ( siteIndex = 0 ; siteIndex < endsite ; siteIndex++ )
     free(temp_codonx[siteIndex]);
@@ -2635,9 +2652,9 @@ void codon_tree_makenewv(tree* t, node *p)
   q->v = yold;
 
   /* BUG.969 -- is there a better place to make sure it's always done? */
-  inittrav(p);
+  inittrav(t, p);
   assert(q == p->back);
-  inittrav(p->back);
+  inittrav(t, p->back);
 
   ((tree*)t)->score = oldlike;
 
@@ -3687,7 +3704,7 @@ void maketree(void)
 
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
       // BUG.969 -- proml has reusertree stuff in here
       if (treeprint)
       {
@@ -3735,7 +3752,7 @@ void maketree(void)
 
     while (nextsp <= spp)
     {
-      assert(curtree->tree_good_f(curtree));
+      assert(curtree->tree_good_f(curtree));    /* debug:  tree_good functions unneeded */
 
       bestyet = UNDEFINED;
       if (smoothit)
@@ -3743,8 +3760,10 @@ void maketree(void)
         curtree->copy(curtree, priortree);
       }
 
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
-
+      curtree->addtraverse(curtree,
+                            curtree->nodep[enterorder[nextsp - 1] - 1],
+                            curtree->root, true, qwhere, &bestyet,
+                            bestree, smoothit);
       if (smoothit)
       {
         bestree->copy(bestree, curtree);
@@ -3752,7 +3771,8 @@ void maketree(void)
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true, false);
+        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1],
+                          qwhere, false);
         smoothit = false;
         curtree->copy(curtree, bestree);
         bestyet = curtree->score;
@@ -3804,7 +3824,7 @@ void maketree(void)
       if (njumble > 1)
         bestree2->copy(bestree2, curtree);
       curtree->root = curtree->nodep[outgrno - 1]->back;
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_initialvtrav);
       if (treeprint)
       {
         codml_printree();

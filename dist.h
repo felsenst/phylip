@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+*/
 
 
 /*
@@ -26,13 +25,13 @@ typedef struct dist_node {
 
 #ifndef OLDC
 /*function prototypes*/
-void alloctree(pointptr *, long);
-void freetree(pointptr *, long);
+void alloctree(tree *, long);
+void freetree(tree *, long);
 void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
-void setuptree(tree *, long);
+void dist_tree_new(tree *, long);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
 void drawline(long, double, node *, boolean);
@@ -47,4 +46,4 @@ void dist_node_free(node **np);
 #endif
 
 
-// End.
+/* End. */

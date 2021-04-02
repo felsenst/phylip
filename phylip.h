@@ -1,8 +1,6 @@
-/* Version 4.0a. (c) Copyright 1993-2014 by the University of Washington.
+/* Version 4.0a.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Mike Palczewski, Doug Buxton and Dan Fineman.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Mike Palczewski, Doug Buxton and Dan Fineman.    */
 
 #ifndef _PHYLIP_H_
 #define _PHYLIP_H_
@@ -23,17 +21,21 @@
    ANSI conforming C, it will probably work.
 
    We will try to figure out machine type
-   based on defines in stdio, and compiler-defined things as well.: */
+   based on defines in stdio, and compiler-defined things as well.:
+   Quite a bit of this is being paranoid about being on antique operating
+   systems or antique compilers */
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef WIN32
+
+#define true    1                   /* messing with truth itself! */
+#define false   0
+
+#ifdef WIN32                        /* if we're in Microsoft Windows */
 #include <windows.h>
 
 
-#else
-
-/* Use null macros instead */
+#else                               /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
 
 #define phySaveConsoleAttributes()      NULL_EXPR
@@ -44,21 +46,22 @@
 
 #endif /* WIN32 */
 
-#ifdef  GNUDOS
+#ifdef  GNUDOS      /* GNU functions to make it act like DOS */
 #define DJGPP
 #define DOS
 #endif
 
-#ifdef THINK_C
+#ifdef THINK_C      /* Think C = Lightspeed C for MacOS 8 or 9 */
 #define MAC
 #endif
-#ifdef __MWERKS__
+
+#ifdef __MWERKS__   /* the defunct Metrowerks C for Apple PowerPC */
 #ifndef WIN32
 #define MAC
 #endif
 #endif
 
-#ifdef __CMS_OPEN
+#ifdef __CMS_OPEN  /* default file names for Java Content Management System */
 #define CMS
 #define EBCDIC true
 #define INFILE "infile data"
@@ -73,11 +76,13 @@
 #define ANCFILE "ancestors data"
 #define MIXFILE "mixture data"
 #define FACTFILE "factors data"
-#else
+
+#else               /* default file names for everything else */
+
 #define EBCDIC false
 #define INFILE "infile"
 #define OUTFILE "outfile"
-#define FONTFILE "fontfile" /* on unix this might be /usr/local/lib/fontfile */
+#define FONTFILE "fontfile" /* on Unix might be in /usr/local/lib/fontfile */
 #define PLOTFILE "plotfile"
 #define INTREE "intree"
 #define INTREE2 "intree2"
@@ -89,15 +94,15 @@
 #define FACTFILE "factors"
 #endif
 
-#ifdef L_ctermid            /* try and detect for sysV or V7. */
+#ifdef L_ctermid            /* try and detect for Unix sysV or V7. */
 #define SYSTEM_FIVE
 #endif
 
-#ifdef sequent
+#ifdef sequent              /* if on a Sequent multiprocessing machine */
 #define SYSTEM_FIVE
 #endif
 
-#ifndef SYSTEM_FIVE
+#ifndef SYSTEM_FIVE         /* diagnosing whether on BSD Unix */
 #include <stdlib.h>
 # if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
 # define UNIX
@@ -105,21 +110,21 @@
 # endif
 #endif
 
-#ifdef __STDIO_LOADED
-#define VMS
+#ifdef __STDIO_LOADED        /* diagnosing whether on a DEC VAX */
+#define VMS                  /* running their VMS operating system */
 #define MACHINE_TYPE "VAX/VMS C"
 #endif
 
-#ifdef __WATCOMC__
+#ifdef __WATCOMC__           /* diagnosing whether compiler is Watcom C */
 #define QUICKC
 #define WATCOM
 #define DOS
 #include "graph.h"
 #endif
-/* watcom-c has graphics library calls that are almost identical to    *
- * quick-c, so the "QUICKC" symbol name stays.                         */
+/* Watcom-C has graphics library calls that are almost identical to
+ * Microsoft Quick-C, so the "QUICKC" symbol name stays                 */
 
-#ifdef _QC
+#ifdef _QC                   /* is the compiler Microsoft's old Quick C? */
 #define MACHINE_TYPE "MS-DOS / Quick C"
 #define QUICKC
 #include "graph.h"
@@ -129,29 +134,30 @@
 #ifdef _DOS_MODE
 #define MACHINE_TYPE "MS-DOS /Microsoft C "
 #define DOS           /* DOS is always defined if on a DOS machine */
-#define MSC           /* MSC is defined for microsoft C              */
+#define MSC           /* MSC is defined for Microsoft C              */
 #endif
 
-#ifdef __MSDOS__      /* TURBO c compiler, ONLY (no other DOS C compilers) */
+#ifdef __MSDOS__      /* TURBO C compiler, ONLY (no other DOS C compilers) */
 #define DOS
 #define TURBOC
 #include <stdlib.h>
 #include <graphics.h>
 #endif
 
-#ifdef DJGPP          /* DJ Delorie's original gnu  C/C++ port */
+#ifdef DJGPP          /* DJ Delorie's original Gnu C/C++ port */
 #include <graphics.h>
 #endif
 
-#ifndef MACHINE_TYPE
+#ifndef MACHINE_TYPE        /* if none of the above, assume ANSI C */
 #define MACHINE_TYPE "ANSI C"
 #endif
 
-#ifdef DOS
+#ifdef DOS             /* if running under MSDOS or something imitating it */
 #define MALLOCRETURN void
 #else
-#define MALLOCRETURN void
+#define MALLOCRETURN void   /* debug:  what ... ?  then why #ifdef ? */
 #endif
+
 #ifdef VMS
 #define signed /* signed doesn't exist in VMS */
 #endif
@@ -213,12 +219,12 @@
 #define getch gettch
 #endif
 
-/* directory delimiters */
+/* delimiters in paths to files */
 #ifdef MAC
 #define DELIMITER ':'
 #else
 #ifdef WIN32
-#define DELIMITER '\\'
+#define DELIMITER '\\'     /* a backslash character */
 #else
 #define DELIMITER '/'
 #endif
@@ -226,7 +232,7 @@
 
 
 #define FClose(file) if (file) fclose(file) ; file=NULL
-#define Malloc(x) mymalloc((long)x)
+#define Malloc(x) mymalloc((long)x)    /* mymalloc is our wrapper for malloc */
 
 typedef void *Anyptr;
 #define Signed     signed
@@ -240,11 +246,8 @@ typedef void *Anyptr;
 typedef unsigned int boolean;
 #endif
 
-#define true    1
-#define false   0
-
-/* Number of items per machine word in set.
- * Used in consensus programs and clique */
+/* Number of items per machine word in when stores a binary set of bits.
+ * Used in Consense, Treedist, and Clique; can't use sign bit */
 #define SETBITS 31
 
 /* Static memory parameters */
@@ -258,11 +261,11 @@ typedef unsigned int boolean;
 #define pointe          '.'
 #define down            2
 #define MAXNUMTREES    10000000  /* greater than number of user trees can be */
-#define MAXSHIMOTREES 100
+#define MAXSHIMOTREES 100    /* SHT test.  Yes, he uses this as his nickname */
 
 /* Maximum likelihood parameters */
 
-#define smoothings      4       /* number of passes through smoothing algorithm */
+#define smoothings      8       /* number of passes through smoothing algorithm */
 #define iterations      8       /* number of iterates for each branch           */
 #define epsilon         0.0001  /* small number used in makenewv */
 #define EPSILON         0.00001 /* small number used in hermite root-finding */
@@ -272,15 +275,16 @@ typedef unsigned int boolean;
                                  * calculations. */
 
 /* Math constants */
-#define SQRTPI 1.7724538509055160273
-#define SQRT2  1.4142135623730950488
-#define  purset ((1 << (long)A) + (1 << (long)G))
-#define  pyrset ((1 << (long)C) + (1 << (long)T))
+#define SQRTPI 1.7724538509055160273     /* square root of Pi, for Normal */
+#define SQRT2  1.4142135623730950488     /* square root of 2. */
+#define  purset ((1 << (long)A) + (1 << (long)G))   /* the purine bases */
+#define  pyrset ((1 << (long)C) + (1 << (long)T))   /* the pyrimidines */
 #define NLRSAVES 5 /* number of views that need to be saved during local  *
                     * rearrangement                                       */
 
-/* Used in proml, promlk, dnaml, dnamlk for undefined bestyet*/
-#define UNDEFINED 1.0
+/* Used in Proml, Promlk, Dnaml, Dnamlk and in the parsimony programs
+ * for undefined bestyet value */
+#define UNDEFINED -99.99999
 
 /* a basic stack */
 typedef struct stack stack;
@@ -293,11 +297,11 @@ struct stack {
 
 typedef long *steptr;
 typedef long longer[6];
-typedef char naym[MAXNCH];
+typedef char naym[MAXNCH];    /* for species names */
 typedef long *bitptr;
 typedef double raterootarray[maxcategs2][maxcategs2];
 
-typedef struct bestelm {
+typedef struct bestelm {      /* stores trees */
   long *btree;
   boolean gloreange;
   boolean locreange;
@@ -308,22 +312,23 @@ FILE *infile, *outfile, *intree, *intree2, *outtree;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
-long spp;                       /* number of species */
-long words, bits;
+long spp;                                              /* number of species */
+long chars;                                /* number of characters or sites */
+long words, bits;    /* binary words, bit length for binary sets of species */
 boolean ibmpc, ansi, tranvsp;
-naym *nayme;                    /* names of species */
-char progbuf[256]; // string to display in the progress output
+naym *nayme;                                   /* array of names of species */
+char progbuf[256];              /* string to display in the progress output */
 
-#define ebcdic          EBCDIC
+#define ebcdic          EBCDIC  /* IBM character set pre-ANSI/ISO */
 
 typedef Char plotstring[MAXNCH];
 
 /* Approx. 1GB, used to test for memory request errors */
-#define TOO_MUCH_MEMORY 1000000000
+#define TOO_MUCH_MEMORY 1000000000      /* debug: maybe should make bigger? */
 
 
 /* The below pre-processor commands define the type used to store
-   group arrays.  We can't use #elif for metrowerks, so we use
+   group arrays.  We can't use #elif for Metrowerks C, so we use
    cascaded if statements */
 #include <limits.h>
 
@@ -334,7 +339,7 @@ typedef Char plotstring[MAXNCH];
 /* K&R says that there should be a plus in front of the number, but no
    machine we've seen actually uses one; we'll include it just in
    case. */
-#define MAX_32BITS        2147483647
+#define MAX_32BITS        2147483647    /* max integer if 32-bit arithmetic */
 #define MAX_32BITS_PLUS  +2147483647
 
 /* If ints are 4 bytes, use them */
@@ -366,15 +371,15 @@ typedef int  group_type;
 
 /* for many programs */
 
-#define maxuser         1000  /* maximum number of user-defined trees    */
+#define maxuser         1000        /* maximum number of user-defined trees */
 
 typedef Char **sequence;
 
-typedef enum {
+typedef enum {                 /* the four DNA bases plus unknown or absent */
   A, C, G, T, O
 } bases;
 
-typedef enum {
+typedef enum {                               /* the amino acids in proteins */
   alanine, arginine, asparagine, aspartic, cysteine,
   glutamine, glutamic, glycine, histidine, isoleucine,
   leucine, lysine, methionine, phenylalanine, proline,
@@ -382,35 +387,34 @@ typedef enum {
 } acids;
 
 /* for Pars */
-
 typedef enum {
   zero = 0, one, two, three, four, five, six, seven
 } discbases;
 
 
-/* used by protpars and protdist */
-typedef enum {
+/* used by Protpars and Protdist */
+typedef enum {          /* the three-letter amino acid codes, extended */
   ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, pro,
   ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
 } aas;
 
-/* arrays for likelihoods in dnaml, dnadist...                              */
+/* arrays for likelihoods in Dnaml, Dnamlk, Dnadist...                              */
 typedef double sitelike[(long)T - (long)A + 1];
 typedef sitelike *ratelike;
 typedef ratelike *phenotype;
 
-/* arrays for likelihoods in proml, prokmlk...                              */
+/* arrays for likelihoods in Proml, Prokmlk...                              */
 typedef double psitelike[(long)valine - (long)alanine + 1];
 typedef psitelike *pratelike;
 typedef pratelike *pphenotype;
 
-/* arrays for likelihoods in codml...                                       */
+/* arrays for likelihoods in Codml                                       */
 typedef double csitelike[61];
 typedef csitelike *cratelike;
 typedef cratelike *cphenotype;
 
-typedef long *baseptr;       /* baseptr used in dnapars, dnacomp & dnapenny */
-typedef unsigned char *discbaseptr;     /* discbaseptr used in pars         */
+typedef long *baseptr;        /* baseptr used in Dnapars, Dnacomp, Dnapenny */
+typedef unsigned char *discbaseptr;     /* discbaseptr used in Pars         */
 typedef double *phenotype3;                 /* for continuous char programs */
 
 typedef double *vector;                     /* used in distance programs    */
@@ -423,18 +427,19 @@ typedef enum { bottom, nonbottom, hslength, tip, iter, length,
 
 
 typedef double **transmatrix;
-typedef transmatrix *transptr;                /* transptr used in restml */
+typedef transmatrix *transptr;                   /* transptr used in Restml */
 
 typedef long sitearray[3];
-typedef sitearray *seqptr;                    /* seqptr used in protpars */
+typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 
 /* datastructure typedefs */
 enum node_type { FORK_NODE = 0, TIP_NODE };
 typedef enum node_type node_type;
 
-typedef struct node node;
+typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
 typedef node* (*new_node_t)(node_type, long);
+typedef void (*tree_setupfunctions_t)(tree*);
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
 typedef void (*node_free_t)(node**);
@@ -458,7 +463,7 @@ typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
  * #define node_copy(src,dst)      (((node*)(src))->vtable->node_copy_f((node*)(src),(node*)(dst)))
  */
 
-typedef enum nodetype {
+typedef enum nodetype {                                /* what kind of data */
   NODE_T_UNKNOWN,
   NODE_T_GENERIC,
   NODE_T_ML,
@@ -476,35 +481,36 @@ struct node_vtable {
 
 extern struct node_vtable node_vtable;
 
-struct node {
+struct node {   /* a basic node: space for everytihing but the kitchen sink */
   nodetype      type;                   /* Runtime type id */
   struct node *next, *back;
   plotstring nayme;
   long index;
   double xcoord, ycoord;
   double oldlen, naymlength;
-  long ymin, ymax;                       /* used by printree        -plc   */
-  boolean haslength;               /* haslength used in dnamlk             */
-  boolean iter;                    /* iter used in dnaml, fitch & restml   */
-  boolean initialized;             /* initialized used in dnamlk & restml  */
-  double v, tyme, deltav, ssq;     /* ssq used only in contrast            */
-  boolean deleted;        /* true if node is deleted (retree)              */
-  boolean hasname;        /* true if tip has a name (retree)               */
-  double beyond;          /* distance beyond this node to most distant tip */
-                            /* (retree) */
-  boolean deadend;          /* true if no undeleted nodes beyond this node */
-                            /* (retree) */
-  boolean onebranch;        /* true if there is one undeleted node beyond  */
-                            /* this node (retree)                          */
+  long ymin, ymax;                        /* used by printree        -plc   */
+  boolean haslength;                /* haslength used in dnamlk             */
+  boolean iter;                     /* iter used in dnaml, fitch & restml   */
+  boolean do_newbl;                  /* new branch lengths needed? */
+  boolean initialized;              /* initialized used in dnamlk & restml  */
+  double v, tyme, deltav, ssq;      /* ssq used only in contrast            */
+  boolean deleted;                      /* true if node is deleted (retree) */
+  boolean hasname;                       /* true if tip has a name (retree) */
+  double beyond;           /* distance beyond this node to most distant tip */
+                            /* (for Retree) */
+  boolean deadend;           /* true if no undeleted nodes beyond this node */
+                             /* (for Retree) */
+  boolean onebranch;         /* true if there is one undeleted node beyond  */
+                                                   /* this node (in Retree) */
   struct node *onebranchnode;
-                            /* if there is, a pointer to that node (retree)*/
-  double onebranchlength;   /* if there is, the distance from here to there*/
-                                /* (retree)                                */
-  boolean onebranchhaslength;   /* true if there is a valid combined length*/
-                                 /* from here to there (retree)            */
-  boolean tip;                   /* true if node is a tip node */
-  boolean bottom;                /* used in dnapars & dnacomp, disc char   */
-  boolean visited;               /* used in dnapars & dnacomp  disc char   */
+                            /* if there is, a pointer to that node (Retree) */
+  double onebranchlength;   /* if there is, the distance from here to there */
+                                                                /* (Retree) */
+  boolean onebranchhaslength;   /* true if there is a valid combined length */
+                                             /* from here to there (Retree) */
+  boolean tip;                                /* true if node is a tip node */
+  boolean bottom;                   /* used in Dnapars & Dnacomp, disc char */
+  boolean visited;                  /* used in Dnapars & Dnacomp, disc char */
   bitptr stateone, statezero;    /* discrete char programs                 */
   Char state;                    /* state used in Dnamove, Dolmove & Move  */
   boolean onlyfossilsabove;  /* used in Contrast for fossil machinery */
@@ -521,19 +527,23 @@ struct node {
   struct node_vtable *vtable;               /* Pointer to node vtable */
 };
 
+
 typedef node **pointarray;
 
 typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
-typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, tree*, boolean, boolean*);
-typedef void (*tree_insert_t)(tree*,node*,node*,boolean,boolean);
-typedef boolean (*tree_try_insert_t)(tree*,node*,node*,node**, double*,
-    tree*, tree*,boolean,boolean*);
+typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
+    double*, tree*, boolean, boolean, boolean, double*);
+typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
+    double*, tree*, boolean, boolean, boolean, double*);
+typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
+typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
+    tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_free_t)(tree*);
-typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
-typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
+typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean,double*);
+typedef void (*tree_locrearrange_t)(tree*,node*,boolean,double*,
+                                     tree*,tree*,boolean,double*);
 typedef void (*tree_smoothall_t)(tree*,node* p);
 typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);
 typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
@@ -541,11 +551,12 @@ typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
 typedef void (*tree_save_traverses_t)(tree*,node*,node*);
 typedef void (*tree_restore_traverses_t)(tree*,node*,node*);
 typedef void (*tree_release_fork_t)(tree*,node*);
-typedef node* (*tree_get_fork_t)(tree*);
+typedef node* (*tree_get_fork_t)(tree*, long);
 typedef node* (*tree_get_forknode_t)(tree*,long);
 typedef void (*tree_release_forknode_t)(tree*,node*);
 typedef void (*tree_reinit_forknode_t)(tree*,node*);
 typedef void (*tree_nuview_t)(tree*,node*);
+typedef void (*tree_makenewv_t)(tree*,node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
@@ -558,6 +569,7 @@ struct tree_vtable {
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
+  tree_addtraverse_t addtraverse_1way;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
   tree_free_t free;
@@ -575,9 +587,10 @@ struct tree_vtable {
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
   tree_nuview_t nuview;
+  tree_makenewv_t makenewv;
 };
 
-typedef enum {
+typedef enum {                           /* enum type which is type of tree */
   TREE_T_UNKNOWN,
   TREE_T_GENERIC,
   TREE_T_ROOTED,
@@ -585,7 +598,8 @@ typedef enum {
   TREE_T_ML
 } treetype;
 
-struct tree {
+
+struct tree {                                              /* the tree type */
   treetype      type;
   pointarray nodep;
   double score;
@@ -601,17 +615,19 @@ struct tree {
   node *rb, *rnb, *rnnb;
   boolean mulf;
   boolean onleft;
+  boolean do_newbl;
 
   /* fork management bookeeping stacks */
   Slist_ptr free_forks;
   Slist_ptr free_fork_nodes;
 
+  tree_setupfunctions_t setupfunctions;     /* sets up functions */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
+  tree_addtraverse_1way_t addtraverse_1way;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
-  tree_free_t free;
   tree_globrearrange_t globrearrange;
   tree_smoothall_t smoothall;
   tree_evaluate_t evaluate;
@@ -620,12 +636,14 @@ struct tree {
   tree_restore_lr_nodes_t restore_lr_nodes;
   tree_save_traverses_t save_traverses;
   tree_restore_traverses_t restore_traverses;
+  tree_free_t free;
   tree_release_fork_t release_fork;
   tree_get_fork_t get_fork;
   tree_get_forknode_t get_forknode;
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
   tree_nuview_t nuview;
+  tree_makenewv_t makenewv;
   tree_print_t tree_print_f;
   do_branchl_on_insert_t do_branchl_on_insert_f;
   do_branchl_on_re_move_t do_branchl_on_re_move_f;
@@ -649,9 +667,9 @@ typedef struct initdata {
 
 initdata functions;
 
-boolean javarun;
+boolean javarun;               /* boolean for when Java front-end is in use */
 
-#ifndef OLDC
+#ifndef OLDC            /* need this if not the old original K&R C compiler */
 /* function prototypes */
 void            no_op(void);
 void            even_sibs(tree*, node*, node*);
@@ -665,14 +683,26 @@ void            generic_node_init(node*, node_type, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);
+<<<<<<< HEAD
 long            count_sibs (node*);
+=======
+long            count_sibs(node*);
+node*           findroot(tree*, node*, boolean*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);
 void            inittrav_all(tree*);
+<<<<<<< HEAD
 void            inittrav (node*);
 void            EOF_error(void);
 static void	crash_handler(int);
+=======
+void            initializetrav (tree*, node*);
+void            inittrav (tree*, node*);
+void            EOF_error(void);
+void            crash_handler(int);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            phylipinit(int, char**, initdata*, boolean);
 void            scan_eoln(FILE*);
 boolean         eoff(FILE*);
@@ -681,7 +711,11 @@ boolean         filexists(const char*);
 void            openfile(FILE**, const char*, const char*, const char*,
                           const char*, char*);
 const char*     get_command_name (const char*);
+<<<<<<< HEAD
 static void	_fgetline_finalize(void);
+=======
+void		_fgetline_finalize(void);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 char*		fgetline(FILE*);
 char            menu_getchar(void);
 void            getstryng(char*);
@@ -754,6 +788,10 @@ void            odd_malloc(long);
 MALLOCRETURN    *mymalloc(long);
 
 void            hookup(node*, node*);
+<<<<<<< HEAD
+=======
+node*           precursor(node*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            link_trees(long, long , long, pointarray);
 void            allocate_nodep(pointarray*, FILE*, long*);
 long            take_name_from_tree (Char*, Char*, FILE*);
@@ -771,6 +809,7 @@ void            treeread2 (FILE*, node**, pointarray, boolean, double*,
 void            exxit (int);
 char            gettc(FILE*);
 void            unroot(tree*, long);
+<<<<<<< HEAD
 void            unroot_here(node*, node**, long);
 void            unroot_r(node*, node**, long);
 void            destruct_tree(tree*);
@@ -778,16 +817,40 @@ void            generic_tree_free(tree*);
 void            rooted_tree_init(tree*, long, long);
 void            generic_tree_init(tree*, long, long);
 tree*           generic_tree_new(long, long);
+=======
+void            unroot_here(tree*, node*, long);
+void            unroot_r(tree*, node*, long);
+void            release_all_forks(tree*);
+void            destruct_tree(tree*);
+void            rooted_tree_init(tree*, long, long);
+tree*           generic_tree_new(long, long);
+void            generic_tree_init(tree*, long, long);
+void		generic_tree_setupfunctions(tree*);
+void            generic_tree_free(tree*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
 boolean         generic_fork_good(tree*, node*);
 boolean         generic_node_good(tree*, node*);
+<<<<<<< HEAD
 void            rooted_globrearrange(tree*, boolean, boolean);
 void            generic_globrearrange(tree*, boolean, boolean);
 boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
                                           double*, tree*, tree*, boolean,
                                           boolean*);
 #ifdef WIN32
+=======
+boolean         oktoinsertthere(tree*, node*);
+boolean         oktorearrangethere(tree*, node*);
+void            rooted_globrearrange(tree*, tree*, boolean, boolean, double*);
+void            generic_globrearrange(tree*,tree*,boolean,boolean,double*);
+boolean         oktoputthere(tree*, node*);
+boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
+                          double*, tree*, boolean, boolean, boolean, double*);
+boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean,
+                   node*, double*, tree*, boolean, boolean, boolean, double*);
+#ifdef WIN32              /* if using screen attributes of a Windows system */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
 void 		phyRestoreConsoleAttributes(void);
@@ -797,6 +860,7 @@ void 		phyClearScreen(void);
 
 void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
 void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
+<<<<<<< HEAD
 void            generic_unrooted_locrearrange(tree*, node*, boolean, tree*,
                                                tree*);
 boolean		unrooted_tree_locrearrange_recurs(tree*, node*, node*, double*,
@@ -806,35 +870,70 @@ void            generic_tree_restore_traverses(tree*, node*, node*);
 static void	rooted_tryrearr(tree*, node*, boolean*);
 static void	rooted_repreorder(tree*, node*, boolean*);
 void            rooted_locrearrange(tree*, node*, boolean, tree*, tree*);
+=======
+void            generic_unrooted_locrearrange(tree*, node*, boolean, double*,
+                                              tree*, tree*, boolean, double*);
+boolean		unrooted_tree_locrearrange_recurs(tree*, node*, double*,
+                                    boolean, tree*, tree*, boolean, double*);
+void            generic_tree_save_traverses(tree*, node*, node*);
+void            generic_tree_restore_traverses(tree*, node*, node*);
+void    	rooted_tryrearr(tree*, node*, boolean*);
+void		rooted_repreorder(tree*, node*, boolean*);
+void            rooted_locrearrange(tree*, node*, boolean, double*,
+                                     tree*, tree*, boolean, double*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
 void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
+<<<<<<< HEAD
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
 void            generic_tree_insert_(tree*, node*, node*, boolean, boolean);
 void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*,long);
+=======
+long		generic_tree_findemptyfork(tree*);
+void            generic_tree_nuview(tree*, node*);
+double          generic_tree_evaluate(tree*, node*, boolean);
+void            generic_tree_insert_(tree*, node*, node*, boolean);
+void            generic_do_branchl_on_insert(tree*, node*, node*);
+node*           generic_tree_get_forknode(tree*, long);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_re_move(tree*, node*, node**, boolean);
 void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
+<<<<<<< HEAD
 boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
                                           tree*, tree*, boolean, boolean*);
 void            rooted_tree_insert_(tree*, node*, node*, boolean, boolean);
 void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, boolean, boolean, longer, boolean) ;
+=======
+boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
+                                   tree*, boolean, boolean, boolean, double*);
+void            rooted_tree_insert_(tree*, node*, node*, boolean);
+void            buildsimpletree(tree*, long*);
+void            rooted_tree_re_move(tree*, node*, node**, boolean);
+void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
+                       longer, boolean, double*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            preparetree(tree*);
 void            fixtree(tree*);
 void            arbitrary_resolve(tree*) ;
 void            writename(long, long, long*);
 void            print_progress(char*);
 
+<<<<<<< HEAD
 void 		seetree(node *p, pointarray nodep, long nonodes);
 void 		seetree2(tree * curtree);
+=======
+void 		seetree(tree * curtree);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);
 
 /* following not in phylip.c */
@@ -846,11 +945,15 @@ void            gnudisctreenode(node**, node**, long, long);
 void            generic_tree_restore_lr_nodes(tree*, node*, node*);
 void            rooted_tree_save_lr_nodes(tree*, node*, node*);
 void            generic_tree_reinit_forknode(tree*, node*);
+<<<<<<< HEAD
 void            generic_inittravtree(node*);
+=======
+void            generic_initialvtrav(node*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
 
 #endif /* _PHYLIP_H_ */
 
 
-// End.
+/* End. */

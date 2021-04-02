@@ -77,17 +77,19 @@ void freetree(pointarray *treenode, long nonodes)
     free((*treenode)[i]);
   for (i = spp; i < nonodes; i++)
   {
-    p = (*treenode)[i]->next;
-    /* cannot guarantee always triplets, so travel around the ring */
-    while (p != (*treenode)[i])
-    {
-      q = p;
-      p = p->next;
-      free(q);
-    }
+    if (*treenode[i] != NULL) {
+      p = (*treenode)[i]->next;
+      /* cannot guarantee always triplets, so travel around the ring */
+      while (p != (*treenode)[i])
+      {
+        q = p;
+        p = p->next;
+        free(q);
+      }
     free((*treenode)[i]);
+    }
   }
-  free(*treenode);
+  free(*treenode);   /* debug:  should we also free the free_fork_nodes  list?  */
 } /* freetree */
 
 
@@ -96,7 +98,7 @@ void setuptree(tree *a, long nonodes)
   (void)nonodes;                        // RSGnote: Parameter never used.
 
   /* initialize a tree */
-  /* used in contml, contrast, and threshml */
+  /* used in contrast and threshml */
   long i;
 
   for (i = 1; i <= spp; i++)
@@ -105,7 +107,8 @@ void setuptree(tree *a, long nonodes)
     a->nodep[i - 1]->iter = true;
   }
 
-  /* no setup for interior nodes -- handled in treeread which calls initcontnode */
+  /* no setup for interior nodes -- handled in treeread
+     which calls initcontnode */
   a->score = -99999.0;
   a->root = a->nodep[0];
   a->get_fork = generic_tree_get_fork;
@@ -115,33 +118,53 @@ void setuptree(tree *a, long nonodes)
 
 void allocview(tree *a, long nonodes, long totalleles)
 {
-  /* allocate view */
-  /* used in contml */
-  long i, j;
-  node *p;
+  /* allocate view array
+     used in contml */
+  long i, n;
+  node *r, *s;
+  Slist_node_ptr p;
+  Slist_data_ptr q;
 
   for (i = 0; i < spp; i++)
-  {
-    ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
-    ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
-  }
+    if (a->nodep[i] != NULL)
+      {
+        ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles
+                                                            * sizeof(double));
+        ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
+      }
 
   for (i = spp; i < nonodes; i++)
   {
-    /* Assumes bifurcation */
-    for (j = 1; j <= 3; j++)
-    {
-      ((cont_node_type*)a->nodep[i])->view = (phenotype3)Malloc(totalleles * sizeof(double));
-      ((cont_node_type*)a->nodep[i])->totalleles = totalleles;
-      p = p->next;
+    if (a->nodep[i] != NULL) {
+      r = (node*)(a->nodep[i]);
+      s = r;
+      do {        /* go around circle */
+        ((cont_node_type*)s)->view = (phenotype3)Malloc(totalleles 
+                                                         * sizeof(double));
+        ((cont_node_type*)s)->totalleles = totalleles;
+        s = s->next;
+      } while (s != r);
     }
   }
+  p = (Slist_node_ptr)(a->free_fork_nodes->first);   /* go along free nodes
+                                                        list as needed */
+  q = (Slist_data_ptr)(a->free_fork_nodes->first->data);
+  n = a->free_fork_nodes->length;
+  for (i = 1; i <= n; i++) {
+    ((cont_node_type *)q)->view = (phenotype3)Malloc(totalleles
+                                                      * sizeof(double));
+    ((cont_node_type *)q)->totalleles = totalleles;
+    if (i < n) {
+      p = p->next;
+      q = p->data;
+      }
+    }
 }  /* allocview */
 
 
 void freeview(tree *a, long nonodes)
 {
-  /* deallocate view */
+  /* deallocate views */
   /* used in contml and threshml */
   long i;
   node *p, *q;
@@ -152,13 +175,15 @@ void freeview(tree *a, long nonodes)
   }
   for (i = spp; i < nonodes; i++)
   {
-    p = a->nodep[i];
-    q = p;
-    do {
-      free(((cont_node_type*)q)->view);
-      q = q->next;
+    if (((cont_node_type*)a->nodep[i]) != NULL) {
+      p = a->nodep[i];
+      q = p;
+      do {
+        free(((cont_node_type*)q)->view);
+        q = q->next;
+      }
+      while (q != p);
     }
-    while (q != p);
   }
 }  /* freeview */
 
@@ -206,7 +231,7 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
     }
     fprintf(outfile, "\n\n");
   }
-  else                                  /* Shimodaira-Hasegawa test using normal approximation */
+  else            /* Shimodaira-Hasegawa test using normal approximation */
   {
     if(numtrees > MAXSHIMOTREES)
     {
@@ -237,7 +262,8 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
           covar[j][i] = temp;
       }
     }
-    for (i = 0; i < numtrees; i++)  /* in-place Cholesky decomposition of trees x trees covariance matrix */
+    for (i = 0; i < numtrees; i++)  /* in-place Cholesky decomposition of
+                                       trees x trees covariance matrix */
     {
       sum = 0.0;
       for (j = 0; j <= i-1; j++)
@@ -256,8 +282,8 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
       }
     }
     f = (double *)Malloc(numtrees * sizeof(double)); /* resampled likelihoods */
-    P = (double *)Malloc(numtrees * sizeof(double)); /* vector of P's of trees */
-    r = (double *)Malloc(numtrees * sizeof(double)); /* store Normal variates */
+    P = (double *)Malloc(numtrees * sizeof(double)); /* vector: P's of trees */
+    r = (double *)Malloc(numtrees * sizeof(double)); /* put Normal variates */
     for (i = 0; i < numtrees; i++)
       P[i] = 0.0;
     for (i = 1; i <= SAMPLES; i++)           /* loop over resampled trees */
@@ -283,12 +309,12 @@ void standev2(long numtrees, long maxwhich, long a, long b, double maxlogl, doub
     fprintf(outfile, "   Significantly worse?\n\n");
     for (i = 0; i < numtrees; i++)
     {
-      fprintf(outfile, "%3ld%10.1f", i+1, l0gl[i]);
+      fprintf(outfile, "%3ld%10.2f", i+1, l0gl[i]);
       if ((maxwhich-1) == i)
         fprintf(outfile, "  <------ best\n");
       else
       {
-        fprintf(outfile, " %9.1f  %10.3f", l0gl[i]-maxlogl, P[i]);
+        fprintf(outfile, " %9.2f  %10.2f", l0gl[i]-maxlogl, P[i]);
         if (P[i] < 0.05)
           fprintf(outfile, "           Yes\n");
         else

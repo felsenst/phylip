@@ -1,7 +1,5 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
-   Written by Michal Palczewski
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0.
+   Written by Michal Palczewski */
 
 
 #ifdef HAVE_CONFIG_H
@@ -10,6 +8,7 @@
 
 #include <assert.h>
 #include "ml.h"
+#include "phylip.h"
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -30,19 +29,19 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 /* prototypes for unexported functions */
-static void ml_tree_smoothall(tree* t, node* p);
-static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node **, double*, tree*, tree*);
-static boolean ml_tree_try_insert_notthorough(tree *, node *, node *, node**, double*);
+static void ml_tree_smoothall(tree*, node*);
+static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
+                          double*, tree*, boolean, boolean, boolean);
 void ml_node_reinit(node * n);
 
 
 void ml_tree_init(tree* t, long nonodes, long spp)
-{ /* set up variables in ml_tree */
-  generic_tree_init(t, nonodes, spp);
+{ /* set up function variables in ml_tree */
+  t->do_newbl = true;
   t->smoothall = ml_tree_smoothall;
-  t->insert_ = ml_tree_insert_;
+  t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
-  t->try_insert_ = ml_tree_try_insert_;
+  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* ml_tree_init */
@@ -64,6 +63,16 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
   else
     assert(src->underflows == NULL);    // RSGdebug
 } /* ml_node_copy */
+
+
+void ml_hookup(node* p, node* q){
+/* hook up two nodes, set branch length to initial value
+   (one of the nodes may be in a fork circle) */
+
+  hookup(p, q);
+  p->v = initialv;
+  q->v = initialv;
+} /* ml_hookup */
 
 
 void codon_node_copy(node* srcn, node* destn)
@@ -107,7 +116,7 @@ void prot_node_copy(node* srcn, node* destn)
   for (i = 0; i < src->ml_node.endsite; i++)
     for (j = 0; j < src->ml_node.categs; j++)
       memcpy(dest->x[i][j], src->x[i][j], sizeof(psitelike));
-}
+} /* prot_node_copy */
 
 
 void dna_node_copy(node* srcn, node* destn)
@@ -168,11 +177,13 @@ node * dna_node_new(node_type type, long index) // RSGbugfix
 
   dna_node_init(n, type, index);
   return n;
-}
+} /* dna_node_new */
 
 
 void dna_node_init(node *node, node_type type, long index)
 {
+  /* initialize a node for a dna tree */
+
   dna_node *n = (dna_node *)node;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -189,19 +200,23 @@ void dna_node_init(node *node, node_type type, long index)
 
   if ( endsite != 0 && rcategs != 0 )
     n->ml_node.allocx((ml_node*)n, endsite, rcategs);
-}
+} /* dna_node_init */
 
 
 node * prot_node_new(node_type type, long index) // RSGbugfix
 {
+  /* create a node for a protein tree */
+
   node *n = Malloc(sizeof(struct prot_node));
   prot_node_init(n, type, index);
   return n;
-}
+} /* prot_node_new */
 
 
 void prot_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for a protein tree */
+
   prot_node *pn = (prot_node *)n;
 
   ml_node_init(n, type, index);
@@ -212,19 +227,22 @@ void prot_node_init(node *n, node_type type, long index)
   pn->x = NULL;
   if ( endsite != 0 && rcategs != 0 )
     pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
-}
+} /* prot_node_init */
 
 
 node * codon_node_new(node_type type, long index) // RSGbugfix
 {
+  /* create a node for a codon-model tree */
   node *n = Malloc(sizeof(struct codon_node));
+
   codon_node_init(n, type, index);
   return n;
-}
+} /* codon_node_new */
 
 
 void codon_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for a codon-model tree */
   codon_node *pn = (codon_node *)n;
 
   ml_node_init(n, type, index);
@@ -235,19 +253,21 @@ void codon_node_init(node *n, node_type type, long index)
   pn->codonx = NULL;
   if ( endsite != 0 && rcategs != 0 )
     pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
-}
+} /* codon_node_init */
 
 
 void ml_node_free(node **np)
 {
+  /* free a node for ml trees */
   ml_node *n = (ml_node*)*np;
   n->freex(n);
   generic_node_free(np);
-}
+} /* ml_node_free */
 
 
 void ml_node_init(node *n, node_type type, long index)
 {
+  /* initialize a node for ml trees */
   ml_node *mln = (ml_node *)n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -263,29 +283,33 @@ void ml_node_init(node *n, node_type type, long index)
   n->node_print_f = ml_node_print;
   mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
   mln->node.tyme = 0;
-}
+} /* ml_node_init */
 
 
 void ml_node_reinit(node * n)
 {
+  /* reset things for an ml tree node */
   ml_node * mln = (ml_node*)n;
+
   mln->node.tyme = 0;
   // BUG.970 -- does freex need refreshing ?
   // BUG.970 -- leave for dna_node and prot_node ?
   generic_node_reinit(n);
-}
+} /* ml_node_reinit */
 
 
 void ml_node_print(node * n)
 {
+  /* for debugging */
   generic_node_print(n);
   ml_node * mn = (ml_node*)n;
   printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
-}
+} /* ml_node_print */
 
 
 void allocx(long nonodes, long endsite, long param, ml_node** treenode)
 {
+  /* allocate sequences */
   /* param =  sitelength in restml */
   /* param =  rcategs in dnaml/proml */
   long i;
@@ -309,6 +333,7 @@ void allocx(long nonodes, long endsite, long param, ml_node** treenode)
 
 void dna_node_freex(ml_node* n)
 {
+  /* free a dna tree node */
   dna_node *dn;
   long i;
 
@@ -322,11 +347,12 @@ void dna_node_freex(ml_node* n)
   dn->x = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* dna_node_freex */
 
 
 void prot_node_freex(ml_node* n)
 {
+  /* free a protein tree node */
   prot_node *pn;
   long i;
 
@@ -340,11 +366,12 @@ void prot_node_freex(ml_node* n)
   pn->x = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* prot_node_freex */
 
 
 void codon_node_freex(ml_node* n)
 {
+  /* free a codon-model tree node */
   codon_node *pn;
   long i;
 
@@ -358,11 +385,12 @@ void codon_node_freex(ml_node* n)
   pn->codonx = NULL;
   free(n->underflows);
   n->underflows = NULL;
-}
+} /* codon_node_freex */
 
 
 void dna_node_allocx(ml_node* n, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a dna tree node */
   dna_node *dn = (dna_node *)n;
   long i;
 
@@ -373,11 +401,12 @@ void dna_node_allocx(ml_node* n, long endsite, long rcategs)
   n->categs = rcategs;
   n->endsite = endsite;
   n->underflows = Malloc(endsite * sizeof(double));
-}
+} /* dna_node_allocx */
 
 
 void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a protein tree node */
   prot_node *n = (prot_node *)nn;
   long i;
 
@@ -388,11 +417,12 @@ void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
   for ( i = 0 ; i < endsite ; i++ )
     n->x[i] = (pratelike)Malloc(rcategs * sizeof(psitelike));
   n->ml_node.underflows= Malloc(endsite * sizeof(double));
-}
+} /* prot_node_allocx */
 
 
 void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
 {
+  /* allocate space for sequences on a codon-model tree node */
   codon_node *n = (codon_node *)nn;
   long i;
 
@@ -403,13 +433,13 @@ void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
   for ( i = 0 ; i < endsite ; i++ )
     n->codonx[i] = (cratelike)Malloc(rcategs * sizeof(csitelike));
   n->ml_node.underflows= Malloc(endsite * sizeof(double));
-}
+} /* codon_node_allocx */
 
 
 void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence y, steptr alias)
 {
-  /* set up fractional likelihoods at tips */
-  /* used by dnaml & dnamlk */
+  /* set up fractional likelihoods at tips 
+   * used by dnaml & dnamlk */
   long i, j, k, l;
   bases b;
 
@@ -532,7 +562,8 @@ void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence
 
 void prot_freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in proml */
+  /* free interior fork nodes
+   * used in proml */
   long i, j;
   node *p;
 
@@ -556,7 +587,8 @@ void prot_freex_notip(long nonodes, pointarray treenode)
 
 void codon_freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in proml */
+  /* free interior fork nodes
+   * used in proml */
   long i, j;
   node *p;
 
@@ -581,7 +613,8 @@ void codon_freex_notip(long nonodes, pointarray treenode)
 
 void freex_notip(long nonodes, pointarray treenode)
 {
-  /* used in dnaml & dnamlk */
+  /* free interior fork nodes
+   * used in dnaml & dnamlk */
   long i, j;
   node *p;
 
@@ -629,52 +662,47 @@ void freex(long nonodes, pointarray treenode)
 }  /* freex */
 
 
-void update(tree *t, node *p)
-{
-  node *sib_ptr;
+void ml_update(tree *t, node *p)
+{ /* calls nuview to make views at both ends of a branch.  Each is
+   * made by recursive calls outward from there, as needed,
+   * indicated by boolean initialized
+   * the nuviews for the specific program are in turn called from
+   * generic_tree_nuview  in phylip.c  */
 
-  if (!p->tip && !p->initialized)
-    t->nuview((tree*)t, p);
+/* debug: */ printf("starting function ml_update\n");
+  if (!p->tip)
+    generic_tree_nuview((tree*)t, p);           /* recurse from one end */
+/* debug: try without   }
+  if ( p->back && !p->back->tip && !p->back->initialized) {     debug: end */
+  if (!p->back->tip)
+    generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
+/* debug: try without    }     debug: end */
+}  /* ml_update */
 
-  if ( p->back && !p->back->tip && !p->back->initialized)
-    t->nuview((tree*)t, p->back);
 
-  if ((!usertree) || (usertree && !lngths) || p->iter)
-  {
-    ((ml_tree*)t)->makenewv((tree*)t, p);
+void smooth_traverse(tree* t, node *p)
+{ /* start traversal, smoothing branch lengths, in both directions from
+   * this branch */
 
-    if ( smoothit )
-    {
-      inittrav(p);
-      inittrav(p->back);
-    }
-    else
-    {
-      // RSGdebug: Is this a model for fixing bogus BACK/NEXT pointers?
-      if ( inserting )
-      {
-        if (!p->tip)
-        {
-          for ( sib_ptr = p->next;  sib_ptr != p ; sib_ptr = sib_ptr->next)
-          {
-            sib_ptr->initialized = false;
-          }
-        }
-      }
-    }
-  }
-}  /* update */
+/* debug: */ printf("starting function smooth_traverse\n");
+  smooth(t, p);
+  smooth(t, p->back);
+} /* smooth_traverse */
 
 
 void smooth(tree* t, node *p)
-{
+{  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
 
+/* debug: */ printf("starting function smooth\n");
   if ( p == NULL )
     return;
   smoothed = false;
 
-  update(t, p);
+  ml_update(t, p);        /* get views at both ends updated, recursing if needed */
+  t->makenewv (t, p);     /* new value of branch length */
+  inittrav (t, p);        /* set inward-looking pointers false ... */
+  inittrav (t, p->back);  /* ... from both ends of this branch */
 
   if ( p->tip )
     return;
@@ -682,26 +710,29 @@ void smooth(tree* t, node *p)
     return;
 
   for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {
+  {      /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, sib_ptr->back);
-      p->initialized = false;
-      sib_ptr->initialized = false;
+      smooth(t, sib_ptr->back);      /* go out branch leading from there */
+      sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
+  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
 }  /* smooth */
 
 
 static void ml_tree_smoothall(tree* t, node* p)
 {
+  /* go through the tree multiple times re-estimating branch lengths
+   * using makenewv, with "initialized" reset and views updated
+   * as needed   */
   boolean save;
   int i;
   node* q;
 
   save = smoothit;
   smoothit = true;
-  if ( p->tip ) p = p->back;
+/* debug:   if ( p->tip ) p = p->back;   what does this do? */
 
   /* it may seem like we are doing too many smooths, but sometimes
    * one branch near p may already be completly smoothed from an
@@ -709,7 +740,8 @@ static void ml_tree_smoothall(tree* t, node* p)
   for ( i = 0 ; i < smoothings ; i++ )
   {
     smooth(t, p->back);
-    if ( p->tip ) return;
+    if ( p->tip )
+      return;
     for ( q = p->next ; q != p ; q = q->next)
       smooth(t, q->back);
   }
@@ -717,24 +749,18 @@ static void ml_tree_smoothall(tree* t, node* p)
 } /* ml_tree_smoothall */
 
 
-void ml_tree_do_branchl_on_insert(tree * t, node * forknode, node * q)
-{ /* split q->v branch length evenly beween forknode->next and forknode->next->next */
+void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
+{ /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
 
   double newv;
-  (void)t;                              // RSGnote: Parameter never used.
-
-#if 0
-  // This function currently does nothing; must be for future use.
-  generic_do_branchl_on_insert(t, forknode, q);
-#endif
 
   newv = q->v * 0.5;
 
   /*
-   * forknode should be where node was inserted
+   * forknode should be where tip was hooked to
    * set to initial v for *both* directions
    */
-  forknode->v = initialv;
+  forknode->v = initialv; 
   forknode->back->v = initialv;
 
   /* forknode->next for both directions */
@@ -746,45 +772,52 @@ void ml_tree_do_branchl_on_insert(tree * t, node * forknode, node * q)
   forknode->next->next->back->v = newv;
 
   /* BUG.970 -- might consider invalidating views here or in generic */
-  inittrav(forknode);
-  inittrav(forknode->back);
-  inittrav(forknode->next);
-  inittrav(forknode->next->back);
-  inittrav(forknode->next->next);
-  inittrav(forknode->next->next->back);
+  /* debug:  do values of ->v get set earlier anyway?  */
+  inittrav(t, forknode);
+  inittrav(t, forknode->back);
+  inittrav(t, forknode->next);
+  inittrav(t, forknode->next->back);
+  inittrav(t, forknode->next->next);
+  inittrav(t, forknode->next->next->back);
 } /* ml_tree_do_branchl_on_insert */
 
 
 
-void ml_tree_insert_(tree * t, node * p, node * q, boolean dooinit, boolean multf)
+void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 {
  /* 
-  * After inserting via generic_, branch length gets initialv. If dooinit is
-  * given, all branches are optimized, otherwise just those nearby.
+  * After inserting via generic_tree_insert, branch length gets initialv. If
+  * t->do_newbl is true, all branches optimized.
   *
-  * Insert q near p */
+  * Insert p near q 
+  * p is the interior fork connected to the inserted subtree or tip */
   long i;
-  node * r;
 
-  (void)multf;                          // RSGnote: Parameter never used.
+/* debug: */ printf("starting function ml_tree_insert\n");
+  generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
-  generic_tree_insert_(t, p, q, dooinit, false); /* no multifurcate on ml insert_ */
-
-  if ( !dooinit )
+  if ( !t->do_newbl )
   {
+    invalidate_traverse(p);        /* set initialized false on views ... */
+    invalidate_traverse(p->next);  /* ... looking in towards this fork */
+    invalidate_traverse(p->next->next);
+    p->initialized = false;        /* set initialized false on views ... */
+    p->next->initialized = false;  /* ... out from the interior node */
+    p->next->next->initialized = false;  
     inserting = true;
-    update(t, p->back);
-    update(t, p->back->next);
-    update(t, p->back->next->next);
+    ml_update(t, p);               /* update the views outward */
+    ml_update(t, p->next);
+    ml_update(t, p->next->next);
     inserting = false;
   }
-  else
+  else    /* this is the case where we recurse outwards, smoothing */
   {
+    inittrav(t, p);        /* set inward-looking pointers false */
+    inittrav(t, p->back);
+    ml_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p->back);
-      for ( r = p->back->next ; r != p->back ; r = r->next )
-        smooth(t, r);
+      smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
 } /* ml_tree_insert */
@@ -800,120 +833,101 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
 
-  (void)t;                              // RSGnote: Parameter never used.
-  (void)p;                              // RSGnote: Parameter never used.
-
   double combinedEdgeWeight = q->v + q->back->v;
   q->v       = combinedEdgeWeight;
   q->back->v = combinedEdgeWeight;
 
-  /* BUG.970.INIT -- might consider invalidating views here or in generic */
-  inittrav(q);
-  inittrav(q->back);
-}
+} /* ml_tree_do_branchl_on_re_move */
 
 
-void ml_tree_re_move(tree *t, node *p, node **q, boolean doinit)
+void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 {
-  /* remove p and record in q where it was */
-  /* assumes bifurcations */
+  /* remove  p  and record in  q  where it was
+   * assumes bifurcations
+   * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
 
-  generic_tree_re_move(t, p, q, doinit);
+/* debug: */ printf("start ml_tree_remove\n");
+  generic_tree_re_move(t, p, q, do_newbl);
 
-  if ( doinit )
+  if ( do_newbl )
   {
     for (i = 0 ; i < smoothings ; i++ )
     {
-      smooth(t, *q);
-      if ( smoothit )
-        smooth(t, (*q)->back);
+      if ( smoothit ) {
+        smooth_traverse(t, *q);
+        smooth_traverse(t, (*q)->back);
+      }
     }
   }
-  else
-    update(t, *q);
-}
-
-
-static boolean ml_tree_try_insert_thorough(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree)
-{
-  double like;
-  boolean succeeded = false;
-
-  t->insert_(t, p, q, true, false);
-
-  like = t->evaluate(t, p, false);
-  if (like > *bestyet || *bestyet == UNDEFINED)
-  {
-    *bestyet = like;
-    t->copy(t, bestree);
-    bestree->score = like;              /* This shouldn't be necessary */
-    if ( qwherein != NULL )
-      *qwherein = q;
-    succeeded = true;
+  else {   /* update views at both ends of branch connected to q */
+    if (!((*q)->tip))
+      ml_update(t, *q);
+    if (!((*q)->back->tip))
+      ml_update(t, (*q)->back);
   }
-  priortree->copy(priortree, t);
-
-  return succeeded;
-}
+} /* ml_tree_re_move */
 
 
-/* ml_tree_try_insert_
- *
- * Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
- * depending on the value of thorough. If multf is given, sets to
- * false.
- */
-
-boolean ml_tree_try_insert_(tree* t, node* p, node* q, node **qwherein, double* bestyet, tree* bestree, tree* priortree, boolean thorough, boolean* multf)
+static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
 {
-  boolean succeeded;
-
-  if ( multf )
-    *multf = false;
-
-  if ( thorough )
-    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet, bestree, priortree);
-  else
-    succeeded = ml_tree_try_insert_notthorough(t, p, q, qwherein, bestyet);
-
-  return succeeded;
-}
-
-
-/* ml_tree_try_insert_notthorough
- *
- * Temporarily inserts p at q and evaluates. If the rearrangement is better than bestyet,
- * updates bestyet and returns true.
- */
-
-static boolean ml_tree_try_insert_notthorough(tree *t, node *p, node *q, node** qwherein, double* bestyet)
-{
+ /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
+  * better than bestyet, updates bestyet and returns true.  If this is the
+  * first place to insert, set  bestyet  to the current likelihood and set
+  * qwhere  to the current place  q  */
   double like;
-  boolean succeeded = false;
+  boolean succeeded, bettertree;
+  node* whereRemoved;
 
+/* debug */ printf("start ml_tree_try_insert_thorough\n");
+  succeeded = false;
   t->save_traverses(t, p, q);
-  t->insert_(t, p, q, false, false);
+  t->insert_(t, p, q, false);
   like = t->evaluate(t, p, false);
 
-  if (like > *bestyet || *bestyet == UNDEFINED)
-  {
+  if (atstart) {
+    bettertree = true;
+    t->copy(t, bestree);
+  } else {
+    bettertree = (like > *bestyet);
+    succeeded = bettertree;
+    }
+  if (bettertree) {
     *bestyet = like;
-    *qwherein = q;
-    succeeded = true;
+    qwherein = q;
+    t->copy(t, bestree);
   }
-  node * whereRemoved;
-
-  t->re_move(t, p, &whereRemoved, false); /* BUG.970 -- check doinit value */
+  t->re_move(t, p, &whereRemoved, false);
 
   assert(whereRemoved == q);
-  t->restore_traverses(t, p, q);
+/* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
 
   /* Update t->score */
-  t->evaluate(t, q, 0);
+  like = t->evaluate(t, q, 0);
 
   return succeeded;
-}
+} /* ml_tree_try_insert_thorough */
+
+
+boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
+{
+ /* Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
+ *  depending on the value of thorough. If multf is given, sets to
+ *  false.
+ */
+  boolean succeeded;
+
+/* debug */ printf("ml_tree_try_insert_\n");
+  if ( thorough )
+    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
+                                           bestree, thorough, false, atstart);
+  else  /* debug:  need to have a _notthorough function here instead? */
+    generic_tree_insert_(t, p, q, false);
+
+  return succeeded;
+} /* ml_tree_try_insert_ */
 
 
 void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
@@ -924,7 +938,7 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   node *p, *newfork;
 
   /* first stick it in the right place */
-  rooted_tree_insert_(t, newtip, below, dummy, dummy2);
+  rooted_tree_insert_(t, newtip, below, dummy);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];
@@ -961,12 +975,14 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   else
     set_tyme(newfork, ((ml_node*)newfork)->node.tyme - initialv);
 
-  if ( !smoothit )
+  if ( !smoothit ) {
     smooth(t, newfork);
+    smooth(t, newfork->back);
+  }
   else
   {
-    inittrav(newtip);
-    inittrav(newtip->back);
+    inittrav(t, newtip);
+    inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++)
     {
       smooth(t, newfork);
@@ -998,10 +1014,10 @@ void set_tyme (node* p, double tyme)
     } while (sib_ptr != p );
   else
     ((ml_node*)p)->node.tyme = tyme;
-}
+} /* set_tyme */
 
 
-void mlk_tree_re_move(tree* t, node *item, node** where, boolean doinit)
+void mlk_tree_re_move(tree* t, node *item, node** where, boolean do_newbl)
 {
   // RSGnote: Originally the word "where" was the word "fork" in this comment, but that makes
   // no sense, as there is no variable "fork".  I *think* that the variable "where" was intended.
@@ -1011,13 +1027,13 @@ void mlk_tree_re_move(tree* t, node *item, node** where, boolean doinit)
   long i;
   node* whereloc;
 
-  rooted_tree_re_move(t, item, &whereloc, doinit);
+  rooted_tree_re_move(t, item, &whereloc, do_newbl);
   if ( where )  *where = whereloc;
 
-  if ( doinit )
+  if ( do_newbl )
   {
-    inittrav(whereloc);
-    inittrav(whereloc->back);
+    inittrav(t, whereloc);
+    inittrav(t, whereloc->back);
     for ( i = 0 ;  i < smoothings ; i++)
     {
       smooth(t, whereloc);
@@ -1094,19 +1110,8 @@ double set_tyme_evaluate(tree *t, node *p, double tyme)
   set_tyme(p, tyme);
   t->nuview(t, p);
 
-  /* TODO Seems to work without this, but make sure: */
-#if 0
-  num_sibs = count_sibs(p);
-  sib_ptr = p;
-  for (i=0 ; i < num_sibs; i++)
-  {
-    sib_ptr = sib_ptr->next;
-    nuview(sib_ptr);
-  }
-#endif
-
   return t->evaluate(t, p, false);
-}
+} /* set_tyme_evaluate */
 
 
 void mlk_tree_makenewv(tree* t, node *p)
@@ -1303,7 +1308,7 @@ void mlk_tree_makenewv(tree* t, node *p)
   for ( i = 0 ; i < num_sibs; i++ )
   {
     sib_ptr = sib_ptr->next;
-    inittrav (sib_ptr);
+    inittrav (t, sib_ptr);
   }
 
   if ( !done ) smoothed = false;
@@ -1463,13 +1468,13 @@ void mlk_tree_makenewv(tree* t, node *p)
   }
 
   if ( smoothit )
-    inittrav(p);
+    inittrav(t, p);
   p->initialized = false;
   for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
   {
     sib_ptr->initialized = false;
     if ( smoothit )
-      inittrav(sib_ptr);
+      inittrav(t, sib_ptr);
   }
   t->score = lnlike;
   smoothed = smoothed && done;
@@ -1562,8 +1567,11 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
 }  /* empiricalfreqs */
 
 
-void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean global, boolean progress, tree* priortree, tree* bestree, inittravtree_t inittravtree)
+void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
+                    boolean global, boolean progress, tree* priortree,
+                    tree* bestree, initialvtrav_t initialvtrav)
 {
+  double bestyet;
   /* evaluate a user tree */
 
   smoothit = improve;
@@ -1572,9 +1580,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
     arbitrary_resolve(curtree);
     curtree->smoothall(curtree, curtree->root);
     if (global)
-      curtree->globrearrange(curtree, progress, smoothit);
+      curtree->globrearrange(curtree, bestree, progress, smoothit, &bestyet);
     else
-      curtree->locrearrange(curtree, curtree->root->back, smoothit, priortree, bestree);
+      curtree->locrearrange(curtree, curtree->root->back, smoothit, &bestyet,
+                             bestree, priortree, false, &bestyet);
     polishing = true;
     smoothit = true;
     curtree->smoothall(curtree, curtree->root);
@@ -1582,11 +1591,13 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
   }
   else
   {
-    inittravtree(curtree, curtree->root);
+    if (!lngths) {
+      initialvtrav(curtree, curtree->root);
+      initialvtrav(curtree, curtree->root->back);
+    }
     polishing = true;
     smoothit = true;
-    curtree->evaluate(curtree, curtree->root, 0);
-    curtree->smoothall(curtree, curtree->root);
+    curtree->evaluate(curtree, curtree->root, 0);   /* debug:  why?  */
     curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
     polishing= false;
@@ -1595,13 +1606,13 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree, boolean 
 }  /* ml_treevaluate */
 
 
-void ml_inittravtree(tree* t, node *p)
+void ml_initialvtrav(tree* t, node *p)
 {
-  /* traverse tree to set initialized and v to initial values */
+  /* traverse tree to set branch lengths  v  to initial values
+   * must be called twice the first time, at both ends of
+   * a branch such as the root branch.  Is separate from the
+   * task of setting initialized booleans for views to false   */
   node* q;
-
-  p->initialized = false;
-  p->back->initialized = false;
 
   if ((!lngths) || p->iter)
   {
@@ -1614,11 +1625,11 @@ void ml_inittravtree(tree* t, node *p)
     q = p->next;
     while ( q != p )
     {
-      ml_inittravtree(t, q->back);
+      ml_initialvtrav(t, q->back);
       q = q->next;
     }
   }
-}  /* ml_inittravtree */
+}  /* ml_initialvtrav */
 
 
 // End.

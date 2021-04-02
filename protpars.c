@@ -1,7 +1,6 @@
 /* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
-   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe.
+   and Jim McGill.  */
 
 
 #ifdef DEBUG
@@ -42,7 +41,6 @@
 #include "seq.h"
 #include "parsimony.h"
 
-extern long nextree;
 
 typedef enum {
   universal, ciliate, mito, vertmito, flymito, yeastmito
@@ -83,7 +81,6 @@ void   doinput(void);
 void   protfillin(node *, node *, node *);
 void   protpreorder(node *);
 void   protadd(node *, node *, node *);
-void   protre_move(node **, node **);
 void   evaluate(node *);
 void   protreroot(node *);
 void   protgetch(Char *);
@@ -98,12 +95,12 @@ void   describe(void);
 void   maketree(void);
 void   reallocnode(node* p);
 void   reallocchars(void);
-node * protpars_node_new(node_type type, long index);
-tree * protpars_tree_new(long nonodes, long spp);
-void   protpars_node_init(node* n, node_type type, long index);
-void   protpars_tree_init(tree *t, long nonodes, long spp);
+node * protpars_node_new(node_type, long);
+tree * protpars_tree_new(long, long);
+void   protpars_node_init(node*, node_type, long);
+void   protpars_tree_init(tree*, long, long);
 void   protpars_tree_nuview(tree* t, node* p);
-double protpars_tree_evaluate(tree* t, node* p, boolean );
+double protpars_tree_evaluate(tree*, node*, boolean);
 void protparsrun(void);
 void protpars(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * weightsfilename,
               char * outtreename, char * outtreeopt, int searchbest, int treesave, int inputorder, int RandNum,
@@ -118,12 +115,13 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreen
 long chars, col, msets, ith, njumble;
 /*   chars = number of sites in actual sequences */
 extern long maxtrees;
-long inseed, inseed0;
-boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst = true;
+extern long nextree;
+long inseed, inseed0, minwhich;
+boolean jumble, usertree, weights, thresh, trout, progress, stepbox, justwts, ancseq, mulsets, firstset, rearrfirst;
 codetype whichcode;
 steptr oldweight; /* to make writesteps happy */
 long fullset, fulldel;
-double threshold;
+double threshold, bestfound;
 double *threshwt;
 longer seed;
 long *enterorder;
@@ -136,10 +134,9 @@ gseq *garbage;
 /* Char ch; */
 aas tmpa;
 char *progname;
-tree* curtree;
+tree *curtree, *bestree, *priortree;
 
 /* Local variables for maketree, propagated globally for C version: */
-long minwhich;
 double like, bestyet, bestlike, minsteps, bstlike2;
 boolean lastrearr, recompute;
 node *there;
@@ -150,32 +147,41 @@ boolean *names;
 
 tree* protpars_tree_new(long nonodes, long spp)
 {
+  /* appropriate initialization for a tree */
   tree* t = Malloc(sizeof(protpars_tree));
+
+  generic_tree_init(t, nonodes, spp);
   protpars_tree_init(t, nonodes, spp);
 
   return t;
-}
+} /* protpars_tree_new */
 
 
 void protpars_tree_init(tree *t, long nonodes, long spp)
 {
+  /* intialization of variables, functions for a new tree */
+
   pars_tree_init((tree*)t, nonodes, spp);
   t->nuview = protpars_tree_nuview;
   t->evaluate = protpars_tree_evaluate;
-}
+} /* protpars_tree_init */
 
 
 node* protpars_node_new(node_type type, long index) // RSGbugfix
 {
+  /* making a new tree node */
   node* n = Malloc(sizeof(protpars_node));
+
   protpars_node_init(n, type, index);
   return n;
-}
+} /* protpars_node_new */
 
 
 void protpars_node_init(node* node, node_type type, long index)
 {
+  /* initialization of a new protpars tree node */
   protpars_node *n = (protpars_node *)node;
+
   pars_node_init(node, type, index);
   node->init = protpars_node_init;
   if ( n != NULL && n->seq != NULL )
@@ -184,7 +190,7 @@ void protpars_node_init(node* node, node_type type, long index)
   if ( n->siteset)
     free(n->siteset);
   n->siteset = (seqptr)Malloc(chars * sizeof(sitearray));
-}
+} /* protpars_node_init */
 
 
 void protgnu(gseq **p)
@@ -379,6 +385,7 @@ void getoptions(void)
   thresh = false;
   trout = true;
   usertree = false;
+  rearrfirst = false;
   weights = false;
   whichcode = universal;
   printdata = false;
@@ -642,7 +649,7 @@ void reallocchars(void)
   weight = (steptr)Malloc(chars * sizeof(long));
   oldweight = (steptr)Malloc(chars * sizeof(long));
   threshwt = (double*)Malloc(chars * sizeof(double));
-}
+} /* reallocchars */
 
 
 void allocrest(void)
@@ -674,10 +681,8 @@ void doinit(void)
 {
   /* initializes variables */
   fprintf(outfile, "\nProtein parsimony algorithm, version %s\n\n", VERSION);
-
   inputnumbers(&spp, &chars, &nonodes, 1);
   endsite = chars;
-
   if (!javarun)
   {
     getoptions();
@@ -685,8 +690,6 @@ void doinit(void)
 
   if (printdata)
     fprintf(outfile, "%2ld species, %3ld  sites\n\n", spp, chars);
-
-  curtree = (tree*)protpars_tree_new(nonodes, spp);
 
   allocrest();
 }  /* doinit*/
@@ -699,9 +702,7 @@ void protinputdata(void)
   Char charstate;
   boolean allread, done;
 
-  // RSGnote: "aa" may be referenced before being assigned in original version.
-  // It is initialized here merely to silence a compiler warning (in case this will never happen).
-  aas aa = ala;   /* temporary amino acid for input */
+  aas aa = ala;  /* Mostly to avoid warning. temporary amino acid for input */
 
   if (printdata)
     headings(chars, "Sequences", "---------");
@@ -775,7 +776,8 @@ void protinputdata(void)
 
           // RSGnote: Variable "aa" may be referenced before being initialized here.
           ((protpars_node*)curtree->nodep[i - 1])->seq[j - 1] = aa;
-          memcpy(((protpars_node*)curtree->nodep[i - 1])->siteset[j - 1], translate[(long)aa - (long)ala], sizeof(sitearray));
+          memcpy(((protpars_node*)curtree->nodep[i - 1])->siteset[j - 1],
+                          translate[(long)aa - (long)ala], sizeof(sitearray));
         }
         if (interleaved)
           continue;
@@ -817,7 +819,8 @@ void protinputdata(void)
           l = chars;
         for (k = (i - 1) * 60 + 1; k <= l; k++)
         {
-          if (j > 1 && ((protpars_node*)curtree->nodep[j - 1])->seq[k - 1] == ((protpars_node*)curtree->nodep[0])->seq[k - 1])
+          if (j > 1 && ((protpars_node*)curtree->nodep[j - 1])->seq[k - 1]
+                        == ((protpars_node*)curtree->nodep[0])->seq[k - 1])
             charstate = '.';
           else
           {
@@ -871,19 +874,18 @@ void prot_makevalues(tree* t, boolean usertree)
   long i, j;
   node *p;
 
-  (void)usertree;                       // RSGnote: Parameter never used.
-
 #ifdef DEBUG
   fprintf(outfile, "protpars:protmakevalues\n");   /* debug */
 #endif
-  for (i = 1; i <= nonodes; i++)
+  for (i = 1; i <= spp; i++)
   {
     ((node*)t->nodep[i - 1])->back = NULL;
     ((node*)t->nodep[i - 1])->tip = (i <= spp);
     ((node*)t->nodep[i - 1])->index = i;
     for (j = 0; j < chars; j++)
       ((pars_node*)t->nodep[i - 1])->numsteps[j] = 0;
-    if (i > spp)
+#if 0
+    if (i > spp)             /* may be no such nodes on tree */
     {
       p = ((node*)t->nodep[i - 1])->next;
       while (p != ((node*)t->nodep[i - 1]))
@@ -896,19 +898,24 @@ void prot_makevalues(tree* t, boolean usertree)
         p = p->next;
       }
     }
+#endif
   }
 }  /* prot_makevalues */
 
 
 void doinput(void)
 {
-  /* reads the input data */
+  /* reads the input data, sets up sets at tips */
   long i;
+
+  curtree = (tree*)protpars_tree_new(nonodes, spp);
+  bestree = (tree*)protpars_tree_new(nonodes, spp);
+  priortree = (tree*)protpars_tree_new(nonodes, spp);
+  if (firstset)
+    protinputdata();
 
   if (justwts)
   {
-    if (firstset)
-      protinputdata();
     for (i = 0; i < chars; i++)
       weight[i] = 1;
     inputweights(chars, weight, &weights);
@@ -939,7 +946,6 @@ void doinput(void)
     }
     if (weights)
       printweights(outfile, 0, chars, weight, "Sites");
-    protinputdata();
   }
   if(!thresh)
     threshold = spp * 3.0;
@@ -947,14 +953,17 @@ void doinput(void)
   {
     threshwt[i] = (threshold * weight[i]);
   }
+
   prot_makevalues(curtree, usertree);
 }  /* doinput */
 
 
 double protpars_tree_evaluate(tree* t, node* p, boolean dummy)
 {
+  /* version of evaluate appropriate for protein parsimony */
   protpars_node *q = (protpars_node*)p->back;
   protpars_node *r = (protpars_node*)p;
+
   long m, sum = 0;
   sitearray base;
 
@@ -980,15 +989,33 @@ double protpars_tree_evaluate(tree* t, node* p, boolean dummy)
   }
   t->score = -sum;
   TEST3('a');
+  if (usertree && which <= maxuser)
+  {
+    nsteps[which - 1] = sum;
+    if (which == 1)
+    {
+      minwhich = 1;
+      minsteps = sum;
+    }
+    else if (sum < minsteps)
+    {
+      minwhich = which;
+      minsteps = sum;
+    }
+  }
   return -sum;
-}
+} /* protpars_tree_evaluate */
 
 
 void protpars_tree_nuview(tree* t, node* p)
 {
+  /* do nuview appropriate for protein sequences */
+
+/* debug:  I think this next one gets into circular calls 
   generic_tree_nuview(t, p);
+debug */
   protfillin(p, p->next->back, p->next->next->back);
-}
+} /* protpars_tree_nuview */
 
 
 void protfillin(node *p, node *left, node *rt)
@@ -1228,7 +1255,7 @@ void prottreeread(void)
   long nextnode, lparens, i;
   char ch;
 
-  curtree->root = curtree->nodep[spp];
+  curtree->root = curtree->nodep[0];
   nextnode = spp;
   curtree->root->back = NULL;
   names = (boolean *)Malloc(spp * sizeof(boolean));
@@ -1250,8 +1277,7 @@ void prottreeread(void)
     print_progress(progbuf);
   }
   scan_eoln(intree);
-/********  gettc(intree);
-  what was this here for?  ***/
+/* debug:  gettc(intree);    what was this here for?  ***/
   free(names);
 }  /* prottreeread */
 
@@ -1614,16 +1640,17 @@ void describe(void)
 void maketree(void)                     // RSGbugfix
 {
   /* constructs a binary tree from the pointers in curtree->nodep.
-     adds each node at location which yields highest "likelihood"
+     add1 each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, numtrees;
-  boolean done; /* tst */
+  long i, j, numtrees, nextnode;
+  boolean firsttree, done, goteof, haslengths;
+
 
   if (!usertree)
   {
-    lastrearr=false;    /* tst */
-    hsbut(curtree, false, jumble, seed, progress);
-    TESTING('1');        /* testing      */
+    lastrearr=false;
+    hsbut(curtree, bestree, priortree, false, jumble, jumb, seed, progress,
+           &bestfound);     /* sequential addition and local rearrangements */
     if (progress)
     {
       sprintf(progbuf, "\nDoing global rearrangements");
@@ -1656,7 +1683,7 @@ void maketree(void)                     // RSGbugfix
     (void)done;                         // RSGnote: Variable set but never used.
 
     lastrearr = true;
-    grandrearr(curtree, progress, rearrfirst);
+    grandrearr(curtree, bestree, progress, rearrfirst, &bestfound);
 
     if (progress)
     {
@@ -1670,10 +1697,10 @@ void maketree(void)                     // RSGbugfix
       if (treeprint)
       {
         putc('\n', outfile);
-        if (nextree == 2)
+        if (nextree == 1)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
-          fprintf(outfile, "%6ld trees in all found\n", nextree - 1);
+          fprintf(outfile, "%6ld trees in all found\n", nextree);
       }
       if (nextree > maxtrees + 1)
       {
@@ -1684,15 +1711,18 @@ void maketree(void)                     // RSGbugfix
       if (treeprint)
         putc('\n', outfile);
       recompute = false;
-      for (i = 0; i <= (nextree - 2); i++)
+      for (i = 0; i <= (nextree - 1); i++)
       {
         load_tree(curtree, i, bestrees);
+        reroot(curtree->nodep[outgrno - 1], curtree->root);
+        initializetrav(curtree, curtree->root);
+        initializetrav(curtree, curtree->root->back);
         curtree->evaluate(curtree, curtree->root, 0);
         curtree->root = root_tree(curtree, curtree->root);
         protreroot(curtree->nodep[outgrno - 1]);
         printree(curtree);
         describe();
-        reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+        reroot_tree(curtree);
       }
     }
   }
@@ -1711,7 +1741,10 @@ void maketree(void)                     // RSGbugfix
     which = 1;
     while (which <= numtrees)
     {
-      prottreeread();
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &firsttree, &nextnode, &haslengths, initparsnode, false,
+                nonodes);
+/* debug:     prottreeread();  */
       if (outgropt)
         protreroot(curtree->nodep[outgrno - 1]);
       curtree->evaluate(curtree, curtree->root, 0);
@@ -1727,7 +1760,7 @@ void maketree(void)                     // RSGbugfix
 
   if (jumb == njumble && progress)
   {
-    sprintf(progbuf, "Output written to file \"%s\".\n\n", outfilename);
+    sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);
     print_progress(progbuf);
     if (trout)
     {
@@ -1761,9 +1794,9 @@ void protparsrun(void)
     fflush(stdout);
   */
   for (ith = 1; ith <= msets; ith++) {
-    doinput();
-    if (ith == 1)
+    if (ith > 1)
       firstset = false;
+    doinput();
     if (msets > 1 && !justwts) {
       fprintf(outfile, "Data set # %ld:\n\n", ith);
       if (progress)
@@ -1777,7 +1810,7 @@ void protparsrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* protparsrun */
 
 
 void protpars(
@@ -2096,7 +2129,7 @@ void protpars(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* protpars */
 
 
 int main(int argc, Char *argv[])
@@ -2228,4 +2261,4 @@ void debugtree(tree* t, FILE *f)
 #endif
 
 
-// End.
+/* End. */

@@ -1,9 +1,6 @@
-/* Version 3.7. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Dan Fineman, Patrick Colacurcio, and Mike Palczewski.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
-
+   Dan Fineman, Patrick Colacurcio, and Mike Palczewski.  */ 
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -21,11 +18,10 @@ boolean    savecsbi_valid = false;
 HANDLE  hConsoleOutput;
 #endif /* WIN32 */
 
-#include "phylip.h"
 #include "Slist.h"
 
 #ifndef OLDC
-static void _fgetline_finalize(void);
+void           _fgetline_finalize(void);
 #endif /* OLDC */
 
 /* Global file objects */
@@ -39,41 +35,12 @@ struct node_vtable node_vtable = {
 };
 
 
-void no_op(void)
+void no_op (void)
 { /* Do nothing. Used as a dummy pointer to a function that */
 } /* doesn't need to do anything (e.g. smooth for parsimony)*/
 
 
 /********* Tree and node functions ***********/
-
-void even_sibs(tree* t, node* src, node* dst)
-{ /* Add or delete nodes in dst fork until it has the same number as src
-   * fork. New nodes are added or removed at dst->next.
-   * src and dst must be fork nodes in t.
-   *
-   * Nothing is done to free or initialize adjacent tips or forks.
-   */
-
-  long src_sibs, dst_sibs;
-  node* n;
-
-  src_sibs = count_sibs(src);
-  dst_sibs = count_sibs(dst);
-
-  while ( src_sibs > dst_sibs) {
-    n = t->get_forknode(t, src->index);
-    n->next = dst->next;
-    dst->next = n;
-    dst_sibs++;
-  }
-
-  while ( dst_sibs > src_sibs) {
-    n = dst->next;
-    dst->next = dst->next->next;
-    t->release_forknode(t, n);
-    dst_sibs--;
-  }
-} /* even_sibs */
 
 
 node* where_in_dest (tree* src, tree* dst, node* nsrc )
@@ -89,69 +56,124 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
   if ( nsrc ) {
     p = src->nodep[nsrc->index - 1];
-    ret = dst->nodep[nsrc->index - 1];
-    while ( p != nsrc ) {
-      p = p->next;
-      ret = ret->next;
+    if (p != NULL) {
+      ret = dst->nodep[nsrc->index - 1];
+      while ( p != nsrc ) {
+        p = p->next;
+        if (ret != NULL)
+          ret = ret->next;
+      }
     }
   }
   return ret;
 } /* where_in_dest */
 
 
-void generic_tree_copy(tree* src, tree* dst)
+void generic_tree_copy (tree* src, tree* dst)
 { /* copies tree src to tree dst*/
-  long i, j, num_sibs;
+  long i, j, num_sibs, src_sibs, dst_sibs,  src_num, dst_num, maxcircles;
+  boolean doingacircle;
   node *p, *q;
-  Slist_node_ptr listnode;
 
-  /* ensure that all forks in dst have same number of sibs as in src */
-  for ( i = spp ; i < src->nonodes ; i++ )
-    even_sibs(dst, src->nodep[i], dst->nodep[i]);
-
-  /* copy tip nodes and link to proper dst forks */
-  for (i = 0; i < spp; i++) {
+  /* reduce or increase interior node fork circle sizes in destination tree */
+  maxcircles = src->nonodes;
+  if (dst->nonodes > src->nonodes) {
+    maxcircles = dst->nonodes;
+    }
+  for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
+    src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
+    src_num = src_sibs + 1;
+    if ((src_num == 1) && (src->nodep[i] == NULL))
+      src_num = 0;
+    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
+    dst_num = dst_sibs + 1;
+    if ((dst_num == 1) && (dst->nodep[i] == NULL))
+      dst_num = 0;
+    while ( dst_num > src_num) {          /* remove and release extra nodes */
+      p = dst->nodep[i];    
+      q = p;
+      while (q->next != p) {
+        q = q->next;                               /* ... move along circle */
+        }
+      if (p->next != p) {
+        dst->nodep[i] = p->next;                     /* cut  p  out of circle */
+        q->next = p->next;
+        }
+      else
+        dst->nodep[i] = NULL;
+      dst->release_forknode(dst, p);    /* it goes onto free_forknodes list */
+      dst_num--;
+      }
+    }
+  for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
+    doingacircle = false;
+    src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
+    src_num = src_sibs + 1;
+    if ((src_num == 1) && (src->nodep[i] == NULL))
+      src_num = 0;
+    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
+    dst_num = dst_sibs + 1;
+    if ((dst_num == 1) && (dst->nodep[i] == NULL))
+      dst_num = 0;
+    while ( src_num > dst_num) {
+      doingacircle = true;
+      if (dst->nodep[i] == NULL) {
+        p = dst->get_forknode(dst, i+1);   /* ... from free_fork_nodes list */
+	q = p;                    /* points to final node in nascent circle */
+        dst->nodep[i] = p;
+        dst_num++;
+        }
+      else {
+        p = dst->get_forknode(dst, i+1);            /* take another one off */
+	p->next = dst->nodep[i];
+        q->next = p;
+	dst->nodep[i] = p;
+        dst_num++;
+        }
+      }
+    if (doingacircle) {
+      q->next = dst->nodep[i];                          /* close the circle */
+      doingacircle = false;
+      }
+    }
+  for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
-    dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    if (src->nodep[i]->back != NULL) {
+      dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    }
   }
 
-  /* copy fork nodes and back links */
-  for (i = spp; i < src->nonodes; i++) {
+  for (i = spp; i < src->nonodes; i++) { /* copy fork nodes and back links */
     p = src->nodep[i];
     q = dst->nodep[i];
-
-    num_sibs = count_sibs(p);
-
-    for (j = 0; j <= num_sibs; j++) {
-      p->copy(p, q);
-      q->back = where_in_dest(src, dst, p->back);
-      p = p->next;
-      q = q->next;
+    if (p == NULL) {
+      q = NULL;
+      }
+    else {
+      num_sibs = count_sibs(p);
+      for (j = 0; j <= num_sibs; j++) {
+	if (num_sibs > 0) {   /* debug: not clear that this is necessary */
+          p->copy(p, q);
+          q->back = where_in_dest(src, dst, p->back);
+          p = p->next;
+          q = q->next;
+        }
+      }
     }
   }
 
   /* copy score and root */
   dst->score = src->score;
-  dst->root = where_in_dest(src, dst, src->root);
-
-  /* clear dst's list of free forks */
-  /* Forks are still tracked in nodep */
-  while ( !Slist_isempty(dst->free_forks) )
-    Slist_pop(dst->free_forks);
-
-  /* Iterate through src->free_forks, adding corresponding fork node to dst->free_forks. */
-  for ( listnode = src->free_forks->first;
-        listnode != NULL;
-        listnode = listnode->next
-    ) {
-    /* Find the corresponding (i.e. linked by nodep) node in dst */
-    p = where_in_dest(src, dst, listnode->data);
-    Slist_append(dst->free_forks, p);
+  if (src->root != NULL) {
+    if (src->root->back != NULL) {
+    dst->root = where_in_dest(src, dst, src->root);
+    }
   }
+
 } /* generic_tree_copy */
 
 
-void generic_node_copy(node* src, node* dst)
+void generic_node_copy (node* src, node* dst)
 {
   /* Copy node data from src to dst.
    *
@@ -172,11 +194,12 @@ void generic_node_copy(node* src, node* dst)
 } /* generic_node_copy */
 
 
-void generic_fork_print(node * n)
+void generic_fork_print (node * n)
 {
+  /* a debugging function to print out information about a fork */
   boolean firstTime = true;
   boolean nulledOut = false;
-  node * p = n;
+  node* p = n;
   while((firstTime || (p != n)) && !nulledOut)
   {
     if(p == NULL)
@@ -195,8 +218,10 @@ void generic_fork_print(node * n)
 } /* generic_fork_print */
 
 
-void generic_node_print(node *n)
+void generic_node_print (node *n)
 {
+  /* a debugging function to print out information about a node */
+
   sprintf(progbuf, "%10p : %10p", (void *)n, (void *)n->back);
   print_progress(progbuf);
   if(n->back != NULL)
@@ -218,26 +243,32 @@ void generic_node_print(node *n)
 } /* generic_node_print */
 
 
-void generic_node_free(node **n)
-{ /* Release a node's memory */
+void generic_node_free (node **n)
+{
+  /* Release a node's memory */
   free(*n);
   *n = NULL;
 } /* generic_node_free */
 
 
+<<<<<<< HEAD
 void generic_node_init(node* n, node_type type, long index)
+=======
+void generic_node_init (node* n, node_type type, long index)
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.
   */
   if ( type == TIP_NODE )
     n->tip = true;
-  else if ( type == FORK_NODE )
-    n->tip = false;
-  else
-    /* Since we used to simply pass type = true for tips, any other value
-     * will be a tip... for now. */
-    n->tip = true;
+  else {
+    if ( type == FORK_NODE )
+      n->tip = false;
+    else /* Since we used to simply pass type = true for tips, any other value
+          * will be a tip... for now. */
+      n->tip = true;
+    }
 
   n->index = index;
   n->v = initialv;
@@ -245,7 +276,7 @@ void generic_node_init(node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;
+  n->init = generic_node_init;          /* hope to override these as needed */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -254,22 +285,23 @@ void generic_node_init(node* n, node_type type, long index)
 } /* generic_node_init */
 
 
-void generic_node_reinit(node * n)
+void generic_node_reinit (node * n)
 {
+<<<<<<< HEAD
   /*  re-initialize node (?) */
+=======
+  /*  re-initialize node */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
   n->initialized = false;
-  /*
-    don't change n->index !!!
-    code relies upon having a unique index for each node
-    whether or not it's currently in the tree
-  */
+  /* may or may not want to change  n->index, depending
+   * on whether it is going onto the free forknode list */
 } /* generic_node_reinit */
 
 
-node* generic_new_node(node_type type, long index)
+node* generic_new_node (node_type type, long index)
 { /* Allocate, initialize, and return a new node, setting tip and index. */
   node* n = Malloc(sizeof(node));
 
@@ -278,6 +310,7 @@ node* generic_new_node(node_type type, long index)
 } /* generic_new_node */
 
 
+<<<<<<< HEAD
 #if 0
 void gnu(node **grbg, node **p)
 { // this and the following are do-it-yourself garbage collectors.
@@ -318,6 +351,9 @@ void chucktreenode(node **grbg, node *p)
 
 
 void setupnode(node *p, long i)
+=======
+void setupnode (node *p, long i)
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 { /* initialization of node pointers, variables */
 
   p->next = NULL;
@@ -333,49 +369,70 @@ long count_sibs (node *p)
   node *q;
   long return_int = 0;
 
-  if (p->tip) {
-    sprintf (progbuf, "Error: the function count_sibs called on a tip.  This is a bug.\n");
-    print_progress(progbuf);
-    exxit (-1);
-  }
-
-  q = p->next;
-  while (q != p) {
-    if (q == NULL) {
-      sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
+  if (p == NULL) {  /* case where there's no destination fork there at all */
+    return_int = 0;
+  } else {           /* if there is one ... */
+    if (p->tip) {
+      sprintf (progbuf,
+         "Error: the function count_sibs called on a tip.  This is a bug.\n");
       print_progress(progbuf);
       exxit (-1);
-    } else {
-      return_int++;
-      q = q->next;
+    }
+    q = p->next;
+    while (q != p) {   /* go around the circle and ... */
+      if (q == NULL) {
+        sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
+        print_progress(progbuf);
+        exxit (-1);
+      } else {     /* count them */
+        return_int++;
+        q = q->next;
+      }
     }
   }
-
   return return_int;
 }  /* count_sibs */
 
 
-void verify_nuview(node *p)
+node* findroot (tree* t, node* p, boolean* found) {
+  /* find the node in the rootmost fork circle that has a null back pointer */
+  node *q, *r;
+
+  r = p;                /* return same node if never find the rootmost node */
+  *found = false;
+  for (q = p->next; q != p; q = q->next) {              /* go around circle */
+    if (q->back == NULL) {          /* ... until find one with  back  empty */
+      r = q;
+      *found = true;
+    }
+  }
+  return r;
+} /* findroot */
+
+
+void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
   /* TODO: implement */
-} /* verify */
+} /* verify_nuview */
 
 
-void invalidate_nuview(node *p)
+void invalidate_nuview (node *p)
 { /* Invalidate all views looking toward p. Must be called on a node
    * after changing its tyme or branch lengths before evaluating at any other
    * node. */
+  /* debug: is this really needed, or is this already done elsewhere? */
 
   invalidate_traverse(p);
   invalidate_traverse(p->back);
 } /* invalidate_nuview */
 
 
-void invalidate_traverse(node *p)
+void invalidate_traverse (node *p)
 { /* Invalidates p's view and all views looking toward p from p->back
    * on out. */
+  /* debug: is this needed in view of function inittrav? */
   node *q;
 
   if (p == NULL)
@@ -384,6 +441,7 @@ void invalidate_traverse(node *p)
     return;
 
   p->initialized = false;
+  p->back->initialized = false;
 
   q = p->back;
   if ( q == NULL ) return;
@@ -396,60 +454,93 @@ void invalidate_traverse(node *p)
 } /* invalidate_traverse */
 
 
-void inittrav_all(tree *t)
+void inittrav_all (tree *t)
 {
-  /* Set initialized false on all nodes reachable from p, so
-   * that view are regenerated regardless. For debugging nuview
-   * problems. */
+  /* Set initialized false on all interior fork nodes on tree, so
+   * that views are regenerated regardless. For debugging nuview
+   * problems. Not needed for regular program execution --
+   * replaced by function initializetrav */
 
-  node *p;
+  node *p, *q;
   long index;
 
   /* For each fork node (spp..nonodes-1) */
   for ( index = spp; index < t->nonodes; index++ ) {
     p = t->nodep[index];
 
-    /* Set initialized false on all nodes in fork */
+    /* Go around circle, set initialized false on all nodes in fork */
     p->initialized = false;
-    for ( p = p->next; p != t->nodep[index]; p = p->next ) {
-      p->initialized = false;
+    for ( q = p->next; q != p; q = q->next ) {
+      q->initialized = false;
     }
   }
 } /* inittrav_all */
 
 
-void inittrav (node *p)
-{ /* traverse to set pointers uninitialized on inserting */
-  node *sib_ptr;
+void initializetrav (tree* t, node *p)
+{
+  /* traverse further through tree from there outwards setting all
+   * "initialized" booleans on any connected interior node to false
+   * To set all initializeds to false on a tree must be called twice
+   * for root branch, once at each end of the branch */
+/* debug:  does this duplicate the previous two functions? */
+  node *q;
 
-  /*
-    printf ("BUG.970 %p\n",p);
-  */
+  if (p != NULL) {
+    if (p->tip)
+      p->initialized = true;
+    else
+      p->initialized = false;
+    if (p->back != NULL) {
+      if (p->back->tip)
+        p->back->initialized = true;
+      else
+        p->back->initialized = false;
+    }
+    if (p->tip)                                         /* bail if at a tip */
+      return;
+    for (q = p->next; q != p; q = q->next) {   /* go to rest of fork circle */
+      q->initialized = false;            /* ... setting nodes uninitialized */
+      initializetrav (t, q->back);        /* ... and on outwards from there */
+/* debug printf("#");  */
+    }
+  }
+} /* initializetrav */
+
+
+void inittrav (tree* t, node *p)
+{ /* traverse to set inward-looking booleans uninitialized on inserting
+   * This does not set all initialized booleans in the tree to false,
+   * only the ones looking inwards at the branch it is first called for,
+   * and then only ones connected to this end of the branch.  It
+   * traverses from one end of the branch but not from the other,
+   * so usually needs to be called twice, once on each end of the
+   * branch, */
+  node *sib_ptr;
 
   if (p == NULL)
     return;
   if (p->tip)
     return;
   for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    /*
-      printf("BUG.970 -- uninit %p\n",sib_ptr);
-    */
-    sib_ptr->initialized = false;
-    inittrav(sib_ptr->back);
+    if (sib_ptr->initialized) {   /* if not already uninitialized ... */
+      sib_ptr->initialized = false;  /* set booleans looking back in, then */
+      inittrav(t, sib_ptr->back);    /* further traverse from this circle */
+    }
   }
 } /* inittrav */
 
 
 /********* Error handling ***********/
 
-void EOF_error(void)
+void EOF_error (void)
 { /* Print a message and exit when EOF is reached prematurely. */
   puts("\n\nERROR:  Unexpected End-of-File.\n");
   exxit(-1);
 } /* EOF-error */
 
 
-static void crash_handler(int sig_num)
+void crash_handler (int sig_num)
 { /* If (when?) we crash, print out something useful */
   boolean segorbus;
   sprintf(progbuf, "ERROR:  ");
@@ -463,13 +554,15 @@ static void crash_handler(int sig_num)
 #endif /* SIGSEGV */
 #ifdef SIGFPE
     case SIGFPE:
-      sprintf(progbuf, "This program has caused a Floating Point Exception.\n");
+      sprintf(progbuf,
+               "This program has caused a Floating Point Exception.\n");
       print_progress(progbuf);
       break;
 #endif  /* SIGFPE */
 #ifdef SIGILL
     case SIGILL:
-      sprintf(progbuf, "This program has attempted an illegal instruction.\n");
+      sprintf(progbuf,
+               "This program has attempted an illegal instruction.\n");
       print_progress(progbuf);
       break;
 #endif  /* SIGILL */
@@ -495,23 +588,30 @@ static void crash_handler(int sig_num)
 #endif /* SIGSEGV */
   if (segorbus)
   {
-    sprintf(progbuf, "        This may have been caused by an incorrectly formatted input file\n");
+    sprintf(progbuf,
+ "        This may have been caused by an incorrectly formatted input file\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        or input tree file.  You should check those files carefully.\n");
+    sprintf(progbuf,
+    "        or input tree file.  You should check those files carefully.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        If this seems to be a bug, please mail joe@gs.washington.edu\n");
+    sprintf(progbuf,
+    "        If this seems to be a bug, please mail joe@gs.washington.edu\n");
     print_progress(progbuf);
   }
   else
   {
-    sprintf(progbuf, "        Most likely, you have encountered a bug in the program.\n");
+    sprintf(progbuf,
+         "        Most likely, you have encountered a bug in the program.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "        Since this seems to be a bug, please mail joe@gs.washington.edu\n");
+    sprintf(progbuf,
+ "        Since this seems to be a bug, please mail joe@gs.washington.edu\n");
     print_progress(progbuf);
   }
-  sprintf(progbuf, "        with the name of the program, your computer system type,\n");
+  sprintf(progbuf,
+        "        with the name of the program, your computer system type,\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        a full description of the problem, and with the input data file.\n");
+  sprintf(progbuf,
+"        a full description of the problem, and with the input data file.\n");
   print_progress(progbuf);
   abort();
 } /* crash_handler */
@@ -521,11 +621,10 @@ static void crash_handler(int sig_num)
 
 void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
 { /* initialization routine for all programs
-   * anything done at the beginning for every program should be done here */
-
-  /* set up signal handler for segfault, floating point exception, illegal
-   * instruction, bad pipe, bus error.  There are more signals that can cause a
-   * crash, but these are the most common even these aren't found on all
+   * anything done at the beginning for every program should be done here. 
+   * set up signal handler for segfault, floating point exception, illegal
+   * instruction, bad pipe, bus error.  There are more signals that can cause
+   * a crash, but these are the most common even these aren't found on all
    * machines.  */
   javarun = isjavarun;
 
@@ -564,7 +663,7 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
     functions.node_new = generic_new_node;
-    functions.tree_new = generic_tree_new;
+    functions.tree_new = generic_tree_new;   /* debug: ever used from this? */
   } else {
     if ( ini->node_new != NULL )
       functions.node_new = ini->node_new;
@@ -580,7 +679,7 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
 
 /************* File reading *************/
 
-void scan_eoln(FILE *f)
+void scan_eoln (FILE *f)
 { /* Eat everything up to EOF or newline, including newline */
   while (!eoff(f) && !eoln(f))
     (void)gettc(f);
@@ -590,7 +689,8 @@ void scan_eoln(FILE *f)
 
 
 boolean eoff(FILE *f)
-{ /* Return true iff next getc() is EOF */
+{
+  /* Return true iff next getc() is EOF */
   int ch;
 
   if (feof(f))
@@ -602,11 +702,12 @@ boolean eoff(FILE *f)
   }
   ungetc(ch, f);
   return false;
-}  /*eoff*/
+}  /* eoff */
 
 
 boolean eoln(FILE *f)
-{ /* Return true iff next getc() is EOL or EOF */
+{ 
+  /* Return true iff next getc() is EOL or EOF */
   register int ch;
 
   ch = getc(f);
@@ -614,19 +715,21 @@ boolean eoln(FILE *f)
     return true;
   ungetc(ch, f);
   return ((ch == '\n') || (ch == '\r'));
-}  /*eoln*/
+}  /* eoln */
 
 
 boolean filexists(const char *filename)
-{ /* Return true iff file already exists */
+{
+  /* Return true if and only if file already exists */
   FILE *fp;
-  fp = fopen(filename,"r");
-  if (fp) {
+
+  fp = fopen(filename,"r");                 /* try to open file for reading */
+  if (fp) {        /* if exists, close it again and report that it is there */
     fclose(fp);
     return 1;
-  } else
+  } else                             /* otherwise report failure to find it */
     return 0;
-}  /*filexists*/
+}  /* filexists */
 
 
 void openfile(
@@ -654,7 +757,7 @@ void openfile(
 
   strcpy(file, filename);
   strcpy(filemode, mode);
-  loopcount = 0;
+  loopcount = 0;                   /* we will try 10 times before giving up */
   while (1) {
     /* Ask before clobbering existing file */
     if (filemode[0] == 'w' && filexists(file)) {
@@ -676,24 +779,23 @@ void openfile(
       }
       switch (ch)
       {
-        case 'R':
-          /* do nothing special */
+        case 'R':       /* replace the existing file. So do nothing special */
           break;
-        case 'A':
+        case 'A':                     /* append to end of the existing file */
           strcpy(filemode,"a");
           continue;
-        case 'F':
+        case 'F':                    /* get a file name to look for instead */
           file[0] = '\0';
           loopcount2 = 0;
-          while (file[0] == '\0') {
+          while (file[0] == '\0') { /* loop as long as user just hits Enter */
             printf("Please enter a new file name> ");
             fflush(stdout);
             getstryng(file);
             countup(&loopcount2, 10);
           }
-          strcpy(filemode,"w");
+          strcpy(filemode,"w");   /* debug: what if that file already exists? */
           continue;
-        case 'Q':
+        case 'Q':   /* quit.  User decides it was a mistake to try this run */
           exxit(-1);
           break;
         default:        /* Shouldn't happen */
@@ -736,11 +838,12 @@ void openfile(
           }
           continue;
         default:
-          printf("Internal error in openfile().  Unknown mode \"%s\".\n", filemode);
+          printf(
+           "Internal error in openfile().  Unknown mode \"%s\".\n", filemode);
           exxit(-1);
       }
     }
-    countup(&loopcount, 20);
+    countup(&loopcount, 20);     /* depart loop without reading if too many */
   }
   *fp = of;
   if (perm != NULL)
@@ -771,7 +874,7 @@ static char *_fgetline_buffer = NULL;
 
 
 /* Only fgetline() may use this. */
-static void _fgetline_finalize(void)
+void _fgetline_finalize(void)
 {
   /* Free dynamic memory used by fgetline */
 
@@ -868,7 +971,9 @@ void countup(long *loopcount, long maxcount)
 
   (*loopcount)++;
   if ((*loopcount) >= maxcount) {
-    printf("\nERROR:  Made %ld attempts to read input in loop.  Aborting run.\n", *loopcount);
+    printf(
+        "\nERROR:  Made %ld attempts to read input in loop.  Aborting run.\n",
+            *loopcount);
     exxit(-1);
   }
 } /* countup */
@@ -919,15 +1024,15 @@ void uppercase(Char *ch)
 /**************  Random number generation *********/
 
 double randum(longer seed)
-{ /* random number generator -- slow but machine independent
-     This is a multiplicative congruential 32-bit generator
-     x(t+1) = 1664525 * x(t) mod 2^32, one that passes the
-     Coveyou-Macpherson and Lehmer tests, see Knuth ACP vol. 2
-     We here implement it representing each integer in base-64
-     notation -- i.e. as an array of 6 six-bit chunks   */
+{ /* random number generator -- slow but machine independent.  This is a
+   * multiplicative congruential 32-bit generator:
+   *   x(t+1) = 1664525 * x(t) mod 2^32,  one that passes the
+   * Coveyou-Macpherson and Lehmer tests, see Knuth "The Art of Computer
+   * Programming", vol. 2.  We here implement it representing each integer
+   * in base-64 notation -- i.e. as an array of 6 six-bit chunks         */
 
   long i, j, k, sum;
-  longer mult, newseed;
+  longer mult, newseed;  /* arrays of longs */
   double x;
 
   mult[0] = 13;   /* these four statements set the multiplier */
@@ -942,16 +1047,16 @@ double randum(longer seed)
     if (i > 3)
       k = 3;
     for (j = 0; j <= k; j++)
-      sum += mult[j] * seed[i - j];
+      sum += mult[j] * seed[i-j];
     newseed[i] = sum;
     for (j = i; j <= 4; j++) {
-      newseed[j + 1] += newseed[j] / 64;
+      newseed[j+1] += newseed[j] / 64;
       newseed[j] &= 63;
     }
   }
-  memcpy(seed, newseed, sizeof(longer));        /* new seed replaces old one */
-  seed[5] &= 3;          /* from the new seed, get a floating point fraction */
-  x = 0.0;
+  memcpy(seed, newseed, sizeof(longer));   /* new seed replaces old one ... */
+  seed[5] &= 3;          /* seed is a pointer so remains updated after exit */
+  x = 0.0;              /* from the new seed, get a floating point fraction */
   for (i = 0; i <= 5; i++)
     x = x / 64.0 + seed[i];
   x /= 4.0;
@@ -963,17 +1068,18 @@ void randumize(longer seed, long *enterorder)
 { /* randomize input order of species -- randomly permute array enterorder */
   long i, j, k;
 
-  for (i = 0; i < spp; i++) {
-    j = (long)(randum(seed) * (i+1));
-    k = enterorder[j];
-    enterorder[j] = enterorder[i];
+  for (i = 1; i < spp; i++) {         /* for all but the first element, ... */
+    j = (long)(randum(seed) * (i+1));  /* choose a random preceding species */
+    k = enterorder[j];                    /* (including possibly it itself) */
+    enterorder[j] = enterorder[i];                      /* and swap with it */
     enterorder[i] = k;
   }
 } /* randumize */
 
 
 double normrand(longer seed)
-{/* standardized Normal random variate */
+{/* standardized Normal random variate, convolution of 12 uniform variables
+  * then relocated to have mean zero.  Not perfect but good enough.       */
   double x;
 
   x = randum(seed)+randum(seed)+randum(seed)+randum(seed)
@@ -1083,7 +1189,7 @@ void initcatn(long *categs)
     (void)getchar();
     countup(&loopcount, 10);
   } while (*categs > maxcategs || *categs < 1);
-}  /*initcatn*/
+}  /* initcatn */
 
 
 void initcategs(long categs, double *rate)
@@ -1115,7 +1221,7 @@ void initcategs(long categs, double *rate)
       break;
     countup(&loopcount, 100);
   }
-}  /*initcategs*/
+}  /* initcategs */
 
 
 void initprobcat(long categs, double *probsum, double *probcat)
@@ -1154,7 +1260,7 @@ void initprobcat(long categs, double *probsum, double *probcat)
     }
     countup(&loopcount, 100);
   } while (!done);
-}  /*initprobcat*/
+}  /* initprobcat */
 
 
 /************ Math utility functions ********/
@@ -1162,7 +1268,7 @@ void initprobcat(long categs, double *probsum, double *probcat)
 void lgr(long m, double b, raterootarray lgroot)
 { /* For use by initgammacat.  Get roots of m-th Generalized Laguerre
      polynomial, given roots of (m-1)-th, these are to be
-     stored in lgroot[m][] */
+     stored in lgroot[m][].  Written by Lindsey Dubb. */
   long i;
   double upper, lower, x, y;
   boolean dwn;   /* is function declining in this interval? */
@@ -1210,7 +1316,7 @@ void lgr(long m, double b, raterootarray lgroot)
 
 double logfac (long n)
 { /* log(n!) values were calculated with Mathematica
-     with a precision of 30 digits */
+     with a precision of 30 digits.  Written by Lindsey Dubb. */
   long i;
   double x;
 
@@ -1253,7 +1359,7 @@ double logfac (long n)
 
 double glaguerre(long m, double b, double x)
 { /* Generalized Laguerre polynomial computed recursively.
-     For use by initgammacat */
+     For use by initgammacat.  Many thanks to Lindsey Dubb */
   long i;
   double gln, glnm1, glnp1; /* L_n, L_(n-1), L_(n+1) */
 
@@ -1288,8 +1394,9 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
   lgroot[1][1] = 1.0+alpha;
   for (i = 2; i <= categs; i++)
     lgr(i, alpha, lgroot);                   /* get roots for L^(a)_n */
-  /* here get weights */
-  /* Gamma weights are (1+a)(1+a/2) ... (1+a/n)*x_i/((n+1)^2 [L_{n+1}^a(x_i)]^2)  */
+  /* here get weights:
+   * Gamma weights are (1+a)(1+a/2) ...
+                       (1+a/n)*x_i/((n+1)^2 [L_{n+1}^a(x_i)]^2)  */
   f = 1;
   for (i = 1; i <= categs; i++)
     f *= (1.0+alpha/i);
@@ -1305,7 +1412,8 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
 
 double hermite(long n, double x)
 { /* calculates hermite polynomial with degree n and parameter x */
-  /* seems to be unprecise for n>13 -> root finder does not converge*/
+  /* seems to be unprecise for n>13 -> root finder does not converge */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   double h1 = 1.;
   double h2 = 2. * x;
   double xx = 2. * x;
@@ -1322,6 +1430,7 @@ double hermite(long n, double x)
 
 void root_hermite(long n, double *hroot)
 { /* find roots of Hermite polynmials */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long z;
   long ii;
   long start;
@@ -1342,12 +1451,14 @@ void root_hermite(long n, double *hroot)
 } /* root_hermite */
 
 
-double halfroot(double (*func)(long m, double x), long n, double startx, double delta)
+double halfroot(double (*func)(long m, double x), long n,
+                 double startx, double delta)
 { /* searches from the bound (startx) only in one direction
      (by positive or negative delta, which results in
      other-bound=startx+delta)
      delta should be small.
      (*func) is a function with two arguments  */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   double xl;            /* lower x value */
   double xu;            /* upper x value */
   double xm = 0.0;
@@ -1409,6 +1520,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 {
   /* calculate the weights for the hermite polynomial at the roots
      using formula from Abramowitz and Stegun chapter 25.4.46 p.890 */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long i;
   double hr2;
   double numerator;
@@ -1423,6 +1535,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 
 void inithermitcat(long categs, double alpha, double *rate, double *probcat)
 { /* calculates rates and probabilities */
+  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
   long i;
   double *hroot;
   double std;
@@ -1488,7 +1601,8 @@ void initlambda(double *lambda)
 
   loopcount = 0;
   do {
-    printf("Mean block length of sites having the same rate (greater than 1)?\n");
+    printf(
+       "Mean block length of sites having the same rate (greater than 1)?\n");
     fflush(stdout);
     if(scanf("%lf%*[^\n]", lambda)) {}  // Read number and scan to EOL.
     (void)getchar();
@@ -1523,7 +1637,9 @@ void initfreqs(double *freqap, double *freqcp, double *freqgp, double *freqtp)
 
         if (fabs(sum - 1.0) >= 1.0e-3)
         {
-          printf("Normalized base frequencies are:\n%.3f %.3f %.3f %.3f\n" "(press enter)", freqa, freqc, freqg, freqt);
+          printf(
+           "Normalized base frequencies are:\n%.3f %.3f %.3f %.3f\n" 
+           "(press enter)", freqa, freqc, freqg, freqt);
           fflush(stdout);
           fgetline(stdin);
         }
@@ -1652,26 +1768,25 @@ void newline(FILE *filename, long i, long j, long k)
 
 void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first,
-                        long *nexttip, long *nextnode, boolean *haslengths, boolean unifok)
-// modification of addelement method to just read file and know number of nodes
+                        long *nexttip, long *nextnode, boolean *haslengths,
+                        boolean unifok)
+// modification of addelement method to just read file, count number of nodes
 {
   long i;
-  // long len = 0, nodei = 0;  /* RSGdebug: unused */
   boolean notlast;
   Char str[MAXNCH+1];
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(')
   {
     (*nextnode)++;          /* get ready to use new interior node */
-    // nodei = *nextnode;      /* do what needs to be done at bottom */  /* RSGdebug: unused */
 
     // initnode call with "bottom" --> first forknode of the group, normally goes in to nodep
     // we've already incremented nextnode, so that's all we need for this program
 
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
-      furs++;
+      furcs++;
 
       // initnode call with "nonbottom" --> remaining forknodes hooked up
 
@@ -1687,9 +1802,11 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
         *ch = 0;
       }
 
-      recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip, nextnode, haslengths, unifok);
+      recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip,
+                         nextnode, haslengths, unifok);
 
-      // initnode call with "hslength" --> no need to do anything here, typically just hooks it up
+      /* initnode call with "hslength" --> no need to do anything here,
+       * typically just hooks it up   */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -1700,10 +1817,12 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
       }
     }
 
-    if ( furs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
+    if ( furcs <= 1 && !unifok ) {
+      sprintf(progbuf,
+               "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+              "To use this tree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
@@ -1721,17 +1840,19 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
     if ((*ch) == ')')
       (*parens)--;         /* decrement count of open parentheses */
-    // initnode call with "tip" --> typically copies str info above, but we just increase
+    /* initnode call with "tip" --> typically copies str info above,
+     *  but we just increase  */
     (*nexttip)++;
 
   } else
     getch(ch, parens, treefile);
 
-  // initnode call with "iter" --> sets iter/initialv/initialized code -- nothing to do here
+  /* initnode call with "iter" --> sets iter/initialv/initialized code
+   *   -- nothing to do here */
 
   if ((*ch) == ':')
   {
-    // initnode call with "length" -> must read length using processlength
+    /* initnode call with "length" -> must read length using processlength */
     double valyew, divisor;
     boolean minusread;
     processlength(&valyew,&divisor,ch,&minusread,treefile,parens);
@@ -1740,15 +1861,16 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     if ((*ch) != ';' && (*ch) != '[')
     {
-      // initnode call with "hsnolength" --> sets flag that not all items have length
-      // so, do nothing here?
+      /* initnode call with "hsnolength" --> sets flag that not all items
+       * have length, so do nothing here? */
     }
   }
   if ((*ch) == '[')
-    // process tree weight
+    /* process tree weight  */
   {
-    // initnode call with "treewt" --> can do something for cons.c things -- need to read
-    // stolen directly from cons.c
+    /* initnode call with "treewt" --> can do something for cons.c things
+     * -- need to read */
+    /* stolen directly from cons.c  */
     double trweight;
     if (!eoln(treefile))
     {
@@ -1769,7 +1891,8 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
         getch(ch, parens, treefile);
         if (*ch != ';')
         {
-          sprintf(progbuf, "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
           print_progress(progbuf);
           exxit(-1);
         }
@@ -1780,9 +1903,10 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     if ((*ch) == ';')     /* ... and at end of tree */
     {
-      // initnode call with "unittrwt" --> can do something for cons.c things -- need to read
-      // stolen directly from cons.c
-      // double trweight = 1.0 ;
+      /* initnode call with "unittrwt" --> can do something for cons.c things
+       *  -- need to read  */
+      /* stolen directly from cons.c  */
+      /*  debug:  ??  double trweight = 1.0 ;  */
       long i = ftell (treefile);
       char c = ' ';
       while (c == ' ') {
@@ -1808,8 +1932,9 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
 void inputNumbersFromTreeFile(FILE * intree, long * spp_p, long * nonodes_p)
 {
-  /* read in user-defined tree to determine values of spp, maximum name length, nonodes */
-  /* Eats blank lines and everything up to the first open paren, then
+  /* read in user-defined tree to determine values of spp, maximum name
+   * length, nonodes.
+   * Eats blank lines and everything up to the first open paren, then
    * calls the recursive function addelement, which builds the
    * tree and calls back to initnode. */
   char  ch;
@@ -1875,9 +2000,11 @@ void inputnumbers(long *spp, long *chars, long *nonodes, long n)
    * (*spp * 2 - n)  in *nonodes */
 
   if (fscanf(infile, "%ld%ld", spp, chars) != 2 || *spp <= 0 || *chars <= 0) {
-    sprintf(progbuf, "ERROR:  inputnumbers Unable to read the number of species or characters in data set.\n");
+    sprintf(progbuf,
+    "ERROR:  inputnumbers Unable to read the number of species or characters in data set.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+      "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1890,9 +2017,11 @@ void inputnumbers2(long *spp, long *nonodes, long n)
   /* read species number */
 
   if (fscanf(infile, "%ld", spp) != 1 || *spp <= 0) {
-    sprintf(progbuf, "ERROR:  inputnumbers2 Unable to read the number of species in data set.\n");
+    sprintf(progbuf,
+ "ERROR:  inputnumbers2 Unable to read the number of species in data set.\n");
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+       "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1915,7 +2044,8 @@ void samenumsp(long *chars, long ith)
   }
   if (cursp != spp)
   {
-    sprintf(progbuf, "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
+    sprintf(progbuf,
+      "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1931,14 +2061,18 @@ void samenumsp2(long ith)
   if (eoln(infile))
     scan_eoln(infile);
   if (fscanf(infile, "%ld", &cursp) != 1) {
-    sprintf(progbuf, "\n\nERROR:  samenumsp2 Unable to read number of species in data set %ld.\n",ith);
+    sprintf(progbuf,
+  "\n\nERROR:  samenumsp2 Unable to read number of species in data set %ld.\n",
+     ith);
     print_progress(progbuf);
-    sprintf(progbuf, "The input file is incorrect (perhaps it was not saved text only).\n");
+    sprintf(progbuf,
+       "The input file is incorrect (perhaps it was not saved text only).\n");
     print_progress(progbuf);
     exxit(-1);
   }
   if (cursp != spp) {
-    sprintf(progbuf, "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
+    sprintf(progbuf,
+      "\n\nERROR:  Inconsistent number of species in data set %ld.\n\n", ith);
     print_progress(progbuf);
     exxit(-1);
   }
@@ -1964,8 +2098,9 @@ void readoptions(long *extranum, const char *options)
 
 
 void matchoptions(Char *ch, const char *options)
-{  /* match option characters to those in auxiliary options line in restriction
-    * site data file */
+{
+  /* match option characters to those in auxiliary options line in
+   * restriction site data file */
 
   *ch = gettc(infile);
   uppercase(ch);
@@ -1979,6 +2114,7 @@ void matchoptions(Char *ch, const char *options)
 
 void headings(long chars, const char *letters1, const char *letters2)
 {
+  /* Write out headings with list of species names */
   long i, j;
 
   putc('\n', outfile);
@@ -2000,7 +2136,8 @@ void headings(long chars, const char *letters1, const char *letters2)
 
 void initname(long i)
 {
-  /* read in species name */
+  /* read in species name.  If has bad characters, complain.
+   * If has a Tab character, signals to blank-fill rest of name, */
   boolean gotatab;
   long j;
 
@@ -2009,18 +2146,23 @@ void initname(long i)
     if (eoff(infile) || eoln(infile)) {
       sprintf(progbuf, "\n\nERROR:  End-of-Line or End-of-File");
       print_progress(progbuf);
-      sprintf(progbuf, " in the middle of species name for species %ld.\n\n", i+1);
+      sprintf(progbuf,
+               " in the middle of species name for species %ld.\n\n", i+1);
       print_progress(progbuf);
       exxit(-1);
     }
     if (!gotatab) {  /* if no tab character has been read yet */
       nayme[i][j] = gettc(infile);
       if ((nayme[i][j] == '(') || (nayme[i][j] == ')') || (nayme[i][j] == ':')
-          || (nayme[i][j] == ',') || (nayme[i][j] == ';') || (nayme[i][j] == '[')
-          || (nayme[i][j] == ']')) {
-        sprintf(progbuf, "\nERROR:  Species name may not contain characters ( ) : ; , [ ] \n");
+          || (nayme[i][j] == ',') || (nayme[i][j] == ';')
+          || (nayme[i][j] == '[') || (nayme[i][j] == ']'))
+      {
+        sprintf(progbuf,
+        "\nERROR:  Species name may not contain characters ( ) : ; , [ ] \n");
         print_progress(progbuf);
-        sprintf(progbuf, "        In the name of species number %ld at position number %ld.\n",i+1, j+1);
+        sprintf(progbuf,
+        "        In the name of species number %ld at position number %ld.\n",
+         i+1, j+1);
         print_progress(progbuf);
         sprintf(progbuf, "        there is character %c\n\n", nayme[i][j]);
         print_progress(progbuf);
@@ -2040,9 +2182,10 @@ void initname(long i)
 
 void checknames(long int num_species)
 {
-  // Check NAYME array for duplicates.  Prints all duplicates (if more than one).
-  // RSGnote: Possibly add provisions for checking for missing names on loading
-  // multiple databases as well as consistency (and avoidance of duplication).
+  /* Check NAYME array for duplicates. Prints all duplicates (if more than
+   * one). RSGnote: Possibly add provisions for checking for missing names on
+   * loading multiple datasets as well as consistency (and avoidance of
+   * duplication).  */
   boolean uh_oh = false;
   long int i, j;
 
@@ -2051,10 +2194,12 @@ void checknames(long int num_species)
     for (j = i + 1; j < num_species; ++j)
     {
       if (strncmp(nayme[i], nayme[j], MAXNCH) == 0)
-      {
-        // RSGnote: This should print a name space-padded to 'nmlngth' chars,
-        // with null chars following (to MAXNCH = 2 * nmlngth) to denote end-of-string.
-        sprintf(progbuf, "\nERROR:  Duplicate species name: \"%s\" in slots %ld and %ld.\n", nayme[i], i, j);
+      { /* This should print a name space-padded to 'nmlngth' chars,
+         * with null chars following (to MAXNCH = 2 * nmlngth) to denote
+         * end-of-string.                                               */
+        sprintf(progbuf,
+           "\nERROR:  Duplicate species name: \"%s\" in slots %ld and %ld.\n",
+           nayme[i], i, j);
         print_progress(progbuf);
         uh_oh = true;
       }
@@ -2066,7 +2211,7 @@ void checknames(long int num_species)
     putchar('\n');
     exxit(-1);
   }
-}
+} /* checknames */
 
 
 /*********** Weight file routines **********/
@@ -2107,16 +2252,18 @@ void inputweights(long chars, steptr weight, boolean *weights)
 void inputweights2(long a, long b, long *weightsum,
                    steptr weight, boolean *weights, const char *prog)
 {
-  /* input the character weights, 0 or 1 */
+  /* input the character weights,  0 or 1, for characters  a  through b.
+   * Doing this only for a range of weights because possibly have
+   * interleaved format, so only inputting a range of sites at a time */
   Char ch;
   long i;
 
   *weightsum = 0;
-  for (i = a; i < b; i++) {
+  for (i = a-1; i < b; i++) {    /*  i  is off-by-one from character number */
     do {
       if (eoln(weightfile))
         scan_eoln(weightfile);
-      ch = gettc(weightfile);
+      ch = gettc(weightfile);    /* get the character specifying the weight */
     } while (ch == ' ');
     weight[i] = 1;
     if (ch == '0' || ch == '1')
@@ -2128,7 +2275,7 @@ void inputweights2(long a, long b, long *weightsum,
       print_progress(progbuf);
       exxit(-1);
     }
-    *weightsum += weight[i];
+    *weightsum += weight[i];               /* add to the sum of the weights */
   }
   *weights = true;
   scan_eoln(weightfile);
@@ -2170,13 +2317,14 @@ void printweights(FILE *filename, long inc, long chars,
 
 /************* Category file routines ***************/
 
-void inputcategs(long a, long b, steptr category, long categs, const char *prog)
+void inputcategs(long a, long b, steptr category,
+                  long categs, const char *prog)
 {
   /* input the categories, 1-9 */
   Char ch;
   long i;
 
-  //printf("in inputcategs a: %li, b: %li, categs: %li, prog: %s\n", a, b, categs, prog);
+  /* debug:  ? printf("in inputcategs a: %li, b: %li, categs: %li, prog: %s\n", a, b, categs, prog);  */
 
   for (i = a; i < b; i++) {
     do {
@@ -2190,7 +2338,8 @@ void inputcategs(long a, long b, steptr category, long categs, const char *prog)
     else {
       sprintf(progbuf, "\n\nERROR:  Bad category character: %c", ch);
       print_progress(progbuf);
-      sprintf(progbuf, " -- categories in %s are currently 1-%ld.\n", prog, categs);
+      sprintf(progbuf,
+               " -- categories in %s are currently 1-%ld.\n", prog, categs);
       print_progress(progbuf);
       exxit(-1);
     }
@@ -2239,7 +2388,8 @@ void inputfactors(long chars, Char *factor, boolean *factors)
 }  /* inputfactors */
 
 
-void printfactors(FILE *filename, long chars, Char *factor, const char *letters)
+void printfactors(FILE *filename, long chars,
+                   Char *factor, const char *letters)
 {
   /* print out list of factor symbols */
   long i;
@@ -2257,63 +2407,72 @@ void printfactors(FILE *filename, long chars, Char *factor, const char *letters)
 }  /* printfactors */
 
 
-void findtree(boolean *found, long *pos, long nextree, long *place, bestelm *bestrees)
+/*********** routines for saving, retrieving trees **********/
+
+void findtree(boolean *found, long *pos, long nextree,
+               long *place, bestelm *bestrees)
 {
   /* finds tree given by array place in array bestrees by binary search */
-  /* used by dnacomp, dnapars, dollop, mix, & protpars */
+  /* used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars */
   long i, lower, upper;
   boolean below, done;
 
   below = false;
-  lower = 1;
+  lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
   (*found) = false;
-  while (!(*found) && lower <= upper) {
-    (*pos) = (lower + upper) / 2;
-    i = 3;
+  while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ?? */
+    (*pos) = (lower + upper) / 2;   /* look in the middle of current region */
+    i = 3;                 /* first two positions are always  1, 1, so skip */
     done = false;
-    while (!done) {
+    while (!done) {                  /* go along place array checking match */
       done = (i > spp);
-      if (!done)
-        done = (place[i - 1] != bestrees[(*pos) - 1].btree[i - 1]);
-      if (!done)
-        i++;
+      if (done)           /* blast out of while loop if passed last species */
+        break;
+      done = (place[i-1] != bestrees[*pos].btree[i - 1]);
+      if (!done)                /* if it matches so far ... */
+        i++;                    /* ... get ready to look at next array item */
     }
-    (*found) = (i > spp);
-    if (*found)
+    (*found) = (i > spp);            /* true if all  spp  tips have matched */
+    if (*found) {                  /* you found a match, blast your way out */
       break;
-    below = (place[i - 1] <  bestrees[(*pos )- 1].btree[i - 1]);
-    if (below)
+    }
+    below = (place[i-1] < bestrees[*pos].btree[i - 1]);
+    if (below)                    /* set limits to subregion below or above */
       upper = (*pos) - 1;
     else
       lower = (*pos) + 1;
   }
-  if (!(*found) && !below)
-    (*pos)++;
+  if (!((*pos) >= nextree))                              /* if not past end */
+    if (!(*found)) {                                /* and didn't find tree */
+      if (!below)                        /* so need to insert it above here */
+        (*pos)++;
+    }
 }  /* findtree */
 
 
-void addtree(long pos, long *nextree, boolean collapse, long *place, bestelm *bestrees)
+void addtree(long pos, long *nextree, boolean collapse,
+              long *place, bestelm *bestrees)
 {
-  /* puts tree from array place in its proper position in array bestrees */
-  /* used by dnacomp, dnapars, dollop, mix, & protpars */
+  /* puts tree from array place in its proper position in array bestrees
+   * used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars
+   * pos takes range 0 ... nextree-1.  There are currently  nextree trees
+   * occupying that range, and once it is added there will then be
+   * nextree+1 trees occupying range  0 ... nextree  */
   long i;
 
-  (void)collapse;                       // RSGdebug: Currently unused.  Needed in future?
-
-  for (i = *nextree - 1; i >= pos; i--)
-  {
+  for (i = *nextree; i > pos; i--) /* coming down from just above end ... */
+  {                          /* shift information for tree up by one tree */
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
-    bestrees[i - 1].gloreange = false;
     bestrees[i].locreange = bestrees[i - 1].locreange;
-    bestrees[i - 1].locreange = false;
     bestrees[i].collapse = bestrees[i - 1].collapse;
   }
-  for (i = 0; i < spp; i++)
-    bestrees[pos - 1].btree[i] = place[i];
-  /*  bestrees[pos -1].gloreange = false; */
-  bestrees[pos -1].collapse = false;
+  for (i = 0; i < spp; i++)         /* write the place[i] entries in here */
+    bestrees[pos].btree[i] = place[i];
+  bestrees[pos].gloreange = false;
+  bestrees[pos].locreange = false;
+  bestrees[pos].collapse = false;
 
   (*nextree)++;
 }  /* addtree */
@@ -2321,15 +2480,16 @@ void addtree(long pos, long *nextree, boolean collapse, long *place, bestelm *be
 
 long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
 {
-  /* finds bestree with either global or local field false */
+  /* in array of saved trees, finds bestree with
+   * either global or local field false */
   long i;
 
   if (glob) {
-    for (i = 0; i < nextree - 1; i++)
+    for (i = 0; i <= nextree - 1; i++)
       if (!bestrees[i].gloreange)
         return i;
   } else {
-    for (i = 0; i < nextree - 1; i++)
+    for (i = 0; i <= nextree - 1; i++)
       if (!bestrees[i].locreange)
         return i;
   }
@@ -2338,33 +2498,38 @@ long findunrearranged(bestelm *bestrees, long nextree, boolean glob)
 
 
 void shellsort(double *a, long *b, long n)
-{ /* Shell sort keeping a, b in same order */
-  /* used by dnapenny, dolpenny, penny, and threshml */
+{ 
+  /* Shell sort keeping a, b in same order
+   * used by Dnapenny, Dolpenny, Penny, Contrast, and Threshml
+   * The Shell sort is O(n^(4/3)), not perfectly efficient but pretty fast
+   * (and a pleasingly short program)  Shell was the discover's name -- it
+   * is not related to the "shell game" where one shuffles around thimbles.
+   * It sorts in the same order an accompanying array (b) of tags */
   long gap, i, j, itemp;
   double rtemp;
 
-  gap = n / 2;
+  gap = n / 2;                /* set initial gap size half the array length */
   while (gap > 0) {
-    for (i = gap + 1; i <= n; i++) {
-      j = i - gap;
+    for (i = gap + 1; i <= n; i++) {     /* compare elements that far apart */
+      j = i - gap;                             /* compare elements j, j+gap */
       while (j > 0) {
-        if (a[j - 1] > a[j + gap - 1]) {
+        if (a[j - 1] > a[j + gap - 1]) {            /* swap if out of order */
           rtemp = a[j - 1];
           a[j - 1] = a[j + gap - 1];
           a[j + gap - 1] = rtemp;
-          itemp = b[j - 1];
+          itemp = b[j - 1];              /* swap the accompanying array too */
           b[j - 1] = b[j + gap - 1];
           b[j + gap - 1] = itemp;
         }
-        j -= gap;
+        j -= gap;                   /* loop over all pairs separated by gap */
       }
     }
-    gap /= 2;
-  }
+    gap /= 2;    /* integer division: shrink the gap size by half each time */
+  }    /* after pass all the way through with a gap of 1, it must be sorted */
 }  /* shellsort */
 
 
-/******** User trees ****************/
+/******** routines for reading User trees ****************/
 
 void getch(Char *c, long *parens, FILE *treefile)
 { /* get next nonblank character from a tree file */
@@ -2392,7 +2557,9 @@ void findch(Char c, Char *ch, long which)
   while (!done) {
     if (c == ',') {
       if (*ch == '(' || *ch == ')' || *ch == ';') {
-        sprintf(progbuf, "\n\nERROR in user tree %ld: unmatched parenthesis or missing comma.\n\n", which);
+        sprintf(progbuf,
+   "\n\nERROR in user tree %ld: unmatched parenthesis or missing comma.\n\n",
+                 which);
         print_progress(progbuf);
         exxit(-1);
       } else if (*ch == ',')
@@ -2435,13 +2602,13 @@ void processlength(double *valyew, double *divisor, Char *ch,
   *lengthIsNegative = false;
   pointread = false;
   hasExponent = false;
-  exponentIsNegative = -1; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+  exponentIsNegative = -1; /* 3 states: -1=unassigned, 1=true, 0=false */
   exponent = 0;
   *valyew = 0.0;
   *divisor = 1.0;
   getch(ch, parens, treefile);
   if ('+' == *ch)
-    getch(ch, parens, treefile); // ignore leading '+', because "+1.2345" == "1.2345"
+    getch(ch, parens, treefile); /* ignore leading +: "+1.2345" == "1.2345" */
   else if ('-' == *ch)
   {
     *lengthIsNegative = true;
@@ -2456,7 +2623,8 @@ void processlength(double *valyew, double *divisor, Char *ch,
         pointread = true;
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with more than one \'.\' in it.\n\n");
+        sprintf(progbuf,
+       "\n\nERROR:  Branch length found with more than one \'.\' in it.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2464,10 +2632,12 @@ void processlength(double *valyew, double *divisor, Char *ch,
     else if ('+' == *ch)
     {
       if (hasExponent && -1 == exponentIsNegative)
-        exponentIsNegative = 0; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+        exponentIsNegative = 0; /* 3 states: -1=unassigned, 1=true, 0=false */
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with \'+\' in an unexpected place.\n\n");
+        sprintf(progbuf,
+     "\n\nERROR:  Branch length found with \'+\' in an unexpected place.\n\n"
+                  );
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2475,10 +2645,11 @@ void processlength(double *valyew, double *divisor, Char *ch,
     else if ('-' == *ch)
     {
       if (hasExponent && -1 == exponentIsNegative)
-        exponentIsNegative = 1; // 3 states:  -1 = unassigned, 1 = true, 0 = false
+        exponentIsNegative = 1; /* 3 states: -1=unassigned, 1=true, 0=false */
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with \'-\' in an unexpected place.\n\n");
+        sprintf(progbuf,
+    "\n\nERROR:  Branch length found with \'-\' in an unexpected place.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2489,7 +2660,8 @@ void processlength(double *valyew, double *divisor, Char *ch,
         hasExponent = true;
       else
       {
-        sprintf(progbuf, "\n\nERROR:  Branch length found with more than one \'E\' in it.\n\n");
+        sprintf(progbuf,
+      "\n\nERROR:  Branch length found with more than one \'E\' in it.\n\n");
         print_progress(progbuf);
         exxit(-1);
       }
@@ -2545,13 +2717,12 @@ void commentskipper(FILE *intree, long *bracket)
 
 long countcomma(FILE *treefile, long *comma)
 {
-  /* Modified by Dan F. 11/10/96 */
-
-  /* countcomma rewritten so it passes back both lparen+comma to allocate nodep
-     and a pointer to the comma variable.  This allows the tree to know how many
-     species exist, and the tips to be placed in the front of the nodep array */
-  /* The next line inserted so this function leaves the file pointing
-     to where it found it, not just re-winding it. */
+  /* Modified by Dan Fineman, 11/10/96: 
+   * countcomma rewritten so it passes back both lparen+comma to allocate
+   * nodep and a pointer to the comma variable.  This allows the tree to know
+   * how many species exist, and the tips to be placed in the front of the
+   * nodep array. The next line inserted so this function leaves the file
+   * pointing to where it found it, not just re-winding it. */
   long orig_position = ftell(treefile);
 
   Char c;
@@ -2589,7 +2760,7 @@ long countcomma(FILE *treefile, long *comma)
 long countsemic(FILE *treefile)
 { /* Used to determine the number of user trees.  Return
      either a: the number of semicolons in the file outside comments
-     or b: the first integer in the file */
+     or b: the first integer in the file (this is deprecated) */
   Char c;
   long return_val, semic = 0;
   long bracket = 0;
@@ -2603,7 +2774,7 @@ long countsemic(FILE *treefile)
   }
 
   /* Then figure out if the first non-white character is a digit; if
-     so, return it */
+     so, return it.  Note: may not allow tree to be just one node */
   if (isdigit (c))
   {
     ungetc(c, treefile);
@@ -2649,7 +2820,8 @@ void memerror(void)
 
 void odd_malloc(long x)
 { /* error message if attempt to malloc too little or too much memory */
-  sprintf(progbuf, "ERROR:  A function asked for an inappropriate amount of memory:");
+  sprintf(progbuf,
+           "ERROR:  A function asked for an inappropriate amount of memory:");
   print_progress(progbuf);
   sprintf(progbuf, "  %ld bytes.\n", x);
   print_progress(progbuf);
@@ -2663,11 +2835,14 @@ void odd_malloc(long x)
   print_progress(progbuf);
   sprintf(progbuf, "        Please check your input file carefully.\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        If it seems to be a bug, please mail joe@gs.washington.edu\n");
+  sprintf(progbuf,
+      "        If it seems to be a bug, please mail joe@gs.washington.edu\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        with the name of the program, your computer system type,\n");
+  sprintf(progbuf,
+        "        with the name of the program, your computer system type,\n");
   print_progress(progbuf);
-  sprintf(progbuf, "        a full description of the problem, and with the input data file.\n");
+  sprintf(progbuf,
+ "        a full description of the problem, and with the input data file.\n");
   print_progress(progbuf);
   /* abort() can be used to crash */
 
@@ -2693,18 +2868,31 @@ MALLOCRETURN *mymalloc(long x)
 } /* mymalloc */
 
 
+/************* routines for altering trees ****************/
+
 void hookup(node *p, node *q)
-{ /* hook together two nodes *
+{ /* hook together two nodes 
    * IMPORTANT -- does not change branch lengths. Other routines
-   expect them to be as they were, and update them later */
+   * expect them to be as they were, and update them later */
   p->back = q;
   q->back = p;
 }  /* hookup */
 
 
+node* precursor (node* n)
+{ /* go around a fork circle until we find the node that has  n  as next
+   * note -- will crash if  p  is NULL or maybe if  p  is a tip */
+ node *p;
+
+ for (p = n; p->next != n; p = p->next) {};   /* loop till you get there */
+ return p;
+} /* precursor */
+
+
 void link_trees(long local_nextnum, long nodenum, long local_nodenum,
                 pointarray nodep)
 {
+/* debug: does not seem to be used by anything.  Why is it here? */
   if(local_nextnum == 0)
     hookup(nodep[nodenum], nodep[local_nodenum]);
   else if(local_nextnum == 1)
@@ -2733,6 +2921,7 @@ void allocate_nodep(pointarray *nodep, FILE *treefile, long  *precalc_tips)
                                           tip nodes in the front region of
                                           nodep.  Used for species check?  */
 } /* allocate_nodep -plc */
+
 
 
 long take_name_from_tree (Char *ch, Char *str, FILE *treefile)
@@ -2800,10 +2989,11 @@ void match_names_to_data (Char *str, pointarray treenode, node **p, long spp)
 }  /* match_names_to_data */
 
 
-void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *treefile,
-                pointarray nodep, boolean *goteof, boolean *first,
-                long *nextnode, long *ntips, boolean *haslengths,
-                initptr initnode, boolean unifok, long maxnodes)
+void addelement(tree * treep, node **p, node *q, Char *ch,
+                 long *parens, FILE *treefile, pointarray nodep,
+                 boolean *goteof, boolean *first, long *nextnode,
+                 long *ntips, boolean *haslengths, initptr initnode,
+                 boolean unifok, long maxnodes)
 {
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
@@ -2813,17 +3003,20 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
   boolean notlast;
   Char str[MAXNCH+1];
   node *r;
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(') {
-    (*nextnode)++;          /* get ready to use new interior node */
-    nodei = *nextnode;      /* do what needs to be done at bottom */
+    (*nextnode)++;                    /* get ready to use new interior node */
+    nodei = *nextnode;                /* do what needs to be done at bottom */
     if ( (maxnodes != -1) && (nodei > maxnodes)) {
-      sprintf(progbuf, "ERROR in input tree file: Attempting to allocate too\n");
+      sprintf(progbuf,
+               "ERROR in input tree file: Attempting to allocate too\n");
       print_progress(progbuf);
-      sprintf(progbuf, "many nodes. This is usually caused by a unifurcation.\n");
+      sprintf(progbuf,
+               "many nodes. This is usually caused by a unifurcation.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read\n");
+      sprintf(progbuf,
+               "To use this tree with this program, use Retree to read\n");
       print_progress(progbuf);
       sprintf(progbuf, "and write this tree.\n");
       print_progress(progbuf);
@@ -2831,12 +3024,14 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     }
 
     /* do what needs to be done at bottom */
-    (*initnode)(treep, p, len, nodei, ntips, parens, bottom, nodep, str, ch, treefile);
-    pfirst      = (*p);
+    (*initnode)(treep, p, len, nodei, ntips, parens,
+                 bottom, nodep, str, ch, treefile);
+    pfirst = (*p);
     notlast = true;
     while (notlast) {          /* loop through immediate descendants */
-      furs++;
-      (*initnode)(treep, &(*p)->next, len, nodei, ntips, parens, nonbottom, nodep, str, ch, treefile);
+      furcs++;
+      (*initnode)(treep, &(*p)->next, len, nodei,
+                   ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
       r = (*p)->next;
       getch(ch, parens, treefile);      /* look for next character */
@@ -2858,7 +3053,8 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 
-      (*initnode)(treep, &r, len, nodei, ntips, parens, hslength, nodep, str, ch, treefile);
+      (*initnode)(treep, &r, len, nodei, ntips, parens,
+                   hslength, nodep, str, ch, treefile);
       /* do what is done after each about length */
       *p = r;                         /* make r point back to p */
 
@@ -2870,10 +3066,12 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
                  (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
       }
     }
-    if ( furs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in input tree file: A Unifurcation was detected.\n");
+    if ( furcs <= 1 && !unifok ) {
+      sprintf(progbuf,
+              "ERROR in input tree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this tree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+              "To use this tree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
@@ -2900,19 +3098,19 @@ void addelement(tree * treep, node **p, node *q, Char *ch, long *parens, FILE *t
     hookup(q, (*p));                    /* now hook up */
   (*initnode)(treep, p, len, nodei, ntips,
               parens, iter, nodep, str, ch, treefile);
-  /* do what needs to be done to variable iter */
+          /* do what needs to be done to variable iter */
   if ((*ch) == ':')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, length, nodep, str, ch, treefile);
-  /* do what needs to be done with length */
+          /* do what needs to be done with length */
   else if ((*ch) != ';' && (*ch) != '[')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, hsnolength, nodep, str, ch, treefile);
-  /* ... or what needs to be done when no length */
+          /* ... or what needs to be done when no length */
   if ((*ch) == '[')
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, treewt, nodep, str, ch, treefile);
-  /* ... for processing a tree weight */
+          /* ... for processing a tree weight */
   else if ((*ch) == ';')     /* ... and at end of tree */
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, unittrwt, nodep, str, ch, treefile);
@@ -2956,8 +3154,7 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
              nodep, goteof, first, nextnode, &ntips,
              haslengths, initnode, unifok, maxnodes);
 
-  /* Eat blank lines and end of current line*/
-  do {
+  do {                           /* Eat blank lines and end of current line */
     scan_eoln(treefile);
   }
   while (eoln(treefile) && !eoff(treefile));
@@ -2972,8 +3169,9 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
 
 
 void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
-                 pointarray treenode, boolean lngths, double *trweight, boolean *goteof,
-                 long *nextnode, long *ntips, long no_species, boolean *haslengths,
+                 pointarray treenode, boolean lngths, double *trweight,
+                 boolean *goteof, long *nextnode, long *ntips,
+                 long no_species, boolean *haslengths,
                  boolean unifok, long maxnodes)
 { /* recursive procedure adds nodes to user-defined tree
      -- old-style bifurcating-only version used only by treeread2
@@ -2983,7 +3181,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
   boolean notlast, minusread;
   Char str[MAXNCH];
   double valyew, divisor;
-  long furs = 0;
+  long furcs = 0;
 
   if ((*ch) == '(') {
 
@@ -2991,11 +3189,14 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     (*nextnode)++;
 
     if ( maxnodes != -1 && current_loop_index > maxnodes) {
-      sprintf(progbuf, "ERROR in intree file: Attempting to allocate too many nodes.\n");
+      sprintf(progbuf,
+            "ERROR in intree file: Attempting to allocate too many nodes.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "This is usually caused by a unifurcation.  To use this\n");
+      sprintf(progbuf,
+                  "This is usually caused by a unifurcation.  To use this\n");
       print_progress(progbuf);
-      sprintf(progbuf, "intree with this program, use Retree to read and write\n");
+      sprintf(progbuf,
+                  "intree with this program, use Retree to read and write\n");
       print_progress(progbuf);
       sprintf(progbuf, "this tree.\n");
       print_progress(progbuf);
@@ -3005,10 +3206,9 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     p = treenode[current_loop_index];
     pfirst = p;
     notlast = true;
-    while (notlast) {
-      furs++;
-      /* This while loop goes through a circle (triad for
-         bifurcations) of nodes */
+    while (notlast) {      /* This while loop goes through a circle (triad for
+                                         the case of bifurcations) of nodes */
+      furcs++;
       p = p->next;
       /* added to ensure that non base nodes in loops have indices */
       p->index = current_loop_index + 1;
@@ -3016,7 +3216,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       getch(ch, parens, treefile);
 
       addelement2(p, ch, parens, treefile, treenode, lngths, trweight,
-                  goteof, nextnode, ntips, no_species, haslengths, unifok, maxnodes);
+                  goteof, nextnode, ntips, no_species, haslengths, unifok,
+                  maxnodes);                 /* recursive call for subtrees */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -3026,17 +3227,19 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
                  (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
       }
     }
-    if ( furs <= 1 && !unifok ) {
-      sprintf(progbuf, "ERROR in intree file: A Unifurcation was detected.\n");
+    if ( furcs <= 1 && !unifok ) {
+      sprintf(progbuf,
+               "ERROR in intree file: A Unifurcation was detected.\n");
       print_progress(progbuf);
-      sprintf(progbuf, "To use this intree with this program, use Retree to read and\n");
+      sprintf(progbuf,
+            "To use this intree with this program, use Retree to read and\n");
       print_progress(progbuf);
       sprintf(progbuf, " write this tree.\n");
       print_progress(progbuf);
       exxit(-1);
     }
 
-  } else if ((*ch) != ')') {
+  } else if ((*ch) != ')') {                       /* read the species name */
     for (i = 0; i < MAXNCH; i++)
       str[i] = '\0';
     len = take_name_from_tree (ch, str, treefile);
@@ -3049,7 +3252,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
   } else
     getch(ch, parens, treefile);
 
-  if ((*ch) == '[')                     /* getting tree weight from last comment field */
+  if ((*ch) == '[')          /* getting tree weight from last comment field */
   {
     if (!eoln(treefile))
     {
@@ -3069,7 +3272,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       {
         getch(ch, parens, treefile);
         if (*ch != ';') {
-          sprintf(progbuf, "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
           print_progress(progbuf);
           exxit(-1);
         }
@@ -3087,26 +3291,25 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
   if (q != NULL)
     hookup(q, pfirst);
-  /*if (q != NULL) {
+  /* debug:   if (q != NULL) {
     if (q->branchnum < pfirst->branchnum)
     pfirst->branchnum = q->branchnum;
     else
     q->branchnum = pfirst->branchnum;
-    } debug: FIXME check if we need this for restml */
+    }  FIXME check if we need this for restml */
 
-  if ((*ch) == ':') {
+  if ((*ch) == ':') {                              /* read a branch length */
     processlength(&valyew, &divisor, ch,
                   &minusread, treefile, parens);
     if (q != NULL) {
       if (!minusread)
         q->oldlen = valyew / divisor;
       else
-        q->oldlen = 0.0;
+        q->oldlen = initialv;
       if (lngths) {
         q->v = valyew / divisor;
         q->back->v = q->v;
         q->iter = false;
-        q->back->iter = false;
         q->back->iter = false;
       }
     }
@@ -3116,7 +3319,8 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
 void treeread2 (FILE *treefile, node **root, pointarray treenode,
                 boolean lngths, double *trweight, boolean *goteof,
-                boolean *haslengths, long *no_species, boolean unifok, long maxnodes)
+                boolean *haslengths, long *no_species, boolean unifok,
+                long maxnodes)
 {
   /* read in user-defined tree and set it up
      -- old-style bifurcating-only version used only in Fitch, Kitsch,
@@ -3147,7 +3351,8 @@ void treeread2 (FILE *treefile, node **root, pointarray treenode,
   }
 
   addelement2(NULL, &ch, &parens, treefile, treenode, lngths, trweight,
-              goteof, &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
+              goteof, &nextnode, &ntips, (*no_species), haslengths,
+              unifok, maxnodes);
   (*root) = treenode[*no_species];
 
   /*eat blank lines */
@@ -3166,7 +3371,7 @@ void treeread2 (FILE *treefile, node **root, pointarray treenode,
 
 void exxit(int exitcode)
 { /* Terminate the program with exit code exitcode.
-   * On Windows, supplying a nonzero exitcode will print a message and wait
+   * In Windows, supplying a nonzero exitcode will print a message and wait
    * for the user to hit enter. */
 
 #if defined(WIN32) || defined(MAC)
@@ -3212,14 +3417,24 @@ char gettc(FILE* file)
 
 /************* More tree functions **********/
 
-void unroot(tree *t, long nonodes)
-{
-  /* used by fitch, restml and contml */
-  if (t->root->back == NULL) {
-    if (t->root->next->back->tip)
-      t->root = t->root->next->next->back;
+void unroot(tree* t, long nonodes)
+{ 
+  /* if tree has a bifurcation at the rootmost interior node,
+   * move root to point to an interior node, preferably the
+   * leftmost descendant of that rootmost node
+   * then release the previous rootmost interior node.
+   * currently used by fitch, restml and contml */
+  node* p;
+
+  if (t->root->back == NULL) {      /* move root pointer point to leftmost  */
+    p = t->root;
+    if (t->root->next->back->tip)   /* interior node descended from ...  */
+      t->root = t->root->next->next->back;   /* that rootmost interior node */
     else  t->root = t->root->next->back;
   }
+/* I think the following stuff is to deal with the case where
+ * there is an interior node which used to be rootmost and still has
+ * only two neighbors  */
   if (t->root->next->back == NULL) {
     if (t->root->back->tip)
       t->root = t->root->next->next->back;
@@ -3231,19 +3446,22 @@ void unroot(tree *t, long nonodes)
     else t->root = t->root->back;
   }
 
-  unroot_r(t->root, t->nodep, nonodes);
-  unroot_r(t->root->back, t->nodep, nonodes);
+  unroot_r(t, t->root, nonodes); /* traverse to find interior ... */
+  unroot_r(t, t->root->back, nonodes); /*  forks to be released */
+  generic_tree_release_fork(t, p);
 } /* unroot */
 
 
-void unroot_here(node* root, node** nodep, long nonodes)
+void unroot_here(tree* t, node* root, long nonodes)
 {
-  /* used by unroot */
-  /* assumes bifurcation this is ok in the programs that use it */
+  /* used by unroot: move to the end of the nodep list of interior
+   * nodes the interior node that is to be
+   * released once we have moved the root
+   * assumes bifurcation -- it is only called in that case */
   node* tmpnode;
   double newl;
 
-  newl = root->next->oldlen + root->next->next->oldlen;
+  newl = root->next->oldlen + root->next->next->oldlen; /* add lengths */
   root->next->back->oldlen = newl;
   root->next->next->back->oldlen = newl;
 
@@ -3255,12 +3473,12 @@ void unroot_here(node* root, node** nodep, long nonodes)
   root->next->next->back->back = root->next->back;
 
   while ( root->index != nonodes ) {
-    tmpnode = nodep[ root->index ];
-    nodep[root->index] = root;
+    tmpnode = t->nodep[ root->index ];
+    t->nodep[root->index] = root;
     root->index++;
     root->next->index++;
     root->next->next->index++;
-    nodep[root->index - 2] = tmpnode;
+    t->nodep[root->index - 2] = tmpnode;
     tmpnode->index--;
     tmpnode->next->index--;
     tmpnode->next->next->index--;
@@ -3268,60 +3486,83 @@ void unroot_here(node* root, node** nodep, long nonodes)
 } /* unroot_here */
 
 
-void unroot_r(node* p, node** nodep, long nonodes)
+void unroot_r(tree* t, node* p, long nonodes)
 {
-  /* used by unroot */
+  /* used by unroot: go around tree recursively looking for
+   * the interior node that has a "back" pointer to NULL
+   * it will then call  unroot_here  which cuts that
+   * interior node out and releases it  */
   node *q;
 
   if ( p->tip) return;
 
   q = p->next;
   while ( q != p ) {
-    if (q->back == NULL)
-      unroot_here(q, nodep, nonodes);
-    else unroot_r(q->back, nodep, nonodes);
+    if (q->back == NULL) {
+      unroot_here(t, q, nonodes);
+    }
+    else unroot_r(t, q->back, nonodes);
     q = q->next;
   }
 } /* unroot_r */
 
 
+void release_all_forks(tree* t)
+{
+  /* release all forks of a tree to the free_forknodes list.
+   * also set "back" pointers of tips to NULL, but don't release the tips */
+  long j, nsibs;
+  node *p, *q;
+
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+    if (t->nodep[j] != NULL) {                   /* make there is one there */
+      p = t->nodep[j];
+      p->back = NULL;
+      p->initialized = false;
+      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
+        q = p->next->next;
+        t->release_forknode(t, p->next);
+        p->next = q;
+        p->initialized = false;
+        p->back = NULL;
+      }
+      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
+    }
+  }
+  for ( j = 0; j < t->spp; j++) {/* set the "back" pointers of tips to NULL */
+    if (t->nodep[j] != NULL)
+      t->nodep[j]->back = NULL;
+  }
+  for ( j = spp; j < t->nonodes; j++)   /* make sure interior pointers NULL */
+    t->nodep[j] = NULL;
+} /* release_all_forks */
+
+
 void destruct_tree(tree* t)
 { /* returns a tree such that there are no branches, and the free fork nodes
      go on the stacks */
-  long j, nsibs;
-  node *q, *p;
+  long j;
 
-  while ( !Slist_isempty(t->free_forks) )
-  {
-    t->get_fork(t); /* effect is to discard fork; probably leaks */
+  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+    if (t->nodep[j] != NULL)
+      t->release_forknode(t, t->nodep[j]);
   }
-
-  for ( j = 0; j < t->nonodes ; j++ ) {
-    p = t->nodep[j];
-    p->back = NULL;
-    /* BUG.970
-       p->initialized = false;
-    */
-    if ( j < spp ) continue;
-
-    /* Get rid of extra furcations if necessary */
-    for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {
-      q = p->next->next;
-      t->release_forknode(t, p->next);
-      p->next = q;
-    }
-
-    p->initialized = false;
-    p->next->initialized = false;
-    p->next->next->initialized = false;
-    p->back = NULL;
-    p->next->back = NULL;
-    p->next->next->back = NULL;
-
-    t->release_fork(t, p);
-  }
-
+  release_all_forks(t);      /* call that function to release all forks too */
 } /* destruct_tree */
+
+
+void rooted_tree_init(tree* t, long nonodes, long spp)
+{
+  /* a few extra things for a rooted tree*/
+
+  generic_tree_init(t, nonodes, spp);
+  t->globrearrange = rooted_globrearrange;
+  t->insert_ = (tree_insert_t)rooted_tree_insert_;
+  t->re_move = rooted_tree_re_move;
+  t->locrearrange = rooted_locrearrange;
+  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+} /* rooted_tree_init */
 
 
 void generic_tree_free(tree *t)
@@ -3329,10 +3570,6 @@ void generic_tree_free(tree *t)
   /* put tree contents back on free_fork_nodes list */
   long i;
   node *p,*q,*r;
-
-  while ( !Slist_isempty(t->free_forks) )
-    Slist_pop(t->free_forks);
-  Slist_delete(t->free_forks);
 
   while ( !Slist_isempty(t->free_fork_nodes) )
     Slist_pop(t->free_fork_nodes);
@@ -3361,58 +3598,63 @@ void generic_tree_free(tree *t)
 } /* generic_tree_free */
 
 
-void rooted_tree_init(tree* t, long nonodes, long spp)
-{
-  /* a few extra things for a rooted tree*/
-  generic_tree_init(t, nonodes, spp);
-  t->globrearrange = rooted_globrearrange;
-  t->insert_ = rooted_tree_insert_;
-  t->re_move = rooted_tree_re_move;
-  t->locrearrange = rooted_locrearrange;
-  t->save_lr_nodes = rooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
-} /* rooted_tree_init */
-
-
 void generic_tree_init(tree* t, long nonodes, long spp)
 {
-  /* initialize a tree, generic version */
-  long i, j;
-  node *q,*p;
+  /* initialize nodes and forks on a tree, generic version
+   * leaves nodes at tips but makes enough nodes for forks
+   * and then puts them on the fork_node garbage list  */
+  long i;
+  node *q, *p;
 
   /* these functions may be customized for each program */
   if ( t->release_fork == NULL )
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
-    t->get_fork = generic_tree_get_fork;
+    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
   if ( t->release_forknode == NULL )
     t->release_forknode = generic_tree_release_forknode;
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes* sizeof(node *));
+  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = functions.node_new(true, i+1);
+    t->nodep[i] = functions.node_new(true, i+1);               /* ... tips */
+    t->nodep[i]->tip = true;
   }
-  for ( i = spp ; i <  nonodes ; i++ ) {
-    q = NULL;
-    for ( j = 1 ; j <= 3 ; j++ ) {
-      p = functions.node_new(false, i + 1 );
-      p->next = q;
-      q = p;
-    }
-    p->next->next->next = p;
-    t->nodep[i] = p;
+  for ( i = spp ; i < nonodes ; i++ ) {       /* ... and to interior forks */
+    q = functions.node_new(false, i+1 ); /* set up a circle of three nodes */
+    p = q;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);    /* ... the second one ... */
+    p = p->next;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);    /* ... and the third one. */
+    p = p->next;
+    p->tip = false;
+    p->next = q;
+    t->nodep[i] = q;
   }
 
   /* Create garbage lists */
-  t->free_forks = Slist_new();
-  t->free_fork_nodes = Slist_new();
+  t->free_fork_nodes = Slist_new();   /* where the fork nodes will be kept */
 
-  /* Put all nodes on garbage lists by "releasing" them */
+  /* Put all interior nodes on garbage lists by "releasing" them */
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
+  t->nodep[nonodes] = NULL; /* might need if unrooted tree is later rooted */
+  t->root = t->nodep[0];   /* debug:  what if enterorder? */
+  generic_tree_setupfunctions(t);            /* set up some more functions */
+} /* generic_tree_init */
+
+
+void generic_tree_setupfunctions(tree *t) 
+{
+  /* initialize functions.  Mostly for parsimony, they
+   * get overwritten in dist.c, ml.c as needed */
+  long i;
+  
+  t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
@@ -3420,13 +3662,12 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->temp_p = functions.node_new(false,0);
   t->temp_q = functions.node_new(false,0);
 
-  t->addtraverse = generic_tree_addtraverse;
+  t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
+  t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
   t->globrearrange = generic_globrearrange;
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
   t->smoothall = (tree_smoothall_t)no_op;
-  t->root = t->nodep[0];
-  t->root = NULL;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
   t->save_lr_nodes = unrooted_tree_save_lr_nodes;
@@ -3435,7 +3676,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;
   t->evaluate = generic_tree_evaluate;
-  t->insert_ = generic_tree_insert_;
+  t->insert_ = (tree_insert_t)generic_tree_insert_;
   t->get_forknode = generic_tree_get_forknode;
   t->re_move = generic_tree_re_move;
   t->try_insert_ = generic_tree_try_insert_;
@@ -3446,14 +3687,18 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   t->tree_good_f = generic_tree_good;
   t->node_good_f = generic_node_good;
   t->fork_good_f = generic_fork_good;
-} /* generic_tree_init */
+} /* generic_tree_setupfunctions */
 
 
 tree* generic_tree_new(long nonodes, long spp)
 {
-  /* allocate a new tree and call generic_tree_init on it */
-  tree* t = Malloc(sizeof(tree));
-  generic_tree_init(t, nonodes, spp);
+  /* allocate a new tree and call generic_tree_init on it 
+   * also initialize the setting up of its functions to the generic version */
+ /* debug:  allocate size of tree here or in the local tree_new functions? */
+  tree* t;
+
+  t = Malloc(sizeof(tree));     /* debug: add a size argument intead? */
+  generic_tree_init(t, nonodes, spp);       /* generic initialization steps */
   return t;
 } /* generic_tree_new */
 
@@ -3529,12 +3774,6 @@ boolean generic_fork_good(tree *t, node * n)
     }
     else
     {
-#if 0  // RSGdebug: Variables set but never used.
-      if (p->back == NULL)
-        hasNullBack = true;
-      else
-        hasGoodBack = true;
-#endif
       boolean nodeGood = t->node_good_f(t,p);
       if ( !nodeGood )
       {
@@ -3565,28 +3804,28 @@ boolean generic_node_good(tree *t, node * n)
 } /* generic_node_good */
 
 
-void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
+void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
+                           boolean thorough, double* bestfound)
 {
-  /* does "global" (SPR) rearrangements */
-  tree *globtree, *oldtree, *priortree, *bestree;
+  /* does "global" (SPR) rearrangements on a tree */
+  tree *globtree, *oldtree, *priortree;
   int i;
   node *where,*sib_ptr,*qwhere;
   double oldbestyet;
   int success = false;
-  boolean succeeded = true;
+  boolean succeeded;
   double bestyet;
-  boolean multf;
 
   /* FIXME should do the "Doing global rearrangements" printf here instead of
    * outside of this function in every program */
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
-  bestree = functions.tree_new(curtree->nonodes, curtree->spp);
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
   priortree = functions.tree_new(curtree->nonodes, curtree->spp);
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
 
+  succeeded = true;
   while ( succeeded ) {
     if (progress) {
       sprintf(progbuf, "   ");
@@ -3613,14 +3852,15 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 
       if (sib_ptr->index == curtree->root->index)
         continue;
-      if ( sib_ptr->back == NULL ) /* this implies unused node */
+      if ( sib_ptr->back == NULL )   /* this implies unused node */
         continue; /* probably because of multifurcation */
 
-      curtree->re_move(curtree, sib_ptr,&where, true);
+      curtree->re_move(curtree, sib_ptr, &where, true);
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true, &qwhere, &bestyet, bestree, priortree, thorough, &multf);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
+                qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3630,7 +3870,7 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
         }
       } else {
         if ( succeeded && where != qwhere) {
-          curtree->insert_(curtree, sib_ptr, qwhere, true, multf);
+          curtree->insert_(curtree, sib_ptr, qwhere, true);
           curtree->smoothall(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
@@ -3657,23 +3897,24 @@ void rooted_globrearrange(tree* curtree, boolean progress, boolean thorough)
 } /* rooted_globrearrange */
 
 
-void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
-{ /* does global rearrangements */
-  tree *globtree, *oldtree, *priortree, *bestree;
+void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
+                            boolean thorough, double* bestfound)
+{ /* does "global" (SPR) rearrangements on a tree */
+  tree *globtree, *oldtree, *priortree;
   int i, j, k, num_sibs, num_sibs2;
-  node *where,*sib_ptr,*sib_ptr2, *qwhere;
+  node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
   int success = false;
   boolean succeeded = true;
-  boolean multf;
   node* removed;
+/* debug:  Check to make it parallel pars_globrearr's new structure */
 
   if ( progress ) {
     sprintf(progbuf, "Doing global rearrangements\n");
     print_progress(progbuf);
     sprintf(progbuf, "  !");
     print_progress(progbuf);
-    for ( i = 0 ; i < curtree->nonodes ; i++)
+    for ( i = 0 ; i < curtree->nonodes-2 ; i++)
     {
       sprintf(progbuf, "-");
       print_progress(progbuf);
@@ -3683,7 +3924,6 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
     fflush(progfile);
   }
 
-  bestree = functions.tree_new(curtree->nonodes, curtree->spp);
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
   priortree = functions.tree_new(curtree->nonodes, curtree->spp);
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
@@ -3723,9 +3963,8 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
           continue;
 
-        removed = sib_ptr;
-
-        curtree->re_move(curtree, removed,&where, true);
+        removed = sib_ptr;      /* pull off a subtree with an interior fork */
+        curtree->re_move(curtree, removed, &where, true);
         curtree->smoothall(curtree, where);
         curtree->copy(curtree, priortree);
         qwhere = where;
@@ -3739,15 +3978,19 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
           sib_ptr2 = where;
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {
-          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back, true, &qwhere,&bestyet, bestree, priortree, thorough,&multf) || succeeded;
+        {        /* try inserting it on branches descended from this furc */
+          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
+                                         true, qwhere, &bestyet, bestree,
+                                         thorough, false, false, bestfound)
+                                         || succeeded;
           sib_ptr2 = sib_ptr2->next;
         }
-        if ( !thorough)
+        if ( !thorough)      /* just put it in the next part of the subtree */
         {
-          if (succeeded && qwhere != where && qwhere != where->back && bestyet > oldbestyet)
+          if (succeeded && (qwhere != where) && (qwhere != where->back)
+               && (bestyet > oldbestyet))
           {
-            curtree->insert_(curtree, removed, qwhere, true, multf);
+            curtree->insert_(curtree, removed, qwhere, true);
             curtree->smoothall(curtree, where);
             success = true;
             curtree->copy(curtree, globtree);
@@ -3771,7 +4014,7 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
     globtree->copy(globtree, curtree);
     globtree->copy(globtree, bestree);
     globtree->copy(globtree, oldtree);
-    succeeded = success && globtree->score > oldbestyet;
+    succeeded = success && (globtree->score > oldbestyet);
 
     if (progress)
     {
@@ -3787,31 +4030,125 @@ void generic_globrearrange(tree* curtree, boolean progress, boolean thorough)
 } /* generic_globrearrange */
 
 
-boolean generic_tree_addtraverse(tree* t, node *p, node*q, boolean contin,
-                                 node **qwherein, double* bestyet, tree* bestree, tree* priortree,
-                                 boolean thorough, boolean* multf)
-{ /* try adding p at q, proceed recursively through tree */
-  node *sib_ptr;
-  boolean succeeded= false;
+boolean oktoinsertthere(tree* t, node* p) {
+  /* Check whether this branch is not NULL at either end and is not between
+   * the outgroup and the fork to which it is attached */
+  boolean ok;
 
-  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree, priortree, thorough, multf);
+  ok = !(p == NULL);
+  if (ok)
+    ok = !(p->back == NULL);
+  if (ok) {
+    ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
+  }
+  return ok;
+} /* oktoinsertthere */
 
-  if (!q->tip && contin) {
-    for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
-    {
-      succeeded = generic_tree_addtraverse(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
+
+boolean oktorearrangethere(tree* t, node* p) {
+  /* Check whether branch from which this will be removed is internal and
+   * is not connected at either end to the root fork */
+  boolean ok = false;
+  node *r;
+
+  if (p != NULL) {
+    if ( !(p->tip) ) {
+      r = p->back;             /* this will be the other end of this branch */
+      ok = !( (r == NULL) );                         /* neither end if NULL */
+      if (ok) {
+        ok = (!(r->tip)) &&    /* nodes  p  and  r  not in exterior branch  */
+             (!(t->root->index == p->index)) &&  /* both  p  and  r not ... */
+             (!(t->root->index == r->index));      /* ... the rootmost fork */
+      }
     }
   }
-  if (contin && q == t->root && t->root->back && (t->root->back->tip == false))
-  {
-    /* we need to go both ways, in an unrooted tree */
-    for ( sib_ptr = t->root->back->next ; t->root->back != sib_ptr ; sib_ptr = sib_ptr->next)
+  return ok;
+} /* oktorearrangethere */
+
+
+boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
+                           node* qwherein, double* bestyet, tree* bestree,
+                           boolean thorough, boolean storing, boolean atstart,
+                           double* bestfound)
+{ /* try adding  p  at  q, proceed recursively through tree.
+   * contin  indicates whether one continues recursively or
+   * is just doing local rearragements. 
+   * thorough  indicates whether need to adjust parameters
+   * further out than  q  to assess that location
+   * p  should be a fork subtree connected to it so root of subtree 
+   * is at  p->back  */
+  node *sib_ptr;
+  boolean succeeded;     /* a dummy result for calls that have side effects */
+
+  if (oktoinsertthere(t, q)) {
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+                                thorough, storing, atstart, bestfound);
+  }
+  succeeded = true;             /* in case can't try more inserts than this */
+  atstart = false;
+  if (!q->tip) {          /* in one direction, try descendants,
+                           * maybe further unless just local rearrangements */
+    for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
     {
-      succeeded = generic_tree_addtraverse(t, p, sib_ptr->back, contin, qwherein, bestyet, bestree, priortree, thorough, multf) || succeeded;
+      if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                          contin, qwherein, bestyet, bestree, 
+                          thorough, storing, atstart, bestfound) || succeeded;
+      }
+    }
+  }
+  if (contin && !q->back->tip) {
+    /* we need to go both ways, if we start in an interior branch
+     * of an unrooted tree and are not doing just local rearrangements */
+    for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                     sib_ptr = sib_ptr->next)
+    {
+      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                          contin, qwherein, bestyet, bestree,
+                          thorough, storing, atstart, bestfound) || succeeded;
     }
   }
   return succeeded;
 } /* generic_tree_addtraverse */
+
+
+boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
+                             boolean contin, node *qwherein, double* bestyet,
+                             tree* bestree, boolean thorough, boolean storing,
+                             boolean atstart, double* bestfound)
+{
+  /* try adding  p  at  q, then maybe recursively through tree
+   * from one end of that branch (if  q  was not a tip)
+   * succeeded  tells whether any location was found better
+   * than the original location, q
+   * contin  indicates whether one proceeds through the subtree
+   * recursively instead of just trying this one branch, as in
+   * local rearrangementboolean storing,  storing indicates that any trees
+   * that are found that are tied or better should be stored in bestrees */
+  /* NOTE: will back out if comes to fork connected to outgroup */
+  node *sib_ptr;
+  boolean succeeded = false;
+  boolean outgroupfork;
+
+  if (oktoinsertthere(t, q)) {
+/* printf("  beginning addtraverse of %ld", q->index); debug */
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+                                thorough, storing, atstart, bestfound);
+    outgroupfork = (q == t->root);
+  }
+  if ( !(q == NULL) ) {
+    if (contin && !q->tip && !outgroupfork) {        /* go to all branches
+                                                        leading beyond fork */
+      for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
+      {
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                                 contin, qwherein, bestyet, bestree, thorough,
+                                 storing, atstart, bestfound) || succeeded;
+      }
+    }
+  }
+  return succeeded;
+} /* generic_tree_addtraverse_1way */
 
 
 #ifdef WIN32
@@ -3922,173 +4259,145 @@ void phyClearScreen(void)
 
 void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
-  /* save left and right nodes near root (?) */
+  /* save views and branch lengths around fork that is removed. */
 
-  r->back->copy(r->back, t->lrsaves[0]);
-  r->back->next->copy(r->back->next, t->lrsaves[1]);
-  r->back->next->next->copy(r->back->next->next, t->lrsaves[2]);
+  r->copy(r, t->lrsaves[0]);
+  r->next->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
   p->next->copy(p->next, t->lrsaves[3]);
   p->next->next->copy(p->next->next, t->lrsaves[4]);
-  t->rb = r->back;
-  t->rnb = r->back->next->back;
-  t->rnnb = r->back->next->next->back;
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                                /* ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
 } /* unrooted_tree_save */
 
 
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
-  /* restore L and R nodes (near root?) in unrooted tree case */
-  (void)r;                              // RSGdebug: Parameter never used.
+    /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
 
-  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);
+  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
   t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
   t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
-  t->lrsaves[3]->copy(t->lrsaves[3], p->next);
+  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
   t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
 
-  t->rb->back->v = t->rb->v;
+  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
   t->rnb->back->v = t->rnb->v;
   t->rnnb->back->v = t->rnnb->v;
-  p->next->back->v = p->next->v;
+  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
   p->next->next->back->v = p->next->next->v;
 
-  /* BUG.970 */
-  inittrav(t->rb);
-  inittrav(t->rnb);
-  inittrav(t->rnnb);
-  inittrav(p->next);
-  inittrav(p->next->next);
+  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
+  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
+  inittrav(t, t->rnnb);
+#if 0
+inittrav(t, p->next);    /* debug  removed as unnecessary */
+  inittrav(t, p->next->next);
+#endif
 
 } /* unrooted_tree_restore */
 
 
-void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree, tree* bestree)
+void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
+                              double* bestyet, tree* bestree, tree* priortree,
+                              boolean storing, double* bestfound)
 {
-  /* generic form of local rearrangement */
-  double bestyet = t->evaluate(t, start, 0);
-  boolean succeeded = true;
+ /* generic wrapper for local rearrangement, do until does not succeed */
+  boolean succeeded;
 
+  if (start->tip)           /* should make sure that start at interior node */
+    start = start->back;                   /* that is connected to outgroup */
+  succeeded = true;
   while(succeeded)
   {
-    succeeded = unrooted_tree_locrearrange_recurs(t, start->back, start, &bestyet, thorough, priortree, bestree);
+    succeeded = unrooted_tree_locrearrange_recurs(t, start, bestyet,
+                            thorough, priortree, bestree, storing, bestfound);
   }
 } /* generic_unrooted_locrearrange */
+<<<<<<< HEAD
+
+=======
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
 
-boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, node*pp, double* bestyet, boolean thorough, tree* priortree, tree* bestree)
+boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
+                             boolean thorough, tree* priortree, tree* bestree,
+                             boolean storing, double* bestfound)
 {
-  /* rearranges the tree locally moving pp around near p  */
-  /* this function doesn't handle multifurcations */
-  node *q, *r, *qwhere;
+  /* Rearranges the tree locally by removing a subtree
+   * connected to an interior node, keeping it together and trying to
+   * insert it in two neighboring branches.  p->back->next->next  points to
+   * the interior node that is to be removed, p->back->next->next->back  is
+   * the root of the removed subtree.  The two target branches to try are the
+   * other two connected to interior node  p.  
+   * Avoid trying to insert it between the outgroup tip and the
+   * fork nearest to it, or on the branch leading down from that
+   * fork rootwards, which points to the null node (nil).
+   * debug:  (this function doesn't yet handle multifurcations)
+   */
+  node *q, *r, *rr, *qwhere;
   boolean succeeded = false;
-  boolean multf = false;
-  double oldbestyet;
+  double oldbestyet;    /* debug:  ever used?  */
+
   qwhere = NULL;
-
-  if (!p->tip && !p->back->tip)
-  {
-    /* Why are we setting t->score here? */
-    /*    oldbestyet = t->score = *bestyet;  */
-
-    /* Do we want to use the current tree instead? */
-    /* oldbestyet = t->evaluate(t, t->root, 0);
-     *
-     * ...or use the former value of bestyet?  -IDR */
+  if (oktorearrangethere(t, p)) {
+/*  printf("locrearrange at node %2ld\n", p->index); debug */
     oldbestyet = *bestyet;
-
-    if (p->back->next != pp)
-      r = p->back->next->back;
-    else
-      r = p->back->next->next->back;
-
-    // printf("TREECHECK: before attempt\n");
-    // printf(" p : %p ; pp : %p ; r : %p\n",p,pp,r);
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
-
+    r = p->back;        /* these are the two connected and might be removed */
+    rr = r->next;                   /* pointer to fork node used in removal */
     if (!thorough)
-      t->save_lr_nodes(t, p, r);
-    else
-      t->copy(t, bestree);
-    t->re_move(t, r, &q, false);
-
-    // printf("TREECHECK: after re_move\n");
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
-
-    if (thorough)
+      t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
+                                    containing  rr  and inward-looking at p */
+    t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
+                                                       /* ... to back of it */
+    if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
     else
-      qwhere = q;
+      qwhere = p;
 
-    t->addtraverse(t, r, p->next, false, &qwhere, bestyet, bestree, priortree, thorough, &multf);
+    /* following does "greedy" searching of placement on two sibling
+     * branches, so accepts the first if it improves things and then
+     * doesn't even try the other one.  contin  parameter is false. */
+    t->addtraverse(t, rr, q, false, qwhere,
+                    bestyet, bestree, thorough, storing, false, bestfound);
 
-    // printf("TREECHECK: after addtraverse\n");
-    // t->tree_print_f(t);
-    // assert(t->tree_good_f(t));
-
-    if(qwhere == q)
-      // don't continue if we've already got a better tree
-    {
-
-      t->addtraverse(t, r, p->next->next, false, &qwhere, bestyet, bestree, priortree, thorough, &multf);
-
-      // printf("TREECHECK: after second addtraverse\n");
-      // t->tree_print_f(t);
-      // assert(t->tree_good_f(t));
-    }
+  /* debug:  the previous addtraverse already tries both local rearrangements */
 
     if (thorough)
       bestree->copy(bestree, t);
-    else {
-      if (qwhere == q ) {
-        assert(*bestyet <= oldbestyet);
-        t->insert_(t, r, qwhere, true, multf);
-
-        // printf("TREECHECK: after re-insert\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
+    else {                  /* for case where one is rearranging only locally */
+      t->insert_(t, rr, qwhere, false);            /* put it in best location */
+      if ((qwhere == q) || (qwhere == q->back) ) {
+/* debug:       assert(*bestyet <= oldbestyet);     */
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
-
-        // printf("TREECHECK: after restore\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
       }
       else {
-        assert(*bestyet > oldbestyet);
-        succeeded = true;
-        t->insert_(t, r, qwhere, true, multf);
-
-        // printf("TREECHECK: after insert of %p at %p\n",r,qwhere);
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
+/* debug:  need?        assert(*bestyet > oldbestyet);  */
+/* debug:        succeeded = true;   */
         t->smoothall(t, r->back);
-        *bestyet = t->evaluate(t, p,0);
-
-        // printf("TREECHECK: after smooth and evaluate\n");
-        // t->tree_print_f(t);
-        // assert(t->tree_good_f(t));
-
-        /* debug        double otherbest = *bestyet;      JF:  is this needed? */
-        assert(*bestyet = t->evaluate(t,t->root,0));
-        /* BUG.970 -- how different do we expect these two to be? */
-
+        *bestyet = t->evaluate(t, p, 0);
+      /* debug        double otherbest = *bestyet;      JF:  is this needed? */
       }
     }
-    assert(oldbestyet <= *bestyet );
-  }
-
-  /* If rearrangements failed here, try subtrees, but stop when we find
-   * one that improves the score. */
-  if ( !p->tip && !succeeded )
-  {
-    if ( unrooted_tree_locrearrange_recurs(t, p->next->back, p, bestyet, thorough, priortree, bestree) )
-      return true;
-    if ( unrooted_tree_locrearrange_recurs(t, p->next->next->back, p, bestyet, thorough, priortree, bestree) )
-      return true;
+/* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
+  } 
+  /* go on to rearrange rest of tree, pulling off other parts */
+  if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
+                     *  when we find one that improves the score. */
+    if ( !(p->tip)) {
+      if (p->next->back != NULL) {
+        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+                   bestyet, thorough, priortree, bestree, storing, bestfound);
+      }
+      if (!succeeded) {
+        if (p->next->next->back != NULL)
+          succeeded = unrooted_tree_locrearrange_recurs(t,
+                                     p->next->next->back, bestyet, thorough,
+                                     priortree, bestree, storing, bestfound);
+      }
+    }
   }
   return succeeded;
 } /* unrooted_tree_locrearrange_recurs */
@@ -4114,21 +4423,21 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 
   t->temp_p->copy(t->temp_p,p);
   t->temp_q->copy(t->temp_q,q);
-  inittrav(p);
-  inittrav(q);
+  inittrav(t, p);
+  inittrav(t, q);
   if ( p->back )
   {
     p->back->v = p->v;
-    inittrav(p->back);
+    inittrav(t, p->back);
   }
   if ( q->back )
   {
     q->back->v = q->v;
-    inittrav(q->back);
+    inittrav(t, q->back);
   }
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
-
-  // printf("TREECHECK restoring %p and %p\n\t",p,q);
+  /* debug:  not sure it is affected by this */
+  // debug:  printf("TREECHECK restoring %p and %p\n\t",p,q);
   // p->node_print_f(p);
   // printf("\n\t");
   // q->node_print_f(q);
@@ -4139,7 +4448,7 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 } /* generic_tree_restore_traverses */
 
 
-static void rooted_tryrearr(tree *t, node *p, boolean *success)
+void rooted_tryrearr(tree *t, node *p, boolean *success)
 {
   /* evaluates one rearrangement of the tree.
      if the new tree has greater score than the old
@@ -4160,8 +4469,9 @@ static void rooted_tryrearr(tree *t, node *p, boolean *success)
   whereto = t->nodep[forknode->back->index - 1];
   t->save_lr_nodes(t, p, whereto);
   t->re_move(t, p, &where, false);
-  t->insert_(t, p, whereto, false, false);
+  t->insert_(t, p, whereto, false);
   like = t->evaluate(t, p, false);
+  t->score = like;
   if (like - oldlike < LIKE_EPSILON) {
     t->restore_lr_nodes(t, p, whereto);
     t->score = oldlike;
@@ -4172,7 +4482,7 @@ static void rooted_tryrearr(tree *t, node *p, boolean *success)
 }  /* rooted_tryrearr */
 
 
-static void rooted_repreorder(tree* t, node *p, boolean *success)
+void rooted_repreorder(tree* t, node *p, boolean *success)
 {
   /* traverses a binary tree, calling function rooted_tryrearr
      at a node before calling rooted_tryrearr at its descendants */
@@ -4187,7 +4497,9 @@ static void rooted_repreorder(tree* t, node *p, boolean *success)
 }  /* repreorder */
 
 
-void rooted_locrearrange(tree* t, node* start, boolean thorough, tree* priortree, tree* bestree)
+void rooted_locrearrange(tree* t, node* start, boolean thorough,
+                          double* bestyet, tree* bestree,
+                          tree* priortree, boolean storing, double* bestfound)
 {
   /*traverses the tree (preorder), finding any local
     rearrangement which increases the score.
@@ -4292,6 +4604,7 @@ stack* push(stack* oldstack, void* newdata)
 
 node* generic_tree_get_fork(tree* t, long k)
 { /* 
+<<<<<<< HEAD
    * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
    * false on all, and return.
    * The fork is assigned  k  as its value of  index
@@ -4299,14 +4612,24 @@ node* generic_tree_get_fork(tree* t, long k)
    * circles of nodes off their list
    */
   node* retval, p;
+=======
+   * Pop a fork (circle of 3 nodes) off the free_forks stack, set
+   * initialized to false on all, and return.
+   * The fork is assigned  k+1  as its value of  index (careful!)
+   * Changed so always pulls forknodes off their list, never pulls 
+   * circles of nodes off the now-defunct list-of-circles
+   */
+  node *retval;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  retval = generic_tree_get_forknode(t, 0);
-  retval->next = generic_tree_get_forknode(t, 0);
-  retval->next->next = generic_tree_get_forknode(t, 0);
+  retval = generic_tree_get_forknode(t, k+1);
+  retval->next = generic_tree_get_forknode(t, k+1);
+  retval->next->next = generic_tree_get_forknode(t, k+1);
   retval->next->next->next = retval;
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
+<<<<<<< HEAD
   retval->index = k;
   p = retval;
   p = p->next;
@@ -4315,6 +4638,12 @@ node* generic_tree_get_fork(tree* t, long k)
     p = p->next;
   }
   t->nodep[k-1] = retval;
+=======
+  retval->tip = false;
+  retval->next->tip = false;
+  retval->next->next->tip = false;
+  t->nodep[k] = retval;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   return retval;
 } /* generic_tree_get_fork */
 
@@ -4322,63 +4651,80 @@ node* generic_tree_get_fork(tree* t, long k)
 void generic_tree_release_fork(tree* t, node* n)
 { /* release the fork attached to a removed node,
    * and put its nodes back on list */
+<<<<<<< HEAD
   node *p;
   long sibs;
+=======
+  node *p, *q;
+  long m;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  /* we will only change the n pointer if we really need to */
-  sibs = count_sibs(n);
-  if ( sibs > 2 ) n = t->nodep[n->index  - 1];
+  m = n->index - 1;
+  n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
 
-  /* sibs initialized in the previous line */
-  /* release forknodes until the fork is made of three forknodes */
-  for ( ; sibs > 0 ; sibs-- ) {
+  p = n;
+  q = n;
+  do {
     p = n->next;
     n->next = n->next->next;
     t->release_forknode(t, p);
-  }
-
+  } while (p != q);
+  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
 } /* generic_tree_release_fork */
 
 
-void generic_tree_nuview(tree* t, node*p )
+void generic_tree_nuview(tree* t, node* p)
 {
+<<<<<<< HEAD
   /*  calls t->nuview on all siblings to update their parent */
   node* sib_ptr;
+=======
+  /*  calls the current nongeneric t->nuview on this branch, after first
+   *  recursing through all children in this direction as needed,
+   *  when boolean initialized shows that they have not been updated yet */
+  node *sib_ptr;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  /* Recursive calls, should be called for all children */
-  for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
-    if ( sib_ptr->back && !sib_ptr->back->tip && !sib_ptr->back->initialized)
-    {
-      t->nuview (t, sib_ptr->back);
-    }
-    else
-    {
-    }
+  if (!p->tip) {                       /* is this end of the branch a fork? */
+    for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
+      if (sib_ptr->back ) {                          /* don't do it if NULL */
+        if (!sib_ptr->back->tip && !sib_ptr->back->initialized)
+        {   /* recurse out as needed, to initialize with appropriate nuview */
+        generic_tree_nuview (t, sib_ptr->back);
+        }
+      }
+    };
   }
+  t->nuview((tree*)t, p);   /* this actually calculates the view using the
+                             * algorithm set up for that kind of data */
+/* debug printf("M"); */
+  p->initialized = true;
 } /* generic_tree_nuview */
 
 
 double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 { /* 
-   * Updates nuviews for p and p->back in preparation for evaluation specific
+   * Updates views for p and p->back in preparation for evaluation specific
    * to each program.
    */
-  node *q;
-  (void)dummy;                          // RSGdebug: Parameter never used.
 
-  q = p->back;
-  if ( p->initialized == false && p->tip == false )
+  if ( (p->initialized == false) && (p->tip == false) )
   {
-    t->nuview((tree*)t, p);
+    generic_tree_nuview((tree*)t, p);
+/* debug: printf("*"); */
   }
-  if ( q  && q->initialized == false && q->tip == false )
-  {
-    t->nuview((tree*)t, q);
+  if (p->back != NULL) {
+    if ( (p->back->initialized == false) && (p->back->tip == false) )
+    {
+      generic_tree_nuview((tree*)t, p->back);
+/* debug printf("*"); */
+    }
   }
   return 0;
 } /* generic_tree_evaluate */
 
 
+<<<<<<< HEAD
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
                           boolean multf, long k);
 { /* generic version of inserting tip  p  near node or tip  q
@@ -4429,6 +4775,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 } /* generic_tree_insert_ */
 
 
+=======
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
@@ -4443,7 +4791,7 @@ void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 node* generic_tree_get_forknode(tree* t, long i)
 { /* get de novo or from a linked garbage list a circle of fork nodes
    *
-   * Return an unused node with index i.
+   * Return an unused node with index i (not  i+1)  (careful!)
    *
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
@@ -4456,67 +4804,46 @@ node* generic_tree_get_forknode(tree* t, long i)
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
   }
+  p->tip = (i <= spp);
   return p;
 } /* generic_tree_get_forknode */
 
 
+<<<<<<< HEAD
 void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 { /* releases a fork circle (?) */
   node *fork,*q,*p;
   long num_sibs;
+=======
+void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
+{ /* generic version of inserting fork with attached subtree
+     where fork is pointed to by  p, and attached subtree is at
+     p->back, inserting it near node or tip  q  */
+  node *newnode, *r;
+/* debug:   boolean thorough = true;  needed at all? Maybe */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  fork = item->back;
-  item->back = NULL;
+  if ( !multf ) {
 
-  if ( item->tip && fork->tip ) {
-    item->back = NULL;
-    fork->back = NULL;
-    return;
+    assert(p->next->next->next == p);
+
+    if (q->back != NULL) { /* unless  q  is the root and nothing below */
+      r = q->back;
+      hookup(p->next, q);
+      hookup(p->next->next, r);
+      }
+    else {                /* if q is the root fork */
+      hookup(p->next, q);
+      p->next->next->back = NULL;
+      };
+    t->do_branchl_on_insert_f(t, p, q);
+
+/* debug: needed?    assert( ! p->initialized );
+    assert( ! p->next->initialized );
+    assert( ! p->next->next->initialized );   debug */
+
   }
-  num_sibs = count_sibs(fork);
-
-  if ( num_sibs > 2 ) {
-    for ( q = fork ; q->next != fork ; q = q->next)
-      /* nothing */;
-
-    q->next = fork->next;
-    fork->next = NULL;
-    fork->back = NULL;
-    if ( t->nodep[fork->index - 1] == fork )
-      t->nodep[fork->index - 1] = q;
-    t->release_forknode(t, fork);
-    if ( t->root == fork )
-      t->root = q;
-    if ( doinit ) {
-      inittrav(q);
-      for ( p = q->next ; p != q ; p = p->next )
-        inittrav(p);
-    }
-    (*where) = q;
-
-  } else {
-    if (fork->next->back != NULL)
-      (*where) = fork->next->back;
-    else
-      (*where) = fork->next->next->back;
-    if (fork->next->back != NULL)
-      fork->next->back->back = fork->next->next->back;
-    if (fork->next->next->back != NULL)
-      fork->next->next->back->back = fork->next->back;
-    if ((fork->next == t->root) || (fork->next->next == t->root))
-      t->root = *where;
-    if (t->root->tip ) t->root = t->root->back;
-
-    t->do_branchl_on_re_move_f(t,item,*where);
-
-    t->release_fork(t, fork);
-
-    /* BUG.970 -- might be in do_branchl_on_re_move ?? */
-    if ( doinit ) {
-      inittrav(*where);
-      inittrav((*where)->back);
-    }
-  }
+<<<<<<< HEAD
 } /* generic_tree_re_move */
 
 
@@ -4547,29 +4874,28 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   double like;
   boolean succeeded = false;
   node* dummy;
+=======
+  else {                                  /* if is at a multifurcating node */
+    newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
+    newnode->next = q->next;
+    q->next = newnode;
+    hookup(newnode, p);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  t->insert_(t, p, q, true, false);
-  like = t->evaluate(t, p, false);
-  if (like > *bestyet + LIKE_EPSILON || *bestyet == UNDEFINED)
-  {
-    *bestyet = like;
-    *qwherein = q;
-    succeeded = true;
-    *multf = false;
-    if (thorough)
-      t->copy(t, bestree);
+    assert( ! newnode->initialized );
   }
-  if ( thorough )
-    priortree->copy(priortree, t);
-  else
-    t->re_move(t, p, &dummy, false);
 
-  return succeeded;
-} /* generic_tree_try_insert_ */
+  inittrav(t, p);
+  inittrav(t, p->back);
+} /* generic_tree_insert_ */
 
 
+<<<<<<< HEAD
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
  boolean multf)
+=======
+void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
 /* Insert node newtip into the tree above node below, adding a new fork
  * if necessary. If multf is TRUE, newtip is added as a new child of below,
@@ -4584,8 +4910,11 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
  *
  * NOTE:  need to add new index if new fork
  */
+<<<<<<< HEAD
+=======
+  long k;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   node *newfork;
-  (void)doinit;                         // RSGdebug: Parameter never used.
 
   if ( t->root == NULL ) {
     /* TODO: insert single tip */
@@ -4602,7 +4931,8 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 
   if ( multf == false ) {
     below = t->nodep[below->index - 1];
-    newfork = t->nodep[t->get_fork(t)->index - 1];
+    k = generic_tree_findemptyfork(t);
+    newfork = t->nodep[t->get_fork(t, k)->index - 1];
     newtip = t->nodep[newtip->index-1];
     if (below->back != NULL)
       below->back->back = newfork;
@@ -4622,33 +4952,174 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
 } /* rooted_tree_insert_ */
 
 
-void buildsimpletree(tree *t, long* enterorder)
+void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
+{ /* disconnects an interior node circle with the subtree connected to it
+   * at node "fork", setting *where to the node at one end
+   * of branch that was disrupted.  Reheal that branch  */
+
+  node *q, *p, *oldroot;
+  long num_sibs;
+
+  oldroot = t->root;
+  if ( fork->back != NULL) {
+    if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
+      fork->back = NULL;                                   /* debug: why?  */
+      return;
+    }
+  }
+
+  num_sibs = count_sibs(fork);
+
+  if ( num_sibs > 2 ) {     /* multifurcation case: may not be used a lot */
+    for ( q = fork ; q->next != fork ; q = q->next)
+      /* do nothing */;
+
+    q->next = fork->next;   /* heal up circle */
+    fork->next = NULL;
+    if ( t->root == fork )
+      t->root = q;
+    if ( do_newbl ) {
+      inittrav(t, q);
+      for ( p = q->next ; p != q ; p = p->next )
+        inittrav(t, p);
+    }
+    (*where) = q;
+
+  } else {                                         /* case of a bifurcation */
+    if (fork->next->back != NULL)  /* set where to the place it was next to */
+      (*where) = fork->next->back;
+    else
+      (*where) = fork->next->next->back;
+    if (fork->next->back != NULL)            /* connect remaining neighbors */
+      fork->next->back->back = fork->next->next->back;
+    if (fork->next->next->back != NULL)
+      fork->next->next->back->back = fork->next->back;
+    if ((fork->next == t->root) || (fork->next->next == t->root))
+      t->root = *where;                                         /* set root */
+    fork->next->back = NULL;
+    fork->next->next->back = NULL;
+
+    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
+
+    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
+      inittrav(t, *where);                       /* ... towards this branch */
+      inittrav(t, (*where)->back);
+    }   
+    t->root = oldroot;
+  }
+} /* generic_tree_re_move */
+
+
+void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 {
+  /* for now unused.  see version in ml.c */
+} /* generic_do_branchl_on_re_move */
+
+
+void generic_tree_release_forknode(tree* t, node* n)
+{ /* put a fork circle node onto the tree's garbage list */
+
+  n->reinit(n);
+  n->next = NULL;                    /* node_reinit(n) sets n->back to NULL */
+  Slist_push(t->free_fork_nodes, n); /* put it on the tree's free node list */
+} /* generic_tree_release_forknode */
+
+
+long generic_tree_findemptyfork(tree* t)
+{ /* go through nodep finding an empty fork slot */
+  long k;
+
+  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+    if (t->nodep[k] == NULL)
+      break;
+  }
+  return k;
+} /* findemptyfork */
+
+
+boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
+                          double* bestyet, tree* bestree, boolean thorough,
+                          boolean storing, boolean atstart, double* bestfound)
+{
+<<<<<<< HEAD
   /* build a simple three-tip tree with interior fork, by hooking
      up two tips, then inserting third tip hooked to fork, also set root */
   node * p = t->nodep[ enterorder[0] - 1];
   node * q = t->nodep[ enterorder[1] - 1];
   node * r = t->nodep[ enterorder[2] - 1];
+=======
+  /* try to insert in one place, return "succeeded", then restore */
+  double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
+  boolean succeeded, bettertree;
+  node* dummy;
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-  hookup(p,q);
-  p->v = initialv;
-  q->v = initialv;
+  succeeded = false;
+  t->insert_(t, p, q, false);
+  initializetrav(t, t->root);
+  initializetrav(t, t->root->back);
+  like = t->evaluate(t, t->root, false);
+  t->score = like;
+  if (atstart)
+    bettertree = true;
+  else {
+    bettertree = (t->score > *bestyet);           /* note: better is bigger */
+    succeeded = bettertree;
+    }
+  if (bettertree) {
+    *bestyet = like;
+    qwherein = q;
+    t->copy(t, bestree);
+  }
+  t->re_move(t, p, &dummy, false);
+  return succeeded;
+} /* generic_tree_try_insert_ */
 
-  t->insert_(t, r, p, false, false);
 
-  t->root = p;
+void buildsimpletree(tree *t, long* enterorder)
+{
+  /* build a simple three-tip tree with interior fork, by hooking
+     up two tips, then inserting third tip hooked to fork, also set root */
+  long k, m;
+  node *p, *q, *r, *newnode1, *newnode2;
+
+  p = t->nodep[enterorder[0] - 1];
+  q = t->nodep[enterorder[1] - 1];
+  r = t->nodep[enterorder[2] - 1];
+  k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode1 = t->get_fork(t, k);                 /* get a three-species fork */
+  hookup(p, newnode1);                     /* connect third tip to new fork */
+  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode2 = t->get_fork(t, m);                 /* get a three-species fork */
+  hookup(p, newnode1);                    /* connect first tip to root fork */
+  hookup(newnode1->next, q);             /* connect root fork to second tip */
+  newnode1->next->next->back = NULL;      /* root connects to empty pointer */
+  hookup(r, newnode2);               /* connect third species to a new fork */
+  t->insert_(t, newnode2, q, false);                 /* connect all of them */
+
+  t->root = newnode1;
 
 }  /* buildsimpletree */
 
 
+<<<<<<< HEAD
 void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
+=======
+void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
   /* Remove a node from a rooted tree
    *
    * Disconnects item from tree t and if a unifurcation results, joins item's
+<<<<<<< HEAD
    * sibling to item's grandparent, freeing item's entire parent fork. If where
    * is given, a pointer to item's former sibling is returned, or NULL if
    * no item could be removed. */
+=======
+   * sibling to item's grandparent, freeing item's entire parent fork.
+   * If where is given, a pointer to item's former sibling is returned, or
+   * NULL if no item could be removed. */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   node *whereloc;
   node *p, *q;
   node *fork;
@@ -4665,7 +5136,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
   if ( count_sibs(item->back) != 2 ) {
     /* removing a node from a multi-furcation is the same in the rooted and
        unrooted sense */
-    generic_tree_re_move(t, item, where, doinit);
+    generic_tree_re_move(t, item, where, do_newbl);
 
   } else { /* 2 sibs */
 
@@ -4692,49 +5163,60 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
 
     t->release_fork(t, fork);
     item->back = NULL;
-    if  ( doinit) {
-      inittrav(whereloc);
-      inittrav(whereloc->back);
+    if  ( do_newbl ) {
+      inittrav(t, whereloc);
+      inittrav(t, whereloc->back);
     }
   }
 } /* rooted_tree_re_move */
 
 
-void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean progress)
-{ /* Heuristic Search for Best Unrooted Tree*/
-  long i;
-  node* item, *there;
+void hsbut(tree* curtree, tree* bestree, tree* priortree,
+            boolean thorough, boolean jumble, long jumb,
+            longer seed, boolean progress, double* bestfound)
+{
+  /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
+   * with sequential addition followed by local rearrangements after each 
+   * tip is added.  This is only used by parsimony programs.  It is usually
+   * followed by "global" (SPR) rearrangements on one or all best trees */
+  long i, k;
+  node *item, *there, *p;
   long *enterorder;
   double bestyet;
-  boolean multf;
-  (void)thorough;                       // RSGdebug: Parameter never used.
 
-  enterorder = (long *)Malloc(spp * sizeof(long));
+  enterorder = (long *)Malloc(spp * sizeof(long));  /* order to add to tree */
   for (i = 1; i <= spp; i++)
     enterorder[i - 1] = i;
   if (jumble)
-    randumize(seed, enterorder);
-  destruct_tree(curtree);
-  buildsimpletree(curtree, enterorder);
-  curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    randumize(seed, enterorder);     /* in Jumble case, randomize the order */
+  release_all_forks(curtree);            /* make sure curtree has just tips */
+  release_all_forks(bestree);            /* make sure bestree has just tips */
+  buildsimpletree(curtree, enterorder);        /* make tree of first 3 tips */
+  curtree->root = curtree->nodep[enterorder[0] - 1];            /* its root */
   if (progress) {
-    sprintf(progbuf, "Adding species:\n");
+    sprintf(progbuf, "\nAdding species:\n");
     print_progress(progbuf);
     writename(0, 3, enterorder);
     phyFillScreenColor();
   }
-  for (i = 4; i <= spp; i++) {
-    bestyet = UNDEFINED;
+  for (i = 4; i <= spp; i++) {  /* sequential addition: add tips one by one */
     item = curtree->nodep[enterorder[i - 1] - 1];
+    curtree->root = curtree->nodep[enterorder[0] - 1]->back;  /* debug: redundant? */
     there = curtree->root;
-    curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-    curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet,
-                         NULL, NULL, true, &multf);
-    curtree->insert_(curtree, item, there, true, multf);
-    curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false,
-                          NULL, NULL);
+    k = generic_tree_findemptyfork(curtree); /* find an available fork slot */
+    p = curtree->nodep[enterorder[i-1]-1];
+    item = curtree->get_fork(curtree, k);
+    hookup(item, p);                      /* hook the next tip to this fork */
+    bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
+    if ((jumb == 1) && (i == spp)) /* on adding last species of first jumble */
+      *bestfound = bestyet;
+    curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
+                   bestree, true, (i == spp), true, bestfound);   /* store? */
+    curtree->copy(bestree, curtree);   /*  replace current tree by best one */
+    curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
+                  priortree, (i == spp), bestfound);   /* local rearr'ments */
     if (progress) {
-      writename(i - 1, 1, enterorder);
+      writename(i - 1, 1, enterorder);     /* announce addition of that tip */
       phyFillScreenColor();
     }
   }
@@ -4743,12 +5225,18 @@ void hsbut(tree* curtree, boolean thorough, boolean jumble, longer seed, boolean
 
 
 void preparetree(tree* t)
-{ /* throw all the forknodes onto the stack so treeread can use them */
+{
+  /* throw all the forknodes onto the stack so treeread can use them */
+/* debug:  this function is probably no longer used, can be deleted? */
   node* p;
   long i;
 
   while( !Slist_isempty(t->free_forks) ) {
+<<<<<<< HEAD
     p = t->get_fork(t);             /* why this?  JF */
+=======
+    p = t->get_fork(t, 0);             /* debug: why this?  JF */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
     t->release_forknode(t, p->next->next);
     t->release_forknode(t, p->next);
     t->release_forknode(t, p);
@@ -4770,8 +5258,9 @@ void fixtree(tree* t)
       t->nodep[i]->next->next->next = t->nodep[i];
       t->release_fork(t, t->nodep[i]);
     }
-    else if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
-      t->release_fork(t, t->nodep[i]);
+    else
+      if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
+        t->release_fork(t, t->nodep[i]);
   }
 } /* fixtree */
 
@@ -4785,14 +5274,17 @@ void arbitrary_resolve(tree* t)
     if ( count_sibs(t->nodep[i]) > 2 ) {
       item = t->nodep[i]->back;
       t->re_move(t, item, &where, false);
-      t->insert_(t, item, where, false, false);
+      t->insert_(t, item, where, false);/*debug: need to correct last argument*/
       i--; /* do it again, just in case it still multifurcs */
     }
   }
 } /* arbitrary_resolve */
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 /* ---------------------------------------------------------------- */
 /*  printing-out-of-tree functions for debugging */
 
@@ -4830,6 +5322,7 @@ void print_progress(char *outstr)
     fflush(stdout);
   }
 } /* print_progress */
+<<<<<<< HEAD
 
 
 /* **** debug tools **** */
@@ -4875,15 +5368,11 @@ void seetree(node *p, pointarray nodep, long nonodes)
           sprintf(progbuf, " %p index:%ld", (void *)qq->back, qq->back->index);
         }
         print_progress(progbuf);
+=======
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
-        qq = qq->next;
-        if (qq != pp)
-        {
-          sprintf(progbuf, ",");
-          print_progress(progbuf);
-        }
-      } while (qq != pp);
 
+<<<<<<< HEAD
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
@@ -4895,12 +5384,23 @@ void seetree2(tree * curtree)
 {
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
-  node *pp, *qq;
-  long int i;
-  long int nonodes = curtree->nonodes;
+=======
+/* **** debug tools **** */
 
-  for (i = 0; i < nonodes; ++i)
+
+void seetree(tree * t)
+{
+  /* prints out list of who connects to who.  For debugging */
+  /* Minor variation by Bob Giansiracusa based on sample code from Joe. */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
+  node *pp, *qq;
+  long int i, n;
+  long int nonodes = t->nonodes;
+  boolean malformed;
+
+  for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
+<<<<<<< HEAD
     qq = curtree->nodep[i];
 
     if (i < spp)
@@ -4922,27 +5422,76 @@ void seetree2(tree * curtree)
       pp = qq;
 
       do
+=======
+    qq = t->nodep[i];
+    if (qq == NULL) {
+      printf(" node: %ld is (nil)\n", i+1);
+    } else {
+      if (i < spp)                                /* ,,, if it is a tip ... */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
       {
-        if (qq->back == NULL)
+        if (qq->back == NULL)       /* print who, if anyone, it connects to */
         {
-          printf(" (nil), ");
+          printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
+                 qq->index);
         }
         else
         {
-          printf(" %p index:%ld", (void *)qq->back, qq->back->index);
+          printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
+               (void *)qq, qq->index, (void *)qq->back, qq->back->index);
         }
-
-        qq = qq->next;
-        if (qq != pp)
+      } else {                      /* ... or if it is an interior node ... */
+        printf(" node: %p index:%ld  connects to nodes:",
+                 (void *)qq, qq->index);
+        pp = qq;
+        malformed = false;
+        n = 0;
+        do     /* ... find out if any node in the fork points to same fork */
         {
-          printf(",");
-        }
-      } while (qq != pp);
+          if (qq != NULL) {
+            malformed = (qq == qq->next);
+            if (malformed) {
+              printf(" node is: %p: ", qq);
+              printf(" (->next is %p: ", qq->next);
+              if (qq->next == qq)
+                printf("  same node)");
+              else
+                printf(")");
+              }
+            if (qq->next != NULL) {
+              malformed = malformed || (qq->next->next == qq);
+              if (qq->next->next == qq)
+                 printf(" (->next->next is %p: same node)", qq->next->next);
+            }
 
-      printf("\n");
+            if (qq->back == NULL)
+            {
+              printf(" (nil)");
+            }
+            else
+            {
+              printf(" %p index:%ld", (void *)qq, qq->back->index);
+            }
+          }
+
+          if (qq != NULL)
+            qq = qq->next;
+          n++;
+          if ((qq != pp) && (n < 3))
+          {
+            printf(",");
+          }
+        } while ((qq != pp) && (n < 6) && !malformed);
+
+        printf("\n");
+      }
     }
   }
+<<<<<<< HEAD
 } /* seetree2 */
+=======
+} /* seetree */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
 
 void dumpnodelinks(node *p, pointarray nodep, long nonodes)

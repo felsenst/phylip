@@ -16,14 +16,17 @@ extern long nonodes;
 
 node* dist_node_new(node_type type, long index)
 {
+  /* make a new dist_node */
   node *n = Malloc(sizeof(dist_node));
+
   dist_node_init(n, type, index);
   return n;
-}
+} /* dist_node_new */
 
 
 void dist_node_init(node* n, node_type type, long index)
 {
+  /* initialize a new dist_node */
   dist_node * dn = (dist_node *)n;
 
   generic_node_init(n, type, index);
@@ -33,20 +36,23 @@ void dist_node_init(node* n, node_type type, long index)
   dn->dist = 0;
   dn->d = (vector)Malloc(nonodes * sizeof(double));
   dn->w = (vector)Malloc(nonodes * sizeof(double));
-}
+} /* dist_node_init */
 
 
 void dist_node_free(node **np)
 {
+  /* free a dist_node */
   dist_node *n = (dist_node *)*np;
+
   free(n->d);
   free(n->w);
   generic_node_free(np);
-}
+} /* dist_node_free */
 
 
 void dist_node_copy(node* srcn, node* dstn)
 {
+  /* copy a dist_node */
   dist_node *src = (dist_node *)srcn;
   dist_node *dst = (dist_node *)dstn;
 
@@ -56,19 +62,20 @@ void dist_node_copy(node* srcn, node* dstn)
   memcpy(dst->w, src->w, nonodes * sizeof(double));
   dst->sametime = src->sametime;
   dst->t = src->t;
-}
+} /* dist_node_copy */
 
 
-void alloctree(pointptr *treenode, long nonodes)
+void alloctree(tree *t, long nonodes)
 {
-  /* allocate treenode dynamically */
-  /* used in fitch, kitsch & neighbor */
+  /* allocate treenode dynamically
+   * used in fitch (formerly), kitsch & neighbor */
+/* debug:  being replaced by dist.c: setuptree. */
   long i, j;
   node *p, *q;
 
-  *treenode = (pointptr)Malloc(nonodes * sizeof(node *));
+  t->nodep = (node**)Malloc(nonodes * sizeof(node *));
   for (i = 0; i < spp; i++)
-    (*treenode)[i] = functions.node_new(TIP_NODE, i+1);
+    t->nodep[i] = functions.node_new(TIP_NODE, i+1);
   for (i = spp; i < nonodes; i++)
   {
     q = NULL;
@@ -78,31 +85,9 @@ void alloctree(pointptr *treenode, long nonodes)
       q = p;
     }
     p->next->next->next = p;
-    (*treenode)[i] = p;
+    t->nodep[i] = p;
   }
 } /* alloctree */
-
-
-void freetree(pointptr *treenode, long nonodes)
-{
-  long i;
-  node *p, *q;
-
-  for (i = 0; i < spp; i++)
-    (*treenode)[i]->free(&(*treenode)[i]);
-  for (i = spp; i < nonodes; i++) {
-    p = (*treenode)[i];
-    q = p->next;
-    while(q != p)
-    {
-      node * r = q;
-      q = q->next;
-      r->free(&r);
-    }
-    p->free(&p);
-  }
-  free(*treenode);
-} /* freetree */
 
 
 void allocd(long nonodes, pointptr treenode)
@@ -123,7 +108,7 @@ void allocd(long nonodes, pointptr treenode)
       p = (dist_node*)(p->node.next);
     }
   }
-}
+} /* allocd */
 
 
 void freed(long nonodes, pointptr treenode)
@@ -144,12 +129,12 @@ void freed(long nonodes, pointptr treenode)
       p = (dist_node*)(p->node.next);
     }
   }
-}
+} /* freed */
 
 
 void allocw(long nonodes, pointptr treenode)
 {
-  /* used in fitch & kitsch */
+  /* allocate weights array. used in fitch & kitsch */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
@@ -165,12 +150,13 @@ void allocw(long nonodes, pointptr treenode)
       p = (dist_node*)p->node.next;
     }
   }
-}
+} /* allocw */
 
 
 void freew(long nonodes, pointptr treenode)
 {
-  /* used in fitch */
+  /* free weights array
+   * used in fitch */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
@@ -186,17 +172,24 @@ void freew(long nonodes, pointptr treenode)
       p = (dist_node*)p->node.next;
     }
   }
-}
+} /* freew */
 
 
-void setuptree(tree *a, long nonodes)
+void dist_tree_init(tree* a, long nonodes)
 {
-  /* initialize a tree */
-  /* used in fitch, kitsch, & neighbor */
+  /* initialize a tree
+   * used in fitch, kitsch, & neighbor
+   * debug:  need to combine somehow with  phylip.c: generic_tree_init  */
   long i=0;
   node *p;
 
   for (i = 1; i <= nonodes; i++) {
+    if (i > spp) {
+      a->nodep[i-1] = functions.node_new(0, i);
+    }
+    else {
+      a->nodep[i-1] = dist_node_new(1, i);  /* 1 indicates a tip node */
+    }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;
@@ -213,9 +206,16 @@ void setuptree(tree *a, long nonodes)
       }
     }
   }
+  /* Create garbage lists */ 
+  a->free_fork_nodes = Slist_new();
+      
+  /* Put all interior nodes on garbage lists by "releasing" them */
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
+    a->release_fork(a, a->nodep[i]);
+  } 
   a->score = -1.0;
   a->root = a->nodep[0];
-}  /* setuptree */
+}  /* dist_tree_init */
 
 
 void inputdata(boolean replicates, boolean printdata, boolean lower,

@@ -1,8 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Dan Fineman, and Patrick Colacurcio.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   Dan Fineman, Patrick Colacurcio, Elizabeth Walkup, and Jim McGill. */
 
 
 #ifdef HAVE_CONFIG_H
@@ -27,9 +25,13 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
+tree*  dnaml_tree_new(long, long);
+void   dnaml_tree_init(tree*, long, long);
+void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
+void   inittip(tree*, long);
 void   inputoptions(void);
 void   makeweights(void);
 void   getinput(void);
@@ -54,8 +56,6 @@ void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_tree_init(tree*, long, long);
-tree*  dnaml_tree_new(long, long);
 double dnaml_tree_evaluate(tree*, node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -79,15 +79,19 @@ double fracchange;
 long rcategs = 0;
 boolean haslengths;
 
-Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreename[FNMLNGTH], catfilename[FNMLNGTH], weightfilename[FNMLNGTH];
+Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
+      outtreename[FNMLNGTH], catfilename[FNMLNGTH], weightfilename[FNMLNGTH];
 double *rate, *rrate, *probcat;
 long nonodes2, sites, weightsum, categs, datasets, ith, njumble, jumb = 0;
 long parens;
-boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false, reusertree, ctgry, rctgry, auto_,
-  hypstate, ttr, progress, mulsets, justwts, firstset, improve, smoothit, polishing, lngths, gama, invar;
+boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
+         reusertree, ctgry, rctgry, auto_, hypstate, ttr, progress, mulsets,
+         justwts, firstset, improve, thorough, smoothit, polishing, lngths,
+         gama, invar;
 tree *curtree, *bestree, *bestree2, *priortree;
 node *qwhere;
-double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy, freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
+double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
+        freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
 long *enterorder, inseed, inseed0;
 steptr aliasweight;
 contribarr *contribution, like, nulike, clai;
@@ -110,21 +114,46 @@ vall *mp=NULL;
 
 tree* dnaml_tree_new(long nonodes, long spp)
 {
+  /* set up variables and then set up identities of functions */
   tree* t;
-  t = Malloc(sizeof(dnaml_tree));
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
   dnaml_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnaml_tree_new */
 
 
 void dnaml_tree_init(tree* t, long nonodes, long spp)
 {
-  ml_tree_init(t, nonodes, spp);    // calls allocx
+  /* set up functions for a dnaml_tree */
+
   t->evaluate = dnaml_tree_evaluate;
   t->try_insert_ = ml_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
-  ((ml_tree*)t)->makenewv = dnaml_tree_makenewv;
-}
+  t->makenewv = dnaml_tree_makenewv;
+} /* dnaml_tree_init */
+
+
+void dnaml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
+
+  curtree = dnaml_tree_new(nonodes, spp);
+  bestree = dnaml_tree_new(nonodes, spp);
+  bestree2 = dnaml_tree_new(nonodes, spp);
+  priortree = dnaml_tree_new(nonodes, spp);
+} /* dnaml_tree_setup */
+
+
+void inittip(tree* t, long m)
+{ /* initialize and hook up a new tip;  m is the index of the tip */
+  node *tmp;
+
+  tmp = t->nodep[m - 1];
+/* debug    memcpy(((dna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
+  tmp->deltav = 0.0;
+}  /* inittip */
 
 
 void getoptions(void)
@@ -148,7 +177,7 @@ void getoptions(void)
   gama = false;
   global = false;
   hypstate = false;
-  improve = false;
+  improve = true;
   invar = false;
   jumble = false;
   njumble = 1;
@@ -180,10 +209,13 @@ void getoptions(void)
     printf("  U                 Search for best tree?  %s\n", string);
     if (usertree && !reusertree)
     {
-      printf("  L          Use lengths from user trees?  %s\n", (lngths ? "Yes" : "No"));
+      printf(
+  "  L          Use lengths from user trees?  %s\n", (lngths ? "Yes" : "No"));
     }
-    printf("  T        Transition/transversion ratio:%8.4f\n", (ttr ? ttratio : 2.0));
-    printf("  F       Use empirical base frequencies?  %s\n", (freqsfrom ? "Yes" : "No"));
+    printf(
+   "  T        Transition/transversion ratio:%8.4f\n", (ttr ? ttratio : 2.0));
+    printf("  F       Use empirical base frequencies?  %s\n", (freqsfrom ?
+            "Yes" : "No"));
     printf("  C                One category of sites?");
     if (!ctgry || categs == 1)
       printf("  Yes\n");
@@ -213,8 +245,10 @@ void getoptions(void)
            (weights ? "Yes" : "No"));
     if (!usertree || reusertree)
     {
-      printf("  S        Speedier but rougher analysis?  %s\n", (improve ? "No, not rough" : "Yes"));
-      printf("  G                Global rearrangements?  %s\n", (global ? "Yes" : "No"));
+      printf("  S        Speedier but rougher analysis?  %s\n",
+               (improve ? "No, not rough" : "Yes"));
+      printf("  G                Global rearrangements?  %s\n",
+               (global ? "Yes" : "No"));
     }
     if (!usertree)
     {
@@ -224,19 +258,29 @@ void getoptions(void)
       else
         printf("  No. Use input order\n");
     }
-    printf("  O                        Outgroup root?  %s%3ld\n", (outgropt ? "Yes, at sequence number" : "No, use as outgroup species"), outgrno);
+    printf("  O                        Outgroup root?  %s%3ld\n",
+            (outgropt ? "Yes, at sequence number" :
+              "No, use as outgroup species"), outgrno);
     printf("  M           Analyze multiple data sets?");
     if (mulsets)
-      printf("  Yes, %2ld %s\n", datasets, (justwts ? "sets of weights" : "data sets"));
+      printf("  Yes, %2ld %s\n", datasets, (justwts ? "sets of weights" :
+              "data sets"));
     else
       printf("  No\n");
-    printf("  I          Input sequences interleaved?  %s\n", (interleaved ? "Yes" : "No, sequential"));
-    printf("  0   Terminal type (IBM PC, ANSI, none)?  %s\n", (ibmpc ? "IBM PC" : ansi  ? "ANSI" : "(none)"));
-    printf("  1    Print out the data at start of run  %s\n", (printdata ? "Yes" : "No"));
-    printf("  2  Print indications of progress of run  %s\n", (progress ? "Yes" : "No"));
-    printf("  3                        Print out tree  %s\n", (treeprint ? "Yes" : "No"));
-    printf("  4       Write out trees onto tree file?  %s\n", (trout ? "Yes" : "No"));
-    printf("  5   Reconstruct hypothetical sequences?  %s\n", (hypstate ? "Yes" : "No"));
+    printf("  I          Input sequences interleaved?  %s\n",
+            (interleaved ? "Yes" : "No, sequential"));
+    printf("  0   Terminal type (IBM PC, ANSI, none)?  %s\n",
+            (ibmpc ? "IBM PC" : ansi  ? "ANSI" : "(none)"));
+    printf("  1    Print out the data at start of run  %s\n",
+            (printdata ? "Yes" : "No"));
+    printf("  2  Print indications of progress of run  %s\n",
+            (progress ? "Yes" : "No"));
+    printf("  3                        Print out tree  %s\n",
+            (treeprint ? "Yes" : "No"));
+    printf("  4       Write out trees onto tree file?  %s\n",
+            (trout ? "Yes" : "No"));
+    printf("  5   Reconstruct hypothetical sequences?  %s\n",
+            (hypstate ? "Yes" : "No"));
     printf("\n  Y to accept these or type the letter for one to change\n");
     phyFillScreenColor();
     if(scanf("%c%*[^\n]", &ch)) {}      // Read char and scan to EOL.
@@ -246,7 +290,8 @@ void getoptions(void)
     uppercase(&ch);
     if (ch == 'Y')
       break;
-    if (((!usertree) && (strchr("UTFCRAWSGJVOMI012345", ch) != NULL)) || (usertree && ((strchr("ULTFCRAWSVOMI012345", ch) != NULL))))
+    if (((!usertree) && (strchr("UTFCRAWSGJVOMI012345", ch) != NULL))
+        || (usertree && ((strchr("ULTFCRAWSVOMI012345", ch) != NULL))))
     {
       switch (ch)
       {
@@ -422,8 +467,10 @@ void getoptions(void)
   {
     loopcount = 0;
     do {
-      printf("\nCoefficient of variation of substitution rate among sites (must be positive)\n");
-      printf(" In gamma distribution parameters, this is 1/(square root of alpha)\n");
+      printf(
+ "\nCoefficient of variation of substitution rate among sites (must be positive)\n");
+      printf(
+ " In gamma distribution parameters, this is 1/(square root of alpha)\n");
       phyFillScreenColor();
       if(scanf("%lf%*[^\n]", &cv)) {}   // Read number and scan to EOL.
       (void)getchar();
@@ -512,7 +559,7 @@ void reallocsites(void)
   location    = (long *) Malloc(sites * sizeof(long));
   aliasweight = (long *) Malloc(sites * sizeof(long));
 
-}
+} /* reallocsites */
 
 
 void allocrest(void)
@@ -633,19 +680,21 @@ void getinput(void)
   inputoptions();
   if (!freqsfrom)
   {
-    getbasefreqs(freqa, freqc, freqg, freqt, &freqr, &freqy, &freqar, &freqcy, &freqgr, &freqty, &ttratio, &xi, &xv, &fracchange, freqsfrom, true);
+    getbasefreqs(freqa, freqc, freqg, freqt, &freqr, &freqy, &freqar, &freqcy,
+           &freqgr, &freqty, &ttratio, &xi, &xv, &fracchange, freqsfrom, true);
   }
   if (!justwts || firstset)
   {
     inputdata(sites);
   }
   makeweights();
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  dnaml_tree_setup(nonodes2, spp);
   makevalues2(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
   if (freqsfrom)
   {
     empiricalfreqs(&freqa, &freqc, &freqg, &freqt, aliasweight, curtree->nodep);
-    getbasefreqs(freqa, freqc, freqg, freqt, &freqr, &freqy, &freqar, &freqcy, &freqgr, &freqty, &ttratio, &xi, &xv, &fracchange, freqsfrom, true);
+    getbasefreqs(freqa, freqc, freqg, freqt, &freqr, &freqy, &freqar, &freqcy,
+           &freqgr, &freqty, &ttratio, &xi, &xv, &fracchange, freqsfrom, true);
   }
   if (!justwts || firstset)
     fprintf(outfile, "\nTransition/transversion ratio = %10.6f\n\n", ttratio);
@@ -705,7 +754,7 @@ void freetable(void)
     free(tbl[i]);
   }
   free(tbl);
-}
+} /* freetable */
 
 
 void inittable(void)
@@ -765,7 +814,8 @@ void inittable(void)
     if (gama)
     {
       fprintf(outfile, "\nDiscrete approximation to gamma distributed rates\n");
-      fprintf(outfile, " Coefficient of variation of rates = %f  (alpha = %f)\n", cv, alpha);
+      fprintf(outfile,
+          " Coefficient of variation of rates = %f  (alpha = %f)\n", cv, alpha);
     }
     fprintf(outfile, "\nState in HMM    Rate of change    Probability\n\n");
     for (i = 0; i < rcategs; i++)
@@ -779,7 +829,9 @@ void inittable(void)
         fprintf(outfile, "%9ld%16.3f%17.3f\n", i+1, rrate[i], probcat[i]);
     putc('\n', outfile);
     if (auto_)
-      fprintf(outfile, "Expected length of a patch of sites having the same rate = %8.3f\n", 1/lambda);
+      fprintf(outfile,
+        "Expected length of a patch of sites having the same rate = %8.3f\n",
+        1/lambda);
     putc('\n', outfile);
   }
   if (categs > 1)
@@ -796,7 +848,8 @@ void inittable(void)
 double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
 {
   contribarr tterm;
-  double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3, sumterm, lterm;
+  double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
+          sumterm, lterm;
   long i, j, k, lai;
   node *q;
   sitelike x1, x2;
@@ -852,7 +905,8 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
     sumterm = 0.0;
     for (j = 0; j < rcategs; j++)
       sumterm += probcat[j] * tterm[j];
-    lterm = log(sumterm) + ((ml_node*)p)->underflows[i] + ((ml_node*)q)->underflows[i];
+    lterm = log(sumterm) + ((ml_node*)p)->underflows[i]
+                         + ((ml_node*)q)->underflows[i];
     for (j = 0; j < rcategs; j++)
       clai[j] = tterm[j] / sumterm;
     memcpy(contribution[i], clai, rcategs * sizeof(double));
@@ -909,7 +963,7 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
 
 void alloc_nvd (long num_sibs, nuview_data *local_nvd)
 {
-  /* Allocate blocks of memory appropriate for the number of siblings a given node has */
+  /* Allocate blocks of memory appropriate for the number of siblings a node has */
   local_nvd->yy     = (double *) Malloc(num_sibs * sizeof (double));
   local_nvd->wwzz   = (double *) Malloc(num_sibs * sizeof (double));
   local_nvd->vvzz   = (double *) Malloc(num_sibs * sizeof (double));
@@ -947,9 +1001,7 @@ void dnaml_tree_nuview(tree* t, node *p)
   double correction;
   double maxx;
 
-  generic_tree_nuview(t, p);
-
-  /* Allocate the structure and blocks therein for variables used in this function. */
+  /* Allocate the structure and blocks for variables used in this function. */
   num_sibs = count_sibs(p);
   local_nvd = (nuview_data *) Malloc(sizeof (nuview_data));
   alloc_nvd (num_sibs, local_nvd);
@@ -970,9 +1022,9 @@ void dnaml_tree_nuview(tree* t, node *p)
         tbl[i][j]->ww[sib_index]   = exp(tbl[i][j]->ratxi * lw);
         tbl[i][j]->zz[sib_index]   = exp(tbl[i][j]->ratxv * lw);
         tbl[i][j]->wwzz[sib_index] = tbl[i][j]->ww[sib_index] *
-          tbl[i][j]->zz[sib_index];
+                                      tbl[i][j]->zz[sib_index];
         tbl[i][j]->vvzz[sib_index] = (1.0 - tbl[i][j]->ww[sib_index]) *
-          tbl[i][j]->zz[sib_index];
+                                      tbl[i][j]->zz[sib_index];
       }
   }
 
@@ -997,7 +1049,8 @@ void dnaml_tree_nuview(tree* t, node *p)
         local_nvd->wwzz[sib_index] = tbl[j][k]->wwzz[sib_index];
         local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
         local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
-        memcpy(local_nvd->xx[sib_index], ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+        memcpy(local_nvd->xx[sib_index],
+                 ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
       }
 
       /* Loop 2.2 */
@@ -1009,13 +1062,17 @@ void dnaml_tree_nuview(tree* t, node *p)
            freqc * local_nvd->xx[sib_index][(long)C] +
            freqg * local_nvd->xx[sib_index][(long)G] +
            freqt * local_nvd->xx[sib_index][(long)T]);
-        local_nvd->sumr[sib_index] = freqar * local_nvd->xx[sib_index][(long)A] + freqgr * local_nvd->xx[sib_index][(long)G];
-        local_nvd->sumy[sib_index] = freqcy * local_nvd->xx[sib_index][(long)C] + freqty * local_nvd->xx[sib_index][(long)T];
-        local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index] * local_nvd->sumr[sib_index];
-        local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index] * local_nvd->sumy[sib_index];
+        local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
+                                   + freqgr*local_nvd->xx[sib_index][(long)G];
+        local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
+                                   + freqty*local_nvd->xx[sib_index][(long)T];
+        local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
+                                       * local_nvd->sumr[sib_index];
+        local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
+                                       * local_nvd->sumy[sib_index];
       }
 
-      /* Initialize to one, multiply incremental values for every sibling a node has */
+      /* Initialize to one, multiply incremental values for every sibling */
       p_xx[(long)A] = 1 ;
       p_xx[(long)C] = 1 ;
       p_xx[(long)G] = 1 ;
@@ -1073,8 +1130,10 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
   /* compute log likelihood, slope and curvature at node p */
   long i, j, k, lai;
   double sum, sumc, sumterm, lterm, sumcs, sumcc, sum2, slope2, curve2, temp;
-  double lz, zz, z1, zzs, z1s, zzc, z1c, aa, bb, cc, prod1, prod2, prod12, prod3;
-  contribarr thelike, nulike, nuslope, nucurve, theslope, thecurve, clai, cslai, cclai;
+  double lz, zz, z1, zzs, z1s, zzc, z1c, aa, bb, cc,
+          prod1, prod2, prod12, prod3;
+  contribarr thelike, nulike, nuslope, nucurve,
+          theslope, thecurve, clai, cslai, cclai;
   node *q;
   sitelike x1, x2;
 
@@ -1132,7 +1191,8 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
     sumterm = 0.0;
     for (j = 0; j < rcategs; j++)
       sumterm += probcat[j] * term[i][j];
-    lterm = log(sumterm) + ((ml_node*)p)->underflows[i] + ((ml_node*)q)->underflows[i];
+    lterm = log(sumterm) + ((ml_node*)p)->underflows[i]
+             + ((ml_node*)q)->underflows[i];
     for (j = 0; j < rcategs; j++)
     {
       term[i][j] = term[i][j] / sumterm;
@@ -1263,25 +1323,27 @@ void dnaml_tree_makenewv(tree* t, node *p)
     {
       y = y + slope/fabs(curve);   /* Newton-Raphson, forced uphill-wards */
       if (y < epsilon)
-        y = epsilon;
+        y = epsilon;               /* don't get too close to zero */
     }
     else
     {
-      if (fabs(y - yold) < epsilon)
-        ite = 20;
+      if (fabs(y - yold) < epsilon) /* if change is too small ... */
+        ite = 20;                  /* then don't do any more iterating */
       y = (y + 19*yold) / 20.0;    /* retract 95% of way back */
     }
     ite++;
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  p->v = yold;   /* the last one that had better likelihood */
+  p->v = yold;      /* the last one that had better likelihood */
   q->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
 
-void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips, long *parens, initops whichinit, pointarray nodep, Char *str, Char *ch, FILE *intree)
+void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
+                    long *parens, initops whichinit, pointarray nodep,
+                    Char *str, Char *ch, FILE *intree)
 {
   /* initializes a node */
   boolean minusread;
@@ -1586,7 +1648,7 @@ void summarize(void)
   double like[maxcategs], nulike[maxcategs];
   double **marginal;
   node   *sib_ptr;
-  long mm = 0;                          // RSGnote: Was formerly potentially used before being initialized.
+  long mm = 0;   // RSGnote: Was formerly potentially used before being initialized.
 
   if (!treeprint)
     return;
@@ -1677,7 +1739,8 @@ void summarize(void)
       }
     }
     mx0 = mx;
-    fprintf(outfile, "Combination of categories that contributes the most to the likelihood:\n\n");
+    fprintf(outfile,
+ "Combination of categories that contributes the most to the likelihood:\n\n");
     for (i = 1; i <= nmlngth + 3; i++)
       putc(' ', outfile);
     for (i = 1; i <= sites; i++)
@@ -1772,7 +1835,8 @@ void summarize(void)
       else if ((i+1) % 10 == 0)
         putc(' ', outfile);
     }
-    fprintf(outfile, "\n\nMost probable category at each site if > 0.95 probability (\".\" otherwise)\n\n");
+    fprintf(outfile,
+"\n\nMost probable category at each site if > 0.95 probability (\".\" otherwise)\n\n");
     for (i = 1; i <= nmlngth + 3; i++)
       putc(' ', outfile);
     for (i = 0; i < sites; i++)
@@ -1877,7 +1941,8 @@ void dnaml_treeout(node *p)
       inloop = true;
       dnaml_treeout(q->back);
       q = q->next;
-    } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
+    } while ((p == curtree->root || p != q)
+             && (p != curtree->root || p->next != q));
 
     putc(')', outtree);
     col++;
@@ -1901,8 +1966,9 @@ void dnaml_treeout(node *p)
 }  /* dnaml_treeout */
 
 
-void dnaml_reroot(tree* t)              // RSGbugfix: Name change.
+void dnaml_reroot(tree* t) 
 {
+  /* move root of tree */
   node *q;
   double newl;
   node *r = t->root;
@@ -1919,7 +1985,8 @@ void dnaml_reroot(tree* t)              // RSGbugfix: Name change.
   }
   else
   {
-    assert(r->back == NULL);            // RSGnote: This assumes the FORKRING being manipulated has the ROOT FORKNODE pointing to NULL.
+    assert(r->back == NULL); // RSGnote: This assumes the FORKRING being manipulated
+                             //has the ROOT FORKNODE pointing to NULL.
 
     newl = r->next->oldlen + r->next->next->oldlen;
     r->next->back->oldlen = newl;
@@ -1935,8 +2002,9 @@ void dnaml_reroot(tree* t)              // RSGbugfix: Name change.
    t->release_fork(t, r);
   }
 
-  t->root = t->nodep[0]->back;          // Reset ROOT; moved from line just after call to DNAML_REROOT.
-}
+  t->root = t->nodep[0]->back;
+                // Reset ROOT; moved from line after DNAML_REROOT call.
+} /* dnaml_reroot */
 
 
 void maketree(void)
@@ -1945,6 +2013,7 @@ void maketree(void)
   boolean dummy_first, goteof;
   long nextnode;
   double bestyet;
+  node* p;
 
   inittable();
     //printf("in maketree - usertree: %i\n", usertree);
@@ -1979,18 +2048,22 @@ void maketree(void)
       fprintf(outfile, ":\n\n");
     }
 
-    /* This taken out of tree read, used to be [spp-1], but referring to [0] produces output identical to what the pre-modified dnaml produced. */
+    /* This taken out of tree read, used to be [spp-1], but referring to
+     * [0] produces output identical to what pre-modified dnaml produced. */
     for (which  = 1; which <= numtrees ; which++)
     {
-      /* These initializations required each time through the loop since multiple trees require re-initialization */
+      /* These initializations required each time through the loop since
+       * multiple trees require re-initialization */
       haslengths = true;
       nextnode         = 0;
       dummy_first      = true;
       goteof           = false;
       preparetree(curtree);
-      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof, &dummy_first, &nextnode, &haslengths, initdnamlnode, false, nonodes2);
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &dummy_first, &nextnode, &haslengths, initdnamlnode,
+                false, nonodes2);
       fixtree(curtree);
-      dnaml_reroot(curtree);                              // RSGbugfix: Name change.
+      dnaml_reroot(curtree);                          // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
       {
@@ -2006,7 +2079,8 @@ void maketree(void)
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
 
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree);
+      ml_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2039,7 +2113,8 @@ void maketree(void)
     putc('\n', outfile);
     if (!auto_ && numtrees > 1 && weightsum > 1 && !reusertree )
     {
-      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl, l0gl, l0gf, aliasweight, seed);
+      standev2(numtrees, maxwhich, 0, endsite-1, maxlogl, l0gl, l0gf,
+                aliasweight, seed);
     }
   }
   else
@@ -2062,23 +2137,30 @@ void maketree(void)
 
     nextsp = 3;
     polishing = false;
-    destruct_tree(curtree);
+    release_all_forks(curtree);
     buildsimpletree(curtree, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     smoothit = improve;
+    thorough = true;
     nextsp = 4;
     while (nextsp <= spp)
     {
+      curtree->copy(curtree, priortree);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+                            &bestyet, bestree, thorough, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, true, false);
+        curtree->insert_(curtree, p, qwhere, false);
         smoothit = false;
         bestyet = curtree->score;
       }
@@ -2090,11 +2172,13 @@ void maketree(void)
 
       if (global && nextsp == spp)
       {
-        curtree->globrearrange(curtree, progress, smoothit);
+        curtree->globrearrange(curtree, bestree, progress,
+                                smoothit, &bestyet);
       }
       else
       {
-        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], smoothit, priortree, bestree);
+        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
+                     smoothit, &bestyet, bestree, priortree, false, &bestyet);
       }
 
       nextsp++;
@@ -2129,7 +2213,8 @@ void maketree(void)
           curtree->nodep[i]->next->next->initialized = false;
         }
       }
-      ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, ml_inittravtree );
+      ml_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, ml_initialvtrav );
       dnaml_printree();
       summarize();
       if (trout)
@@ -2219,7 +2304,7 @@ void clean_up(void)
 
 void dnamlrun(void)
 {
-  // debug printout // JRMdebug
+  /* debug printout  JRMdebug  */
   /*
     printf("\nctgry: %i\n", ctgry);
     printf("categs: %li\n", categs);
@@ -2252,15 +2337,15 @@ void dnamlrun(void)
     printf("mulsets: %i\n", mulsets);
     printf("datasets: %li\n", datasets);
   */
-  // do the work
+  /* do the work  */
   if (!usertree) nonodes2--;
   for (ith = 1; ith <= datasets; ith++) {
     if (datasets > 1) {
       fprintf(outfile, "Data set # %ld:\n", ith);
-      //printf("\nData set # %ld:\n", ith); // JRMdebug
+      /* printf("\nData set # %ld:\n", ith);  JRMdebug */
     }
     ttratio = ttratio0;
-    //printf("calling getinput\n"); // JRMdebug
+    /* printf("calling getinput\n");  JRMdebug */
     getinput();
     if (ith == 1)
       firstset = false;
@@ -2272,7 +2357,7 @@ void dnamlrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* dnamlrun */
 
 
 void dnaml(
@@ -2705,11 +2790,11 @@ void dnaml(
 
   alpha = 1.0/(cv * cv);
 
-  //printf("values transfered\n"); // JRMdebug
-  //printf("maxcategs: %i\n", maxcategs); // JRMdebug
+  /* printf("values transfered\n");    JRMdebug  */
+  /* printf("maxcategs: %i\n", maxcategs);  JRMdebug */
 
-  // create arrays and initialize them
-  // warning: if maxcategs ever changes, this has to change also
+  /* create arrays and initialize them  */
+  /* warning: if maxcategs ever changes, this has to change also  */
   rate = (double *) Malloc(maxcategs * sizeof(double));
   rate[0]   = SiteRate1;
   rate[1]   = SiteRate2;
@@ -2743,9 +2828,9 @@ void dnaml(
   probcat[7]   = HMMProb8;
   probcat[8]   = HMMProb9;
 
-  //printf("rates transfered\n"); // JRMdebug
+  /* printf("rates transfered\n"); // JRMdebug  */
 
-  // conditional modification of arrays
+  /* conditional modification of arrays */
   int i;
   if (gama)
   {
@@ -2765,7 +2850,7 @@ void dnaml(
     }
   }
 
-  // everything translated, start the run
+  /* everything translated, start the run */
   infile = fopen(infilename, "r");
   outfile = fopen(OutfileName, outfileopt);
   strcpy(outfilename, OutfileName);
@@ -2805,11 +2890,10 @@ void dnaml(
   firstset = true;
   ibmpc = IBMCRT;
   ansi = ANSICRT;
-  doinit();
+  doinit();                       /* read in the options and the data */
   ttratio0 = ttratio;
 
-  //printf("calling dnamlrun\n");
-  dnamlrun();  // do the actual work
+  dnamlrun();                                   /* do the actual work */
 
   FClose(infile);
   FClose(outfile);
@@ -2835,7 +2919,7 @@ void dnaml(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnaml */
 
 
 int main(int argc, Char *argv[])
@@ -2857,16 +2941,17 @@ int main(int argc, Char *argv[])
   firstset = true;
   ibmpc = IBMCRT;
   ansi = ANSICRT;
-  doinit();
+  doinit();                                             /* present the menu */
   ttratio0 = ttratio;
   if (ctgry)
     openfile(&catfile, CATFILE, "categories file", "r", argv[0], catfilename);
   if (weights || justwts)
-    openfile(&weightfile, WEIGHTFILE, "weights file", "r", argv[0], weightfilename);
+    openfile(&weightfile, WEIGHTFILE, "weights file", "r",
+              argv[0], weightfilename);
   if (trout)
     openfile(&outtree, OUTTREE, "output tree file", "w", argv[0], outtreename);
 
-  dnamlrun();  // do the actual work
+  dnamlrun();     /* do the actual work */
 
   clean_up();
   printf("Done.\n\n");
@@ -2875,4 +2960,4 @@ int main(int argc, Char *argv[])
 }  /* DNA Maximum Likelihood */
 
 
-// End.
+/* End. */

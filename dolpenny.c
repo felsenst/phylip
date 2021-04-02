@@ -656,10 +656,10 @@ void maketree(void)
   }
   if (treeprint) {
     fprintf(outfile, "\nrequires a total of %18.3f\n\n", bestyet);
-    if (nextree == 2)
+    if (nextree == 1)
       fprintf(outfile, "One most parsimonious tree found:\n");
     else
-      fprintf(outfile, "%5ld trees in all found\n", nextree - 1);
+      fprintf(outfile, "%5ld trees in all found\n", nextree);
   }
   if (nextree > maxtrees + 1) {
     if (treeprint)

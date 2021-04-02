@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2020
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -56,7 +55,7 @@ long chars, col, ith, njumble, jumb = 0, nonodes = 0, msets;
 long inseed, inseed0;
 boolean jumble, usertree, trout, weights, progress, stepbox, ancseq, firstset, mulsets, justwts;
 steptr oldweight, necsteps;
-tree* curtree;
+tree *curtree, *bestree, *priortree;
 long *enterorder;
 Char basechar[32]="ACMGRSVTWYHKDBNO???????????????";
 bestelm *bestrees;
@@ -67,7 +66,7 @@ Char * progname;
 
 /* Local variables for maketree, propagated globally for C version: */
 long maxwhich;
-double like, maxsteps, bestyet, bestlike, bstlike2;
+double like, maxsteps, bestyet, bestlike, bstlike2, bestfound;
 boolean lastrearr, recompute;
 double nsteps[maxuser];
 long **fsteps;
@@ -80,17 +79,22 @@ node *temp, *temp1;
 
 tree* dnacomp_tree_new(long nonodes, long spp)
 {
-  tree* t = Malloc(sizeof(dnacomp_tree));
+  /* allocate tree by calling dnapars_tree_new,
+   * also call init function */
+/* debug: can we use generic?  tree* t = Malloc(sizeof(dnacomp_tree)); */
+  tree* t = dnapars_tree_new(nonodes, spp);
   dnacomp_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnacomp_tree_new */
 
 
 void dnacomp_tree_init(tree* t, long nonodes, long spp)
 {
+  /* call dnapars_tree_init to initialize tree, set function evaluate */
+
   dnapars_tree_init(t, nonodes, spp);
   t->evaluate = dnacomp_tree_evaluate;
-}
+} /* dnacomp_tree_init */
 
 
 void getoptions(void)
@@ -408,6 +412,8 @@ void doinput(void)
   }
   makeweights();
   curtree = dnacomp_tree_new(nonodes, spp);
+  bestree = dnacomp_tree_new(nonodes, spp);
+  priortree = dnacomp_tree_new(nonodes, spp);
   dna_makevalues(curtree, usertree);
 }  /* doinput */
 
@@ -771,19 +777,16 @@ void standev3(long chars, long numtrees, long maxwhich, double maxsteps, double 
 }  /* standev2 */
 
 
-void maketree(void)                     // RSGbugfix
+void maketree(void)
 {
   /* constructs a binary tree from the pointers in treenode.
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
-  long i, j, numtrees, nextnode;
-  boolean firsttree, goteof, haslengths;
+  long i, j, k, numtrees, nextnode;
+  boolean firsttree, goteof, haslengths, thorough = true;
   node *item, *dummy;
-#if 0                                   // RSGbugfix
-  pointarray nodep;
-#endif
   boolean *names;
-  boolean multf;
+  boolean multif;
 
   if (!usertree)
   {
@@ -803,9 +806,9 @@ void maketree(void)                     // RSGbugfix
       writename(0, 3, enterorder);
       phyFillScreenColor();
     }
-    in_tree[0] = true;
-    in_tree[1] = true;
-    in_tree[2] = true;
+    in_tree[enterorder[0] - 1] = true;
+    in_tree[enterorder[1] - 1] = true;
+    in_tree[enterorder[2] - 1] = true;
     lastrearr = false;
     for (i = 4; i <= spp; i++)
     {
@@ -813,61 +816,59 @@ void maketree(void)                     // RSGbugfix
       bestyet = -350.0 * spp * chars;
       item = curtree->nodep[enterorder[i - 1] - 1];
       there = curtree->root;
-      curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet, NULL, NULL, 0, &multf);
-      curtree->insert_(curtree, item, there, recompute, multf);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(item, p);
+      curtree->addtraverse(curtree, item->back, curtree->root, true, there,
+                  &bestyet, bestree, thorough, (i == spp), false, &bestfound);
+      curtree->insert_(curtree, item->back, there, false);
       like = bestyet;
-      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], false, NULL, NULL);
+      curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
+                       &bestyet, bestree, priortree, (i == spp), &bestfound);
+
       if (progress)
       {
         writename(i - 1, 1, enterorder);
         phyFillScreenColor();
       }
-      lastrearr = (i == spp);
-      if (lastrearr)
-      {
-        if (progress)
-        {
-          sprintf(progbuf, "\nDoing global rearrangements\n");
-          print_progress(progbuf);
-          sprintf(progbuf, "  !");
-          print_progress(progbuf);
-          for (j = 1; j <= nonodes; j++)
-          {
-            if ( j % (( nonodes / 72 ) + 1 ) == 0 )
-            {
-              sprintf(progbuf, "-");
-              print_progress(progbuf);
-            }
-          }
-          sprintf(progbuf, "!\n");
-          print_progress(progbuf);
-          phyFillScreenColor();
-        }
-        bestlike = bestyet;
-        if (jumb == 1)
-        {
-          bstlike2 = bestlike;
-          nextree = 1;
-        }
-        curtree->globrearrange(curtree, progress, false);
-      }
     }
+    if (progress)
+    {
+      sprintf(progbuf, "\nDoing global rearrangements\n");
+      print_progress(progbuf);
+      sprintf(progbuf, "  !");
+      print_progress(progbuf);
+      for (j = 1; j <= nonodes; j++)
+      {
+        if ( j % (( nonodes / 72 ) + 1 ) == 0 )
+        {
+          sprintf(progbuf, "-");
+          print_progress(progbuf);
+        }
+      }
+      sprintf(progbuf, "!\n");
+      print_progress(progbuf);
+      phyFillScreenColor();
+    }
+    bestlike = bestyet;
+    curtree->copy(bestree, curtree);
+    curtree->root = curtree->nodep[0]->back;
+    curtree->globrearrange(curtree, bestree, progress, thorough, &bestfound);
     if (progress)
     {
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
-    for (i = spp - 1; i >= 1; i--)
-      curtree->re_move(curtree, curtree->nodep[i], &dummy, recompute);
+    release_all_forks(curtree);
     if (jumb == njumble)
     {
       if (treeprint)
       {
         putc('\n', outfile);
-        if (nextree == 2)
+        if (nextree == 1)
           fprintf(outfile, "One most compatible tree found:\n");
         else
-          fprintf(outfile, "%6ld trees in all found\n", nextree - 1);
+          fprintf(outfile, "%6ld trees in all found\n", nextree);
       }
       if (nextree > maxtrees + 1)
       {
@@ -878,7 +879,7 @@ void maketree(void)                     // RSGbugfix
       if (treeprint)
         putc('\n', outfile);
       recompute = false;
-      for (i = 0; i <= (nextree - 2); i++)
+      for (i = 0; i <= (nextree - 1); i++)
       {
         load_tree(curtree, i, bestrees);
         curtree->evaluate(curtree, curtree->root, 0);
@@ -886,7 +887,7 @@ void maketree(void)                     // RSGbugfix
         curtree->nodep[curtree->root->index - 1] = curtree->root;
         printree(curtree);
         describe();
-        reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+        reroot_tree(curtree);
       }
     }
   }
@@ -932,7 +933,7 @@ void maketree(void)                     // RSGbugfix
           i = j;
       }
       mincomp(i+1);
-      reroot_tree(curtree, curtree->root); // RSGbugfix: Name change.
+      reroot_tree(curtree);
       curtree->evaluate(curtree, curtree->root, false);
       curtree->root = root_tree(curtree, curtree->root);
       if (outgropt)
@@ -1010,7 +1011,7 @@ void dnacomprun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* dnacomprun */
 
 
 void dnacomp(
@@ -1286,7 +1287,7 @@ void dnacomp(
   }
 
   //printf("\ndone\n"); // JRMdebug
-}
+} /* dnacomp */
 
 
 int main(int argc, Char *argv[])
@@ -1338,7 +1339,8 @@ int main(int argc, Char *argv[])
 
   FClose(infile);
   FClose(outfile);
-  FClose(outtree);
+  if (trout)
+    FClose(outtree);
 
 #ifdef MAC
   fixmacfile(outfilename);

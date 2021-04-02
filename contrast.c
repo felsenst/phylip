@@ -1,7 +1,6 @@
-/* Version 4.0. (c) Copyright 1993-2018 by Joseph Felsenstein.
+/* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 /* debug:  Need to
@@ -16,7 +15,7 @@ debug)   */
 
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include "phylip.h"
@@ -47,6 +46,7 @@ void   morph(void);
 void   getdata(void);
 void   allocrest(void);
 void   doinit(void);
+tree*  contrast_tree_new(long, long);
 void   rotate(long, long, double);
 void   resize(long, long, double);
 void   copyztotemp(long, long);
@@ -66,14 +66,17 @@ void   writesuper(void);
 void   writecontrasts(void);
 void   getsizevar(void);
 void   writemethods(void);
-void   regressions(void);
 double logdet(double **);
+double glogdet(double *);
 void   invert(double **);
 void   initcovars(boolean);
 double normdiff(boolean);
 void   matcopy(double **, double **, long);
 void   newcovars(boolean, boolean);
 void   printcovariances(boolean, boolean);
+void   calculateregressions(matrix, long);
+void   reportregressions(matrix, matrix);
+void   reportlrttests(void);
 void   emiterate(boolean, boolean);
 void   initcontrastnode(tree *, node **, long, long, long *,
                         long *, initops, pointarray, Char *, Char *, FILE *);
@@ -86,7 +89,6 @@ void   qreigen(matrix, long);
 void   reportmatrix(matrix, long);
 void   reportpca(long);
 void   reportlogL (double, long);
-void   getmeans(void);
 void   writescales(void);
 void   writevarsz(void);
 void   writeallom(void);
@@ -101,6 +103,7 @@ node*  contrast_node_make(tree *, node_type, long);
 void   makenewbranches(void);
 void   updatebounds(node *);
 double evaluate(node *);
+#if 0    /* fossil stuff commented out for now */
 double fevaluate(double, node *, boolean);
 void   locatefossilonbranch (node *, node *, node *, boolean);
 boolean placefossilonbranch(node *, node *);
@@ -110,6 +113,10 @@ void   replacefossil(void);
 void   placeonefossil(long);
 void   makefossilcovars(node *);
 void   placeallfossils(void);
+#endif        /* end commenting-out of fossil stuff */
+void   writereportforonecovar(boolean, matrix, double*);
+void   writereports(void);
+void   calculatecovsetc(void);
 void   maketree(void);
 /* function prototypes */
 #endif
@@ -122,19 +129,19 @@ long nonodes, chars, startmchar, endmchar, dropchars=0,
      ndatas, morphchars, dimensions, numfossils, ndiv, nmult, nparams,
      nmpoints, nmworstone, nmsecondworstone, nmbestone;
 long ith, ithwas, jth, jthwas, kth;
-phenotype3 **x, **y, **z, **w, *specsize, *rotation, **cntrast, *ssqcont, meanz;
+phenotype3 **x, **y, **z, **w, **specsize, *rotation, **cntrast, *ssqcont, meanz;
 double **vara, **vare, **oldvara, **oldvare, **Bax, **Bex, **temp1, **temp2,
   **temp3, **temp4, **temp5, **temp6, **temp7, *temp8, **parameters,
   *nmmeanparams, *reflectedparameters, *expandedparameters, *slopes,
-  *contractedparameters, *shrunkparameters, *loglike,
-  **sumprod, *mean, *umean,   *allom, **eigvecs, *eig, *fossiltime;
+  *contractedparameters, *shrunkparameters, *loglike, **sumprod, *mean, *umean,
+  **regressions, **correlations, *allom, **eigvecs, *eig, *fossiltime;
 double logL, bestlogL, logLvara, logLnocorr, logLnovara, multiplier,
   multiplier0, jacobian, pi=3.141592653, minmultmult, maxmultmult, bestwhere,
   bestmult, howworse, tolerance, tollimit, tolstart, unorm, varz, zsum,
   incparam0, startlogL, endlogL, nmepsilon, nmupsilon, worstlogL, alpha,
   gammma, rho, sigma;
 boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
-  linearsize, morphall, sizes, sizechar, shapes, nophylo, printdata,
+  linearsize, morphall, sizes, sizes, sizechar, shapes, nophylo, printdata,
   progress, reg, multrees, muldata, treeswithin,
   datawithin, cross, fossil, inferscale, varywithin,
   nocorr, writecont, bifurcating, pca, firsttime,
@@ -144,7 +151,7 @@ boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
 Char ch;
 
 /* Local variables for maketree, propagated globally for C version: */
-tree curtree;
+tree *curtree;
 
 /* Variables declared just to make treeread happy */
 boolean haslengths, goteof, first;
@@ -166,7 +173,6 @@ void getoptions(void)
   sizes = false;
   mlsizes = true;
   linearsize = false;
-  sizechar = false;
   dimensions = 2;
   numtrees = 1;
   ndatas = 1;
@@ -205,7 +211,7 @@ void getoptions(void)
     printf("Settings for this run:\n");
     printf("  B               Morphometric transformations?");
     if (nomorph)
-      printf("  No morphometric data\n");
+      printf("  No, not morphometric data\n");
     else {
       if (bookmorph)
         printf("  Bookstein transform\n");
@@ -233,11 +239,11 @@ void getoptions(void)
             if (centroidsize)
               printf("  centroid size\n");
           }
-        printf("  E                  Add a log(size) character?");
-        if (sizechar)
+        printf("  E                     Report size variation?");
+        if (sizes)
           printf("  Yes, in addition to shape\n");
         else
-          printf("  No, have only shape characters\n");
+          printf("  No, just covariation of coordinates\n");
       } else {
         printf("  No\n");
       }
@@ -272,6 +278,7 @@ void getoptions(void)
       else
         printf("  No\n");
     }
+#if 0            /* comment this out for now as undeveloped */
     printf("  F                Infer position of fossil(s)? ");
     if (fossil)
       printf(" Yes\n");
@@ -307,6 +314,7 @@ void getoptions(void)
       printf("  H   How close to best-yet logL to show value: ");
       printf(" %4.2f\n", howworse);
     }
+#endif
     printf("  M        Multiple trees?  Multiple data sets?");
     if (muldata) {
       if (multrees) {
@@ -648,7 +656,7 @@ void getoptions(void)
     charsd2 = chars - (dropchars-1);  /* number of non-location dimensions */
   }
   charsp = chars;                         /* an inferred size character */
-  if (sizes && sizechar)  /* make room for */ 
+  if (sizes && sizechar)  /* make room for an inferred size character */ 
     charspp = chars + 1;
   else
     charspp = chars;
@@ -716,7 +724,7 @@ void getdata(void)
   y = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   z = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   w = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
-  specsize = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3));
+  specsize = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3));
   cntrast = (phenotype3 **)Malloc((long)spp * sizeof(phenotype3 *));
   ssqcont = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3 *));
   rotation = (phenotype3 *)Malloc((long)spp * sizeof(phenotype3 *));
@@ -743,8 +751,8 @@ void getdata(void)
       exxit(-1);
     }
   }
+  scan_eoln(infile);
   for (i = 0; i < spp; i++) {
-    scan_eoln(infile);
     initname(i);
     if (varywithin) {
       if (fscanf(infile, "%ld", &sample[i]) == 1) {
@@ -760,7 +768,7 @@ void getdata(void)
     y[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
     z[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
     w[i] = (phenotype3 *)Malloc((long)sample[i] * sizeof(phenotype3));
-    specsize[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
+    specsize[i] = (phenotype3 *)Malloc((long)(sample[i] * sizeof(double)));
     cntrast[i] = (phenotype3 *)Malloc((long)(sample[i] * sizeof(phenotype3)));
     ssqcont[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
     rotation[i] = (double *)Malloc((long)(sample[i] * sizeof(double)));
@@ -770,13 +778,15 @@ void getdata(void)
       z[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
       w[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
       cntrast[i][k] = (phenotype3)Malloc((long)charspp * sizeof(double));
+      specsize[i][k] = (phenotype3)Malloc((long)((long)charspp * sizeof(double)));
       for (j = 1; j <= chars; j++) {
         if (eoln(infile))
           scan_eoln(infile);
         if (fscanf(infile, "%lf", &x[i][k][j - 1]) != 1) {
-          printf("Error in input file at species %ld.\n", i+1);
+          printf("Error in input file at species %ld, sample %ld, character %ld.\n", i+1, k+1, j);
           exxit(-1);
         }
+printf("x[%ld][%ld][%ld] = %12.9f\n", i, k, j-1, x[i][k][j-1]);
         if (printdata) {
           fprintf(outfile, " %14.9f", x[i][k][j - 1]);
           if (j % 6 == 0) {
@@ -787,12 +797,12 @@ void getdata(void)
         }
         y[i][k][j-1] = x[i][k][j-1];    /* copy it into  y */
       }
-/*    if (!eoln(infile))        debug:  need with within-species variation?
-        scan_eoln(infile);   */
     }
-/* debug      printf("\n"); */
-    if (printdata)
-      putc('\n', outfile);
+    /* got all the data we need for that member, */
+    /* read the next line if we still have more members to define */
+    if (k != sample[i]-1)
+      scan_eoln(infile);
+    putc('\n', outfile);
   }
   if (printdata)
     putc('\n', outfile);
@@ -882,6 +892,15 @@ void allocrest(void)
   }
   mean = (double *)Malloc((long)charsp * sizeof(double));
   umean = (double *)Malloc((long)charsp * sizeof(double));
+  regressions = (double **)Malloc((long)charspp * sizeof(double *));
+  for (i = 0; i < charspp; i++) {
+    regressions[i] = (double *)Malloc((long)charspp * sizeof(double));
+  }
+  correlations = (double **)Malloc((long)charspp * sizeof(double *));
+  for (i = 0; i < charspp; i++) {
+    correlations[i] = (double *)Malloc((long)charspp * sizeof(double));
+  }
+  mean = (double *)Malloc((long)charsp * sizeof(double));
   allom = (double *)Malloc((long)charsp * sizeof(double));
   eigvecs =  (double **)Malloc(charspp * sizeof(double *));   /* eigenvectors */
   for (i = 0; i < charspp; i++)
@@ -900,6 +919,18 @@ void doinit(void)
   getoptions();
   allocrest();
 }  /* doinit */
+
+
+tree* contrast_tree_new(long nonodes, long spp)
+{
+  /* set up a new tree */
+  tree* t;
+
+  t = generic_tree_new(nonodes, spp);
+  t->setupfunctions = generic_tree_setupfunctions;
+  generic_tree_init(t, nonodes, spp);
+  return t;
+} /* contrast_tree_new */
 
 
 void rotate(long i, long j, double sintheta) {
@@ -929,7 +960,7 @@ void resize(long i, long j, double logsz) {
   }
   if (sizechar)
     z[i][j][charspp-1] += logsz;  /* change the log-size accordingly */
-  specsize[i][j] = z[i][j][charspp-1];   /* also separate log specimen size */
+/* debug:   to allow compiling   specsize[i][j] = z[i][j][charspp-1];   also separate log specimen size */
   copyztox(i, j);              /* synch  x  with  z  */
 } /* resize */
 
@@ -976,9 +1007,11 @@ void copytemptoz(long i, long j) {
 } /* copytemptoz */
 
 
-void copyztox(long i, long j) {
+void copyztox(long i, long j)
+{
   /* copy j-th sample of the i-th morphometric form from z to x
-    -- note there are  charspp  characters copied, including maybe log(size) */
+   * -- note there are  charspp  characters, including maybe log(size) 
+   */
   long k, m;
 
   m = 0;
@@ -1203,7 +1236,7 @@ double linesearch (double* theta, double tol, long n, long m, boolean* changed) 
     rotate(n, m, tol);
     *theta += tol;
     copyztox(n, m);              /* synch  x  with  z  */
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     better = (logL > bestlogL);
     if (better) {
       bestlogL = logL;
@@ -1214,7 +1247,7 @@ double linesearch (double* theta, double tol, long n, long m, boolean* changed) 
   *theta -= tol;
   copytemptoz(n, m);  /* restore best-yet value */
   copyztox (n, m);    /* and put it in x too  */
-  bestlogL = evaluate(curtree.root);
+  bestlogL = evaluate(curtree->root);
   logL = bestlogL;
   return(*theta);
 } /* linesearch */
@@ -1232,7 +1265,7 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
   do {
     logsznew = logszcurrent + tol;
     resize(n, m, tol);
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     better = (logL > bestlogL);
     if (better) {
       bestlogL = logL;
@@ -1243,7 +1276,7 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
   } while (better);
   copytemptoz(n, m);  /* set aside best-yet value */
   copyztox (n, m);    /* and put it in x too  */
-  bestlogL = evaluate(curtree.root);
+  bestlogL = evaluate(curtree->root);
   return(logszcurrent);
 } /* linesearchsz */
 
@@ -1296,7 +1329,8 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
 
 
 void boasfit(void)
-{/* make a Boas least squares fit of the forms in z to each other for a rough start */
+{
+  /* make a Boas least squares fit of the forms in z to each other for a rough start */
   long i, j, k, num, specimens;
   double meanx, meany, eps, maxrotation, A, B, D, oldx, oldy,
          absrot, suma, targetsize, suma2, lnsize;
@@ -1418,21 +1452,21 @@ void boasfit(void)
 //   // below.  This is definately a bug.  Initialized here only to silence compiler warning.
 //   double maxtheta = 0.0;
 // 
-//   storedroot = curtree.root; /* store the root of the tree to restore later */
+//   storedroot = curtree->root; /* store the root of the tree to restore later */
 //   (void)storedroot;          // RSGnote: Variable set but never used.
 // 
-//   wasrootedatinteriornode = (curtree.root->back == NULL);  /* debug: works? */
+//   wasrootedatinteriornode = (curtree->root->back == NULL);  /* debug: works? */
 //   if (!wasrootedatinteriornode)
 //   {
-//     leftbranchlength = curtree.root->next->v;
-//     rightbranchlength = curtree.root->next->next->v;
+//     leftbranchlength = curtree->root->next->v;
+//     rightbranchlength = curtree->root->next->next->v;
 //     (void)leftbranchlength;             // RSGnote: Variable set but never used.
 //     (void)rightbranchlength;            // RSGnote: Variable set but never used.
 //   }
 //   do {   /* repeated rounds of improvement until angles all small enough */
 //     maxangle = 0.0;
 //     for (i = 0; i < spp; i++) { /* for each species reroot where connects */
-//       wherefrom = curtree.root;
+//       wherefrom = curtree->root;
 //       nearestinternalnode = wherefrom;
 //       if (wherefrom->tip)
 //         nearestinternalnode = wherefrom->back;
@@ -1442,7 +1476,7 @@ void boasfit(void)
 //       /* double check the next statement: is it calling contrasting on the
 //          correct nearby node?  Must have inserted root, done this call
 //          in a correctly coordinated way    -- debug */
-//       makecontrasts(curtree.root->next->back);
+//       makecontrasts(curtree->root->next->back);
 //       getcovariances();
 //       /* now compute inverse of contrasts, plus get JC^(-1)I etc. */
 //       /*   question -- what to do if C is not of full rank? */
@@ -1536,7 +1570,7 @@ void getloglikefromparameters (double* newparameters) {
   for (i = 0; i < spp; i++) {  /* update all specimens */
     nmalterspecimen(i, 0, newparameters);
     }
-  logL = evaluate(curtree.root);
+  logL = evaluate(curtree->root);
   copyallwtoz();
 } /* getloglikefromparameters */
 
@@ -1711,7 +1745,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
              copyztotemp(i, j);
              changeofparam = 0.0;
              copyztox(i, j);
-             bestlogL = evaluate(curtree.root);
+             bestlogL = evaluate(curtree->root);
              logLnow = bestlogL;
              bestrot = rotation[i][j];
              bestsize = specsize[i][j];
@@ -1727,7 +1761,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
                  }
                  changeofparam += incparam;
                  copyztox(i, j);
-                 logLnow = evaluate(curtree.root);
+                 logLnow = evaluate(curtree->root);
                  if (logLnow > bestlogL) { /* if the log-likelihood is better */
                    bestlogL = logLnow;
                    copyztotemp(i, j);
@@ -1775,7 +1809,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
  do {
    copyallwtoz();  /* start from same forms */
    copyallztox();
-   oldlogL = evaluate(curtree.root);
+   oldlogL = evaluate(curtree->root);
    olderlogL = oldlogL;
    for (i = 0; i < nparams; i++) {      /* compute approximate slope vector */
      which = 0;
@@ -1792,7 +1826,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyztox(which, 0);
-     logLnow = evaluate(curtree.root);
+     logLnow = evaluate(curtree->root);
      if (i > 0) {
        if (i < spp) {   /* change angle of all but first specimen */
          sintheta = sin(-slopeinc);
@@ -1802,13 +1836,13 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyztox(which, 0);
-     logLnow2 = evaluate(curtree.root);
+     logLnow2 = evaluate(curtree->root);
      slopes[i] = logLnow - logLnow2;
      copywtoz(which, 0);  /* restore original form */
    }
    incparam = 0.0001;     /* may need to tune this */
    copyallztox();
-   bestlogL = evaluate(curtree.root);
+   bestlogL = evaluate(curtree->root);
    logLnow = bestlogL;
    do {           /* line search of parameter (angle or size) */
      copyallwtoz();
@@ -1825,7 +1859,7 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        }
      }
      copyallztox();
-     logLnow = evaluate(curtree.root);
+     logLnow = evaluate(curtree->root);
 /* printf("incparam = %15.12f, bestlogL = %20.12f, logL = %20.12f\n", incparam, bestlogL, logLnow);A   debug */
      if (logLnow > bestlogL) { /* if the log-likelihood is better */
        bestlogL = logLnow;
@@ -1836,18 +1870,19 @@ void felsmorph3() { /* successive uphill line searches using slopes */
        incparam = -incparam*0.3;
      }
    } while (fabs(incparam) > 0.00000000001);  /* end loop for line search */
-if (sizes)
-  printf("after rotations and resizings:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
+ if (sizes)
+   printf("after rotations and resizings:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
 else
   printf("after rotations:  best Ln: %15.10f, slopeinc = %15.10f\n", bestlogL, slopeinc);  /* debug */
-  slopeinc *= 1.0;
-  } while (bestlogL - olderlogL > 0.0000000001);
+ slopeinc *= 1.0;
+ } while (bestlogL - olderlogL > 0.0000000001);
   copyallwtoz();
 } /* felsmorph3 */
 
 
 void morph(void)
-{  /* do morphometric transforms if needed, then put result into x */
+{
+  /* do morphometric transforms if needed, then put result into x */
   long i, j, k;
 
   for (i = 0; i < spp; i++)      /* copy the original data, y, into array z */
@@ -1855,9 +1890,9 @@ void morph(void)
       for (k = 0; k < charsp; k++)
         z[i][j][k] = y[i][j][k];
       if (sizes) {
-        z[i][j][charspp] = 0.0;   /* initialize size character */
-        specsize[i][j] = 0.0;  /* initialize sizes array */
+        z[i][j][charspp] = 0.0;   /* initialize size character  debug: this will be deleted */
       }
+      specsize[i][j] = 0.0;  /* initialize sizes array */
     }
   if (bookmorph || mlrots || justprocrust) {
     if (morphall) {
@@ -1889,7 +1924,7 @@ void morph(void)
     } while (endlogL - startlogL > 0.00001);
   }
   else {
-    logL = evaluate(curtree.root);
+    logL = evaluate(curtree->root);
     bestlogL = logL;
   }
   if (bookmorph)
@@ -1919,11 +1954,11 @@ void contwithin(void)
             = (sumphen[j] - k*x[i][k][j])/sqrt((double)(k*(k+1)));
         sumphen[j] += x[i][k][j];
         if (k == (sample[i]-1))
-          ((cont_node_type*)curtree.nodep[i])->view[j] = sumphen[j]/sample[i];
+          ((cont_node_type*)curtree->nodep[i])->view[j] = sumphen[j]/sample[i];
         x[i][0][j] = sumphen[j]/sample[i];
       }
       if (k == 0)
-        curtree.nodep[i]->ssq = 1.0/sample[i]; /* sum of squares for sp. i */
+        curtree->nodep[i]->ssq = 1.0/sample[i]; /* sum of squares for sp. i */
       else
         ssqcont[i][k] = 1.0;   /* if a within contrast */
     }
@@ -1934,13 +1969,14 @@ void contwithin(void)
 
 
 void contbetween(node *p)
-{ /* compute contrasts and views at a node, multifurcations allowed */
+{
+  /* compute contrasts and views at a node, multifurcations allowed */
   long j;
   node *q, *r, *pp;
   double v0, v1, vtot, f0, f1;
   boolean atbase;
 
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   pp = p->next;
   q = pp->back;    /* starting with first two descendants ... */
   v0 = multiplier * (q->v + q->deltav);
@@ -1995,9 +2031,9 @@ void contbetween(node *p)
     v0 = multiplier * p->deltav;
     pp = pp->next;
   } while (((!atbase) && ((pp->next) != p))
-           || (atbase && (((curtree.root->back == NULL)
-                           && (pp->next != curtree.root))
-                          || ((curtree.root->back != NULL)
+           || (atbase && (((curtree->root->back == NULL)
+                           && (pp->next != curtree->root))
+                          || ((curtree->root->back != NULL)
                               && (pp != p)))));
   df = charsd;           /* reduce df if too few characters */
   if (charsd > contno)
@@ -2006,7 +2042,8 @@ void contbetween(node *p)
 
 
 void makecontrasts(node *p)
-{ /* compute the contrasts, recursively */
+{
+  /* compute the contrasts, recursively */
   node *pp;
   boolean atbase;
 
@@ -2015,7 +2052,7 @@ void makecontrasts(node *p)
       zsum += ((cont_node_type*)p)->view[charspp-1];
     return;
   }
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   pp = p->next;
   do {   /* go around the ring making contrasts on descendants */
     makecontrasts(pp->back);
@@ -2055,11 +2092,14 @@ void getcovariances (void) {
 
 
 void getmeans (void) {
-  /* infer the mean from the phenotype pruned to the root */
+  /* infer the mean from the phenotype pruned to the root
+   * Note: could be inferred from pruning to other places too,
+   * which means these will only be the same in the asymptote
+   * of small changes */
   long i;
 
   for (i = 0; i < charspp; i++)
-    mean[i] = ((cont_node_type*)curtree.root)->view[i];
+    mean[i] = ((cont_node_type*)curtree->root)->view[i];
   unorm = 0.0;
   for (i = 0; i < charsp; i++)  /* compute the norm of the mean vector */
     unorm += mean[i]*mean[i];
@@ -2170,19 +2210,21 @@ void writesuper(void)
 
 
 void writesizes (void)
-{  /* write out a table of inferred sizes (scales) */
+{
+  /* write out a table of inferred sizes (scales) */
   long i, j;
 
   fprintf(outfile, "\nInferred scales (sizes)\n");
   fprintf(outfile, "-------- ----- ------\n\n");
   for (i = 0; i < spp; i++)
     for (j = 0; j < sample[i]; j++)
-      fprintf(outfile, "%10.6f\n", exp(specsize[i][j]));
+      fprintf(outfile, "%10.6f\n", 1.0 + specsize[i][j]);
 } /* writesizes */
 
 
 void writemeans (void)
-{ /* write out the estimated phenotype means from the root view */
+{
+  /* write out the estimated phenotype means from the root view */
   fprintf(outfile, "\nEstimated means\n");
   fprintf(outfile, "--------- -----\n\n");
   for (i = 0; i < charspp; i++)
@@ -2196,13 +2238,15 @@ void getscales(void) {
   long i, j;
 
   for (i = 0; i < spp; i++) {  /* debug  ignores within-species case */
-    if (linearsize) {
-      specsize[i][0] = 0.0;
-      for (j = 0; j < charsp; j++)
-        specsize[i][0] += x[i][0][j]*mean[j]/(unorm*unorm);
-    }
+    for (j = 0; j < sample[i]; j++) {
+      if (linearsize) {
+        specsize[i][j] = 0.0;
+        for (k = 0; k < charsp; j++)
+          specsize[i][j] += x[i][j][j]*mean[k]/(unorm*unorm);
+      }
     else 
       specsize[i][0] = exp(specsize[i][0]);
+    }
   }
 } /* getscales */
 
@@ -2213,14 +2257,17 @@ void writescales(void) {
 
   fprintf(outfile, "Inferred scales (sizes) of the specimens\n");
   fprintf(outfile, "-------- ------ ------- -- --- ---------\n\n");
-  for (i = 0; i < spp; i++) {  /* debug  ignores within-species case */
-    fprintf(outfile, "%12.8f\n", specsize[i][0]);
+  for (i = 0; i < spp; i++) { 
+    for (j = 0; j < sample[i]; j++) {
+      fprintf(outfile, "%12.8f\n", specsize[i][j]);
+    }
   }
 } /* writescales */
 
 
 void writevarsz (void)
-{  /* write out variance of inferred scale */
+{
+  /* write out variance of inferred scale */
    
   fprintf(outfile, "\nVariance of scale\n");
   fprintf(outfile, "-------- -- -----\n");
@@ -2229,7 +2276,8 @@ void writevarsz (void)
 
 
 void writerotations (void)
-{  /* write out a table of angles by which specimens have been rotated */
+{
+  /* write out a table of angles by which specimens have been rotated */
   long i, j;
 
   fprintf(outfile, "\nInferred specimen rotations)\n");
@@ -2241,7 +2289,8 @@ void writerotations (void)
 
 
 void writeallom (void)
-{  /* write out allometry coefficients in log-likelihood and linear cases
+{
+  /* write out allometry coefficients in log-likelihood and linear cases
       as well as in the Procrustes case where size character is included */
    
   fprintf(outfile, "\nAllometric coefficients: slope above 1 regressed on scale\n");
@@ -2256,8 +2305,10 @@ void writeallom (void)
 
 
 void getsizevar(void)
-{ /* compute, in ML-plus-linearsize case, the size variance,
-     plus the mean vector's norm, plus the means */
+{
+  /* compute, in ML-plus-linearsize case, the size variance,
+   * plus the mean vector's norm, plus the means
+   */
   long i, j;
 
   getmeans();
@@ -2273,7 +2324,8 @@ void getsizevar(void)
 
 
 void getshapecovars (double **sumprods)
-{ /* make character covariances into shape covariances in linear case */
+{
+  /* make character covariances into shape covariances in linear case */
   long i, j, k;
   double sum;
 
@@ -2309,7 +2361,8 @@ void getshapecovars (double **sumprods)
 
 
 void reportcovars (double **sumprods, long charspp)
-{ /* print out table of covariances among characters */
+{
+  /* print out table of covariances among characters */
   long i, j, chars2;
 
   fprintf(outfile, "\nCovariance matrix\n");
@@ -2345,6 +2398,10 @@ void writemethods (void) {
     fprintf(outfile, "\nScale, shape and allometry are inferred by a linear\n");
     fprintf(outfile, "approximate model, after covariances are inferred\n\n");
   }
+  if (linearsize && (!sizes)) {
+    fprintf(outfile, "\nAllometry, size variance, covariances are inferred by a linear\n");
+    fprintf(outfile, "approximate model, after covariances are inferred\n\n");
+  }
   if (!linearsize) {
     if (sizes) {
       if (mlsizes) {
@@ -2361,11 +2418,16 @@ void writemethods (void) {
     }
   }
   if (pca) {
-    fprintf(outfile, "\nPrincipal components are being calculated ");
+    fprintf(outfile, "\nPrincipal components are being calculated");
     if ((!linearsize) && sizes && sizechar)
       fprintf(outfile, " based on shape and size\n\n");
-    else
-      fprintf(outfile, " based on shape characters only\n\n");
+    else {
+      if (sizes) {
+        fprintf(outfile, " based on shape characters only\n\n");
+      } else {
+        fprintf(outfile, " based on all characters\n\n");
+      }
+    }
   }
 }; /* writemethods */
 
@@ -2394,25 +2456,62 @@ void covsandshapes (void) {
 }; /* covsandshapes */
 
 
-void regressions (void)
+void calculateregressions (matrix sumprod, long charspp)
+{
+  /* compute regressions and correlations among contrasts */
+  long i, j;
+
+  for (i = 0; i < charspp; i++) {
+    for (j = 0; j < charspp; j++) {
+      regressions[i][j] = sumprod[i][j] / sumprod[i][i];
+    }
+  }
+  for (i = 0; i < charspp; i++) {
+    for (j = 0; j < charspp; j++) {
+      correlations[i][j] = sumprod[i][j] / sqrt(sumprod[i][i] * sumprod[j][j]);
+    }
+  }
+}  /* calculateregressions */
+
+
+void reportregressions (matrix regressions, matrix correlations)
 {
   /* compute regressions and correlations among contrasts */
   long i, j;
 
   if (reg) {
     fprintf(outfile, "\nRegressions (columns on rows)\n");
-    fprintf(outfile, "----------- -------- -- -----\n\n");
+    fprintf(outfile, "----------- -------- -- -----\n");
+    for (i = 0; i < charspp; i++) {          /* print out column numbers */
+      if (i == 0)
+        fprintf(outfile, "\nrow\\col ");
+      fprintf(outfile, "   %3ld    ", i+1);
+      if ((i > 0) && (i%10 == 10) && (charspp > i))
+        fprintf(outfile, "\n        ");
+      if ((i+1) == charspp)
+        fprintf(outfile, "\n");
+    }
     for (i = 0; i < charspp; i++) {
+      fprintf(outfile, " %2ld   ", i+1);
       for (j = 0; j < charspp; j++)
-        fprintf(outfile, " %9.4f", sumprod[i][j] / sumprod[i][i]);
+        fprintf(outfile, " %9.4f", regressions[i][j]);
       putc('\n', outfile);
     }
     fprintf(outfile, "\nCorrelations\n");
-    fprintf(outfile, "------------\n\n");
+    fprintf(outfile, "------------\n");
+    for (i = 0; i < charspp; i++) {          /* print out column numbers */
+      if (i == 0)
+        fprintf(outfile, "\nrow\\col ");
+      fprintf(outfile, "   %3ld    ", i+1);
+      if ((i > 0) && (i%10 == 0) && (charspp > i))
+        fprintf(outfile, "\n        ");
+      if ((i+1) == charspp)
+        fprintf(outfile, "\n");
+    }
     for (i = 0; i < charspp; i++) {
+      fprintf(outfile, " %2ld   ", i+1);
       for (j = 0; j < charspp; j++)
-        fprintf(outfile, " %9.4f",
-                sumprod[i][j] / sqrt(sumprod[i][i] * sumprod[j][j]));
+        fprintf(outfile, " %9.4f", correlations[i][j]);
       putc('\n', outfile);
     }
   }
@@ -2421,7 +2520,12 @@ void regressions (void)
     for (i = 0; i < charspp; i++)
       for (j = 0; j < charspp; j++)
         temp1[i][j] = sumprod[i][j] / sqrt(sumprod[i][i]*sumprod[j][j]);
-    logLvara = -0.5*contno*logdet(temp1);
+    if (2*spp >= charspp+3) {
+      logLvara = -0.5*contno*logdet(temp1);
+    } else {
+      qreigen(temp1, charspp);
+      logLvara = -0.5 * glogdet(eig);  /* generalized logdet */
+    }
     for (i = 0; i < charspp; i++)
       for (j = 0; j < charspp; j++) {
         if (nset[i] != nset[j])
@@ -2451,14 +2555,14 @@ void regressions (void)
               n1*(charsd-n1));
   }
   putc('\n', outfile);
-}  /* regressions */
+}  /* reportregressions */
 
 
 double logdet(double **a)
 {
   /* Gauss-Jordan log determinant calculation.
-     in place, overwriting previous contents of a.  On exit,
-     matrix a contains the inverse. Works only for positive definite A */
+   * in place, overwriting previous contents of a.  On exit,
+   * matrix a contains the inverse. Works only for positive definite A */
   long i, j, k;
   double temp, sum;
 
@@ -2484,6 +2588,22 @@ double logdet(double **a)
   }
   return(sum);
 }  /* logdet */
+
+
+double glogdet (double* eig)
+{
+  /* log generalized determinant, from non-nearly-zero postitive
+   * eigenvalues */
+  long i;
+  double x;
+
+  x = 0.0;
+  for (i = 0; i < charspp; i++) {
+    if (fabs(eig[i]) > 1.0e-14)         /* if this dimension has variation */
+      x += log(eig[i]);
+  }
+  return x;
+} /* glogdet */
 
 
 void invert(double **a)
@@ -2513,6 +2633,39 @@ void invert(double **a)
     }
   }
 }  /*invert*/
+
+
+void ginverse (double** a)
+{
+  /* Moore-Penrose inverse, using spectral decomposition.  On exit  a
+   * contains the generalized inverse.  This is obtained by taking the
+   * eigenvalues and inverting them, except for ones near zero which
+   * are instead zeroed, then reconstituting the matrix.  The function
+   * qreigen is used, which leaves column eigenvectors in array  eigvecs
+   * and eigenvalues in array  eig.   Note that eig is sorted in
+   * decreasing order, and eigorder[i] tells which element of eigvecs
+   * corresponds to that eigenvalue.
+   */
+  boolean *nearlyzero;
+  long i, j, k;
+  
+  nearlyzero = (boolean*)Malloc(charspp*sizeof(boolean));
+  qreigen(a, charspp);                /* obtains the spectral decomposition */
+  for (i = 0; i < charspp; i++)      /* indicate which eigenvalues */
+    if (fabs(eig[i]) < 1.0e-14)      /* are near enough to zero */
+      nearlyzero[i] = true;
+    else
+      nearlyzero[i] = false;
+  for (i = 0; i < charspp; i++) {                  /* reconstitute to get */
+    for (j = 0; j < charspp; j++) {              /* M-P generalized inverse */
+      a[i][j] = 0.0;
+      for (k = 0; k < charspp; k++) {
+        if (!nearlyzero[k])
+          a[i][j] += eigvecs[i][k]*eigvecs[j][k] / eig[k];
+      }
+    }
+  }
+} /* ginverse */
 
 
 void initcovars(boolean novara)
@@ -2620,30 +2773,39 @@ void newcovars(boolean nocorr, boolean novara)
       vare[i][j] = 0.0;
     }
   for (i = 0; i < spp-1; i++) {            /* accumulate over contrasts ... */
-    if (i <= spp-2) {       /* E(aa'|x) and E(ee'|x) for "between" contrasts */
+    if (i <= spp-2) {      /* E(aa'|x) and E(ee'|x) for "between" contrasts */
       sqssq = sqrt(ssqcont[i][0]);      /* sqrt(d) */
-      for (k = 0; k < charspp; k++)       /* compute (dA+E) for this contrast */
+      for (k = 0; k < charspp; k++)     /* compute (dA+E) for this contrast */
         for (l = 0; l < charspp; l++)
           if (!novara)
             temp1[k][l] = ssqcont[i][0] * oldvara[k][l] + oldvare[k][l];
           else
             temp1[k][l] = oldvare[k][l];
       matcopy(temp1, temp2, charspp);
-      invert(temp2);                               /* compute (dA+E)^(-1)  */
+      if (2*spp >= charspp+3) {
+        invert(temp2);                               /* compute (dA+E)^(-1) */
+      } else {
+        ginverse(temp2);                      /* or its generalized inverse */
+      }
       matcopy(temp2, temp4, charspp);
       /* sum of - x (dA+E)^(-1) x'/2 for old A, E */
       for (k = 0; k < charspp; k++)
         for (l = 0; l < charspp; l++)
           sum2 -= cntrast[i][0][k]*temp2[k][l]*cntrast[i][0][l]/2.0;
       matcopy(temp1, temp3, charspp);
-      sum2 -= 0.5 * logdet(temp3);      /* log determinant term too */
+      if (2*spp >= charspp+3) {
+        sum2 -= 0.5 * logdet(temp3);            /* log determinant term too */
+      } else {
+        qreigen(temp3, charspp);
+        sum2 -= 0.5 * glogdet(eig);         /* generalized log  determinant */
+      }
       if (!novara) {
         for (k = 0; k < charspp; k++)
           for (l = 0; l < charspp; l++) {
             sum = 0.0;
             for (j = 0; j < charspp; j++)
               sum +=  sqssq * oldvara[k][j] * temp4[j][l];
-            Bax[k][l] = sum;           /*  Bax  = sqrt(d) * A *(dA+E)^(-1) */
+            Bax[k][l] = sum;            /*  Bax  = sqrt(d) * A *(dA+E)^(-1) */
           }
       }
       for (k = 0; k < charspp; k++)
@@ -2651,7 +2813,7 @@ void newcovars(boolean nocorr, boolean novara)
           sum = 0.0;
           for (j = 0; j < charspp; j++)
             sum += oldvare[k][j] * temp4[j][l];
-          Bex[k][l] = sum;                   /*  Bex = (dA+E)^(-1) * E */
+          Bex[k][l] = sum;                        /*  Bex = (dA+E)^(-1) * E */
         }
       if (!novara) {
         for (k = 0; k < charspp; k++)
@@ -2661,7 +2823,7 @@ void newcovars(boolean nocorr, boolean novara)
               sum += Bax[k][m]
                 * (cntrast[i][0][m]*cntrast[i][0][l]
                    - temp1[m][l]);
-            temp2[k][l] = sum;        /*  Bax * (xx'- (dA+E)) ... */
+            temp2[k][l] = sum;                  /*  Bax * (xx'- (dA+E)) ... */
           }
         for (k = 0; k < charspp; k++)
           for (l = 0; l < charspp; l++) {
@@ -2677,37 +2839,48 @@ void newcovars(boolean nocorr, boolean novara)
           for (m = 0; m < charspp; m++)
             sum += Bex[k][m] * (cntrast[i][0][m]*cntrast[i][0][l]
                                 - temp1[m][l]);
-          temp2[k][l] = sum;            /*  Bex * (xx'-(dA+E)) ... */
+          temp2[k][l] = sum;                     /*  Bex * (xx'-(dA+E)) ... */
         }
       for (k = 0; k < charspp; k++)
         for (l = 0; l < charspp; l++) {
           sum = 0.0;
           for (m = 0; m < charspp; m++)
             sum += temp2[k][m] * Bex[l][m];
-          vare[k][l] += sum;                            /*   ... * Bex' */
+          vare[k][l] += sum;                                /*   ... * Bex' */
         }
     }
   }
   matcopy(oldvare, temp2, charspp);
-  invert(temp2);                          /* get E^(-1) */
+  if (2*spp >= charspp+3) {
+    invert(temp2);                                   /* compute (dA+E)^(-1) */
+  } else {
+    ginverse(temp2);                          /* or its generalized inverse */
+  }
   matcopy(oldvare, temp3, charspp);
-  sum3 = 0.5 * logdet(temp3);      /* get 1/2 log det(E) */
+  if (!novara) {
+    if (2*spp >= charspp+3) {
+      sum3 = 0.5 * logdet(temp3);                     /* get 1/2 log det(E) */
+    } else {
+      qreigen(temp3, charspp);
+      sum3 = 0.5 * glogdet(eig);           /* generalized log  determinant */
+    }
+  }
   for (i = 0; i < spp; i++) {
     if (sample[i] > 1) {
-      for (j = 1; j < sample[i]; j++) {   /* E(aa'|x) (invisibly) and
-                                             E(ee'|x) for within contrasts */
+      for (j = 1; j < sample[i]; j++) {       /* E(aa'|x) (invisibly) and
+                                              E(ee'|x) for within contrasts */
         for (k = 0; k < charspp; k++)
           for (l = 0; l < charspp; l++) {
             vare[k][l] += cntrast[i][j][k] * cntrast[i][j][l] - oldvare[k][l];
             sum2 -= cntrast[i][j][k] * temp2[k][l] * cntrast[i][j][l] / 2.0;
             /* accumulate - x*E^(-1)*x'/2 for old E */
           }
-        sum2 -= sum3;                          /* log determinant term too */
+        sum2 -= sum3;                           /* log determinant term too */
       }
     }
   }
-  for (i = 0; i < charspp; i++)        /* complete EM by dividing by denom ... */
-    for (j = 0; j < charspp; j++) {    /* ... and adding old VA, VE */
+  for (i = 0; i < charspp; i++)     /* complete EM by dividing by denom ... */
+    for (j = 0; j < charspp; j++) {            /* ... and adding old VA, VE */
       if (!novara) {
         if (nocorr) {
           if (nset[i] != nset[j])
@@ -2725,7 +2898,7 @@ void newcovars(boolean nocorr, boolean novara)
       vare[i][j] /= (double)contnum;
       vare[i][j] += oldvare[i][j];
     }
-  logL = sum2;                       /* log likelihood for old values */
+  logL = sum2;                             /* log likelihood for old values */
 }  /* newcovars */
 
 
@@ -2833,7 +3006,8 @@ void emiterate(boolean nocorr, boolean novara)
 
 void givens(double **a, long i, long j, long n, double ctheta,
             double stheta, boolean left)
-{ /* Givens transform at i,j for 1..n with angle theta */
+{
+  /* Givens transform at i,j for 1..n with angle theta */
   long k;
   double d;
 
@@ -2852,7 +3026,8 @@ void givens(double **a, long i, long j, long n, double ctheta,
 
 
 void coeffs(double x, double y, double *c, double *s, double accuracy)
-{ /* compute cosine and sine of theta */
+{
+  /* compute cosine and sine of theta */
   double root;
 
   root = sqrt(x * x + y * y);
@@ -2867,7 +3042,8 @@ void coeffs(double x, double y, double *c, double *s, double accuracy)
 
 
 void tridiag(double **a, long n, double accuracy)
-{ /* Givens tridiagonalization */
+{
+  /* Givens tridiagonalization */
   long i, j;
   double s, c;
 
@@ -2883,7 +3059,8 @@ void tridiag(double **a, long n, double accuracy)
 
 
 void shiftqr(double **a, long n, double accuracy)
-{ /* QR eigenvalue-finder */
+{
+  /* QR eigenvalue-finder */
   long i, j;
   double approx, s, c, d, TEMP, TEMP1;
 
@@ -2913,8 +3090,9 @@ void shiftqr(double **a, long n, double accuracy)
 
 
 void qreigen(double **prob, long n)
-{ /* QR eigenvector/eigenvalue method for symmetric matrix. Leaves
-     right eigenvectors as columns in eigvecs, and their eigenvalues in prob */
+{
+  /* QR eigenvector/eigenvalue method for symmetric matrix. Leaves
+   * right eigenvectors as columns in eigvecs, and their eigenvalues in prob */
   double accuracy;
   long i, j;
 
@@ -2936,7 +3114,7 @@ void reportmatrix (matrix QQ, long m)
   /* print out the axes that are independent */
   long i, j, n;
 
-  fprintf(outfile, "        ");
+  fprintf(outfile, "row\\col ");
   for (i = 0; i < m; i++) {          /* print out column numbers */
     if ((i > 0) && (i%6 == 0))
       fprintf(outfile, "\n        ");
@@ -2964,7 +3142,8 @@ void reportmatrix (matrix QQ, long m)
 
 
 void reportpca(long m)
-{  /* print out principal component axes for a PCA of  m  characters */
+{
+  /* print out principal component axes for a PCA of  m  characters */
   long i, j, n;
   double eigtotal, corr;
 
@@ -2976,29 +3155,29 @@ void reportpca(long m)
   for (i = 0; i < m; i++)   /* sum the eigenvalues */
     eigtotal += eig[i];
   fprintf(outfile,
-          "   Principal Components (rows) as linear combinations of characters (columns)\n");
+  "   Principal Components (rows) as linear combinations of characters (columns)\n");
   fprintf(outfile,
-          "   --------- ---------- ------ -- ------ ------------ -- ---------- ---------\n\n");
+  "   --------- ---------- ------ -- ------ ------------ -- ---------- ---------\n\n");
   reportmatrix (eigvecs, m);
-  fprintf(outfile, "   For            Variance of        Fraction of");
+  fprintf(outfile, "  For principal     Variance of      Fraction of");
   if (linearsize) 
     fprintf(outfile, "      Correlation\n");
   else
     fprintf(outfile, "\n");
-  fprintf(outfile, "   variable       its change         variance");
+  fprintf(outfile, "   component        its change       variance");
   if (linearsize) 
     fprintf(outfile, "         with size\n");
   else
     fprintf(outfile, "\n");
-  fprintf(outfile, "   --------       -----------        -----------");
+  fprintf(outfile, "   --------         -----------      -----------");
   if (linearsize) 
     fprintf(outfile, "      -----------\n");
   else
     fprintf(outfile, "\n");
-  for (i = 0; i < df; i++) {   /* print out the eigenvalues (variances) */
+  for (i = 0; i < df; i++) {       /* print out the eigenvalues (variances) */
     n = m-i-1;
     corr = 0.0;
-    for (j=0; j < charspp; j++)  /* correlation with the mean vector */
+    for (j=0; j < charspp; j++)         /* correlation with the mean vector */
       corr += mean[j]*eigvecs[eigorder[n]][j];
     corr /= unorm;
     if (eig[n] < 0.0001)
@@ -3017,7 +3196,8 @@ void reportpca(long m)
 
 
 void reportlogL (double lnL, long dff)
-{ /* write out log likelihood and degrees of freedom */
+{
+  /* write out log likelihood and degrees of freedom */
 
   fprintf(outfile, "\nLog L  =  %12.5f\n", lnL);
   fprintf(outfile, "\ndf  =  %5ld\n\n", dff);
@@ -3025,16 +3205,20 @@ void reportlogL (double lnL, long dff)
 
 
 void contrast_node_copy(node *src, node *dst)
-{ /* make a copy of a node */
+{
+  /* make a copy of a node */
   contrast_node *c = (contrast_node *)src;
   contrast_node *d = (contrast_node *)dst;
+
   cont_node_copy((node*)c, (node*)d);
 }  /* contrast_node_copy */
 
 
 void contrast_node_init(node* n, node_type type, long index)
-{ /* initialize a contrast_node */
+{
+  /* initialize a contrast_node */
   contrast_node *cn = (contrast_node*)n;
+
   generic_node_init(&(cn->cont_node_var.node_var), type, index);
   ((cont_node_type*)(cn))->view = (phenotype3)Malloc((long)charspp * sizeof(double));
   cn->cont_node_var.node_var.copy = contrast_node_copy;
@@ -3043,14 +3227,17 @@ void contrast_node_init(node* n, node_type type, long index)
 
 
 void contrast_node_reinit(node* n)
-{ /* re-init a contrast_node */
+{
+  /* re-init a contrast_node */
   contrast_node *cn = (contrast_node *)n;
+
   generic_node_reinit(&(cn->cont_node_var.node_var));
 } /* contrast_node_reinit */
 
 
 node* contrast_node_new(node_type type, long index)
-{ /* create a contrast_node as there is none on the garbage list */
+{
+  /* create a contrast_node as there is none on the garbage list */
   contrast_node* n;
 
   n = Malloc(sizeof(contrast_node));
@@ -3060,25 +3247,24 @@ node* contrast_node_new(node_type type, long index)
 
 
 node* contrast_node_make(tree * treep, node_type type, long index)
-{ /* either create a new contrast_node or obtain it from the garbage */
+{
+  /* either create a new contrast_node or obtain it from the garbage */
   node* n;
 
-  n = treep->get_forknode(treep,index);
+  n = treep->get_forknode(treep, index);
   contrast_node_init(n, type, index);
   return (node *)n;
 } /* contrast_node_make */
 
 
-void initcontrastnode(tree * treep, node **p, long len,
-                      long nodei, long *ntips, long *parens, initops whichinit,
-                      pointarray nodep, Char *str,
-                      Char *ch, FILE *intree)
-{ /* initializes a node */
+void initcontrastnode(tree * treep, node **p, long len, long nodei,
+                       long *ntips, long *parens, initops whichinit,
+                       pointarray nodep, Char *str,
+                       Char *ch, FILE *intree)
+{
+  /* initializes a node */
   boolean minusread;
   double valyew, divisor;
-
-  (void)len;                            // RSGnote: Variable never referenced.
-  (void)ntips;                          // RSGnote: Variable never referenced.
 
   switch (whichinit)
   {
@@ -3121,12 +3307,12 @@ void readthetree (void)
   /* read in the tree */
   long nextnode;
 
-  alloctree(&curtree.nodep, nonodes);
-  setuptree(&curtree, nonodes);
+  alloctree(&curtree->nodep, nonodes);
+  setuptree(curtree, nonodes);
   nextnode = 0;
   goteof = false;
   first = true;
-  treeread (&curtree, intree, &curtree.root, curtree.nodep, &goteof, &first,
+  treeread (curtree, intree, &curtree->root, curtree->nodep, &goteof, &first,
             &nextnode, &haslengths,
             initcontrastnode, false, nonodes);
 } /* readthetree */
@@ -3165,7 +3351,7 @@ void bltimetraverse (node *p, double *timedowntohere)
   boolean atbase;
 
   if (!(p->tip)) {
-    atbase = (p == curtree.root);
+    atbase = (p == curtree->root);
     pp = p->next;
     do {
       bltimetraverse (pp->back, timedowntohere);
@@ -3173,7 +3359,7 @@ void bltimetraverse (node *p, double *timedowntohere)
         p->tyme = (*timedowntohere) + multiplier * pp->v;
       *timedowntohere = p->tyme;
       pp = pp->next;
-    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
   } else {
     if (isfossil[p->index])
       p->tyme = fossiltime[p->index - 1];
@@ -3192,7 +3378,7 @@ void updatebounds(node *p)
   node *pp;
   double lowestfossil, lowestfossilabovehere;
 
-  atbase = (p == curtree.root);
+  atbase = (p == curtree->root);
   if (p->tip)
   {
     p->onlyfossilsabove = isfossil[p->index];
@@ -3217,7 +3403,7 @@ void updatebounds(node *p)
       if (pp->back->lowestfossilabove > lowestfossilabovehere)
         lowestfossilabovehere = pp->back->lowestfossilabove;
       pp = pp->next;
-    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+    } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
     p->onlyfossilsabove = allfossilsabove;
     p->fossilsabove = somefossilsabove;
     if (somefossilsabove  && !allfossilsabove)   /* then need to get scaling */
@@ -3230,7 +3416,7 @@ void updatebounds(node *p)
             lowestfossil = pp->back->tyme;
         }
         pp = pp->next;
-      } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree.root)));
+      } while (((!atbase) && (pp != p)) || (atbase && (pp != curtree->root)));
       if (!atbase)
       {
         if (lowestfossil > minmultmult * multiplier * p->tyme)
@@ -3251,23 +3437,23 @@ double evaluate (node *q) {
     if (sizes && (!linearsize))
       zsum = 0.0;
   contwithin();
-  makecontrasts(curtree.root);
+  makecontrasts(curtree->root);
   getcovariances();
   if (fossil)
-    makefossilcovars(curtree.root);
+    makefossilcovars(curtree->root);
   matcopy(sumprod, temp5, charspp);
 /* debug  if ((chars == df) && !(justprocrust || bookmorph || mlrots))     if full rank */
 /* debug     ldet = logdet(temp5);   */           /* can just take Log Det */
 /* debug   else { */
-    qreigen(temp5, charspp);        /* all eigenvalues including zeros */
-    for (i = 0; i < charspp; i++)   /* set up sort tags for eigenvalue order */
+    qreigen(temp5, charspp);      /* all eigenvalues including (near-)zeros */
+    for (i = 0; i < charspp; i++)  /* set up sort tags for eigenvalue order */
       eigorder[i] = i;
-    shellsort(eig, eigorder, charspp); /* sort eigenvalues in ascending order */
+    shellsort(eig, eigorder, charspp);       /* sort eig in ascending order */
 // for (i = 0; i < df; i++)   /* set up sort tags for eigenvalue order */
 //   printf(" %12.8f", -0.5*contno*log(eig[charspp-i-1])); /*debug */
 // printf("\n");  /* debug */
     ldet = 0.0;
-for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
+  for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
     for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
       ldet += log(eig[charspp-i-1]);
 /* debug  }   */
@@ -3287,7 +3473,7 @@ for (i = 0; i < df; i++)    /* log det by dropping missing dimensions */
   return (logL);
 } /* evaluate */
 
-
+#if 0          /* for now, comment out all the fossil stuff */
 double fevaluate (double twhere, node *q, boolean atroot)
 {
   /* calculate log(L) by calling evaluate, for a given placement
@@ -3301,14 +3487,14 @@ double fevaluate (double twhere, node *q, boolean atroot)
   assert(numfossils > 0);               // RSGnote: Otherwise "r" fails to be initialized.
   for (k = 0; k < numfossils; k++)      /* branch length near fossils */
   {
-    r = curtree.nodep[fossilsp[k]-1];
+    r = curtree->nodep[fossilsp[k]-1];
     rr = r->back->next->next;
     r->v = (rr->tyme - r->tyme)/multiplier;
     if (!atroot)
       rr->back->v = r->v;
   }
 
-  logL = evaluate (curtree.root);
+  logL = evaluate (curtree->root);
   if (firstplace || (logL > bestlogL))
   {
     bestlogL = logL;
@@ -3345,12 +3531,12 @@ void locatefossilonbranch (node *p, node *q, node *qq, boolean atroot)
     p->back->next->back->v = p->back->next->v;
     if (p->back->next->next->back != NULL) {
       p->back->next->next->v =
-        (curtree.nodep[p->back->next->next->back->index - 1]->tyme
+        (curtree->nodep[p->back->next->next->back->index - 1]->tyme
          - twhere)/multiplier;
       p->back->next->next->back->v = p->back->next->next->v;
     }
     p->back->next->next->tyme = p->tyme + p->v;
-    logL = fevaluate(twhere, curtree.root, atroot);
+    logL = fevaluate(twhere, curtree->root, atroot);
   }
 } /* locatefossilonbranch */
 
@@ -3362,12 +3548,12 @@ boolean placefossilonbranch (node *p, node *q)
   /* debug: do we want to remember them all?? */
   node *qq, *qtemp, *q1;
   double tup, tnew, timedowntohere;
-  boolean canplacehere = false;         // RSGnote: Formerly not initialized; done so to silence compiler warning.
+  boolean canplacehere = false;      /* set to silence compiler warning */
 
-  bltimetraverse (curtree.root, &timedowntohere); /* calculate  tyme  values */
-  if (!(q == curtree.root))
+  bltimetraverse (curtree->root, &timedowntohere); /* calculate  tyme  values */
+  if (!(q == curtree->root))
   {
-    qq = curtree.nodep[q->back->index - 1];   /* qq  is node ancestral to q */
+    qq = curtree->nodep[q->back->index - 1];   /* qq  is node ancestral to q */
     if (q->tyme > qq->tyme)                   /* switch them if out of time order */
     {
       qtemp = q;
@@ -3380,9 +3566,9 @@ boolean placefossilonbranch (node *p, node *q)
       if (reportplacefossils)
         fprintf(outfile,
                 "\n from node %ld (length ago: %6.3f) to node %ld (length ago: %6.3f)\n",
-                q->index, curtree.nodep[q->index-1]->tyme/multiplier,
-                q->back->index, curtree.nodep[q->back->index-1]->tyme/multiplier);
-      generic_tree_insert_(&curtree, p, q, false, false);
+                q->index, curtree->nodep[q->index-1]->tyme/multiplier,
+                q->back->index, curtree->nodep[q->back->index-1]->tyme/multiplier);
+      generic_tree_insert_(&curtree, p, q, false);
       tup = q->tyme;
       if (tup < p->tyme)
         tup = p->tyme;
@@ -3397,7 +3583,7 @@ boolean placefossilonbranch (node *p, node *q)
         locatefossilonbranch (p, q, qq, false);   /* debug */
       }
       generic_tree_re_move(&curtree, p, &q, false);
-      q1 = curtree.nodep[q->back->index-1];
+      q1 = curtree->nodep[q->back->index-1];
       q->v = (q1->tyme - q->tyme)/multiplier;
       q->back->v = q->v;
       canplacehere = true;  /* debug   temporary */
@@ -3405,21 +3591,21 @@ boolean placefossilonbranch (node *p, node *q)
   }
   else
   {
-    generic_tree_insert_(&curtree, p, q, false, false);
+    generic_tree_insert_(&curtree, p, q, false);
     if (p->tyme > q->tyme)
       p->back->tyme = p->tyme + 0.1;
     else
       p->back->tyme = q->tyme + 0.1;
     p->back->next->tyme = p->back->tyme;  /* set tymes of new root node */
     p->back->next->next->tyme = p->back->tyme;
-    curtree.root = p->back->next->next;
+    curtree->root = p->back->next->next;
     tup = q->tyme;
     if (tup < p->tyme)
       tup = p->tyme;
     if (reportplacefossils) {
       fprintf(outfile, " (at root) minmultmult = %10.6f\n",minmultmult);  /* debug */
       fprintf(outfile, " place species %ld between node %ld (length ago: %6.3f) and -infinity\n",
-              p->index, q->index, curtree.nodep[q->index-1]->tyme);
+              p->index, q->index, curtree->nodep[q->index-1]->tyme);
       fprintf(outfile, "     length  multiplier     time\n");
       fprintf(outfile, "      (ago)  (to time)      (ago)     Log(L)\n");
       fprintf(outfile, "     ------  -----------    -----     ------\n");
@@ -3440,9 +3626,9 @@ void placetraverse (long n, node *p)
   boolean atbase, worked;
   double timedowntohere;
 
-  bltimetraverse (curtree.root, &timedowntohere); /* calculate  tymes */
-  atbase = (p == curtree.root);
-  worked = placefossilonbranch(curtree.nodep[fossilsp[n-1]-1], p);
+  bltimetraverse (curtree->root, &timedowntohere); /* calculate  tymes */
+  atbase = (p == curtree->root);
+  worked = placefossilonbranch(curtree->nodep[fossilsp[n-1]-1], p);
   if (!(p->tip)) {
     pp = p->next;
     do {
@@ -3452,8 +3638,8 @@ void placetraverse (long n, node *p)
         placetraverse (n, r);
       pp = pp->next;
     } while (((!atbase) && (pp != p))
-             || (atbase && (((curtree.root->back == NULL) && (pp != curtree.root))
-                            || ((curtree.root->back != NULL) && (pp != curtree.root->next))
+             || (atbase && (((curtree->root->back == NULL) && (pp != curtree->root))
+                            || ((curtree->root->back != NULL) && (pp != curtree->root->next))
                    )));
   }
 } /* placetraverse */
@@ -3474,29 +3660,29 @@ void makenewbranches (void)
 
   p = NULL;                             // RSGnote: "p" initialized merely to silence compiler warning.
 
-#if 0                                   //  debug; may not need this
-  curtree.nodep = realloc(curtree.nodep, (nonodes + numfossils) * sizeof(node *  *));
-#endif
+/* #if 0                                    debug; may not need this  
+  curtree->nodep = realloc(curtree->nodep, (nonodes + numfossils) * sizeof(node *  *));
+  #endif      debug  */
 
   *t = curtree;                         // RSGnote: Write from uniititialized pointer.
 
   emptynode = nonodes - numfossils;
   for (i = 0; i < numfossils; i++) {
-    q = curtree.nodep[fossilsp[i]-1];   /* a pointer to that fossil */
+    q = curtree->nodep[fossilsp[i]-1];   /* a pointer to that fossil */
     q->tip = true;
 
-#if 0   // debug    probably don't want this:
-    initcontrastnode(&p, &grbg, NULL, 0.0, emptynode, &spp, 0, bottom, NULL, curtree.nodep, NULL, NULL, NULL);
+/* #if 0    debug    probably don't want this: */
+    initcontrastnode(&p, &grbg, NULL, 0.0, emptynode, &spp, 0, bottom, NULL, curtree->nodep, NULL, NULL, NULL);
     for (j = 1; j <= 2; j++)            // complete the triangle of nodes
     {
-      initcontrastnode(&p->next, &grbg, NULL, 0.0, emptynode, &spp, 0, nonbottom, NULL, curtree.nodep, NULL, NULL, NULL);
+      initcontrastnode(&p->next, &grbg, NULL, 0.0, emptynode, &spp, 0, nonbottom, NULL, curtree->nodep, NULL, NULL, NULL);
       p = p->next;
     }
     p->next = p;                        // connect last part of triangle
-#endif
+/* debug  #endif  */
 
     t->get_forknode(t, emptynode);      /* get a fork */
-    curtree.nodep[emptynode] = p;       // RSGnote: "p" referenced before being initialized.
+    curtree->nodep[emptynode] = p;       // RSGnote: "p" referenced before being initialized.
     p->index = emptynode+1;             /* set up number of new interior node */
     p->next->index = p->index;          // RSGnote: Using a non-initialized pointer for a memory write.
     p->next->next->index = p->index;
@@ -3511,8 +3697,8 @@ void placeonefossil(long n)
   long j;
   /* traverse over tree placing fossil in various branches,
      Then leave it where it fits best.  */
-  updatebounds(curtree.root);
-  curtree.nodep[fossilsp[n-1]-1]->tyme = fossiltime[n-1];
+  updatebounds(curtree->root);
+  curtree->nodep[fossilsp[n-1]-1]->tyme = fossiltime[n-1];
   if (reportplacefossils)
     printf("placing fossil number %ld, species %ld, on tree\n",
            n, fossilsp[n-1]);
@@ -3527,15 +3713,16 @@ void placeonefossil(long n)
   }
   for (j = 1; j < 2*nmult; j = j+2) {  /* try different multipliers */
     multiplier = (minmultmult*(2*nmult-j)+maxmultmult*j)*multiplier0/(2*nmult);
-    placetraverse (n, curtree.root);  /* start at root, traverse */
-    fprintf(outfile, "\n\nBest location:  branch %ld, at branch length %lf down the branch,\n scaling multiplier  %lf, best time %lf,  log(L) = %lf\n", bestplace,
-            bestwhere, bestmult, bestwhere*bestmult, bestlogL);
+    placetraverse (n, curtree->root);  /* start at root, traverse */
+    fprintf(outfile, "\n\nBest location:  branch %ld, at branch length %lf down the branch,\n scaling multiplier  %lf, best time %lf,  log(L) = %lf\n",
+             bestplace, bestwhere, bestmult, bestwhere*bestmult, bestlogL);
   }
   replacefossil();  /* debug -- what arguments to use? */
 } /* placeonefossil */
 
 
-void placeallfossils(void) {
+void placeallfossils(void) 
+{
   /*  debug -- the iterative machinery will be placed here but for now we
       just place the first fossil */
   long i;
@@ -3546,155 +3733,231 @@ void placeallfossils(void) {
     placeonefossil(i);                 /*   all fossils and attach them */
   }
 } /* placeallfossils */
+#endif  /* end commenting-out of fossil stuff */
+
+
+void reportlrttests()
+{
+  /* write out the results of the LRT tests of no phylogenetic covariances */
+/* debug: make sure in other functions to save and pass in the results of the test */
+
+  if (nocorr || nophylo) {
+    fprintf(outfile, "\n\n\n    Likelihood Ratio Test");
+    if (nocorr)
+      fprintf(outfile,  " of no correlation");
+    if (nophylo && nocorr)
+      fprintf(outfile, " and");
+    if (nophylo)
+      fprintf(outfile,  " of no VarA component");
+    fprintf(outfile, "\n");
+    fprintf(outfile, "    ---------- ----- ----");
+    if (nocorr)
+      fprintf(outfile,  " -- -- -----------");
+    if (nophylo && nocorr)
+      fprintf(outfile, " ---");
+    if (nophylo)
+      fprintf(outfile,  " -- -- ---- ---------");
+    fprintf(outfile, "\n\n");
+    if (nophylo) {
+      if (nocorr)
+        fprintf(outfile, "    Log likelihood with VarA, correlation = %13.5f,",
+                logLvara);
+      else
+        fprintf(outfile,
+                 "    Log likelihood with VarA              = %13.5f,",
+                 logLvara);
+    } else {
+      fprintf(outfile, "    Log likelihood with correlation       = %13.5f,",
+              logLvara);
+    }
+    if (nocorr && nophylo)
+      fprintf(outfile, "  %ld parameters\n\n\n", charsd*(charsd+1));
+    else
+      fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1));
+    if (nocorr) {
+      fprintf(outfile,
+              "    Log likelihood without correlation    = %13.5f,",
+              logLnocorr);
+      fprintf(outfile, "  %ld parameters\n\n",
+                 n1*(n1+1)/2+(charsd-n1+1)*(charsd-n1)/2+charsd*(charsd+1)/2);
+      fprintf(outfile, "                     difference    = %13.5f\n\n",
+              logLvara-logLnocorr);
+      fprintf(outfile, "                Chi-square value = %13.5f,",
+              2.0*(logLvara-logLnocorr));
+      if (n1*(charsd-n1) == 1)
+        fprintf(outfile, "  %ld  degree of freedom\n\n",
+                n1*(charsd-n1));
+      else
+        fprintf(outfile, "  %ld  degrees of freedom\n\n",
+                n1*(charsd-n1));
+      if (nophylo)
+        fprintf(outfile, "\n");
+    }
+    if (nophylo) {
+      fprintf(outfile,
+              "    Log likelihood without varA           = %13.5f,", logLnovara);
+      fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1)/2);
+      fprintf(outfile, "                     difference    = %13.5f\n\n",
+              logLvara-logLnovara);
+      fprintf(outfile, "                Chi-square value = %13.5f,",
+              2.0*(logLvara-logLnovara));
+      if (charsd*(charsd+1)/2 == 1)
+        fprintf(outfile, "  %ld  degree of freedom\n\n",
+                charsd*(charsd+1)/2);
+      else
+        fprintf(outfile, "  %ld  degrees of freedom\n\n",
+                charsd*(charsd+1)/2);
+    }
+  }
+} /* reportlrttests */
+
+
+void writereportforonecovar(boolean within, matrix var, phenotype3 meanz)
+{
+  /* for one of the inferred covariance matrices, write out all the desired
+   * reports on it (covariances, correlations, regressions, means, PCs etc
+   * before these, write a string describing which covariation */
+
+  if (superposition)
+    writesuper();
+  if (writecont)
+    writecontrasts();
+  if (!omitheaders)
+    writemeans();
+  if (sizes) {
+    writereports();
+    writerotations();
+    writescales();
+    writevarsz();
+    writeallom();
+    }
+  reportcovars(sumprod, charspp);
+  if (reg) {
+    calculateregressions(sumprod, charspp);
+    reportregressions(regressions, correlations);
+    }
+  else {
+    printcovariances(nocorr, nophylo);
+  }
+  if (pca) {
+    reportpca(charspp);
+    }
+  if(reg || pca || (sizes && !superposition)) {
+    reportlogL (logL, contno*df);
+    }
+  if (!omitheaders)
+    putc('\n', outfile);
+} /* writereportforonecovar */
+
+
+void writereports(void)
+{
+  /* for one combination of data set and tree, write out means, covariances
+   * (within and between species as needed), principal components,
+   * superpositions, etc. Menu settings control which are written out,
+   * and can turn off headings so as to write out in computer-readable form */
+
+/* debug: later on may move some of the principal component stuff back here */
+    if (!omitheaders) {
+      writemethods();
+      fprintf(outfile, " Evolutionary covariation (between species)\n\n");
+      }
+    if (varywithin) {
+      writereportforonecovar(false, vara, meanz); /* the between variation */
+      writereportforonecovar(true, vare, meanz);  /* the within variation */
+      }
+    else {
+      writereportforonecovar(false, vara, meanz); /* the between variation */
+      }
+    if (nocorr || nophylo)
+      logLvara = logL;
+    if (nocorr) {
+      logLnocorr = logL;
+    }
+    if (nophylo) {
+      logLnovara = logL;
+    }
+  if (nocorr || nophylo) {
+    reportlrttests();
+    }
+} /* writereports */
+
+
+void calculatecovsetc(void)
+{
+  /* for one combination of data set and tree, infer the covariances and
+   * means and call the functions that report on them and other stuff */
+
+  multiplier = 1.0;
+  makecontrasts(curtree->root);
+  getcovariances();
+  getmeans();
+  if (!varywithin) {
+    if (sizes) {
+      getscales();
+      if (linearsize)  {
+        getsizevar();
+        getshapecovars(sumprod);
+      }
+      else
+        varz = sumprod[charspp-1][charspp-1]; 
+    } else {
+      getsizevar();
+      getshapecovars(sumprod);
+    }
+    if (reg || pca)
+      calculateregressions(sumprod, charspp);
+    if (pca) {
+      matcopy(sumprod, temp5, charspp);
+      qreigen (temp5, charspp);
+    }
+    if(reg || pca || (sizes && !superposition)) {
+      logL = evaluate(curtree->root);
+      bestlogL = logL;
+    }
+  }
+  else {
+    emiterate(false, false);
+    if (nocorr || nophylo)
+      logLvara = logL;
+    if (nocorr) {
+      emiterate(nocorr, false);
+      logLnocorr = logL;
+    }
+    if (nophylo) {
+      emiterate(nocorr, nophylo);
+      logLnovara = logL;
+    }
+  }
+} /* calculatecovsetc */
 
 
 void maketree(void)
-{   /* process one data set and one tree */
+{
+  /* process one data set and one tree */
 
-  morph();         /* put y into x after doing porphometric transforms */
-  firsttime = false;  /* make sure next data set isn't considered first */
-  bifurcating = (curtree.root->next->next == curtree.root);
-  contwithin();
+  morph();              /* put y into x after doing morphometric transforms */
+  firsttime = false;      /* make sure next data set isn't considered first */
+  bifurcating = (curtree->root->next->next == curtree->root);
+  contwithin();   /* debug: does this need to be moved? */
+#if 0
   if (fossil)
   {
     placeallfossils();
   }
   else {
-    multiplier = 1.0;
-    makecontrasts(curtree.root);
-    getcovariances();
-    getmeans();
-    if (!varywithin) {
-      if (!omitheaders)
-        writemethods();
-      if (superposition)
-        writesuper();
-      if (writecont)
-        writecontrasts();
-      if (!omitheaders)
-        writemeans();
-      if (sizes) {
-        getscales();
-        if (linearsize)  {
-          getsizevar();
-          getshapecovars(sumprod);
-        }
-        else
-          varz = sumprod[charspp-1][charspp-1]; 
-        if (!omitheaders) {
-          writescales();
-          writevarsz();
-          writerotations();
-          if (sizechar)
-            writeallom();
-          reportcovars(sumprod, charspp);
-        }
-      }
-      else
-        if(!omitheaders)
-          reportcovars(sumprod, charspp);
-      if (reg || pca)
-        regressions();
-      if (pca) {
-        matcopy(sumprod, temp5, charspp);
-        qreigen (temp5, charspp);
-        reportpca(charspp);
-      }
-      if(reg || pca || (sizes && !superposition)) {
-        logL = evaluate(curtree.root);
-        bestlogL = logL;
-        reportlogL (logL, contno*df);
-      }
-      if (!omitheaders)
-        putc('\n', outfile);
-    }
-    else {
-      emiterate(false, false);
-      printcovariances(false, false);
-      if (nocorr || nophylo)
-        logLvara = logL;
-      if (nocorr) {
-        emiterate(nocorr, false);
-        printcovariances(nocorr, nophylo);
-        logLnocorr = logL;
-      }
-      if (nophylo) {
-        emiterate(nocorr, nophylo);
-        printcovariances(nocorr, nophylo);
-        logLnovara = logL;
-      }
-      if (nocorr || nophylo) {
-        fprintf(outfile, "\n\n\n    Likelihood Ratio Test");
-        if (nocorr)
-          fprintf(outfile,  " of no correlation");
-        if (nophylo && nocorr)
-          fprintf(outfile, " and");
-        if (nophylo)
-          fprintf(outfile,  " of no VarA component");
-        fprintf(outfile, "\n");
-        fprintf(outfile, "    ---------- ----- ----");
-        if (nocorr)
-          fprintf(outfile,  " -- -- -----------");
-        if (nophylo && nocorr)
-          fprintf(outfile, " ---");
-        if (nophylo)
-          fprintf(outfile,  " -- -- ---- ---------");
-        fprintf(outfile, "\n\n");
-        if (nophylo) {
-          if (nocorr)
-            fprintf(outfile, "    Log likelihood with varA, correlation = %13.5f,",
-                    logLvara);
-          else
-            fprintf(outfile, "    Log likelihood with varA              = %13.5f,",
-                    logLvara);
-        } else
-          fprintf(outfile, "    Log likelihood with correlation       = %13.5f,",
-                  logLvara);
-        if (nocorr && nophylo)
-          fprintf(outfile, "  %ld parameters\n\n\n", charsd*(charsd+1));
-        else
-          fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1));
-        if (nocorr) {
-          fprintf(outfile,
-                  "    Log likelihood without correlation    = %13.5f,",
-                  logLnocorr);
-          fprintf(outfile, "  %ld parameters\n\n", n1*(n1+1)/2+(charsd-n1+1)*(charsd-n1)/2+charsd*(charsd+1)/2);
-          fprintf(outfile, "                     difference    = %13.5f\n\n",
-                  logLvara-logLnocorr);
-          fprintf(outfile, "                Chi-square value = %13.5f,",
-                  2.0*(logLvara-logLnocorr));
-          if (n1*(charsd-n1) == 1)
-            fprintf(outfile, "  %ld  degree of freedom\n\n",
-                    n1*(charsd-n1));
-          else
-            fprintf(outfile, "  %ld  degrees of freedom\n\n",
-                    n1*(charsd-n1));
-          if (nophylo)
-            fprintf(outfile, "\n");
-        }
-        if (nophylo) {
-          fprintf(outfile,
-                  "    Log likelihood without varA           = %13.5f,", logLnovara);
-          fprintf(outfile, "  %ld parameters\n\n", charsd*(charsd+1)/2);
-          fprintf(outfile, "                     difference    = %13.5f\n\n",
-                  logLvara-logLnovara);
-          fprintf(outfile, "                Chi-square value = %13.5f,",
-                  2.0*(logLvara-logLnovara));
-          if (charsd*(charsd+1)/2 == 1)
-            fprintf(outfile, "  %ld  degree of freedom\n\n",
-                    charsd*(charsd+1)/2);
-          else
-            fprintf(outfile, "  %ld  degrees of freedom\n\n",
-                    charsd*(charsd+1)/2);
-        }
-      }
-    }
+#endif
+    calculatecovsetc();
+    writereports();
+#if 0
   }
+#endif
 } /* maketree */
 
 
 int main(int argc, Char *argv[])
-{  /* main program */
+{
+  /* main program */
   initdata *funcs;
   long ncases, datasper, treesper;
   boolean datafirst, treesfirst;
@@ -3715,7 +3978,7 @@ int main(int argc, Char *argv[])
   reg = true;
   numtrees = 1;
   doinit();
-  curtree = *generic_tree_new(spp, nonodes);
+  curtree = contrast_tree_new(nonodes, spp);
   ncases = numtrees;    /* ncases will be how many tree-data pairs are done */
   if (ndatas > numtrees)
     ncases = ndatas;
@@ -3788,7 +4051,7 @@ int main(int argc, Char *argv[])
       openfile(&intree, INTREE, "input tree file", "r", argv[0], intreename);
       jth = 0;
     }
-  }
+  }                     /* end loop over trees and data sets */
   for (i = 0; i < charspp; i++)   /* probably unnecessary */
     free(sumprod[i]);
   free(sumprod);
@@ -3802,4 +4065,5 @@ int main(int argc, Char *argv[])
   free(funcs);
   return 0;
 } /* main */
-// End.
+
+/* End. */

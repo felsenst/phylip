@@ -46,7 +46,6 @@ typedef struct draw_node {
   double theta, oldtheta;
 } draw_node;
 
-/* externals should move to .h file later. */
 long          strpbottom, strptop, strpwide, strpdeep, strpdiv, hpresolution;
 boolean       dotmatrix, empty, preview, previewing, pictbold, pictitalic,
               pictshadow, pictoutline;

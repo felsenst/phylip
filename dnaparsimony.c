@@ -1,8 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0.
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    and Michal Palczewski.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   */
 
 
 #ifdef HAVE_CONFIG_H
@@ -26,31 +25,40 @@ long minwhich;
 
 tree* dnapars_tree_new(long nonodes, long spp)
 {
-  tree *t = Malloc(sizeof(dnapars_tree));
+  /* make new dnapars_tree */ 
+
+  tree *t;
+  
+  t = generic_tree_new(nonodes, spp);
+  parsimony_tree_init(t, nonodes, spp);
   dnapars_tree_init(t, nonodes, spp);
   return t;
-}
+} /* dnapars_tree_new */
 
 
 void dnapars_tree_init(tree* t, long nonodes, long spp)
 {
-  pars_tree_init(t, nonodes, spp);
+  /* set up functions for dnapars_tree */
+
   t->evaluate = dnapars_tree_evaluate;
   t->nuview = dnapars_tree_nuview;
   ((pars_tree*)t)->branchcollapsible = dna_branchcollapsible;
-}
+} /* dnapars_tree_init */
 
 
 node* dnapars_node_new(node_type type, long index) // RSGbugfix
 {
+  /* make a new dnapars_node */
+
   node* n = Malloc(sizeof(dnapars_node));
   dnapars_node_init(n, type, index);
   return n;
-}
+} /* dnapars_node_new */
 
 
 void dnapars_node_init(node* n, node_type type, long index)
 {
+  /* mostly, set up local functiona for a dnapars_node */
   dnapars_node *dn = (dnapars_node *)n;
 
   pars_node_init(n, type, index);
@@ -66,11 +74,13 @@ void dnapars_node_init(node* n, node_type type, long index)
 
   if (dn->numnuc) free(dn->numnuc);
   dn->numnuc = Malloc(endsite * sizeof(nucarray));
-}
+} /* dnapars_node_init */
 
 
 void dnapars_node_reinit(node * n)
 {
+  /* reinitialize a dnapars_node */
+
   pars_node_reinit(n);
 
   dnapars_node *dn = (dnapars_node *)n;
@@ -82,20 +92,23 @@ void dnapars_node_reinit(node * n)
   if (dn->numnuc)
     free(dn->numnuc);
   dn->numnuc = Malloc(endsite * sizeof(nucarray));
-}
+} /* dnapars_node_reinit */
 
 
 void dnapars_node_free(node **pp)
 {
+  /* free a dnapars_node */
   dnapars_node * dp = (dnapars_node *)*pp;
+
   free(dp->base);
   free(dp->numnuc);
   pars_node_free(pp);
-}
+} /* dnapars_node_free */
 
 
 void dnapars_node_copy(node* srcn, node* dstn)
 {
+  /* copy a dnapars_node */
   dnapars_node *src = (dnapars_node *)srcn;
   dnapars_node *dst = (dnapars_node *)dstn;
 
@@ -107,11 +120,12 @@ void dnapars_node_copy(node* srcn, node* dstn)
   }
   memcpy(dst->base, src->base, endsite * sizeof(long));
   memcpy(dst->numnuc, src->numnuc, endsite * sizeof(nucarray));
-}
+} /* dnapars_node_copy */
 
 
 void dna_initmin(dnapars_node *p, long sitei, boolean internal)
 {
+  /* some bookkeeping involving inferring branch lengths */
   long i;
 
   if (internal)
@@ -216,7 +230,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
   minpostorder(subtr2, treenode);
   minn = 10 * spp;
   nom = 0;
-  denom = 0;
+  denom = 1;
   for (i = (long)A; i <= (long)O; i++)
   {
     for (j = (long)A; j <= (long)O; j++)
@@ -247,7 +261,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
           minn = ((dnapars_node*)subtr1)->cumlengths[i] + cost +
             ((dnapars_node*)subtr2)->cumlengths[j];
           nom = 0;
-          denom = 0;
+          denom = 1;
         }
         if (((dnapars_node*)subtr1)->cumlengths[i] + cost +
             ((dnapars_node*)subtr2)->cumlengths[j] == minn)
@@ -347,7 +361,8 @@ void branchlentrav(node *p, node *root, long sitei, long chars, double *brlen, p
 
 
 void dna_treelength(node *root, long chars, pointarray treenode)
-{ /*  calls branchlentrav at each site */
+{ 
+  /*  calls branchlentrav at each site */
   long sitei;
   double trlen;
 
@@ -410,7 +425,8 @@ void dna_initbase(node *p, long sitei)
 
 long dna_getlargest(long *numnuc)
 {
-  /* find the largest in array numnuc */
+  /* find the largest in array numnuc, used to find which bases
+   * achieve most-parsimonious count  */
   long i, largest;
 
   largest = 0;
@@ -607,29 +623,35 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
   long i, steps;
   double term;
   double sum;
-  dnapars_node* p = (dnapars_node*)n;
-  dnapars_node* q = (dnapars_node*)n->back;
+  dnapars_node* p;
+  dnapars_node* q;
   long base1, base2;
   sum = 0.0;
 
-  generic_tree_evaluate(t, n, saveit);
+  p = (dnapars_node*)n;
+  q = (dnapars_node*)n->back;
+ 
+  generic_tree_evaluate(t, n, saveit);  /* get views and numsteps elsewhere */
 
   for (i = 0; i < endsite; i++)
   {
-    steps = ((pars_node*)p)->numsteps[i] + ((pars_node*)q)->numsteps[i];
-    base1 = p->base[i];
-    base2 = q->base[i];
-    if ( transvp )
-    {
-      if (base1 & purset) base1 = purset;
-      if (base1 & pyrset) base1 = pyrset;
+    if (n->back == NULL) {           /* if at root fork and nothing in back */
+      steps = ((pars_node*)p)->numsteps[i];
+    } else {              /* if at one end of a branch connecting two nodes */
+      steps = ((pars_node*)p)->numsteps[i] + ((pars_node*)q)->numsteps[i];
+      base1 = p->base[i];
+      base2 = q->base[i];
+      if ( transvp )     /* transversion parsimony, no cost for transitions */
+      {
+        if (base1 & purset) base1 = purset;
+        if (base1 & pyrset) base1 = pyrset;
+      }
+      if ( (base1 & base2) == 0 ) /* weighted by number of sites it aliases */
+        steps += weight[i];
     }
-    if ( (base1 & base2) == 0 )
-      steps += weight[i];
-    if ( ((pars_tree*)t)->supplement)
+    if ( ((pars_tree*)t)->supplement)      /* extra steps for polymorphisms */
       steps += ((pars_tree*)t)->supplement(t, i);
-
-    if (steps <= threshwt[i])
+    if (steps <= threshwt[i])                        /* threshold parsimony */
       term = steps;
     else
       term = threshwt[i];
@@ -637,6 +659,7 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
     if (usertree && which <= maxuser)
       fsteps[which - 1][i] = term;
   }
+
   if (usertree && which <= maxuser)
   {
     nsteps[which - 1] = sum;
@@ -656,16 +679,17 @@ double dnapars_tree_evaluate(tree* t, node *n, boolean saveit)
 }  /* dnapars_tree_evaluate */
 
 
-void dnapars_tree_nuview(tree* t, node*p)
-{
+void dnapars_tree_nuview(tree* t, node* p)
+{ 
+  /* calculate the view for all endsite sites 
+   * includes possibility of multifurcations */
   node *q;
   dnapars_node *qback;
   long i, j, base1, newbase, steps, largest;
-  long numnuc[5] = {0, 0, 0, 0, 0};
+  long numnuc[5] = {0, 0, 0, 0, 0};           /* covers case where is a gap */
   boolean bif;
   long root = 0;
 
-  generic_tree_nuview(t, p);
   bif = (count_sibs(p) == 2);
 
   for ( i = 0 ; i < endsite ; i++ )
@@ -673,26 +697,26 @@ void dnapars_tree_nuview(tree* t, node*p)
     newbase = 0xff;
     steps = 0;
     for ( q = p->next ; q != p ; q = q->next )
-    {
-      qback = (dnapars_node*)q->back;
+    {                /* go to all furcs, add numsteps and find shared bases */
+      qback = (dnapars_node*)q->back;      /* node which thus furc leads to */
       if ( qback == NULL )
       {
-        root = 1;
+        root = 1;                   /* a count so need a long not a boolean */
         continue;
       }
       /* if we root the tree we can safely ignore the root*/
       base1 = qback->base[i];
       if ( transvp )
-      {
+      {     /* transversion parsimony ignores changes within purine, pyrine */
         if (base1 & purset) base1 = purset;
         if (base1 & pyrset) base1 = pyrset;
       }
-      newbase &= base1;
-      steps += ((pars_node*)qback)->numsteps[i];
+      newbase &= base1;                   /* hoping for a shared nucleotide */
+      steps += ((pars_node*)qback)->numsteps[i];      /* add up numsteps[i] */
     }
-    if ( newbase == 0 )
+    if ( newbase == 0 )                       /* alas, no shared nucleotide */
     {
-      if ( !bif )
+      if ( !bif )                           /* for case of a multifurcation */
       {
         memset(numnuc, 0, sizeof(numnuc));
         for (j = (long)A; j <= (long)O; j++)
@@ -717,22 +741,24 @@ void dnapars_tree_nuview(tree* t, node*p)
         steps += (weight[i]) * (count_sibs(p) - largest - root);
       }
       else
-      { /* optimization for bifurcation, code above still works though*/
-        newbase = ((dnapars_node*)p->next->back)->base[i] | ((dnapars_node*)p->next->next->back)->base[i];
-        steps += weight[i];
+      {       /* optimization for bifurcation, code above still works though*/
+        newbase = ((dnapars_node*)(p->next->back))->base[i]
+                   | ((dnapars_node*)(p->next->next->back))->base[i];
+        steps += weight[i];    /* what Walter Fitch called an "intersunion" */
       }
     }
 
-    ((dnapars_node*)p)->base[i] = newbase;
-    ((pars_node*)p)->numsteps[i] = steps;
+    ((dnapars_node*)p)->base[i] = newbase;         /* base-set at this node */
+    ((pars_node*)p)->numsteps[i] = steps;    /* count at-or-above this node */
   }
 
   p->initialized = true;
-}
+} /* dnapars_tree_nuview */
 
 
 boolean dna_branchcollapsible(tree* t, node* n)
 {
+  /* dnapars version of checking whether a branch is collapsible */
   boolean collapsible = true;
   long i;
   node* q;
@@ -750,7 +776,7 @@ boolean dna_branchcollapsible(tree* t, node* n)
       return false;
   }
   return collapsible;
-}
+} /* dna_branchcollapse */
 
 
 void dna_makevalues(tree* t, boolean usertree)
@@ -759,10 +785,6 @@ void dna_makevalues(tree* t, boolean usertree)
   /* used by dnacomp, dnapars, & dnapenny */
   long i, j;
   char ns = 0;
-
-  // RSGnote: Parameter never referenced.  Also, a global of the same name exists.
-  // THIS IS A REAL BUG POTENTIAL.
-  (void)usertree;
 
   for (j = 0; j < endsite; j++)
   {

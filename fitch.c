@@ -38,7 +38,7 @@ void   correctv(node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
-void   setuptipf(long, tree *);
+void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   addtraverse(node *, node *, boolean, long *, boolean *);
@@ -81,24 +81,28 @@ char *progname;
 
 tree* fitch_tree_new(long nonodes, long spp)
 {
+  /* initialize a tree for Fitch */
   tree* t;
+
   t = Malloc(sizeof(fitch_tree));
   fitch_tree_init(t, nonodes, spp);
   return t;
-}
+} /* fitch_tree_new */
 
 
 void fitch_tree_init(tree* t, long nonodes, long spp)
 {
-  fitch_tree *ft = (fitch_tree *)t;
+  /* set up functions for a tree for Fitch */
 
-  ml_tree_init(&(ft->ml_tree.tree), nonodes, spp);
+  fitch_tree *ft = (fitch_tree *)t;
+/* debug:   dist_tree_init(&(ft->ml_tree.tree), nonodes, spp);   debug */
+  dist_tree_init(t, nonodes, spp);
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->nuview = fitch_nuview;
   ft->ml_tree.makenewv = fitch_makenewv;
-}
+} /* fitch_tree_init */
 
 
 void getoptions(void)
@@ -313,6 +317,7 @@ void getoptions(void)
 
 void allocrest(void)
 {
+  /* allocate routing stuff */
   long i;
 
   x = (vector *)Malloc(spp * sizeof(vector));
@@ -324,7 +329,7 @@ void allocrest(void)
   }
   nayme = (naym *)Malloc(spp * sizeof(naym));
   enterorder = (long *)Malloc(spp * sizeof(long));
-}
+} /* allocrest */
 
 
 void doinit(void)
@@ -361,10 +366,10 @@ void inputoptions(void)
   fprintf(outfile, "\nFitch-Margoliash method version %s\n\n", VERSION);
   if (minev)
     fprintf(outfile, "Minimum evolution method option\n\n");
-  fprintf(outfile, "                  __ __             2\n");
-  fprintf(outfile, "                  \\  \\   (Obs - Exp)\n");
-  fprintf(outfile, "Sum of squares =  /_ /_  ------------\n");
-  fprintf(outfile, "                               ");
+  fprintf(outfile, "                                    2\n");
+  fprintf(outfile, "                  __ __  (Obs - Exp)\n");
+  fprintf(outfile, "                  \\  \\   ------------\n");
+  fprintf(outfile, "Sum of squares =  /_ /_        ");
   if (power == (long)power)
     fprintf(outfile, "%2ld\n", (long)power);
   else
@@ -578,7 +583,6 @@ void fitch_nuview(tree* t, node *p)
   /* renew information about subtrees */
   node *q;
 
-  generic_tree_nuview(t, p);
   alter(p, p->back);
   for (q = p->next ; q != p ; q = q->next )
     alter(q, q->back);
@@ -609,7 +613,7 @@ void fitch_makenewv(tree* t, node *p)
 }  /* update */
 
 
-void setuptipf(long m, tree *t)
+void fitch_setuptip(tree *t, long m)
 {
   /* initialize branch lengths and views in a tip */
   long i=0;
@@ -636,26 +640,22 @@ void setuptipf(long m, tree *t)
   WITH->node.index = m;
   if (WITH->node.iter) WITH->node.v = 0.0;
   free(n);
-}  /* setuptipf */
+}  /* fitch_setuptip */
 
 
 void fitch_buildnewtip(long m, tree *t, long nextsp)
 {
-  (void)nextsp;                         // RSGnote: Parameter never used.
-
   /* initialize and hook up a new tip */
-  setuptipf(m, t);
+  fitch_setuptip(t, m);
 }  /* fitch_buildnewtip */
 
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
-  (void)nextsp;                         // RSGnote: Parameter never used.
-
   /* make and initialize a three-species tree */
-  setuptipf(enterorder[0], t);
-  setuptipf(enterorder[1], t);
-  setuptipf(enterorder[2], t);
+  fitch_setuptip(t, enterorder[0]);
+  fitch_setuptip(t, enterorder[1]);
+  fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
 }  /* fitch_buildsimpletree */
 
@@ -685,8 +685,6 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
-
-  (void)numtrees;                       // RSGnote: Parameter never used.
 
   fprintf(outfile, "\nremember:");
   if (outgropt)
@@ -757,8 +755,8 @@ void treevaluate(void)
   long i;
   double oldlike;
 
-  for (i = 1; i <= spp; i++)
-    setuptipf(i, curtree);
+  for (i = 1; i <= spp; i++)   /* debug: already done? is this necessary? */
+    fitch_setuptip(curtree, i);
   unroot(curtree, nonodes);
 
   initrav(curtree->root);
@@ -780,16 +778,16 @@ void maketree(void)
   /* contruct the tree */
   long nextsp, numtrees=-1;
   boolean succeeded=false;
-  long i, which;
+  long i, k, which;
   double bestyet;
-  node* where;
+  node *where, *p;
   boolean multf;
 
   if (usertree) {
     inputdata(replicates, printdata, lower, upper, x, reps);
-    setuptree(curtree, nonodes);
+    dist_tree_init(curtree, nonodes);
     for (which = 1; which <= spp; which++)
-      setuptipf(which, curtree);
+      fitch_setuptip(curtree, which);
     if (eoln(infile))
       scan_eoln(infile);
     /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
@@ -822,10 +820,10 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
-      setuptree(curtree, nonodes);
-      setuptree(priortree, nonodes);
-      setuptree(bestree, nonodes);
-      if (njumble > 1) setuptree(bestree2, nonodes);
+      dist_tree_new(curtree, nonodes);
+      dist_tree_new(priortree, nonodes);
+      dist_tree_new(bestree, nonodes);
+      if (njumble > 1) dist_tree_new(bestree2, nonodes);
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -844,13 +842,18 @@ void maketree(void)
     }
     while (nextsp <= spp) {
       nums = nextsp;
-      fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
       curtree->copy(curtree, priortree);
+      fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      p->v = initialv;
+      p->back->v = initialv;
+      bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-      curtree->addtraverse(curtree,
-                           curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true,
-                           &where, &bestyet, bestree, priortree, true, &multf);
+      curtree->addtraverse(curtree, p, curtree->root, true,
+                            where, &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
@@ -915,6 +918,8 @@ void maketree(void)
 
 void fitchrun(void)
 {
+  /* do a single tree estimation */
+
   //printf("in fitchrun\n");
   fflush(stdout);
 
@@ -968,9 +973,11 @@ void fitchrun(void)
     fflush(outfile);
     fflush(outtree);
   }
-}
+} /* fitchrun */
+
 
 void fitch(
+  /* take parameters from Java interface */
   char * infilename,
   char * intreename,
   char * OutfileName,
@@ -1238,7 +1245,7 @@ void fitch(
   FClose(outfile);
   FClose(infile);
   //printf("Done.\n\n");
-}
+} /* fitch */
 
 
 int main(int argc, Char *argv[])
@@ -1280,7 +1287,7 @@ int main(int argc, Char *argv[])
   printf("Done.\n\n");
   phyRestoreConsoleAttributes();
   return 0;
-}
+} /* main */
 
 
 // End.

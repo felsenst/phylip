@@ -39,7 +39,8 @@ void   makedists(node *);
 void   makebigv(contml_node *, boolean *);
 void   correctv(node *);
 void   littlev(node *);
-void   nuview(node *);
+void   contml_tree_makenewv(tree *, node *);
+void   contml_tree_nuview(tree*, node *);
 void   inittip(tree*,  long);
 void   coordinates(node *, double, long *, double *);
 void   drawline(long, double);
@@ -58,9 +59,8 @@ void   contml_node_copy(node *, node *);
 void   inittrees(void);
 tree*  contml_tree_new(long, long);
 void   contml_tree_init(tree*, long, long);
+void   contml_tree_setup(long, long);
 void   contml_tree_free(tree*);
-void   contml_tree_nuview(tree*, node*);
-void   contml_buildsimpletree(tree*, long*);
 void   contmlrun(void);
 void   contml(char * infilename, char * intreename, char * OutfileName, char * outfileopt,
               char * OuttreeName, char * outtreeopt, int BestTree, int UseLengths, int GeneFreq,
@@ -93,42 +93,46 @@ double trweight;   /* added to make treeread happy */
 boolean goteof;
 boolean haslengths;   /* end of ones added to make treeread happy */
 node *addwhere;
+double like;
 
 /* added to make ml.o happy, could use these later */
 boolean smoothed = false;
 boolean polishing = false;
 
 
+void contml_tree_init(tree* t, long nonodes, long spp)
+{ 
+  /* initialize a contml_tree.
+   * generic_tree_init) and those set some functions then this sets more */
+
+  allocview(t, nonodes2, totalleles);
+  t->evaluate = contml_tree_evaluate;
+  t->nuview = contml_tree_nuview;
+  t->makenewv = contml_tree_makenewv;
+  t->free = contml_tree_free;
+} /* contml_tree_init */
+
+ 
 tree * contml_tree_new(long nonodes, long spp)
 { /* create a contml_tree */
   tree* t = Malloc(sizeof(ml_tree));
+
+  t = generic_tree_new(nonodes, spp);
+  ml_tree_init(t, nonodes, spp);
   contml_tree_init(t, nonodes, spp);
   return t;
 } /* contml_tree_new*/
 
 
-void contml_tree_init(tree* t, long nonodes, long spp)
-{ /* initialize a contml_tree */
-  long i, j;
-  cont_node_type* p;
+void contml_tree_setup(long nonodes, long spp)
+{
+  /* create and initialize the necessary trees */
 
-  ml_tree_init(t, nonodes, spp);
-/*  allocview(t, nonodes2, totalleles);   debug */
-  for (i = 0; i < spp; i++) {
-    ((cont_node_type*)(t->nodep[i]))->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
-  }
-  for (i = spp; i < nonodes; i++) {
-    p = (cont_node_type*)(t->nodep[i]);
-    for (j = 1; j <= 3; j++) {
-      ((cont_node_type*)p)->view = (phenotype3)Malloc((long)totalleles * sizeof(double));
-      p = ((node*)p)->next;
-    }
-  }
-  t->evaluate = contml_tree_evaluate;
-  t->nuview = contml_tree_nuview;
-  ((ml_tree*)t)->makenewv = (makenewv_t)no_op;
-  t->free = contml_tree_free;
-} /* contml_tree_init */
+  curtree = contml_tree_new(nonodes, spp);
+  bestree = contml_tree_new(nonodes, spp);
+  bestree2 = contml_tree_new(nonodes, spp);
+  priortree = contml_tree_new(nonodes, spp);
+} /* contml_tree_setup */
 
 
 void contml_tree_free(tree* t)
@@ -569,7 +573,8 @@ void inputdata(void)
 
 void transformgfs(void)
 { /* do stereographic projection transformation on gene frequencies to
-     get variables that come closer to independent Brownian motions */
+     get variables that come closer to independent Brownian motions 
+     This was developed by Elizabeth Thompson (Biometrics, 1972) */
   long i, j, k, l, m, n, maxalleles;
   double f, sum;
   double *sumprod, *sqrtp, *pbar;
@@ -671,12 +676,12 @@ void transformgfs(void)
 
 void getinput(void)
 { /* reads the input data */
-  getalleles();
-  inittrees();
-  inputdata();
-  if (!contchars)
+  getalleles();     /* How many species/strains/populations, how many loci */
+  inittrees();      /* set up tree(s) of appropriate sizes */
+  inputdata();      /* read in the data and store it */
+  if (!contchars)   /* if it's gene frequencies ... */
   {
-    transformgfs();
+    transformgfs();  /* use approximate linearization (E. A. Thompson 1972) */
   }
 }  /* getinput */
 
@@ -684,69 +689,87 @@ void getinput(void)
 void sumlikely(node *p, node *q, double *sum)
 { /* sum contribution to likelihood over forks in tree */
   long i, j, m;
-  double term, sumsq, vee;
-  double temp;
+  double term, temp, sumsq, vee;
 
-  if (!p->tip)
+  if (!p->tip)       /* debug: bifurcating only */
     sumlikely(p->next->back, p->next->next->back, sum);
   if (!q->tip)
     sumlikely(q->next->back, q->next->next->back, sum);
+/* debug */  printf("doing contrast between %ld and %ld\n", p->index, q->index);
   if (p->back == q)
     vee = p->v;
   else
+/* debug */  printf("p->v, q->v: %12.8f, %12.8f\n", p->v, q->v);
     vee = p->v + q->v;
+/* debug */  printf("p->deltav, q->deltav: %12.8f, %12.8f\n", p->deltav, q->deltav);
   vee += p->deltav + q->deltav;
+/* debug: this seems to give trouble so commenting it out ...
   if (vee <= 1.0e-10)
   {
     printf("\nERROR:  Check for two identical species and eliminate one from the data.\n");
     exxit(-1);
   }
-  sumsq = 0.0;
+debug:  */
   if (usertree && which <= MAXSHIMOTREES)
   {
     for (i = 0; i < loci; i++)
       l0gf[which - 1][i] += (1 - alleles[i]) * log(vee) / 2.0;
   }
-  if (contchars)
+  sumsq = 0.0;
+  if (contchars)    /* this case is where there are continuous characters */
   {
     m = 0;
     for (i = 0; i < loci; i++)
     {
+/* debug */  printf("p->view[0]: %15.9f, q->view[0]: %15.9f\n", ((cont_node_type*)p)->view[0], ((cont_node_type*)q)->view[0]);
       temp = ((cont_node_type*)p)->view[i] - ((cont_node_type*)q)->view[i];
       term = temp * temp;
       if (usertree && which <= MAXSHIMOTREES)
         l0gf[which - 1][i] -= term / (2.0 * vee);
       sumsq += term;
+/* debug */  printf("sumsq is now  %15.9f\n", sumsq);
     }
   }
-  else
+  else       /* ... and this case is where there are gene frequencies */
   {
     m = 0;
     for (i = 0; i < loci; i++)
     {
       for (j = 1; j < alleles[i]; j++)
       {
+/* debug */  printf("p->view[0]: %15.9f, q->view[0]: %15.9f\n", ((cont_node_type*)p)->view[m+j-1], ((cont_node_type*)q)->view[m+j-1]);
         temp = ((cont_node_type*)p)->view[m+j-1] - ((cont_node_type*)q)->view[m+j-1];
+/* debug */ printf("contrast is:  %14.8f\n", temp);
         term = temp * temp;
+/* debug */ printf("squared contrast is:  %14.8f\n", term);
+/* debug */ printf("v1'+v2' is:  %14.8f\n", vee);
         if (usertree && which <= MAXSHIMOTREES)
           l0gf[which - 1][i] -= term / (2.0 * vee);
         sumsq += term;
+/* debug */  printf("sumsq is now  %15.9f\n", sumsq);
       }
       m += alleles[i];
     }
   }
-  (*sum) += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug */  printf(" vee: %15.10f, df: %ld, sumsq: %15.10f\n", vee, df, sumsq);
+/* debug */  printf(" terms: %15.10f, %15.10f\n", df * log(vee) / -2.0,  - sumsq / (2.0 * vee));
+/* debug */  printf(" adding in: %15.9f\n", df * log(vee) / -2.0 - sumsq / (2.0 * vee));
+  *sum += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug: */  printf(" sum now:  %15.10f \n", *sum);
+  like += df * log(vee) / -2.0 - sumsq / (2.0 * vee);
+/* debug: */  printf(" like now: %15.10f \n", like);
 }  /* sumlikely */
 
 
 double contml_tree_evaluate(tree *t, node *p, boolean saveit)
 { /* evaluate likelihood of a tree */
+  /* debug: (is saveit needed?) */
   long i;
   double sum;
 
-  (void)p;                              // RSGnote: Parameter never used.
-  (void)saveit;                         // RSGnote: Parameter never used.
-
+/* debug: */ printf("starting function contml_tree_evaluate\n");
+  ml_update (t, p);
+  generic_tree_evaluate (t, p, saveit);    /* update views if needed */
   sum = 0.0;
   if (usertree && which <= MAXSHIMOTREES)
   {
@@ -754,7 +777,10 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
       l0gf[which - 1][i] = 0.0;
   }
 
-  sumlikely(t->root->back, t->root, &sum);
+/* debug: */  printf(" likelihood sum before:  %15.10f \n", sum);
+/* debug: */ like = 0.0;
+  sumlikely(p, p->back, &sum);    /* this gets the likelihood, recursively */
+/* debug: */  printf(" likelihood sum now:  %15.10f \n", sum);
   if (usertree && which <= MAXSHIMOTREES)
   {
     l0gl[which - 1] = sum;
@@ -776,7 +802,7 @@ double contml_tree_evaluate(tree *t, node *p, boolean saveit)
 
 
 double distance(node *p, node *q)
-{ /* distance between two nodes */
+{ /* distance-squared between two nodes */
   long i, j, m;
   double sum, temp;
 
@@ -802,15 +828,19 @@ double distance(node *p, node *q)
       sum += temp * temp;
     }
   }
+  sum = sum/df;
   return sum;
 }  /* distance */
 
 
+/* debug:   from here for next few functions, not needed as far as I can see */
 void makedists(node *p)
 { /* compute distances among three neighbors of a node */
   long i;
   node *q;
 
+  if (p->tip)
+    p = p->back;
   for (i = 1; i <= 3; i++)
   {
     q = p->next;
@@ -821,7 +851,7 @@ void makedists(node *p)
 
 
 void makebigv(contml_node *p, boolean *negatives)
-{ /* make new branch length */
+{ /* make new branch lengths iteratively at a fork */
   long i;
   contml_node *temp, *q, *r;
 
@@ -879,7 +909,8 @@ void correctv(node *p)
 
 
 void littlev(node *p)
-{ /* remove part of it that belongs to other barnches */
+{ /* remove part of it that belongs to other branches 
+   * This is a version that works only for bifurcating trees */
   long i;
 
   for (i = 1; i <= 3; i++)
@@ -891,58 +922,70 @@ void littlev(node *p)
     p = p->next;
   }
 }  /* littlev */
+/* debug:   functions, not needed as far as I can see */
 
 
-void nuview(node *p)
-{ /* renew information about subtrees */
-  long i, j, k, m;
-  node *q, *r, *a, *b, *temp;
+void contml_tree_nuview(tree* t, node *p)
+{ /* renew inward-looking view information in subtrees
+   * This handles arbitrarily-multifurcating interior node circles */
+  /* debug: note this can be generalized to molecular sequences by
+   * breaking out the numerical calculations into a separate function */
+  long j, k, m;
+  node *q, *a, *b;
   double v1, v2, vtot, f1, f2;
 
-  q = p->next;
-  r = q->next;
-  for (i = 1; i <= 3; i++)
+/* debug: */ printf("starting function contml_tree_nuview\n");
+/* debug */ printf("new view from  %ld  to  %ld\n", p->back->index, p->index);
+  v1 = p->next->v;           /*  length (v1') of leftmost branch */
+  a = p->next->back;                 /* other end of that branch */
+  v1 += a->deltav;           /*  length of it now  v1'  */
+  m = 0;
+  for (j = 0; j < loci; j++)         /* start by copying its values */
   {
-    a = q->back;
-    b = r->back;
-    v1 = ((contml_node *)q)->bigv;
-    v2 = ((contml_node *)r)->bigv;
-    vtot = v1 + v2;
+    for (k = 1; k <= alleles[j]; k++)
+      ((cont_node_type*)p)->view[m+k-1] = ((cont_node_type*)a)->view[m+k-1];
+    m += alleles[j];
+  }
+  for (q = p->next->next; q != p; q = q->next) {  /* around other furcs */
+    b = q->back;
+    v2 = q->v + b->deltav;     /*  this is now   v2'   */
+    vtot = v1 + v2;            /*  this is now  v1' + v2'   */
     if (vtot > 0.0)
       f1 = v2 / vtot;
-    else
-      f1 = 0.5;
+    else                       /* bizarre case where all lengths 0 */
+      f1 = 0.5;                /* (not sure this works or makes sense) */
     f2 = 1.0 - f1;
     m = 0;
-    for (j = 0; j < loci; j++)
+    for (j = 0; j < loci; j++) /* view, taking that furc into account */
     {
       for (k = 1; k <= alleles[j]; k++)
-        ((cont_node_type*)p)->view[m+k-1] = f1 * ((cont_node_type*)a)->view[m+k-1] + f2 * ((cont_node_type*)b)->view[m+k-1];
+        ((cont_node_type*)p)->view[m+k-1] = f1*((cont_node_type*)p)->view[m+k-1]
+                                       + f2 * ((cont_node_type*)b)->view[m+k-1];
       m += alleles[j];
     }
-    p->deltav = v1 * f1;
-    temp = p;
-    p = q;
-    q = r;
-    r = temp;
+  p->deltav = v1 * f1;   /* so it is     v1' v2' / (v1' + v2')     */
+  v1 = p->deltav;        /* new value of deltav to use with next furc */
   }
-}  /* nuview */
+}  /* contml_tree_nuview */
 
 
-void contml_tree_nuview(tree* t, node* p)
-{ /* set up views from views of neighbors */
-  boolean negatives;
+void contml_tree_makenewv(tree* t, node* p) {
+/* Compute new branch length.  If after subtracting p->deltav it is negative,
+ * then set it to the nearest legal value, zero.  The other branches will
+ * adjust to that as needed as they are iterated */
 
-  generic_tree_nuview(t, p);
-  if (((node *)p)->tip)
-    return;
-  makedists(p);
-  makebigv((contml_node*)p, &negatives);
-  if (negatives)
-    correctv(p);
-  littlev(p);
-  nuview(p);
-} /* contml_tree_nuview */
+  p->v = distance(p, p->back);
+/* debug */ printf(" makenewv: branch from %ld to %ld, dist is:  %15.10f\n", p->index, p->back->index, p->v);
+/* debug */ printf(" p->deltav: %15.10f, p->back->deltav: %15.10f\n", p->deltav, p->back->deltav);
+/* debug */ printf(" estimated bigv is  %15.10f\n", p->v);
+  p->v = p->v - p->deltav - p->back->deltav;
+  p->back->v = p->v;
+  if (p->v < 0.0) {
+    p->v = 0.0;       /* nearest legal value.  smoothing adjusts others */
+    p->back->v = 0.0;
+  }
+/* debug */ printf(" v is  %15.10f\n", p->v);
+} /* contml_tree_makenewv */
 
 
 void contml_node_copy(node *src, node *dst)
@@ -957,24 +1000,13 @@ void contml_node_copy(node *src, node *dst)
 
 
 void inittip(tree* t, long m)
-{ /* initialize and hook up a new tip */
+{ /* initialize and hook up a new tip;  m is the index of the tip */
   node *tmp;
 
   tmp = t->nodep[m - 1];
   memcpy(((cont_node_type*)tmp)->view, x[m - 1], totalleles * sizeof(double));
   tmp->deltav = 0.0;
-  tmp->v = 0.0;
 }  /* inittip */
-
-
-void contml_buildsimpletree(tree *t, long* enterorder)
-{ /* make and initialize a three-species tree */
-  inittip(t, enterorder[0]);
-  inittip(t, enterorder[1]);
-  hookup(t->nodep[enterorder[0] - 1], t->nodep[enterorder[1] - 1]);
-  inittip(t, enterorder[2]);
-  t->insert_(t, t->nodep[enterorder[2] - 1], t->nodep[enterorder[0] - 1], false, false);
-}  /* contml_buildsimpletree */
 
 
 void coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
@@ -1209,9 +1241,9 @@ void treeout(node *p)
 
 
 void describe(node *p, double chilow, double chihigh)
-{ /* print out information for one branch */
+{ /* print out information for one branch, recurse out from there */
   long i;
-  node *q;
+  node *q, *r;
   double bigv, delta;
 
   q = p->back;
@@ -1231,12 +1263,13 @@ void describe(node *p, double chilow, double chihigh)
   delta = p->deltav + p->back->deltav;
   bigv = p->v + delta;
   if (p->iter)
-    fprintf(outfile, "   (%12.8f,%12.8f)", chilow * bigv - delta, chihigh * bigv - delta);
+    fprintf(outfile, "   (%12.8f,%12.8f)", chilow * bigv - delta,
+                                           chihigh * bigv - delta);
   fprintf(outfile, "\n");
-  if (!p->tip)
-  {
-    describe(p->next->back, chilow, chihigh);
-    describe(p->next->next->back, chilow, chihigh);
+  if (!p->tip) {    /* recurse on out from there */
+    for (r = p->next; r != p; r = r->next) {
+        describe(r->back, chilow, chihigh);
+      }
   }
 }  /* describe */
 
@@ -1244,6 +1277,7 @@ void describe(node *p, double chilow, double chihigh)
 void summarize(void)
 { /* print out branch lengths etc. */
   double chilow, chihigh;
+  node *q;
 
   fprintf(outfile, "\nremember: ");
   if (outgropt)
@@ -1270,12 +1304,22 @@ void summarize(void)
     chihigh *= chihigh * chihigh;
   }
   fprintf(outfile, "\nBetween     And             Length");
-  fprintf(outfile, "      Approx. Confidence Limits\n");
+  if ((usertree && !lngths) || !usertree) 
+    fprintf(outfile, "      Approx. Confidence Limits");
+  fprintf(outfile, "\n");
   fprintf(outfile, "-------     ---             ------");
-  fprintf(outfile, "      ------- ---------- ------\n");
-  describe(curtree->root->next->back, chilow, chihigh);
-  describe(curtree->root->next->next->back, chilow, chihigh);
-  describe(curtree->root->back, chilow, chihigh);
+  if ((usertree && !lngths) || !usertree) 
+    fprintf(outfile, "      ------- ---------- ------");
+  fprintf(outfile, "\n");
+  if (!curtree->root->tip) {  /* recurse out all nonempty branches */
+    q = curtree->root;
+    do {
+      q = q->next;
+      if (q->back != NULL) {            /* if branch is not empty */
+        describe(q->back, chilow, chihigh);
+      }
+    } while (q != curtree->root);
+  }
   fprintf(outfile, "\n\n");
   if (trout)
   {
@@ -1286,7 +1330,8 @@ void summarize(void)
 
 
 void nodeinit(node *p)
-{ /* initialize a node */
+{ /* initialize a node -- for interior forks, use rough averages
+   * debug: why do we need this?  Why not just use nodep? */
   node *q, *r;
   long i, j, m;
 
@@ -1300,13 +1345,15 @@ void nodeinit(node *p)
   for (i = 0; i < loci; i++)
   {
     for (j = 1; j < alleles[i]; j++)
-      ((cont_node_type*)p)->view[m+j-1] = 0.5 * ((cont_node_type*)q)->view[m+j-1] + 0.5 * ((cont_node_type*)r)->view[m+j-1];
+      ((cont_node_type*)p)->view[m+j-1] =
+          0.5 * ((cont_node_type*)q)->view[m+j-1] 
+        + 0.5 * ((cont_node_type*)r)->view[m+j-1];
     m += alleles[i];
   }
   if ((!lngths) || p->iter)
-    p->v = 0.1;
+    p->v = initialv;
   if ((!lngths) || p->back->iter)
-    p->back->v = 0.1;
+    p->back->v = initialv;
 }  /* nodeinit */
 
 
@@ -1324,26 +1371,45 @@ void initrav(node *p)
       initrav(q->back);
       q = q->next;
     }
+    nodeinit(p);
   }
 }  /* initrav */
 
 
 void treevaluate(void)
-{ /* evaluate user-defined tree, iterating branch lengths */
+{ /* evaluate user-defined tree, iterating branch lengths if needed */
   long i;
+  double dummy;
 
-  unroot(curtree, nonodes2);
-  initrav(curtree->root);
-  initrav(curtree->root->back);
-  for (i = 1; i <= smoothings * 4; i++)
-    smooth(curtree, curtree->root);
-  curtree->evaluate(curtree, NULL, false);
+  like = 0.0;
+  if (curtree->root->back == NULL)
+    unroot(curtree, nonodes2);          /*  so root is at interior fork */
+  initializetrav (curtree, curtree->root);     /* set all initializeds false */
+  initializetrav (curtree, curtree->root->back);
+  curtree->do_newbl = !lngths;   /* if not use lengths, will need new ones */
+  if (!lngths) {      /* if not using branch lengths, set them to initialv */
+    ml_initialvtrav (curtree, curtree->root);
+    ml_initialvtrav (curtree, curtree->root->back);
+  }
+  if (!lngths) {
+    for (i = 1; i <= smoothings * 4; i++) {
+      smooth_traverse(curtree, curtree->root);
+    }
+  }
+  else {
+    initializetrav(curtree, curtree->root);     /* set all initializeds false */
+    initializetrav(curtree, curtree->root->back);
+    ml_update(curtree, curtree->root);
+  }
+  dummy = curtree->evaluate(curtree, curtree->root, false);
+/* debug:  */  printf("  likelihood of tree is  %15.8f\n", like);
 }  /* treevaluate */
 
 
 void maketree(void)
 { /* construct the tree */
-  long i;
+  long i, k;
+  node *p, *qwhere;
   double bestyet;
 
   if (usertree)
@@ -1367,20 +1433,14 @@ void maketree(void)
     for (which = 1; which <= spp; which++)
       inittip(curtree, which);
     which = 1;
+    for (i = spp; i < nonodes2; i++) {
+      p = curtree->get_fork(curtree, i);
+      curtree->nodep[i] = p;
+    }
     while (which <= numtrees)
     {
-      for (i = 0 ; i < nonodes2 ; i++)
-      {
-        if ( i > spp)
-        {
-          /* must do this since not all nodes may be used if an unrooted tree is read in after a rooted one */
-          curtree->nodep[i]->back = NULL;
-          curtree->nodep[i]->next->back = NULL;
-          curtree->nodep[i]->next->next->back = NULL;
-        }
-        else curtree->nodep[i]->back = NULL;
-      }
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes2);
+      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes2);
       treevaluate();
       if (treeprint)
       {
@@ -1400,7 +1460,7 @@ void maketree(void)
       fprintf(outfile, "\n\n");
     }
   }
-  else                                  /* if we are constructing a tree */
+  else                                    /* if we are searching for a tree */
   {
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -1410,11 +1470,19 @@ void maketree(void)
 
     nextsp = 3;
 
-    // RSGdebug: destruct_tree() is ALWAYS called in all the other programs; doing same thing
+    // debug: RGS: destruct_tree() is ALWAYS called in all the other programs; doing same thing
     // here fixes SegFault bug due to something not getting initialized properly when using jumbling.
     destruct_tree(curtree);
-    contml_buildsimpletree(curtree, enterorder);
-    curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    inittip(curtree, enterorder[0]);
+    inittip(curtree, enterorder[1]);
+    inittip(curtree, enterorder[2]);
+    curtree->do_newbl = true;
+    buildsimpletree(curtree, enterorder);
+    ml_initialvtrav (curtree, curtree->root);
+    ml_initialvtrav (curtree, curtree->root->back);
+/* debug: maybe unnecessary    inittravall(curtree, curtree->root);
+    inittravall(curtree, curtree->root->back);   debug */
+    smooth_traverse(curtree, curtree->root);
     if (jumb == 1)
       numtrees = 1;
     nextsp = 4;
@@ -1427,13 +1495,19 @@ void maketree(void)
       phyFillScreenColor();
     }
 
-    while (nextsp <= spp)
+    /* debug: make sure works properly when only 3 species */
+    while (nextsp <= spp)    /* add rest of species to tree */
     {
       inittip(curtree, enterorder[nextsp - 1]);
       curtree->copy(curtree, priortree);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, NULL, &bestyet, bestree, priortree, true, NULL);
+      k = generic_tree_findemptyfork(curtree);
+      p = curtree->get_fork(curtree, k);
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
+      qwhere = NULL;
+      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+                           &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
 
       if (progress)
@@ -1445,8 +1519,8 @@ void maketree(void)
       if ( global && nextsp == spp )
         curtree->globrearrange(curtree, progress, true);
       else
-        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true, priortree, bestree);
-
+        curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
+                              true, priortree, bestree);
       if (global && nextsp == spp)
         putc('\n', outfile);
       if (global && nextsp == spp && progress)
@@ -1560,7 +1634,7 @@ void contmlrun(void)
       }
     }
   }
-}
+} /* contmlrun */
 
 
 void contml(
