@@ -683,16 +683,26 @@ void            generic_node_init(node*, node_type, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);
+<<<<<<< HEAD
+long            count_sibs (node*);
+=======
 long            count_sibs(node*);
 node*           findroot(tree*, node*, boolean*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);
 void            inittrav_all(tree*);
+<<<<<<< HEAD
+void            inittrav (node*);
+void            EOF_error(void);
+static void	crash_handler(int);
+=======
 void            initializetrav (tree*, node*);
 void            inittrav (tree*, node*);
 void            EOF_error(void);
 void            crash_handler(int);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            phylipinit(int, char**, initdata*, boolean);
 void            scan_eoln(FILE*);
 boolean         eoff(FILE*);
@@ -701,7 +711,11 @@ boolean         filexists(const char*);
 void            openfile(FILE**, const char*, const char*, const char*,
                           const char*, char*);
 const char*     get_command_name (const char*);
+<<<<<<< HEAD
+static void	_fgetline_finalize(void);
+=======
 void		_fgetline_finalize(void);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 char*		fgetline(FILE*);
 char            menu_getchar(void);
 void            getstryng(char*);
@@ -774,7 +788,10 @@ void            odd_malloc(long);
 MALLOCRETURN    *mymalloc(long);
 
 void            hookup(node*, node*);
+<<<<<<< HEAD
+=======
 node*           precursor(node*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            link_trees(long, long , long, pointarray);
 void            allocate_nodep(pointarray*, FILE*, long*);
 long            take_name_from_tree (Char*, Char*, FILE*);
@@ -792,6 +809,15 @@ void            treeread2 (FILE*, node**, pointarray, boolean, double*,
 void            exxit (int);
 char            gettc(FILE*);
 void            unroot(tree*, long);
+<<<<<<< HEAD
+void            unroot_here(node*, node**, long);
+void            unroot_r(node*, node**, long);
+void            destruct_tree(tree*);
+void            generic_tree_free(tree*);
+void            rooted_tree_init(tree*, long, long);
+void            generic_tree_init(tree*, long, long);
+tree*           generic_tree_new(long, long);
+=======
 void            unroot_here(tree*, node*, long);
 void            unroot_r(tree*, node*, long);
 void            release_all_forks(tree*);
@@ -801,10 +827,19 @@ tree*           generic_tree_new(long, long);
 void            generic_tree_init(tree*, long, long);
 void		generic_tree_setupfunctions(tree*);
 void            generic_tree_free(tree*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
 boolean         generic_fork_good(tree*, node*);
 boolean         generic_node_good(tree*, node*);
+<<<<<<< HEAD
+void            rooted_globrearrange(tree*, boolean, boolean);
+void            generic_globrearrange(tree*, boolean, boolean);
+boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node**,
+                                          double*, tree*, tree*, boolean,
+                                          boolean*);
+#ifdef WIN32
+=======
 boolean         oktoinsertthere(tree*, node*);
 boolean         oktorearrangethere(tree*, node*);
 void            rooted_globrearrange(tree*, tree*, boolean, boolean, double*);
@@ -815,6 +850,7 @@ boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean,
                    node*, double*, tree*, boolean, boolean, boolean, double*);
 #ifdef WIN32              /* if using screen attributes of a Windows system */
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
 void 		phyRestoreConsoleAttributes(void);
@@ -824,6 +860,17 @@ void 		phyClearScreen(void);
 
 void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
 void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
+<<<<<<< HEAD
+void            generic_unrooted_locrearrange(tree*, node*, boolean, tree*,
+                                               tree*);
+boolean		unrooted_tree_locrearrange_recurs(tree*, node*, node*, double*,
+                                                   boolean, tree*, tree*);
+void            generic_tree_save_traverses(tree*, node*, node*);
+void            generic_tree_restore_traverses(tree*, node*, node*);
+static void	rooted_tryrearr(tree*, node*, boolean*);
+static void	rooted_repreorder(tree*, node*, boolean*);
+void            rooted_locrearrange(tree*, node*, boolean, tree*, tree*);
+=======
 void            generic_unrooted_locrearrange(tree*, node*, boolean, double*,
                                               tree*, tree*, boolean, double*);
 boolean		unrooted_tree_locrearrange_recurs(tree*, node*, double*,
@@ -834,22 +881,39 @@ void    	rooted_tryrearr(tree*, node*, boolean*);
 void		rooted_repreorder(tree*, node*, boolean*);
 void            rooted_locrearrange(tree*, node*, boolean, double*,
                                      tree*, tree*, boolean, double*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
 void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
+<<<<<<< HEAD
+void            generic_tree_nuview(tree*, node*);
+double          generic_tree_evaluate(tree*, node*, boolean);
+void            generic_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            generic_do_branchl_on_insert(tree*, node*, node*);
+node*           generic_tree_get_forknode(tree*,long);
+=======
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
 void            generic_tree_insert_(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*, long);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_tree_re_move(tree*, node*, node**, boolean);
 void            generic_re_move(tree*, node*, node*, boolean);
 void            generic_do_branchl_on_re_move(tree*, node*, node*);
 void            generic_tree_release_forknode(tree*, node*);
+<<<<<<< HEAD
+boolean         generic_tree_try_insert_(tree*, node*, node*, node**, double*,
+                                          tree*, tree*, boolean, boolean*);
+void            rooted_tree_insert_(tree*, node*, node*, boolean, boolean);
+void            buildsimpletree(tree*, long*);
+void            rooted_tree_re_move(tree*, node*, node**, boolean);
+void            hsbut(tree*, boolean, boolean, longer, boolean) ;
+=======
 boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
                                    tree*, boolean, boolean, boolean, double*);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
@@ -857,13 +921,19 @@ void            buildsimpletree(tree*, long*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
                        longer, boolean, double*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            preparetree(tree*);
 void            fixtree(tree*);
 void            arbitrary_resolve(tree*) ;
 void            writename(long, long, long*);
 void            print_progress(char*);
 
+<<<<<<< HEAD
+void 		seetree(node *p, pointarray nodep, long nonodes);
+void 		seetree2(tree * curtree);
+=======
 void 		seetree(tree * curtree);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);
 
 /* following not in phylip.c */
@@ -875,7 +945,11 @@ void            gnudisctreenode(node**, node**, long, long);
 void            generic_tree_restore_lr_nodes(tree*, node*, node*);
 void            rooted_tree_save_lr_nodes(tree*, node*, node*);
 void            generic_tree_reinit_forknode(tree*, node*);
+<<<<<<< HEAD
+void            generic_inittravtree(node*);
+=======
 void            generic_initialvtrav(node*);
+>>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
 
