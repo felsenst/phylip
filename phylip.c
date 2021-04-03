@@ -251,11 +251,7 @@ void generic_node_free (node **n)
 } /* generic_node_free */
 
 
-<<<<<<< HEAD
-void generic_node_init(node* n, node_type type, long index)
-=======
 void generic_node_init (node* n, node_type type, long index)
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.
@@ -287,11 +283,7 @@ void generic_node_init (node* n, node_type type, long index)
 
 void generic_node_reinit (node * n)
 {
-<<<<<<< HEAD
-  /*  re-initialize node (?) */
-=======
   /*  re-initialize node */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
@@ -350,10 +342,7 @@ void chucktreenode(node **grbg, node *p)
 #endif
 
 
-void setupnode(node *p, long i)
-=======
 void setupnode (node *p, long i)
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 { /* initialization of node pointers, variables */
 
   p->next = NULL;
@@ -4315,10 +4304,6 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
                             thorough, priortree, bestree, storing, bestfound);
   }
 } /* generic_unrooted_locrearrange */
-<<<<<<< HEAD
-
-=======
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
 
 boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
@@ -4604,15 +4589,6 @@ stack* push(stack* oldstack, void* newdata)
 
 node* generic_tree_get_fork(tree* t, long k)
 { /* 
-<<<<<<< HEAD
-   * Pop a fork (ring of 3 nodes) off the free_forks stack, set initialized to
-   * false on all, and return.
-   * The fork is assigned  k  as its value of  index
-   * changed so always pulls forknodes off their list, never pulls 
-   * circles of nodes off their list
-   */
-  node* retval, p;
-=======
    * Pop a fork (circle of 3 nodes) off the free_forks stack, set
    * initialized to false on all, and return.
    * The fork is assigned  k+1  as its value of  index (careful!)
@@ -4620,7 +4596,6 @@ node* generic_tree_get_fork(tree* t, long k)
    * circles of nodes off the now-defunct list-of-circles
    */
   node *retval;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
   retval = generic_tree_get_forknode(t, k+1);
   retval->next = generic_tree_get_forknode(t, k+1);
@@ -4629,21 +4604,10 @@ node* generic_tree_get_fork(tree* t, long k)
   retval->initialized = false;
   retval->next->initialized = false;
   retval->next->next->initialized = false;
-<<<<<<< HEAD
-  retval->index = k;
-  p = retval;
-  p = p->next;
-  while (p != retval) {  /* set index of nodes in right to  k */
-    p->index = k;
-    p = p->next;
-  }
-  t->nodep[k-1] = retval;
-=======
   retval->tip = false;
   retval->next->tip = false;
   retval->next->next->tip = false;
   t->nodep[k] = retval;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   return retval;
 } /* generic_tree_get_fork */
 
@@ -4651,13 +4615,8 @@ node* generic_tree_get_fork(tree* t, long k)
 void generic_tree_release_fork(tree* t, node* n)
 { /* release the fork attached to a removed node,
    * and put its nodes back on list */
-<<<<<<< HEAD
-  node *p;
-  long sibs;
-=======
   node *p, *q;
   long m;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
   m = n->index - 1;
   n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
@@ -4675,15 +4634,10 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(tree* t, node* p)
 {
-<<<<<<< HEAD
-  /*  calls t->nuview on all siblings to update their parent */
-  node* sib_ptr;
-=======
   /*  calls the current nongeneric t->nuview on this branch, after first
    *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
   node *sib_ptr;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
   if (!p->tip) {                       /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
@@ -4775,8 +4729,6 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 } /* generic_tree_insert_ */
 
 
-=======
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
@@ -4809,19 +4761,12 @@ node* generic_tree_get_forknode(tree* t, long i)
 } /* generic_tree_get_forknode */
 
 
-<<<<<<< HEAD
-void generic_tree_re_move(tree* t, node* item, node** where, boolean doinit)
-{ /* releases a fork circle (?) */
-  node *fork,*q,*p;
-  long num_sibs;
-=======
 void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 { /* generic version of inserting fork with attached subtree
      where fork is pointed to by  p, and attached subtree is at
      p->back, inserting it near node or tip  q  */
   node *newnode, *r;
 /* debug:   boolean thorough = true;  needed at all? Maybe */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
   if ( !multf ) {
 
@@ -4874,28 +4819,12 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
   double like;
   boolean succeeded = false;
   node* dummy;
-=======
-  else {                                  /* if is at a multifurcating node */
-    newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
-    newnode->next = q->next;
-    q->next = newnode;
-    hookup(newnode, p);
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
-
-    assert( ! newnode->initialized );
-  }
-
   inittrav(t, p);
   inittrav(t, p->back);
-} /* generic_tree_insert_ */
+} /* generic_tree_try_insert_ */
 
 
-<<<<<<< HEAD
-void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean doinit,
- boolean multf)
-=======
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
 /* Insert node newtip into the tree above node below, adding a new fork
  * if necessary. If multf is TRUE, newtip is added as a new child of below,
@@ -4910,10 +4839,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
  *
  * NOTE:  need to add new index if new fork
  */
-<<<<<<< HEAD
-=======
   long k;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   node *newfork;
 
   if ( t->root == NULL ) {
@@ -5041,18 +4967,10 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                           double* bestyet, tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
 {
-<<<<<<< HEAD
-  /* build a simple three-tip tree with interior fork, by hooking
-     up two tips, then inserting third tip hooked to fork, also set root */
-  node * p = t->nodep[ enterorder[0] - 1];
-  node * q = t->nodep[ enterorder[1] - 1];
-  node * r = t->nodep[ enterorder[2] - 1];
-=======
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
   boolean succeeded, bettertree;
   node* dummy;
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
   succeeded = false;
   t->insert_(t, p, q, false);
@@ -5102,24 +5020,14 @@ void buildsimpletree(tree *t, long* enterorder)
 }  /* buildsimpletree */
 
 
-<<<<<<< HEAD
-void rooted_tree_re_move(tree* t, node* item, node** where, boolean doinit)
-=======
 void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 {
   /* Remove a node from a rooted tree
    *
    * Disconnects item from tree t and if a unifurcation results, joins item's
-<<<<<<< HEAD
-   * sibling to item's grandparent, freeing item's entire parent fork. If where
-   * is given, a pointer to item's former sibling is returned, or NULL if
-   * no item could be removed. */
-=======
    * sibling to item's grandparent, freeing item's entire parent fork.
    * If where is given, a pointer to item's former sibling is returned, or
    * NULL if no item could be removed. */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   node *whereloc;
   node *p, *q;
   node *fork;
@@ -5232,11 +5140,7 @@ void preparetree(tree* t)
   long i;
 
   while( !Slist_isempty(t->free_forks) ) {
-<<<<<<< HEAD
-    p = t->get_fork(t);             /* why this?  JF */
-=======
     p = t->get_fork(t, 0);             /* debug: why this?  JF */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
     t->release_forknode(t, p->next->next);
     t->release_forknode(t, p->next);
     t->release_forknode(t, p);
@@ -5281,10 +5185,6 @@ void arbitrary_resolve(tree* t)
 } /* arbitrary_resolve */
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 /* ---------------------------------------------------------------- */
 /*  printing-out-of-tree functions for debugging */
 
@@ -5368,11 +5268,7 @@ void seetree(node *p, pointarray nodep, long nonodes)
           sprintf(progbuf, " %p index:%ld", (void *)qq->back, qq->back->index);
         }
         print_progress(progbuf);
-=======
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
-
-
-<<<<<<< HEAD
+      }
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
@@ -5384,15 +5280,6 @@ void seetree2(tree * curtree)
 {
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
-=======
-/* **** debug tools **** */
-
-
-void seetree(tree * t)
-{
-  /* prints out list of who connects to who.  For debugging */
-  /* Minor variation by Bob Giansiracusa based on sample code from Joe. */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
   node *pp, *qq;
   long int i, n;
   long int nonodes = t->nonodes;
@@ -5400,7 +5287,6 @@ void seetree(tree * t)
 
   for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
-<<<<<<< HEAD
     qq = curtree->nodep[i];
 
     if (i < spp)
@@ -5420,15 +5306,13 @@ void seetree(tree * t)
     {
       printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
       pp = qq;
-
-      do
-=======
+/* debug: what here? */
+    }
     qq = t->nodep[i];
     if (qq == NULL) {
       printf(" node: %ld is (nil)\n", i+1);
     } else {
-      if (i < spp)                                /* ,,, if it is a tip ... */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
+      if (i < spp)                                /* ... if it is a tip ... */
       {
         if (qq->back == NULL)       /* print who, if anyone, it connects to */
         {
@@ -5487,11 +5371,7 @@ void seetree(tree * t)
       }
     }
   }
-<<<<<<< HEAD
-} /* seetree2 */
-=======
 } /* seetree */
->>>>>>> ad7c00d1bba08ae00c4936b6877bce648f9e8ade
 
 
 void dumpnodelinks(node *p, pointarray nodep, long nonodes)
