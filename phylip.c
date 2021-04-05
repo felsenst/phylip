@@ -302,6 +302,46 @@ node* generic_new_node (node_type type, long index)
 } /* generic_new_node */
 
 
+<<<<<<< HEAD
+#if 0
+void gnu(node **grbg, node **p)
+{ // this and the following are do-it-yourself garbage collectors.
+  // Make a new node or pull one off the garbage list
+
+  if (*grbg != NULL) {
+    *p = *grbg;
+    *grbg = (*grbg)->next;
+  } else
+    *p = functions.node_new(false, 0);
+
+  (*p)->back       = NULL;
+  (*p)->next       = NULL;
+  (*p)->init(*p, false, 0);
+}  // gnu
+#endif
+
+
+#if 0
+void chuck(node **grbg, node *p)
+{ /* collect garbage on p -- put it on front of garbage list */
+  p->back = NULL;
+  p->next = *grbg;
+  *grbg = p;
+}  // chuck
+#endif
+
+
+#if 0
+void chucktreenode(node **grbg, node *p)
+{ // collect garbage on p -- put it on front of garbage list
+
+  p->back = NULL;
+  p->next = *grbg;
+  *grbg = p;
+}  // chucktreenode
+#endif
+
+
 void setupnode (node *p, long i)
 { /* initialization of node pointers, variables */
 
@@ -4638,6 +4678,57 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 } /* generic_tree_evaluate */
 
 
+<<<<<<< HEAD
+void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
+                          boolean multf, long k);
+{ /* generic version of inserting tip  p  near node or tip  q
+   * k  is index of new fork, first available slot in t->nodep
+   */
+  node *newnode;
+
+  if ( !multf ) {
+    newnode = t->get_fork(t);
+
+    assert(newnode->next->next->next == newnode);
+
+    hookup(newnode, p);
+    if (q->back != NULL) /* in case  q  is the root and nothing below */
+      hookup(newnode->next->next, q->back);
+    else
+      newnode->next->next->back = NULL;
+    hookup(newnode->next, q);
+
+    t->do_branchl_on_insert_f(t,newnode,q);
+
+    assert( ! newnode->initialized );
+    assert( ! newnode->next->initialized );
+    assert( ! newnode->next->next->initialized );
+
+    /* BUG.970
+    if (doinit) {
+    */
+      inittrav(p);
+      inittrav(p->back);
+    /* BUG.970
+    }
+    */
+  }
+  else {
+    newnode = t->get_forknode(t, q->index);
+    newnode->next = q->next;
+    q->next = newnode;
+    hookup(newnode, p);
+
+    assert( ! newnode->initialized );
+
+    if ( doinit ) {
+      inittrav(p);
+      inittrav(p->back);
+    }
+  }
+} /* generic_tree_insert_ */
+
+
 void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
@@ -4697,18 +4788,40 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! p->next->next->initialized );   debug */
 
   }
-  else {                                  /* if is at a multifurcating node */
-    newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
-    newnode->next = q->next;
-    q->next = newnode;
-    hookup(newnode, p);
+<<<<<<< HEAD
+} /* generic_tree_re_move */
 
-    assert( ! newnode->initialized );
-  }
 
+void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
+{
+  /* see version in ml.c */
+  (void)t;                              // RSGdebug: Parameter never used.
+  (void)p;                              // RSGdebug: Parameter never used.
+  (void)q;                              // RSGdebug: Parameter never used.
+} /* generic_do_branchl_on_re_move */
+
+
+void generic_tree_release_forknode(tree* t, node* n)
+{ /* put a fork circle node onto the garbage list */
+
+  n->reinit(n);
+  n->next = NULL;   // node_reinit(n) sets n->back to NULL
+  Slist_push(t->free_fork_nodes, n);
+} /* generic_tree_release_forknode */
+
+
+boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
+                                 double* bestyet, tree* bestree,
+                                 tree* priortree, boolean thorough,
+                                 boolean* multf)
+{
+  /* try to insert in one place, return "succeeded", then restore */
+  double like;
+  boolean succeeded = false;
+  node* dummy;
   inittrav(t, p);
   inittrav(t, p->back);
-} /* generic_tree_insert_ */
+} /* generic_tree_try_insert_ */
 
 
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
@@ -5109,15 +5222,64 @@ void print_progress(char *outstr)
     fflush(stdout);
   }
 } /* print_progress */
+<<<<<<< HEAD
 
 
 /* **** debug tools **** */
 
 
-void seetree(tree * t)
+void seetree(node *p, pointarray nodep, long nonodes)
+{  /* prints out list of who connects to who.  For debugging */
+   /* Original function. */
+  node *pp, *qq;
+  long int i;
+  (void)p;                              // RSGdebug: Parameter never used.
+
+  for (i = 0; i < nonodes; ++i)
+  {
+    qq = nodep[i];
+
+    if (i < spp)
+    {
+      if (qq->back == NULL)
+      {
+        sprintf(progbuf, " node: %ld connects to (nil) \n", qq->index);
+      }
+      else
+      {
+        sprintf(progbuf, " node: %p index:%ld  connects to node: %p index: %ld \n", (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+      }
+      print_progress(progbuf);
+    }
+    else
+    {
+      sprintf(progbuf, " node: %p index:%ld connects to nodes:", (void *)qq, qq->index);
+      print_progress(progbuf);
+      pp = qq;
+
+      do
+      {
+        if (qq->back == NULL)
+        {
+          sprintf(progbuf, " (nil), ");
+        }
+        else
+        {
+          sprintf(progbuf, " %p index:%ld", (void *)qq->back, qq->back->index);
+        }
+        print_progress(progbuf);
+      }
+      sprintf(progbuf, "\n");
+      print_progress(progbuf);
+    }
+  }
+} /* seetree */
+
+
+void seetree2(tree * curtree)
 {
   /* prints out list of who connects to who.  For debugging */
-  /* Minor variation by Bob Giansiracusa based on sample code from Joe. */
+  /* Minor variation added by BobGian based on sample code from Joe. */
   node *pp, *qq;
   long int i, n;
   long int nonodes = t->nonodes;
@@ -5125,11 +5287,32 @@ void seetree(tree * t)
 
   for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
+    qq = curtree->nodep[i];
+
+    if (i < spp)
+    {
+      if (qq->back == NULL)
+      {
+        printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
+               qq->index);
+      }
+      else
+      {
+        printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
+               (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+      }
+    }
+    else
+    {
+      printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
+      pp = qq;
+/* debug: what here? */
+    }
     qq = t->nodep[i];
     if (qq == NULL) {
       printf(" node: %ld is (nil)\n", i+1);
     } else {
-      if (i < spp)                                /* ,,, if it is a tip ... */
+      if (i < spp)                                /* ... if it is a tip ... */
       {
         if (qq->back == NULL)       /* print who, if anyone, it connects to */
         {

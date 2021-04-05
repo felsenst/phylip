@@ -1015,7 +1015,7 @@ void disc_treelength(node *root, long chars, pointarray treenode)
   double trlen;
 
   initbranchlen(root);      /* debug:  initialize something-or-other ... */
-  for (sitei = 0; sitei < endsite; sitei++)    /* for representative chars */
+  for (sitei = 0; sitei < endsite; sitei++)     /* for representative chars */
   {
     trlen = 0.0;
     discinitbase(root, sitei);    /* initialize the counts, reconstructions */

@@ -1131,7 +1131,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
         success = pars_tree_try_insert_(curtree, removed, where, there,
                         &bestyet, bestree, true, true, true, bestfound);
         donttrythere = (where->tip ||
-                            where->back == curtree->root->index);
+                            where->back->index == curtree->root->index);
         if (!donttrythere) {
           successaftertraverse = generic_tree_addtraverse_1way(curtree,
                                    removed, where, true, qwhere, &bestyet,
