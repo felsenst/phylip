@@ -1299,7 +1299,7 @@ void printree(tree* t)
   long tipy;
   double scale, tipmax;
   long i;
-  boolean found;
+  boolean *found;
   node *p, *q;
 
   if (!treeprint)
@@ -1307,7 +1307,7 @@ void printree(tree* t)
   putc('\n', outfile);
   tipy = 1;            /* this will be the number for each line printed out */
   tipmax = 0.0;     /* will keep track of how far to right the tree extends */
-  p = findroot(t, t->root, &found);      /* find node with null back pointer */
+  p = findroot(t, t->root, found);      /* find node with null back pointer */
   q = p;
   coordinates(t, p, 0.0, &tipy, &tipmax);       /* get coordinates of nodes */
   scale = 1.0 / (long)(tipmax + 1.000);      /* horizontal scaling for tree */

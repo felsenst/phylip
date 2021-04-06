@@ -348,7 +348,7 @@ node* findroot (tree* t, node* p, boolean* found) {
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  *found = false;
+  found = false;
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
     if (q->back == NULL) {          /* ... until find one with  back  empty */
       r = q;
@@ -5237,7 +5237,7 @@ void seetree(tree * curtree)
   {
     qq = curtree->nodep[i];
     if (qq == NULL) {
-      printf(" node: (nil) \n");
+      printf(" node: %p (nil) \n", qq);
       break;
     }
     if (i < spp)
