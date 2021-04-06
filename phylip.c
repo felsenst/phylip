@@ -302,46 +302,6 @@ node* generic_new_node (node_type type, long index)
 } /* generic_new_node */
 
 
-<<<<<<< HEAD
-#if 0
-void gnu(node **grbg, node **p)
-{ // this and the following are do-it-yourself garbage collectors.
-  // Make a new node or pull one off the garbage list
-
-  if (*grbg != NULL) {
-    *p = *grbg;
-    *grbg = (*grbg)->next;
-  } else
-    *p = functions.node_new(false, 0);
-
-  (*p)->back       = NULL;
-  (*p)->next       = NULL;
-  (*p)->init(*p, false, 0);
-}  // gnu
-#endif
-
-
-#if 0
-void chuck(node **grbg, node *p)
-{ /* collect garbage on p -- put it on front of garbage list */
-  p->back = NULL;
-  p->next = *grbg;
-  *grbg = p;
-}  // chuck
-#endif
-
-
-#if 0
-void chucktreenode(node **grbg, node *p)
-{ // collect garbage on p -- put it on front of garbage list
-
-  p->back = NULL;
-  p->next = *grbg;
-  *grbg = p;
-}  // chucktreenode
-#endif
-
-
 void setupnode (node *p, long i)
 { /* initialization of node pointers, variables */
 
@@ -4678,16 +4638,19 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 } /* generic_tree_evaluate */
 
 
-<<<<<<< HEAD
+/* debug: commented out because it is a suplicate version, one which also finds the fork attached */
+#if 0
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
-                          boolean multf, long k);
+                          boolean multf)
 { /* generic version of inserting tip  p  near node or tip  q
    * k  is index of new fork, first available slot in t->nodep
    */
+  long k;
   node *newnode;
 
+  k = generic_tree_findemptyfork(t);
   if ( !multf ) {
-    newnode = t->get_fork(t);
+    newnode = t->get_fork(t, k);
 
     assert(newnode->next->next->next == newnode);
 
@@ -4707,8 +4670,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
     /* BUG.970
     if (doinit) {
     */
-      inittrav(p);
-      inittrav(p->back);
+      inittrav(t, p);
+      inittrav(t, p->back);
     /* BUG.970
     }
     */
@@ -4722,11 +4685,12 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
     assert( ! newnode->initialized );
 
     if ( doinit ) {
-      inittrav(p);
-      inittrav(p->back);
+      inittrav(t, p);
+      inittrav(t, p->back);
     }
   }
 } /* generic_tree_insert_ */
+#endif
 
 
 void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
@@ -4788,10 +4752,11 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! p->next->next->initialized );   debug */
 
   }
-<<<<<<< HEAD
-} /* generic_tree_re_move */
+} /* generic_tree_insert_ */
 
 
+/* debug:  what are these both doing here? */
+#if 0
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 {
   /* see version in ml.c */
@@ -4799,6 +4764,12 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
   (void)p;                              // RSGdebug: Parameter never used.
   (void)q;                              // RSGdebug: Parameter never used.
 } /* generic_do_branchl_on_re_move */
+void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
+{
+  /* for now unused.  see version in ml.c */
+} /* generic_do_branchl_on_re_move */
+#endif
+
 
 
 void generic_tree_release_forknode(tree* t, node* n)
@@ -4808,20 +4779,6 @@ void generic_tree_release_forknode(tree* t, node* n)
   n->next = NULL;   // node_reinit(n) sets n->back to NULL
   Slist_push(t->free_fork_nodes, n);
 } /* generic_tree_release_forknode */
-
-
-boolean generic_tree_try_insert_(tree *t, node *p, node *q, node** qwherein,
-                                 double* bestyet, tree* bestree,
-                                 tree* priortree, boolean thorough,
-                                 boolean* multf)
-{
-  /* try to insert in one place, return "succeeded", then restore */
-  double like;
-  boolean succeeded = false;
-  node* dummy;
-  inittrav(t, p);
-  inittrav(t, p->back);
-} /* generic_tree_try_insert_ */
 
 
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
@@ -4960,7 +4917,7 @@ long generic_tree_findemptyfork(tree* t)
       break;
   }
   return k;
-} /* findemptyfork */
+} /* generic_tree_findemptyfork */
 
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
@@ -5222,7 +5179,6 @@ void print_progress(char *outstr)
     fflush(stdout);
   }
 } /* print_progress */
-<<<<<<< HEAD
 
 
 /* **** debug tools **** */
@@ -5282,7 +5238,7 @@ void seetree2(tree * curtree)
   /* Minor variation added by BobGian based on sample code from Joe. */
   node *pp, *qq;
   long int i, n;
-  long int nonodes = t->nonodes;
+  long int nonodes = curtree->nonodes;
   boolean malformed;
 
   for (i = 0; i < nonodes; ++i)                       /* for each node ...  */

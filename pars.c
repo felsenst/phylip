@@ -575,7 +575,7 @@ void pars_printree(void)
   tipy = 1;                   /* line in the diagram that has the first tip */
   tipmax = 0.0;      /* this ends up with how far to right the tree extends */
   
-  p = findroot(curtree, curtree->root, &found);    /* get to real root node */
+  p = findroot(curtree, curtree->root, found);    /* get to real root node */
   q = p;                                            /* save a pointer to it */
   pars_coordinates(p, 0.0, &tipy, &tipmax);     /* get coordinates of nodes */
   scale = 1.0 / (long)(tipmax + 1.000);      /* rescale to right tree width */
