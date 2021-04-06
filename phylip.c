@@ -4283,12 +4283,10 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    */
   node *q, *r, *rr, *qwhere;
   boolean succeeded = false;
-  double oldbestyet;    /* debug:  ever used?  */
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
 /*  printf("locrearrange at node %2ld\n", p->index); debug */
-    oldbestyet = *bestyet;
     r = p->back;        /* these are the two connected and might be removed */
     rr = r->next;                   /* pointer to fork node used in removal */
     if (!thorough)
@@ -4729,7 +4727,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 { /* generic version of inserting fork with attached subtree
      where fork is pointed to by  p, and attached subtree is at
      p->back, inserting it near node or tip  q  */
-  node *newnode, *r;
+  node *r;
 /* debug:   boolean thorough = true;  needed at all? Maybe */
 
   if ( !multf ) {
@@ -4770,15 +4768,6 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 } /* generic_do_branchl_on_re_move */
 #endif
 
-
-
-void generic_tree_release_forknode(tree* t, node* n)
-{ /* put a fork circle node onto the garbage list */
-
-  n->reinit(n);
-  n->next = NULL;   // node_reinit(n) sets n->back to NULL
-  Slist_push(t->free_fork_nodes, n);
-} /* generic_tree_release_forknode */
 
 
 void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
@@ -5184,6 +5173,8 @@ void print_progress(char *outstr)
 /* **** debug tools **** */
 
 
+/* debug:  was this since much midified */
+#if 0
 void seetree(node *p, pointarray nodep, long nonodes)
 {  /* prints out list of who connects to who.  For debugging */
    /* Original function. */
@@ -5230,9 +5221,10 @@ void seetree(node *p, pointarray nodep, long nonodes)
     }
   }
 } /* seetree */
+#endif
 
 
-void seetree2(tree * curtree)
+void seetree(tree * curtree)
 {
   /* prints out list of who connects to who.  For debugging */
   /* Minor variation added by BobGian based on sample code from Joe. */
@@ -5244,7 +5236,10 @@ void seetree2(tree * curtree)
   for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
   {
     qq = curtree->nodep[i];
-
+    if (qq == NULL) {
+      printf(" node: (nil) \n");
+      break;
+    }
     if (i < spp)
     {
       if (qq->back == NULL)
@@ -5262,58 +5257,33 @@ void seetree2(tree * curtree)
     {
       printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
       pp = qq;
-/* debug: what here? */
-    }
-    qq = t->nodep[i];
-    if (qq == NULL) {
-      printf(" node: %ld is (nil)\n", i+1);
-    } else {
-      if (i < spp)                                /* ... if it is a tip ... */
-      {
-        if (qq->back == NULL)       /* print who, if anyone, it connects to */
-        {
-          printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
-                 qq->index);
-        }
-        else
-        {
-          printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
-               (void *)qq, qq->index, (void *)qq->back, qq->back->index);
-        }
-      } else {                      /* ... or if it is an interior node ... */
-        printf(" node: %p index:%ld  connects to nodes:",
-                 (void *)qq, qq->index);
-        pp = qq;
-        malformed = false;
-        n = 0;
-        do     /* ... find out if any node in the fork points to same fork */
-        {
-          if (qq != NULL) {
-            malformed = (qq == qq->next);
-            if (malformed) {
-              printf(" node is: %p: ", qq);
-              printf(" (->next is %p: ", qq->next);
-              if (qq->next == qq)
-                printf("  same node)");
-              else
-                printf(")");
-              }
-            if (qq->next != NULL) {
-              malformed = malformed || (qq->next->next == qq);
-              if (qq->next->next == qq)
-                 printf(" (->next->next is %p: same node)", qq->next->next);
-            }
-
-            if (qq->back == NULL)
-            {
-              printf(" (nil)");
-            }
+      malformed = false;
+      n = 0;
+      do {   /* ... find out if any node in the fork points to same fork */
+        if (qq != NULL) {
+          malformed = (qq == qq->next);
+          if (malformed) {
+            printf(" node is: %p: ", qq);
+            printf(" (->next is %p: ", qq->next);
+            if (qq->next == qq)
+              printf("  same node)");
             else
-            {
-              printf(" %p index:%ld", (void *)qq, qq->back->index);
-            }
+              printf(")");
           }
-
+          if (qq->next != NULL) {
+            malformed = malformed || (qq->next->next == qq);
+            if (qq->next->next == qq)
+               printf(" (->next->next is %p: same node)", qq->next->next);
+            else {
+              if (qq->back == NULL)
+              {
+                printf(" (nil)");
+              }
+              else
+              {
+                printf(" %p index:%ld", (void *)qq, qq->back->index);
+              }
+          }
           if (qq != NULL)
             qq = qq->next;
           n++;
@@ -5321,11 +5291,10 @@ void seetree2(tree * curtree)
           {
             printf(",");
           }
-        } while ((qq != pp) && (n < 6) && !malformed);
-
-        printf("\n");
+        }
       }
-    }
+    } while ((qq != pp) && (n < 6) && !malformed);
+    printf("\n");
   }
 } /* seetree */
 
@@ -5337,7 +5306,7 @@ void dumpnodelinks(node *p, pointarray nodep, long nonodes)
   node* pp;
   long i;
 
-  for (i=0; i<nonodes; i++) {
+  for (i = 0; i < nonodes; i++) {
     qq = nodep[i];
     if (qq->next == NULL)
     {
@@ -5346,8 +5315,7 @@ void dumpnodelinks(node *p, pointarray nodep, long nonodes)
               (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
       print_progress(progbuf);
     }
-    else if(qq->back == NULL)
-    {
+    else if (qq->back == NULL) {
       // root
       sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
               (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
@@ -5362,20 +5330,19 @@ void dumpnodelinks(node *p, pointarray nodep, long nonodes)
               (void *)qq->next->next->next->next,
               (void *)qq->next->next->next->next->back);
       print_progress(progbuf);
-    }
-    else
-    {
+      } else {
       // internal node
-      sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
-              (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
-      print_progress(progbuf);
-      pp = qq->next;
-      while( pp != qq)
-      {
         sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
-                (void *)pp, pp->index, (void *)pp->next, (void *)pp->back);
+              (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
         print_progress(progbuf);
-        pp = pp->next;
+        pp = qq->next;
+        while (pp != qq)
+        {
+          sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
+                  (void *)pp, pp->index, (void *)pp->next, (void *)pp->back);
+          print_progress(progbuf);
+          pp = pp->next;
+        }
       }
     }
   }
