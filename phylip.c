@@ -5284,6 +5284,7 @@ void seetree(tree * curtree)
               {
                 printf(" %p index:%ld", (void *)qq, qq->back->index);
               }
+            }
           }
           if (qq != NULL)
             qq = qq->next;
@@ -5293,13 +5294,15 @@ void seetree(tree * curtree)
             printf(",");
           }
         }
-      }
-    } while ((qq != pp) && (n < 6) && !malformed);
+      } while ((qq != pp) && (n < 6) && !malformed);
+    }
     printf("\n");
   }
 } /* seetree */
 
 
+/* debug:  not used anymore, was being by Jim to debug */
+#if 0
 void dumpnodelinks(node *p, pointarray nodep, long nonodes)
 {
   /* print node list.  For debugging. */
@@ -5348,6 +5351,7 @@ void dumpnodelinks(node *p, pointarray nodep, long nonodes)
     }
   }
 } /* dumpnodelinks  */
+#endif
 
 
 // End.
