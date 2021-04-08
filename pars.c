@@ -683,7 +683,7 @@ for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
         found = &wasfound;        /* just making sure pointer is to boolean */
         p = findroot(curtree, curtree->root, found);    /* get to real root */
         initializetrav(curtree, p);    /* ready to update views */
-        initializetrav(curtree, curtree->root->back); /*  debug:      */
+/*          initializetrav(curtree, curtree->root->back); debug:      */
         curtree->score = curtree->evaluate(curtree, p, false);
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
 /*  debug: curtree->nodep[curtree->root->index - 1] = curtree->root; */

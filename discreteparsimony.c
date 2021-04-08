@@ -1171,7 +1171,7 @@ if (p->back != NULL)  /* debug     */
           for ( q = p->next ; q != p ; q = q->next )    /* go around circle */
           {
             qback = (discretepars_node*)q->back;
-            if ( qback == NULL )         /* bail out if nothing behind node */
+            if ( qback == NULL )             /* skip if nothing behind node */
               continue;
             if ( qback->discbase[i] & (1 << j) )       /* is bit  j  there? */
               numnuc[j]++;     /* increment count of how many states in set */

@@ -259,6 +259,7 @@ void pars_node_init(node* p, node_type type, long index)
 void pars_node_reinit(node * n)
 {
   /* re-setup a pars_tree node */
+
   generic_node_reinit(n);
   pars_node *pn = (pars_node *)n;
 /* debug: needed?    if (pn->numsteps)
@@ -392,7 +393,8 @@ printf("(nextree now %ld)\n", nextree); /* debug */
           nextree++;
           bestrees[pos].collapse = false;
   printf("ADDING NEW TREE: as number %ld: ", pos+1);
-  for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n"); /* debug */
+/* debug */  for (i = 0; i < spp; i++) printf("%ld ", place[i]);
+  printf("\n"); /* debug */
 if (pos < treeLimit) {  /* debug */
 printf(" and shifting trees %ld through %ld up one\n", pos+2, treeLimit); }/* debug*/
           if (pos <= k)        /* keep  k  pointing at next tree to examine */
