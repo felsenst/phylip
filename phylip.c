@@ -348,7 +348,7 @@ node* findroot (tree* t, node* p, boolean* found) {
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  found = false;
+  *found = false;
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
     if (q->back == NULL) {          /* ... until find one with  back  empty */
       r = q;
@@ -2358,19 +2358,19 @@ void printfactors(FILE *filename, long chars,
 
 /*********** routines for saving, retrieving trees **********/
 
-void findtree(boolean *found, long *pos, long nextree,
+void findtree(boolean* found, long *pos, long nextree,
                long *place, bestelm *bestrees)
 {
   /* finds tree given by array place in array bestrees by binary search */
   /* used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars */
   long i, lower, upper;
-  boolean below, done;
+  boolean below, done, wasfound;
 
   below = false;
   lower = 0;        /* set upper and lower bounds of region being searched */
   upper = nextree - 1;
-  (*found) = false;
-  while (!(*found) && (lower <= upper)) {   /* debug: <= or <  ?? */
+  wasfound = false;
+  while (wasfound && (lower <= upper)) {   /* debug: <= or <  ?? */
     (*pos) = (lower + upper) / 2;   /* look in the middle of current region */
     i = 3;                 /* first two positions are always  1, 1, so skip */
     done = false;
@@ -2382,8 +2382,8 @@ void findtree(boolean *found, long *pos, long nextree,
       if (!done)                /* if it matches so far ... */
         i++;                    /* ... get ready to look at next array item */
     }
-    (*found) = (i > spp);            /* true if all  spp  tips have matched */
-    if (*found) {                  /* you found a match, blast your way out */
+    wasfound = (i > spp);            /* true if all  spp  tips have matched */
+    if (wasfound) {                 /* you found a match, blast your way out */
       break;
     }
     below = (place[i-1] < bestrees[*pos].btree[i - 1]);
@@ -2393,10 +2393,11 @@ void findtree(boolean *found, long *pos, long nextree,
       lower = (*pos) + 1;
   }
   if (!((*pos) >= nextree))                              /* if not past end */
-    if (!(*found)) {                                /* and didn't find tree */
+    if (!wasfound) {                                /* and didn't find tree */
       if (!below)                        /* so need to insert it above here */
         (*pos)++;
     }
+  *found = wasfound;
 }  /* findtree */
 
 

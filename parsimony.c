@@ -33,12 +33,7 @@ long renextree, nextree;
 
 void setbottomtraverse(node *p);
 static void oldsavetree(tree* t, long *place);
-static void bintomulti(tree *t, node **root, node **binroot);
-static void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc);
-static void backtobinary(tree* t, node **root, node *binroot);
 static long get_numdesc(node* root, node* p);
-static void moveleft(node *root, node *outgrnode, node **flipback);
-static void flipnodes(node *nodea, node *nodeb);
 
 
 node* root_tree(tree* t, node* here)
@@ -120,7 +115,8 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   double like;
   boolean succeeded = false;
   node* dummy;
-  boolean found = false;
+  boolean* found;
+  boolean wasfound = false;
   long i, pos = 0;
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
@@ -143,7 +139,7 @@ printf("\n"); /* debug */
       savetree(t, place);     /* storable coded representation of this tree */
       if (atstart) {                       /* when this is first tree tried */
         pos = 0;                     /* put it at the beginning of bestrees */
-        found = false;
+        found = &wasfound;
         if (nextree == 0) {
           *bestfound = like;                   /* score of the stored trees */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n", like, *bestyet, *bestfound);  /* debug */
@@ -156,9 +152,10 @@ printf("Added an initial tree to bestrees, now %ld of them\n", nextree); /*    d
       else {
         if ( like == *bestfound )               /* deciding on a later tree */
         {              /* find where it goes in numerical order in bestrees */
-          findtree(&found, &pos, nextree, place, bestrees);
+          found = &wasfound;
+          findtree(found, &pos, nextree, place, bestrees);
           succeeded = true;
-          if (!found) {                /* if found same tree, do not add it */
+          if (!(*found)) {             /* if found same tree, do not add it */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", like, *bestyet, *bestfound, pos+1);  /* debug */
             addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
@@ -169,7 +166,7 @@ printf("Added another tied tree to bestrees, now %ld of them\n", nextree); /*   
             *bestfound = like;
             *bestyet = like;
             pos = 0;                 /* put it at the beginning of bestrees */
-            found = false;
+/* debug:            *found = false;   needed? */
 printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); /* debug: */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
 printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
@@ -192,7 +189,7 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
   t->restore_traverses(t, item, p);           /* debug: what is this doing? */
   t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
 
-  found = false;                /* debug: why this? May not have any effect */
+/* debug:    *found = false;     why this? May not have any effect */
   pos = 0;
 
   /* debug:  Uncommenting the following code will allow for a multifurcating
@@ -213,10 +210,10 @@ printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, 
       if ( lastrearr )
       {
         savetree(t, place);
-        findtree(&found, &pos, nextree, place, bestrees);
-        if ( ((like > *bestyet) && !found) || nextree == 1)
+        findtree(found, &pos, nextree, place, bestrees);
+        if ( ((like > *bestyet) && !(*found)) || nextree == 1)
           addbestever(pos, &nextree, maxtrees, false, place, bestrees);
-        else if ( !found )
+        else if ( !(*found) )
           addtiedtree(pos, &nextree, maxtrees, false, place, bestrees);
       }
       *bestyet = like;
@@ -251,10 +248,11 @@ void pars_node_init(node* p, node_type type, long index)
   p->reinit = pars_node_reinit;
   p->free = pars_node_free;
   p->node_print_f = pars_node_print;
-
+/* debug:   needed?
   if (pn->numsteps)
-    free(pn->numsteps);
-  pn->numsteps = Malloc(endsite * sizeof(double));
+    free(pn->numsteps);       debug  */
+  if (!(pn->numsteps))
+    pn->numsteps = Malloc(endsite * sizeof(double));
 } /* pars_node_init */
 
 
@@ -263,9 +261,10 @@ void pars_node_reinit(node * n)
   /* re-setup a pars_tree node */
   generic_node_reinit(n);
   pars_node *pn = (pars_node *)n;
-  if (pn->numsteps)
-    free(pn->numsteps);
-  pn->numsteps = Malloc(endsite * sizeof(double));
+/* debug: needed?    if (pn->numsteps)
+    free(pn->numsteps);     debug  */
+  if (!(pn->numsteps))
+    pn->numsteps = Malloc(endsite * sizeof(double));
 } /* pars_node_reinit */
 
 
@@ -318,7 +317,8 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
    * until there are no further changes.   */
   long i, j, k, pos;
   double like;
-  boolean found, collapsible, collapsed, somecollapsed;
+  boolean *found, collapsible, collapsed, somecollapsed;
+  boolean wasfound = false;
   long treeLimit;
   node* p;
 
@@ -383,9 +383,10 @@ printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno
         nextree--;
 printf("(nextree now %ld)\n", nextree); /* debug */
         pos = 0;
-        findtree(&found, &pos, treeLimit, place, bestrees); /* find where   */
+        found = &wasfound;
+        findtree(found, &pos, treeLimit, place, bestrees);  /* find where   */
                /* ... the collapsed tree is to go, or whether already there */
-        if (!found)  /* put the new tree in the the list if it wasn't found */
+        if (!(*found))   /* put new tree in the the list if it wasn't found */
         {                       /* (note: treeLimit is increased as needed) */
           addtree(pos, &treeLimit, false, place, bestrees);
           nextree++;
@@ -459,52 +460,6 @@ void reroot2(node *outgroup, node *root)
   root->next = outgroup->back;
   p->next = root;
 }  /* reroot2 */
-
-
-void reroot3(tree* t, node *outgroup, node *root, node *root2, node *lastdesc)
-{
-  /* reorients tree, putting back outgroup in original position.
-   * used in dnacomp & dnapars */
-  node *p;
-
-  p = root->next;
-  while (p->next != root)
-    p = p->next;
-  t->release_forknode(t, root);
-  p->next = outgroup->back;
-  root2->next = lastdesc->next;
-  lastdesc->next = root2;
-}  /* reroot3 */
-
-
-static void bintomulti(tree *t, node **root, node **binroot)
-{
-  /* Make a binary tree multifurcating:
-   * attaches root's left child to its right child and makes the right
-   * child the new root. */
-  node *left, *right, *newnode, *temp;
-
-  right = (*root)->next->next->back;
-  left = (*root)->next->back;
-  if (right->tip)
-  {
-    (*root)->next = right->back;
-    (*root)->next->next = left->back;
-    temp = left;
-    left = right;
-    right = temp;
-    right->back->next = *root;
-  }
-  newnode = t->get_forknode(t, right->index);
-  newnode->next = right->next;
-  newnode->back = left;
-  left->back = newnode;
-  right->next = newnode;
-  (*root)->next->back = (*root)->next->next->back = NULL;
-  *binroot = *root;
-  *root = right;
-  (*root)->back = NULL;
-} /* bintomulti */
 
 
 void oldsavetree(tree* t, long *place)
@@ -646,7 +601,8 @@ void addbestever(long pos, long *nextree, long maxtrees, boolean collapse,
    * add it to the second array of trees if the score is good enough
    * pos is the position where it will be added which is 0   */
   long repos;
-  boolean found;
+  boolean* found;
+  boolean foundit = false;
 
   pos = 0;
   *nextree = 0;
@@ -664,8 +620,9 @@ void addbestever(long pos, long *nextree, long maxtrees, boolean collapse,
     }
     else if ( score != UNDEFINED && score == rebestyet )
     {
-      findtree(&found, &repos, renextree, place, rebestrees[1]);
-      if ( !found && renextree <= maxtrees )
+      found = &foundit;
+      findtree(found, &repos, renextree, place, rebestrees[1]);
+      if ( !(*found) && renextree <= maxtrees )
         addtree(repos, &renextree, collapse, place, rebestrees[1]);
     }
   }
@@ -676,7 +633,8 @@ void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse,
                   long *place, bestelm *bestrees, double score)
 {
   /* add a tied tree.   pos is the position in the range  0 .. (nextree-1) */
-  boolean found;
+  boolean* found;
+  boolean wasfound = false;
   long repos;
 
   if (*nextree <= maxtrees)
@@ -685,8 +643,9 @@ void addtiedtree(long* pos, long *nextree, long maxtrees, boolean collapse,
   {
     if ( rebestyet == score )
     {
-      findtree(&found, &repos, renextree, place, rebestrees[1]);
-      if ( !found && renextree <= maxtrees )
+      found = &wasfound;
+      findtree(found, &repos, renextree, place, rebestrees[1]);
+      if ( !(*found) && renextree <= maxtrees )
         addtree(repos, &renextree, collapse, place, rebestrees[1]);
     }
   }
@@ -702,7 +661,7 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
    * one, if tied with them add it in too */
 /* debug:  may not need in view of pars_tree_try_insert  */
 
-  boolean found = false;
+  boolean *found = false;
   long *pos = 0;
   
   if ( (nextree = 1) || !(score < *bestfound)) {    /* if save this one ... */
@@ -711,8 +670,8 @@ void add_to_besttrees(tree* t, long score, bestelm* bestrees,
       addbestever(*pos, &nextree, maxtrees, false, place, bestrees, score);
 printf("Adding as new best tree (Tree 1), %ld\n", score); /*  debug */
     } else {                            /* it is another tree tied for best */
-      findtree(&found, pos, nextree-1, place, bestrees);  /* already there? */
-      if (!found) {                    /* save it only if not already there */
+      findtree(found, pos, nextree-1, place, bestrees);   /* already there? */
+      if (!(*found)) {                 /* save it only if not already there */
         addtiedtree(pos, &nextree, maxtrees, false, place, bestrees, score);
 printf("Adding as tied tree (Tree %ld), %ld\n", *pos, score);  /* debug */
       } else {
@@ -734,7 +693,7 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    * criteria where there are exact ties, not for likelihood or distance
    * criteria */
 /* debug:  not yet called from anywhere */
-   boolean success;
+   boolean success = false;
 
 /* debug:  does this make any sense?  Already saving best tree yet in generic version ...
    success = generic_tree_addtraverse(t, p, q, contin, qwherein,
@@ -742,41 +701,6 @@ boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
    add_to_besttrees(t, t->score, bestrees, bestfound);     debug */
    return success;
 } /* pars_addtraverse */
-
-
-void flipnodes(node *nodea, node *nodeb)
-{
-  /* flip nodes */
-  node *backa, *backb;
-
-  backa = nodea->back;
-  backb = nodeb->back;
-  backa->back = nodeb;
-  backb->back = nodea;
-  nodea->back = backb;
-  nodeb->back = backa;
-} /* flipnodes */
-
-
-void moveleft(node *root, node *outgrnode, node **flipback)
-{
-  /* makes outgroup node to leftmost child of root */
-  node *p;
-  boolean done;
-
-  p = root->next;
-  done = false;
-  while (p != root && !done)
-  {
-    if (p->back == outgrnode)
-    {
-      *flipback = p;
-      flipnodes(root->next->back, p->back);
-      done = true;
-    }
-    p = p->next;
-  }
-} /* moveleft */
 
 
 void printbranchlengths(node *p)
@@ -945,21 +869,6 @@ long smallest(node *anode, long *place)
 }  /* smallest */
 
 
-void backtobinary(tree* t, node **root, node *binroot)
-{ /* restores binary root */
-  node *p;
-
-  binroot->next->back = (*root)->next->back;
-  (*root)->next->back->back = binroot->next;
-  p = (*root)->next;
-  (*root)->next = p->next;
-  binroot->next->next->back = *root;
-  (*root)->back = binroot->next->next;
-  t->release_forknode(t, p);
-  *root = binroot;
-} /* backtobinary */
-
-
 void newindex(long i, node *p)
 {
   /* assigns index i to fork that  p is in */
@@ -1013,10 +922,8 @@ void load_tree(tree* t, long treei, bestelm* bestrees)
    * on as they are added to the tree.  If negative, btree[k] indicates that
    * species  k+1  is to be added as an extra furc to the fork has number
    * -btree[k], */
-  long i, j, numofnewfork, belowindex;
-  long  nsibs;  /* debug */
-  boolean foundit = false; /* debug */
-  node *p, *q, *below, *bback, *forknode, *newtip, *bbot, *afterwhere;
+  long j, numofnewfork, belowindex;
+  node *below, *bback, *forknode, *newtip, *bbot, *afterwhere;
 
   release_all_forks(t);              /* to make sure all interior nodes
                                         are on the list at free_fork_nodes  */
@@ -1088,7 +995,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
    * it gets to take advantage of some of the speedups available in the
    * parsimony programs */
   int i;
-  node *p, *where, *there, *qwhere;
+  node *p, *where, *there = NULL, *qwhere;
   double bestyet;
   boolean success, successaftertraverse, dontremove, donttrythere;
   node* removed;
@@ -1209,8 +1116,6 @@ void collapsebranch(tree* t, node* n)
    * node  n  must have its back pointer point to a fork circle */
   node *m, *prem, *pren, *p, *q; 
   long i, j, k;
-  node *sib, *newfork;  /* debug: can delete this once code block deleted */
-  long nsibs;   /* debug: this too */
 
   inittrav(t, n);    /* make initialized pointers looking in to fork  false */
   if (n == NULL)      /* make sure both ends of branch exist and are forks */
@@ -1251,22 +1156,6 @@ void collapsebranch(tree* t, node* n)
   t->release_forknode(t, m); /* now recycle  m, n  as are no longer needed */
   t->release_forknode(t, n);
   t->score = t->evaluate(t, t->nodep[outgrno-1], false); 
-/* debug:  need to replace all this code ... */
-#if 0
-  for ( sib = m->next ; sib != m ; sib = sib->next )    /* go around circle */
-  {
-    if ( sib == m->next )   /* debug:   huh?  check! */
-      newfork = n;
-    else
-    {
-      newfork = t->get_forknode(t, n->index);            /* get a new node */
-      newfork->next = n->next;                /* put it in the fork circle */
-      n->next = newfork;
-    }
-    hookup(sib->back, newfork);       /* hook stuff in back to the new node */
-  }
-  t->release_fork(t, m);               /* toss  m  back onto free node list */
-#endif
 } /* collapsebranch */
 
 
@@ -1300,15 +1189,16 @@ void printree(tree* t)
   double scale, tipmax;
   long i;
   boolean *found;
-  node *p, *q;
+  boolean wasfound = false;
+  node *p;
 
   if (!treeprint)
     return;
   putc('\n', outfile);
   tipy = 1;            /* this will be the number for each line printed out */
   tipmax = 0.0;     /* will keep track of how far to right the tree extends */
+  found = &wasfound;
   p = findroot(t, t->root, found);      /* find node with null back pointer */
-  q = p;
   coordinates(t, p, 0.0, &tipy, &tipmax);       /* get coordinates of nodes */
   scale = 1.0 / (long)(tipmax + 1.000);      /* horizontal scaling for tree */
   for (i = 1; i <= (tipy - down); i++)       /* draw one line at a time ... */
@@ -1475,12 +1365,14 @@ void writesteps(tree* t, long chars, boolean weights, steptr oldweight)
 {
   /* used in Dnacomp, Dnapars, Dnapenny, Pars, and Penny */
   long i, j, k, l;
-  boolean found;
+  boolean* found;
+  boolean wasfound = false;
   node *p;
   k=0;
 
   /*calculate the steps */
-  p = findroot(t, t->root, &found);
+  found = &wasfound;
+  p = findroot(t, t->root, found);
   if (p->initialized == false ) t->nuview(t, p);
 
   /* print them */

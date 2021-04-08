@@ -567,6 +567,7 @@ void pars_printree(void)
   double scale, tipmax;
   long i;
   boolean *found;
+  boolean wasfound = false;
   node *p, *q;
 
   if (!treeprint)
@@ -575,6 +576,7 @@ void pars_printree(void)
   tipy = 1;                   /* line in the diagram that has the first tip */
   tipmax = 0.0;      /* this ends up with how far to right the tree extends */
   
+  found = &wasfound;
   p = findroot(curtree, curtree->root, found);    /* get to real root node */
   q = p;                                            /* save a pointer to it */
   pars_coordinates(p, 0.0, &tipy, &tipmax);     /* get coordinates of nodes */
@@ -596,7 +598,8 @@ void maketree(void)
   // RSGnote: This was formerly uninitialized and potentially referenced before being set
   // below, depending on which branch of the first IF below was taken.
   long numtrees = 0;
-  boolean found;
+  boolean *found;
+  boolean wasfound = false;
   node *p;
 
   if (!usertree)
@@ -677,7 +680,8 @@ printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
 /* debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
-        p = findroot(curtree, curtree->root, &found);   /* get to real root */
+        found = &wasfound;        /* just making sure pointer is to boolean */
+        p = findroot(curtree, curtree->root, found);    /* get to real root */
         initializetrav(curtree, p);    /* ready to update views */
         initializetrav(curtree, curtree->root->back); /*  debug:      */
         curtree->score = curtree->evaluate(curtree, p, false);
