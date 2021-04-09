@@ -741,7 +741,7 @@ void branchlength(node *subtr1, node *subtr2, double *brlen, pointarray treenode
     *brlen = 0.0;
   else
     *brlen = (double)nom/(double)denom;    /* cast to doubles so get double */
-/* debug printf("branch length for branch %ld:%ld is %6.2f\n", subtr1->index, subtr2->index, *brlen); */
+printf("branch length for branch %ld:%ld is %6.2f\n", subtr1->index, subtr2->index, *brlen); /* debug */
 } /* branchlength */
 
 
@@ -1134,7 +1134,7 @@ void discretepars_tree_nuview(tree* t, node*p)
   unsigned char base1, newbase;
   long numnuc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   boolean bif;
-  long atroot = true;
+  long atroot = 0;
 
 /* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
@@ -1152,7 +1152,7 @@ if (p->back != NULL)  /* debug     */
       qback = (discretepars_node*)q->back;
       if ( qback == NULL )
       {                /* if we root the tree we can safely ignore the root */
-        atroot = true;
+        atroot = 1;
         continue;
       }
       base1 = qback->discbase[i];
@@ -1183,7 +1183,7 @@ if (p->back != NULL)  /* debug     */
             newbase |= 1 << j;
           }
         }
-        steps += (weight[i]) * (count_sibs(p) - largest - root);
+        steps += (weight[i]) * (count_sibs(p) - largest - atroot);
       }       /* above counts descendants that don't have most parsimonious */
       else
       {         /* optimized for bifurcation, code above still works though */
