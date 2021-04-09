@@ -1134,7 +1134,7 @@ void discretepars_tree_nuview(tree* t, node*p)
   unsigned char base1, newbase;
   long numnuc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   boolean bif;
-  long root = 0;
+  long atroot = true;
 
 /* debug  generic_tree_nuview(t, p);   needed? */
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
@@ -1151,11 +1151,10 @@ if (p->back != NULL)  /* debug     */
     {                                    /* go around the loop at this fork */
       qback = (discretepars_node*)q->back;
       if ( qback == NULL )
-      {
-        root = 1;
+      {                /* if we root the tree we can safely ignore the root */
+        atroot = true;
         continue;
       }
-      /* if we root the tree we can safely ignore the root */
       base1 = qback->discbase[i];
       newbase &= base1;               /* intersection with base sets so far */
       steps += ((pars_node*)qback)->numsteps[i];
