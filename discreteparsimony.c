@@ -678,7 +678,10 @@ void minpostorder(node *p, pointarray treenode)
   {
     return;
   }
-/* debug printf("minpostorder on node  %ld\n", p->index);  */
+if (p->back)
+printf("minpostorder on node  %ld from %ld\n", p->index, p->back->index);  /* debug */
+else
+printf("minpostorder on node  %ld\n", p->index);  /* debug */
   if (!p->initialized) {
     q = p->next;    /* around fork ring, do minpostorder on backs as needed */
     while (q != p)
@@ -1218,6 +1221,7 @@ double discretepars_tree_evaluate(tree* t, node *n, boolean dummy)
   {
     if (p != NULL) {                     /* set up state set at one end ... */
       steps = ((pars_node*)p)->numsteps[i];
+printf(" steps for sitei = %ld:   %ld\n", i, ((pars_node*)p)->numsteps[i]); /* debug */
       base1 = p->discbase[i];
     }
     if (q != NULL) {                            /* ... and at the other end */
