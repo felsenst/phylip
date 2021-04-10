@@ -1143,9 +1143,9 @@ void discretepars_tree_nuview(tree* t, node*p)
   bif = (count_sibs(p) == 2);          /* boolean to indicate a bifurcation */
 
 if (p->back != NULL)  /* debug     */
-/* debug printf("update states at node %ld facing %ld\n", p->index, p->back->index);  */
-/* debug  else  */
-/* debug printf("update states at node %ld facing NULL\n", p->index);  */
+ printf("update states at node %ld facing %ld\n", p->index, p->back->index);  /* debug*/
+else  /* debug  */
+printf("update states at node %ld facing NULL\n", p->index); /* debug */
   for ( i = 0 ; i < endsite ; i++ ) /* do for each representative character */
   {
     newbase = 0xff;
