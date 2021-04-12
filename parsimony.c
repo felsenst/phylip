@@ -117,7 +117,8 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   node* dummy;
   boolean* found;
   boolean wasfound = false;
-  long i, pos = 0;
+  long pos = 0;
+/* debug   long i; */
 
   t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
 /* printf("try inserting %ld on %ld:%ld\n", item->index, p->back->index, p->index); debug */
@@ -128,13 +129,13 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   like = t->evaluate(t, p, false);
 /* printf("\n"); debug */
   t->score = like;
-printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); /* debug */
+/* printf(" score = %lf, bestyet = %lf, bestfound = %lf\n", like, *bestyet, *bestfound); debug */
   if (like > *bestyet) {
     generic_tree_copy(t, bestree);
-printf(" (new bestyet)"); /*  debug */
+/* printf(" (new bestyet)"); debug */
     *bestyet = like;
     there = p;
-printf("\n"); /* debug */
+/* printf("\n"); debug */
     if (storing) {
       savetree(t, place);     /* storable coded representation of this tree */
       if (atstart) {                       /* when this is first tree tried */
@@ -142,9 +143,9 @@ printf("\n"); /* debug */
         found = &wasfound;
         if (nextree == 0) {
           *bestfound = like;                   /* score of the stored trees */
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n", like, *bestyet, *bestfound);  /* debug */
+/* printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Initial, as Tree #1))\n", like, *bestyet, *bestfound);  debug */
           addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("Added an initial tree to bestrees, now %ld of them\n", nextree); /*    debug */
+/* printf("Added an initial tree to bestrees, now %ld of them\n", nextree);   debug */
         }
         *bestyet = like;          /* same value as *bestfound.  Why needed? */
         succeeded = true;         /* to be updated when "tryinsert" returns */
@@ -156,10 +157,10 @@ printf("Added an initial tree to bestrees, now %ld of them\n", nextree); /*    d
           findtree(found, &pos, nextree, place, bestrees);
           succeeded = true;
           if (!(*found)) {             /* if found same tree, do not add it */
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", like, *bestyet, *bestfound, pos+1);  /* debug */
+/* printf(" score = %lf, bestyet = %lf, bestfound = %lf  (tied, as Tree %ld)\n", like, *bestyet, *bestfound, pos+1);  debug */
             addtiedtree(&pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
-printf("Added another tied tree to bestrees, now %ld of them\n", nextree); /*   debug */
+/* printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  debug */
+/* printf("Added another tied tree to bestrees, now %ld of them\n", nextree);    debug */
           }
         } else {          /* since  like  is not the same as the best score */
           if (like > *bestfound) {                        /* replacing all? */
@@ -167,10 +168,10 @@ printf("Added another tied tree to bestrees, now %ld of them\n", nextree); /*   
             *bestyet = like;
             pos = 0;                 /* put it at the beginning of bestrees */
 /* debug:            *found = false;   needed? */
-printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); /* debug: */
+/* printf(" score = %lf, bestyet = %lf, bestfound = %lf  (Better, as Tree #1)\n", like, *bestyet, *bestfound); debug: */
             addbestever(pos, &nextree, maxtrees, false, place, bestrees, like);
-printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
-printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  /* debug */
+/* printf("TREE %ld: ", pos+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");   debug */
+/* printf("Added new best tree to bestrees, score = %lf, now %ld of them\n", like, nextree);  debug */
             succeeded = true;
             *bestyet = like;
           }
@@ -355,21 +356,21 @@ void collapsebestrees(tree *t, bestelm *bestrees, long *place, long chars,
       t->score = like;
       collapsible = false; 
       p = NULL;                /* for recording where tree can be collapsed */
-  printf("(nextree before checking collapsibility is: %ld)\n", nextree);
-  printf("STARTING treecollapsible on tree  %ld\n", k+1); /* debug */
-  printf("LOOKING AT TREE #%ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
+/* debug  printf("(nextree before checking collapsibility is: %ld)\n", nextree);   */
+/*   printf("STARTING treecollapsible on tree  %ld\n", k+1); debug */
+/*   printf("LOOKING AT TREE #%ld: ", k+1);for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  debug */
       while ( treecollapsible(t, t->nodep[outgrno-1], &p, collapsible) ) {
-printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  /* debug */
+/* printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno-1]->back->index);  debug */
         collapsed = false;
         collapsetree(t, p->back, &collapsed);     /* collapse branch if can */
       }
       if (collapsed) {                        /* if something was collapsed */
         somecollapsed = somecollapsed || collapsible;
-  printf("TREE #%ld collapsed\n", k+1);
+/*   printf("TREE #%ld collapsed\n", k+1);   debug */
         savetree(t, place);         /* record collapsed tree in place array */
-  printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  /* debug */
+/*   printf("COLLAPSED TREE: ");for (i = 0; i < spp; i++) printf("%ld ", place[i]);printf("\n");  debug */
         if ( k < (treeLimit-1) ) {       /* if not at the last tree already */
-  printf("Shifting trees %ld through %ld down one\n", k+2, treeLimit);  /* debug */
+/*   printf("Shifting trees %ld through %ld down one\n", k+2, treeLimit);  debug */
           for (j = k ; j < (treeLimit - 1) ; j++)    /* shift rest of trees */
           {                   /* (in the process, overwriting the k-th tree */
             memcpy(bestrees[j].btree, bestrees[j+1].btree, spp * sizeof(long));
@@ -382,7 +383,7 @@ printf("\nOuter call of treecollapsible on %ld:%ld\n", outgrno, t->nodep[outgrno
         }
         treeLimit--;      /* because there is now one fewer tree in bestrees */
         nextree--;
-printf("(nextree now %ld)\n", nextree); /* debug */
+/* printf("(nextree now %ld)\n", nextree); debug */
         pos = 0;
         found = &wasfound;
         findtree(found, &pos, treeLimit, place, bestrees);  /* find where   */
@@ -392,17 +393,18 @@ printf("(nextree now %ld)\n", nextree); /* debug */
           addtree(pos, &treeLimit, false, place, bestrees);
           nextree++;
           bestrees[pos].collapse = false;
-  printf("ADDING NEW TREE: as number %ld: ", pos+1);
-/* debug */  for (i = 0; i < spp; i++) printf("%ld ", place[i]);
-  printf("\n"); /* debug */
-if (pos < treeLimit) {  /* debug */
-printf(" and shifting trees %ld through %ld up one\n", pos+2, treeLimit); }/* debug*/
-          if (pos <= k)        /* keep  k  pointing at next tree to examine */
-            k++;
-printf("(nextree now %ld)\n", nextree); /* debug */
-printf("Next tree to examine is tree #%ld\n", k+1);  /* debug */
-        }
-    else printf("ALREADY THERE at %ld\n", pos); /* debug */
+/* debug  printf("ADDING NEW TREE: as number %ld: ", pos+1); */
+/* for (i = 0; i < spp; i++) printf("%ld ", place[i]);   debug */  
+/* debug   printf("\n"); */
+          if (pos < treeLimit) {
+/*  printf(" and shifting trees %ld through %ld up one\n", pos+2, treeLimit); }debug */
+            if (pos <= k)        /* keep  k  pointing at next tree to examine */
+              k++;
+/* debug printf("(nextree now %ld)\n", nextree); */
+/* debug printf("Next tree to examine is tree #%ld\n", k+1);  */
+           }
+/*     else printf("ALREADY THERE at %ld\n", pos); debug */
+       }
     }
   } while (k < treeLimit);
   if (progress)
@@ -1421,7 +1423,7 @@ void grandrearr(tree* t, tree* bestree, boolean progress,
   boolean done = false;
 
   lastrearr = true;
-/* debug:  whay do this, best trees are in array bestrees and  t  is not necessarily one of them
+/* debug:  why do this, best trees are in array bestrees and  t  is not necessarily one of them
   savetree(t, place);
   addbestever(pos, &nextree, maxtrees, false, place, bestrees, UNDEFINED);
 debug:   */
