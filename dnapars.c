@@ -1125,11 +1125,17 @@ int main(int argc, Char *argv[])
   FClose(infile);
   FClose(outfile);
   if (weights || justwts)
+  {
     FClose(weightfile);
+  }
   if (trout)
+  {
     FClose(outtree);
+  }
   if (usertree)
+  {
     FClose(intree);
+  }
 #ifdef MAC
   fixmacfile(outfilename);
   fixmacfile(outtreename);
