@@ -1235,7 +1235,10 @@ void coordinates(tree* t, node *p, double lengthsum, long *tipy,
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;      /* for interior fork, go around the circle of nodes ... */
+  if (p->back)      /* for interior fork, go around the circle of nodes ... */
+    q = p;
+  else
+    q = p->next;  
   do {
     xx = q->v;        /* get the value of the branch length leading out ... */
     if (xx > 100.0)                /* ... from that node in the fork circle */
@@ -1243,11 +1246,14 @@ void coordinates(tree* t, node *p, double lengthsum, long *tipy,
     coordinates(t, q->back, lengthsum + xx, tipy, tipmax);   /* recurse out */
     q = q->next;                /* continue around the fork circle of nodes */
   } while (p != q);
-  first = p->next->back;    /* around circle again, getting pointers to ... */
+  first = p->next->back;             /* find immediate first descendant ,,, */
   q = p;       /* ... the descendants of first and last nodes in the circle */
-  while (q->next != p)           /* ... not counting the one you arrived to */
+  while (q->next != p) {
+    last = q->back;        /* the pointer to the descendant of the last one */
     q = q->next;
-  last = q->back;   /* here's the pointer to the descendant of the last one */
+    if (q->back != NULL)
+      last = q->back;                                   /* ... and last one */
+  }
   p->xcoord = (long)(over * lengthsum + 0.5);
   if ((p == t->root) || count_sibs(p) > 2)
     p->ycoord = p->next->next->back->ycoord;     /* where 2nd descendant is */

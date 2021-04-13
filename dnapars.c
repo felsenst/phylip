@@ -554,16 +554,21 @@ void maketree(void)
       for (i = 0; i < outCount ; i++)       /* print trees out onto outfile */
       {
         load_tree(curtree, i, bestrees);
-        reroot(curtree->nodep[outgrno - 1], curtree->root);
+        found = &wasfound;        /* just making sure pointer is to boolean */
+        p = findroot(curtree, curtree->root, found);    /* get to real root */
+/* debug:   reroot(curtree->nodep[outgrno - 1], curtree->root);  need? */
         initializetrav(curtree, curtree->root);
         initializetrav(curtree, curtree->root->back);
-        curtree->evaluate(curtree, curtree->root, false);
+/*          initializetrav(curtree, curtree->root->back); debug:      */
+/*       curtree->evaluate(curtree, curtree->root, false);  debug */
+        curtree->score = curtree->evaluate(curtree, p, false);
         curtree->root = root_tree(curtree, curtree->root);
         curtree->nodep[curtree->root->index - 1] = curtree->root;
-        dna_treelength(curtree->root, chars, curtree->nodep);
+        dna_treelength(p, chars, curtree->nodep);
+/* debug:        dna_treelength(curtree->root, chars, curtree->nodep);  */
         printree(curtree);
         describe();
-        reroot_tree(curtree);
+/* debug    reroot_tree(curtree);   */
       }
     }
   }
