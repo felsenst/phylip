@@ -675,10 +675,10 @@ void maketree(void)
       for (i = 0; i < outCount ; i++)           /* print out the best trees */
       {
         load_tree(curtree, i, bestrees);
-/* debug */
+/* debug
 printf("PRINT TREE %ld: ",i+1);
 for(j = 0; j < spp; j++) {printf("%ld ",bestrees[i].btree[j]);}printf("\n");
-/* debug */
+   debug */
 /* debug:   curtree->root = root_tree(curtree, curtree->root);       maybe not needed, screws up tree */
         found = &wasfound;        /* just making sure pointer is to boolean */
         p = findroot(curtree, curtree->root, found);    /* get to real root */

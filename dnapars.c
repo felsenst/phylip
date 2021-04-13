@@ -477,7 +477,9 @@ void maketree(void)
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, nextnode, oldnextree;
-  boolean firsttree, goteof, haslengths;
+  boolean firsttree, goteof, haslengths, wasfound;
+  boolean *found;
+  node *p;
 
   long numtrees = 0;
 
