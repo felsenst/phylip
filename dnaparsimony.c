@@ -292,7 +292,8 @@ void inittreetrav(node *p, long sitei)
   q = p->next;
   while (q != p)
   {
-    inittreetrav(q->back, sitei);
+    if (q->back != NULL)
+      inittreetrav(q->back, sitei);
     q = q->next;
   }
   dna_initmin((dnapars_node*)p, sitei, true);
@@ -417,7 +418,8 @@ void dna_initbase(node *p, long sitei)
   q = p->next;
   while (q != p)
   {
-    dna_initbase(q->back, sitei);
+    if (q->back != NULL)
+      dna_initbase(q->back, sitei);
     q = q->next;
   }
 } /* initbase */
