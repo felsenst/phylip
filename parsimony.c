@@ -1235,10 +1235,7 @@ void coordinates(tree* t, node *p, double lengthsum, long *tipy,
       (*tipmax) = lengthsum;
     return;
   }
-  if (p->back)      /* for interior fork, go around the circle of nodes ... */
-    q = p;
-  else
-    q = p->next;  
+  q = p->next;
   do {
     xx = q->v;        /* get the value of the branch length leading out ... */
     if (xx > 100.0)                /* ... from that node in the fork circle */
