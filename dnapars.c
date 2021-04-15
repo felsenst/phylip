@@ -564,7 +564,7 @@ void maketree(void)
 /*          initializetrav(curtree, curtree->root->back); debug:      */
 /*       curtree->evaluate(curtree, curtree->root, false);  debug */
         curtree->score = curtree->evaluate(curtree, p, false);
-        curtree->root = root_tree(curtree, curtree->root);
+/* debug        curtree->root = root_tree(curtree, curtree->root);   why? */
         curtree->nodep[curtree->root->index - 1] = curtree->root;
         dna_treelength(p, chars, curtree->nodep);
 /* debug:        dna_treelength(curtree->root, chars, curtree->nodep);  */
