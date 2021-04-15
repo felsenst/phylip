@@ -20,7 +20,7 @@ void   doinit(void);
 void   inputoptions(void);
 void   doinput(void);
 void   dollop_count(node *, steptr, steptr);
-void   preorder(node *, steptr, steptr, long, boolean, long, bitptr, pointptr);
+void   preorder(tree *t, node *, steptr, steptr, long, boolean, long, bitptr);
 void   evaluate(node *);
 void   savetree(void);
 void   dollop_addtree(long *);
@@ -470,16 +470,18 @@ void dollop_count(node *p, steptr numsone, steptr numszero)
 }  /* dollop_count */
 
 
-void preorder(node *p, steptr numsone, steptr numszero, long words, boolean dollo, long fullset, bitptr zeroanc, pointptr treenode)
+void preorder(tree *t, node *p, steptr numsone, steptr numszero, long words, boolean dollo, long fullset, bitptr zeroanc)
 {
   /* go back up tree setting up and counting interior node
      states */
 
   if (!p->tip)
   {
-    correct(p, fullset, dollo, zeroanc, treenode);
-    preorder(p->next->back, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
-    preorder(p->next->next->back, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+    correct(t, p, fullset, dollo, zeroanc);
+    preorder(t, p->next->back, numsone, numszero, words,
+              dollo, fullset, zeroanc);
+    preorder(t, p->next->next->back, numsone, numszero, words,
+              dollo, fullset, zeroanc);
   }
   if (p->back != NULL)
     dollop_count(p, numsone, numszero);
@@ -502,11 +504,11 @@ void evaluate(node *r)
   for (i = 0; i < words; i++)
     zeroanc[i] = fullset;
   postorder(r);
-  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+  preorder(curtree, r, numsone, numszero, words, dollo, fullset, zeroanc);
   for (i = 0; i < words; i++)
     zeroanc[i] = 0;
   postorder(r);
-  preorder(r, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+  preorder(curtree, r, numsone, numszero, words, dollo, fullset, zeroanc);
   for (i = 0; i < chars; i++) {
     smaller = 2 * spp * weight[i];
     numsteps[i] = smaller;

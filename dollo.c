@@ -13,7 +13,7 @@
 #include "dollo.h"
 
 
-void correct(node *p, long fullset, boolean dollo, bitptr zeroanc, pointptr treenode)
+void correct(tree *t, node *p, long fullset, boolean dollo, bitptr zeroanc)
 {  /* get final states for intermediate nodes */
   long i;
   long z0, z1, s0, s1, temp;
@@ -25,8 +25,8 @@ void correct(node *p, long fullset, boolean dollo, bitptr zeroanc, pointptr tree
       s0 = zeroanc[i];
       s1 = fullset & (~zeroanc[i]);
     } else {
-      s0 = treenode[p->back->index - 1]->statezero[i];
-      s1 = treenode[p->back->index - 1]->stateone[i];
+      s0 = t->nodep[p->back->index - 1]->statezero[i];
+      s1 = t->nodep[p->back->index - 1]->stateone[i];
     }
     z0 = (s0 & p->statezero[i]) |
          (p->next->back->statezero[i] & p->next->next->back->statezero[i]);
@@ -164,7 +164,8 @@ void hyprint(struct htrav_vars *Hyptrav, boolean *unknown, bitptr dohyp, Char *g
   putc('\n', outfile);
 }  /* hyprint */
 
-void hyptrav(node *r_, boolean *unknown, bitptr dohyp, long fullset,
+
+void hyptrav(tree *t, node *r_, boolean *unknown, bitptr dohyp, long fullset,
              boolean dollo, Char *guess, pointptr treenode, gbit *garbage,
              bitptr zeroanc, bitptr oneanc)
 {
@@ -176,7 +177,7 @@ void hyptrav(node *r_, boolean *unknown, bitptr dohyp, long fullset,
   disc_gnu(&HypVars.zerobelow, &garbage);
   disc_gnu(&HypVars.onebelow, &garbage);
   if (!HypVars.r->tip)
-    correct(HypVars.r, fullset, dollo, zeroanc, treenode);
+    correct(t, HypVars.r, fullset, dollo, zeroanc);
   HypVars.bottom = (HypVars.r->back == NULL);
   HypVars.nonzero = false;
   if (HypVars.bottom)
@@ -197,7 +198,7 @@ void hyptrav(node *r_, boolean *unknown, bitptr dohyp, long fullset,
   hyprint(&HypVars, unknown, dohyp, guess);
   if (!HypVars.r->tip)
   {
-    hyptrav(HypVars.r->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
+    hyptrav(curtree, HypVars.r->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
     hyptrav(HypVars.r->next->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
   }
   disc_chuck(HypVars.zerobelow, &garbage);
