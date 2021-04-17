@@ -588,10 +588,10 @@ void savetree(void)
 
 void dollop_addtree(long *pos)
 {
-  /*puts tree from ARRAY place in its proper position
-    in ARRAY bestrees */
+  /* puts tree from array place in its proper position in array bestrees */
   long i;
-  for (i =nextree - 1; i >= (*pos); i--)
+
+  for (i = nextree; i > (*pos); i--)
   {
     memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
     bestrees[i].gloreange = bestrees[i - 1].gloreange;
@@ -599,17 +599,16 @@ void dollop_addtree(long *pos)
     bestrees[i].collapse = bestrees[i - 1].collapse;
   }
   for (i = 0; i < spp; i++)
-    bestrees[(*pos) - 1].btree[i] = place[i];
+    bestrees[(*pos)].btree[i] = place[i];
   nextree++;
 }  /* dollop_addtree */
 
 
 void tryadd(node *p, node **item, node **nufork)
 {
-  /* Temporarily adds one fork and one tip to the tree.
-     if the location where they are added yields greater
-     "likelihood" than other locations tested up to that
-     time, then keeps that location as there */
+  /* Temporarily adds one fork and one tip to the tree.  If the location where
+   * they are added yields greater score than other locations tested
+   * then keeps that location as there */
   long pos;
   boolean found;
 
@@ -623,16 +622,15 @@ void tryadd(node *p, node **item, node **nufork)
       if (like > bstlike2)
       {
         bestlike = bstlike2 = like;
-        pos = 1;
-        nextree = 1;
+        pos = 0;
+        nextree = 0;
         dollop_addtree(&pos);
       }
       else
       {
         pos = 0;
         findtree(&found, &pos, nextree, place, bestrees);
-        /* findtree calls for a bestelm* but is getting */
-        /* a long**, LM                                 */
+ /* debug:  findtree calls for a bestelm* but is getting a long**, LM */
         if (!found)
         {
           if (nextree <= maxtrees)
@@ -706,7 +704,7 @@ void tryrearr(node *p, node **r, boolean *success)
 
 void repreorder(node *p, node **r, boolean *success)
 {
-  /* traverses a binary tree, calling PROCEDURE tryrearr
+  /* traverses a binary tree, calling function tryrearr
      at a node before calling tryrearr at its descendants */
   if (p == NULL)
     return;
@@ -917,7 +915,7 @@ void maketree(void)
         if (nextree == 1)
           fprintf(outfile, "One most parsimonious tree found:\n");
         else
-          fprintf(outfile, "%6ld trees in all found\n", nextree);
+          fprintf(outfile, "%6ld trees in all found\n", nextree-1);
       }
       if (nextree > maxtrees + 1)
       {

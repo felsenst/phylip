@@ -2405,7 +2405,7 @@ void addtree(long pos, long *nextree, boolean collapse,
               long *place, bestelm *bestrees)
 {
   /* puts tree from array place in its proper position in array bestrees
-   * used by Dnacomp, Dnapars, Dollop, Mix, Pars, and Protpars
+   * used by Dnacomp, Dnapars, Pars, and Protpars
    * pos takes range 0 ... nextree-1.  There are currently  nextree trees
    * occupying that range, and once it is added there will then be
    * nextree+1 trees occupying range  0 ... nextree  */
