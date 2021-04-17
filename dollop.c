@@ -752,7 +752,8 @@ void describe(void)
     guesstates(guess);
   if (ancseq)
   {
-    hypstates(fullset, dollo, guess, curtree->nodep, curtree->root, garbage, zeroanc, oneanc);
+    hypstates(curtree, fullset, dollo, guess,
+                curtree->root, garbage, zeroanc, oneanc);
     putc('\n', outfile);
   }
   putc('\n', outfile);

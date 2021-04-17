@@ -165,9 +165,9 @@ void hyprint(struct htrav_vars *Hyptrav, boolean *unknown, bitptr dohyp, Char *g
 }  /* hyprint */
 
 
-void hyptrav(tree *t, node *r_, boolean *unknown, bitptr dohyp, long fullset,
-             boolean dollo, Char *guess, pointptr treenode, gbit *garbage,
-             bitptr zeroanc, bitptr oneanc)
+void hyptrav(tree *t, node *r_, boolean *unknown, bitptr dohyp,
+               long fullset, boolean dollo, Char *guess,
+               gbit *garbage, bitptr zeroanc, bitptr oneanc)
 {
   /*  compute, print out states at one interior node */
   struct htrav_vars HypVars;
@@ -187,8 +187,12 @@ void hyptrav(tree *t, node *r_, boolean *unknown, bitptr dohyp, long fullset,
   }
   else
   {
-    memcpy(HypVars.zerobelow->bits_, treenode[HypVars.r->back->index - 1]->statezero, words * sizeof(long));
-    memcpy(HypVars.onebelow->bits_, treenode[HypVars.r->back->index - 1]->stateone, words * sizeof(long));
+    memcpy(HypVars.zerobelow->bits_,
+             t->nodep[HypVars.r->back->index - 1]->statezero,
+             words * sizeof(long));
+    memcpy(HypVars.onebelow->bits_,
+             t->nodep[HypVars.r->back->index - 1]->stateone,
+             words * sizeof(long));
   }
   for (i = 0; i < words; i++)
     HypVars.nonzero = (HypVars.nonzero ||
@@ -198,15 +202,17 @@ void hyptrav(tree *t, node *r_, boolean *unknown, bitptr dohyp, long fullset,
   hyprint(&HypVars, unknown, dohyp, guess);
   if (!HypVars.r->tip)
   {
-    hyptrav(curtree, HypVars.r->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
-    hyptrav(HypVars.r->next->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
+    hyptrav(t, HypVars.r->next->back, unknown, dohyp, fullset,
+              dollo, guess, garbage, zeroanc, oneanc);
+    hyptrav(t, HypVars.r->next->next->back, unknown, dohyp, fullset,
+              dollo, guess, garbage, zeroanc, oneanc);
   }
   disc_chuck(HypVars.zerobelow, &garbage);
   disc_chuck(HypVars.onebelow, &garbage);
 }  /* hyptrav */
 
 
-void hypstates(long fullset, boolean dollo, Char *guess, pointptr treenode,
+void hypstates(tree *t, long fullset, boolean dollo, Char *guess,
                node *root, gbit *garbage, bitptr zeroanc, bitptr oneanc)
 {
   /* fill in and describe states at interior nodes */
@@ -236,7 +242,8 @@ void hypstates(long fullset, boolean dollo, Char *guess, pointptr treenode,
   fprintf(outfile, "    State at upper node\n");
   fprintf(outfile, "                            ");
   fprintf(outfile, " ( . means same as in the node below it on tree)\n\n");
-  hyptrav(root, &unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
+  hyptrav(t, root, &unknown, dohyp, fullset, dollo,
+            guess, garbage, zeroanc, oneanc);
   free(dohyp);
 }  /* hypstates */
 

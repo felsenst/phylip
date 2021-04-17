@@ -17,8 +17,10 @@ void   postorder(node *);
 void   count(long *, bitptr, steptr, steptr);
 void   filltrav(node *);
 void   hyprint(struct htrav_vars *, boolean *, bitptr, Char *);
-void   hyptrav(tree, node *, boolean *, bitptr, long, boolean, Char *pointptr, gbit *, bitptr, bitptr);
-void   hypstates(long, boolean, Char *, pointptr, node *, gbit *, bitptr, bitptr);
+void   hyptrav(tree *, node *, boolean *, bitptr, long, boolean,
+                 Char *pointptr, gbit *, bitptr, bitptr);
+void   hypstates(tree *, long, boolean, Char *,
+                   node *, gbit *, bitptr, bitptr);
 void   drawline(long, double, node *);
 void   printree(double, boolean, node *);
 void   writesteps(boolean, boolean, steptr);
