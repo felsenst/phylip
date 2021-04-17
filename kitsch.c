@@ -1101,13 +1101,17 @@ void kitsch(
   kitschrun();
 
   if (trout)
+  {
     FClose(outtree);
+  }
   if (usertree)
+  {
     FClose(intree);
+  }
   FClose(outfile);
   FClose(infile);
   //printf("Done.\n\n");  // JRM debug
-}
+} /* kitsch */
 
 
 int main(int argc, Char *argv[])

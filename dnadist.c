@@ -1774,13 +1774,21 @@ int main(int argc, Char *argv[])
   dnadistrun();  // do the actual work
 
   if (catfile)
+  {
     FClose(catfile);
+  }
   if (weightfile)
+  {
     FClose(weightfile);
+  }
   if (infile)
+  {
     FClose(infile);
+  }
   if (outfile)
+  {
     FClose(outfile);
+  }
 
 #ifdef MAC
   fixmacfile(outfilename);
