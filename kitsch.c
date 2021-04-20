@@ -88,14 +88,14 @@ node* kitsch_node_new(node_type type, long index)
   n = Malloc(sizeof(kitsch_node));
   kitsch_node_init(n, type, index);
   return n;
-}
+} /* kitsch_node_new */
 
 
 void kitsch_node_init(node* n, node_type type, long index)
 {
   dist_node_init(n, type, index);
   n->copy = kitsch_node_copy;
-}
+} /* kitsch_node_init */
 
 
 void kitsch_node_copy(node* srcn, node* dstn)
@@ -105,7 +105,7 @@ void kitsch_node_copy(node* srcn, node* dstn)
   dist_node_copy(srcn, dstn);
   dst->weight = src->weight;
   dst->processed = src->processed;
-}
+} /* kitsch_node_copy */
 
 
 tree* kitsch_tree_new(long nonodes, long spp)
@@ -113,7 +113,7 @@ tree* kitsch_tree_new(long nonodes, long spp)
   tree* t = Malloc(sizeof(kitsch_tree));
   kitsch_tree_init(t, nonodes, spp);
   return t;
-}
+} /* kitsch_tree_new */
 
 
 void kitsch_tree_init(tree* t, long nonodes, long spp)
@@ -127,7 +127,7 @@ void kitsch_tree_init(tree* t, long nonodes, long spp)
   t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
   t->evaluate = kitsch_tree_evaluate;
   t->smoothall = (tree_smoothall_t)no_op;
-}
+} /* kitsch_tree_init */
 
 
 void getoptions(void)
@@ -719,8 +719,8 @@ void maketree(void)
      adds each node at location which yields highest "likelihood"
      then rearranges the tree for greatest "likelihood" */
   long i, j, which;
-  double bestlike, bstlike2=0;
-  boolean lastrearr, multf;
+  double *bestfound, bestlike, bstlike2=0;
+  boolean lastrearr;
   node *item;
 
   if (!usertree)
@@ -735,7 +735,7 @@ void maketree(void)
     if (jumble)
       randumize(seed, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1];
-    curtree->insert_(curtree, curtree->nodep[enterorder[1]-1], curtree->nodep[enterorder[0] - 1], false, false);
+    curtree->insert_(curtree, curtree->nodep[enterorder[1]-1], curtree->nodep[enterorder[0] - 1], false);
     if (progress)
     {
       sprintf(progbuf, "Adding species:\n");
@@ -747,10 +747,12 @@ void maketree(void)
     {
       bestyet = -DBL_MAX;
       item = curtree->nodep[enterorder[i - 1] - 1];
-      curtree->addtraverse(curtree, item, curtree->root, false, &there, &bestyet, NULL, NULL, false, &multf);
-      curtree->insert_(curtree, item, there, true, multf);
+      curtree->addtraverse(curtree, item, curtree->root, false, there, &bestyet,
+                             NULL, false, false, false, bestfound);
+      curtree->insert_(curtree, item, there, true);
       like = bestyet;
-      curtree->locrearrange(curtree, curtree->root, true, priortree, bestree);
+      curtree->locrearrange(curtree, curtree->root, true, &bestyet,
+                              bestree, priortree, lastrearr, bestfound);
       examined--;
       if (progress)
       {
@@ -777,7 +779,7 @@ void maketree(void)
           phyFillScreenColor();
         }
         bestlike = bestyet;
-        curtree->globrearrange(curtree, progress, true);
+        curtree->globrearrange(curtree, bestree, progress, true, bestfound);
         if (njumble > 1) {
           if (jumb == 1 || (jumb > 1 && bestlike > bstlike2))
           {
