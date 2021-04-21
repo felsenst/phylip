@@ -746,6 +746,7 @@ void maketree(void)
     for (i = 3; i <= spp; i++)
     {
       bestyet = -DBL_MAX;
+      bestfound = NULL;
       item = curtree->nodep[enterorder[i - 1] - 1];
       curtree->addtraverse(curtree, item, curtree->root, false, there, &bestyet,
                              NULL, false, false, false, bestfound);

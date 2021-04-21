@@ -781,7 +781,6 @@ void maketree(void)
   long i, k, which;
   double bestyet;
   node *where, *p;
-  boolean multf;
 
   if (usertree) {
     inputdata(replicates, printdata, lower, upper, x, reps);
