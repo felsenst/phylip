@@ -185,19 +185,19 @@ void dist_tree_init(tree* a, long nonodes)
 
   for (i = 1; i <= nonodes; i++) {
     if (i > spp) {
-      a->nodep[i-1] = functions.node_new(0, i);
+      a->nodep[i-1] = functions.node_new(0, i);       /* 0 if interior node */
     }
     else {
-      a->nodep[i-1] = dist_node_new(1, i);  /* 1 indicates a tip node */
+      a->nodep[i-1] = dist_node_new(1, i);        /* 1 indicates a tip node */
     }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;
     ((dist_node*)a->nodep[i - 1])->sametime = false;
     a->nodep[i - 1]->v = 0.0;
-    if (i > spp) {
+    if (i > spp) {         /* go around fork circles initializing variables */
       p = a->nodep[i-1]->next;
-      while (p != a->nodep[i-1]) {
+      while (p != a->nodep[i-1]) {    /* until you get to where you entered */
         p->back = NULL;
         p->iter = true;
         ((dist_node*)p)->t = 0.0;
@@ -206,12 +206,10 @@ void dist_tree_init(tree* a, long nonodes)
       }
     }
   }
-  /* Create garbage lists */ 
-  a->free_fork_nodes = Slist_new();
+  a->free_fork_nodes = Slist_new();                 /* Create garbage lists */ 
       
-  /* Put all interior nodes on garbage lists by "releasing" them */
-  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
-    a->release_fork(a, a->nodep[i]);
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {i  /* Put interior nodes on ... */
+    a->release_fork(a, a->nodep[i]);   /* garbage lists by "releasing" them */
   } 
   a->score = -1.0;
   a->root = a->nodep[0];
@@ -278,28 +276,30 @@ void inputdata(boolean replicates, boolean printdata, boolean lower,
       }
       if ((j < i) && (fabs(x[i][j]-x[j][i]) > 0.000000001)) {
         printf("ERROR:  Distance matrix is not symmetric:\n");
-        printf("        (%ld,%ld) element and (%ld,%ld) element are unequal.\n", i+1, j+1, j+1, i+1);
-        printf("        They are %10.6f and %10.6f, respectively.\n", x[i][j], x[j][i]);
+        printf("        (%ld,%ld) element and (%ld,%ld) element are unequal.\n",
+                 i+1, j+1, j+1, i+1);
+        printf("        They are %10.6f and %10.6f, respectively.\n",
+                 x[i][j], x[j][i]);
         printf("        Is it a distance matrix?\n\n");
         exxit(-1);
       }
     }
   }
   scan_eoln(infile);
-  checknames(spp);                      // Check NAYME array for duplicates.
+  checknames(spp);       /* Check  nayme  array for duplicate species names */
   if (!printdata)
     return;
-  for (i = 0; i < spp; i++) {
-    for (j = 0; j < nmlngth; j++)
+  for (i = 0; i < spp; i++) {         /* if printing out the input data too */
+    for (j = 0; j < nmlngth; j++)           /* print the name of the species */
       putc(nayme[i][j], outfile);
-    putc(' ', outfile);
+    putc(' ', outfile);                                      /* then a blank */
     for (j = 1; j <= spp; j++) {
-      fprintf(outfile, "%10.5f", x[i][j - 1]);
-      if (replicates)
+      fprintf(outfile, "%10.5f", x[i][j - 1]);         /* then its distances */
+      if (replicates)        /* and, if relevant, number of replicates of it */
         fprintf(outfile, " (%3ld)", reps[i][j - 1]);
-      if (j % columns == 0 && j < spp) {
+      if (j % columns == 0 && j < spp) { /* ... go to a new column as needed */
         putc('\n', outfile);
-        for (k = 1; k <= nmlngth + 1; k++)
+        for (k = 1; k <= nmlngth + 1; k++)    /* with blanksinstead of names */
           putc(' ', outfile);
       }
     }

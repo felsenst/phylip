@@ -4637,7 +4637,7 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
 } /* generic_tree_evaluate */
 
 
-/* debug: commented out because it is a suplicate version, one which also finds the fork attached */
+/* debug: commented out because it is a duplicate version, one which also finds the fork attached */
 #if 0
 void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
                           boolean multf)
