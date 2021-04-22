@@ -71,7 +71,7 @@ double power;
 double trweight; /* to make treeread happy */
 boolean goteof, haslengths;  /* ditto ... */
 boolean first; /* ditto ... */
-node *addwhere;
+node *addwhere, *there;
 longer seed, endsite, rcategs;
 long *enterorder;
 tree *curtree, *priortree, *bestree, *bestree2;
@@ -777,9 +777,9 @@ void maketree(void)
 {
   /* contruct the tree */
   long nextsp, numtrees=-1;
-  boolean succeeded=false;
+  boolean lastrearr, succeeded=false;
   long i, k, which;
-  double bestyet;
+  double bestyet, *bestfound;
   node *where, *p;
 
   if (usertree) {
@@ -851,8 +851,8 @@ void maketree(void)
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-      curtree->addtraverse(curtree, p, curtree->root, true,
-                            where, &bestyet, bestree, true);
+      curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
+                             NULL, false, false, false, bestfound);
       bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
@@ -863,10 +863,10 @@ void maketree(void)
         succeeded = false;
         curtree->root = curtree->nodep[enterorder[0] - 1]->back;
         if (nextsp == spp  && global)
-          curtree->globrearrange(curtree, progress, true);
-        else{
+          curtree->globrearrange(curtree, bestree, progress, true, bestfound);
+        else {
           curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
-                                priortree, bestree);
+                                &bestyet, priortree, bestree, lastrearr, bestfound);
         }
         if (global && ((nextsp) == spp) && progress)
         {
@@ -875,14 +875,12 @@ void maketree(void)
         }
       }
       if (global && nextsp == spp) {
-        putc('\n', outfile);
-        if (progress)
         {
           sprintf(progbuf, "\n   ");
           print_progress(progbuf);
-       }
+        }
       }
-      curtree->copy(curtree, bestree);
+      lastrearr = (nextsp == spp);
       if (njumble > 1) {
         if (jumb == 1 && nextsp == spp)
           bestree->copy(bestree, bestree2);

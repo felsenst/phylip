@@ -208,7 +208,7 @@ void dist_tree_init(tree* a, long nonodes)
   }
   a->free_fork_nodes = Slist_new();                 /* Create garbage lists */ 
       
-  for ( i = nonodes - 1 ; i >= spp ; i-- ) {i  /* Put interior nodes on ... */
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {   /* Put interior nodes on ... */
     a->release_fork(a, a->nodep[i]);   /* garbage lists by "releasing" them */
   } 
   a->score = -1.0;
