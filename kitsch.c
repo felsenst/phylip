@@ -720,7 +720,7 @@ void maketree(void)
      then rearranges the tree for greatest "likelihood" */
   long i, j, which;
   double bestlike, bstlike2=0;
-  boolean lastrearr, multf;
+  boolean lastrearr, multf, bestfound;
   node *item;
 
   if (!usertree)
@@ -735,7 +735,7 @@ void maketree(void)
     if (jumble)
       randumize(seed, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1];
-    curtree->insert_(curtree, curtree->nodep[enterorder[1]-1], curtree->nodep[enterorder[0] - 1], false, false);
+    curtree->insert_(curtree, curtree->nodep[enterorder[1]-1], curtree->nodep[enterorder[0] - 1], false);
     if (progress)
     {
       sprintf(progbuf, "Adding species:\n");
@@ -747,7 +747,8 @@ void maketree(void)
     {
       bestyet = -DBL_MAX;
       item = curtree->nodep[enterorder[i - 1] - 1];
-      curtree->addtraverse(curtree, item, curtree->root, false, &there, &bestyet, NULL, NULL, false, &multf);
+      curtree->addtraverse(curtree, item, curtree->root, false, there,
+                             &bestyet, NULL, NULL, false, false, bestfound);
       curtree->insert_(curtree, item, there, true, multf);
       like = bestyet;
       curtree->locrearrange(curtree, curtree->root, true, priortree, bestree);
