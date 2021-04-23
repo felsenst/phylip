@@ -96,7 +96,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 
   fitch_tree *ft = (fitch_tree *)t;
 /* debug:   dist_tree_init(&(ft->ml_tree.tree), nonodes, spp);   debug */
-  dist_tree_init(t, nonodes, spp);
+  dist_tree_init(t, nonodes);
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
@@ -779,8 +779,8 @@ void maketree(void)
   long nextsp, numtrees=-1;
   boolean lastrearr, succeeded=false;
   long i, k, which;
-  double bestyet, *bestfound;
-  node *where, *p;
+  double bestyet, *bestfound = NULL;
+  node *p;
 
   if (usertree) {
     inputdata(replicates, printdata, lower, upper, x, reps);
@@ -819,10 +819,10 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
-      dist_tree_new(curtree, nonodes);
-      dist_tree_new(priortree, nonodes);
-      dist_tree_new(bestree, nonodes);
-      if (njumble > 1) dist_tree_new(bestree2, nonodes);
+      curtree = fitch_tree_new(nonodes, spp);
+      priortree = fitch_tree_new(nonodes, spp);
+      if (njumble > 1)
+        bestree2 = fitch_tree_new(nonodes, spp);
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -1236,9 +1236,13 @@ void fitch(
   fitchrun();
 
   if (trout)
+  {
     FClose(outtree);
+  }
   if (usertree)
+  {
     FClose(intree);
+  }
   FClose(outfile);
   FClose(infile);
   //printf("Done.\n\n");
@@ -1274,7 +1278,9 @@ int main(int argc, Char *argv[])
   fitchrun();
 
   if (trout)
+  {
     FClose(outtree);
+  }
   FClose(outfile);
   FClose(infile);
 #ifdef MAC
