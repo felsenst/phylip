@@ -188,7 +188,7 @@ void dist_tree_init(tree* a, long nonodes)
       a->nodep[i-1] = functions.node_new(0, i);       /* 0 if interior node */
     }
     else {
-      a->nodep[i-1] = dist_node_new(1, i);        /* 1 indicates a tip node */
+      a->nodep[i-1] = functions.node_new(1, i);   /* 1 indicates a tip node */
     }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
