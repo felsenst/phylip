@@ -232,8 +232,8 @@ void doinit(void)
   {
     getoptions();
   }
-  dist_tree_new(curtree, nonodes);
   generic_tree_init(curtree, nonodes, spp);
+  dist_tree_new(curtree, nonodes);
 /* debug:  needed here?
   p = curtree->nodep[nonodes]->next;
   curtree->nodep[nonodes]->next = curtree->nodep[nonodes];

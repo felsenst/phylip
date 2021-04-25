@@ -212,7 +212,7 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist drawgram drawtree
 
-DYLIBS = libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so libdnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so libdrawtree.so libfactor.so libgendist.so libmix.so libneighbor.so libpenny.so libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
+DYLIBS = libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so libdnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so libdrawtree.so libfactor.so libgendist.so libmix.so libneighbor.so libpars.so libpenny.so libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
 
 #
 # General commands.
@@ -435,7 +435,7 @@ gendist.o:    gendist.c phylip.h pmatrix.c pmatrix.h
 interface.o:  interface.c interface.h draw.h phylip.h
 	$(DC) -c interface.c -shared -fPIC
 
-kitsch.o:     kitsch.c dist.h phylip.h
+kitsch.o:     kitsch.c dist.h ml.h phylip.h
 	$(CC) -c kitsch.c -shared -fPIC
 
 mix.o:        mix.c disc.h wagner.h phylip.h
@@ -451,7 +451,7 @@ pars.o:       pars.c discreteparsimony.h phylip.h parsimony.h
 	$(CC) -c pars.c -shared -fPIC
 
 penny.o:      penny.c disc.h wagner.h phylip.h
-	$(CC) -c penny.c -shared -fPIC -shared -fPIC
+	$(CC) -c penny.c -shared -fPIC
 
 proml.o:      proml.c seq.h ml.h phylip.h prom_common.h prom_common.c
 	$(CC) -c proml.c -shared -fPIC
@@ -657,6 +657,9 @@ libmix.so:    mix.o disc.o wagner.o phylip.h $(LIBS)
 
 libneighbor.so: neighbor.o dist.o phylip.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libneighbor.so -shared -fPIC neighbor.c dist.c phylip.c Slist.c
+
+libpars.so: pars.o parsimony.o discreteparsimony.o phylip.o $(LIBS)
+	$(CC) $(CFLAGS) -o libpars.so -shared -fPIC pars.c discreteparsimony.c parsimony.c phylip.c Slist.c
 
 libpenny.so:    penny.o disc.o wagner.o phylip.h $(LIBS)
 	$(CC) $(CFLAGS) -o libpenny.so -shared -fPIC penny.c disc.c wagner.c phylip.c Slist.c
