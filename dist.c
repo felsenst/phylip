@@ -179,17 +179,11 @@ void dist_tree_init(tree* a, long nonodes)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
-   * debug:  need to combine somehow with  phylip.c: generic_tree_init  */
+   * now has been combined to act after phylip.c: generic_tree_init  */
   long i=0;
   node *p;
 
   for (i = 1; i <= nonodes; i++) {
-    if (i > spp) {
-      a->nodep[i-1] = functions.node_new(0, i);       /* 0 if interior node */
-    }
-    else {
-      a->nodep[i-1] = functions.node_new(1, i);   /* 1 indicates a tip node */
-    }
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;
@@ -206,11 +200,6 @@ void dist_tree_init(tree* a, long nonodes)
       }
     }
   }
-  a->free_fork_nodes = Slist_new();                 /* Create garbage lists */ 
-      
-  for ( i = nonodes - 1 ; i >= spp ; i-- ) {   /* Put interior nodes on ... */
-    a->release_fork(a, a->nodep[i]);   /* garbage lists by "releasing" them */
-  } 
   a->score = -1.0;
   a->root = a->nodep[0];
 }  /* dist_tree_init */

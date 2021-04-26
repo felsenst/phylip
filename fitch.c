@@ -96,6 +96,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 
   fitch_tree *ft = (fitch_tree *)t;
 /* debug: dist_tree_init(&(ft->ml_tree.tree), nonodes);  debug */
+  generic_tree_init(t, nonodes, spp);
   dist_tree_init(t, nonodes);
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
