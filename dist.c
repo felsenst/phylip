@@ -68,8 +68,8 @@ void dist_node_copy(node* srcn, node* dstn)
 void alloctree(tree *t, long nonodes)
 {
   /* allocate treenode dynamically
-   * used in fitch (formerly), kitsch & neighbor */
-/* debug:  being replaced by dist.c: setuptree. */
+   * formerly used in fitch, kitsch & neighbor */
+  /* debug: not used now anywhere */
   long i, j;
   node *p, *q;
 
@@ -92,7 +92,7 @@ void alloctree(tree *t, long nonodes)
 
 void allocd(long nonodes, pointptr treenode)
 {
-  /* used in fitch & kitsch */
+  /* formerly used in fitch & kitsch.  Not used now  */
   long i, j;
   dist_node *p;
   dist_node** dtreenode = (dist_node**)treenode;
@@ -113,7 +113,7 @@ void allocd(long nonodes, pointptr treenode)
 
 void freed(long nonodes, pointptr treenode)
 {
-  /* used in fitch */
+  /* formerly used in fitch, not used now */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
@@ -179,7 +179,7 @@ void dist_tree_init(tree* a, long nonodes)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
-   * now has been combined to act after phylip.c: generic_tree_init  */
+   * acts after phylip.c: generic_tree_init  */
   long i=0;
   node *p;
 

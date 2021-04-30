@@ -97,7 +97,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   fitch_tree *ft = (fitch_tree *)t;
 /* debug: dist_tree_init(&(ft->ml_tree.tree), nonodes);  debug */
   generic_tree_init(t, nonodes, spp);
-  dist_tree_init(t, nonodes);
+/*  dist_tree_init(t, nonodes); debug */
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
@@ -619,27 +619,27 @@ void fitch_setuptip(tree *t, long m)
   /* initialize branch lengths and views in a tip */
   long i=0;
   intvector n=(long *)Malloc(spp * sizeof(long));
-  dist_node *WITH;
+  dist_node *which;
 
-  WITH = (dist_node*)t->nodep[m - 1];
-  memcpy(WITH->d, x[m - 1], (nonodes * sizeof(double)));
+  which = (dist_node*)t->nodep[m - 1];
+  memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
     if (i + 1 != m && n[i] > 0) {
-      if (WITH->d[i] < epsilonf)
-        WITH->d[i] = epsilonf;
-      WITH->w[i] = n[i] / exp(power * log(WITH->d[i]));
+      if (which->d[i] < epsilonf)
+        which->d[i] = epsilonf;
+      which->w[i] = n[i] / exp(power * log(which->d[i]));
     } else {
-      WITH->w[i] = 0.0;
-      WITH->d[i] = 0.0;
+      which->w[i] = 0.0;
+      which->d[i] = 0.0;
     }
   }
   for (i = spp; i < nonodes; i++) {
-    WITH->w[i] = 1.0;
-    WITH->d[i] = 0.0;
+    which->w[i] = 1.0;
+    which->d[i] = 0.0;
   }
-  WITH->node.index = m;
-  if (WITH->node.iter) WITH->node.v = 0.0;
+  which->node.index = m;
+  if (which->node.iter) which->node.v = 0.0;
   free(n);
 }  /* fitch_setuptip */
 

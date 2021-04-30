@@ -390,6 +390,9 @@ void invalidate_traverse (node *p)
     return;
 
   p->initialized = false;
+  if (p->back == NULL) {
+    return;
+  }
   p->back->initialized = false;
 
   q = p->back;
