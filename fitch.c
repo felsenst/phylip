@@ -446,12 +446,14 @@ void nudists(node *x, node *y)
 {
   /* compute distance between an interior node and tips */
   long nq=0, nr=0, nx=0, ny=0;
-  double dil=0, djl=0, wil=0, wjl=0, vi=0, vj=0;
+  double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
   node *qprime, *rprime;
 
   qprime = x->next;
-  rprime = qprime->next->back;
-  qprime = qprime->back;
+  if (qprime != NULL) {
+    rprime = qprime->next->back;
+    qprime = qprime->back;
+  }
   ny = y->index;
   dil = ((dist_node*)qprime)->d[ny - 1];
   djl = ((dist_node*)rprime)->d[ny - 1];
