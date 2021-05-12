@@ -399,13 +399,15 @@ void secondtraverse(node *q, double y, long *nx, double *sum)
   /* sum comes from evaluate via firsttraverse */
   double z=0.0, TEMP=0.0;
 
-  z = y + q->v;
-  if (q->tip) {
-    TEMP = ((dist_node*)q)->d[(*nx) - 1] - z;
-    *sum += ((dist_node*)q)->w[(*nx) - 1] * (TEMP * TEMP);
-  } else {
-    secondtraverse(q->next->back, z, nx, sum);
-    secondtraverse(q->next->next->back, z, nx, sum);
+  if (q) {
+    z = y + q->v;
+    if (q->tip) {
+      TEMP = ((dist_node*)q)->d[(*nx) - 1] - z;
+      *sum += ((dist_node*)q)->w[(*nx) - 1] * (TEMP * TEMP);
+    } else {
+      secondtraverse(q->next->back, z, nx, sum);
+      secondtraverse(q->next->next->back, z, nx, sum);
+    }
   }
 }  /* secondtraverse */
 
@@ -418,7 +420,8 @@ void firsttraverse(node *p, long *nx, double *sum)
   if (p->tip) {
     if (!minev) {
       *nx = p->index;
-      secondtraverse(p->back, 0.0, nx, sum);
+      if (p->back != NULL)
+        secondtraverse(p->back, 0.0, nx, sum);
       }
   } else {
     firsttraverse(p->next->back, nx, sum);
@@ -445,40 +448,41 @@ double fitch_evaluate(tree *t, node* p, boolean dummy2)
 void nudists(node *x, node *y)
 {
   /* compute distance between an interior node and tips */
-  long nq=0, nr=0, nx=0, ny=0;
+  long ny=0;
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
-  node *qprime, *rprime;
+  node *qprime, *rprime, *qprimeback, *rprimeback;
 
   qprime = x->next;
-  if (qprime != NULL) {
-    rprime = qprime->next->back;
-    qprime = qprime->back;
+  if (qprime->back != NULL) {
+    qprimeback = qprime->back;
+    dil = ((dist_node*)qprimeback)->d[ny - 1];
+    wil = ((dist_node*)qprimeback)->w[ny - 1];
+    vi = qprime->v;
+  } else {
+    dil = 0.0;
+    wil = 0.0;
+    vi = 0.0;
+  }
+  rprime = qprime->next;
+  rprimeback = rprime->back;
+  if (rprimeback != NULL) {
+    djl = ((dist_node*)rprimeback)->d[ny - 1];
+    wjl = ((dist_node*)rprimeback)->w[ny - 1];
+    vj = rprime->v;
+  } else {
+    djl = 0.0;
+    wjl = 0.0;
+    vj = 0.0;
   }
   ny = y->index;
-  dil = ((dist_node*)qprime)->d[ny - 1];
-  djl = ((dist_node*)rprime)->d[ny - 1];
-  wil = ((dist_node*)qprime)->w[ny - 1];
-  wjl = ((dist_node*)rprime)->w[ny - 1];
-  vi = qprime->v;
-  vj = rprime->v;
-  ((dist_node*)x)->w[ny - 1] = wil + wjl;
-  if (wil + wjl <= 0.0)
+  if (wil + wjl <= 0.0) {
     ((dist_node*)x)->d[ny - 1] = 0.0;
-  else
+  }
+  else {
     ((dist_node*)x)->d[ny - 1] = ((dil - vi) * wil + (djl - vj) * wjl) /
       (wil + wjl);
-  nx = x->index;
-  nq = qprime->index;
-  nr = rprime->index;
-  dil = ((dist_node*)y)->d[nq - 1];
-  djl = ((dist_node*)y)->d[nr - 1];
-  wil = ((dist_node*)y)->w[nq - 1];
-  wjl = ((dist_node*)y)->w[nr - 1];
-  ((dist_node*)y)->w[nx - 1] = wil + wjl;
-  if (wil + wjl <= 0.0)
-    ((dist_node*)y)->d[nx - 1] = 0.0;
-  else
-    ((dist_node*)y)->d[nx - 1] = ((dil - vi) * wil + (djl - vj) * wjl) / (wil + wjl);
+    ((dist_node*)x)->w[ny - 1] = wil + wjl;
+  }
 }  /* nudists */
 
 
@@ -573,10 +577,12 @@ void correctv(node *p)
 void alter(node *x, node *y)
 {
   /* traverse updating these views */
-  nudists(x, y);
-  if (!y->tip) {
-    alter(x, y->next->back);
-    alter(x, y->next->next->back);
+  if (y != NULL) {
+    nudists(x, y);
+    if (!y->tip) {
+      alter(x, y->next->back);
+      alter(x, y->next->next->back);
+    }
   }
 }  /* alter */
 
