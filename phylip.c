@@ -5248,12 +5248,12 @@ void seetree(tree * curtree)
     {
       if (qq->back == NULL)
       {
-        printf(" node: %p index:%ld  connects to (nil) \n", (void *)qq,
+        printf(" node: %p index:%ld  connects to (nil)", (void *)qq,
                qq->index);
       }
       else
       {
-        printf(" node: %p index:%ld  connects to node: %p index: %ld \n",
+        printf(" node: %p index:%ld  connects to node: %p index: %ld",
                (void *)qq, qq->index, (void *)qq->back, qq->back->index);
       }
     }

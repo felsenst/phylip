@@ -405,8 +405,10 @@ void secondtraverse(node *q, double y, long *nx, double *sum)
       TEMP = ((dist_node*)q)->d[(*nx) - 1] - z;
       *sum += ((dist_node*)q)->w[(*nx) - 1] * (TEMP * TEMP);
     } else {
-      secondtraverse(q->next->back, z, nx, sum);
-      secondtraverse(q->next->next->back, z, nx, sum);
+      if (q->next->back != NULL)
+        secondtraverse(q->next->back, z, nx, sum);
+      if (q->next->next->back != NULL)
+        secondtraverse(q->next->next->back, z, nx, sum);
     }
   }
 }  /* secondtraverse */
@@ -424,19 +426,24 @@ void firsttraverse(node *p, long *nx, double *sum)
         secondtraverse(p->back, 0.0, nx, sum);
       }
   } else {
-    firsttraverse(p->next->back, nx, sum);
-    firsttraverse(p->next->next->back, nx, sum);
+    if (p->next->back != NULL)
+      firsttraverse(p->next->back, nx, sum);
+    if (p->next->next->back != NULL)
+      firsttraverse(p->next->next->back, nx, sum);
   }
 }  /* firsttraverse */
 
 
 double fitch_evaluate(tree *t, node* p, boolean dummy2)
 {
+  /* evaluate likelihood of a tree */
   double sum=0.0;
   long nx=0;
-  /* evaluate likelihood of a tree */
+
   generic_tree_evaluate(t, p, dummy2);
-  firsttraverse(p->back, &nx, &sum);
+  if (p->back != NULL)
+    firsttraverse(p->back, &nx, &sum);
+  if (p != NULL)
   firsttraverse(p, &nx, &sum);
   if ((!minev) && replicates && (lower || upper))
     sum /= 2;
@@ -830,6 +837,7 @@ void maketree(void)
       inputdata(replicates, printdata, lower, upper, x, reps);
       curtree = fitch_tree_new(nonodes, spp);
       priortree = fitch_tree_new(nonodes, spp);
+      bestree = fitch_tree_new(nonodes, spp);
       if (njumble > 1)
         bestree2 = fitch_tree_new(nonodes, spp);
     }
@@ -861,7 +869,7 @@ void maketree(void)
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
-                             NULL, false, false, false, bestfound);
+                             bestree, false, false, false, bestfound);
       bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
