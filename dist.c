@@ -322,7 +322,7 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
   } while ((p == start || p != q) && (p != start || p->next != q));
   first = p->next->back;
   q = p;
-  while (q->next != p && q->next->back)  /* is this right ? */
+  while ((q->next != p) && q->next->back)  /* debug: is this right ? */
     q = q->next;
   last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);

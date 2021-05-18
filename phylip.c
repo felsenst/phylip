@@ -4923,23 +4923,23 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
-  t->insert_(t, p, q, false);
+  t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
   initializetrav(t, t->root);
   initializetrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
   t->score = like;
   if (atstart)
-    bettertree = true;
-  else {
-    bettertree = (t->score > *bestyet);           /* note: better is bigger */
+    bettertree = true;         /* first time, tree is better (than nothing) */
+  else {             /* if not first time, check against the best score yet */
+    bettertree = (t->score > *bestyet);           /* note: bigger is better */
     succeeded = bettertree;
     }
-  if (bettertree) {
+  if (bettertree) {        /* set best score yet, where, copy tpo best tree */
     *bestyet = like;
     qwherein = q;
     t->copy(t, bestree);
   }
-  t->re_move(t, p, &dummy, false);
+  t->re_move(t, p, &dummy, false);      /* then remove from the place tried */
   return succeeded;
 } /* generic_tree_try_insert_ */
 
