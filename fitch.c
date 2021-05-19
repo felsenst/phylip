@@ -879,19 +879,19 @@ void maketree(void)
       while (succeeded) {
         succeeded = false;
         curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-        if (nextsp == spp  && global)
+        if ((nextsp == spp)  && global)
           curtree->globrearrange(curtree, bestree, progress, true, bestfound);
         else {
           curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
                                 &bestyet, priortree, bestree, lastrearr, bestfound);
         }
-        if (global && ((nextsp) == spp) && progress)
+        if (global && (nextsp == spp) && progress)
         {
           sprintf(progbuf, "\n   ");
           print_progress(progbuf);
         }
       }
-      if (global && nextsp == spp) {
+      if (global && (nextsp == spp)) {
         {
           sprintf(progbuf, "\n   ");
           print_progress(progbuf);
