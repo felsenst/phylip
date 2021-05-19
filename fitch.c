@@ -798,21 +798,21 @@ void maketree(void)
   double bestyet, *bestfound = NULL;
   node *p;
 
-  if (usertree) {
+  if (usertree) {              /* the case where we are reading a user tree */
     inputdata(replicates, printdata, lower, upper, x, reps);
-    dist_tree_init(curtree, nonodes);
-    for (which = 1; which <= spp; which++)
+    dist_tree_init(curtree, nonodes);                  /* initialize a tree */
+    for (which = 1; which <= spp; which++)               /* set up its tips */
       fitch_setuptip(curtree, which);
-    if (eoln(infile))
+    if (eoln(infile))                 /* go to a new line if at end of line */
       scan_eoln(infile);
     /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
     openfile(&intree, INTREE, "input tree file", "rb", progname, intreename);
-    numtrees = countsemic(intree);
+    numtrees = countsemic(intree); /* get number of trees: count semicolons */
     if (numtrees > MAXNUMTREES) {
-      printf("\nERROR:  Number of input trees is read incorrectly from %s.\n", intreename);
+      printf("\nERROR:  Number of input trees is incorrect from %s.\n", intreename);
       exxit(-1);
     }
-    if (treeprint) {
+    if (treeprint) { /* print out that we are processing user-defined trees */
       fprintf(outfile, "User-defined tree");
       if (numtrees > 1)
         putc('s', outfile);
@@ -820,15 +820,15 @@ void maketree(void)
     }
     first = true;
     which = 1;
-    while (which <= numtrees) {
+    while (which <= numtrees) {                           /* loop over them */
       treeread2 (intree, &curtree->root, curtree->nodep,
                  lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes);
       nums = spp;
-      treevaluate();
-      printree(curtree->root, treeprint, false);
-      if (treeprint)
+      treevaluate();  /* evaluate tree, if needed estimating branch lengths */
+      printree(curtree->root, treeprint, false);            /* print it out */
+      if (treeprint)             /* print table of nodes and branch lengths */
         summarize(numtrees);
-      destruct_tree(curtree);
+      destruct_tree(curtree);                         /* dicombobulate tree */
       which++;
     }
     FClose(intree);

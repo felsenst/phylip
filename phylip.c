@@ -4005,13 +4005,14 @@ boolean oktorearrangethere(tree* t, node* p) {
   node *r;
 
   if (p != NULL) {
+    r = p->back;               /* this will be the other end of this branch */
     if ( !(p->tip) ) {
-      r = p->back;             /* this will be the other end of this branch */
-      ok = !( (r == NULL) );                         /* neither end if NULL */
-      if (ok) {
-        ok = (!(r->tip)) &&    /* nodes  p  and  r  not in exterior branch  */
-             (!(t->root->index == p->index)) &&  /* both  p  and  r not ... */
-             (!(t->root->index == r->index));      /* ... the rootmost fork */
+      if (!(r == NULL)) {
+        ok = !(r->tip);                              /* neither end if NULL */
+        if (ok) {
+          ok = (!(t->root->index != p->index)) &&     /* both  p, r not ... */
+               (!(t->root->index != r->index));    /* ... the rootmost fork */
+        }
       }
     }
   }
@@ -4283,6 +4284,8 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * Avoid trying to insert it between the outgroup tip and the
    * fork nearest to it, or on the branch leading down from that
    * fork rootwards, which points to the null node (nil).
+   * Also avoid choosing as the interior branch one which
+   * has at either end the rootmost fork.
    * debug:  (this function doesn't yet handle multifurcations)
    */
   node *q, *r, *rr, *qwhere;
@@ -4309,19 +4312,15 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
-  /* debug:  the previous addtraverse already tries both local rearrangements */
-
     if (thorough)
       bestree->copy(bestree, t);
     else {                  /* for case where one is rearranging only locally */
       t->insert_(t, rr, qwhere, false);            /* put it in best location */
       if ((qwhere == q) || (qwhere == q->back) ) {
-/* debug:       assert(*bestyet <= oldbestyet);     */
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
       else {
-/* debug:  need?        assert(*bestyet > oldbestyet);  */
 /* debug:        succeeded = true;   */
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
