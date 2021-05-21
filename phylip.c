@@ -4010,8 +4010,8 @@ boolean oktorearrangethere(tree* t, node* p) {
       if (!(r == NULL)) {
         ok = !(r->tip);                              /* neither end if NULL */
         if (ok) {
-          ok = (!(t->root->index != p->index)) &&     /* both  p, r not ... */
-               (!(t->root->index != r->index));    /* ... the rootmost fork */
+          ok = (t->root->index != p->index) &&        /* both  p, r not ... */
+               (t->root->index != r->index);       /* ... the rootmost fork */
         }
       }
     }
