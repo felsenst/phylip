@@ -4300,6 +4300,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
                                     containing  rr  and inward-looking at p */
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
+printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
                                                        /* ... to back of it */
     if (thorough)   /* debug:  not sure why this */
       t->copy(t, priortree);
@@ -4922,6 +4923,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
+printf(" try inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
   initializetrav(t, t->root);
   initializetrav(t, t->root->back);
@@ -4938,6 +4940,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
     qwherein = q;
     t->copy(t, bestree);
   }
+printf(" try removing %ld\n", p->index); /* debug */
   t->re_move(t, p, &dummy, false);      /* then remove from the place tried */
   return succeeded;
 } /* generic_tree_try_insert_ */
