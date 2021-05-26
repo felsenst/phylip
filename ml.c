@@ -850,6 +850,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 /* debug: */ printf("start ml_tree_remove\n");
 printf("remove %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
   generic_tree_re_move(t, p, q, do_newbl);
+printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
 
   if ( do_newbl )
   {
