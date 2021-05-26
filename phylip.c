@@ -4299,7 +4299,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     if (!thorough)
       t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
                                     containing  rr  and inward-looking at p */
-printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
+printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, rr->next->back->index, rr->next->next->back->index); /* debug */
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
 printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
                                                        /* ... to back of it */
