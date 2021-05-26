@@ -794,6 +794,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   long i;
 
 /* debug: */ printf("starting function ml_tree_insert\n");
+printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
   if ( !t->do_newbl )
@@ -848,8 +849,9 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
   long i;
 
 /* debug: */ printf("start ml_tree_remove\n");
-printf("remove %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
+printf("remove %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, p->next->back->index, p->next->next->back->index); /* debug */
   generic_tree_re_move(t, p, q, do_newbl);
+printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
 
   if ( do_newbl )
   {
