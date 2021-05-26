@@ -8,6 +8,7 @@ To clone a git repository to here
 
 git clone https://github.com/felsenst/phylip/ .
 
+--------------------------------------------------------
 
 To change current branch of the git repository to foobar:
 
@@ -16,6 +17,7 @@ git checkout foobar
 (this does not seem to move files, just to change which branch you
 are talking about)
 
+--------------------------------------------------------
 
 To make the content of one branch (say "master") be replaced by
 the content of another (say "gh-pages"):
@@ -26,6 +28,7 @@ git merge gh-pages
 (So you're "in" master, and merging from that other
  branch.  This is all on the local version of those)
 
+--------------------------------------------------------
 
 To put some changed files up on the github master copy of "phylip"
 after changing local stuff (which seems by default to be branch "master")
@@ -46,6 +49,7 @@ This tries to merge files at github with those recently modified locally
 When it asks for username use "felsenst"
 When it asks for password, usual with 2
 
+--------------------------------------------------------
 
 To bring recent changes that were put on  github.com  down to this 
 local machine when they were changed on another machine and already 
@@ -53,10 +57,13 @@ pushed up,
 
   git pull http://felsenst@github.com/felsenst/phylip master
 
+--------------------------------------------------------
+
 note also:
     git config --global user.name "Joe Felsenstein"
     git config --global user.email joe@gs.washington.edu
 
+--------------------------------------------------------
 
 also: to diff of your local changes with the files you
 pulled down to the local system
@@ -64,6 +71,7 @@ pulled down to the local system
 to focus on the .c or .h  files that matter, use
   git diff | grep diff
 
+--------------------------------------------------------
 
 if remote and local branches get out of synch and cannot
 use ordinary commits to resolve this, pull down the
