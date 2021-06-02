@@ -4303,9 +4303,8 @@ printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, rr->next->
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
 printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
                                                        /* ... to back of it */
-    if (thorough)   /* debug:  not sure why this */
-      t->copy(t, priortree);
-    else
+/*    if (thorough)   debug:  not sure why this
+      t->copy(t, priortree);     else      debug */ 
       qwhere = p;
 
     /* following does "greedy" searching of placement on two sibling
@@ -4314,21 +4313,23 @@ printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
+/* debug
     if (thorough)
       bestree->copy(bestree, t);
-    else {                  /* for case where one is rearranging only locally */
+    else {
+ debug    for case where one is rearranging only locally */
       t->insert_(t, rr, qwhere, false);            /* put it in best location */
       if ((qwhere == q) || (qwhere == q->back) ) {
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
+/* debug:        succeeded = true;
       else {
-/* debug:        succeeded = true;   */
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
-      /* debug        double otherbest = *bestyet;      JF:  is this needed? */
       }
     }
+   debug        double otherbest = *bestyet;      JF:  is this needed? */
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
   } 
   /* go on to rearrange rest of tree, pulling off other parts */
@@ -4941,7 +4942,7 @@ printf(" try inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index
     qwherein = q;
     t->copy(t, bestree);
   }
-printf(" try removing %ld\n", p->index); /* debug */
+printf(" try removing %ld:%ld\n", p->index, p->back->index); /* debug */
   t->re_move(t, p, &q, false);      /* then remove from the place tried */
   return succeeded;
 } /* generic_tree_try_insert_ */
