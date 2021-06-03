@@ -4035,8 +4035,11 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
   if (oktoinsertthere(t, q)) {
+printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
+printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
+printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
   }
   succeeded = true;             /* in case can't try more inserts than this */
   atstart = false;
@@ -4062,6 +4065,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                           thorough, storing, atstart, bestfound) || succeeded;
     }
   }
+printf("end generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
   return succeeded;
 } /* generic_tree_addtraverse */
 

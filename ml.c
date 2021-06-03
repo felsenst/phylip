@@ -795,7 +795,10 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 
 /* debug: */ printf("start function ml_tree_insert\n");
 printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
+/* debug: */ printf("start function generic_tree_insert\n");
+/* debug: */ printf("generic_tree insert %ld on %ld\n", p->index, q->index);
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
+/* debug: */ printf("end generic_tree insert %ld on %ld\n", p->index, q->index);
 
   if ( !t->do_newbl )
   {
