@@ -870,7 +870,7 @@ void maketree(void)
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
                              bestree, false, false, true, bestfound);
-      bestree->copy(bestree, curtree);
+/* debug:       bestree->copy(bestree, curtree);  */
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
         phyFillScreenColor();

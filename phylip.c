@@ -4925,7 +4925,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
-printf(" try inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
+printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
   initializetrav(t, t->root);
   initializetrav(t, t->root->back);
@@ -4942,8 +4942,10 @@ printf(" try inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index
     qwherein = q;
     t->copy(t, bestree);
   }
-printf(" try removing %ld:%ld\n", p->index, p->back->index); /* debug */
+printf(" try_insert starts removing %ld:%ld\n", p->index, p->back->index); /* debug */
   t->re_move(t, p, &q, false);      /* then remove from the place tried */
+printf(" try_insert removed %ld:%ld\n", p->index, p->back->index); /* debug */
+printf(" try_insert finished trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   return succeeded;
 } /* generic_tree_try_insert_ */
 
@@ -5241,7 +5243,7 @@ void seetree(tree * curtree)
   long int nonodes = curtree->nonodes;
   boolean malformed;
 
-  for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
+  for (i = 0; i <= nonodes; ++i)                       /* for each node ...  */
   {
     qq = curtree->nodep[i];
     if (qq == NULL) {

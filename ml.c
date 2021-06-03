@@ -793,7 +793,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
 
-/* debug: */ printf("starting function ml_tree_insert\n");
+/* debug: */ printf("start function ml_tree_insert\n");
 printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
@@ -821,6 +821,7 @@ printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->
       smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
+/* debug: */ printf("finish function ml_tree_insert\n");
 } /* ml_tree_insert */
 
 
@@ -869,6 +870,7 @@ printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->in
     if (!((*q)->back->tip))
       ml_update(t, (*q)->back);
   }
+/* debug: */ printf("finish ml_tree_remove\n");
 } /* ml_tree_re_move */
 
 
@@ -883,8 +885,10 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
   node* whereRemoved;
 
 /* debug */ printf("start ml_tree_try_insert_thorough\n");
+printf("thorough = %d\n", thorough); /* debug */
   succeeded = false;
   t->save_traverses(t, p, q);
+printf("insert %ld near %ld\n", p->index, q->index); /* debug */
   t->insert_(t, p, q, false);
   like = t->evaluate(t, p, false);
 
@@ -901,6 +905,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
     t->copy(t, bestree);
   }
   t->re_move(t, p, &whereRemoved, false);
+printf("remove %ld from near %ld\n", p->index, whereRemoved->index); /* debug */
 
   assert(whereRemoved == q);
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
@@ -908,6 +913,7 @@ static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwhe
   /* Update t->score */
   like = t->evaluate(t, q, 0);
 
+/* debug */ printf("finish ml_tree_try_insert_thorough\n");
   return succeeded;
 } /* ml_tree_try_insert_thorough */
 
@@ -922,13 +928,15 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
  */
   boolean succeeded;
 
-/* debug */ printf("ml_tree_try_insert_\n");
+/* debug */ printf("start ml_tree_try_insert_\n");
+printf("thorough = %d, storing = %d\n", thorough, storing); /* debug */
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
 
+/* debug */ printf("finish ml_tree_try_insert_\n");
   return succeeded;
 } /* ml_tree_try_insert_ */
 
