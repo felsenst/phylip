@@ -41,7 +41,6 @@ void   insert_(node *, node *, boolean);
 void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
 void   fitch_buildsimpletree(tree *, long);
-void   addtraverse(node *, node *, boolean, long *, boolean *);
 void   rearrange(node *, long *, long *, boolean *);
 void   describe(node *);
 void   summarize(long);

@@ -30,8 +30,6 @@ boolean inserting;
 
 /* prototypes for unexported functions */
 static void ml_tree_smoothall(tree*, node*);
-static boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
-                          double*, tree*, boolean, boolean, boolean);
 void ml_node_reinit(node * n);
 
 
@@ -877,7 +875,7 @@ printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->in
 } /* ml_tree_re_move */
 
 
-static boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
+boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
 {
  /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
   * better than bestyet, updates bestyet and returns true.  If this is the
