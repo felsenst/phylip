@@ -99,6 +99,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 /*  dist_tree_init(t, nonodes); debug */
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
+  t->tree_insert_ = ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->nuview = fitch_nuview;
   ft->ml_tree.makenewv = fitch_makenewv;
