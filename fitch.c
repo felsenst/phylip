@@ -678,7 +678,8 @@ void fitch_buildsimpletree(tree *t, long nextsp)
 
 void describe(node *p)
 {
-  /* print out information for one branch */
+  /* print out information for one branch, number of fork or name of tip
+   * at each end of the branch, and branch length */
   long i=0;
   node *q;
 
@@ -701,34 +702,37 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
+  node *p, *q;
 
   fprintf(outfile, "\nremember:");
   if (outgropt)
     fprintf(outfile, " (although rooted by outgroup)");
   fprintf(outfile, " this is an unrooted tree!\n\n");
-  if (!minev)
+  if (!minev)                 /* print out quantity that is being minimized */
     fprintf(outfile, "Sum of squares = %11.5f\n\n", -curtree->score);
   else
     fprintf(outfile, "Sum of branch lengths = %11.5f\n\n", -curtree->score);
-  if ((power == 2.0) && !minev) {
+  if ((power == 2.0) && !minev) {  /* in original Fitch-Margoliash case ... */
     totalnum = 0;
-    for (i = 1; i <= nums; i++) {
+    for (i = 1; i <= nums; i++) {                       /* compute APSD ... */
       for (j = 1; j <= nums; j++) {
         if (i != j)
           totalnum += reps[i - 1][j - 1];
       }
-    }
+    }                                               /* ... and print it out */
     fprintf(outfile, "Average percent standard deviation = ");
     fprintf(outfile, "%11.5f\n\n",
             100 * sqrt(-curtree->score / (totalnum - 2)));
   }
   fprintf(outfile, "Between        And            Length\n");
   fprintf(outfile, "-------        ---            ------\n");
-  describe(curtree->root->next->back);
-  describe(curtree->root->next->next->back);
-  describe(curtree->root->back);
+  q = curtree->root;
+  for (p = q; p->next != q; p = p->next) {   /* go around rootmost fork ... */
+    if (p->back != NULL)    /* and if each node on circle has neighbors ... */
+      describe(p->back);     /* recursively describe it and its descendants */
+  }
   fprintf(outfile, "\n\n");
-  if (trout) {
+  if (trout) {             /* now write tree to output tree file if desired */
     col = 0;
     treeout(curtree->root, &col, 0.43429445222, true, curtree->root);
   }
@@ -740,14 +744,14 @@ void nodeinit(node *p)
   /* initialize a node */
   long i, j;
 
-  for (i = 1; i <= 3; i++) {
+  for (i = 1; i <= 3; i++) {        /* initialize its weights and distances */
     for (j = 0; j < nonodes; j++) {
       ((dist_node*)p)->w[j] = 1.0;
       ((dist_node*)p)->d[j] = 0.0;
     }
     p = p->next;
   }
-  if ((!lngths) || p->iter)
+  if ((!lngths) || p->iter)         /* and initial branch lengths if needed */
     p->v = 1.0;
   if ((!lngths) || p->back->iter)
     p->back->v = 1.0;

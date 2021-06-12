@@ -338,7 +338,8 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
         q = q->next;
         nover--;
       }
-      p->ycoord = q->back->ycoord;
+      if (q->back != NULL)
+        p->ycoord = q->back->ycoord;
     }
   }
   else
@@ -536,26 +537,26 @@ void treeoutr(node *p, long *col, tree *curtree)
 
 void treeout(node *p, long *col, double m, boolean njoin, node *start)
 {
-  /* write out file with representation of final tree */
-  /* used in fitch & neighbor */
+  /* write out file with representation of final tree recursively.
+   * used in fitch & neighbor */
   long i=0, n=0, w=0;
   Char c;
   double x=0.0;
 
-  if (p->tip) {
+  if (p->tip) {                               /* if at a tip, write out the name there */
     n = 0;
-    for (i = 1; i <= nmlngth; i++) {
+    for (i = 1; i <= nmlngth; i++) {                    /* its nonblank characters ... */
       if (nayme[p->index - 1][i - 1] != ' ')
         n = i;
     }
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {                         /* ... followed by enough blanks */
       c = nayme[p->index - 1][i];
       if (c == ' ')
         c = '_';
       putc(c, outtree);
     }
     *col += n;
-  } else {
+  } else {                                                      /* if at a fork circle */
     putc('(', outtree);
     (*col)++;
     treeout(p->next->back, col, m, njoin, start);
@@ -574,7 +575,7 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
     (*col)++;
   }
   x = p->v;
-  if (x > 0.0)
+  if (x > 0.0)          /* computing width of number needed to print out branch length */
     w = (long)(m * log(x));
   else if (x == 0.0)
     w = 0;
@@ -585,10 +586,10 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
   if (p == start)
     fprintf(outtree, ";\n");
   else {
-    fprintf(outtree, ":%*.5f", (int) w + 7, x);
+    fprintf(outtree, ":%*.5f", (int) w + 7, x);         /* print out the branch length */
     *col += w + 8;
   }
 }  /* treeout */
 
 
-// End.
+/* End. */

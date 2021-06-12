@@ -344,7 +344,9 @@ long count_sibs (node *p)
 
 
 node* findroot (tree* t, node* p, boolean* found) {
-  /* find the node in the rootmost fork circle that has a null back pointer */
+  /* find the node in the rootmost fork circle that has a null back pointer.
+   * This assumes that the current fork circle is the one that will have
+   * such a node */
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
