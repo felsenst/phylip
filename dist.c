@@ -542,6 +542,7 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
   long i=0, n=0, w=0;
   Char c;
   double x=0.0;
+  node *q;
 
   if (p->tip) {                               /* if at a tip, write out the name there */
     n = 0;
@@ -557,19 +558,25 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
     }
     *col += n;
   } else {                                                      /* if at a fork circle */
+    q = p;                                           /* keep track of where we entered */
     putc('(', outtree);
     (*col)++;
-    treeout(p->next->back, col, m, njoin, start);
-    putc(',', outtree);
-    (*col)++;
-    if (*col > 55) {
-      putc('\n', outtree);
-      *col = 0;
-    }
-    treeout(p->next->next->back, col, m, njoin, start);
-    if (p == start && njoin) {
+    do {
+      p = p->next;
+      if (p->back != NULL) {
+        treeout(p->back, col, m, njoin, start);
+        putc(',', outtree);
+        (*col)++;
+        if (*col > 55) {
+          putc('\n', outtree);
+          *col = 0;
+        }
+      }
+    } while (p != q);
+    if ((p == start) && (p->back != NULL)) {
       putc(',', outtree);
       treeout(p->back, col, m, njoin, start);
+      putc('\n', outtree);
     }
     putc(')', outtree);
     (*col)++;
