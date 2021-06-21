@@ -571,7 +571,8 @@ struct tree_vtable {
   tree_addtraverse_t addtraverse;
   tree_addtraverse_t addtraverse_1way;
   tree_insert_t insert_;
-  tree_try_insert_t try_insert_;
+  tree_insert_t tree_insert_;
+  tree_try_insert_t tree_try_insert_;
   tree_free_t free;
   tree_globrearrange_t globrearrange;
   tree_smoothall_t smoothall;
