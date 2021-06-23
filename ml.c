@@ -733,7 +733,7 @@ static void ml_tree_smoothall(tree* t, node* p)
 /* debug:   if ( p->tip ) p = p->back;   what does this do? */
 
   /* it may seem like we are doing too many smooths, but sometimes
-   * one branch near p may already be completly smoothed from an
+   *dden while accessingbone branch near p may already be completly smoothed from an
    * insert, this insures we spread out in the tree */
   for ( i = 0 ; i < smoothings ; i++ )
   {
@@ -749,7 +749,6 @@ static void ml_tree_smoothall(tree* t, node* p)
 
 void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 { /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
-
   double newv;
 
   newv = q->v * 0.5;
