@@ -539,6 +539,8 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
 {
   /* write out file with representation of final tree recursively.
    * used in fitch & neighbor */
+  /* debug:  Needs code for indenting. */
+  /* debug:  Don't need the njoin argument, no longer use it */
   long i=0, n=0, w=0;
   Char c;
   double x=0.0;
@@ -563,20 +565,22 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
     (*col)++;
     do {
       p = p->next;
-      if (p->back != NULL) {
-        treeout(p->back, col, m, njoin, start);
-        putc(',', outtree);
-        (*col)++;
-        if (*col > 55) {
-          putc('\n', outtree);
-          *col = 0;
+      if (p != q) {
+        if (p->back != NULL) {
+          treeout(p->back, col, m, njoin, start);                 /* write the subtree */
+          if (p->next != q) {              /* don't put in a comma if was last subtree */
+            putc(',', outtree);
+            (*col)++;
+          }
+          if (*col > 55) {
+            putc('\n', outtree);
+            *col = 0;
+          }
         }
       }
     } while (p != q);
-    if ((p == start) && (p->back != NULL)) {
-      putc(',', outtree);
+    if ((p->index == start->index) && (p->back != NULL)) {
       treeout(p->back, col, m, njoin, start);
-      putc('\n', outtree);
     }
     putc(')', outtree);
     (*col)++;
