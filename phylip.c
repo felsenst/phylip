@@ -5271,8 +5271,8 @@ void seetree(tree * curtree)
     }
     else
     {
-      printf(" node: %p index:%ld  connects to nodes:", (void *)qq->back,
-               qq->back->index);
+      printf(" node: %p index:%ld  connects to nodes:",
+                (void *)qq, qq->index);
       pp = qq;
       malformed = false;
       n = 0;
