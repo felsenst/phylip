@@ -4309,13 +4309,13 @@ printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, rr->next->
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
 printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
                                                        /* ... to back of it */
-/*    if (thorough)   debug:  not sure why this
-      t->copy(t, priortree);     else      debug */ 
       qwhere = p;
 
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
+printf("addtraverse adding %ld:%ld in branch %ld:%ld\n", rr->index, 
+                                   rr->back->index, q->index, q->back->index);
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
@@ -5271,8 +5271,8 @@ void seetree(tree * curtree)
     }
     else
     {
-      printf(" node: %p index:%ld  connects to nodes:", (void *)qq->back,
-               qq->back->index);
+      printf(" node: %p index:%ld  connects to nodes:",
+                (void *)qq, qq->index);
       pp = qq;
       malformed = false;
       n = 0;
