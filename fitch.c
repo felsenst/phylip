@@ -674,8 +674,12 @@ void fitch_buildsimpletree(tree *t, long nextsp)
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
   t->nodep[enterorder[0]-1]->v = initialv;
+  t->nodep[enterorder[0]-1]->back->v = initialv;
   t->nodep[enterorder[1]-1]->v = initialv;
+  t->nodep[enterorder[1]-1]->back->v = initialv;
   t->nodep[enterorder[2]-1]->v = initialv;
+  t->nodep[enterorder[2]-1]->back->v = initialv;
+  t->nodep[enterorder[2]-1]->back->v = initialv;
 }  /* fitch_buildsimpletree */
 
 
