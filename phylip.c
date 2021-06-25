@@ -4959,27 +4959,46 @@ printf(" try_insert finished trying inserting %ld:%ld in %ld:%ld\n", p->index, p
 void buildsimpletree(tree *t, long* enterorder)
 {
   /* build a simple three-tip tree with interior fork, by hooking
-     up two tips, then inserting third tip hooked to fork, also set root */
+     up two tips, then inserting third tip hooked to fork, also set root.
+     Note that this is the generic version and probably ought to be
+     named  generic_buildsimpletree */
   long k, m;
-  node *p, *q, *r, *newnode1, *newnode2;
+  node *p, *q, *r, *newnode1;
 
   p = t->nodep[enterorder[0] - 1];
   q = t->nodep[enterorder[1] - 1];
   r = t->nodep[enterorder[2] - 1];
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
-  newnode1 = t->get_fork(t, k);                 /* get a three-species fork */
-  hookup(p, newnode1);                     /* connect third tip to new fork */
-  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
-  newnode2 = t->get_fork(t, m);                 /* get a three-species fork */
-  hookup(p, newnode1);                    /* connect first tip to root fork */
-  hookup(newnode1->next, q);             /* connect root fork to second tip */
-  newnode1->next->next->back = NULL;      /* root connects to empty pointer */
-  hookup(r, newnode2);               /* connect third species to a new fork */
-  t->insert_(t, newnode2, q, false);                 /* connect all of them */
-
-  t->root = newnode1;
-
+  newnode1 = t->get_fork(t, k);            /* get a fork for root and tip 1 */
+  hookup(q, r);                            /* connect 2 and 3 to each other */
+  hookup(p, newnode1);            /* connect first species to that new fork */
+  t->insert_(t, newnode1, q, false);                 /* connect all of them */
 }  /* buildsimpletree */
+
+
+node* generic_newrootfork(tree* t)
+{
+  /* get a fork to serve as rootmost fork for a currently-unrooted tree */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+  long m;
+  node *f, *newnode;
+  
+  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode = t->get_fork(t, m);             /* get a fork from the free list */
+  newnode->next->next->back = NULL;       /* root connects to empty pointer */
+  return newnode;
+} /* newrootfork */
+
+
+void generic_insertroot(tree* t, node* p, node* f)
+{
+  /* take a tree that has no rootmost fork and put fork  f  in between node
+   * p  and the node it connects to, with a null root behind  f */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+
+  t->insert_(t, f, p, false);
+  t->root = f;
+} /* insertroot */
 
 
 void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)

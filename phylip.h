@@ -855,6 +855,8 @@ boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
                                    tree*, boolean, boolean, boolean, double*);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
+node*           generic_newrootfork(tree*);
+void            generic_insertroot(tree*, node*, node*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
                        longer, boolean, double*);
