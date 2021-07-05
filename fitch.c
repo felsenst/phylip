@@ -859,6 +859,8 @@ void maketree(void)
     nextsp = 3;
     fitch_buildsimpletree(curtree, nextsp);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    p = generic_newrootfork(curtree);
+    generic_insertroot(curtree, p, curtree->root->back);
     if (jumb == 1) numtrees = 1;
     nextsp = 4;
     if (progress) {
