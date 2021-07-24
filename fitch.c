@@ -31,7 +31,7 @@ void   secondtraverse(node *, double, long *, double *);
 void   firsttraverse(node *, long *, double *);
 double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
-void   fitch_makenewv(tree* t, node *p);
+void   fitch_makenewv(tree*, node*);
 void   makedists(node *);
 void   makebigv(node *);
 void   correctv(node *);
@@ -626,7 +626,7 @@ void fitch_makenewv(tree* t, node *p)
     correctv(p);
   }
   t->nuview(t, p);
-}  /* update */
+}  /* fitch_makenewv */
 
 
 void fitch_setuptip(tree *t, long m)
@@ -709,6 +709,7 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
+  boolean start;
   node *p, *q;
 
   fprintf(outfile, "\nremember:");
@@ -734,7 +735,9 @@ void summarize(long numtrees)
   fprintf(outfile, "Between        And            Length\n");
   fprintf(outfile, "-------        ---            ------\n");
   q = curtree->root;
-  for (p = q; p->next != q; p = p->next) {   /* go around rootmost fork ... */
+  start = true;
+  for (p = q; (start || (p != q)); p = p->next) {   /* around rootmost fork */
+    start = false;
     if (p->back != NULL)    /* and if each node on circle has neighbors ... */
       describe(p->back);     /* recursively describe it and its descendants */
   }
@@ -860,7 +863,7 @@ void maketree(void)
     fitch_buildsimpletree(curtree, nextsp);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     p = generic_newrootfork(curtree);
-    generic_insertroot(curtree, p, curtree->root->back);
+    generic_insertroot(curtree, curtree->root, p); 
     if (jumb == 1) numtrees = 1;
     nextsp = 4;
     if (progress) {
@@ -883,7 +886,8 @@ void maketree(void)
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
                              bestree, false, false, true, bestfound);
-      bestree->copy(bestree, curtree);
+      if (succeeded)
+        bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
         phyFillScreenColor();

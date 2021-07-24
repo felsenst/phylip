@@ -320,7 +320,11 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
       coordinates(q->back, lengthsum + q->v, tipy, tipmax, start);
     q = q->next;
   } while ((p == start || p != q) && (p != start || p->next != q));
-  first = p->next->back;
+  q = p;
+  do {                                                /* find leftmost furc */
+    q = q->next; 
+    first = q->back;
+  } while (first == NULL);
   q = p;
   while ((q->next != p) && q->next->back)  /* debug: is this right ? */
     q = q->next;
@@ -352,11 +356,9 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
 void drawline(long i, double scale, node *start, boolean rooted)
 {
   /* draws one row of the tree diagram by moving up tree */
-  node *p, *q;
   long n=0, j=0;
-  boolean extra=false, trif=false;
-  node *r, *first =NULL, *last =NULL;
-  boolean done=false;
+  boolean extra=false, trif=false, done=false;
+  node *p, *q, *r, *s, *first =NULL, *last =NULL;
 
   p = start;
   q = start;
@@ -398,7 +400,11 @@ void drawline(long i, double scale, node *start, boolean rooted)
         }
         r = r->next;
       } while (!((p != start && r == p) || (p == start && r == p->next)));
-      first = p->next->back;
+      s = p;
+      do {
+        s = s->next;
+      } while (s->back == NULL);
+      first = s->back;
       r = p;
       while (r->next != p)
         r = r->next;

@@ -670,11 +670,11 @@ void ml_update(tree *t, node *p)
 /* debug: */ printf("starting function ml_update\n");
   if (!p->tip)
     generic_tree_nuview((tree*)t, p);           /* recurse from one end */
-/* debug: try without   }
-  if ( p->back && !p->back->tip && !p->back->initialized) {     debug: end */
-  if (!p->back->tip)
-    generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
-/* debug: try without    }     debug: end */
+/* debug: try without   */
+  if ( p->back && !p->back->tip && !p->back->initialized) {
+    if (!p->back->tip)
+      generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
+    }
 }  /* ml_update */
 
 
@@ -791,7 +791,14 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   long i;
 
 /* debug: */ printf("start function ml_tree_insert\n");
+if ((p->back != NULL) && (q->back != NULL)) /* debug */
 printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
+if ((p->back == NULL) && (q->back != NULL)) /* debug */
+printf("inserting %ld in %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
+if ((p->back != NULL) && (q->back == NULL)) /* debug */
+printf("inserting %ld:%ld in %ld\n", p->index, p->back->index, q->index); /* debug */
+if ((p->back == NULL) && (q->back == NULL)) /* debug */
+printf("inserting %ld in %ld\n", p->index, q->index); /* debug */
 /* debug: */ printf("start function generic_tree_insert\n");
 /* debug: */ printf("generic_tree insert %ld on %ld\n", p->index, q->index);
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
@@ -1643,4 +1650,4 @@ void ml_initialvtrav(tree* t, node *p)
 }  /* ml_initialvtrav */
 
 
-// End.
+/* End. */

@@ -4036,6 +4036,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
+  succeeded = false;            /* in case can't try more inserts than this */
   if (oktoinsertthere(t, q)) {
 printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
 printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
@@ -4043,28 +4044,29 @@ printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
                                 thorough, storing, atstart, bestfound);
 printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
   }
-  succeeded = true;             /* in case can't try more inserts than this */
   atstart = false;
-  if (!q->tip) {          /* in one direction, try descendants,
-                           * maybe further unless just local rearrangements */
-    for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
-    {
-      if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
-        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree, 
-                          thorough, storing, atstart, bestfound) || succeeded;
+  if (!succeeded) {
+    if (!q->tip) {          /* in one direction, try descendants,
+                             * maybe further unless just local rearrangements */
+      for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
+      {
+        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+          succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                            contin, qwherein, bestyet, bestree, 
+                            thorough, storing, atstart, bestfound) || succeeded;
+        }
       }
     }
-  }
-  if (contin && !q->back->tip) {
-    /* we need to go both ways, if we start in an interior branch
-     * of an unrooted tree and are not doing just local rearrangements */
-    for ( sib_ptr = q->back->next; sib_ptr != q->back;
-                                     sib_ptr = sib_ptr->next)
-    {
-      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree,
-                          thorough, storing, atstart, bestfound) || succeeded;
+    if (contin && !q->back->tip) {
+      /* we need to go both ways, if we start in an interior branch
+       * of an unrooted tree and are not doing just local rearrangements */
+      for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                       sib_ptr = sib_ptr->next)
+      {
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                            contin, qwherein, bestyet, bestree,
+                            thorough, storing, atstart, bestfound) || succeeded;
+      }
     }
   }
 printf("end generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
@@ -4946,6 +4948,7 @@ printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->
   if (bettertree) {        /* set best score yet, where, copy tpo best tree */
     *bestyet = like;
     qwherein = q;
+printf(" try_insert copies tree  t  to bestree\n"); /* debug */
     t->copy(t, bestree);
   }
 printf(" try_insert starts removing %ld:%ld\n", p->index, p->back->index); /* debug */
@@ -4962,7 +4965,7 @@ void buildsimpletree(tree *t, long* enterorder)
      up two tips, then inserting third tip hooked to fork, also set root.
      Note that this is the generic version and probably ought to be
      named  generic_buildsimpletree */
-  long k, m;
+  long k;
   node *p, *q, *r, *newnode1;
 
   p = t->nodep[enterorder[0] - 1];
@@ -4981,7 +4984,7 @@ node* generic_newrootfork(tree* t)
   /* get a fork to serve as rootmost fork for a currently-unrooted tree */
   /* debug: notice: one must have no pre-existing rootmost fork in tree */
   long m;
-  node *f, *newnode;
+  node *newnode;
   
   m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
   newnode = t->get_fork(t, m);             /* get a fork from the free list */
@@ -5259,21 +5262,22 @@ void seetree(node *p, pointarray nodep, long nonodes)
 #endif
 
 
-void seetree(tree * curtree)
+void seetree(tree *t)
 {
   /* prints out list of who connects to who.  For debugging */
-  /* Minor variation added by BobGian based on sample code from Joe. */
+  /* Minor variation added by BobGian based on sample code from Joe, then more mod by Joe. */
   node *pp, *qq;
   long int i, n;
-  long int nonodes = curtree->nonodes;
+  long int nonodes = t->nonodes;
   boolean malformed;
 
+  printf(" number of nodes = %ld\n", nonodes);
   for (i = 0; i <= nonodes; ++i)                       /* for each node ...  */
   {
-    qq = curtree->nodep[i];
+    qq = t->nodep[i];
     if (qq == NULL) {
       printf(" node: %p (nil) \n", qq);
-      break;
+      continue;
     }
     if (i < spp)
     {
