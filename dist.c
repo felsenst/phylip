@@ -183,7 +183,7 @@ void dist_tree_init(tree* a, long nonodes)
   long i=0;
   node *p;
 
-  for (i = 1; i <= nonodes; i++) {
+  for (i = 1; i <= spp; i++) {
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;

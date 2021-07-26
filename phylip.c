@@ -4321,29 +4321,28 @@ printf("addtraverse adding %ld:%ld in branch %ld:%ld\n", rr->index,
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
-/* debug
+/* debug */
     if (thorough)
       bestree->copy(bestree, t);
     else {
- debug    for case where one is rearranging only locally */
+/* debug    for case where one is rearranging only locally */
       t->insert_(t, rr, qwhere, false);            /* put it in best location */
       if ((qwhere == q) || (qwhere == q->back) ) {
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
-/* debug:        succeeded = true;
       else {
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
       }
     }
-   debug        double otherbest = *bestyet;      JF:  is this needed? */
+/*   debug        double otherbest = *bestyet;      JF:  is this needed? */
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
-  } 
+  }; 
   /* go on to rearrange rest of tree, pulling off other parts */
   if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                      *  when we find one that improves the score. */
-    if ( !(p->tip)) {
+    if ( !(p->tip) ) {
       if (p->next->back != NULL) {
         succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                    bestyet, thorough, priortree, bestree, storing, bestfound);
@@ -4935,8 +4934,8 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   succeeded = false;
 printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
-  initializetrav(t, t->root);
-  initializetrav(t, t->root->back);
+  inittrav(t, t->root);
+  inittrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
   t->score = like;
   if (atstart)

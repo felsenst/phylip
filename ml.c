@@ -1610,8 +1610,8 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
   else
   {
     if (!lngths) {
-      initialvtrav(curtree, curtree->root);
-      initialvtrav(curtree, curtree->root->back);
+      inittrav(curtree, curtree->root);
+      inittrav(curtree, curtree->root->back);
     }
     polishing = true;
     smoothit = true;
