@@ -4028,20 +4028,22 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                            double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
-   * is just doing local rearragements. 
+   *  is just doing local rearragements. 
    * thorough  indicates whether need to adjust parameters
-   * further out than  q  to assess that location
+   *  further out than  q  to assess that location
    * p  should be a fork subtree connected to it so root of subtree 
-   * is at  p->back  */
+   *  is at  p->back  */
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
-  succeeded = false;            /* in case can't try more inserts than this */
+  succeeded = false; /* debug OK to set true?? */ /* in case can't try more inserts than this */
+  atstart = true;
   if (oktoinsertthere(t, q)) {
 printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
 printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
+    atstart = false;
 printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
   }
   atstart = false;
@@ -4050,7 +4052,9 @@ printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
                              * maybe further unless just local rearrangements */
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
+printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
         if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
           succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
                             thorough, storing, atstart, bestfound) || succeeded;
@@ -4063,6 +4067,7 @@ printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
       for ( sib_ptr = q->back->next; sib_ptr != q->back;
                                        sib_ptr = sib_ptr->next)
       {
+printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
         succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree,
                             thorough, storing, atstart, bestfound) || succeeded;
@@ -4093,7 +4098,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean outgroupfork;
 
   if (oktoinsertthere(t, q)) {
-/* printf("  beginning addtraverse of %ld", q->index); debug */
+printf("  addtraverse_1way at %p, %ld:%ld\n", q, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
     outgroupfork = (q == t->root);

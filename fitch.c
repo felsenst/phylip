@@ -884,8 +884,8 @@ void maketree(void)
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-      curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
-                             bestree, false, false, true, bestfound);
+      curtree->addtraverse(curtree, p, curtree->root, true, there, &bestyet,
+                             bestree, true, false, true, bestfound);
       if (succeeded)
         bestree->copy(bestree, curtree);
       if (progress) {
