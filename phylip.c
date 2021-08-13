@@ -71,13 +71,36 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
 void generic_tree_copy (tree* src, tree* dst)
 { /* copies tree src to tree dst*/
-  long i, j, num_sibs, src_sibs, dst_sibs,  src_num, dst_num, maxcircles;
+  long i, j, num_sibs, src_sibs, dst_sibs,
+    src_num, dst_num, maxcircles, maxsrcnodes;
   boolean doingacircle;
   node *p, *q;
 
   /* reduce or increase interior node fork circle sizes in destination tree */
-  maxcircles = src->nonodes;
-  if (dst->nonodes > src->nonodes) {
+  maxsrcnodes = src->nonodes;       /* finding highest-numbered fork in src */
+  for (i = 0; i < spp; i++) {        /* look at forks connected to the tipe */
+    if (src->nodep[i] != NULL) {
+      if (src->nodep[i]->back != NULL) {   /* if connected, see whether ... */
+        if (src->nodep[i]->back->index > maxsrcnodes) /* fork number is ... */
+          maxsrcnodes = src->nodep[i]->back->index;    /* ... > maxsrcnodes */
+      }
+    }
+  }
+  for (i = src->spp; i < maxsrcnodes; i++) {
+    p = src->nodep[i];
+    if (p != NULL) {                             /* if there's a node there */
+      q = p;                                            /* keep track of it */
+      do {                                     /* go around the fork circle */
+        if (p->back != NULL) {         /* when it is connected to something */
+          if (p->back->index > maxsrcnodes)     /* find any numbered higher */
+            maxsrcnodes = p->index;       /* ... and increasing maxsrcnodes */
+        }
+        p = p->next;                      /* go on to next in fork circle */
+      } while (p != q);    
+    }
+  }
+  maxcircles = maxsrcnodes;
+  if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
     maxcircles = dst->nonodes;
     }
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
@@ -143,7 +166,7 @@ void generic_tree_copy (tree* src, tree* dst)
     }
   }
 
-  for (i = spp; i < src->nonodes; i++) { /* copy fork nodes and back links */
+  for (i = spp; i < maxsrcnodes; i++) {  /* copy fork nodes and back links */
     p = src->nodep[i];
     q = dst->nodep[i];
     if (p == NULL) {
