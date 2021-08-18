@@ -4066,6 +4066,7 @@ printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* deb
 printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
+printf("tree try_insert: success? %d\n", succeeded); /* debug */
     atstart = false;
 printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
   }

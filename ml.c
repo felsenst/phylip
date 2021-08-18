@@ -901,7 +901,6 @@ printf("insert %ld near %ld\n", p->index, q->index); /* debug */
 
   if (atstart) {
     bettertree = true;
-    t->copy(t, bestree);
   } else {
     bettertree = (like > *bestyet);
     succeeded = bettertree;
@@ -911,6 +910,7 @@ printf("insert %ld near %ld\n", p->index, q->index); /* debug */
     qwherein = q;
     t->copy(t, bestree);
   }
+printf("ml_try_insert_thorough: success? %d\n", succeeded); /* debug */
   t->re_move(t, p, &whereRemoved, false);
 printf("remove %ld from near %ld\n", p->index, whereRemoved->index); /* debug */
 

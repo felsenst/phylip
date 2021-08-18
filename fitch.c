@@ -886,8 +886,7 @@ void maketree(void)
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
       curtree->addtraverse(curtree, p, curtree->root, true, there, &bestyet,
                              bestree, true, false, true, bestfound);
-      if (succeeded)
-        bestree->copy(bestree, curtree);
+      bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
         phyFillScreenColor();
