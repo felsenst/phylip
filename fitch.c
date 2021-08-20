@@ -94,15 +94,18 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   /* set up functions for a tree for Fitch */
 
   fitch_tree *ft = (fitch_tree *)t;
-/* debug: dist_tree_init(&(ft->ml_tree.tree), nonodes);  debug */
   generic_tree_init(t, nonodes, spp);
-/*  dist_tree_init(t, nonodes); debug */
+  dist_tree_init(t, nonodes);   /* deug: need? */
   t->evaluate = fitch_evaluate;
   t->insert_ = ml_tree_insert_;
   t->try_insert_ = ml_tree_try_insert_;
   t->re_move = ml_tree_re_move;
   t->nuview = fitch_nuview;
   ft->ml_tree.makenewv = fitch_makenewv;
+  t->smoothall = (tree_smoothall_t)ml_tree_smoothall;
+  t->do_newbl = true;
+  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
 
 
@@ -454,11 +457,15 @@ double fitch_evaluate(tree *t, node* p, boolean dummy2)
 
 void nudists(node *x, node *y)
 {
-  /* compute distance between an interior node and tips */
-  long ny=0;
+  /* compute distance between an interior node and tips 
+   * y  is the node whose distance to the immediate descendants of  x
+   * is being computed.  They are  qprime->back  and qprime-next->back.
+   * This is the version for a bifurcation, so node has three neighbors */
+  long ny=0;    /* debug:  why this value? */
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
   node *qprime, *rprime, *qprimeback, *rprimeback;
 
+  ny = y->index;
   qprime = x->next;
   if (qprime->back != NULL) {
     qprimeback = qprime->back;
@@ -481,7 +488,6 @@ void nudists(node *x, node *y)
     wjl = 0.0;
     vj = 0.0;
   }
-  ny = y->index;
   if (wil + wjl <= 0.0) {
     ((dist_node*)x)->d[ny - 1] = 0.0;
   }
@@ -640,7 +646,7 @@ void fitch_setuptip(tree *t, long m)
   memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
-    if (i + 1 != m && n[i] > 0) {
+    if ((i + 1 != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
         which->d[i] = epsilonf;
       which->w[i] = n[i] / exp(power * log(which->d[i]));
@@ -673,13 +679,6 @@ void fitch_buildsimpletree(tree *t, long nextsp)
   fitch_setuptip(t, enterorder[1]);
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
-  t->nodep[enterorder[0]-1]->v = initialv;
-  t->nodep[enterorder[0]-1]->back->v = initialv;
-  t->nodep[enterorder[1]-1]->v = initialv;
-  t->nodep[enterorder[1]-1]->back->v = initialv;
-  t->nodep[enterorder[2]-1]->v = initialv;
-  t->nodep[enterorder[2]-1]->back->v = initialv;
-  t->nodep[enterorder[2]-1]->back->v = initialv;
 }  /* fitch_buildsimpletree */
 
 

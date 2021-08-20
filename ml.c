@@ -897,6 +897,7 @@ printf("thorough = %d\n", thorough); /* debug */
   t->save_traverses(t, p, q);
 printf("insert %ld near %ld\n", p->index, q->index); /* debug */
   t->insert_(t, p, q, false);
+  t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
 
   if (atstart) {
