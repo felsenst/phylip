@@ -50,7 +50,7 @@ void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
 tree*  fitch_tree_new(long nonodes, long spp);
-void   fitch_tree_init(tree* t, long nonodes, long spp);
+void   fitch_tree_init(tree*, long nonodes, long spp);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -94,18 +94,18 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   /* set up functions for a tree for Fitch */
 
   fitch_tree *ft = (fitch_tree *)t;
-  generic_tree_init(t, nonodes, spp);
-  dist_tree_init(t, nonodes);   /* deug: need? */
-  t->evaluate = fitch_evaluate;
-  t->insert_ = ml_tree_insert_;
-  t->try_insert_ = ml_tree_try_insert_;
-  t->re_move = ml_tree_re_move;
-  t->nuview = fitch_nuview;
+  generic_tree_init((tree*)t, nonodes, spp);
+  dist_tree_init((tree*)t, nonodes);   /* deug: need? */
+  ((tree*)t)->evaluate = fitch_evaluate;
+  ((tree*)t)->insert_ = ml_tree_insert_;
+  ((tree*)t)->try_insert_ = ml_tree_try_insert_;
+  ((tree*)t)->re_move = ml_tree_re_move;
+  ((tree*)t)->nuview = fitch_nuview;
   ft->ml_tree.makenewv = fitch_makenewv;
-  t->smoothall = (tree_smoothall_t)ml_tree_smoothall;
-  t->do_newbl = true;
-  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  ((tree*)t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
+  ((tree*)t)->do_newbl = true;
+  ((tree*)t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  ((tree*)t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
 
 

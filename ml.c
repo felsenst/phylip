@@ -28,10 +28,6 @@ extern long rcategs;
 extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
-/* prototypes for unexported functions */
-static void ml_tree_smoothall(tree*, node*);
-void ml_node_reinit(node * n);
-
 
 void ml_tree_init(tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree */
@@ -719,7 +715,7 @@ void smooth(tree* t, node *p)
 }  /* smooth */
 
 
-static void ml_tree_smoothall(tree* t, node* p)
+void ml_tree_smoothall(tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
