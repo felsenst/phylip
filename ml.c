@@ -1,6 +1,9 @@
 /* Version 4.0.
-   Written by Michal Palczewski */
+   Written by Michal Palczewski and Joe Felsenstein */
 
+/* These are versions of functions, and support functions, for programs
+ * computing likelihoods.  Also (note) for programs, including distance
+ * matrix programs, that infer branch lengths on trees */
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -744,34 +747,47 @@ void ml_tree_smoothall(tree* t, node* p)
 
 
 void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
-{ /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
+{ /* split original  q->v  branch length evenly beween forknode->next and 
+   * forknode->next->next.  forknode->back  must be subtree or tip.
+   * This assumes interior node is a bifurcation.  Not able to cope if we 
+   * insert at a rootmost branch one of whose ends is NULL */
   double newv;
 
-  newv = q->v * 0.5;
-
-  /*
-   * forknode should be where tip was hooked to
-   * set to initial v for *both* directions
+  /* forknode should be where tip was hooked to.
+   * that connection set to initial v for *both* directions.
    */
-  forknode->v = initialv; 
-  forknode->back->v = initialv;
+  if (forknode->back != NULL) {              /* condition should never fail */
+    forknode->v = initialv; 
+    forknode->back->v = initialv;
+  }
+
+  if (q->back != NULL)
+    newv = q->v * 0.5;
+  else
+    newv = initialv;
 
   /* forknode->next for both directions */
-  forknode->next->v = newv ;
-  forknode->next->back->v = newv ;
+  if (forknode->next->back != NULL) {
+    forknode->next->v = newv ;
+    forknode->next->back->v = newv ;
+  }
 
   /* forknode->next->next for both directions */
-  forknode->next->next->v = newv;
-  forknode->next->next->back->v = newv;
+  if (forknode->next->back != NULL) {
+    forknode->next->next->v = newv;
+    forknode->next->next->back->v = newv;
+  }
 
   /* BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
-  inittrav(t, forknode);
+  inittrav(t, forknode);         /* some of this block of code unnexessary? */
   inittrav(t, forknode->back);
   inittrav(t, forknode->next);
-  inittrav(t, forknode->next->back);
+  if (forknode->next->back != NULL)
+    inittrav(t, forknode->next->back);
   inittrav(t, forknode->next->next);
-  inittrav(t, forknode->next->next->back);
+  if (forknode-> next->next->back != NULL)
+    inittrav(t, forknode->next->next->back);
 } /* ml_tree_do_branchl_on_insert */
 
 

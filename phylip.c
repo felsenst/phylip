@@ -4733,11 +4733,11 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 #endif
 
 
-void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
+void generic_do_branchl_on_insert(tree* t, node* fork, node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
    * this is currently a contentless do-nothing function
-   */
+   * It is set to a do-something version if branchlengths exist */
   (void)t;                              // RSGdebug: Parameter never used.
   (void)fork;                           // RSGdebug: Parameter never used.
   (void)q;                              // RSGdebug: Parameter never used.
@@ -4780,12 +4780,12 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
       r = q->back;
       hookup(p->next, q);
       hookup(p->next->next, r);
+      t->do_branchl_on_insert_f(t, p, q);
       }
     else {                /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
       };
-    t->do_branchl_on_insert_f(t, p, q);
 
 /* debug: needed?    assert( ! p->initialized );
     assert( ! p->next->initialized );

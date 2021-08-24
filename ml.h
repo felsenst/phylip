@@ -83,6 +83,8 @@ void    freex(long, pointarray);
 void    ml_update(tree*, node *);
 void    smooth(tree*, node *);
 void    smooth_traverse(tree*, node *);
+void 	ml_tree_smoothall(tree*, node*);
+void 	ml_node_reinit(node * n);
 void    ml_tree_insert_(tree*, node*, node*, boolean);
 void    ml_tree_re_move(tree*, node*, node**, boolean);
 boolean ml_tree_try_insert_(tree* , node* , node* , node* , double*, tree*,

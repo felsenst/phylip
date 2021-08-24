@@ -93,7 +93,6 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch */
 
-  fitch_tree *ft = (fitch_tree *)t;
   generic_tree_init((tree*)t, nonodes, spp);
   dist_tree_init((tree*)t, nonodes);   /* deug: need? */
   ((tree*)t)->evaluate = fitch_evaluate;
@@ -101,7 +100,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;
   ((tree*)t)->re_move = ml_tree_re_move;
   ((tree*)t)->nuview = fitch_nuview;
-  ft->ml_tree.makenewv = fitch_makenewv;
+  ((tree*)t)->makenewv = fitch_makenewv;
   ((tree*)t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
   ((tree*)t)->do_newbl = true;
   ((tree*)t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
@@ -614,7 +613,8 @@ void fitch_nuview(tree* t, node *p)
 
 void fitch_makenewv(tree* t, node *p)
 {
-  /* update branch lengths around a node */
+  /* update branch lengths around a node ,
+   * if node is rootmost fork, be careful how you do this */
   boolean iter;
   node* q;
 
