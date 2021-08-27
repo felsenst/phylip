@@ -509,18 +509,23 @@ void makedists(node *p)
     r = p->back;
     nr = r->index;
   }
+/* debug */ printf(" %ld,", p->index);
   for (i = 1; i <= 3; i++) {
     q = p->next;
     if ((q->back != NULL) && (p->back != NULL)) {
       s = q->back;
       ns = s->index;
-      if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0)
+      if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0) {
         ((dist_node*)p)->dist = 0.0;
-      else
+/* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
+      }
+      else {
         ((dist_node*)p)->dist =
           (((dist_node*)s)->w[nr - 1] * ((dist_node*)s)->d[nr - 1] +
            ((dist_node*)r)->w[ns - 1] * ((dist_node*)r)->d[ns - 1]) /
           (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]);
+/* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
+      }
     } else {
       ((dist_node*)p)->dist = 0.0;                              
     }
@@ -530,6 +535,7 @@ void makedists(node *p)
       nr = ns;
     }
   }
+/* debug */ printf("\n");
 }  /* makedists */
 
 
