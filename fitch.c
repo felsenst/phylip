@@ -500,33 +500,43 @@ void nudists(node *x, node *y)
 
 void makedists(node *p)
 {
-  /* compute distances among three neighbors of a node */
+  /* compute distances among three neighbors of a node.
+   * (assumes a bifurcation so there are three */
   long i=0, nr=0, ns=0;
   node *q, *r, *s;
 
-  r = p->back;
-  nr = r->index;
+  if (p->back != NULL) {          /* node and number of the node behind  r  */
+    r = p->back;
+    nr = r->index;
+  }
   for (i = 1; i <= 3; i++) {
     q = p->next;
-    s = q->back;
-    ns = s->index;
-    if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0)
-      ((dist_node*)p)->dist = 0.0;
-    else
-      ((dist_node*)p)->dist =
-        (((dist_node*)s)->w[nr - 1] * ((dist_node*)s)->d[nr - 1] +
-         ((dist_node*)r)->w[ns - 1] * ((dist_node*)r)->d[ns - 1]) /
-        (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]);
+    if ((q->back != NULL) && (p->back != NULL)) {
+      s = q->back;
+      ns = s->index;
+      if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0)
+        ((dist_node*)p)->dist = 0.0;
+      else
+        ((dist_node*)p)->dist =
+          (((dist_node*)s)->w[nr - 1] * ((dist_node*)s)->d[nr - 1] +
+           ((dist_node*)r)->w[ns - 1] * ((dist_node*)r)->d[ns - 1]) /
+          (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]);
+    } else {
+      ((dist_node*)p)->dist = 0.0;                              
+    }
     p = q;
-    r = s;
-    nr = ns;
+    if (q->back != NULL) {
+      r = s;
+      nr = ns;
+    }
   }
 }  /* makedists */
 
 
 void makebigv(node *p)
 {
-  /* make new branch length */
+  /* make new branch length
+   * p->dist, q->dist, and r->dist are set to zero if near NULL root */
   long i=0;
   node *temp, *q, *r;
 
@@ -534,9 +544,13 @@ void makebigv(node *p)
   r = q->next;
   for (i = 1; i <= 3; i++) {
     if (p->iter) {
-      p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
-              ((dist_node*)q)->dist) / 2.0;
-      p->back->v = p->v;
+      if (p->back != NULL) {
+        p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
+                ((dist_node*)q)->dist) / 2.0;
+        p->back->v = p->v;
+      }
+      else
+        p->v = 0.0;
     }
     temp = p;
     p = q;
@@ -548,39 +562,45 @@ void makebigv(node *p)
 
 void correctv(node *p)
 {
-  /* iterate branch lengths if some are to be zero */
+  /* iterate branch lengths if some are to be zero
+   * Note this is only for a bifurcation with three neighbors of the
+   * fork.  If any of these is null, don't do anything */
   node *q, *r, *temp;
   long i=0, j=0, n=0, nq=0, nr=0, ntemp=0;
   double wq=0.0, wr=0.0;
 
   q = p->next;
   r = q->next;
-  n = p->back->index;
-  nq = q->back->index;
-  nr = r->back->index;
-  for (i = 1; i <= zsmoothings; i++) {
-    for (j = 1; j <= 3; j++) {
-      if (p->iter) {
-        wr = ((dist_node*)r->back)->w[n - 1] +
-          ((dist_node*)p->back)->w[nr - 1];
-        wq = ((dist_node*)q->back)->w[n - 1] + ((dist_node*)p->back)->w[nq - 1];
-        if (wr + wq <= 0.0 && !negallowed)
-          p->v = 0.0;
-        else
-          p->v = ((((dist_node*)p)->dist - q->v) * wq +
-                  (((dist_node*)r)->dist - r->v) * wr) / (wr + wq);
-        if (p->v < 0 && !negallowed)
-          p->v = 0.0;
-        p->back->v = p->v;
+  if ((p->back != NULL) && (q->back != NULL)
+        && (r->back != NULL)) {               /* skip all this if any NULL */
+    n = p->back->index;
+    nq = q->back->index;
+    nr = r->back->index;
+    for (i = 1; i <= zsmoothings; i++) {              /* do multiple times */
+      for (j = 1; j <= 3; j++) {                  /* go around fork circle */
+        if (p->iter) {
+          wr = ((dist_node*)r->back)->w[n - 1] +
+            ((dist_node*)p->back)->w[nr - 1];
+          wq = ((dist_node*)q->back)->w[n - 1]
+               + ((dist_node*)p->back)->w[nq - 1];
+          if (((wr + wq) <= 0.0) && !negallowed)  /* if estimates megative */
+            p->v = 0.0;
+          else
+            p->v = ((((dist_node*)p)->dist - q->v) * wq +
+                    (((dist_node*)r)->dist - r->v) * wr) / (wr + wq);
+          if (p->v < 0 && !negallowed)
+            p->v = 0.0;
+          p->back->v = p->v;
+        }
+        temp = p;                            /* move one step around circle */
+        p = q;
+        q = r;
+        r = temp;
+        ntemp = n;
+        n = nq;
+        nq = nr;
+        nr = ntemp;
       }
-      temp = p;
-      p = q;
-      q = r;
-      r = temp;
-      ntemp = n;
-      n = nq;
-      nq = nr;
-      nr = ntemp;
     }
   }
 }  /* correctv */

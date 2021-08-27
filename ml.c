@@ -667,13 +667,15 @@ void ml_update(tree *t, node *p)
    * generic_tree_nuview  in phylip.c  */
 
 /* debug: */ printf("starting function ml_update\n");
-  if (!p->tip)
-    generic_tree_nuview((tree*)t, p);           /* recurse from one end */
-/* debug: try without   */
-  if ( p->back && !p->back->tip && !p->back->initialized) {
-    if (!p->back->tip)
-      generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
+  if (p != NULL) {                                /* if not a NULL node ... */
+    if (!p->tip)
+      generic_tree_nuview((tree*)t, p);             /* recurse from one end */
+  /* debug: try without   */
+    if ( p->back && !p->back->tip && !p->back->initialized) {
+      if (!p->back->tip)
+        generic_tree_nuview((tree*)t, p->back);   /* recurse from the other */
     }
+  }
 }  /* ml_update */
 
 
