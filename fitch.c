@@ -677,7 +677,7 @@ void fitch_setuptip(tree *t, long m)
         which->d[i] = epsilonf;
       which->w[i] = n[i] / exp(power * log(which->d[i]));
     } else {
-      which->w[i] = 0.0;
+      which->w[i] = 1.0;   /* debug: what should this be? */
       which->d[i] = 0.0;
     }
   }
