@@ -515,7 +515,7 @@ void makedists(node *p)
     if ((q->back != NULL) && (p->back != NULL)) {
       s = q->back;
       ns = s->index;
-      if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0) {
+      if ((((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]) <= 0.0) {
         ((dist_node*)p)->dist = 0.0;
 /* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
       }
