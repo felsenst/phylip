@@ -527,10 +527,12 @@ void makedists(node *p)
 /* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
       }
     } else {
+/* debug */ printf(" (because p->back or q->back is NULL) ");
       ((dist_node*)p)->dist = 0.0;                              
     }
+/* debug */ printf(" p->dist is set to  %lf", ((dist_node*)p)->dist);
     p = q;
-    if (q->back != NULL) {
+    if (p->back != NULL) {
       r = s;
       nr = ns;
     }
@@ -672,7 +674,7 @@ void fitch_setuptip(tree *t, long m)
   memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
-    if ((i + 1 != m) && (n[i] > 0)) {
+    if (((i + 1) != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
         which->d[i] = epsilonf;
       which->w[i] = n[i] / exp(power * log(which->d[i]));
