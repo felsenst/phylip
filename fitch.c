@@ -668,24 +668,30 @@ void fitch_setuptip(tree *t, long m)
   /* initialize branch lengths and views in a tip */
   long i=0;
   intvector n=(long *)Malloc(spp * sizeof(long));
-  dist_node *which;
+  dist_node *which, *whichother;
 
   which = (dist_node*)t->nodep[m - 1];
-  memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));
+  memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));  /* debug: too long? */
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
+    whichother = (dist_node*)t->nodep[i];
     if (((i + 1) != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
         which->d[i] = epsilonf;
       which->w[i] = n[i] / exp(power * log(which->d[i]));
     } else {
-      which->w[i] = 1.0;   /* debug: what should this be? */
+      which->w[i] = 1.0;   /* debug: correct? */
       which->d[i] = 0.0;
     }
+    whichother->w[m-1] = which->w[i];
+    whichother->d[m-1] = which->d[i];
   }
   for (i = spp; i < nonodes; i++) {
+    whichother = (dist_node*)t->nodep[i];
     which->w[i] = 1.0;
     which->d[i] = 0.0;
+    whichother->w[m-1] = which->w[i];
+    whichother->d[m-1] = which->d[i];
   }
   which->node.index = m;
   if (which->node.iter) which->node.v = 0.0;
