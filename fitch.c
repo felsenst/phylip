@@ -40,6 +40,7 @@ void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
 void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
+void   fitch_setupnewfork(tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   rearrange(node *, long *, long *, boolean *);
 void   describe(node *);
@@ -668,13 +669,12 @@ void fitch_setuptip(tree *t, long m)
   /* initialize branch lengths and views in a tip */
   long i=0;
   intvector n=(long *)Malloc(spp * sizeof(long));
-  dist_node *which, *whichother;
+  dist_node *which;
 
   which = (dist_node*)t->nodep[m - 1];
-  memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));  /* debug: too long? */
+  memcpy(which->d, x[m - 1], (spp * sizeof(double)));  /* debug: too long? */
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
-    whichother = (dist_node*)t->nodep[i];
     if (((i + 1) != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
         which->d[i] = epsilonf;
@@ -683,15 +683,10 @@ void fitch_setuptip(tree *t, long m)
       which->w[i] = 1.0;   /* debug: correct? */
       which->d[i] = 0.0;
     }
-    whichother->w[m-1] = which->w[i];
-    whichother->d[m-1] = which->d[i];
   }
   for (i = spp; i < nonodes; i++) {
-    whichother = (dist_node*)t->nodep[i];
     which->w[i] = 1.0;
     which->d[i] = 0.0;
-    whichother->w[m-1] = which->w[i];
-    whichother->d[m-1] = which->d[i];
   }
   which->node.index = m;
   if (which->node.iter) which->node.v = 0.0;
@@ -714,6 +709,19 @@ void fitch_buildsimpletree(tree *t, long nextsp)
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
 }  /* fitch_buildsimpletree */
+
+
+void fitch_setupnewfork(tree *t, long m)
+{ /* set up weights, distances for a new internal fork */
+  long i;
+  node* p;
+
+  p = t->nodep[m-1];
+  for (i = 0; i < nonodes; i++) {
+    ((dist_node*)p)->w[i] = 1.0;
+    ((dist_node*)p)->d[i] = 0.0;
+  }
+} /* setupnewtip */
 
 
 void describe(node *p)
@@ -896,6 +904,7 @@ void maketree(void)
     fitch_buildsimpletree(curtree, nextsp);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     p = generic_newrootfork(curtree);
+    fitch_setupnewfork(curtree, p->index);
     generic_insertroot(curtree, curtree->root, p); 
     if (jumb == 1) numtrees = 1;
     nextsp = 4;
@@ -911,6 +920,7 @@ void maketree(void)
       fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
+      fitch_setupnewfork(curtree, p->index);
       hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
       p->v = initialv;
       p->back->v = initialv;
