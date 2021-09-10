@@ -503,42 +503,43 @@ void makedists(node *p)
 {
   /* compute distances among three neighbors of a node.
    * (assumes a bifurcation so there are three */
-  long i=0, nr=0, ns=0;
-  node *q, *r, *s;
+  long npb=0, nqb=0, nrb=0;
+  double d12, d23, d31;
+  node *q, *r, *pb, *qb, *rb;
 
   if (p->back != NULL) {          /* node and number of the node behind  r  */
-    r = p->back;
-    nr = r->index;
+    pb = p->back;
+    npb = pb->index;
   }
 /* debug */ printf(" %ld,", p->index);
-  for (i = 1; i <= 3; i++) {
-    q = p->next;
-    if ((q->back != NULL) && (p->back != NULL)) {
-      s = q->back;
-      ns = s->index;
-      if ((((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]) <= 0.0) {
-        ((dist_node*)p)->dist = 0.0;
-/* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
-      }
-      else {
-        ((dist_node*)p)->dist =
-          (((dist_node*)s)->w[nr - 1] * ((dist_node*)s)->d[nr - 1] +
-           ((dist_node*)r)->w[ns - 1] * ((dist_node*)r)->d[ns - 1]) /
-          (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]);
-/* debug */ printf("  %ld: %10.6f", p->back->index, ((dist_node*)p)->dist);
-      }
-    } else {
-/* debug */ printf(" (because p->back or q->back is NULL) ");
-      ((dist_node*)p)->dist = 0.0;                              
+  q = p->next;
+  r = q->next;
+  if ((p->back != NULL) && (q->back != NULL)) {
+    qb = q->back;
+    nqb = qb->index;
+    d12 = ((dist_node*)pb)->d[nqb - 1];
     }
-/* debug */ printf(" p->dist is set to  %lf", ((dist_node*)p)->dist);
-    p = q;
-    if (p->back != NULL) {
-      r = s;
-      nr = ns;
-    }
+  else {
+    d12 = 0.0;
   }
-/* debug */ printf("\n");
+  if ((q->back != NULL) && (r->back != NULL)) {
+    rb = r->back;
+    nrb = rb->index;
+    d23 = ((dist_node*)qb)->d[nrb - 1];
+    }
+  else {
+    d23 = 0.0;
+  }
+  if ((r->back != NULL) && (p->back != NULL)) {
+    d31 = ((dist_node*)rb)->d[npb - 1];
+  }
+  else {
+    d31 = 0.0;
+  }
+  ((dist_node*)p)->dist = d12;
+  ((dist_node*)q)->dist = d23;
+  ((dist_node*)r)->dist = d31;
+/* debug */ printf(" %10.6f %10.6f %10.6f\n", d12, d23, d31);
 }  /* makedists */
 
 
