@@ -513,18 +513,22 @@ void makedists(node *p)
   }
 /* debug */ printf(" %ld,", p->index);
   q = p->next;
-  r = q->next;
-  if ((p->back != NULL) && (q->back != NULL)) {
+  if (q->back != NULL) {
     qb = q->back;
     nqb = qb->index;
+  }
+  r = q->next;
+  if (r->back != NULL) {
+    rb = r->back;
+    nrb = rb->index;
+  }
+  if ((p->back != NULL) && (q->back != NULL)) {
     d12 = ((dist_node*)pb)->d[nqb - 1];
     }
   else {
     d12 = 0.0;
   }
   if ((q->back != NULL) && (r->back != NULL)) {
-    rb = r->back;
-    nrb = rb->index;
     d23 = ((dist_node*)qb)->d[nrb - 1];
     }
   else {
