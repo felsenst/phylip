@@ -85,6 +85,7 @@ tree* fitch_tree_new(long nonodes, long spp)
   tree* t;
 
   t = Malloc(sizeof(fitch_tree));
+  t->do_newbl = true;
   fitch_tree_init(t, nonodes, spp);
   return t;
 } /* fitch_tree_new */
@@ -465,6 +466,7 @@ void nudists(node *x, node *y)
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
   node *qprime, *rprime, *qprimeback, *rprimeback;
 
+/* debug */ printf("nudists: at node %ld computing distance to %ld\n", y->index, x->index);
   ny = y->index;
   qprime = x->next;
   if (qprime->back != NULL) {
@@ -493,15 +495,16 @@ void nudists(node *x, node *y)
   }
   else {
     ((dist_node*)x)->d[ny - 1] = ((dil - vi) * wil + (djl - vj) * wjl) /
-      (wil + wjl);
+                                   (wil + wjl);
     ((dist_node*)x)->w[ny - 1] = wil + wjl;
   }
+  x->initialized = true;
 }  /* nudists */
 
 
 void makedists(node *p)
 {
-  /* compute distances among three neighbors of a node.
+  /* compute distances among pairs of adjacent neighbors of an interior node.
    * (assumes a bifurcation so there are three */
   long npb=0, nqb=0, nrb=0;
   double d12, d23, d31;
@@ -543,34 +546,39 @@ void makedists(node *p)
   ((dist_node*)p)->dist = d12;
   ((dist_node*)q)->dist = d23;
   ((dist_node*)r)->dist = d31;
-/* debug */ printf(" %10.6f %10.6f %10.6f\n", d12, d23, d31);
+/* debug */ printf(" d: %10.6f %10.6f %10.6f", d12, d23, d31);
 }  /* makedists */
 
 
 void makebigv(node *p)
 {
-  /* make new branch length
-   * p->dist, q->dist, and r->dist are set to zero if near NULL root */
+  /* make new branch lengths around a bifurcating interior node
+   * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
   node *temp, *q, *r;
 
   q = p->next;
   r = q->next;
+/* debug */ printf("   v:  ");
   for (i = 1; i <= 3; i++) {
     if (p->iter) {
       if (p->back != NULL) {
         p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
                 ((dist_node*)q)->dist) / 2.0;
         p->back->v = p->v;
+/* debug */ printf("  %10.6f", p->v);
       }
-      else
+      else {
         p->v = 0.0;
+/* debug */ printf("  %10.6f", p->v);
+      }
     }
     temp = p;
     p = q;
     q = r;
     r = temp;
   }
+/* debug */ printf("\n");
 }  /* makebigv */
 
 
@@ -624,7 +632,7 @@ void alter(node *x, node *y)
 {
   /* traverse updating these views */
   if (y != NULL) {
-    nudists(x, y);
+    nudists(x, y);  /* debug:  should this be after traversal? */
     if (!y->tip) {
       alter(x, y->next->back);
       alter(x, y->next->next->back);
@@ -635,14 +643,15 @@ void alter(node *x, node *y)
 
 void fitch_nuview(tree* t, node *p)
 {
+  double temp;
   /* renew information about subtrees */
-  node *q;
 
   alter(p, p->back);
-  for (q = p->next ; q != p ; q = q->next )
-    alter(q, q->back);
-  p->initialized = true;
-}  /* nuview */
+  if (p->back != NULL) {
+    temp = ((dist_node*)(p))->d[p->back->index - 1];
+    ((dist_node*)(p->back))->d[p->index - 1] = temp;
+  }
+}  /* fitch_nuview */
 
 
 void fitch_makenewv(tree* t, node *p)

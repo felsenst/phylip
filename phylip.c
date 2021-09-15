@@ -4665,13 +4665,11 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   if ( (p->initialized == false) && (p->tip == false) )
   {
     generic_tree_nuview((tree*)t, p);
-/* debug: printf("*"); */
   }
   if (p->back != NULL) {
     if ( (p->back->initialized == false) && (p->back->tip == false) )
     {
       generic_tree_nuview((tree*)t, p->back);
-/* debug printf("*"); */
     }
   }
   return 0;

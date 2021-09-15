@@ -666,8 +666,11 @@ void ml_update(tree *t, node *p)
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
 
-/* debug: */ printf("starting function ml_update\n");
   if (p != NULL) {                                /* if not a NULL node ... */
+/* debug: */ if (p->back != NULL)
+/* debug: */ printf("starting function ml_update at %ld:%ld\n", p->index, p->back->index);
+/* debug: */ if (p->back == NULL)
+/* debug: */ printf("starting function ml_update at %ld:null\n", p->index);
     if (!p->tip)
       generic_tree_nuview((tree*)t, p);             /* recurse from one end */
   /* debug: try without   */
@@ -698,10 +701,11 @@ void smooth(tree* t, node *p)
     return;
   smoothed = false;
 
-  ml_update(t, p);        /* get views at both ends updated, recursing if needed */
-  t->makenewv (t, p);     /* new value of branch length */
-  inittrav (t, p);        /* set inward-looking pointers false ... */
-  inittrav (t, p->back);  /* ... from both ends of this branch */
+  ml_update(t, p);      /* get views at both ends updated, recursing if needed */
+  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
+  t->makenewv (t, p);                            /* new value of branch length */
+  inittrav (t, p);                    /* set inward-looking pointers false ... */
+  inittrav (t, p->back);                  /* ... from both ends of this branch */
 
   if ( p->tip )
     return;
@@ -716,7 +720,7 @@ void smooth(tree* t, node *p)
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
+/*  debug:  ml_update(t, p->back);  get views at both ends updated, recursing if needed */
 }  /* smooth */
 
 
