@@ -462,33 +462,33 @@ void nudists(node *x, node *y)
    * y  is the node whose distance to the immediate descendants of  x
    * is being computed.  They are  qprime->back  and qprime-next->back.
    * This is the version for a bifurcation, so node has three neighbors */
-  long ny=0;    /* debug:  why this value? */
+  long nx=0, ny=0;    /* debug:  why this value? */
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
   node *qprime, *rprime, *qprimeback, *rprimeback;
 
-/* debug */ printf("nudists: at node %ld computing distance to %ld\n", y->index, x->index);
+  nx = x->index;
   ny = y->index;
   qprime = x->next;
-  if (qprime->back != NULL) {
-    qprimeback = qprime->back;
+  qprimeback = qprime->back;
+  if (qprimeback != NULL) {
+    vi = qprime->v;
     dil = ((dist_node*)qprimeback)->d[ny - 1];
     wil = ((dist_node*)qprimeback)->w[ny - 1];
-    vi = qprime->v;
   } else {
     dil = 0.0;
     wil = 0.0;
-    vi = 0.0;
+    qprime->v = 0.0;
   }
   rprime = qprime->next;
   rprimeback = rprime->back;
   if (rprimeback != NULL) {
+    vj = rprime->v;
     djl = ((dist_node*)rprimeback)->d[ny - 1];
     wjl = ((dist_node*)rprimeback)->w[ny - 1];
-    vj = rprime->v;
   } else {
     djl = 0.0;
     wjl = 0.0;
-    vj = 0.0;
+    rprime->v = 0.0;
   }
   if (wil + wjl <= 0.0) {
     ((dist_node*)x)->d[ny - 1] = 0.0;
@@ -498,6 +498,7 @@ void nudists(node *x, node *y)
                                    (wil + wjl);
     ((dist_node*)x)->w[ny - 1] = wil + wjl;
   }
+  ((dist_node*)y)->d[nx - 1] = ((dist_node*)x)->d[ny - 1];
   x->initialized = true;
 }  /* nudists */
 
@@ -514,7 +515,6 @@ void makedists(node *p)
     pb = p->back;
     npb = pb->index;
   }
-/* debug */ printf(" %ld,", p->index);
   q = p->next;
   if (q->back != NULL) {
     qb = q->back;
@@ -546,7 +546,6 @@ void makedists(node *p)
   ((dist_node*)p)->dist = d12;
   ((dist_node*)q)->dist = d23;
   ((dist_node*)r)->dist = d31;
-/* debug */ printf(" d: %10.6f %10.6f %10.6f", d12, d23, d31);
 }  /* makedists */
 
 
@@ -559,18 +558,15 @@ void makebigv(node *p)
 
   q = p->next;
   r = q->next;
-/* debug */ printf("   v:  ");
   for (i = 1; i <= 3; i++) {
     if (p->iter) {
       if (p->back != NULL) {
         p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
                 ((dist_node*)q)->dist) / 2.0;
         p->back->v = p->v;
-/* debug */ printf("  %10.6f", p->v);
       }
       else {
         p->v = 0.0;
-/* debug */ printf("  %10.6f", p->v);
       }
     }
     temp = p;
@@ -578,7 +574,6 @@ void makebigv(node *p)
     q = r;
     r = temp;
   }
-/* debug */ printf("\n");
 }  /* makebigv */
 
 

@@ -667,10 +667,6 @@ void ml_update(tree *t, node *p)
    * generic_tree_nuview  in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
-/* debug: */ if (p->back != NULL)
-/* debug: */ printf("starting function ml_update at %ld:%ld\n", p->index, p->back->index);
-/* debug: */ if (p->back == NULL)
-/* debug: */ printf("starting function ml_update at %ld:null\n", p->index);
     if (!p->tip)
       generic_tree_nuview((tree*)t, p);             /* recurse from one end */
   /* debug: try without   */
@@ -686,7 +682,6 @@ void smooth_traverse(tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
 
-/* debug: */ printf("starting function smooth_traverse\n");
   smooth(t, p);
   smooth(t, p->back);
 } /* smooth_traverse */
@@ -696,7 +691,6 @@ void smooth(tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
 
-/* debug: */ printf("starting function smooth\n");
   if ( p == NULL )
     return;
   smoothed = false;
@@ -737,6 +731,7 @@ void ml_tree_smoothall(tree* t, node* p)
   smoothit = true;
 /* debug:   if ( p->tip ) p = p->back;   what does this do? */
 
+/* debug:   editing mistake near here when removing debugging prints? */
   /* it may seem like we are doing too many smooths, but sometimes
    *dden while accessingbone branch near p may already be completly smoothed from an
    * insert, this insures we spread out in the tree */
@@ -808,19 +803,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
 
-/* debug: */ printf("start function ml_tree_insert\n");
-if ((p->back != NULL) && (q->back != NULL)) /* debug */
-printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
-if ((p->back == NULL) && (q->back != NULL)) /* debug */
-printf("inserting %ld in %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
-if ((p->back != NULL) && (q->back == NULL)) /* debug */
-printf("inserting %ld:%ld in %ld\n", p->index, p->back->index, q->index); /* debug */
-if ((p->back == NULL) && (q->back == NULL)) /* debug */
-printf("inserting %ld in %ld\n", p->index, q->index); /* debug */
-/* debug: */ printf("start function generic_tree_insert\n");
-/* debug: */ printf("generic_tree insert %ld on %ld\n", p->index, q->index);
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
-/* debug: */ printf("end generic_tree insert %ld on %ld\n", p->index, q->index);
 
   if ( !t->do_newbl )
   {
@@ -846,7 +829,6 @@ printf("inserting %ld in %ld\n", p->index, q->index); /* debug */
       smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
-/* debug: */ printf("finish function ml_tree_insert\n");
 } /* ml_tree_insert */
 
 
@@ -874,10 +856,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
 
-/* debug: */ printf("start ml_tree_remove\n");
-printf("remove %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, p->next->back->index, p->next->next->back->index); /* debug */
   generic_tree_re_move(t, p, q, do_newbl);
-printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
 
   if ( do_newbl )
   {
@@ -895,7 +874,6 @@ printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->in
     if (!((*q)->back->tip))
       ml_update(t, (*q)->back);
   }
-/* debug: */ printf("finish ml_tree_remove\n");
 } /* ml_tree_re_move */
 
 
@@ -909,11 +887,8 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   boolean succeeded, bettertree;
   node* whereRemoved;
 
-/* debug */ printf("start ml_tree_try_insert_thorough\n");
-printf("thorough = %d\n", thorough); /* debug */
   succeeded = false;
   t->save_traverses(t, p, q);
-printf("insert %ld near %ld\n", p->index, q->index); /* debug */
   t->insert_(t, p, q, false);
   t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
@@ -929,9 +904,7 @@ printf("insert %ld near %ld\n", p->index, q->index); /* debug */
     qwherein = q;
     t->copy(t, bestree);
   }
-printf("ml_try_insert_thorough: success? %d\n", succeeded); /* debug */
   t->re_move(t, p, &whereRemoved, false);
-printf("remove %ld from near %ld\n", p->index, whereRemoved->index); /* debug */
 
   assert(whereRemoved == q);
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
@@ -939,7 +912,6 @@ printf("remove %ld from near %ld\n", p->index, whereRemoved->index); /* debug */
   /* Update t->score */
   like = t->evaluate(t, q, 0);
 
-/* debug */ printf("finish ml_tree_try_insert_thorough\n");
   return succeeded;
 } /* ml_tree_try_insert_thorough */
 
@@ -954,15 +926,12 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
  */
   boolean succeeded;
 
-/* debug */ printf("start ml_tree_try_insert_\n");
-printf("thorough = %d, storing = %d\n", thorough, storing); /* debug */
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
 
-/* debug */ printf("finish ml_tree_try_insert_\n");
   return succeeded;
 } /* ml_tree_try_insert_ */
 

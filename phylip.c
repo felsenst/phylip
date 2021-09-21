@@ -4062,13 +4062,9 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
   succeeded = false; /* debug OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
   if (oktoinsertthere(t, q)) {
-printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
-printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-printf("tree try_insert: success? %d\n", succeeded); /* debug */
     atstart = false;
-printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
   }
   atstart = false;
   if (!succeeded) {
@@ -4076,9 +4072,9 @@ printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
                              * maybe further unless just local rearrangements */
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
-printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
+/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
         if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
-printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
+/* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
           succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
                             thorough, storing, atstart, bestfound) || succeeded;
@@ -4091,14 +4087,13 @@ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /*
       for ( sib_ptr = q->back->next; sib_ptr != q->back;
                                        sib_ptr = sib_ptr->next)
       {
-printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
+/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
         succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree,
                             thorough, storing, atstart, bestfound) || succeeded;
       }
     }
   }
-printf("end generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
   return succeeded;
 } /* generic_tree_addtraverse */
 
@@ -4122,7 +4117,6 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean outgroupfork;
 
   if (oktoinsertthere(t, q)) {
-printf("  addtraverse_1way at %p, %ld:%ld\n", q, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
     outgroupfork = (q == t->root);
@@ -4330,23 +4324,18 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
-/*  printf("locrearrange at node %2ld\n", p->index); debug */
     r = p->back;        /* these are the two connected and might be removed */
     rr = r->next;                   /* pointer to fork node used in removal */
     if (!thorough)
       t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
                                     containing  rr  and inward-looking at p */
-printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, rr->next->back->index, rr->next->next->back->index); /* debug */
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
-printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
                                                        /* ... to back of it */
       qwhere = p;
 
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
-printf("addtraverse adding %ld:%ld in branch %ld:%ld\n", rr->index, 
-                                   rr->back->index, q->index, q->back->index);
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
@@ -4959,7 +4948,6 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
-printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
   inittrav(t, t->root);
   inittrav(t, t->root->back);
@@ -4977,10 +4965,7 @@ printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->
 printf(" try_insert copies tree  t  to bestree\n"); /* debug */
     t->copy(t, bestree);
   }
-printf(" try_insert starts removing %ld:%ld\n", p->index, p->back->index); /* debug */
   t->re_move(t, p, &q, false);      /* then remove from the place tried */
-printf(" try_insert removed %ld:%ld\n", p->index, p->back->index); /* debug */
-printf(" try_insert finished trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   return succeeded;
 } /* generic_tree_try_insert_ */
 
