@@ -43,6 +43,7 @@ void   fitch_buildnewtip(long, tree *, long);
 void   fitch_setupnewfork(tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   rearrange(node *, long *, long *, boolean *);
+node*  findroot(tree *, node *, boolean *);
 void   describe(node *);
 void   summarize(long);
 void   nodeinit(node *);
@@ -759,7 +760,7 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
-  boolean start;
+  boolean start, found;
   node *p, *q;
 
   fprintf(outfile, "\nremember:");
@@ -785,6 +786,7 @@ void summarize(long numtrees)
   fprintf(outfile, "Between        And            Length\n");
   fprintf(outfile, "-------        ---            ------\n");
   q = curtree->root;
+  q = findroot(curtree, q, &found);
   start = true;
   for (p = q; (start || (p != q)); p = p->next) {   /* around rootmost fork */
     start = false;
