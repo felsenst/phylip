@@ -839,7 +839,7 @@ void treevaluate(void)
 
   for (i = 1; i <= spp; i++)   /* debug: already done? is this necessary? */
     fitch_setuptip(curtree, i);
-  unroot(curtree, nonodes);
+  unroot(curtree, nonodes);     /* debug: removes a root fork if bifurcating */
 
   initrav(curtree->root);
   if (curtree->root->back != NULL) {
@@ -859,7 +859,7 @@ void maketree(void)
 {
   /* contruct the tree */
   long nextsp, numtrees=-1;
-  boolean lastrearr, succeeded=false;
+  boolean lastrearr, succeeded=false, found;
   long i, k, which;
   double bestyet, *bestfound = NULL;
   node *p;
@@ -980,6 +980,11 @@ void maketree(void)
     }
     if (jumb == njumble) {
       if (njumble > 1) bestree2->copy(bestree2, curtree);
+      p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+      if (p->index != outgrno) {    /* if outgroup connected somewhere else */
+        generic_tree_re_move(curtree, p, &(p->next->back), true);  /* remove root fork */
+        generic_insertroot(curtree, p, curtree->nodep[outgrno-1]); 
+      }                                         /* put next to outgroup tip */
       curtree->root = curtree->nodep[outgrno - 1]->back;
       printree(curtree->root, treeprint, false);
       if (treeprint)

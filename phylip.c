@@ -375,7 +375,7 @@ node* findroot (tree* t, node* p, boolean* found) {
   r = p;                /* return same node if never find the rootmost node */
   *found = false;
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
-    if (q->back == NULL) {          /* ... until find one with  back  empty */
+    if (q->back == NULL) {            /* ... until find one with back empty */
       r = q;
       *found = true;
     }
@@ -3403,12 +3403,14 @@ void unroot(tree* t, long nonodes)
    * then release the previous rootmost interior node.
    * currently used by fitch, restml and contml */
   node* p;
+  boolean found;
 
-  if (t->root->back == NULL) {      /* move root pointer point to leftmost  */
+  p = findroot(t, t->root, &found);      /* find node with NULL back pointer */
+  if (p->back == NULL) {            /* move root pointer point to leftmost  */
     p = t->root;
-    if (t->root->next->back->tip)   /* interior node descended from ...  */
+    if (t->root->next->back->tip)      /* interior node descended from ...  */
       t->root = t->root->next->next->back;   /* that rootmost interior node */
-    else  t->root = t->root->next->back;
+    else t->root = t->root->next->back;
   }
 /* I think the following stuff is to deal with the case where
  * there is an interior node which used to be rootmost and still has
@@ -4873,8 +4875,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
 
   if ( num_sibs > 2 ) {     /* multifurcation case: may not be used a lot */
     for ( q = fork ; q->next != fork ; q = q->next)
-      /* do nothing */;
-
+      /* inside loop, do nothing */;
     q->next = fork->next;   /* heal up circle */
     fork->next = NULL;
     if ( t->root == fork )
@@ -4885,7 +4886,6 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
         inittrav(t, p);
     }
     (*where) = q;
-
   } else {                                         /* case of a bifurcation */
     if (fork->next->back != NULL)  /* set where to the place it was next to */
       (*where) = fork->next->back;
@@ -5010,8 +5010,8 @@ void generic_insertroot(tree* t, node* p, node* f)
    * p  and the node it connects to, with a null root behind  f */
   /* debug: notice: one must have no pre-existing rootmost fork in tree */
 
-  t->insert_(t, f, p, false);
-  t->root = f;
+  t->insert_(t, f, p, false);                            /* insert the fork */
+  t->root = f;                                /* set the root pointer to it */
 } /* insertroot */
 
 
