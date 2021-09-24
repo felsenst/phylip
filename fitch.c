@@ -946,14 +946,14 @@ void maketree(void)
         phyFillScreenColor();
       }
       succeeded = true;
-      while (succeeded) {
-        succeeded = false;
+      while (succeeded) {        /* as long as some rearrangement succeeded */
+        succeeded = false;   /* debug: should move rootmost fork? */
         curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-        if ((nextsp == spp)  && global)
+        if ((nextsp == spp)  && global)    /* last time, SPR rearrangements */
           curtree->globrearrange(curtree, bestree, progress, true, bestfound);
-        else {
-          curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
-                                &bestyet, priortree, bestree, lastrearr, bestfound);
+        else {         /* earlier times, do nearest-neighbor rearrangements */ 
+          curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
+                    true, &bestyet, priortree, bestree, lastrearr, bestfound);
         }
         if (global && (nextsp == spp) && progress)
         {
@@ -968,29 +968,26 @@ void maketree(void)
         }
       }
       lastrearr = (nextsp == spp);
-      if (njumble > 1) {
-        if (jumb == 1 && nextsp == spp)
-          bestree->copy(bestree, bestree2);
-        else if (nextsp == spp) {
-          if (bestree2->score < bestree->score)
-            bestree->copy(bestree, bestree2);
+      if (lastrearr) {               /* if have finished adding all species */
+        if (njumble > 1) {            /* if there is more than one jumbling */
+          if (jumb == 1)
+            bestree->copy(bestree, bestree2);  /* first tree is best so far */
+          else {          /* if the tree is better than the best so far ... */
+            if (bestree2->score < bestree->score)
+              bestree->copy(bestree, bestree2); /* ... then put as best one */
+          }
         }
       }
       nextsp++;
     }
-    if (jumb == njumble) {
-      if (njumble > 1) bestree2->copy(bestree2, curtree);
-      p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
-      if (p->index != outgrno) {    /* if outgroup connected somewhere else */
-        generic_tree_re_move(curtree, p, &(p->next->back), true);  /* remove root fork */
-        generic_insertroot(curtree, p, curtree->nodep[outgrno-1]); 
-      }                                         /* put next to outgroup tip */
-      curtree->root = curtree->nodep[outgrno - 1]->back;
-      printree(curtree->root, treeprint, false);
+    if (jumb == njumble) {       /* on last jumbling of species input order */
+      if (njumble > 1) bestree2->copy(bestree2, curtree); /* bestree2 is it */
+      putrootnearoutgroup(curtree, outgrno, true); /* root to near outgroup */
+      printree(curtree->root, treeprint, false);    /* print the tree if OK */
       if (treeprint)
-        summarize(numtrees);
+        summarize(numtrees);  /* print table of connections, branch lengths */
     }
-    destruct_tree(curtree);
+    destruct_tree(curtree);                   /* recycle the tree structure */
   }
   if (jumb == njumble && progress) {
     sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);

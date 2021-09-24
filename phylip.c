@@ -4926,6 +4926,24 @@ void generic_tree_release_forknode(tree* t, node* n)
 } /* generic_tree_release_forknode */
 
 
+void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
+{ \* if root bifurcating node is somewhere else, move it to the branch
+   * that connecs to the outgroup */
+  node* p;
+  boolean found;
+
+  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+   
+  if (found) {   /* if did find that root is connected to a null pointer */
+     if (p->index != curtree->nodep[outgrno-1]->back->index) {
+       generic_tree_re_move(curtree, p, &(p->next->back), true);  /* remove root fork */
+       generic_insertroot(curtree, p, curtree->nodep[outgrno-1]); 
+     }                                         /* put next to outgroup tip */
+      curtree->root = curtree->nodep[outgrno - 1]->back;
+  }
+} /* putrootnearoutgroup */
+
+
 long generic_tree_findemptyfork(tree* t)
 { /* go through nodep finding an empty fork slot */
   long k;
