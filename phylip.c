@@ -4895,7 +4895,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
       fork->next->back->back = fork->next->next->back;
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
-    if ((fork->next == t->root) || (fork->next->next == t->root))
+    if (fork->next->index == t->root->index)
       t->root = *where;                                         /* set root */
     fork->next->back = NULL;
     fork->next->next->back = NULL;
@@ -4927,18 +4927,18 @@ void generic_tree_release_forknode(tree* t, node* n)
 
 
 void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
-{ \* if root bifurcating node is somewhere else, move it to the branch
+{ /* if root bifurcating node is somewhere else, move it to the branch
    * that connecs to the outgroup */
   node* p;
   boolean found;
 
   p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
    
-  if (found) {   /* if did find that root is connected to a null pointer */
-     if (p->index != curtree->nodep[outgrno-1]->back->index) {
-       generic_tree_re_move(curtree, p, &(p->next->back), true);  /* remove root fork */
-       generic_insertroot(curtree, p, curtree->nodep[outgrno-1]); 
-     }                                         /* put next to outgroup tip */
+  if (found) {      /* if did find that root is connected to a null pointer */
+    if (p->index != curtree->nodep[outgrno-1]->back->index) {/* remove ...  */
+       generic_tree_re_move(curtree, p, &(p->next->back->back), true); /* root fork */
+       generic_insertroot(curtree, p, curtree->nodep[outgrno-1]->back);
+     }                                      /* and put next to outgroup tip */
       curtree->root = curtree->nodep[outgrno - 1]->back;
   }
 } /* putrootnearoutgroup */
