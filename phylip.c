@@ -4937,7 +4937,7 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
   if (found) {      /* if did find that root is connected to a null pointer */
     if (p->index != curtree->nodep[outgrno-1]->back->index) {/* remove ...  */
        generic_tree_re_move(curtree, p, &(p->next->back->back), true); /* root fork */
-       generic_insertroot(curtree, p, curtree->nodep[outgrno-1]->back);
+       generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
      }                                      /* and put next to outgroup tip */
       curtree->root = curtree->nodep[outgrno - 1]->back;
   }
