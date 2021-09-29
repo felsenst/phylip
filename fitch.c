@@ -859,7 +859,7 @@ void maketree(void)
 {
   /* contruct the tree */
   long nextsp, numtrees=-1;
-  boolean lastrearr, succeeded=false, found;
+  boolean lastrearr, succeeded=false;
   long i, k, which;
   double bestyet, *bestfound = NULL;
   node *p;

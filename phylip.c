@@ -103,6 +103,8 @@ void generic_tree_copy (tree* src, tree* dst)
   if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
     maxcircles = dst->nonodes;
     }
+  destruct_tree(dst);   /* release fork circles, make tips point to nothing */
+#if 0
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
@@ -119,7 +121,7 @@ void generic_tree_copy (tree* src, tree* dst)
         q = q->next;                               /* ... move along circle */
         }
       if (p->next != p) {
-        dst->nodep[i] = p->next;                     /* cut  p  out of circle */
+        dst->nodep[i] = p->next;                   /* cut  p  out of circle */
         q->next = p->next;
         }
       else
@@ -128,6 +130,7 @@ void generic_tree_copy (tree* src, tree* dst)
       dst_num--;
       }
     }
+#endif
   for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
     doingacircle = false;
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
@@ -4928,18 +4931,18 @@ void generic_tree_release_forknode(tree* t, node* n)
 
 void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
 { /* if root bifurcating node is somewhere else, move it to the branch
-   * that connecs to the outgroup */
+   * that connects to the outgroup */
   node* p;
   boolean found;
 
   p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
    
-  if (found) {      /* if did find that root is connected to a null pointer */
-    if (p->index != curtree->nodep[outgrno-1]->back->index) {/* remove ...  */
-       generic_tree_re_move(curtree, p, &(p->next->back->back), true); /* root fork */
+  if (found) {       /* if did find root is connected to a null pointer ... */
+    if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
+       generic_tree_re_move(curtree, p, &(p->next->back->back), true);
        generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
      }                                      /* and put next to outgroup tip */
-      curtree->root = curtree->nodep[outgrno - 1]->back;
+      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
   }
 } /* putrootnearoutgroup */
 
