@@ -3528,7 +3528,8 @@ void destruct_tree(tree* t)
 
   for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
     if (t->nodep[j] != NULL)
-      t->release_forknode(t, t->nodep[j]);
+      if (t->nodep[j]->back != NULL)
+        t->release_forknode(t, t->nodep[j]->back);
   }
   release_all_forks(t);      /* call that function to release all forks too */
 } /* destruct_tree */
