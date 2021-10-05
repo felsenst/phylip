@@ -343,6 +343,7 @@ long count_sibs (node *p)
   /* nodes excluding the one passed into the function (siblings)     */
   node *q;
   long return_int = 0;
+  boolean done;
 
   if (p == NULL) {  /* case where there's no destination fork there at all */
     return_int = 0;
@@ -354,11 +355,16 @@ long count_sibs (node *p)
       exxit (-1);
     }
     q = p->next;
-    while (q != p) {   /* go around the circle and ... */
+    done = false;
+    while ((!done) && (q != p)) {   /* go around the circle and ... */
+#if 0
       if (q == NULL) {
         sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
         print_progress(progbuf);
         exxit (-1);
+#endif
+      if (q == NULL)  {
+        done = true;
       } else {     /* count them */
         return_int++;
         q = q->next;
@@ -4612,17 +4618,22 @@ void generic_tree_release_fork(tree* t, node* n)
    * and put its nodes back on list */
   node *p, *q;
   long m;
+  boolean done;
 
   m = n->index - 1;
   n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
-
   p = n;
   q = n;
+  done = false;
   do {
     p = n->next;
-    n->next = n->next->next;
-    t->release_forknode(t, p);
-  } while (p != q);
+    if (p != NULL) {
+      n->next = n->next->next;
+      t->release_forknode(t, p);
+    } else {
+      done = true;
+    }
+  } while ((!done) && (p != q));
   t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
 } /* generic_tree_release_fork */
 
