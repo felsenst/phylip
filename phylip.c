@@ -5322,39 +5322,39 @@ void seetree(tree *t)
     if (qq == NULL) {
       printf(" node: %p (nil) \n", qq);
       continue;
-    }
-    if (i < spp)
-    {
-      if (qq->back == NULL)
+    } else {
+      if (i < spp)
       {
-        printf(" node: %p index:%ld  connects to (nil)", (void *)qq,
-               qq->index);
+        if (qq->back == NULL)
+        {
+          printf(" node: %p index:%ld  connects to (nil)", (void *)qq,
+                 qq->index);
+        }
+        else
+        {
+          printf(" node: %p index:%ld  connects to node: %p index: %ld",
+                 (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+        }
       }
       else
       {
-        printf(" node: %p index:%ld  connects to node: %p index: %ld",
-               (void *)qq, qq->index, (void *)qq->back, qq->back->index);
-      }
-    }
-    else
-    {
-      printf(" node: %p index:%ld  connects to nodes:",
-                (void *)qq, qq->index);
-      pp = qq;
-      malformed = false;
-      n = 0;
-      do {   /* ... find out if any node in the fork points to same fork */
-        if (qq != NULL) {
-          malformed = (qq == qq->next);
-          if (malformed) {
-            printf(" node is: %p: ", qq);
-            printf(" (->next is %p: ", qq->next);
-            if (qq->next == qq)
-              printf("  same node)");
-            else
-              printf(")");
-          }
-          if (qq->next != NULL) {
+        printf(" node: %p index:%ld  connects to nodes:",
+                  (void *)qq, qq->index);
+        pp = qq;
+        malformed = false;
+        n = 0;
+        do {   /* ... find out if any node in the fork points to same fork */
+          if (qq != NULL) {
+            malformed = (qq == qq->next);
+            if (malformed) {
+              printf(" node is: %p: ", qq);
+              printf(" (->next is %p: ", qq->next);
+              if (qq->next == qq)
+                printf("  same node)");
+              else
+                printf(")");
+            }
+            if (qq->next != NULL) {
             malformed = malformed || (qq->next->next == qq);
             if (qq->next->next == qq)
                printf(" (->next->next is %p: same node)", qq->next->next);
@@ -5377,8 +5377,9 @@ void seetree(tree *t)
             printf(",");
           }
         }
-      } while ((qq != pp) && (n < 6) && !malformed);
+      } while ((qq != NULL) && (qq != pp) && (n < 6) && !malformed);
     }
+  }
     printf("\n");
   }
 } /* seetree */
