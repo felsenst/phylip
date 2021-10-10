@@ -34,8 +34,8 @@ void dist_node_init(node* n, node_type type, long index)
   n->copy = dist_node_copy;
   n->init = dist_node_init;
   dn->dist = 0;
-  dn->d = (vector)Malloc(nonodes * sizeof(double));
-  dn->w = (vector)Malloc(nonodes * sizeof(double));
+  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));
+  dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
 } /* dist_node_init */
 
 
@@ -58,8 +58,8 @@ void dist_node_copy(node* srcn, node* dstn)
 
   generic_node_copy(srcn, dstn);
   dst->dist = src->dist;
-  memcpy(dst->d, src->d, nonodes * sizeof(double));
-  memcpy(dst->w, src->w, nonodes * sizeof(double));
+  memcpy(dst->d, src->d, (nonodes+1) * sizeof(double));
+  memcpy(dst->w, src->w, (nonodes+1) * sizeof(double));
   dst->sametime = src->sametime;
   dst->t = src->t;
 } /* dist_node_copy */
@@ -104,7 +104,7 @@ void allocd(long nonodes, pointptr treenode)
   for (i = spp; i < nonodes; i++) {
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
-      p->d = (vector)Malloc(nonodes * sizeof(double));
+      p->d = (vector)Malloc((nonodes+1) * sizeof(double));
       p = (dist_node*)(p->node.next);
     }
   }

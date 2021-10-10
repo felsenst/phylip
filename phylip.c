@@ -25,7 +25,7 @@ void           _fgetline_finalize(void);
 #endif /* OLDC */
 
 /* Global file objects */
-/* TODO Use locals and/or move to individual programs */
+/* TODO Use locals and/or move to individual programs? */
 
 /* Default vtable for generic nodes. */
 struct node_vtable node_vtable = {
@@ -36,32 +36,33 @@ struct node_vtable node_vtable = {
 
 
 void no_op (void)
-{ /* Do nothing. Used as a dummy pointer to a function that */
-} /* doesn't need to do anything (e.g. smooth for parsimony)*/
+{ /* Do nothing. Used as a dummy pointer to a function that hust returns,
+   * doesn't need to do anything (e.g. smooth for parsimony) */
+} /* no_op */
 
 
 /********* Tree and node functions ***********/
 
 
-node* where_in_dest (tree* src, tree* dst, node* nsrc )
+node* where_in_dest (tree* src, tree* dst, node* nsrc)
 { /* Return the node in dst that corresponds to node nsrc in src
    * i.e. has the same index and is the same number of next links
-   * away from src's nodep entry.
+   * counting from src's fork circle nodep entry.
    *
-   * Corresponding forks in src and dst should have equal number
+   * Corresponding forks in  src  and  dst  should have equal number
    * of nodes beforehand.
+   * nsrc  is the node in  src  that we need to find in  dst
    */
-
   node *ret = NULL, *p;
 
-  if ( nsrc ) {
-    p = src->nodep[nsrc->index - 1];
-    if (p != NULL) {
-      ret = dst->nodep[nsrc->index - 1];
-      while ( p != nsrc ) {
-        p = p->next;
-        if (ret != NULL)
-          ret = ret->next;
+  if (nsrc) {                              /* if not a null fork circle ... */
+    p = src->nodep[nsrc->index - 1];   /* tip or fork that has nsrc's index */
+    if (p != NULL) {                         /* ... and if there is one ... */
+      ret = dst->nodep[nsrc->index - 1];     /* tip or start of fork circle */
+      while ( p != nsrc ) {      /* if this is a fork circle, go around ... */
+        p = p->next;         /* ... the circle in  src  until find the node */
+        if (ret != NULL)      /* (are supposed to already know is not null) */
+          ret = ret->next;            /* along both  src  and  dst  circles */
       }
     }
   }
@@ -70,15 +71,14 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
 
 void generic_tree_copy (tree* src, tree* dst)
-{ /* copies tree src to tree dst*/
-  long i, j, num_sibs, src_sibs, dst_sibs,
-    src_num, dst_num, maxcircles, maxsrcnodes;
+{ /* copies tree  src  to tree  dst */
+  long i, j, num_sibs, src_sibs, src_num, dst_num, maxcircles, maxsrcnodes;
   boolean doingacircle;
   node *p, *q;
 
   /* reduce or increase interior node fork circle sizes in destination tree */
   maxsrcnodes = src->nonodes;       /* finding highest-numbered fork in src */
-  for (i = 0; i < spp; i++) {        /* look at forks connected to the tipe */
+  for (i = 0; i < spp; i++) {        /* look at forks connected to the tips */
     if (src->nodep[i] != NULL) {
       if (src->nodep[i]->back != NULL) {   /* if connected, see whether ... */
         if (src->nodep[i]->back->index > maxsrcnodes) /* fork number is ... */
@@ -89,13 +89,13 @@ void generic_tree_copy (tree* src, tree* dst)
   for (i = src->spp; i < maxsrcnodes; i++) {
     p = src->nodep[i];
     if (p != NULL) {                             /* if there's a node there */
-      q = p;                                            /* keep track of it */
+      q = p;         /* then its the start if a circle, so keep track of it */
       do {                                     /* go around the fork circle */
         if (p->back != NULL) {         /* when it is connected to something */
           if (p->back->index > maxsrcnodes)     /* find any numbered higher */
             maxsrcnodes = p->index;       /* ... and increasing maxsrcnodes */
         }
-        p = p->next;                      /* go on to next in fork circle */
+        p = p->next;                        /* go on to next in fork circle */
       } while (p != q);    
     }
   }
@@ -103,8 +103,9 @@ void generic_tree_copy (tree* src, tree* dst)
   if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
     maxcircles = dst->nonodes;
     }
-  destruct_tree(dst);   /* release fork circles, make tips point to nothing */
+  destruct_tree(dst); /* release fork circles, make tips connect to nothing */
 #if 0
+/* old code replaced by destruct_tree. Kept for now, just in case */
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
@@ -137,65 +138,56 @@ void generic_tree_copy (tree* src, tree* dst)
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
       src_num = 0;
-    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
-    dst_num = dst_sibs + 1;
-    if ((dst_num == 1) && (dst->nodep[i] == NULL))
+/* debug    dst_sibs = count_sibs(dst->nodep[i]);
+    dst_num = dst_sibs + 1; 
+    if ((dst_num == 1) && (dst->nodep[i] == NULL))  how many nodes in dst circle */
       dst_num = 0;
-    while ( src_num > dst_num) {
+    while (src_num > dst_num) {
       doingacircle = true;
+      p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
       if (dst->nodep[i] == NULL) {
-        p = dst->get_forknode(dst, i+1);   /* ... from free_fork_nodes list */
-	q = p;                    /* points to final node in nascent circle */
-        dst->nodep[i] = p;
-        dst_num++;
+	q = p;          /* will point to most recent node in nascent circle */
+        dst->nodep[i] = p;                  /* this case is start of circle */
         }
-      else {
-        p = dst->get_forknode(dst, i+1);            /* take another one off */
-	p->next = dst->nodep[i];
-        q->next = p;
-	dst->nodep[i] = p;
-        dst_num++;
+      else {                      /* when extending fork circle by one node */
+        q->next = p;      /* add the new node to most recent node in circle */
+        q = p;       /* ... and now set the most-recent pointer to that one */
         }
+      dst_num++;
       }
     if (doingacircle) {
       q->next = dst->nodep[i];                          /* close the circle */
-      doingacircle = false;
+      doingacircle = false;        /* not sure we need this, may need later */
       }
     }
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
-    if (src->nodep[i]->back != NULL) {
+    if (src->nodep[i]->back != NULL) {           /* set the "back" pointer */
       dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
     }
   }
-
   for (i = spp; i < maxsrcnodes; i++) {  /* copy fork nodes and back links */
     p = src->nodep[i];
-    q = dst->nodep[i];
-    if (p == NULL) {
+    q = dst->nodep[i];         /* the start of the destination fork circle */
+    if (p == NULL) {          /* if nothing there, don't set its pointers! */
       q = NULL;
       }
     else {
       num_sibs = count_sibs(p);
-      for (j = 0; j <= num_sibs; j++) {
-	if (num_sibs > 0) {   /* debug: not clear that this is necessary */
-          p->copy(p, q);
-          q->back = where_in_dest(src, dst, p->back);
-          p = p->next;
-          q = q->next;
-        }
+      for (j = 0; j <= num_sibs; j++) {     /* go around  src, dst  circles */
+        p->copy(p, q);               /* copy some stuff esp. function names */
+        q->back = where_in_dest(src, dst, p->back);       /* find right one */
+        p = p->next;                                   /* move to next ones */
+        q = q->next;
       }
     }
   }
-
-  /* copy score and root */
-  dst->score = src->score;
+  dst->score = src->score;                           /* copy score and root */
   if (src->root != NULL) {
     if (src->root->back != NULL) {
     dst->root = where_in_dest(src, dst, src->root);
     }
   }
-
 } /* generic_tree_copy */
 
 
