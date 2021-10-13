@@ -154,7 +154,7 @@ void generic_tree_copy (tree* src, tree* dst)
           }
         }
       else {                      /* when extending fork circle by one node */
-        q->next = p;      /* add the new node to most recent node in circle */
+        q->next = NULL;       /* add new node to most recent node in circle */
         q = p;       /* ... and now set the most-recent pointer to that one */
         }
       dst_num++;
@@ -166,7 +166,9 @@ void generic_tree_copy (tree* src, tree* dst)
     }
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     if (src->nodep[i] != NULL) {
-      generic_node_copy(src->nodep[i], dst->nodep[i]);
+      if (dst->nodep[i] != NULL) {
+        generic_node_copy(src->nodep[i], dst->nodep[i]);
+      }
       if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
         dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
       }

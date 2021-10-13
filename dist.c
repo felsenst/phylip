@@ -56,12 +56,14 @@ void dist_node_copy(node* srcn, node* dstn)
   dist_node *src = (dist_node *)srcn;
   dist_node *dst = (dist_node *)dstn;
 
-  generic_node_copy(srcn, dstn);
-  dst->dist = src->dist;
-  memcpy(dst->d, src->d, (nonodes+1) * sizeof(double));
-  memcpy(dst->w, src->w, (nonodes+1) * sizeof(double));
-  dst->sametime = src->sametime;
-  dst->t = src->t;
+  if ((dstn != NULL) && (srcn != NULL)) {
+    generic_node_copy(srcn, dstn);
+    dst->dist = src->dist;
+    memcpy(dst->d, src->d, (nonodes+1) * sizeof(double));
+    memcpy(dst->w, src->w, (nonodes+1) * sizeof(double));
+    dst->sametime = src->sametime;
+    dst->t = src->t;
+  }
 } /* dist_node_copy */
 
 
