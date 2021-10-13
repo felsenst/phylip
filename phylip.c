@@ -100,9 +100,11 @@ void generic_tree_copy (tree* src, tree* dst)
     }
   }
   maxcircles = maxsrcnodes;
+#if 0
   if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
     maxcircles = dst->nonodes;
     }
+#endif
   destruct_tree(dst); /* release fork circles, make tips connect to nothing */
 #if 0
 /* old code replaced by destruct_tree. Kept for now, just in case */
@@ -133,7 +135,7 @@ void generic_tree_copy (tree* src, tree* dst)
     }
 #endif
   for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
-    doingacircle = false;
+/* debug    doingacircle = false;  */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
@@ -146,8 +148,10 @@ void generic_tree_copy (tree* src, tree* dst)
       doingacircle = true;
       p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
       if (dst->nodep[i] == NULL) {
-	q = p;          /* will point to most recent node in nascent circle */
-        dst->nodep[i] = p;                  /* this case is start of circle */
+        if (src->nodep[i] != NULL) {
+	  q = p;        /* will point to most recent node in nascent circle */
+          dst->nodep[i] = p;                /* this case is start of circle */
+          }
         }
       else {                      /* when extending fork circle by one node */
         q->next = p;      /* add the new node to most recent node in circle */
@@ -157,13 +161,15 @@ void generic_tree_copy (tree* src, tree* dst)
       }
     if (doingacircle) {
       q->next = dst->nodep[i];                          /* close the circle */
-      doingacircle = false;        /* not sure we need this, may need later */
+/* debug:      doingacircle = false;    not sure we need this, may need later */
       }
     }
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
-    src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
-    if (src->nodep[i]->back != NULL) {           /* set the "back" pointer */
-      dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    if (src->nodep[i] != NULL) {
+      generic_node_copy(src->nodep[i], dst->nodep[i]);
+      if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
+        dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+      }
     }
   }
   for (i = spp; i < maxsrcnodes; i++) {  /* copy fork nodes and back links */
