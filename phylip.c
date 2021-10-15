@@ -59,7 +59,7 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc)
     p = src->nodep[nsrc->index - 1];   /* tip or fork that has nsrc's index */
     if (p != NULL) {                         /* ... and if there is one ... */
       ret = dst->nodep[nsrc->index - 1];     /* tip or start of fork circle */
-      while ( p != nsrc ) {      /* if this is a fork circle, go around ... */
+      while (p != nsrc) {        /* if this is a fork circle, go around ... */
         p = p->next;         /* ... the circle in  src  until find the node */
         if (ret != NULL)      /* (are supposed to already know is not null) */
           ret = ret->next;            /* along both  src  and  dst  circles */
@@ -76,7 +76,6 @@ void generic_tree_copy (tree* src, tree* dst)
   boolean doingacircle;
   node *p, *q;
 
-  /* reduce or increase interior node fork circle sizes in destination tree */
   maxsrcnodes = src->nonodes;       /* finding highest-numbered fork in src */
   for (i = 0; i < spp; i++) {        /* look at forks connected to the tips */
     if (src->nodep[i] != NULL) {
@@ -86,7 +85,7 @@ void generic_tree_copy (tree* src, tree* dst)
       }
     }
   }
-  for (i = src->spp; i < maxsrcnodes; i++) {
+  for (i = src->spp; i < maxsrcnodes; i++) {  /* look at nodes in src forks */
     p = src->nodep[i];
     if (p != NULL) {                             /* if there's a node there */
       q = p;         /* then its the start if a circle, so keep track of it */
@@ -113,10 +112,7 @@ void generic_tree_copy (tree* src, tree* dst)
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
       src_num = 0;
-    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
-    dst_num = dst_sibs + 1;
-    if ((dst_num == 1) && (dst->nodep[i] == NULL))
-      dst_num = 0;
+    dst_num = 0;
     while ( dst_num > src_num) {          /* remove and release extra nodes */
       p = dst->nodep[i];    
       q = p;
@@ -135,18 +131,16 @@ void generic_tree_copy (tree* src, tree* dst)
     }
 #endif
   for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
-/* debug    doingacircle = false;  */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
       src_num = 0;
-/* debug    dst_sibs = count_sibs(dst->nodep[i]);
-    dst_num = dst_sibs + 1; 
-    if ((dst_num == 1) && (dst->nodep[i] == NULL))  how many nodes in dst circle */
-      dst_num = 0;
+    dst_num = 0;
+    q = NULL;
     while (src_num > dst_num) {
       doingacircle = true;
       p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
+      p->next = NULL;   /* debug: insurance, but should not be needed */
       if (dst->nodep[i] == NULL) {
         if (src->nodep[i] != NULL) {
 	  q = p;        /* will point to most recent node in nascent circle */
@@ -154,12 +148,12 @@ void generic_tree_copy (tree* src, tree* dst)
           }
         }
       else {                      /* when extending fork circle by one node */
-        q->next = NULL;       /* add new node to most recent node in circle */
+        q->next = p;          /* add new node to most recent node in circle */
         q = p;       /* ... and now set the most-recent pointer to that one */
         }
       dst_num++;
       }
-    if (doingacircle) {
+    if (doingacircle && (q != NULL)) {        /* (make sure fork not empty) */
       q->next = dst->nodep[i];                          /* close the circle */
 /* debug:      doingacircle = false;    not sure we need this, may need later */
       }
@@ -174,7 +168,7 @@ void generic_tree_copy (tree* src, tree* dst)
       }
     }
   }
-  for (i = spp; i < maxsrcnodes; i++) {  /* copy fork nodes and back links */
+  for (i = spp; i < maxcircles; i++) {   /* copy fork nodes and back links */
     p = src->nodep[i];
     q = dst->nodep[i];         /* the start of the destination fork circle */
     if (p == NULL) {          /* if nothing there, don't set its pointers! */
@@ -182,7 +176,8 @@ void generic_tree_copy (tree* src, tree* dst)
       }
     else {
       num_sibs = count_sibs(p);
-      for (j = 0; j <= num_sibs; j++) {     /* go around  src, dst  circles */
+      num_sibs++;
+      for (j = 0; j < num_sibs; j++) {      /* go around  src, dst  circles */
         p->copy(p, q);               /* copy some stuff esp. function names */
         q->back = where_in_dest(src, dst, p->back);       /* find right one */
         p = p->next;                                   /* move to next ones */
@@ -5361,7 +5356,7 @@ void seetree(tree *t)
             else {
               if (qq->back == NULL)
               {
-                printf(" (nil)");
+                printf("%p (nil)", qq);
               }
               else
               {
