@@ -901,11 +901,13 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
+/* debug:  this seems to duplicate statements in doinit
       curtree = fitch_tree_new(nonodes, spp);
       priortree = fitch_tree_new(nonodes, spp);
       bestree = fitch_tree_new(nonodes, spp);
       if (njumble > 1)
         bestree2 = fitch_tree_new(nonodes, spp);
+   ... debug */
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;

@@ -3530,7 +3530,7 @@ void destruct_tree(tree* t)
   for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
     if (t->nodep[j] != NULL)
       if (t->nodep[j]->back != NULL)
-        t->release_forknode(t, t->nodep[j]->back);
+        t->nodep[j]->back = NULL;
   }
   release_all_forks(t);      /* call that function to release all forks too */
 } /* destruct_tree */
@@ -3552,7 +3552,7 @@ void rooted_tree_init(tree* t, long nonodes, long spp)
 
 void generic_tree_free(tree *t)
 {
-  /* put tree contents back on free_fork_nodes list */
+  /* frees all tree contents */
   long i;
   node *p,*q,*r;
 
@@ -3592,7 +3592,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   node *q, *p;
 
   /* these functions may be customized for each program */
-  if ( t->release_fork == NULL )
+  if ( t->release_fork == NULL )    /* note, if not null does not change it */
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
@@ -3601,19 +3601,19 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to ... */
+  t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = functions.node_new(true, i+1);               /* ... tips */
+    t->nodep[i] = functions.node_new(true, i+1);                /* ... tips */
     t->nodep[i]->tip = true;
   }
-  for ( i = spp ; i < nonodes ; i++ ) {       /* ... and to interior forks */
-    q = functions.node_new(false, i+1 ); /* set up a circle of three nodes */
+  for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
+    q = functions.node_new(false, i+1 );  /* set up a circle of three nodes */
     p = q;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);    /* ... the second one ... */
+    p->next = functions.node_new(false, i+1);     /* ... the second one ... */
     p = p->next;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);    /* ... and the third one. */
+    p->next = functions.node_new(false, i+1);     /* ... and the third one. */
     p = p->next;
     p->tip = false;
     p->next = q;
@@ -3621,15 +3621,15 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   }
 
   /* Create garbage lists */
-  t->free_fork_nodes = Slist_new();   /* where the fork nodes will be kept */
+  t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
 
   /* Put all interior nodes on garbage lists by "releasing" them */
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
-  t->nodep[nonodes] = NULL; /* might need if unrooted tree is later rooted */
+  t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
   t->root = t->nodep[0];   /* debug:  what if enterorder? */
-  generic_tree_setupfunctions(t);            /* set up some more functions */
+  generic_tree_setupfunctions(t);             /* set up some more functions */
 } /* generic_tree_init */
 
 
@@ -3910,7 +3910,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
   }
 
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
-  priortree = functions.tree_new(curtree->nonodes, curtree->spp);
+  priortree = functions.tree_new(curtree->nonodes, curtree->spp);  /* debug:  needed? */
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
 
   while ( succeeded ) {
@@ -4008,8 +4008,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     }
   }
 
-  bestree->free(bestree);
-  priortree->free(priortree);
+  bestree->free(bestree);   /* debug:  necessary? */
+  priortree->free(priortree);   /* debug:  necessary? */
   globtree->free(globtree);
   oldtree->free(oldtree);
 } /* generic_globrearrange */
@@ -4558,7 +4558,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 
 
 void* pop(stack** oldstack)
-{
+{  /* debug:  is this left over from previous list management and is now unused? */
   /* pop off of stack */
   void* retval;
   stack* newstack;
@@ -4572,7 +4572,7 @@ void* pop(stack** oldstack)
 
 
 stack* push(stack* oldstack, void* newdata)
-{
+{  /* debug:  is this left over from previous list management and is now unused? */
  /* push onto stack */
   stack* newstack;
 
@@ -4618,18 +4618,18 @@ void generic_tree_release_fork(tree* t, node* n)
   m = n->index - 1;
   n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
   p = n;
-  q = n;
+  q = n;                                    /* keep at first node in circle */
   done = false;
-  do {
+  do {                                              /* go around circle ... */
     p = n->next;
     if (p != NULL) {
-      n->next = n->next->next;
-      t->release_forknode(t, p);
+      n->next = n->next->next;                     /* cut  p  out of circle */
+      t->release_forknode(t, p);         /* put  p  on free_fork_nodes list */
     } else {
       done = true;
     }
   } while ((!done) && (p != q));
-  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
+  t->nodep[m] = NULL;      /* circle is released so nodep entry set to NULL */
 } /* generic_tree_release_fork */
 
 
@@ -4744,7 +4744,7 @@ void generic_do_branchl_on_insert(tree* t, node* fork, node* q)
 
 
 node* generic_tree_get_forknode(tree* t, long i)
-{ /* get de novo or from a linked garbage list a circle of fork nodes
+{ /* get de novo or from a linked garbage list a member of a circle of fork nodes
    *
    * Return an unused node with index i (not  i+1)  (careful!)
    *
@@ -5309,6 +5309,7 @@ void seetree(tree *t)
   long int i, n;
   long int nonodes = t->nonodes;
   boolean malformed;
+  Slist_node_ptr q;
 
   printf(" number of nodes = %ld\n", nonodes);
   for (i = 0; i <= nonodes; ++i)                       /* for each node ...  */
@@ -5377,6 +5378,15 @@ void seetree(tree *t)
   }
     printf("\n");
   }
+  printf(" free_fork_nodes: ");    /* print the entire free_fork_nodes list */
+  if (Slist_isempty(t->free_fork_nodes))
+    printf("empty");
+  q = t->free_fork_nodes->first;
+  while (q != NULL) {
+    printf("%p ",q->data);
+    q = q->next;
+  }
+  printf("\n");
 } /* seetree */
 
 
