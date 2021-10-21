@@ -4038,12 +4038,12 @@ boolean oktorearrangethere(tree* t, node* p) {
 
   if (p != NULL) {
     r = p->back;               /* this will be the other end of this branch */
-    if ( !(p->tip) ) {
-      if (!(r == NULL)) {
-        ok = !(r->tip);                              /* neither end if NULL */
+    if ( !(p->tip) ) {                            /* p  should not be a tip */
+      if (!(r == NULL)) {             /* ... and the other end should exist */
+        ok = !(r->tip);                             /* ... and not be a tip */
         if (ok) {
-          ok = (t->root->index != p->index) &&        /* both  p, r not ... */
-               (t->root->index != r->index);       /* ... the rootmost fork */
+          ok = (t->root->index != p->index) &&  /* ... and neither p, r ... */
+               (t->root->index != r->index);   /* ... are the rootmost fork */
         }
       }
     }
