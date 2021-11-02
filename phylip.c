@@ -25,7 +25,7 @@ void           _fgetline_finalize(void);
 #endif /* OLDC */
 
 /* Global file objects */
-/* TODO Use locals and/or move to individual programs */
+/* TODO Use locals and/or move to individual programs? */
 
 /* Default vtable for generic nodes. */
 struct node_vtable node_vtable = {
@@ -36,32 +36,33 @@ struct node_vtable node_vtable = {
 
 
 void no_op (void)
-{ /* Do nothing. Used as a dummy pointer to a function that */
-} /* doesn't need to do anything (e.g. smooth for parsimony)*/
+{ /* Do nothing. Used as a dummy pointer to a function that hust returns,
+   * doesn't need to do anything (e.g. smooth for parsimony) */
+} /* no_op */
 
 
 /********* Tree and node functions ***********/
 
 
-node* where_in_dest (tree* src, tree* dst, node* nsrc )
+node* where_in_dest (tree* src, tree* dst, node* nsrc)
 { /* Return the node in dst that corresponds to node nsrc in src
    * i.e. has the same index and is the same number of next links
-   * away from src's nodep entry.
+   * counting from src's fork circle nodep entry.
    *
-   * Corresponding forks in src and dst should have equal number
+   * Corresponding forks in  src  and  dst  should have equal number
    * of nodes beforehand.
+   * nsrc  is the node in  src  that we need to find in  dst
    */
-
   node *ret = NULL, *p;
 
-  if ( nsrc ) {
-    p = src->nodep[nsrc->index - 1];
-    if (p != NULL) {
-      ret = dst->nodep[nsrc->index - 1];
-      while ( p != nsrc ) {
-        p = p->next;
-        if (ret != NULL)
-          ret = ret->next;
+  if (nsrc) {                              /* if not a null fork circle ... */
+    p = src->nodep[nsrc->index - 1];   /* tip or fork that has nsrc's index */
+    if (p != NULL) {                         /* ... and if there is one ... */
+      ret = dst->nodep[nsrc->index - 1];     /* tip or start of fork circle */
+      while (p != nsrc) {        /* if this is a fork circle, go around ... */
+        p = p->next;         /* ... the circle in  src  until find the node */
+        if (ret != NULL)      /* (are supposed to already know is not null) */
+          ret = ret->next;            /* along both  src  and  dst  circles */
       }
     }
   }
@@ -70,25 +71,48 @@ node* where_in_dest (tree* src, tree* dst, node* nsrc )
 
 
 void generic_tree_copy (tree* src, tree* dst)
-{ /* copies tree src to tree dst*/
-  long i, j, num_sibs, src_sibs, dst_sibs,  src_num, dst_num, maxcircles;
+{ /* copies tree  src  to tree  dst */
+  long i, j, num_sibs, src_sibs, src_num, dst_num, maxcircles, maxsrcnodes;
   boolean doingacircle;
   node *p, *q;
 
-  /* reduce or increase interior node fork circle sizes in destination tree */
-  maxcircles = src->nonodes;
-  if (dst->nonodes > src->nonodes) {
+  maxsrcnodes = src->nonodes;       /* finding highest-numbered fork in src */
+  for (i = 0; i < spp; i++) {        /* look at forks connected to the tips */
+    if (src->nodep[i] != NULL) {
+      if (src->nodep[i]->back != NULL) {   /* if connected, see whether ... */
+        if (src->nodep[i]->back->index > maxsrcnodes) /* fork number is ... */
+          maxsrcnodes = src->nodep[i]->back->index;    /* ... > maxsrcnodes */
+      }
+    }
+  }
+  for (i = src->spp; i < maxsrcnodes; i++) {  /* look at nodes in src forks */
+    p = src->nodep[i];
+    if (p != NULL) {                             /* if there's a node there */
+      q = p;         /* then its the start if a circle, so keep track of it */
+      do {                                     /* go around the fork circle */
+        if (p->back != NULL) {         /* when it is connected to something */
+          if (p->back->index > maxsrcnodes)     /* find any numbered higher */
+            maxsrcnodes = p->index;       /* ... and increasing maxsrcnodes */
+        }
+        p = p->next;                        /* go on to next in fork circle */
+      } while (p != q);    
+    }
+  }
+  maxcircles = maxsrcnodes;
+#if 0
+  if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
     maxcircles = dst->nonodes;
     }
+#endif
+  destruct_tree(dst); /* release fork circles, make tips connect to nothing */
+#if 0
+/* old code replaced by destruct_tree. Kept for now, just in case */
   for ( i = spp; i < maxcircles; i++) {  /* remove extra nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
       src_num = 0;
-    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
-    dst_num = dst_sibs + 1;
-    if ((dst_num == 1) && (dst->nodep[i] == NULL))
-      dst_num = 0;
+    dst_num = 0;
     while ( dst_num > src_num) {          /* remove and release extra nodes */
       p = dst->nodep[i];    
       q = p;
@@ -96,7 +120,7 @@ void generic_tree_copy (tree* src, tree* dst)
         q = q->next;                               /* ... move along circle */
         }
       if (p->next != p) {
-        dst->nodep[i] = p->next;                     /* cut  p  out of circle */
+        dst->nodep[i] = p->next;                   /* cut  p  out of circle */
         q->next = p->next;
         }
       else
@@ -105,71 +129,68 @@ void generic_tree_copy (tree* src, tree* dst)
       dst_num--;
       }
     }
+#endif
   for ( i = spp; i < maxcircles; i++) { /* insert needed nodes in dst forks */
-    doingacircle = false;
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
     if ((src_num == 1) && (src->nodep[i] == NULL))
       src_num = 0;
-    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
-    dst_num = dst_sibs + 1;
-    if ((dst_num == 1) && (dst->nodep[i] == NULL))
-      dst_num = 0;
-    while ( src_num > dst_num) {
+    dst_num = 0;
+    q = NULL;
+    while (src_num > dst_num) {
       doingacircle = true;
+      p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
+      p->next = NULL;   /* debug: insurance, but should not be needed */
       if (dst->nodep[i] == NULL) {
-        p = dst->get_forknode(dst, i+1);   /* ... from free_fork_nodes list */
-	q = p;                    /* points to final node in nascent circle */
-        dst->nodep[i] = p;
-        dst_num++;
+        if (src->nodep[i] != NULL) {
+	  q = p;        /* will point to most recent node in nascent circle */
+          dst->nodep[i] = p;                /* this case is start of circle */
+          }
         }
-      else {
-        p = dst->get_forknode(dst, i+1);            /* take another one off */
-	p->next = dst->nodep[i];
-        q->next = p;
-	dst->nodep[i] = p;
-        dst_num++;
+      else {                      /* when extending fork circle by one node */
+        q->next = p;          /* add new node to most recent node in circle */
+        q = p;       /* ... and now set the most-recent pointer to that one */
         }
+      dst_num++;
       }
-    if (doingacircle) {
+    if (doingacircle && (q != NULL)) {        /* (make sure fork not empty) */
       q->next = dst->nodep[i];                          /* close the circle */
-      doingacircle = false;
+/* debug:      doingacircle = false;    not sure we need this, may need later */
       }
     }
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
-    src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
-    if (src->nodep[i]->back != NULL) {
-      dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    if (src->nodep[i] != NULL) {
+      if (dst->nodep[i] != NULL) {
+        generic_node_copy(src->nodep[i], dst->nodep[i]);
+      }
+      if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
+        dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+      }
     }
   }
-
-  for (i = spp; i < src->nonodes; i++) { /* copy fork nodes and back links */
+  for (i = spp; i < maxcircles; i++) {   /* copy fork nodes and back links */
     p = src->nodep[i];
-    q = dst->nodep[i];
-    if (p == NULL) {
+    q = dst->nodep[i];         /* the start of the destination fork circle */
+    if (p == NULL) {          /* if nothing there, don't set its pointers! */
       q = NULL;
       }
     else {
       num_sibs = count_sibs(p);
-      for (j = 0; j <= num_sibs; j++) {
-	if (num_sibs > 0) {   /* debug: not clear that this is necessary */
-          p->copy(p, q);
-          q->back = where_in_dest(src, dst, p->back);
-          p = p->next;
-          q = q->next;
-        }
+      num_sibs++;
+      for (j = 0; j < num_sibs; j++) {      /* go around  src, dst  circles */
+        p->copy(p, q);               /* copy some stuff esp. function names */
+        q->back = where_in_dest(src, dst, p->back);       /* find right one */
+        p = p->next;                                   /* move to next ones */
+        q = q->next;
       }
     }
   }
-
-  /* copy score and root */
-  dst->score = src->score;
+  dst->score = src->score;                           /* copy score and root */
   if (src->root != NULL) {
     if (src->root->back != NULL) {
     dst->root = where_in_dest(src, dst, src->root);
     }
   }
-
 } /* generic_tree_copy */
 
 
@@ -317,6 +338,7 @@ long count_sibs (node *p)
   /* nodes excluding the one passed into the function (siblings)     */
   node *q;
   long return_int = 0;
+  boolean done;
 
   if (p == NULL) {  /* case where there's no destination fork there at all */
     return_int = 0;
@@ -328,11 +350,17 @@ long count_sibs (node *p)
       exxit (-1);
     }
     q = p->next;
-    while (q != p) {   /* go around the circle and ... */
+    done = false;
+    while ((!done) && (q != p)) {   /* go around the circle and ... */
+#if 0
       if (q == NULL) {
         sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
         print_progress(progbuf);
         exxit (-1);
+      }
+#endif
+      if (q == NULL)  {
+        done = true;
       } else {     /* count them */
         return_int++;
         q = q->next;
@@ -344,13 +372,15 @@ long count_sibs (node *p)
 
 
 node* findroot (tree* t, node* p, boolean* found) {
-  /* find the node in the rootmost fork circle that has a null back pointer */
+  /* find the node in the rootmost fork circle that has a null back pointer.
+   * This assumes that the current fork circle is the one that will have
+   * such a node */
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
   *found = false;
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
-    if (q->back == NULL) {          /* ... until find one with  back  empty */
+    if (q->back == NULL) {            /* ... until find one with back empty */
       r = q;
       *found = true;
     }
@@ -3378,12 +3408,14 @@ void unroot(tree* t, long nonodes)
    * then release the previous rootmost interior node.
    * currently used by fitch, restml and contml */
   node* p;
+  boolean found;
 
-  if (t->root->back == NULL) {      /* move root pointer point to leftmost  */
+  p = findroot(t, t->root, &found);      /* find node with NULL back pointer */
+  if (p->back == NULL) {            /* move root pointer point to leftmost  */
     p = t->root;
-    if (t->root->next->back->tip)   /* interior node descended from ...  */
+    if (t->root->next->back->tip)      /* interior node descended from ...  */
       t->root = t->root->next->next->back;   /* that rootmost interior node */
-    else  t->root = t->root->next->back;
+    else t->root = t->root->next->back;
   }
 /* I think the following stuff is to deal with the case where
  * there is an interior node which used to be rootmost and still has
@@ -3498,7 +3530,8 @@ void destruct_tree(tree* t)
 
   for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
     if (t->nodep[j] != NULL)
-      t->release_forknode(t, t->nodep[j]);
+      if (t->nodep[j]->back != NULL)
+        t->nodep[j]->back = NULL;
   }
   release_all_forks(t);      /* call that function to release all forks too */
 } /* destruct_tree */
@@ -3520,7 +3553,7 @@ void rooted_tree_init(tree* t, long nonodes, long spp)
 
 void generic_tree_free(tree *t)
 {
-  /* put tree contents back on free_fork_nodes list */
+  /* frees all tree contents */
   long i;
   node *p,*q,*r;
 
@@ -3560,7 +3593,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   node *q, *p;
 
   /* these functions may be customized for each program */
-  if ( t->release_fork == NULL )
+  if ( t->release_fork == NULL )    /* note, if not null does not change it */
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
@@ -3569,19 +3602,19 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to ... */
+  t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = functions.node_new(true, i+1);               /* ... tips */
+    t->nodep[i] = functions.node_new(true, i+1);                /* ... tips */
     t->nodep[i]->tip = true;
   }
-  for ( i = spp ; i < nonodes ; i++ ) {       /* ... and to interior forks */
-    q = functions.node_new(false, i+1 ); /* set up a circle of three nodes */
+  for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
+    q = functions.node_new(false, i+1 );  /* set up a circle of three nodes */
     p = q;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);    /* ... the second one ... */
+    p->next = functions.node_new(false, i+1);     /* ... the second one ... */
     p = p->next;
     p->tip = false;
-    p->next = functions.node_new(false, i+1);    /* ... and the third one. */
+    p->next = functions.node_new(false, i+1);     /* ... and the third one. */
     p = p->next;
     p->tip = false;
     p->next = q;
@@ -3589,15 +3622,15 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   }
 
   /* Create garbage lists */
-  t->free_fork_nodes = Slist_new();   /* where the fork nodes will be kept */
+  t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
 
   /* Put all interior nodes on garbage lists by "releasing" them */
   for ( i = nonodes - 1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
-  t->nodep[nonodes] = NULL; /* might need if unrooted tree is later rooted */
+  t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
   t->root = t->nodep[0];   /* debug:  what if enterorder? */
-  generic_tree_setupfunctions(t);            /* set up some more functions */
+  generic_tree_setupfunctions(t);             /* set up some more functions */
 } /* generic_tree_init */
 
 
@@ -3878,7 +3911,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
   }
 
   globtree = functions.tree_new(curtree->nonodes, curtree->spp);
-  priortree = functions.tree_new(curtree->nonodes, curtree->spp);
+  priortree = functions.tree_new(curtree->nonodes, curtree->spp);  /* debug:  needed? */
   oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
 
   while ( succeeded ) {
@@ -3976,8 +4009,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     }
   }
 
-  bestree->free(bestree);
-  priortree->free(priortree);
+  bestree->free(bestree);   /* debug:  necessary? */
+  priortree->free(priortree);   /* debug:  necessary? */
   globtree->free(globtree);
   oldtree->free(oldtree);
 } /* generic_globrearrange */
@@ -4006,12 +4039,12 @@ boolean oktorearrangethere(tree* t, node* p) {
 
   if (p != NULL) {
     r = p->back;               /* this will be the other end of this branch */
-    if ( !(p->tip) ) {
-      if (!(r == NULL)) {
-        ok = !(r->tip);                              /* neither end if NULL */
+    if ( !(p->tip) ) {                            /* p  should not be a tip */
+      if (!(r == NULL)) {             /* ... and the other end should exist */
+        ok = !(r->tip);                             /* ... and not be a tip */
         if (ok) {
-          ok = (t->root->index != p->index) &&        /* both  p, r not ... */
-               (t->root->index != r->index);       /* ... the rootmost fork */
+          ok = (t->root->index != p->index) &&  /* ... and neither p, r ... */
+               (t->root->index != r->index);   /* ... are the rootmost fork */
         }
       }
     }
@@ -4026,46 +4059,55 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
                            double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
-   * is just doing local rearragements. 
+   *  is just doing local rearragements. 
    * thorough  indicates whether need to adjust parameters
-   * further out than  q  to assess that location
+   *  further out than  q  to assess that location
    * p  should be a fork subtree connected to it so root of subtree 
-   * is at  p->back  */
+   *  is at  p->back  */
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
 
+  succeeded = false; /* debug OK to set true?? */ /* in case can't try more inserts than this */
+  atstart = true;
   if (oktoinsertthere(t, q)) {
-printf("generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
-printf("tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
+printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-printf("end tree try_insert %ld near %ld\n", p->index, q->index); /* debug */
+/* debug */ if (succeeded) printf("yes, better!\n");
+    atstart = false;
   }
-  succeeded = true;             /* in case can't try more inserts than this */
   atstart = false;
-  if (!q->tip) {          /* in one direction, try descendants,
-                           * maybe further unless just local rearrangements */
-    for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
-    {
-      if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+  if (!succeeded) {
+    if (!q->tip) {          /* in one direction, try descendants,
+                             * maybe further unless just local rearrangements */
+      for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
+      {
+printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
+        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
+          succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                            contin, qwherein, bestyet, bestree, 
+                            thorough, storing, atstart, bestfound) || succeeded;
+        }
+      }
+    }
+    if (contin && !q->back->tip) {
+      /* we need to go both ways, if we start in an interior branch
+       * of an unrooted tree and are not doing just local rearrangements */
+      for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                       sib_ptr = sib_ptr->next)
+      {
+printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
+        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
+/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
         succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree, 
-                          thorough, storing, atstart, bestfound) || succeeded;
+                            contin, qwherein, bestyet, bestree,
+                            thorough, storing, atstart, bestfound) || succeeded;
+        }
       }
     }
   }
-  if (contin && !q->back->tip) {
-    /* we need to go both ways, if we start in an interior branch
-     * of an unrooted tree and are not doing just local rearrangements */
-    for ( sib_ptr = q->back->next; sib_ptr != q->back;
-                                     sib_ptr = sib_ptr->next)
-    {
-      succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                          contin, qwherein, bestyet, bestree,
-                          thorough, storing, atstart, bestfound) || succeeded;
-    }
-  }
-printf("end generic_tree_addtraverse of %ld near %ld\n", p->index, q->index); /* debug */
   return succeeded;
 } /* generic_tree_addtraverse */
 
@@ -4089,9 +4131,10 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean outgroupfork;
 
   if (oktoinsertthere(t, q)) {
-/* printf("  beginning addtraverse of %ld", q->index); debug */
+printf(" addtraverse: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
+/* debug */ if (succeeded) printf("  yes, better!\n");
     outgroupfork = (q == t->root);
   }
   if ( !(q == NULL) ) {
@@ -4297,49 +4340,49 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
-/*  printf("locrearrange at node %2ld\n", p->index); debug */
     r = p->back;        /* these are the two connected and might be removed */
     rr = r->next;                   /* pointer to fork node used in removal */
     if (!thorough)
       t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
                                     containing  rr  and inward-looking at p */
-printf("removing %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, rr->next->back->index, rr->next->next->back->index); /* debug */
+/* debug */ seetree(t);
+/* debug */ printf("locrearrrecurs: remove: %ld:%ld\n", rr->index, rr->back->index);
     t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
-printf("removed %ld:%ld from %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index); /* debug */
+/* debug */ printf("locrearrrecurs: then is:\n");
+/* debug */ seetree(t);
+    /* following does "greedy" searching of placement on two sibling */
                                                        /* ... to back of it */
-/*    if (thorough)   debug:  not sure why this
-      t->copy(t, priortree);     else      debug */ 
       qwhere = p;
 
     /* following does "greedy" searching of placement on two sibling
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
+/* debug */ printf("addtraverse %ld:%ld at %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index);
     t->addtraverse(t, rr, q, false, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
-/* debug
+/* debug */
     if (thorough)
       bestree->copy(bestree, t);
     else {
- debug    for case where one is rearranging only locally */
+/* debug    for case where one is rearranging only locally */
       t->insert_(t, rr, qwhere, false);            /* put it in best location */
       if ((qwhere == q) || (qwhere == q->back) ) {
         t->restore_lr_nodes(t, p, r);
         t->score = *bestyet;
       }
-/* debug:        succeeded = true;
       else {
         t->smoothall(t, r->back);
         *bestyet = t->evaluate(t, p, 0);
       }
     }
-   debug        double otherbest = *bestyet;      JF:  is this needed? */
+/*   debug        double otherbest = *bestyet;      JF:  is this needed? */
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
-  } 
+  }; 
   /* go on to rearrange rest of tree, pulling off other parts */
   if (!succeeded) { /* if rearrangements failed here, try subtrees, but stop
                      *  when we find one that improves the score. */
-    if ( !(p->tip)) {
+    if ( !(p->tip) ) {
       if (p->next->back != NULL) {
         succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
                    bestyet, thorough, priortree, bestree, storing, bestfound);
@@ -4376,12 +4419,12 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 
   t->temp_p->copy(t->temp_p,p);
   t->temp_q->copy(t->temp_q,q);
-  inittrav(t, p);
-  inittrav(t, q);
+  inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
+  inittrav(t, q);                             /* ... booleans to  false ... */
   if ( p->back )
   {
     p->back->v = p->v;
-    inittrav(t, p->back);
+    inittrav(t, p->back);      /* ... and similarly for other end if branch */
   }
   if ( q->back )
   {
@@ -4530,7 +4573,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 
 
 void* pop(stack** oldstack)
-{
+{  /* debug:  is this left over from previous list management and is now unused? */
   /* pop off of stack */
   void* retval;
   stack* newstack;
@@ -4544,7 +4587,7 @@ void* pop(stack** oldstack)
 
 
 stack* push(stack* oldstack, void* newdata)
-{
+{  /* debug:  is this left over from previous list management and is now unused? */
  /* push onto stack */
   stack* newstack;
 
@@ -4585,18 +4628,23 @@ void generic_tree_release_fork(tree* t, node* n)
    * and put its nodes back on list */
   node *p, *q;
   long m;
+  boolean done;
 
   m = n->index - 1;
   n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
-
   p = n;
-  q = n;
-  do {
+  q = n;                                    /* keep at first node in circle */
+  done = false;
+  do {                                              /* go around circle ... */
     p = n->next;
-    n->next = n->next->next;
-    t->release_forknode(t, p);
-  } while (p != q);
-  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
+    if (p != NULL) {
+      n->next = n->next->next;                     /* cut  p  out of circle */
+      t->release_forknode(t, p);         /* put  p  on free_fork_nodes list */
+    } else {
+      done = true;
+    }
+  } while ((!done) && (p != q));
+  t->nodep[m] = NULL;      /* circle is released so nodep entry set to NULL */
 } /* generic_tree_release_fork */
 
 
@@ -4633,13 +4681,11 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   if ( (p->initialized == false) && (p->tip == false) )
   {
     generic_tree_nuview((tree*)t, p);
-/* debug: printf("*"); */
   }
   if (p->back != NULL) {
     if ( (p->back->initialized == false) && (p->back->tip == false) )
     {
       generic_tree_nuview((tree*)t, p->back);
-/* debug printf("*"); */
     }
   }
   return 0;
@@ -4701,11 +4747,11 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 #endif
 
 
-void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
+void generic_do_branchl_on_insert(tree* t, node* fork, node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
    * this is currently a contentless do-nothing function
-   */
+   * It is set to a do-something version if branchlengths exist */
   (void)t;                              // RSGdebug: Parameter never used.
   (void)fork;                           // RSGdebug: Parameter never used.
   (void)q;                              // RSGdebug: Parameter never used.
@@ -4713,7 +4759,7 @@ void generic_do_branchl_on_insert(tree*t, node *fork, node* q)
 
 
 node* generic_tree_get_forknode(tree* t, long i)
-{ /* get de novo or from a linked garbage list a circle of fork nodes
+{ /* get de novo or from a linked garbage list a member of a circle of fork nodes
    *
    * Return an unused node with index i (not  i+1)  (careful!)
    *
@@ -4742,18 +4788,18 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 
   if ( !multf ) {
 
-    assert(p->next->next->next == p);
+    assert(p->next->next->next == p);               /* probably unnecessary */
 
-    if (q->back != NULL) { /* unless  q  is the root and nothing below */
+    if (q->back != NULL) {      /* unless  q  is the root and nothing below */
       r = q->back;
-      hookup(p->next, q);
-      hookup(p->next->next, r);
+      hookup(p->next->next, q);   /* trying to hook up exactly the same way */
+      hookup(p->next, r);
+      t->do_branchl_on_insert_f(t, p, q);
       }
-    else {                /* if q is the root fork */
+    else {                                         /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
       };
-    t->do_branchl_on_insert_f(t, p, q);
 
 /* debug: needed?    assert( ! p->initialized );
     assert( ! p->next->initialized );
@@ -4845,18 +4891,17 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
   oldroot = t->root;
   if ( fork->back != NULL) {
     if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
-      fork->back = NULL;                                   /* debug: why?  */
+      fork->back = NULL;                   /* debug: why?  */
       return;
     }
   }
 
   num_sibs = count_sibs(fork);
 
-  if ( num_sibs > 2 ) {     /* multifurcation case: may not be used a lot */
+  if ( num_sibs > 2 ) {       /* multifurcation case: may not be used a lot */
     for ( q = fork ; q->next != fork ; q = q->next)
-      /* do nothing */;
-
-    q->next = fork->next;   /* heal up circle */
+      /* inside loop, do nothing */;
+    q->next = fork->next;  /* debug: check if OK */       /* heal up circle */
     fork->next = NULL;
     if ( t->root == fork )
       t->root = q;
@@ -4866,8 +4911,7 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
         inittrav(t, p);
     }
     (*where) = q;
-
-  } else {                                         /* case of a bifurcation */
+  } else {                               /* the main case, of a bifurcation */
     if (fork->next->back != NULL)  /* set where to the place it was next to */
       (*where) = fork->next->back;
     else
@@ -4876,9 +4920,9 @@ void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
       fork->next->back->back = fork->next->next->back;
     if (fork->next->next->back != NULL)
       fork->next->next->back->back = fork->next->back;
-    if ((fork->next == t->root) || (fork->next->next == t->root))
+    if (fork->next->index == t->root->index)
       t->root = *where;                                         /* set root */
-    fork->next->back = NULL;
+    fork->next->back = NULL;    /* set fork to have only the one connection */
     fork->next->next->back = NULL;
 
     t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
@@ -4907,6 +4951,24 @@ void generic_tree_release_forknode(tree* t, node* n)
 } /* generic_tree_release_forknode */
 
 
+void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
+{ /* if root bifurcating node is somewhere else, move it to the branch
+   * that connects to the outgroup */
+  node* p;
+  boolean found;
+
+  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+   
+  if (found) {       /* if did find root is connected to a null pointer ... */
+    if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
+       generic_tree_re_move(curtree, p, &(p->next->back->back), true);
+       generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
+     }                                      /* and put next to outgroup tip */
+      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
+  }
+} /* putrootnearoutgroup */
+
+
 long generic_tree_findemptyfork(tree* t)
 { /* go through nodep finding an empty fork slot */
   long k;
@@ -4929,10 +4991,11 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   node* dummy;
 
   succeeded = false;
-printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
+/* debug */ printf("try_insert: starts with tree:\n"); seetree(t);
   t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
-  initializetrav(t, t->root);
-  initializetrav(t, t->root->back);
+/* debug */ printf("try_insert: then gets tree:\n"); seetree(t);
+  inittrav(t, t->root);
+  inittrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
   t->score = like;
   if (atstart)
@@ -4944,12 +5007,11 @@ printf(" try_insert starts trying inserting %ld:%ld in %ld:%ld\n", p->index, p->
   if (bettertree) {        /* set best score yet, where, copy tpo best tree */
     *bestyet = like;
     qwherein = q;
+printf(" try_insert copies tree  t  to bestree\n"); /* debug */
     t->copy(t, bestree);
+/* debug */ printf("try_insert: then returns to tree:\n"); seetree(t);
   }
-printf(" try_insert starts removing %ld:%ld\n", p->index, p->back->index); /* debug */
   t->re_move(t, p, &q, false);      /* then remove from the place tried */
-printf(" try_insert removed %ld:%ld\n", p->index, p->back->index); /* debug */
-printf(" try_insert finished trying inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
   return succeeded;
 } /* generic_tree_try_insert_ */
 
@@ -4957,27 +5019,46 @@ printf(" try_insert finished trying inserting %ld:%ld in %ld:%ld\n", p->index, p
 void buildsimpletree(tree *t, long* enterorder)
 {
   /* build a simple three-tip tree with interior fork, by hooking
-     up two tips, then inserting third tip hooked to fork, also set root */
-  long k, m;
-  node *p, *q, *r, *newnode1, *newnode2;
+     up two tips, then inserting third tip hooked to fork, also set root.
+     Note that this is the generic version and probably ought to be
+     named  generic_buildsimpletree */
+  long k;
+  node *p, *q, *r, *newnode1;
 
   p = t->nodep[enterorder[0] - 1];
   q = t->nodep[enterorder[1] - 1];
   r = t->nodep[enterorder[2] - 1];
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
-  newnode1 = t->get_fork(t, k);                 /* get a three-species fork */
-  hookup(p, newnode1);                     /* connect third tip to new fork */
-  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
-  newnode2 = t->get_fork(t, m);                 /* get a three-species fork */
-  hookup(p, newnode1);                    /* connect first tip to root fork */
-  hookup(newnode1->next, q);             /* connect root fork to second tip */
-  newnode1->next->next->back = NULL;      /* root connects to empty pointer */
-  hookup(r, newnode2);               /* connect third species to a new fork */
-  t->insert_(t, newnode2, q, false);                 /* connect all of them */
-
-  t->root = newnode1;
-
+  newnode1 = t->get_fork(t, k);            /* get a fork for root and tip 1 */
+  hookup(q, r);                            /* connect 2 and 3 to each other */
+  hookup(p, newnode1);            /* connect first species to that new fork */
+  t->insert_(t, newnode1, q, false);                 /* connect all of them */
 }  /* buildsimpletree */
+
+
+node* generic_newrootfork(tree* t)
+{
+  /* get a fork to serve as rootmost fork for a currently-unrooted tree */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+  long m;
+  node *newnode;
+  
+  m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
+  newnode = t->get_fork(t, m);             /* get a fork from the free list */
+  newnode->next->next->back = NULL;       /* root connects to empty pointer */
+  return newnode;
+} /* newrootfork */
+
+
+void generic_insertroot(tree* t, node* p, node* f)
+{
+  /* take a tree that has no rootmost fork and put fork  f  in between node
+   * p  and the node it connects to, with a null root behind  f */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+
+  t->insert_(t, f, p, false);                            /* insert the fork */
+  t->root = f;                                /* set the root pointer to it */
+} /* insertroot */
 
 
 void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
@@ -5238,60 +5319,62 @@ void seetree(node *p, pointarray nodep, long nonodes)
 #endif
 
 
-void seetree(tree * curtree)
+void seetree(tree *t)
 {
   /* prints out list of who connects to who.  For debugging */
-  /* Minor variation added by BobGian based on sample code from Joe. */
+  /* Minor variation added by BobGian based on sample code from Joe, then more mod by Joe. */
   node *pp, *qq;
   long int i, n;
-  long int nonodes = curtree->nonodes;
+  long int nonodes = t->nonodes;
   boolean malformed;
+  Slist_node_ptr q;
 
+  printf(" number of nodes = %ld\n", nonodes);
   for (i = 0; i <= nonodes; ++i)                       /* for each node ...  */
   {
-    qq = curtree->nodep[i];
+    qq = t->nodep[i];
     if (qq == NULL) {
-      printf(" node: %p (nil) \n", qq);
-      break;
-    }
-    if (i < spp)
-    {
-      if (qq->back == NULL)
+      printf(" node for index value %ld is (nil) \n", i+1);
+      continue;
+    } else {
+      if (i < spp)
       {
-        printf(" node: %p index:%ld  connects to (nil)", (void *)qq,
-               qq->index);
+        if (qq->back == NULL)
+        {
+          printf(" node: %p index:%ld  connects to (nil)", (void *)qq,
+                 qq->index);
+        }
+        else
+        {
+          printf(" node: %p index:%ld  connects to node: %p index: %ld",
+                 (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+        }
       }
       else
       {
-        printf(" node: %p index:%ld  connects to node: %p index: %ld",
-               (void *)qq, qq->index, (void *)qq->back, qq->back->index);
-      }
-    }
-    else
-    {
-      printf(" node: %p index:%ld  connects to nodes:", (void *)qq, qq->index);
-      pp = qq;
-      malformed = false;
-      n = 0;
-      do {   /* ... find out if any node in the fork points to same fork */
-        if (qq != NULL) {
-          malformed = (qq == qq->next);
-          if (malformed) {
-            printf(" node is: %p: ", qq);
-            printf(" (->next is %p: ", qq->next);
-            if (qq->next == qq)
-              printf("  same node)");
-            else
-              printf(")");
-          }
-          if (qq->next != NULL) {
+        printf(" node: with its index %ld is a fork:", qq->index);
+        pp = qq;
+        malformed = false;
+        n = 0;
+        do {   /* ... find out if any node in the fork points to same fork */
+          if (qq != NULL) {
+            malformed = (qq == qq->next);
+            if (malformed) {
+              printf(" node is: %p: ", qq);
+              printf(" (->next is %p: ", qq->next);
+              if (qq->next == qq)
+                printf("  same node)");
+              else
+                printf(")");
+            }
+            if (qq->next != NULL) {
             malformed = malformed || (qq->next->next == qq);
             if (qq->next->next == qq)
                printf(" (->next->next is %p: same node)", qq->next->next);
             else {
               if (qq->back == NULL)
               {
-                printf(" (nil)");
+                printf(" %p (nil)", qq);
               }
               else
               {
@@ -5307,10 +5390,20 @@ void seetree(tree * curtree)
             printf(",");
           }
         }
-      } while ((qq != pp) && (n < 6) && !malformed);
+      } while ((qq != NULL) && (qq != pp) && (n < 6) && !malformed);
     }
+  }
     printf("\n");
   }
+  printf(" free_fork_nodes: ");    /* print the entire free_fork_nodes list */
+  if (Slist_isempty(t->free_fork_nodes))
+    printf("empty");
+  q = t->free_fork_nodes->first;
+  while (q != NULL) {
+    printf("%p ",q->data);
+    q = q->next;
+  }
+  printf("\n");
 } /* seetree */
 
 
@@ -5367,4 +5460,4 @@ void dumpnodelinks(node *p, pointarray nodep, long nonodes)
 #endif
 
 
-// End.
+/* End. */

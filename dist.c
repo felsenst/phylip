@@ -34,8 +34,8 @@ void dist_node_init(node* n, node_type type, long index)
   n->copy = dist_node_copy;
   n->init = dist_node_init;
   dn->dist = 0;
-  dn->d = (vector)Malloc(nonodes * sizeof(double));
-  dn->w = (vector)Malloc(nonodes * sizeof(double));
+  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));
+  dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
 } /* dist_node_init */
 
 
@@ -56,12 +56,14 @@ void dist_node_copy(node* srcn, node* dstn)
   dist_node *src = (dist_node *)srcn;
   dist_node *dst = (dist_node *)dstn;
 
-  generic_node_copy(srcn, dstn);
-  dst->dist = src->dist;
-  memcpy(dst->d, src->d, nonodes * sizeof(double));
-  memcpy(dst->w, src->w, nonodes * sizeof(double));
-  dst->sametime = src->sametime;
-  dst->t = src->t;
+  if ((dstn != NULL) && (srcn != NULL)) {
+    generic_node_copy(srcn, dstn);
+    dst->dist = src->dist;
+    memcpy(dst->d, src->d, (nonodes+1) * sizeof(double));
+    memcpy(dst->w, src->w, (nonodes+1) * sizeof(double));
+    dst->sametime = src->sametime;
+    dst->t = src->t;
+  }
 } /* dist_node_copy */
 
 
@@ -104,7 +106,7 @@ void allocd(long nonodes, pointptr treenode)
   for (i = spp; i < nonodes; i++) {
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
-      p->d = (vector)Malloc(nonodes * sizeof(double));
+      p->d = (vector)Malloc((nonodes+1) * sizeof(double));
       p = (dist_node*)(p->node.next);
     }
   }
@@ -183,7 +185,7 @@ void dist_tree_init(tree* a, long nonodes)
   long i=0;
   node *p;
 
-  for (i = 1; i <= nonodes; i++) {
+  for (i = 1; i <= spp; i++) {
     a->nodep[i - 1]->back = NULL;
     a->nodep[i - 1]->iter = true;
     ((dist_node*)a->nodep[i - 1])->t = 0.0;
@@ -320,7 +322,11 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
       coordinates(q->back, lengthsum + q->v, tipy, tipmax, start);
     q = q->next;
   } while ((p == start || p != q) && (p != start || p->next != q));
-  first = p->next->back;
+  q = p;
+  do {                                                /* find leftmost furc */
+    q = q->next; 
+    first = q->back;
+  } while (first == NULL);
   q = p;
   while ((q->next != p) && q->next->back)  /* debug: is this right ? */
     q = q->next;
@@ -338,7 +344,8 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
         q = q->next;
         nover--;
       }
-      p->ycoord = q->back->ycoord;
+      if (q->back != NULL)
+        p->ycoord = q->back->ycoord;
     }
   }
   else
@@ -351,11 +358,9 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
 void drawline(long i, double scale, node *start, boolean rooted)
 {
   /* draws one row of the tree diagram by moving up tree */
-  node *p, *q;
   long n=0, j=0;
-  boolean extra=false, trif=false;
-  node *r, *first =NULL, *last =NULL;
-  boolean done=false;
+  boolean extra=false, trif=false, done=false;
+  node *p, *q, *r, *s, *first =NULL, *last =NULL;
 
   p = start;
   q = start;
@@ -397,7 +402,11 @@ void drawline(long i, double scale, node *start, boolean rooted)
         }
         r = r->next;
       } while (!((p != start && r == p) || (p == start && r == p->next)));
-      first = p->next->back;
+      s = p;
+      do {
+        s = s->next;
+      } while (s->back == NULL);
+      first = s->back;
       r = p;
       while (r->next != p)
         r = r->next;
@@ -536,45 +545,56 @@ void treeoutr(node *p, long *col, tree *curtree)
 
 void treeout(node *p, long *col, double m, boolean njoin, node *start)
 {
-  /* write out file with representation of final tree */
-  /* used in fitch & neighbor */
+  /* write out file with representation of final tree recursively.
+   * used in fitch & neighbor */
+  /* debug:  Needs code for indenting. */
+  /* debug:  Don't need the njoin argument, no longer use it */
   long i=0, n=0, w=0;
   Char c;
   double x=0.0;
+  node *q;
 
-  if (p->tip) {
+  if (p->tip) {                               /* if at a tip, write out the name there */
     n = 0;
-    for (i = 1; i <= nmlngth; i++) {
+    for (i = 1; i <= nmlngth; i++) {                    /* its nonblank characters ... */
       if (nayme[p->index - 1][i - 1] != ' ')
         n = i;
     }
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {                         /* ... followed by enough blanks */
       c = nayme[p->index - 1][i];
       if (c == ' ')
         c = '_';
       putc(c, outtree);
     }
     *col += n;
-  } else {
+  } else {                                                      /* if at a fork circle */
+    q = p;                                           /* keep track of where we entered */
     putc('(', outtree);
     (*col)++;
-    treeout(p->next->back, col, m, njoin, start);
-    putc(',', outtree);
-    (*col)++;
-    if (*col > 55) {
-      putc('\n', outtree);
-      *col = 0;
-    }
-    treeout(p->next->next->back, col, m, njoin, start);
-    if (p == start && njoin) {
-      putc(',', outtree);
+    do {
+      p = p->next;
+      if (p != q) {
+        if (p->back != NULL) {
+          treeout(p->back, col, m, njoin, start);                 /* write the subtree */
+          if (p->next != q) {              /* don't put in a comma if was last subtree */
+            putc(',', outtree);
+            (*col)++;
+          }
+          if (*col > 55) {
+            putc('\n', outtree);
+            *col = 0;
+          }
+        }
+      }
+    } while (p != q);
+    if ((p->index == start->index) && (p->back != NULL)) {
       treeout(p->back, col, m, njoin, start);
     }
     putc(')', outtree);
     (*col)++;
   }
   x = p->v;
-  if (x > 0.0)
+  if (x > 0.0)          /* computing width of number needed to print out branch length */
     w = (long)(m * log(x));
   else if (x == 0.0)
     w = 0;
@@ -585,10 +605,10 @@ void treeout(node *p, long *col, double m, boolean njoin, node *start)
   if (p == start)
     fprintf(outtree, ";\n");
   else {
-    fprintf(outtree, ":%*.5f", (int) w + 7, x);
+    fprintf(outtree, ":%*.5f", (int) w + 7, x);         /* print out the branch length */
     *col += w + 8;
   }
 }  /* treeout */
 
 
-// End.
+/* End. */

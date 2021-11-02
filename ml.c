@@ -1,6 +1,9 @@
 /* Version 4.0.
-   Written by Michal Palczewski */
+   Written by Michal Palczewski and Joe Felsenstein */
 
+/* These are versions of functions, and support functions, for programs
+ * computing likelihoods.  Also (note) for programs, including distance
+ * matrix programs, that infer branch lengths on trees */
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -27,10 +30,6 @@ extern node** lrsaves;
 extern long rcategs;
 extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
-
-/* prototypes for unexported functions */
-static void ml_tree_smoothall(tree*, node*);
-void ml_node_reinit(node * n);
 
 
 void ml_tree_init(tree* t, long nonodes, long spp)
@@ -667,14 +666,15 @@ void ml_update(tree *t, node *p)
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
 
-/* debug: */ printf("starting function ml_update\n");
-  if (!p->tip)
-    generic_tree_nuview((tree*)t, p);           /* recurse from one end */
-/* debug: try without   }
-  if ( p->back && !p->back->tip && !p->back->initialized) {     debug: end */
-  if (!p->back->tip)
-    generic_tree_nuview((tree*)t, p->back);     /* recurse from the other */
-/* debug: try without    }     debug: end */
+  if (p != NULL) {                                /* if not a NULL node ... */
+    if (!p->tip)
+      generic_tree_nuview((tree*)t, p);             /* recurse from one end */
+  /* debug: try without   */
+    if ( p->back && !p->back->tip && !p->back->initialized) {
+      if (!p->back->tip)
+        generic_tree_nuview((tree*)t, p->back);   /* recurse from the other */
+    }
+  }
 }  /* ml_update */
 
 
@@ -682,7 +682,6 @@ void smooth_traverse(tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
 
-/* debug: */ printf("starting function smooth_traverse\n");
   smooth(t, p);
   smooth(t, p->back);
 } /* smooth_traverse */
@@ -692,15 +691,15 @@ void smooth(tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
   node *sib_ptr;
 
-/* debug: */ printf("starting function smooth\n");
   if ( p == NULL )
     return;
   smoothed = false;
 
-  ml_update(t, p);        /* get views at both ends updated, recursing if needed */
-  t->makenewv (t, p);     /* new value of branch length */
-  inittrav (t, p);        /* set inward-looking pointers false ... */
-  inittrav (t, p->back);  /* ... from both ends of this branch */
+  ml_update(t, p);      /* get views at both ends updated, recursing if needed */
+  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
+  t->makenewv (t, p);                            /* new value of branch length */
+  inittrav (t, p);                    /* set inward-looking pointers false ... */
+  inittrav (t, p->back);                  /* ... from both ends of this branch */
 
   if ( p->tip )
     return;
@@ -715,11 +714,11 @@ void smooth(tree* t, node *p)
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
+/*  debug:  ml_update(t, p->back);  get views at both ends updated, recursing if needed */
 }  /* smooth */
 
 
-static void ml_tree_smoothall(tree* t, node* p)
+void ml_tree_smoothall(tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -732,8 +731,9 @@ static void ml_tree_smoothall(tree* t, node* p)
   smoothit = true;
 /* debug:   if ( p->tip ) p = p->back;   what does this do? */
 
+/* debug:   editing mistake near here when removing debugging prints? */
   /* it may seem like we are doing too many smooths, but sometimes
-   * one branch near p may already be completly smoothed from an
+   *dden while accessingbone branch near p may already be completly smoothed from an
    * insert, this insures we spread out in the tree */
   for ( i = 0 ; i < smoothings ; i++ )
   {
@@ -748,35 +748,47 @@ static void ml_tree_smoothall(tree* t, node* p)
 
 
 void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
-{ /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
-
+{ /* split original  q->v  branch length evenly beween forknode->next and 
+   * forknode->next->next.  forknode->back  must be subtree or tip.
+   * This assumes interior node is a bifurcation.  Not able to cope if we 
+   * insert at a rootmost branch one of whose ends is NULL */
   double newv;
 
-  newv = q->v * 0.5;
-
-  /*
-   * forknode should be where tip was hooked to
-   * set to initial v for *both* directions
+  /* forknode should be where tip was hooked to.
+   * that connection set to initial v for *both* directions.
    */
-  forknode->v = initialv; 
-  forknode->back->v = initialv;
+  if (forknode->back != NULL) {              /* condition should never fail */
+    forknode->v = initialv; 
+    forknode->back->v = initialv;
+  }
+
+  if (q->back != NULL)
+    newv = q->v * 0.5;
+  else
+    newv = initialv;
 
   /* forknode->next for both directions */
-  forknode->next->v = newv ;
-  forknode->next->back->v = newv ;
+  if (forknode->next->back != NULL) {
+    forknode->next->v = newv ;
+    forknode->next->back->v = newv ;
+  }
 
   /* forknode->next->next for both directions */
-  forknode->next->next->v = newv;
-  forknode->next->next->back->v = newv;
+  if (forknode->next->back != NULL) {
+    forknode->next->next->v = newv;
+    forknode->next->next->back->v = newv;
+  }
 
   /* BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
-  inittrav(t, forknode);
+  inittrav(t, forknode);         /* some of this block of code unnexessary? */
   inittrav(t, forknode->back);
   inittrav(t, forknode->next);
-  inittrav(t, forknode->next->back);
+  if (forknode->next->back != NULL)
+    inittrav(t, forknode->next->back);
   inittrav(t, forknode->next->next);
-  inittrav(t, forknode->next->next->back);
+  if (forknode-> next->next->back != NULL)
+    inittrav(t, forknode->next->next->back);
 } /* ml_tree_do_branchl_on_insert */
 
 
@@ -791,12 +803,7 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
 
-/* debug: */ printf("start function ml_tree_insert\n");
-printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->back->index); /* debug */
-/* debug: */ printf("start function generic_tree_insert\n");
-/* debug: */ printf("generic_tree insert %ld on %ld\n", p->index, q->index);
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
-/* debug: */ printf("end generic_tree insert %ld on %ld\n", p->index, q->index);
 
   if ( !t->do_newbl )
   {
@@ -822,7 +829,6 @@ printf("inserting %ld:%ld in %ld:%ld\n", p->index, p->back->index, q->index, q->
       smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
-/* debug: */ printf("finish function ml_tree_insert\n");
 } /* ml_tree_insert */
 
 
@@ -850,10 +856,7 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
 
-/* debug: */ printf("start ml_tree_remove\n");
-printf("remove %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, p->next->back->index, p->next->next->back->index); /* debug */
   generic_tree_re_move(t, p, q, do_newbl);
-printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->index, (*q)->index, (*q)->back->index); /* debug */
 
   if ( do_newbl )
   {
@@ -871,7 +874,6 @@ printf("removed %ld:%ld from %ld:%ld\n", ((node*)p)->index, ((node*)p)->back->in
     if (!((*q)->back->tip))
       ml_update(t, (*q)->back);
   }
-/* debug: */ printf("finish ml_tree_remove\n");
 } /* ml_tree_re_move */
 
 
@@ -885,17 +887,14 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   boolean succeeded, bettertree;
   node* whereRemoved;
 
-/* debug */ printf("start ml_tree_try_insert_thorough\n");
-printf("thorough = %d\n", thorough); /* debug */
   succeeded = false;
   t->save_traverses(t, p, q);
-printf("insert %ld near %ld\n", p->index, q->index); /* debug */
   t->insert_(t, p, q, false);
+  t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
 
   if (atstart) {
     bettertree = true;
-    t->copy(t, bestree);
   } else {
     bettertree = (like > *bestyet);
     succeeded = bettertree;
@@ -906,15 +905,13 @@ printf("insert %ld near %ld\n", p->index, q->index); /* debug */
     t->copy(t, bestree);
   }
   t->re_move(t, p, &whereRemoved, false);
-printf("remove %ld from near %ld\n", p->index, whereRemoved->index); /* debug */
 
-  assert(whereRemoved == q);
+/* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
 /* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
 
   /* Update t->score */
   like = t->evaluate(t, q, 0);
 
-/* debug */ printf("finish ml_tree_try_insert_thorough\n");
   return succeeded;
 } /* ml_tree_try_insert_thorough */
 
@@ -929,15 +926,12 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
  */
   boolean succeeded;
 
-/* debug */ printf("start ml_tree_try_insert_\n");
-printf("thorough = %d, storing = %d\n", thorough, storing); /* debug */
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
 
-/* debug */ printf("finish ml_tree_try_insert_\n");
   return succeeded;
 } /* ml_tree_try_insert_ */
 
@@ -1604,8 +1598,8 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
   else
   {
     if (!lngths) {
-      initialvtrav(curtree, curtree->root);
-      initialvtrav(curtree, curtree->root->back);
+      inittrav(curtree, curtree->root);
+      inittrav(curtree, curtree->root->back);
     }
     polishing = true;
     smoothit = true;
@@ -1644,4 +1638,4 @@ void ml_initialvtrav(tree* t, node *p)
 }  /* ml_initialvtrav */
 
 
-// End.
+/* End. */

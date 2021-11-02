@@ -31,7 +31,7 @@ void   secondtraverse(node *, double, long *, double *);
 void   firsttraverse(node *, long *, double *);
 double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
-void   fitch_makenewv(tree* t, node *p);
+void   fitch_makenewv(tree*, node*);
 void   makedists(node *);
 void   makebigv(node *);
 void   correctv(node *);
@@ -40,8 +40,10 @@ void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
 void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
+void   fitch_setupnewfork(tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   rearrange(node *, long *, long *, boolean *);
+node*  findroot(tree *, node *, boolean *);
 void   describe(node *);
 void   summarize(long);
 void   nodeinit(node *);
@@ -50,7 +52,7 @@ void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
 tree*  fitch_tree_new(long nonodes, long spp);
-void   fitch_tree_init(tree* t, long nonodes, long spp);
+void   fitch_tree_init(tree*, long nonodes, long spp);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -84,6 +86,7 @@ tree* fitch_tree_new(long nonodes, long spp)
   tree* t;
 
   t = Malloc(sizeof(fitch_tree));
+  t->do_newbl = true;
   fitch_tree_init(t, nonodes, spp);
   return t;
 } /* fitch_tree_new */
@@ -93,16 +96,18 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch */
 
-  fitch_tree *ft = (fitch_tree *)t;
-/* debug: dist_tree_init(&(ft->ml_tree.tree), nonodes);  debug */
-  generic_tree_init(t, nonodes, spp);
-/*  dist_tree_init(t, nonodes); debug */
-  t->evaluate = fitch_evaluate;
-  t->insert_ = ml_tree_insert_;
-  t->try_insert_ = ml_tree_try_insert_;
-  t->re_move = ml_tree_re_move;
-  t->nuview = fitch_nuview;
-  ft->ml_tree.makenewv = fitch_makenewv;
+  generic_tree_init((tree*)t, nonodes, spp);
+  dist_tree_init((tree*)t, nonodes);   /* deug: need? */
+  ((tree*)t)->evaluate = fitch_evaluate;
+  ((tree*)t)->insert_ = ml_tree_insert_;
+  ((tree*)t)->try_insert_ = ml_tree_try_insert_;
+  ((tree*)t)->re_move = ml_tree_re_move;
+  ((tree*)t)->nuview = fitch_nuview;
+  ((tree*)t)->makenewv = fitch_makenewv;
+  ((tree*)t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
+  ((tree*)t)->do_newbl = true;
+  ((tree*)t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  ((tree*)t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
 
 
@@ -454,74 +459,101 @@ double fitch_evaluate(tree *t, node* p, boolean dummy2)
 
 void nudists(node *x, node *y)
 {
-  /* compute distance between an interior node and tips */
-  long ny=0;
+  /* compute distance between an interior node and tips 
+   * y  is the node whose distance to the immediate descendants of  x
+   * is being computed.  They are  qprime->back  and qprime-next->back.
+   * This is the version for a bifurcation, so node has three neighbors */
+  long nx=0, ny=0;    /* debug:  why this value? */
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
   node *qprime, *rprime, *qprimeback, *rprimeback;
 
+  nx = x->index;
+  ny = y->index;
   qprime = x->next;
-  if (qprime->back != NULL) {
-    qprimeback = qprime->back;
+  qprimeback = qprime->back;
+  if (qprimeback != NULL) {
+    vi = qprime->v;
     dil = ((dist_node*)qprimeback)->d[ny - 1];
     wil = ((dist_node*)qprimeback)->w[ny - 1];
-    vi = qprime->v;
   } else {
     dil = 0.0;
     wil = 0.0;
-    vi = 0.0;
+    qprime->v = 0.0;
   }
   rprime = qprime->next;
   rprimeback = rprime->back;
   if (rprimeback != NULL) {
+    vj = rprime->v;
     djl = ((dist_node*)rprimeback)->d[ny - 1];
     wjl = ((dist_node*)rprimeback)->w[ny - 1];
-    vj = rprime->v;
   } else {
     djl = 0.0;
     wjl = 0.0;
-    vj = 0.0;
+    rprime->v = 0.0;
   }
-  ny = y->index;
   if (wil + wjl <= 0.0) {
     ((dist_node*)x)->d[ny - 1] = 0.0;
   }
   else {
     ((dist_node*)x)->d[ny - 1] = ((dil - vi) * wil + (djl - vj) * wjl) /
-      (wil + wjl);
+                                   (wil + wjl);
     ((dist_node*)x)->w[ny - 1] = wil + wjl;
   }
+  ((dist_node*)y)->d[nx - 1] = ((dist_node*)x)->d[ny - 1];
+  x->initialized = true;
 }  /* nudists */
 
 
 void makedists(node *p)
 {
-  /* compute distances among three neighbors of a node */
-  long i=0, nr=0, ns=0;
-  node *q, *r, *s;
+  /* compute distances among pairs of adjacent neighbors of an interior node.
+   * (assumes a bifurcation so there are three */
+  long npb=0, nqb=0, nrb=0;
+  double d12, d23, d31;
+  node *q, *r, *pb, *qb, *rb;
 
-  r = p->back;
-  nr = r->index;
-  for (i = 1; i <= 3; i++) {
-    q = p->next;
-    s = q->back;
-    ns = s->index;
-    if (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1] <= 0.0)
-      ((dist_node*)p)->dist = 0.0;
-    else
-      ((dist_node*)p)->dist =
-        (((dist_node*)s)->w[nr - 1] * ((dist_node*)s)->d[nr - 1] +
-         ((dist_node*)r)->w[ns - 1] * ((dist_node*)r)->d[ns - 1]) /
-        (((dist_node*)s)->w[nr - 1] + ((dist_node*)r)->w[ns - 1]);
-    p = q;
-    r = s;
-    nr = ns;
+  if (p->back != NULL) {          /* node and number of the node behind  r  */
+    pb = p->back;
+    npb = pb->index;
   }
+  q = p->next;
+  if (q->back != NULL) {
+    qb = q->back;
+    nqb = qb->index;
+  }
+  r = q->next;
+  if (r->back != NULL) {
+    rb = r->back;
+    nrb = rb->index;
+  }
+  if ((p->back != NULL) && (q->back != NULL)) {
+    d12 = ((dist_node*)pb)->d[nqb - 1];
+    }
+  else {
+    d12 = 0.0;
+  }
+  if ((q->back != NULL) && (r->back != NULL)) {
+    d23 = ((dist_node*)qb)->d[nrb - 1];
+    }
+  else {
+    d23 = 0.0;
+  }
+  if ((r->back != NULL) && (p->back != NULL)) {
+    d31 = ((dist_node*)rb)->d[npb - 1];
+  }
+  else {
+    d31 = 0.0;
+  }
+  ((dist_node*)p)->dist = d12;
+  ((dist_node*)q)->dist = d23;
+  ((dist_node*)r)->dist = d31;
 }  /* makedists */
 
 
 void makebigv(node *p)
 {
-  /* make new branch length */
+  /* make new branch lengths around a bifurcating interior node
+   * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
   node *temp, *q, *r;
 
@@ -529,9 +561,14 @@ void makebigv(node *p)
   r = q->next;
   for (i = 1; i <= 3; i++) {
     if (p->iter) {
-      p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
-              ((dist_node*)q)->dist) / 2.0;
-      p->back->v = p->v;
+      if (p->back != NULL) {
+        p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
+                ((dist_node*)q)->dist) / 2.0;
+        p->back->v = p->v;
+      }
+      else {
+        p->v = 0.0;
+      }
     }
     temp = p;
     p = q;
@@ -543,39 +580,45 @@ void makebigv(node *p)
 
 void correctv(node *p)
 {
-  /* iterate branch lengths if some are to be zero */
+  /* iterate branch lengths if some are to be zero
+   * Note this is only for a bifurcation with three neighbors of the
+   * fork.  If any of these is null, don't do anything */
   node *q, *r, *temp;
   long i=0, j=0, n=0, nq=0, nr=0, ntemp=0;
   double wq=0.0, wr=0.0;
 
   q = p->next;
   r = q->next;
-  n = p->back->index;
-  nq = q->back->index;
-  nr = r->back->index;
-  for (i = 1; i <= zsmoothings; i++) {
-    for (j = 1; j <= 3; j++) {
-      if (p->iter) {
-        wr = ((dist_node*)r->back)->w[n - 1] +
-          ((dist_node*)p->back)->w[nr - 1];
-        wq = ((dist_node*)q->back)->w[n - 1] + ((dist_node*)p->back)->w[nq - 1];
-        if (wr + wq <= 0.0 && !negallowed)
-          p->v = 0.0;
-        else
-          p->v = ((((dist_node*)p)->dist - q->v) * wq +
-                  (((dist_node*)r)->dist - r->v) * wr) / (wr + wq);
-        if (p->v < 0 && !negallowed)
-          p->v = 0.0;
-        p->back->v = p->v;
+  if ((p->back != NULL) && (q->back != NULL)
+        && (r->back != NULL)) {               /* skip all this if any NULL */
+    n = p->back->index;
+    nq = q->back->index;
+    nr = r->back->index;
+    for (i = 1; i <= zsmoothings; i++) {              /* do multiple times */
+      for (j = 1; j <= 3; j++) {                  /* go around fork circle */
+        if (p->iter) {
+          wr = ((dist_node*)r->back)->w[n - 1] +
+            ((dist_node*)p->back)->w[nr - 1];
+          wq = ((dist_node*)q->back)->w[n - 1]
+               + ((dist_node*)p->back)->w[nq - 1];
+          if (((wr + wq) <= 0.0) && !negallowed)  /* if estimates megative */
+            p->v = 0.0;
+          else
+            p->v = ((((dist_node*)p)->dist - q->v) * wq +
+                    (((dist_node*)r)->dist - r->v) * wr) / (wr + wq);
+          if (p->v < 0 && !negallowed)
+            p->v = 0.0;
+          p->back->v = p->v;
+        }
+        temp = p;                            /* move one step around circle */
+        p = q;
+        q = r;
+        r = temp;
+        ntemp = n;
+        n = nq;
+        nq = nr;
+        nr = ntemp;
       }
-      temp = p;
-      p = q;
-      q = r;
-      r = temp;
-      ntemp = n;
-      n = nq;
-      nq = nr;
-      nr = ntemp;
     }
   }
 }  /* correctv */
@@ -585,7 +628,7 @@ void alter(node *x, node *y)
 {
   /* traverse updating these views */
   if (y != NULL) {
-    nudists(x, y);
+    nudists(x, y);  /* debug:  should this be after traversal? */
     if (!y->tip) {
       alter(x, y->next->back);
       alter(x, y->next->next->back);
@@ -596,19 +639,21 @@ void alter(node *x, node *y)
 
 void fitch_nuview(tree* t, node *p)
 {
+  double temp;
   /* renew information about subtrees */
-  node *q;
 
   alter(p, p->back);
-  for (q = p->next ; q != p ; q = q->next )
-    alter(q, q->back);
-  p->initialized = true;
-}  /* nuview */
+  if (p->back != NULL) {
+    temp = ((dist_node*)(p))->d[p->back->index - 1];
+    ((dist_node*)(p->back))->d[p->index - 1] = temp;
+  }
+}  /* fitch_nuview */
 
 
 void fitch_makenewv(tree* t, node *p)
 {
-  /* update branch lengths around a node */
+  /* update branch lengths around a node ,
+   * if node is rootmost fork, be careful how you do this */
   boolean iter;
   node* q;
 
@@ -626,7 +671,7 @@ void fitch_makenewv(tree* t, node *p)
     correctv(p);
   }
   t->nuview(t, p);
-}  /* update */
+}  /* fitch_makenewv */
 
 
 void fitch_setuptip(tree *t, long m)
@@ -637,15 +682,15 @@ void fitch_setuptip(tree *t, long m)
   dist_node *which;
 
   which = (dist_node*)t->nodep[m - 1];
-  memcpy(which->d, x[m - 1], (nonodes * sizeof(double)));
+  memcpy(which->d, x[m - 1], (spp * sizeof(double)));  /* debug: too long? */
   memcpy(n, reps[m - 1], (spp * sizeof(long)));
   for (i = 0; i < spp; i++) {
-    if (i + 1 != m && n[i] > 0) {
+    if (((i + 1) != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
         which->d[i] = epsilonf;
       which->w[i] = n[i] / exp(power * log(which->d[i]));
     } else {
-      which->w[i] = 0.0;
+      which->w[i] = 1.0;   /* debug: correct? */
       which->d[i] = 0.0;
     }
   }
@@ -676,9 +721,23 @@ void fitch_buildsimpletree(tree *t, long nextsp)
 }  /* fitch_buildsimpletree */
 
 
+void fitch_setupnewfork(tree *t, long m)
+{ /* set up weights, distances for a new internal fork */
+  long i;
+  node* p;
+
+  p = t->nodep[m-1];
+  for (i = 0; i < nonodes; i++) {
+    ((dist_node*)p)->w[i] = 1.0;
+    ((dist_node*)p)->d[i] = 0.0;
+  }
+} /* setupnewtip */
+
+
 void describe(node *p)
 {
-  /* print out information for one branch */
+  /* print out information for one branch, number of fork or name of tip
+   * at each end of the branch, and branch length */
   long i=0;
   node *q;
 
@@ -701,34 +760,41 @@ void summarize(long numtrees)
 {
   /* print out branch lengths etc. */
   long i, j, totalnum;
+  boolean start, found;
+  node *p, *q;
 
   fprintf(outfile, "\nremember:");
   if (outgropt)
     fprintf(outfile, " (although rooted by outgroup)");
   fprintf(outfile, " this is an unrooted tree!\n\n");
-  if (!minev)
+  if (!minev)                 /* print out quantity that is being minimized */
     fprintf(outfile, "Sum of squares = %11.5f\n\n", -curtree->score);
   else
     fprintf(outfile, "Sum of branch lengths = %11.5f\n\n", -curtree->score);
-  if ((power == 2.0) && !minev) {
+  if ((power == 2.0) && !minev) {  /* in original Fitch-Margoliash case ... */
     totalnum = 0;
-    for (i = 1; i <= nums; i++) {
+    for (i = 1; i <= nums; i++) {                       /* compute APSD ... */
       for (j = 1; j <= nums; j++) {
         if (i != j)
           totalnum += reps[i - 1][j - 1];
       }
-    }
+    }                                               /* ... and print it out */
     fprintf(outfile, "Average percent standard deviation = ");
     fprintf(outfile, "%11.5f\n\n",
             100 * sqrt(-curtree->score / (totalnum - 2)));
   }
   fprintf(outfile, "Between        And            Length\n");
   fprintf(outfile, "-------        ---            ------\n");
-  describe(curtree->root->next->back);
-  describe(curtree->root->next->next->back);
-  describe(curtree->root->back);
+  q = curtree->root;
+  q = findroot(curtree, q, &found);
+  start = true;
+  for (p = q; (start || (p != q)); p = p->next) {   /* around rootmost fork */
+    start = false;
+    if (p->back != NULL)    /* and if each node on circle has neighbors ... */
+      describe(p->back);     /* recursively describe it and its descendants */
+  }
   fprintf(outfile, "\n\n");
-  if (trout) {
+  if (trout) {             /* now write tree to output tree file if desired */
     col = 0;
     treeout(curtree->root, &col, 0.43429445222, true, curtree->root);
   }
@@ -740,14 +806,14 @@ void nodeinit(node *p)
   /* initialize a node */
   long i, j;
 
-  for (i = 1; i <= 3; i++) {
+  for (i = 1; i <= 3; i++) {        /* initialize its weights and distances */
     for (j = 0; j < nonodes; j++) {
       ((dist_node*)p)->w[j] = 1.0;
       ((dist_node*)p)->d[j] = 0.0;
     }
     p = p->next;
   }
-  if ((!lngths) || p->iter)
+  if ((!lngths) || p->iter)         /* and initial branch lengths if needed */
     p->v = 1.0;
   if ((!lngths) || p->back->iter)
     p->back->v = 1.0;
@@ -773,7 +839,7 @@ void treevaluate(void)
 
   for (i = 1; i <= spp; i++)   /* debug: already done? is this necessary? */
     fitch_setuptip(curtree, i);
-  unroot(curtree, nonodes);
+  unroot(curtree, nonodes);     /* debug: removes a root fork if bifurcating */
 
   initrav(curtree->root);
   if (curtree->root->back != NULL) {
@@ -835,11 +901,13 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
+/* debug:  this seems to duplicate statements in doinit
       curtree = fitch_tree_new(nonodes, spp);
       priortree = fitch_tree_new(nonodes, spp);
       bestree = fitch_tree_new(nonodes, spp);
       if (njumble > 1)
         bestree2 = fitch_tree_new(nonodes, spp);
+   ... debug */
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -848,6 +916,9 @@ void maketree(void)
     nextsp = 3;
     fitch_buildsimpletree(curtree, nextsp);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    p = generic_newrootfork(curtree);
+    fitch_setupnewfork(curtree, p->index);
+    generic_insertroot(curtree, curtree->root, p); 
     if (jumb == 1) numtrees = 1;
     nextsp = 4;
     if (progress) {
@@ -862,28 +933,29 @@ void maketree(void)
       fitch_buildnewtip(enterorder[nextsp - 1], curtree, nextsp);
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
+      fitch_setupnewfork(curtree, p->index);
       hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
       p->v = initialv;
       p->back->v = initialv;
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-      curtree->addtraverse(curtree, p, curtree->root, false, there, &bestyet,
-                             bestree, false, false, true, bestfound);
-/* debug:       bestree->copy(bestree, curtree);  */
+      curtree->addtraverse(curtree, p, curtree->root, true, there, &bestyet,
+                             bestree, true, false, true, bestfound);
+      bestree->copy(bestree, curtree);
       if (progress) {
         writename(nextsp  - 1, 1, enterorder);
         phyFillScreenColor();
       }
       succeeded = true;
-      while (succeeded) {
-        succeeded = false;
+      while (succeeded) {        /* as long as some rearrangement succeeded */
+        succeeded = false;   /* debug: should move rootmost fork? */
         curtree->root = curtree->nodep[enterorder[0] - 1]->back;
-        if ((nextsp == spp)  && global)
+        if ((nextsp == spp)  && global)    /* last time, SPR rearrangements */
           curtree->globrearrange(curtree, bestree, progress, true, bestfound);
-        else {
-          curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1], true,
-                                &bestyet, priortree, bestree, lastrearr, bestfound);
+        else {         /* earlier times, do nearest-neighbor rearrangements */ 
+          curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
+                    false, &bestyet, priortree, bestree, lastrearr, bestfound);
         }
         if (global && (nextsp == spp) && progress)
         {
@@ -898,24 +970,26 @@ void maketree(void)
         }
       }
       lastrearr = (nextsp == spp);
-      if (njumble > 1) {
-        if (jumb == 1 && nextsp == spp)
-          bestree->copy(bestree, bestree2);
-        else if (nextsp == spp) {
-          if (bestree2->score < bestree->score)
-            bestree->copy(bestree, bestree2);
+      if (lastrearr) {               /* if have finished adding all species */
+        if (njumble > 1) {            /* if there is more than one jumbling */
+          if (jumb == 1)
+            bestree->copy(bestree, bestree2);  /* first tree is best so far */
+          else {          /* if the tree is better than the best so far ... */
+            if (bestree2->score < bestree->score)
+              bestree->copy(bestree, bestree2); /* ... then put as best one */
+          }
         }
       }
       nextsp++;
     }
-    if (jumb == njumble) {
-      if (njumble > 1) bestree2->copy(bestree2, curtree);
-      curtree->root = curtree->nodep[outgrno - 1]->back;
-      printree(curtree->root, treeprint, false);
+    if (jumb == njumble) {       /* on last jumbling of species input order */
+      if (njumble > 1) bestree2->copy(bestree2, curtree); /* bestree2 is it */
+      putrootnearoutgroup(curtree, outgrno, true); /* root to near outgroup */
+      printree(curtree->root, treeprint, false);    /* print the tree if OK */
       if (treeprint)
-        summarize(numtrees);
+        summarize(numtrees);  /* print table of connections, branch lengths */
     }
-    destruct_tree(curtree);
+    destruct_tree(curtree);                   /* recycle the tree structure */
   }
   if (jumb == njumble && progress) {
     sprintf(progbuf, "\nOutput written to file \"%s\".\n\n", outfilename);

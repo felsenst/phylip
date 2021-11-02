@@ -571,7 +571,8 @@ struct tree_vtable {
   tree_addtraverse_t addtraverse;
   tree_addtraverse_t addtraverse_1way;
   tree_insert_t insert_;
-  tree_try_insert_t try_insert_;
+  tree_insert_t tree_insert_;
+  tree_try_insert_t tree_try_insert_;
   tree_free_t free;
   tree_globrearrange_t globrearrange;
   tree_smoothall_t smoothall;
@@ -840,6 +841,7 @@ void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
+void            putrootnearoutgroup(tree*, long, boolean);
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
@@ -854,6 +856,8 @@ boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
                                    tree*, boolean, boolean, boolean, double*);
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
+node*           generic_newrootfork(tree*);
+void            generic_insertroot(tree*, node*, node*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
                        longer, boolean, double*);
