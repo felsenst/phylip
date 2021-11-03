@@ -955,7 +955,7 @@ void maketree(void)
           curtree->globrearrange(curtree, bestree, progress, true, bestfound);
         else {         /* earlier times, do nearest-neighbor rearrangements */ 
           curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
-                    true, &bestyet, priortree, bestree, lastrearr, bestfound);
+                    false, &bestyet, priortree, bestree, lastrearr, bestfound);
         }
         if (global && (nextsp == spp) && progress)
         {
