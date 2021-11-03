@@ -686,7 +686,7 @@ printf("Adding as tied tree (Tree %ld), %ld\n", *pos, score);  /* debug */
 } /* add_to_besttrees */
 
 
-boolean pars_addtraverse(tree* t, node* p, node* q, boolean contin,
+boolean pars_addtraverse(tree* t, node* p, node* q, traversetype contin,
                          node* qwherein, double* bestyet, bestelm* bestrees,
                          boolean thorough, boolean storing, boolean atstart,
                          double* bestfound)
@@ -1045,7 +1045,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                             where->back->index == curtree->root->index);
         if (!donttrythere) {
           successaftertraverse = generic_tree_addtraverse_1way(curtree,
-                                   removed, where, true, qwhere, &bestyet,
+                                   removed, where, further, qwhere, &bestyet,
                                    bestree, true, true, false, bestfound);
           success = success || successaftertraverse;
         }
@@ -1053,7 +1053,7 @@ void pars_globrearrange(tree* curtree, tree* bestree, boolean progress,
                          (where->back->tip);     /* a tip or rootmost fork? */
         if ( !donttrythere ) {    /* if not, do traversal also at other end */
           successaftertraverse = generic_tree_addtraverse_1way(curtree,
-                                   removed, where->back, true, qwhere,
+                                   removed, where->back, further, qwhere,
                                    &bestyet, bestree, true, true, false,
                                    bestfound);
         }

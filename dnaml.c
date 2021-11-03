@@ -2153,7 +2153,7 @@ void maketree(void)
       bestyet = UNDEFINED;
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+      curtree->addtraverse(curtree, p, curtree->root, further, qwhere,
                             &bestyet, bestree, thorough, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);

@@ -1506,7 +1506,7 @@ void maketree(void)
       p = curtree->get_fork(curtree, k);
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
       qwhere = NULL;
-      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+      curtree->addtraverse(curtree, p, curtree->root, further, qwhere,
                            &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
 

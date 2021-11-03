@@ -3845,8 +3845,8 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
       curtree->copy(curtree, priortree);
       qwhere = where;
 
-      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
-                qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root,
+        further, qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
       if ( thorough )
       {
         if ( where != qwhere && bestyet > globtree->score)
@@ -3966,7 +3966,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         for ( k = 0 ; k <= num_sibs2 ; k++ )
         {        /* try inserting it on branches descended from this furc */
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
-                                         true, qwhere, &bestyet, bestree,
+                                         further, qwhere, &bestyet, bestree,
                                          thorough, false, false, bestfound)
                                          || succeeded;
           sib_ptr2 = sib_ptr2->next;
@@ -4053,10 +4053,10 @@ boolean oktorearrangethere(tree* t, node* p) {
 } /* oktorearrangethere */
 
 
-boolean generic_tree_addtraverse(tree* t, node* p, node* q, boolean contin,
-                           node* qwherein, double* bestyet, tree* bestree,
-                           boolean thorough, boolean storing, boolean atstart,
-                           double* bestfound)
+boolean generic_tree_addtraverse(tree* t, node* p, node* q,
+                           traversetype contin, node* qwherein,
+                           double* bestyet, tree* bestree, boolean thorough,
+                           boolean storing, boolean atstart, double* bestfound)
 { /* try adding  p  at  q, proceed recursively through tree.
    * contin  indicates whether one continues recursively or
    *  is just doing local rearragements. 
@@ -4091,7 +4091,7 @@ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /*
         }
       }
     }
-    if (contin && !q->back->tip) {
+    if ((contin == further) && !q->back->tip) {
       /* we need to go both ways, if we start in an interior branch
        * of an unrooted tree and are not doing just local rearrangements */
       for ( sib_ptr = q->back->next; sib_ptr != q->back;
@@ -4113,9 +4113,10 @@ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /*
 
 
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
-                             boolean contin, node *qwherein, double* bestyet,
-                             tree* bestree, boolean thorough, boolean storing,
-                             boolean atstart, double* bestfound)
+                              traversetype contin, node *qwherein,
+                              double* bestyet, tree* bestree, boolean thorough,
+                              boolean storing, boolean atstart,
+                              double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
    * from one end of that branch (if  q  was not a tip)
@@ -4129,21 +4130,27 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   /* NOTE: will back out if comes to fork connected to outgroup */
   node *sib_ptr;
   boolean succeeded = false;
-  boolean outgroupfork;
 
   if (oktoinsertthere(t, q)) {
 printf(" addtraverse: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
 /* debug */ if (succeeded) printf("  yes, better!\n");
-    outgroupfork = (q == t->root);
   }
-  if ( !(q == NULL) && !q->tip ) {            /* go to branches beyond fork */
-      for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
-      {                     /* ... and do that locally or continue globally */
-        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
-                                 contin, qwherein, bestyet, bestree, thorough,
-                                 storing, atstart, bestfound) || succeeded;
+  if ( !(q == NULL)) {
+    if (!q->tip ) {                      /* go to branches beyond this node */
+      if ( contin != nofurther) { /* if not finished traversing beyond here */
+        for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next) {
+          if (contin == onestep) {          /* case of local rearrangements */
+            succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                               nofurther, qwherein, bestyet, bestree, thorough,
+                               storing, atstart, bestfound) || succeeded;
+          } else {               /* case where traverse out through subtree */
+            succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+                               further, qwherein, bestyet, bestree, thorough,
+                               storing, atstart, bestfound) || succeeded;
+          }
+        }
       }
     }
   }
@@ -4357,7 +4364,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
      * branches, so accepts the first if it improves things and then
      * doesn't even try the other one.  contin  parameter is false. */
 /* debug */ printf("addtraverse %ld:%ld at %ld:%ld\n", rr->index, rr->back->index, q->index, q->back->index);
-    t->addtraverse(t, rr, q, false, qwhere,
+    t->addtraverse(t, rr, q, onestep, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
 /* debug */
@@ -5158,8 +5165,8 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
     bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
     if ((jumb == 1) && (i == spp)) /* on adding last species of first jumble */
       *bestfound = bestyet;
-    curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
-                   bestree, true, (i == spp), true, bestfound);   /* store? */
+    curtree->addtraverse(curtree, item, curtree->root, further, there,
+         &bestyet, bestree, true, (i == spp), true, bestfound);   /* store? */
     curtree->copy(bestree, curtree);   /*  replace current tree by best one */
     curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
                   priortree, (i == spp), bestfound);   /* local rearr'ments */

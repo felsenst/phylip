@@ -1971,7 +1971,9 @@ void maketree(void)
       bestyet = - nextsp*sites*sitelength*log(4.0);
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1]-1],
+                             curtree->root, further, &qwhere, &bestyet,
+                             bestree, priortree, smoothit, NULL);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else

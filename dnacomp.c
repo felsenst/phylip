@@ -819,7 +819,7 @@ void maketree(void)
       k = generic_tree_findemptyfork(curtree);
       p = curtree->get_fork(curtree, k);
       hookup(item, p);
-      curtree->addtraverse(curtree, item->back, curtree->root, true, there,
+      curtree->addtraverse(curtree, item->back, curtree->root, further, there,
                   &bestyet, bestree, thorough, (i == spp), false, &bestfound);
       curtree->insert_(curtree, item->back, there, false);
       like = bestyet;

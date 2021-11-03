@@ -2212,7 +2212,8 @@ void maketree(void)
 #endif
       curtree->copy(curtree, priortree);
       like = curtree->evaluate(curtree, curtree->root, 0);
-      curtree->addtraverse(curtree, item, curtree->root, true, &qwhere, &bestyet, bestree, priortree, true, &multf);
+      curtree->addtraverse(curtree, item, curtree->root, further, &qwhere,
+                            &bestyet, bestree, priortree, true, &multf);
       curtree->insert_(curtree, item, qwhere, false, multf);
       curtree->smoothall(curtree, curtree->root);
       curtree->locrearrange(curtree, curtree->root, false, priortree, bestree);
