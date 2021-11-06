@@ -4311,7 +4311,6 @@ void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
                               boolean storing, double* bestfound)
 {
  /* generic wrapper for local rearrangement, do until does not succeed */
-  boolean succeeded;
 
   if (start->tip)           /* should make sure that start at interior node */
     start = start->back;                   /* that is connected to outgroup */
@@ -4342,7 +4341,6 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * debug:  (this function doesn't yet handle multifurcations)
    */
   node *q, *r, *rr, *qwhere;
-  boolean succeeded = false;
 
   qwhere = NULL;
   if (oktorearrangethere(t, p)) {
@@ -4367,21 +4365,15 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     t->addtraverse(t, rr, q, onestep, qwhere,
                     bestyet, bestree, thorough, storing, false, bestfound);
 
-/* debug */
-    if (thorough)
-      bestree->copy(bestree, t);
-    else {
-/* debug    for case where one is rearranging only locally */
-      t->insert_(t, rr, qwhere, false);            /* put it in best location */
-      if ((qwhere == q) || (qwhere == q->back) ) {
-        t->restore_lr_nodes(t, p, r);
-        t->score = *bestyet;
-      }
-      else {
-        t->smoothall(t, r->back);
-        *bestyet = t->evaluate(t, p, 0);
-      }
+    t->insert_(t, rr, qwhere, false);            /* put it in best location */
+    if ((qwhere == q) || (qwhere == q->back) ) {
+      t->restore_lr_nodes(t, p, r);
+      t->score = *bestyet;
     }
+    else {
+      t->smoothall(t, r->back);
+      *bestyet = t->evaluate(t, p, 0);
+      }
 /*   debug        double otherbest = *bestyet;      JF:  is this needed? */
 /* debug:  OK?    assert(oldbestyet <= *bestyet );   debug */
   }; 

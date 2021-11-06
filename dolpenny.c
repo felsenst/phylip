@@ -439,7 +439,7 @@ void evaluate(node *r)
 
 void addtraverse(node *a, node *b, node *c, placeptr place, valptr valyew, long *n)
 {
-  /* traverse all places to add b */
+  /* special version for B&B programs: traverse all places to add b */
   if (done)
     return;
   add(a, b, c, &root, treenode);
