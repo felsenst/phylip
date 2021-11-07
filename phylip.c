@@ -1752,7 +1752,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first,
                         long *nexttip, long *nextnode, boolean *haslengths,
                         boolean unifok)
-// modification of addelement method to just read file, count number of nodes
+/* modification of addelement method to just read file, count number of nodes */
 {
   long i;
   boolean notlast;
@@ -3011,13 +3011,13 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
                  bottom, nodep, str, ch, treefile);
     pfirst = (*p);
     notlast = true;
-    while (notlast) {          /* loop through immediate descendants */
+    while (notlast) {                 /* loop through immediate descendants */
       furcs++;
       (*initnode)(treep, &(*p)->next, len, nodei,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
       r = (*p)->next;
-      getch(ch, parens, treefile);      /* look for next character */
+      getch(ch, parens, treefile);               /* look for next character */
 
       /* handle blank names */
       if((*ch) == ',' || (*ch) == ':')
@@ -3039,7 +3039,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
       (*initnode)(treep, &r, len, nodei, ntips, parens,
                    hslength, nodep, str, ch, treefile);
       /* do what is done after each about length */
-      *p = r;                         /* make r point back to p */
+      *p = r;                                     /* make r point back to p */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -3064,21 +3064,21 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
     (*p)->next = pfirst;
     (*p)       = pfirst;
 
-  } else if ((*ch) != ')') {       /* if it's a species name */
-    for (i = 0; i < MAXNCH+1; i++)   /* fill string with nulls */
+  } else if ((*ch) != ')') {                  /* if it's a species name ... */
+    for (i = 0; i < MAXNCH+1; i++)            /* ... fill string with nulls */
       str[i] = '\0';
 
-    len = take_name_from_tree (ch, str, treefile);  /* get the name */
+    len = take_name_from_tree (ch, str, treefile);          /* get the name */
 
     if ((*ch) == ')')
-      (*parens)--;         /* decrement count of open parentheses */
+      (*parens)--;                   /* decrement count of open parentheses */
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, tip, nodep, str, ch, treefile);
     /* do what needs to be done at a tip */
   } else
     getch(ch, parens, treefile);
   if (q != NULL)
-    hookup(q, (*p));                    /* now hook up */
+    hookup(q, (*p));                                         /* now hook up */
   (*initnode)(treep, p, len, nodei, ntips,
               parens, iter, nodep, str, ch, treefile);
           /* do what needs to be done to variable iter */
@@ -3094,7 +3094,7 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, treewt, nodep, str, ch, treefile);
           /* ... for processing a tree weight */
-  else if ((*ch) == ';')     /* ... and at end of tree */
+  else if ((*ch) == ';')                          /* ... and at end of tree */
     (*initnode)(treep, p, len, nodei, ntips,
                 parens, unittrwt, nodep, str, ch, treefile);
 }  /* addelement */
@@ -3127,9 +3127,8 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
 
   getch(&ch, &parens, treefile);
 
-  while (ch != '(') {
-    /* Eat everything in the file (i.e. digits, tabs) until you
-       encounter an open-paren */
+  while (ch != '(') { /* Eat everything in the file (i.e. digits, tabs) until
+                                                you encounter an open-paren */
     getch(&ch, &parens, treefile);
   }
   (*haslengths) = true;
@@ -3151,14 +3150,13 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
 }  /* treeread */
 
 
-void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
-                 pointarray treenode, boolean lngths, double *trweight,
-                 boolean *goteof, long *nextnode, long *ntips,
-                 long no_species, boolean *haslengths,
-                 boolean unifok, long maxnodes)
+void addelement2(tree* t, node *q, Char *ch, long *parens, FILE *treefile,
+                 boolean lngths, double *trweight, boolean *goteof,
+                 long *nextnode, long *ntips, long no_species,
+                 boolean *haslengths, boolean unifok, long maxnodes)
 { /* recursive procedure adds nodes to user-defined tree
-     -- old-style bifurcating-only version used only by treeread2
-     which is used only in Contml, Fitch, Kitsch, and Restml.  */
+   * -- old-style bifurcating-only version used only by treeread2
+   * which is used only in Contml, Fitch, Kitsch, and Restml.  */
   node *pfirst = NULL, *p;
   long i, len, current_loop_index;
   boolean notlast, minusread;
@@ -3168,10 +3166,10 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
   if ((*ch) == '(') {
 
-    current_loop_index = (*nextnode) + spp;
+    current_loop_index = (*nextnode) + t->spp;
     (*nextnode)++;
 
-    if ( maxnodes != -1 && current_loop_index > maxnodes) {
+    if ( (maxnodes != -1) && (current_loop_index > maxnodes)) {
       sprintf(progbuf,
             "ERROR in intree file: Attempting to allocate too many nodes.\n");
       print_progress(progbuf);
@@ -3186,7 +3184,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
       exxit(-1);
     }
     /* This is an assignment of an interior node */
-    p = treenode[current_loop_index];
+    p = t->nodep[current_loop_index];
     pfirst = p;
     notlast = true;
     while (notlast) {      /* This while loop goes through a circle (triad for
@@ -3198,9 +3196,9 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 
       getch(ch, parens, treefile);
 
-      addelement2(p, ch, parens, treefile, treenode, lngths, trweight,
-                  goteof, nextnode, ntips, no_species, haslengths, unifok,
-                  maxnodes);                 /* recursive call for subtrees */
+      addelement2(t, p, ch, parens, treefile, lngths, trweight, goteof,
+                   nextnode, ntips, no_species, haslengths, unifok, maxnodes);
+      /* recursive call for subtrees */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -3226,7 +3224,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     for (i = 0; i < MAXNCH; i++)
       str[i] = '\0';
     len = take_name_from_tree (ch, str, treefile);
-    match_names_to_data (str, treenode, &p, spp);
+    match_names_to_data (str, t->nodep, &p, spp);
     pfirst = p;
     if ((*ch) == ')')
       (*parens)--;
@@ -3281,7 +3279,7 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
     q->branchnum = pfirst->branchnum;
     }  FIXME check if we need this for restml */
 
-  if ((*ch) == ':') {                              /* read a branch length */
+  if ((*ch) == ':') {                               /* read a branch length */
     processlength(&valyew, &divisor, ch,
                   &minusread, treefile, parens);
     if (q != NULL) {
@@ -3300,10 +3298,9 @@ void addelement2(node *q, Char *ch, long *parens, FILE *treefile,
 }  /* addelement2 */
 
 
-void treeread2 (FILE *treefile, node **root, pointarray treenode,
-                boolean lngths, double *trweight, boolean *goteof,
-                boolean *haslengths, long *no_species, boolean unifok,
-                long maxnodes)
+void treeread2 (tree* t, FILE *treefile, node **root, boolean lngths,
+                 double *trweight, boolean *goteof, boolean *haslengths,
+                 long *no_species, boolean unifok, long maxnodes)
 {
   /* read in user-defined tree and set it up
      -- old-style bifurcating-only version used only in Fitch, Kitsch,
@@ -3329,14 +3326,13 @@ void treeread2 (FILE *treefile, node **root, pointarray treenode,
 
   while (ch != '(') {
     /* Eat everything in the file (i.e. digits, tabs) until you
-       encounter an open-paren */
+     * encounter an open-paren */
     getch(&ch, &parens, treefile);
   }
 
-  addelement2(NULL, &ch, &parens, treefile, treenode, lngths, trweight,
-              goteof, &nextnode, &ntips, (*no_species), haslengths,
-              unifok, maxnodes);
-  (*root) = treenode[*no_species];
+  addelement2(t, NULL, &ch, &parens, treefile, lngths, trweight, goteof,
+              &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
+  (*root) = t->nodep[*no_species];
 
   /*eat blank lines */
   while (eoln(treefile) && !eoff(treefile))

@@ -373,7 +373,13 @@ typedef int  group_type;
 
 #define maxuser         1000        /* maximum number of user-defined trees */
 
-typedef Char **sequence;
+typedef enum {  /* for local vs. not, how much further to go in addtraverse */
+  nofurther,
+  onestep,
+  further
+} traversetype;
+
+typedef Char** sequence;                        /* a set of arrays of bases */
 
 typedef enum {                 /* the four DNA bases plus unknown or absent */
   A, C, G, T, O
@@ -533,10 +539,10 @@ typedef node **pointarray;
 typedef tree* (*tree_new_t)(long nonodes, long spp);
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
-typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, boolean, node*,
-    double*, tree*, boolean, boolean, boolean, double*);
-typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, boolean, node**,
-    double*, tree*, boolean, boolean, boolean, double*);
+typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
+                           double*, tree*, boolean, boolean, boolean, double*);
+typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, traversetype,
+                   node**, double*, tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean, double*);
@@ -785,10 +791,10 @@ void            addelement(tree*, node**, node*, Char*, long*, FILE*,
                             boolean*, initptr, boolean, long);
 void            treeread (tree*, FILE*, node**, pointarray, boolean*, boolean*,
                            long*, boolean*, initptr, boolean, long);
-void            addelement2(node*, Char*, long*, FILE*, pointarray, boolean,
-                             double*, boolean*, long*, long*, long, boolean*,
-                             boolean, long);
-void            treeread2 (FILE*, node**, pointarray, boolean, double*,
+void            addelement2(tree*, node*, Char*, long*, FILE*, boolean,
+                             double*, boolean*, long*, long*, long,
+                             boolean*, boolean, long);
+void            treeread2 (tree*, FILE*, node**, boolean, double*,
                             boolean*, boolean*, long*, boolean, long);
 void            exxit (int);
 char            gettc(FILE*);
@@ -811,10 +817,11 @@ boolean         oktorearrangethere(tree*, node*);
 void            rooted_globrearrange(tree*, tree*, boolean, boolean, double*);
 void            generic_globrearrange(tree*,tree*,boolean,boolean,double*);
 boolean         oktoputthere(tree*, node*);
-boolean         generic_tree_addtraverse(tree*, node*, node*, boolean, node*,
-                          double*, tree*, boolean, boolean, boolean, double*);
-boolean         generic_tree_addtraverse_1way(tree*, node*, node*, boolean,
+boolean         generic_tree_addtraverse(tree*, node*, node*, traversetype,
                    node*, double*, tree*, boolean, boolean, boolean, double*);
+boolean         generic_tree_addtraverse_1way(tree*, node*, node*,
+                  traversetype, node*, double*, tree*, boolean, boolean,
+                  boolean, double*);
 #ifdef WIN32              /* if using screen attributes of a Windows system */
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);

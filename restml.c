@@ -1918,7 +1918,8 @@ void maketree(void)
     while (which <= numtrees)
     {
       preparetree(curtree);
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes2);
+      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes2);
       fixtree(curtree);
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;

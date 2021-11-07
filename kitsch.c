@@ -808,8 +808,8 @@ void maketree(void)
     names = (boolean *)Malloc(spp * sizeof(boolean));
     which = 1;
     while (which <= numtrees ) {
-      treeread2 (intree, &curtree->root, curtree->nodep, lengths, &trweight,
-                 &goteof, &haslengths, &spp, false, nonodes);
+      treeread2 (curtree, intree, &curtree->root, lengths &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes);
       if (curtree->root->back) {
         printf("Error:  Kitsch cannot read unrooted user trees\n");
         exxit(-1);

@@ -69,9 +69,9 @@ vector *x;
 intvector *reps;
 boolean minev, global, jumble, lngths, usertree, lower, upper, negallowed, outgropt, replicates, trout, printdata, progress, treeprint, mulsets, firstset, smoothit = true, smoothed = false, polishing;
 double power;
-double trweight; /* to make treeread happy */
-boolean goteof, haslengths;  /* ditto ... */
-boolean first; /* ditto ... */
+double trweight;                                  /* to make treeread happy */
+boolean goteof, haslengths;                                    /* ditto ... */
+boolean first;                                                 /* ditto ... */
 node *addwhere, *there;
 longer seed, endsite, rcategs;
 long *enterorder;
@@ -97,7 +97,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   /* set up functions for a tree for Fitch */
 
   generic_tree_init((tree*)t, nonodes, spp);
-  dist_tree_init((tree*)t, nonodes);   /* deug: need? */
+  dist_tree_init((tree*)t, nonodes);   /* debug: need? */
   ((tree*)t)->evaluate = fitch_evaluate;
   ((tree*)t)->insert_ = ml_tree_insert_;
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;
@@ -399,9 +399,9 @@ void fitch_getinput(void)
 
 void secondtraverse(node *q, double y, long *nx, double *sum)
 {
-  /* from each of those places go back to all others */
-  /* nx comes from firsttraverse */
-  /* sum comes from evaluate via firsttraverse */
+  /* from each of those places go back to all others
+   * nx   comes from firsttraverse
+   * sum  comes from evaluate via firsttraverse */
   double z=0.0, TEMP=0.0;
 
   if (q) {
@@ -590,18 +590,18 @@ void correctv(node *p)
   q = p->next;
   r = q->next;
   if ((p->back != NULL) && (q->back != NULL)
-        && (r->back != NULL)) {               /* skip all this if any NULL */
+        && (r->back != NULL)) {                /* skip all this if any NULL */
     n = p->back->index;
     nq = q->back->index;
     nr = r->back->index;
-    for (i = 1; i <= zsmoothings; i++) {              /* do multiple times */
-      for (j = 1; j <= 3; j++) {                  /* go around fork circle */
+    for (i = 1; i <= zsmoothings; i++) {               /* do multiple times */
+      for (j = 1; j <= 3; j++) {                   /* go around fork circle */
         if (p->iter) {
           wr = ((dist_node*)r->back)->w[n - 1] +
             ((dist_node*)p->back)->w[nr - 1];
           wq = ((dist_node*)q->back)->w[n - 1]
                + ((dist_node*)p->back)->w[nq - 1];
-          if (((wr + wq) <= 0.0) && !negallowed)  /* if estimates megative */
+          if (((wr + wq) <= 0.0) && !negallowed)   /* if estimates megative */
             p->v = 0.0;
           else
             p->v = ((((dist_node*)p)->dist - q->v) * wq +
@@ -887,8 +887,8 @@ void maketree(void)
     first = true;
     which = 1;
     while (which <= numtrees) {                           /* loop over them */
-      treeread2 (intree, &curtree->root, curtree->nodep,
-                 lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes);
+      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes);
       nums = spp;
       treevaluate();  /* evaluate tree, if needed estimating branch lengths */
       printree(curtree->root, treeprint, false);            /* print it out */
@@ -901,13 +901,6 @@ void maketree(void)
   } else {
     if (jumb == 1) {
       inputdata(replicates, printdata, lower, upper, x, reps);
-/* debug:  this seems to duplicate statements in doinit
-      curtree = fitch_tree_new(nonodes, spp);
-      priortree = fitch_tree_new(nonodes, spp);
-      bestree = fitch_tree_new(nonodes, spp);
-      if (njumble > 1)
-        bestree2 = fitch_tree_new(nonodes, spp);
-   ... debug */
     }
     for (i = 1; i <= spp; i++)
       enterorder[i - 1] = i;
@@ -1349,7 +1342,7 @@ int main(int argc, Char *argv[])
 #endif
   funcs = Malloc(sizeof(initdata));
   funcs->node_new = dist_node_new;
-  funcs->tree_new = fitch_tree_new;
+  functions.tree_new = fitch_tree_new;
   phylipinit(argc, argv, funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);

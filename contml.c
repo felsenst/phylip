@@ -1439,7 +1439,7 @@ void maketree(void)
     }
     while (which <= numtrees)
     {
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight,
+      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes2);
       treevaluate();
       if (treeprint)
