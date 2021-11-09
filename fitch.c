@@ -834,11 +834,8 @@ void initrav(node *p)
 void treevaluate(void)
 {
   /* evaluate user-defined tree, iterating branch lengths */
-  long i;
   double oldlike;
 
-  for (i = 1; i <= spp; i++)   /* debug: already done? is this necessary? */
-    fitch_setuptip(curtree, i);
   unroot(curtree, nonodes);     /* debug: removes a root fork if bifurcating */
 
   initrav(curtree->root);
@@ -859,7 +856,7 @@ void maketree(void)
 {
   /* contruct the tree */
   long nextsp, numtrees=-1;
-  boolean lastrearr, succeeded=false;
+  boolean dummy_first=true, lastrearr, succeeded=false;
   long i, k, which;
   double bestyet, *bestfound = NULL;
   node *p;
@@ -887,8 +884,11 @@ void maketree(void)
     first = true;
     which = 1;
     while (which <= numtrees) {                           /* loop over them */
-      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
-                  &goteof, &haslengths, &spp, false, nonodes);
+/* debug:      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes);   debug */
+      treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
+                &dummy_first, &nextnode, &haslengths, initdnamlnode,
+                false, nonodes);
       nums = spp;
       treevaluate();  /* evaluate tree, if needed estimating branch lengths */
       printree(curtree->root, treeprint, false);            /* print it out */
