@@ -1,6 +1,8 @@
 #
 # Generic Linux/Unix Makefile for PHYLIP 4.0.
 #
+UNAME := $(shell uname)
+
 # You should not need to change anything, though if you want you could
 # change the first (noncomment) statement -- the one that sets the
 # folder (directory) in which the executables will be placed -- to some
@@ -212,7 +214,19 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
         gendist kitsch mix move neighbor pars penny proml promlk protdist protpars \
         restdist restml retree seqboot threshml treedist drawgram drawtree
 
-DYLIBS = libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so libdnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so libdrawtree.so libfactor.so libgendist.so libmix.so libneighbor.so libpars.so libpenny.so libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
+ifeq ($(UNAME),Darwin)
+  BUILD_FAILURES := codml contml contrast dnamlk dnamove fitch kitsch neighbor pars proml promlk protpars restml retree
+  PROGS := $(filter-out $(BUILD_FAILURES),$(PROGS))
+  DYLIBS :=
+  SHARED :=
+else
+  DYLIBS := libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so
+  DYLIBS += lidnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so
+  DYLIBS += libdrawtree.so libfactor.so libgendist.so libmix.so libneighbor.so libpars.so libpenny.so
+  DYLIBS += libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
+
+  SHARED := -shared
+endif
 
 #
 # General commands.
@@ -251,7 +265,11 @@ help:
 
 all:    introduce $(PROGS) $(DYLIBS)
 	@echo ""
-	@echo "Finished compiling."
+	@echo "Successfully built programs:"
+	@printf "\t$(PROGS)\n"
+	@echo ""
+	@echo "Did not try to build programs:"
+	@printf "\t$(BUILD_FAILURES)\n"
 
 introduce:
 	@echo ""
@@ -299,189 +317,189 @@ clean:
 #
 
 Slist.o:      Slist.c Slist.h
-	$(CC) -c Slist.c -shared -fPIC
+	$(CC) -c Slist.c $(SHARED) -fPIC
 
 phylip.o:     phylip.c phylip.h Slist.h
-	$(CC) -c phylip.c -shared -fPIC 
+	$(CC) -c phylip.c $(SHARED) -fPIC 
 
 # Add this to include debugging facility.
 # debug.o:      debug.c debug.h phylip.h Slist.h
 #	$(CC) -c debug.c
 
 seq.o:        seq.c phylip.h seq.h
-	$(CC) -c seq.c -shared -fPIC
+	$(CC) -c seq.c $(SHARED) -fPIC
 
 ml.o:         ml.c phylip.h ml.h
-	$(CC) -c ml.c -shared -fPIC 
+	$(CC) -c ml.c $(SHARED) -fPIC 
 
 rest_common.o:  rest_common.c rest_common.h phylip.h
-	$(CC) -c rest_common.c -shared -fPIC
+	$(CC) -c rest_common.c $(SHARED) -fPIC
 
 prom_common.o:  prom_common.c prom_common.h phylip.h
-	$(CC) -c prom_common.c -shared -fPIC
+	$(CC) -c prom_common.c $(SHARED) -fPIC
 
 parsimony.o:  parsimony.c phylip.h parsimony.h
-	$(CC) -c parsimony.c -shared -fPIC
+	$(CC) -c parsimony.c $(SHARED) -fPIC
 
 dnaparsimony.o:  dnaparsimony.c phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnaparsimony.c -shared -fPIC
+	$(CC) -c dnaparsimony.c $(SHARED) -fPIC
 
 disc.o:       disc.c phylip.h disc.h
-	$(CC) -c disc.c -shared -fPIC
+	$(CC) -c disc.c $(SHARED) -fPIC
 
 discreteparsimony.o:   discreteparsimony.c discreteparsimony.h phylip.h parsimony.h
-	$(CC) -c discreteparsimony.c -shared -fPIC
+	$(CC) -c discreteparsimony.c $(SHARED) -fPIC
 
 dollo.o:      dollo.c phylip.h dollo.h
-	$(CC) -c dollo.c -shared -fPIC
+	$(CC) -c dollo.c $(SHARED) -fPIC
 
 wagner.o:     wagner.c phylip.h wagner.h
-	$(CC) -c wagner.c -shared -fPIC
+	$(CC) -c wagner.c $(SHARED) -fPIC
 
 dist.o:       dist.c phylip.h dist.h
-	$(CC) -c dist.c -shared -fPIC
+	$(CC) -c dist.c $(SHARED) -fPIC
 
 cont.o:       cont.c cont.h phylip.h
-	$(CC) -c cont.c -shared -fPIC
+	$(CC) -c cont.c $(SHARED) -fPIC
 
 moves.o:      moves.c phylip.h moves.h
 	$(CC) -c moves.c
 
 cons.o:       cons.c cons.h phylip.h
-	$(CC) -c cons.c -shared -fPIC
+	$(CC) -c cons.c $(SHARED) -fPIC
 
 pmatrix.o:    pmatrix.c pmatrix.h
-	$(CC) -c pmatrix.c -shared -fPIC
+	$(CC) -c pmatrix.c $(SHARED) -fPIC
 
 matrixd.o:    matrixd.c matrixd.h
-	$(CC) -c matrixd.c -shared -fPIC
+	$(CC) -c matrixd.c $(SHARED) -fPIC
 
 drawinit.o:   drawinit.c draw.c draw2.c draw.h
-	$(CC) -c drawinit.c -shared -fPIC
+	$(CC) -c drawinit.c $(SHARED) -fPIC
 
 #
 # Compile the individual programs.
 #
 
 clique.o:     clique.c disc.h phylip.h
-	$(CC) -c clique.c -shared -fPIC
+	$(CC) -c clique.c $(SHARED) -fPIC
 
 codml.o:      codml.c ml.h seq.h phylip.h
-	$(CC) -c codml.c -shared -fPIC
+	$(CC) -c codml.c $(SHARED) -fPIC
 
 consense.o:   consense.c cons.h phylip.h
-	$(CC) -c consense.c -shared -fPIC
+	$(CC) -c consense.c $(SHARED) -fPIC
 
 contml.o:     contml.c cont.h phylip.h ml.h Slist.h
-	$(CC) -c contml.c -shared -fPIC
+	$(CC) -c contml.c $(SHARED) -fPIC
 
 contrast.o:   contrast.c cont.h phylip.h
-	$(CC) -c contrast.c -shared -fPIC
+	$(CC) -c contrast.c $(SHARED) -fPIC
 
 dnacomp.o:    dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
-	$(CC) -c dnacomp.c -shared -fPIC
+	$(CC) -c dnacomp.c $(SHARED) -fPIC
 
 dnadist.o:    dnadist.c seq.h pmatrix.h phylip.h
-	$(CC) -c dnadist.c -shared -fPIC
+	$(CC) -c dnadist.c $(SHARED) -fPIC
 
 dnainvar.o:   dnainvar.c seq.h phylip.h
-	$(CC) -c dnainvar.c -shared -fPIC
+	$(CC) -c dnainvar.c $(SHARED) -fPIC
 
 dnaml.o:      dnaml.c seq.h ml.h phylip.h
-	$(CC) -c dnaml.c -shared -fPIC
+	$(CC) -c dnaml.c $(SHARED) -fPIC
 
 dnamlk.o:     dnamlk.c seq.h ml.h phylip.h
-	$(CC) -c dnamlk.c -shared -fPIC
+	$(CC) -c dnamlk.c $(SHARED) -fPIC
 
 dnamove.o:    dnamove.c seq.h moves.h phylip.h parsimony.h dnaparsimony.h
 	$(CC) -c dnamove.c
 
 dnapars.o:    dnapars.c seq.h phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnapars.c -shared -fPIC
+	$(CC) -c dnapars.c $(SHARED) -fPIC
 
 dnapenny.o:   dnapenny.c seq.h phylip.h parsimony.h dnaparsimony.h
-	$(CC) -c dnapenny.c -shared -fPIC
+	$(CC) -c dnapenny.c $(SHARED) -fPIC
 
 dolmove.o:    dolmove.c disc.h moves.h dollo.h phylip.h
 	$(CC) -c dolmove.c
 
 dollop.o:     dollop.c disc.h dollo.h phylip.h
-	$(CC) -c dollop.c -shared -fPIC
+	$(CC) -c dollop.c $(SHARED) -fPIC
 
 dolpenny.o:   dolpenny.c disc.h dollo.h phylip.h
-	$(CC) -c dolpenny.c -shared -fPIC
+	$(CC) -c dolpenny.c $(SHARED) -fPIC
 
 draw.o:       draw.c draw.h phylip.h
-	$(DC) -c draw.c -shared -fPIC
+	$(DC) -c draw.c $(SHARED) -fPIC
 
 draw2.o:      draw2.c draw.h phylip.h
-	$(DC) -c draw2.c -shared -fPIC
+	$(DC) -c draw2.c $(SHARED) -fPIC
 
 drawgram.o:   drawinit.c drawgram.c draw.h phylip.h Slist.h
-	$(DC) -c drawgram.c -shared -fPIC
+	$(DC) -c drawgram.c $(SHARED) -fPIC
 
 drawtree.o:   drawinit.c drawtree.c draw.h phylip.h Slist.h
-	$(DC) -c drawtree.c -shared -fPIC
+	$(DC) -c drawtree.c $(SHARED) -fPIC
 
 factor.o:     factor.c phylip.h
-	$(CC) -c factor.c -shared -fPIC
+	$(CC) -c factor.c $(SHARED) -fPIC
 
 fitch.o:      fitch.c dist.h phylip.h ml.h Slist.h
-	$(CC) -c fitch.c -shared -fPIC
+	$(CC) -c fitch.c $(SHARED) -fPIC
 
 gendist.o:    gendist.c phylip.h pmatrix.c pmatrix.h
-	$(CC) -c gendist.c -shared -fPIC
+	$(CC) -c gendist.c $(SHARED) -fPIC
 
 interface.o:  interface.c interface.h draw.h phylip.h
-	$(DC) -c interface.c -shared -fPIC
+	$(DC) -c interface.c $(SHARED) -fPIC
 
 kitsch.o:     kitsch.c dist.h ml.h phylip.h
-	$(CC) -c kitsch.c -shared -fPIC
+	$(CC) -c kitsch.c $(SHARED) -fPIC
 
 mix.o:        mix.c disc.h wagner.h phylip.h
-	$(CC) -c mix.c -shared -fPIC
+	$(CC) -c mix.c $(SHARED) -fPIC
 
 move.o:       move.c disc.h moves.h wagner.h phylip.h
 	$(CC) -c move.c
 
 neighbor.o:   neighbor.c dist.h phylip.h
-	$(CC) -c neighbor.c -shared -fPIC
+	$(CC) -c neighbor.c $(SHARED) -fPIC
 
 pars.o:       pars.c discreteparsimony.h phylip.h parsimony.h
-	$(CC) -c pars.c -shared -fPIC
+	$(CC) -c pars.c $(SHARED) -fPIC
 
 penny.o:      penny.c disc.h wagner.h phylip.h
-	$(CC) -c penny.c -shared -fPIC
+	$(CC) -c penny.c $(SHARED) -fPIC
 
 proml.o:      proml.c seq.h ml.h phylip.h prom_common.h prom_common.c
-	$(CC) -c proml.c -shared -fPIC
+	$(CC) -c proml.c $(SHARED) -fPIC
 
 promlk.o:     promlk.c seq.h ml.h phylip.h prom_common.h prom_common.c
-	$(CC) -c promlk.c -shared -fPIC
+	$(CC) -c promlk.c $(SHARED) -fPIC
 
 protdist.o:   protdist.c seq.h phylip.h pmatrix.c pmatrix.h
-	$(CC) -c protdist.c -shared -fPIC
+	$(CC) -c protdist.c $(SHARED) -fPIC
 
 protpars.o:   protpars.c seq.h phylip.h parsimony.h
-	$(CC) -c protpars.c -shared -fPIC
+	$(CC) -c protpars.c $(SHARED) -fPIC
 
 restdist.o:   restdist.c rest_common.h seq.h phylip.h pmatrix.c pmatrix.h
-	$(CC) -c restdist.c -shared -fPIC
+	$(CC) -c restdist.c $(SHARED) -fPIC
 
 restml.o:     restml.c rest_common.h seq.h ml.h phylip.h
-	$(CC) -c restml.c -shared -fPIC
+	$(CC) -c restml.c $(SHARED) -fPIC
 
 retree.o:     retree.c moves.h phylip.h
 	$(CC) -c retree.c
 
 seqboot.o:    seqboot.c phylip.h
-	$(CC) -c seqboot.c -shared -fPIC
+	$(CC) -c seqboot.c $(SHARED) -fPIC
 
 threshml.o:   threshml.c cont.h phylip.h Slist.h
-	$(CC) -c threshml.c -shared -fPIC
+	$(CC) -c threshml.c $(SHARED) -fPIC
 
 treedist.o:   treedist.c cons.h phylip.h
-	$(CC) -c treedist.c -shared -fPIC
+	$(CC) -c treedist.c $(SHARED) -fPIC
 
 #
 # Link the individual programs.
@@ -602,84 +620,84 @@ treedist:     treedist.o cons.o $(LIBS)
 # Dynamic libraries (.so)
 
 libclique.so:   clique.o disc.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libclique.so -shared -fPIC clique.c disc.c phylip.c
+	$(CC) $(CFLAGS) -o libclique.so $(SHARED) -fPIC clique.c disc.c phylip.c
 
 libcodml.so:    codml.o ml.o seq.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libcodml.o -shared -fPIC codml.c ml.c seq.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libcodml.o $(SHARED) -fPIC codml.c ml.c seq.c phylip.c Slist.c
 
 libconsense.so:	consense.o cons.o phylip.o Slist.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libconsense.so -shared -fPIC consense.c cons.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libconsense.so $(SHARED) -fPIC consense.c cons.c phylip.c Slist.c
 
 libcontml.so:   contml.o cont.o ml.o phylip.o phylip.h ml.h Slist.h $(LIBS)
-	$(CC) $(CFLAGS) -o libcontml.so -shared -fPIC contml.c cont.c ml.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libcontml.so $(SHARED) -fPIC contml.c cont.c ml.c phylip.c Slist.c
 
 libdnacomp.so: dnacomp.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnacomp.so -shared -fPIC dnacomp.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdnacomp.so $(SHARED) -fPIC dnacomp.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
 
 libdnadist.so:	dnadist.o pmatrix.o seq.o phylip.o phylip.h seq.h  $(LIBS)
-	$(CC) $(CFLAGS) -o libdnadist.so -shared -fPIC dnadist.c seq.c phylip.c pmatrix.c matrixd.c Slist.c
+	$(CC) $(CFLAGS) -o libdnadist.so $(SHARED) -fPIC dnadist.c seq.c phylip.c pmatrix.c matrixd.c Slist.c
 
 libdnainvar.so: dnainvar.o seq.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnainvar.so -shared -fPIC dnainvar.c seq.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdnainvar.so $(SHARED) -fPIC dnainvar.c seq.c phylip.c Slist.c
 
 libdnaml.so:	dnaml.o seq.o ml.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnaml.so -shared -fPIC dnaml.c seq.c ml.c phylip.c Slist.c -shared -fPIC
+	$(CC) $(CFLAGS) -o libdnaml.so $(SHARED) -fPIC dnaml.c seq.c ml.c phylip.c Slist.c -shared -fPIC
 
 libdnapars.so: dnapars.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnapars.so -shared -fPIC dnapars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdnapars.so $(SHARED) -fPIC dnapars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
 
 libdnapenny.so: dnapenny.o seq.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdnapenny.so -shared -fPIC dnapenny.c seq.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdnapenny.so $(SHARED) -fPIC dnapenny.c seq.c phylip.c Slist.c
 
 libdollop.so:    dollop.o disc.o dollo.o wagner.o dollo.h phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libdollop.so -shared -fPIC dollop.c dollo.c disc.c wagner.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdollop.so $(SHARED) -fPIC dollop.c dollo.c disc.c wagner.c phylip.c Slist.c
 
 libdolpenny.so:    dolpenny.o disc.o wagner.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libdolpenny.so -shared -fPIC dolpenny.c disc.c wagner.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libdolpenny.so $(SHARED) -fPIC dolpenny.c disc.c wagner.c phylip.c Slist.c
 
 libdrawgram.so:   drawgram.o draw.o draw2.o drawinit.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdrawgram.so -shared -fPIC drawgram.c draw.c draw2.c drawinit.c Slist.c phylip.c
+	$(CC) $(CFLAGS) -o libdrawgram.so $(SHARED) -fPIC drawgram.c draw.c draw2.c drawinit.c Slist.c phylip.c
 
 libdrawtree.so:   drawtree.o draw.o draw2.o drawinit.o $(LIBS)
-	$(CC) $(CFLAGS) -o libdrawtree.so -shared -fPIC drawtree.c draw.c draw2.c drawinit.c Slist.c phylip.c
+	$(CC) $(CFLAGS) -o libdrawtree.so $(SHARED) -fPIC drawtree.c draw.c draw2.c drawinit.c Slist.c phylip.c
 
 libfactor.so:   factor.o phylip.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libfactor.so -shared -fPIC factor.c phylip.c
+	$(CC) $(CFLAGS) -o libfactor.so $(SHARED) -fPIC factor.c phylip.c
 
 libfitch.so:	fitch.o phylip.o dist.o ml.o $(LIBS)
-	$(CC) $(CFLAGS) -o libfitch.so -shared -fPIC fitch.c phylip.c ml.c dist.c Slist.c
+	$(CC) $(CFLAGS) -o libfitch.so $(SHARED) -fPIC fitch.c phylip.c ml.c dist.c Slist.c
 
 libgendist.so:  gendist.o phylip.o pmatrix.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libgendist.so -shared -fPIC gendist.c pmatrix.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libgendist.so $(SHARED) -fPIC gendist.c pmatrix.c phylip.c Slist.c
 
 libmix.so:    mix.o disc.o wagner.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libmix.so -shared -fPIC mix.c disc.c wagner.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libmix.so $(SHARED) -fPIC mix.c disc.c wagner.c phylip.c Slist.c
 
 libneighbor.so: neighbor.o dist.o phylip.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libneighbor.so -shared -fPIC neighbor.c dist.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libneighbor.so $(SHARED) -fPIC neighbor.c dist.c phylip.c Slist.c
 
 libpars.so: pars.o parsimony.o discreteparsimony.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libpars.so -shared -fPIC pars.c discreteparsimony.c parsimony.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libpars.so $(SHARED) -fPIC pars.c discreteparsimony.c parsimony.c phylip.c Slist.c
 
 libpenny.so:    penny.o disc.o wagner.o phylip.h $(LIBS)
-	$(CC) $(CFLAGS) -o libpenny.so -shared -fPIC penny.c disc.c wagner.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libpenny.so $(SHARED) -fPIC penny.c disc.c wagner.c phylip.c Slist.c
 
 libproml.so:	proml.o seq.o ml.c prom_common.c $(LIBS)
-	$(CC) $(CFLAGS) -o libproml.so -shared -fPIC proml.c prom_common.c seq.c ml.c phylip.c Slist.c -shared -fPIC
+	$(CC) $(CFLAGS) -o libproml.so $(SHARED) -fPIC proml.c prom_common.c seq.c ml.c phylip.c Slist.c -shared -fPIC
 
 libprotdist.so:  protdist.o pmatrix.o seq.o $(LIBS)
-	$(CC) $(CFLAGS) -o libprotdist.so -shared -fPIC protdist.c seq.c pmatrix.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libprotdist.so $(SHARED) -fPIC protdist.c seq.c pmatrix.c phylip.c Slist.c
 
 libprotpars.so: protpars.o seq.o parsimony.o dnaparsimony.o phylip.o $(LIBS)
-	$(CC) $(CFLAGS) -o libprotpars.so -shared -fPIC protpars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libprotpars.so $(SHARED) -fPIC protpars.c seq.c dnaparsimony.c parsimony.c phylip.c Slist.c
 
 librestdist.so:  restdist.o rest_common.o seq.o pmatrix.o $(LIBS)
-	$(CC) $(CFLAGS) -o librestdist.so -shared -fPIC restdist.c rest_common.c seq.c pmatrix.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o librestdist.so $(SHARED) -fPIC restdist.c rest_common.c seq.c pmatrix.c phylip.c Slist.c
 
 libseqboot.so:  seqboot.o seq.o $(LIBS)
-	$(CC) $(CFLAGS) -o libseqboot.so -shared -fPIC seqboot.c seq.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libseqboot.so $(SHARED) -fPIC seqboot.c seq.c phylip.c Slist.c
 
 libtreedist.so: treedist.o cons.o $(LIBS)
-	$(CC) $(CFLAGS) -o libtreedist.so -shared -fPIC treedist.c cons.c phylip.c Slist.c
+	$(CC) $(CFLAGS) -o libtreedist.so $(SHARED) -fPIC treedist.c cons.c phylip.c Slist.c
 
 # End.
