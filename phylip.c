@@ -3185,15 +3185,11 @@ void addelement2(tree* t, node *q, Char *ch, long *parens, FILE *treefile,
     }
     /* This is an assignment of an interior node */
     p = t->nodep[current_loop_index];
-    (*initnode)(treep, p, len, nodei, ntips, parens,
-               bottom, nodep, str, ch, treefile);
     pfirst = p;
     notlast = true;
     while (notlast) {      /* This while loop goes through a circle (triad for
                                          the case of bifurcations) of nodes */
       furcs++;
-      (*initnode)(treep, p, len, nodei, ntips, parens,
-                 nonbottom, nodep, str, ch, treefile);
       p = p->next;
       /* added to ensure that non base nodes in loops have indices */
       p->index = current_loop_index + 1;
