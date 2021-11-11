@@ -1,5 +1,5 @@
 default:
-  image: gcc:8.5.0       # contains both gcc and make
+  image: gcc:9       # contains both gcc and make
   before_script:
       - ln -s Makefile.unix Makefile
       - make clean # cleanliness is next to godliness
