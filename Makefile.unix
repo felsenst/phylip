@@ -219,6 +219,11 @@ ifeq ($(UNAME),Darwin)
   PROGS := $(filter-out $(BUILD_FAILURES),$(PROGS))
   DYLIBS :=
   SHARED :=
+else ifeq ($(UNAME),Linux)
+  BUILD_FAILURES := codml contml contrast dnamlk dnamove fitch kitsch neighbor pars proml promlk protpars restml retree
+  PROGS := $(filter-out $(BUILD_FAILURES),$(PROGS))
+  DYLIBS :=
+  SHARED :=
 else
   DYLIBS := libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so
   DYLIBS += lidnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so
