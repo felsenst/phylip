@@ -1,7 +1,7 @@
 default:
   image: gcc:8.5.0       # contains both gcc and make
   before_script:
-      - ln-s Makefile.linux Makefile
+      - ln -s Makefile.linux Makefile
       - make clean # cleanliness is next to godliness
 
 stages:          # List of stages for jobs, and their order of execution
