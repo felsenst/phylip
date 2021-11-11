@@ -4982,7 +4982,6 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   /* try to insert in one place, return "succeeded", then restore */
   double like = 0.0;   /* bogus initialization to avoid  gcc  warning */
   boolean succeeded, bettertree;
-  node* dummy;
 
   succeeded = false;
 /* debug */ printf("try_insert: starts with tree:\n"); seetree(t);

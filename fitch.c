@@ -40,6 +40,8 @@ void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
 void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
+void   initfitchnode(tree *, node **, long, long, long *, long *, initops,
+                      pointarray, Char *, Char *, FILE *);
 void   fitch_setupnewfork(tree *, long);
 void   fitch_buildsimpletree(tree *, long);
 void   rearrange(node *, long *, long *, boolean *);
@@ -711,6 +713,62 @@ void fitch_buildnewtip(long m, tree *t, long nextsp)
 }  /* fitch_buildnewtip */
 
 
+void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
+                    long *parens, initops whichinit, pointarray nodep,
+                    Char *str, Char *ch, FILE *intree)
+{
+  /* initializes a node */
+  boolean minusread;
+  double valyew, divisor;
+
+  (void)len;                            // RSGnote: Parameter never used.
+  (void)ntips;                          // RSGnote: Parameter never used.
+
+  switch (whichinit)
+  {
+    case bottom:
+      *p = treep->get_forknode(treep, nodei);
+/* debug:      ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs); */
+      assert((*p)->index > 0);
+      nodep[(*p)->index - 1] = (*p);
+      break;
+    case nonbottom:
+      *p = treep->get_forknode(treep, nodei);
+/* debug ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs);    */
+      break;
+    case tip:
+      match_names_to_data (str, nodep, p, spp);
+      break;
+    case iter:
+      (*p)->initialized = false;
+      (*p)->v = initialv;
+      (*p)->iter = true;
+      if ((*p)->back != NULL)
+      {
+        (*p)->back->iter = true;
+        (*p)->back->v = initialv;
+        (*p)->back->initialized = false;
+      }
+      break;
+    case length:
+      processlength(&valyew, &divisor, ch, &minusread, intree, parens);
+      (*p)->v = valyew / divisor;
+      (*p)->iter = false;
+      if ((*p)->back != NULL)
+      {
+        (*p)->back->v = (*p)->v;
+        (*p)->back->iter = false;
+      }
+      break;
+    case hsnolength:
+      haslengths = false;
+      break;
+    default:        /* cases hslength, treewt, unittrwt */
+      break;        /* should never occur               */
+  }
+} /* initfitchnode */
+
+
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
   /* make and initialize a three-species tree */
@@ -857,11 +915,12 @@ void maketree(void)
   /* contruct the tree */
   long nextsp, numtrees=-1;
   boolean dummy_first=true, lastrearr, succeeded=false;
-  long i, k, which;
+  long i, k, which, nextnode;
   double bestyet, *bestfound = NULL;
   node *p;
 
   if (usertree) {              /* the case where we are reading a user tree */
+    nextnode = 0;
     inputdata(replicates, printdata, lower, upper, x, reps);
     dist_tree_init(curtree, nonodes);                  /* initialize a tree */
     for (which = 1; which <= spp; which++)               /* set up its tips */
@@ -887,7 +946,7 @@ void maketree(void)
 /* debug:      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes);   debug */
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
-                &dummy_first, &nextnode, &haslengths, initdnamlnode,
+                &dummy_first, &nextnode, &haslengths, initfitchnode,
                 false, nonodes);
       nums = spp;
       treevaluate();  /* evaluate tree, if needed estimating branch lengths */
