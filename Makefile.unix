@@ -444,7 +444,7 @@ mix.o:        mix.c disc.h wagner.h phylip.h
 move.o:       move.c disc.h moves.h wagner.h phylip.h
 	$(CC) -c move.c
 
-neighbor.o:   neighbor.c dist.h phylip.h
+neighbor.o:   neighbor.c dist.c dist.h phylip.h
 	$(CC) -c neighbor.c -shared -fPIC
 
 pars.o:       pars.c discreteparsimony.h phylip.h parsimony.h
