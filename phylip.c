@@ -382,7 +382,7 @@ node* findroot (tree* t, node* p, boolean* found) {
   for (q = p->next; q != p; q = q->next) {              /* go around circle */
     if (q->back == NULL) {            /* ... until find one with back empty */
       r = q;
-      *found = true;
+      *found = true;      /* return pointer to that node and set found true */
     }
   }
   return r;
@@ -3396,6 +3396,62 @@ char gettc(FILE* file)
 
 /************* More tree functions **********/
 
+
+void unroot_here(tree* t, node* p, long nonodes)
+{
+  /* used by unroot: move to the end of the nodep list of interior
+   * nodes the interior fork  p  points to, which is to be released.
+   * Do this if that fork was a bifurcation with only two neighbors.  */
+  node* tmpnode, q;
+  double newl;
+
+  if (p->next->next != p) {     /* if not an orphaned bifurcation, bail out */
+    newl = p->next->oldlen + p->next->next->oldlen;          /* add lengths */
+    p->back->oldlen = newl;          /* make neighbors have that length ... */
+    p->next->back->oldlen = newl;
+    p->next->back->back = p->next->next->back;      /* ... and point to ... */
+    p->next->next->back->back = p->next->back;            /* ... each other */
+    while (p->index != (nonodes-1)) {  /* ripple orphaned node to last fork */
+      tmpnode = t->nodep[p->index];                  /* points to next fork */
+      t->nodep[p->index-1] = tmpnode;         /* move it one down (earlier) */
+      q = tmpnode;
+      do {         /* renumber index number of the nodes in the fork circle */
+        tmpnode->index += 1;
+        tmpnode = tmpnode->next;
+      } while (tmpnode != q);
+    }
+    p->next->back = NULL;   /* null the orphan fork's back pointers and ... */
+    p->next->next->back = NULL;
+    p->next->v = 0.0;       /* ... zero the branch lengths to neighbors ... */
+    p->next->next->v = 0.0;               /* ... (which may be unnecessary) */
+  }
+} /* unroot_here */
+
+
+void unroot_r(tree* t, node* p, long nonodes) {
+  /* used by unroot: go around tree recursively looking for
+   * the interior node that has a "back" pointer to NULL
+   * it will then call  unroot_here  which cuts that
+   * interior node out and releases it  */
+/* debug:  may be totally unnecessary, not used now */
+  node *q;
+
+  if (p->tip) return;
+
+  q = p->next;
+  while ( q != p ) {
+    if ((q->back == NULL) && (q->next->next->next == q)) {
+      unroot_here(t, q, nonodes);
+    }
+    else {
+      if (q->back != NULL)
+        unroot_r(t, q->back, nonodes);
+    }
+    q = q->next;
+  }
+} /* unroot_r */
+
+
 void unroot(tree* t, long nonodes)
 { 
   /* if tree has a bifurcation at the rootmost interior node,
@@ -3406,86 +3462,21 @@ void unroot(tree* t, long nonodes)
   node* p;
   boolean found;
 
-  p = findroot(t, t->root, &found);      /* find node with NULL back pointer */
-  if (p->back == NULL) {            /* move root pointer point to leftmost  */
-    p = t->root;
-    if (t->root->next->back->tip)      /* interior node descended from ...  */
-      t->root = t->root->next->next->back;   /* that rootmost interior node */
-    else t->root = t->root->next->back;
-  }
-/* I think the following stuff is to deal with the case where
- * there is an interior node which used to be rootmost and still has
- * only two neighbors  */
-  if (t->root->next->back == NULL) {
-    if (t->root->back->tip)
-      t->root = t->root->next->next->back;
-    else t->root = t->root->back;
-  }
-  if (t->root->next->next->back == NULL) {
-    if (t->root->back->tip)
-      t->root = t->root->next->back;
-    else t->root = t->root->back;
-  }
-
+  p = findroot(t, t->root, &found);     /* find node with NULL back pointer */
+  if (found == true) {
+    if (p->next->back->tip)            /* interior node descended from ...  */
+      t->root = p->next->next->back;         /* that rootmost interior node */
+    else t->root = p->next->back;
+#if 0
+/* debug:  the following two seem unnecessary */
   unroot_r(t, t->root, nonodes); /* traverse to find interior ... */
   unroot_r(t, t->root->back, nonodes); /*  forks to be released */
-  generic_tree_release_fork(t, p);
+#endif
+    unroot_here(t, p, nonodes);      /* if root node was a two-node circle ...
+                  unhook it from its neighbors and move to end of the forks */
+    generic_tree_release_fork(t, p);             /* toss that orphaned fork */
+  }
 } /* unroot */
-
-
-void unroot_here(tree* t, node* root, long nonodes)
-{
-  /* used by unroot: move to the end of the nodep list of interior
-   * nodes the interior node that is to be
-   * released once we have moved the root
-   * assumes bifurcation -- it is only called in that case */
-  node* tmpnode;
-  double newl;
-
-  newl = root->next->oldlen + root->next->next->oldlen; /* add lengths */
-  root->next->back->oldlen = newl;
-  root->next->next->back->oldlen = newl;
-
-  newl = root->next->v + root->next->next->v;
-  root->next->back->v = newl;
-  root->next->next->back->v = newl;
-
-  root->next->back->back = root->next->next->back;
-  root->next->next->back->back = root->next->back;
-
-  while ( root->index != nonodes ) {
-    tmpnode = t->nodep[ root->index ];
-    t->nodep[root->index] = root;
-    root->index++;
-    root->next->index++;
-    root->next->next->index++;
-    t->nodep[root->index - 2] = tmpnode;
-    tmpnode->index--;
-    tmpnode->next->index--;
-    tmpnode->next->next->index--;
-  }
-} /* unroot_here */
-
-
-void unroot_r(tree* t, node* p, long nonodes)
-{
-  /* used by unroot: go around tree recursively looking for
-   * the interior node that has a "back" pointer to NULL
-   * it will then call  unroot_here  which cuts that
-   * interior node out and releases it  */
-  node *q;
-
-  if ( p->tip) return;
-
-  q = p->next;
-  while ( q != p ) {
-    if (q->back == NULL) {
-      unroot_here(t, q, nonodes);
-    }
-    else unroot_r(t, q->back, nonodes);
-    q = q->next;
-  }
-} /* unroot_r */
 
 
 void release_all_forks(tree* t)
