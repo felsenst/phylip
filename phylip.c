@@ -3402,7 +3402,7 @@ void unroot_here(tree* t, node* p, long nonodes)
   /* used by unroot: move to the end of the nodep list of interior
    * nodes the interior fork  p  points to, which is to be released.
    * Do this if that fork was a bifurcation with only two neighbors.  */
-  node* tmpnode, q;
+  node *tmpnode, *q;
   double newl;
 
   if (p->next->next != p) {     /* if not an orphaned bifurcation, bail out */

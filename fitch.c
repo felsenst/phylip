@@ -87,7 +87,8 @@ tree* fitch_tree_new(long nonodes, long spp)
   /* initialize a tree for Fitch */
   tree* t;
 
-  t = Malloc(sizeof(fitch_tree));
+/* debug: superseded by Malloc in generic_tree_new?   t = Malloc(sizeof(fitch_tree)); */
+  t = generic_tree_new(nonodes, spp);
   t->do_newbl = true;
   fitch_tree_init(t, nonodes, spp);
   return t;
@@ -627,14 +628,14 @@ void correctv(node *p)
 
 
 void alter(node *x, node *y)
-{
+{ 
   /* traverse updating these views */
   if (y != NULL) {
-    nudists(x, y);  /* debug:  should this be after traversal? */
     if (!y->tip) {
       alter(x, y->next->back);
       alter(x, y->next->next->back);
     }
+    nudists(x, y);  /* debug:  should this be after traversal? */
   }
 }  /* alter */
 
@@ -906,7 +907,8 @@ void treevaluate(void)
       curtree->evaluate(curtree, curtree->root, false);
     } while (fabs(curtree->score - oldlike) > delta);
   }
-  curtree->evaluate(curtree, curtree->root, false);
+  else
+    curtree->evaluate(curtree, curtree->root->next, false);
 }  /* treevaluate */
 
 
@@ -1400,9 +1402,9 @@ int main(int argc, Char *argv[])
   argv[0]="Fitch";
 #endif
   funcs = Malloc(sizeof(initdata));
+  phylipinit(argc, argv, funcs, false);
   funcs->node_new = dist_node_new;
   functions.tree_new = fitch_tree_new;
-  phylipinit(argc, argv, funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
   openfile(&outfile, OUTFILE, "output file", "w", argv[0], outfilename);
