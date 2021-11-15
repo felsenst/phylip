@@ -101,7 +101,7 @@ void allocd(long nonodes, pointptr treenode)
 
   for (i = 0; i < spp; i++)
   {
-    dtreenode[i]->d = (vector)Malloc(nonodes * sizeof(double));
+    dtreenode[i]->d = (vector)Malloc((nonodes+1) * sizeof(double));
   }
   for (i = spp; i < nonodes; i++) {
     p = dtreenode[i];
@@ -137,6 +137,7 @@ void freed(long nonodes, pointptr treenode)
 void allocw(long nonodes, pointptr treenode)
 {
   /* allocate weights array. used in fitch & kitsch */
+/* debug:  formerly used in fitch, kitsch and neighbor, not used now */
   long i, j;
   dist_node *p;
   dist_node **dtreenode = (dist_node**)treenode;
