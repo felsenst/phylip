@@ -685,8 +685,12 @@ void fitch_setuptip(tree *t, long m)
   dist_node *which;
 
   which = (dist_node*)t->nodep[m - 1];
-  memcpy(*(which->d), *(x[m - 1]), (spp * sizeof(double)));  /* debug: too long? */
-  memcpy(n, reps[m - 1], (spp * sizeof(long)));
+/* debug:  memcpy(*(which->d), *(x[m - 1]), (spp * sizeof(double)));  too long? */ 
+/* debug:   memcpy(n, reps[m - 1], (spp * sizeof(long))); */
+  for (i = 0; i < spp; i++) {
+    which->d[i] = x[m-1][i];
+    n[i] = reps[m-1][i];
+  }
   for (i = 0; i < spp; i++) {
     if (((i + 1) != m) && (n[i] > 0)) {
       if (which->d[i] < epsilonf)
