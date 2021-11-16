@@ -1918,7 +1918,8 @@ void maketree(void)
     while (which <= numtrees)
     {
       preparetree(curtree);
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight, &goteof, &haslengths, &spp, false, nonodes2);
+      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
+                  &goteof, &haslengths, &spp, false, nonodes2);
       fixtree(curtree);
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
@@ -1971,7 +1972,9 @@ void maketree(void)
       bestyet = - nextsp*sites*sitelength*log(4.0);
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], curtree->root, true, &qwhere, &bestyet, bestree, priortree, smoothit, NULL);
+      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1]-1],
+                             curtree->root, further, &qwhere, &bestyet,
+                             bestree, priortree, smoothit, NULL);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else

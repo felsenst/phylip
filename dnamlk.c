@@ -2006,7 +2006,8 @@ void maketree(void)
       there = curtree->root;
       item = curtree->nodep[enterorder[i - 1] - 1];
       lastsp = (i == spp);
-      curtree->addtraverse(curtree, item, curtree->root, true, &there, &bestyet, bestree, priortree, false, &multf);
+      curtree->addtraverse(curtree, item, curtree->root, further, &there,
+                            &bestyet, bestree, priortree, false, &multf);
       curtree->insert_(curtree, item, there, true, multf);
       curtree->smoothall(curtree, curtree->root);/* do we need this */
       curtree->locrearrange(curtree, curtree->root, false, priortree, bestree);

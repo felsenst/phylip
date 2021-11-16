@@ -1439,7 +1439,7 @@ void maketree(void)
     }
     while (which <= numtrees)
     {
-      treeread2 (intree, &curtree->root, curtree->nodep, lngths, &trweight,
+      treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes2);
       treevaluate();
       if (treeprint)
@@ -1506,7 +1506,7 @@ void maketree(void)
       p = curtree->get_fork(curtree, k);
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1],p);
       qwhere = NULL;
-      curtree->addtraverse(curtree, p, curtree->root, true, qwhere,
+      curtree->addtraverse(curtree, p, curtree->root, further, qwhere,
                            &bestyet, bestree, true);
       bestree->copy(bestree, curtree);
 

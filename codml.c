@@ -3762,7 +3762,7 @@ void maketree(void)
 
       curtree->addtraverse(curtree,
                             curtree->nodep[enterorder[nextsp - 1] - 1],
-                            curtree->root, true, qwhere, &bestyet,
+                            curtree->root, further, qwhere, &bestyet,
                             bestree, smoothit);
       if (smoothit)
       {

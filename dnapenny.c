@@ -678,7 +678,8 @@ void addit(long m)
     dcurtree->place = place;
     dcurtree->n = n;
     curtree->addtraverse(curtree, curtree->nodep[order[m - 1] - 1],
-     curtree->root, true, qwhere, &bestyet, bestree, true, true, true, &bestfound);
+                          curtree->root, further, qwhere, &bestyet, bestree,
+                          true, true, true, &bestfound);
     n = dcurtree->n;
     besttoadd = order[m - 1];
     memcpy(bestplace, place, nonodes * sizeof(long));
@@ -698,7 +699,8 @@ void addit(long m)
         dcurtree->place = place;
         dcurtree->n = n;
         curtree->addtraverse(curtree, curtree->nodep[i - 1], curtree->root,
-            true, qwhere, &bestyet, bestree, true, true, multf, &bestfound);
+                       further, qwhere, &bestyet, bestree, true, true, multf, 
+                       &bestfound);
 /* debug
 boolean	pars_addtraverse(tree*, node*, node*, boolean, node*, double*,
                        bestelm*, boolean, boolean, boolean, double*);

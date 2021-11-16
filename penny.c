@@ -507,7 +507,7 @@ void evaluate(node2 *r)
 
 void addtraverse(node2 *a, node2 *b, node2 *c, long *m, long *n, valptr valyew, placeptr place)
 {
-  /* traverse all places to add b */
+  /* special version for B&B programs: traverse all places to add b */
   if (done)
     return;
   if ((*m) <= 2 || !(noroot && (a == root || a == root->next->back))) {
