@@ -178,7 +178,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(tree* a, long nonodes)
+void dist_tree_init(tree* a, long nonodes, long spp)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
@@ -199,12 +199,14 @@ void dist_tree_init(tree* a, long nonodes)
         p->iter = true;
         ((dist_node*)p)->t = 0.0;
         ((dist_node*)p)->sametime = false;
-        (tree*)a->nodep[i - 1]->d = (double)Malloc((nonodes+1)*sizeof(double));
+        ((dist_node*)(a->nodep[i - 1]))->d =
+                                  (double*)Malloc((nonodes+1)*sizeof(double));
         p = p->next;
       }
     }
     else {
-      (tree*)a->nodep[i - 1]->d = (double)Malloc((nonodes+1)*sizeof(double));
+      ((dist_node*)(a->nodep[i - 1]))->d =
+                                  (double*)Malloc((nonodes+1)*sizeof(double));
     }
   }
   a->score = -1.0;
