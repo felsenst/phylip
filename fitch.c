@@ -689,7 +689,7 @@ void fitch_setuptip(tree *t, long m)
   intvector n=(long *)Malloc(spp * sizeof(long));
   dist_node *which;
 
-  which = (dist_node*)t->nodep[m - 1];
+  which = (dist_node*)(t->nodep[m - 1]);
 /* debug:  memcpy(*(which->d), *(x[m - 1]), (spp * sizeof(double)));  too long? */ 
 /* debug:   memcpy(n, reps[m - 1], (spp * sizeof(long))); */
   for (i = 0; i < spp; i++) {
