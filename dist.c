@@ -178,7 +178,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(tree* a, long nonodes)
+void dist_tree_init(tree* a, long nonodes, long spp)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
@@ -187,24 +187,28 @@ void dist_tree_init(tree* a, long nonodes)
   node *p;
 
   for (i = 1; i <= nonodes; i++) {
-    a->nodep[i - 1]->back = NULL;
-    a->nodep[i - 1]->iter = true;
-    ((dist_node*)a->nodep[i - 1])->t = 0.0;
-    ((dist_node*)a->nodep[i - 1])->sametime = false;
-    a->nodep[i - 1]->v = 0.0;
-    if (i > spp) {         /* go around fork circles initializing variables */
-      p = a->nodep[i-1]->next;
-      while (p != a->nodep[i-1]) {    /* until you get to where you entered */
-        p->back = NULL;
-        p->iter = true;
-        ((dist_node*)p)->t = 0.0;
-        ((dist_node*)p)->sametime = false;
-        (tree*)a->nodep[i - 1]->d = (double)Malloc((nonodes+1)*sizeof(double));
-        p = p->next;
+    if (a->nodep[i - 1] != NULL) {
+      a->nodep[i - 1]->back = NULL;
+      a->nodep[i - 1]->iter = true;
+      ((dist_node*)a->nodep[i - 1])->t = 0.0;
+      ((dist_node*)a->nodep[i - 1])->sametime = false;
+      a->nodep[i - 1]->v = 0.0;
+      if (i > spp) {       /* go around fork circles initializing variables */
+        p = a->nodep[i-1]->next;
+        while (p != a->nodep[i-1]) {  /* until you get to where you entered */
+          p->back = NULL;
+          p->iter = true;
+          ((dist_node*)p)->t = 0.0;
+          ((dist_node*)p)->sametime = false;
+          ((dist_node*)(a->nodep[i - 1]))->d =
+                                  (vector)Malloc((nonodes+1)*sizeof(double));
+          p = p->next;
+        }
       }
-    }
-    else {
-      (tree*)a->nodep[i - 1]->d = (double)Malloc((nonodes+1)*sizeof(double));
+      else {
+        ((dist_node*)(a->nodep[i - 1]))->d =
+                                  (vector)Malloc((nonodes+1)*sizeof(double));
+      }
     }
   }
   a->score = -1.0;

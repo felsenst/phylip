@@ -140,9 +140,11 @@ void dnaml_tree_setup(long nonodes, long spp)
   /* create and initialize the necessary trees */
 
   curtree = dnaml_tree_new(nonodes, spp);
-  bestree = dnaml_tree_new(nonodes, spp);
-  bestree2 = dnaml_tree_new(nonodes, spp);
-  priortree = dnaml_tree_new(nonodes, spp);
+  if (!usertree) {
+    bestree = dnaml_tree_new(nonodes, spp);
+    bestree2 = dnaml_tree_new(nonodes, spp);
+    priortree = dnaml_tree_new(nonodes, spp);
+  }
 } /* dnaml_tree_setup */
 
 

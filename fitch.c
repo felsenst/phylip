@@ -82,25 +82,12 @@ Char ch;
 char *progname;
 
 
-tree* fitch_tree_new(long nonodes, long spp)
-{
-  /* initialize a tree for Fitch */
-  tree* t;
-
-/* debug: superseded by Malloc in generic_tree_new?   t = Malloc(sizeof(fitch_tree)); */
-  t = generic_tree_new(nonodes, spp);
-  t->do_newbl = true;
-  fitch_tree_init(t, nonodes, spp);
-  return t;
-} /* fitch_tree_new */
-
 
 void fitch_tree_init(tree* t, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch */
 
   generic_tree_init((tree*)t, nonodes, spp);
-  dist_tree_init((tree*)t, nonodes);   /* debug: need? */
   ((tree*)t)->evaluate = fitch_evaluate;
   ((tree*)t)->insert_ = ml_tree_insert_;
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;
@@ -112,6 +99,19 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
   ((tree*)t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   ((tree*)t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
+
+
+tree* fitch_tree_new(long nonodes, long spp)
+{
+  /* initialize a tree for Fitch */
+  tree* t;
+
+  t = generic_tree_new(nonodes, spp);     /* the tree pointers, nodes, etc. */
+  dist_tree_init(t, nonodes, spp);   /* stuff specific to distance programs */
+  t->do_newbl = true;
+  fitch_tree_init(t, nonodes, spp);              /* stuff specific to fitch */
+  return t;
+} /* fitch_tree_new */
 
 
 void getoptions(void)
@@ -341,19 +341,8 @@ void allocrest(void)
 } /* allocrest */
 
 
-void doinit(void)
-{
-  /* initializes variables */
-
-  inputnumbers2(&spp, &nonodes, 1);
-
-  if (!javarun)
-  {
-    getoptions();
-  }
-
-  if (!usertree)
-    nonodes--;
+void fitch_tree_setup(nonodes, spp) {
+ /* create the trees curtree, bestree, etc. */
 
   curtree = functions.tree_new(nonodes, spp);
   if (!usertree) {
@@ -362,8 +351,23 @@ void doinit(void)
     if (njumble > 1)
       bestree2 = functions.tree_new(nonodes, spp);
   }
+} /* fitch_tree_setup */
 
+
+void doinit(void)
+{
+  /* initializes variables */
+
+  inputnumbers2(&spp, &nonodes, 1);       /* read tree size from first line */
+
+  if (!javarun)
+  {
+    getoptions();                      /* read in the options from the menu */
+  }
+  if (!usertree)              /* if not a user tree no rootmost bifurcation */
+    nonodes--;
   allocrest();
+  fitch_tree_setup(nonodes, spp);            /* setting up the trees needed */
 }  /* doinit */
 
 
@@ -397,6 +401,7 @@ void fitch_getinput(void)
 {
   /* reads the input data */
   inputoptions();
+  fitch_tree_setup(nonodes, spp);  /* make the trees curtree, bestree etc. */
 }  /* fitch_getinput */
 
 
@@ -684,7 +689,7 @@ void fitch_setuptip(tree *t, long m)
   intvector n=(long *)Malloc(spp * sizeof(long));
   dist_node *which;
 
-  which = (dist_node*)t->nodep[m - 1];
+  which = (dist_node*)(t->nodep[m - 1]);
 /* debug:  memcpy(*(which->d), *(x[m - 1]), (spp * sizeof(double)));  too long? */ 
 /* debug:   memcpy(n, reps[m - 1], (spp * sizeof(long))); */
   for (i = 0; i < spp; i++) {
@@ -928,7 +933,6 @@ void maketree(void)
   if (usertree) {              /* the case where we are reading a user tree */
     nextnode = 0;
     inputdata(replicates, printdata, lower, upper, x, reps);
-    dist_tree_init(curtree, nonodes);                  /* initialize a tree */
     for (which = 1; which <= spp; which++)               /* set up its tips */
       fitch_setuptip(curtree, which);
     if (eoln(infile))                 /* go to a new line if at end of line */

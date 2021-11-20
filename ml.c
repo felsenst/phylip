@@ -924,7 +924,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
  *  depending on the value of thorough. If multf is given, sets to
  *  false.
  */
-  boolean succeeded;
+  boolean succeeded = false;
 
   if ( thorough )
     succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
