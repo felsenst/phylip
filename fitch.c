@@ -776,8 +776,8 @@ void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
-  /* make and initialize a three-species tree */
-  fitch_setuptip(t, enterorder[0]);
+  /* make and initialize a three-species tree from the first three species ... */
+  fitch_setuptip(t, enterorder[0]);                 /* ... in array enterorder */
   fitch_setuptip(t, enterorder[1]);
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
