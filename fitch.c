@@ -38,6 +38,7 @@ void   correctv(node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree*, node *);
 void   insert_(node *, node *, boolean);
+void   fitch_tree_setup(long, long);
 void   fitch_setuptip(tree *, long);
 void   fitch_buildnewtip(long, tree *, long);
 void   initfitchnode(tree *, node **, long, long, long *, long *, initops,
@@ -107,9 +108,10 @@ tree* fitch_tree_new(long nonodes, long spp)
   tree* t;
 
   t = generic_tree_new(nonodes, spp);     /* the tree pointers, nodes, etc. */
-  dist_tree_init(t, nonodes, spp);   /* stuff specific to distance programs */
+  generic_tree_init(t, nonodes, spp);           /* intialize general stuff, */
+  dist_tree_init(t, nonodes, spp);  /* stuff specific to distance programs, */
   t->do_newbl = true;
-  fitch_tree_init(t, nonodes, spp);              /* stuff specific to fitch */
+  fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
   return t;
 } /* fitch_tree_new */
 
@@ -341,7 +343,7 @@ void allocrest(void)
 } /* allocrest */
 
 
-void fitch_tree_setup(nonodes, spp) {
+void fitch_tree_setup(long nonodes, long spp) {
  /* create the trees curtree, bestree, etc. */
 
   curtree = functions.tree_new(nonodes, spp);
@@ -781,8 +783,8 @@ void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
-  /* make and initialize a three-species tree */
-  fitch_setuptip(t, enterorder[0]);
+  /* make and initialize a three-species tree from the first three species ... */
+  fitch_setuptip(t, enterorder[0]);                 /* ... in array enterorder */
   fitch_setuptip(t, enterorder[1]);
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);

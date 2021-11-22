@@ -118,6 +118,7 @@ tree* dnaml_tree_new(long nonodes, long spp)
   tree* t;
 
   t = generic_tree_new(nonodes, spp);
+  generic_tree_init(t, nonodes, spp);
   ml_tree_init(t, nonodes, spp);
   dnaml_tree_init(t, nonodes, spp);
   return t;
