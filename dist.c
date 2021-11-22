@@ -202,11 +202,15 @@ void dist_tree_init(tree* a, long nonodes, long spp)
           ((dist_node*)p)->sametime = false;
           ((dist_node*)(a->nodep[i - 1]))->d =
                                   (vector)Malloc((nonodes+1)*sizeof(double));
+          ((dist_node*)(a->nodep[i - 1]))->w =
+                                  (vector)Malloc((nonodes+1)*sizeof(double));
           p = p->next;
         }
       }
       else {
         ((dist_node*)(a->nodep[i - 1]))->d =
+                                  (vector)Malloc((nonodes+1)*sizeof(double));
+        ((dist_node*)(a->nodep[i - 1]))->w =
                                   (vector)Malloc((nonodes+1)*sizeof(double));
       }
     }

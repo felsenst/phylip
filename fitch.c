@@ -53,8 +53,8 @@ void   initrav(node *);
 void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
-tree*  fitch_tree_new(long nonodes, long spp);
-void   fitch_tree_init(tree*, long nonodes, long spp);
+tree*  fitch_tree_new(long, long);
+void   fitch_tree_init(tree*, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -87,7 +87,7 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch */
 
-  generic_tree_init((tree*)t, nonodes, spp);
+/* debug   generic_tree_init((tree*)t, nonodes, spp); */
   ((tree*)t)->evaluate = fitch_evaluate;
   ((tree*)t)->insert_ = ml_tree_insert_;
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;

@@ -3670,7 +3670,7 @@ tree* generic_tree_new(long nonodes, long spp)
  /* debug:  allocate size of tree here or in the local tree_new functions? */
   tree* t;
 
-  t = Malloc(sizeof(tree));     /* debug: add a size argument intead? */
+  t = (tree*)Malloc(sizeof(tree));           /* debug: add a size argument intead? */
   generic_tree_init(t, nonodes, spp);       /* generic initialization steps */
   return t;
 } /* generic_tree_new */
