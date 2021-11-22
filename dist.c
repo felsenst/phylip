@@ -185,6 +185,7 @@ void dist_tree_init(tree* a, long nonodes, long spp)
    * acts after phylip.c: generic_tree_init  */
   long i=0;
   node *p;
+  Slist_node_ptr q;
 
   for (i = 1; i <= nonodes; i++) {
     if (a->nodep[i - 1] != NULL) {
@@ -214,6 +215,13 @@ void dist_tree_init(tree* a, long nonodes, long spp)
                                   (vector)Malloc((nonodes+1)*sizeof(double));
       }
     }
+  }
+  q = a->free_fork_nodes->first;
+  while (q != NULL) {                   /* go along list of fork->nodes too */
+    p = q->data;                        /* p  is now the node that is there */
+    ((dist_node*)(p))->d = (vector)Malloc((nonodes+1)*sizeof(double));
+    ((dist_node*)(p))->w = (vector)Malloc((nonodes+1)*sizeof(double));
+    q = q->next;                                    /* go to next list item */
   }
   a->score = -1.0;
   a->root = a->nodep[0];
