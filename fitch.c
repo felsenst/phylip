@@ -565,25 +565,26 @@ void makebigv(node *p)
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
-  node *temp, *q, *r;
+  node *temp, *pp, *qq, *rr;
 
-  q = p->next;
-  r = q->next;
+  pp = p;
+  qq = pp->next;
+  rr = qq->next;
   for (i = 1; i <= 3; i++) {
-    if (p->iter) {
-      if (p->back != NULL) {
-        p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
-                ((dist_node*)q)->dist) / 2.0;
-        p->back->v = p->v;
+    if (pp->iter) {
+      if (pp->back != NULL) {
+        pp->v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
+                  ((dist_node*)qq)->dist) / 2.0;
+        pp->back->v = pp->v;
       }
       else {
-        p->v = 0.0;
+        pp->v = 0.0;
       }
     }
-    temp = p;
-    p = q;
-    q = r;
-    r = temp;
+    temp = pp;
+    pp = qq;
+    qq = rr;
+    rr = temp;
   }
 }  /* makebigv */
 
