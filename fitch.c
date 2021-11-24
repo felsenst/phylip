@@ -27,7 +27,7 @@ void   allocrest(void);
 void   doinit(void);
 void   inputoptions(void);
 void   fitch_getinput(void);
-void   secondtraverse(node *, double, long *, double *);
+void   secondtraverse(dist_node *, double, long *, double *);
 void   firsttraverse(node *, long *, double *);
 double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
@@ -407,23 +407,23 @@ void fitch_getinput(void)
 }  /* fitch_getinput */
 
 
-void secondtraverse(node *q, double y, long *nx, double *sum)
+void secondtraverse(dist_node *q, double y, long *nx, double *sum)
 {
   /* from each of those places go back to all others
    * nx   comes from firsttraverse
    * sum  comes from evaluate via firsttraverse */
   double z=0.0, TEMP=0.0;
 
-  if (q) {
-    z = y + q->v;
-    if (q->tip) {
-      TEMP = ((dist_node*)q)->d[(*nx) - 1] - z;
-      *sum += ((dist_node*)q)->w[(*nx) - 1] * (TEMP * TEMP);
+  if ((*q).node != NULL) {
+    z = y + q.node->v;
+    if (q.node->tip) {
+      TEMP = q->d[(*nx) - 1] - z;
+      *sum += q->w[(*nx) - 1] * (TEMP * TEMP);
     } else {
-      if (q->next->back != NULL)
-        secondtraverse(q->next->back, z, nx, sum);
-      if (q->next->next->back != NULL)
-        secondtraverse(q->next->next->back, z, nx, sum);
+      if (q.node->next->back != NULL)
+        secondtraverse(((dist_node*)(q.node->next->back), z, nx, sum);
+      if (q.node->next->next->back != NULL)
+        secondtraverse((dist_node*)(q.node->next->next->back), z, nx, sum);
     }
   }
 }  /* secondtraverse */
@@ -438,7 +438,7 @@ void firsttraverse(node *p, long *nx, double *sum)
     if (!minev) {
       *nx = p->index;
       if (p->back != NULL)
-        secondtraverse(p->back, 0.0, nx, sum);
+        secondtraverse((dist_node)(p->back), 0.0, nx, sum);
       }
   } else {
     if (p->next->back != NULL)
@@ -475,27 +475,28 @@ void nudists(node *x, node *y)
    * This is the version for a bifurcation, so node has three neighbors */
   long nx=0, ny=0;    /* debug:  why this value? */
   double dil=0.0, djl=0.0, wil=0.0, wjl=0.0, vi=0.0, vj=0.0;
-  node *qprime, *rprime, *qprimeback, *rprimeback;
+  node *qprime, *rprime;
+  dist_node *qprimeback, *rprimeback;
 
   nx = x->index;
   ny = y->index;
   qprime = x->next;
-  qprimeback = qprime->back;
+  qprimeback = (dist_node*)(qprime->back);
   if (qprimeback != NULL) {
     vi = qprime->v;
-    dil = ((dist_node*)qprimeback)->d[ny - 1];
-    wil = ((dist_node*)qprimeback)->w[ny - 1];
+    dil = qprimeback->d[ny - 1];
+    wil = qprimeback->w[ny - 1];
   } else {
     dil = 0.0;
     wil = 0.0;
     qprime->v = 0.0;
   }
   rprime = qprime->next;
-  rprimeback = rprime->back;
+  rprimeback = (dist_node*)(rprime->back);
   if (rprimeback != NULL) {
     vj = rprime->v;
-    djl = ((dist_node*)rprimeback)->d[ny - 1];
-    wjl = ((dist_node*)rprimeback)->w[ny - 1];
+    djl = rprimeback->d[ny - 1];
+    wjl = rprimeback->w[ny - 1];
   } else {
     djl = 0.0;
     wjl = 0.0;
@@ -560,7 +561,7 @@ void makedists(tree* t, node *p)
 }  /* makedists */
 
 
-void makebigv(tree *t,node *p)
+void makebigv(tree *t, node *p)
 {
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
