@@ -32,11 +32,11 @@ void   firsttraverse(node *, long *, double *);
 double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
 void   fitch_makenewv(tree*, node*);
-void   makedists(node *);
-void   makebigv(node *);
-void   correctv(node *);
+void   makedists(tree *, node *);
+void   makebigv(tree *, node *);
+void   correctv(tree *, node *);
 void   alter(node *, node *);
-void   fitch_nuview(tree*, node *);
+void   fitch_nuview(tree *, node *);
 void   insert_(node *, node *, boolean);
 void   fitch_tree_setup(long, long);
 void   fitch_setuptip(tree *, long);
@@ -514,7 +514,7 @@ void nudists(node *x, node *y)
 }  /* nudists */
 
 
-void makedists(node *p)
+void makedists(tree* t, node *p)
 {
   /* compute distances among pairs of adjacent neighbors of an interior node.
    * (assumes a bifurcation so there are three */
@@ -560,7 +560,7 @@ void makedists(node *p)
 }  /* makedists */
 
 
-void makebigv(node *p)
+void makebigv(tree *t,node *p)
 {
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
@@ -589,7 +589,7 @@ void makebigv(node *p)
 }  /* makebigv */
 
 
-void correctv(node *p)
+void correctv(tree *t, node *p)
 {
   /* iterate branch lengths if some are to be zero
    * Note this is only for a bifurcation with three neighbors of the
@@ -670,7 +670,7 @@ void fitch_makenewv(tree* t, node *p)
 
   if (p->tip)
     return;
-  makedists(p);
+  makedists(t, p);
 
   iter = p->iter;
   for ( q = p->next ; p != q ; q = q->next )
@@ -678,8 +678,8 @@ void fitch_makenewv(tree* t, node *p)
 
   if (iter) {
     if ( count_sibs(p) == 2)
-      makebigv(p);
-    correctv(p);
+      makebigv(t, p);
+    correctv(t, p);
   }
   t->nuview(t, p);
 }  /* fitch_makenewv */
