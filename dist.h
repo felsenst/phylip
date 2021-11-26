@@ -16,11 +16,11 @@ typedef long *intvector;
 typedef node **pointptr;
 
 typedef struct dist_node {
-  node node;            /* Base object, must be first */
+  node node;                                  /* Base object, must be first */
   vector d, w;
   double t;
   boolean sametime;
-  double dist;                   /* dist used in fitch   contml*/
+  double dist;    /* debug: contml? */        /* dist used in fitch, contml */
 } dist_node;
 
 #ifndef OLDC

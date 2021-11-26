@@ -33,7 +33,7 @@ double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
 void   fitch_makenewv(tree*, node*);
 void   makedists(tree *, node *);
-void   makebigv(tree *, node *);
+void   makebigv(tree *, dist_node *);
 void   correctv(tree *, node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree *, node *);
@@ -414,16 +414,16 @@ void secondtraverse(dist_node *q, double y, long *nx, double *sum)
    * sum  comes from evaluate via firsttraverse */
   double z=0.0, TEMP=0.0;
 
-  if ((*q).node != NULL) {
-    z = y + q.node->v;
-    if (q.node->tip) {
+  if (q != NULL) {
+    z = y + (*q).node.v;
+    if ((*q).node.tip) {
       TEMP = q->d[(*nx) - 1] - z;
       *sum += q->w[(*nx) - 1] * (TEMP * TEMP);
     } else {
-      if (q.node->next->back != NULL)
-        secondtraverse(((dist_node*)(q.node->next->back), z, nx, sum);
-      if (q.node->next->next->back != NULL)
-        secondtraverse((dist_node*)(q.node->next->next->back), z, nx, sum);
+      if ((*q).node.next->back != NULL)
+        secondtraverse((dist_node*)((*q).node.next->back), z, nx, sum);
+      if ((*q).node.next->next->back != NULL)
+        secondtraverse((dist_node*)((*q).node.next->next->back), z, nx, sum);
     }
   }
 }  /* secondtraverse */
@@ -438,7 +438,7 @@ void firsttraverse(node *p, long *nx, double *sum)
     if (!minev) {
       *nx = p->index;
       if (p->back != NULL)
-        secondtraverse((dist_node)(p->back), 0.0, nx, sum);
+        secondtraverse((dist_node*)(p->back), 0.0, nx, sum);
       }
   } else {
     if (p->next->back != NULL)
@@ -561,25 +561,25 @@ void makedists(tree* t, node *p)
 }  /* makedists */
 
 
-void makebigv(tree *t, node *p)
+void makebigv(tree *t, dist_node *p)
 {
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
-  node *temp, *pp, *qq, *rr;
+  dist_node *temp, *pp, *qq, *rr;
 
   pp = p;
-  qq = pp->next;
-  rr = qq->next;
+  qq = (dist_node*)(*pp).node.next;
+  rr = (dist_node*)(*qq).node.next;
   for (i = 1; i <= 3; i++) {
-    if (pp->iter) {
-      if (pp->back != NULL) {
-        pp->v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
+    if ((*pp).node.iter) {
+      if ((*pp).node.back != NULL) {
+        (*pp).node.v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
                   ((dist_node*)qq)->dist) / 2.0;
-        pp->back->v = pp->v;
+        (*pp).node.back->v = (*pp).node.v;
       }
       else {
-        pp->v = 0.0;
+        (*pp).node.v = 0.0;
       }
     }
     temp = pp;
@@ -679,7 +679,7 @@ void fitch_makenewv(tree* t, node *p)
 
   if (iter) {
     if ( count_sibs(p) == 2)
-      makebigv(t, p);
+      makebigv(t, (dist_node*)p);
     correctv(t, p);
   }
   t->nuview(t, p);

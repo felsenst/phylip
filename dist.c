@@ -53,6 +53,7 @@ void dist_node_free(node **np)
 void dist_node_copy(node* srcn, node* dstn)
 {
   /* copy a dist_node */
+   /* debug: copy functions too?  */
   dist_node *src = (dist_node *)srcn;
   dist_node *dst = (dist_node *)dstn;
 
