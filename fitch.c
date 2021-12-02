@@ -33,7 +33,7 @@ double fitch_evaluate(tree *, node*, boolean);
 void   nudists(node *, node *);
 void   fitch_makenewv(tree*, node*);
 void   makedists(tree *, node *);
-void   makebigv(tree *, dist_node *);
+void   makebigv(tree *, node *);
 void   correctv(tree *, node *);
 void   alter(node *, node *);
 void   fitch_nuview(tree *, node *);
@@ -561,33 +561,28 @@ void makedists(tree* t, node *p)
 }  /* makedists */
 
 
-void makebigv(tree *t, dist_node *p)
+void makebigv(tree *t, node *p)
 {
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
-  dist_node *temp, *pp, *qq, *rr;
-  node *ppp;
+  node *temp, *q, *r;
 
-  pp = p;                      /* so can call their attributes as dist_node */
-  qq = (dist_node*)(((node*)pp)->next);
-  rr = (dist_node*)(((node*)qq)->next);
   for (i = 1; i <= 3; i++) {
-    ppp = (node*)pp;      /* so can refer to their node attributes as usual */
-    if (ppp->iter) {
-      if (ppp->back != NULL) {
-        ppp->v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
-                  ((dist_node*)qq)->dist) / 2.0;
-        ppp->back->v = ppp->v;
+    if (p->iter) {
+      if (p->back != NULL) {
+        p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
+                  ((dist_node*)q)->dist) / 2.0;
+        p->back->v = p->v;
       }
       else {
-        ppp->v = 0.0;
+        p->v = 0.0;
       }
     }
-    temp = pp;
-    pp = qq;
-    qq = rr;
-    rr = temp;
+    temp = p;
+    p = q;
+    q = r;
+    r = temp;
   }
 }  /* makebigv */
 
@@ -681,7 +676,7 @@ void fitch_makenewv(tree* t, node *p)
 
   if (iter) {
     if ( count_sibs(p) == 2)
-      makebigv(t, (dist_node*)p);
+      makebigv(t, p);
     correctv(t, p);
   }
   t->nuview(t, p);
@@ -694,8 +689,10 @@ void fitch_setuptip(tree *t, long m)
   long i=0;
   intvector n=(long *)Malloc(spp * sizeof(long));
   dist_node *which;
+  node *nwhich;
 
-  which = (dist_node*)(t->nodep[m - 1]);
+  nwhich = t->nodep[m - 1];
+  which = (dist_node*)nwhich;
 /* debug:  memcpy(*(which->d), *(x[m - 1]), (spp * sizeof(double)));  too long? */ 
 /* debug:   memcpy(n, reps[m - 1], (spp * sizeof(long))); */
   for (i = 0; i < spp; i++) {
@@ -716,8 +713,8 @@ void fitch_setuptip(tree *t, long m)
     which->w[i] = 1.0;
     which->d[i] = 0.0;
   }
-  which->node.index = m;
-  if (which->node.iter) which->node.v = 0.0;
+  nwhich->index = m;
+  if (nwhich->iter) nwhich->v = 0.0;
   free(n);
 }  /* fitch_setuptip */
 
