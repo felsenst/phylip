@@ -5331,7 +5331,7 @@ void seetree(tree *t)
         else
         {
           printf(" node: %p index:%ld  connects to node: %p index: %ld",
-                 (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+                 (void *)qq, qq->index, qq->back, qq->back->index);
         }
       }
       else
@@ -5362,7 +5362,7 @@ void seetree(tree *t)
               }
               else
               {
-                printf(" %p index:%ld", (void *)qq, qq->back->index);
+                printf(" %p index:%ld", qq, qq->back->index);
               }
             }
           }

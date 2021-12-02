@@ -528,8 +528,8 @@ void makedists(tree* t, node *p)
     npb = pb->index;
   }
   q = p->next;
-  if (q->back != NULL) {
-    qb = q->back;
+  if (((node*)q)->back != NULL) {
+    qb = ((node*)q)->back;
     nqb = qb->index;
   }
   r = q->next;
