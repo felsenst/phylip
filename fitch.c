@@ -567,19 +567,21 @@ void makebigv(tree *t, dist_node *p)
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
   dist_node *temp, *pp, *qq, *rr;
+  node *ppp;
 
-  pp = p;
-  qq = (dist_node*)(*pp).node.next;
-  rr = (dist_node*)(*qq).node.next;
+  pp = p;                      /* so can call their attributes as dist_node */
+  qq = (dist_node*)(((node*)pp)->next);
+  rr = (dist_node*)(((node*)qq)->next);
   for (i = 1; i <= 3; i++) {
-    if ((*pp).node.iter) {
-      if ((*pp).node.back != NULL) {
-        (*pp).node.v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
+    ppp = (node*)pp;      /* so can refer to their node attributes as usual */
+    if (ppp->iter) {
+      if (ppp->back != NULL) {
+        ppp->v = (((dist_node*)pp)->dist + ((dist_node*)rr)->dist -
                   ((dist_node*)qq)->dist) / 2.0;
-        (*pp).node.back->v = (*pp).node.v;
+        ppp->back->v = ppp->v;
       }
       else {
-        (*pp).node.v = 0.0;
+        ppp->v = 0.0;
       }
     }
     temp = pp;
