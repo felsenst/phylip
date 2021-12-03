@@ -570,26 +570,26 @@ void makebigv(tree *t, node *p)
   /* make new branch lengths around a bifurcating interior node
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
-  node *temp, *q, *r;
+  node *p1, *q1, *r1;
   dist_node *pp, *qq, *rr;
 
-  pp = (dist_node*)p;
-  qq = (dist_node*)(p->next);
-  rr = (dist_node*)(p->next->next);
+  p1 = p;
   for (i = 1; i <= 3; i++) {
+    q1 = p1->next;               /* find the other two nodes in the circle */
+    r1 = q1->next;
+    pp = (dist_node*)p1;  /* ... make pointers to their dist_node versions */
+    qq = (dist_node*)q1;
+    rr = (dist_node*)r1;
     if (p->iter) {
-      if (p->back != NULL) {
-        p->v = (pp->dist + rr->dist - qq->dist) / 2.0;
+      if (p->back != NULL) {  /* debug: this only works for a trifurcation */
+        p->v = (pp->dist + rr->dist - qq->dist) / 2.0;    /* recalc length */
         p->back->v = p->v;
       }
       else {
         p->v = 0.0;
       }
     }
-    temp = p;
-    p = q;
-    q = r;
-    r = temp;
+    p1 = q1;                         /* move to the next node in the circle */
   }
 }  /* makebigv */
 
