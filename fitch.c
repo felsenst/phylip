@@ -522,6 +522,7 @@ void makedists(tree* t, node *p)
   long npb=0, nqb=0, nrb=0;
   double d12, d23, d31;
   node *q, *r, *pb, *qb, *rb;
+  dist_node *pp, *qq, *rr;
 
   if (p->back != NULL) {          /* node and number of the node behind  r  */
     pb = p->back;
@@ -555,9 +556,12 @@ void makedists(tree* t, node *p)
   else {
     d31 = 0.0;
   }
-  ((dist_node*)p)->dist = d12;
-  ((dist_node*)q)->dist = d23;
-  ((dist_node*)r)->dist = d31;
+  pp = (dist_node*)p;
+  qq = (dist_node*)q;
+  rr = (dist_node*)r;
+  pp->dist = d12;
+  qq->dist = d23;
+  rr->dist = d31;
 }  /* makedists */
 
 
@@ -567,12 +571,15 @@ void makebigv(tree *t, node *p)
    * p->dist, q->dist, and r->dist are zero if near NULL root */
   long i=0;
   node *temp, *q, *r;
+  dist_node *pp, *qq, *rr;
 
+  pp = (dist_node*)p;
+  qq = (dist_node*)(p->next);
+  rr = (dist_node*)(p->next->next);
   for (i = 1; i <= 3; i++) {
     if (p->iter) {
       if (p->back != NULL) {
-        p->v = (((dist_node*)p)->dist + ((dist_node*)r)->dist -
-                  ((dist_node*)q)->dist) / 2.0;
+        p->v = (pp->dist + rr->dist - qq->dist) / 2.0;
         p->back->v = p->v;
       }
       else {

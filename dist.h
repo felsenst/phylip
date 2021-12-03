@@ -20,7 +20,7 @@ typedef struct dist_node {
   vector d, w;
   double t;
   boolean sametime;
-  double dist;    /* debug: contml? */        /* dist used in fitch, contml */
+  double dist;    /* debug: contml? (no) */   /* dist used in fitch, contml */
 } dist_node;
 
 #ifndef OLDC
