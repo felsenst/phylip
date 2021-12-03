@@ -599,38 +599,41 @@ void correctv(tree *t, node *p)
   /* iterate branch lengths if some are to be zero
    * Note this is only for a bifurcation with three neighbors of the
    * fork.  If any of these is null, don't do anything */
-  node *q, *r, *temp;
+  node *p1, *q1, *r1;
+  dist_node *pp, *rr;
   long i=0, j=0, n=0, nq=0, nr=0, ntemp=0;
   double wq=0.0, wr=0.0;
 
-  q = p->next;
-  r = q->next;
-  if ((p->back != NULL) && (q->back != NULL)
-        && (r->back != NULL)) {                /* skip all this if any NULL */
-    n = p->back->index;
-    nq = q->back->index;
-    nr = r->back->index;
+  p1 = p;
+  q1 = p1->next;
+  r1 = q1->next;
+  if ((p1->back != NULL) && (q1->back != NULL)
+        && (r1->back != NULL)) {               /* skip all this if any NULL */
+    n = p1->back->index;
+    nq = q1->back->index;
+    nr = r1->back->index;
     for (i = 1; i <= zsmoothings; i++) {               /* do multiple times */
       for (j = 1; j <= 3; j++) {                   /* go around fork circle */
-        if (p->iter) {
-          wr = ((dist_node*)r->back)->w[n - 1] +
-            ((dist_node*)p->back)->w[nr - 1];
-          wq = ((dist_node*)q->back)->w[n - 1]
-               + ((dist_node*)p->back)->w[nq - 1];
-          if (((wr + wq) <= 0.0) && !negallowed)   /* if estimates megative */
-            p->v = 0.0;
-          else
-            p->v = ((((dist_node*)p)->dist - q->v) * wq +
-                    (((dist_node*)r)->dist - r->v) * wr) / (wr + wq);
-          if (p->v < 0 && !negallowed)
-            p->v = 0.0;
-          p->back->v = p->v;
+        pp = (dist_node*)p1;                /* these are dist_node versions */
+        rr = (dist_node*)r1;
+        if (p1->iter) {
+          wr = ((dist_node*)(r1->back))->w[n - 1] +
+            ((dist_node*)(p1->back))->w[nr - 1];
+          wq = ((dist_node*)q1->back)->w[n - 1]
+               + ((dist_node*)(p1->back))->w[nq - 1];
+          if (((wr + wq) <= 0.0) && !negallowed)   /* if estimates negative */
+            p1->v = 0.0;
+          else      /* as in Syst Bio 1997 paper, weighted average distance */
+            p1->v = ((pp->dist - q1->v) * wq +
+                    (rr->dist - r1->v) * wr) / (wr + wq);
+          if (p1->v < 0 && !negallowed)
+            p1->v = 0.0;
+          p1->back->v = p1->v;
         }
-        temp = p;                            /* move one step around circle */
-        p = q;
-        q = r;
-        r = temp;
-        ntemp = n;
+        p1 = q1;        /* move pointers to fork node on step around circle */
+        q1 = p1->next;
+        r1 = q1->next;
+        ntemp = n;                           /* ... and their index numbers */
         n = nq;
         nq = nr;
         nr = ntemp;
