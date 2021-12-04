@@ -521,44 +521,45 @@ void makedists(tree* t, node *p)
    * (assumes a bifurcation so there are three */
   long npb=0, nqb=0, nrb=0;
   double d12, d23, d31;
-  node *q, *r, *pb, *qb, *rb;
-  dist_node *pp, *qq, *rr;
+  node *p1, *q1, *r1;
+  dist_node *pp, *qq, *rr, *pb, *qb, *rb;
 
-  if (p->back != NULL) {          /* node and number of the node behind  r  */
-    pb = p->back;
-    npb = pb->index;
+  p1 = p;
+  if (p1->back != NULL) {          /* node and number of the node behind  r  */
+    pb = (dist_node*)(p1->back);
+    npb = ((node*)pb)->index;
   }
-  q = p->next;
-  if (((node*)q)->back != NULL) {
-    qb = ((node*)q)->back;
-    nqb = qb->index;
+  q1 = p->next;
+  if (q1->back != NULL) {
+    qb = ((dist_node*)(q1->back));
+    nqb = ((node*)qb)->index;
   }
-  r = q->next;
-  if (r->back != NULL) {
-    rb = r->back;
-    nrb = rb->index;
+  r1 = q1->next;
+  if (r1->back != NULL) {
+    rb = ((dist_node*)(r1->back));
+    nrb = ((node*)rb)->index;
   }
-  if ((p->back != NULL) && (q->back != NULL)) {
+  if ((p1->back != NULL) && (q1->back != NULL)) {
     d12 = ((dist_node*)pb)->d[nqb - 1];
     }
   else {
     d12 = 0.0;
   }
-  if ((q->back != NULL) && (r->back != NULL)) {
+  if ((q1->back != NULL) && (r1->back != NULL)) {
     d23 = ((dist_node*)qb)->d[nrb - 1];
     }
   else {
     d23 = 0.0;
   }
-  if ((r->back != NULL) && (p->back != NULL)) {
+  if ((r1->back != NULL) && (p1->back != NULL)) {
     d31 = ((dist_node*)rb)->d[npb - 1];
   }
   else {
     d31 = 0.0;
   }
-  pp = (dist_node*)p;
-  qq = (dist_node*)q;
-  rr = (dist_node*)r;
+  pp = (dist_node*)p1;
+  qq = (dist_node*)q1;
+  rr = (dist_node*)r1;
   pp->dist = d12;
   qq->dist = d23;
   rr->dist = d31;
@@ -630,9 +631,9 @@ void correctv(tree *t, node *p)
             p1->v = 0.0;
           p1->back->v = p1->v;
         }
-        p1 = q1;        /* move pointers to fork node on step around circle */
-        q1 = p1->next;
-        r1 = q1->next;
+        p1 = p1->next;  /* move pointers to fork node on step around circle */
+        q1 = q1->next;
+        r1 = r1->next;
         ntemp = n;                           /* ... and their index numbers */
         n = nq;
         nq = nr;
