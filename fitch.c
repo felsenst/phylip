@@ -515,7 +515,7 @@ void nudists(node *x, node *y)
 }  /* nudists */
 
 
-void makedists(tree* t, node *p)
+void makedists(tree* t, node* p)
 {
   /* compute distances among pairs of adjacent neighbors of an interior node.
    * (assumes a bifurcation so there are three */
@@ -529,7 +529,7 @@ void makedists(tree* t, node *p)
     pb = (dist_node*)(p1->back);
     npb = ((node*)pb)->index;
   }
-  q1 = p->next;
+  q1 = p1->next;
   if (q1->back != NULL) {
     qb = ((dist_node*)(q1->back));
     nqb = ((node*)qb)->index;
