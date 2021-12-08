@@ -809,7 +809,7 @@ void fitch_setupnewfork(tree *t, long m)
   node* p;
 
   p = t->nodep[m-1];
-  for (i = 0; i < nonodes; i++) {
+  for (i = 0; i <= nonodes; i++) {                /* one more than nonodes */
     ((dist_node*)p)->w[i] = 1.0;
     ((dist_node*)p)->d[i] = 0.0;
   }
