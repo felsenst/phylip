@@ -76,7 +76,7 @@ double trweight;                                  /* to make treeread happy */
 boolean goteof, haslengths;                                    /* ditto ... */
 boolean first;                                                 /* ditto ... */
 node *addwhere, *there;
-longer seed, endsite, rcategs;
+longer seed, endsite, rcategs;   /* debug:  are endsite and rcategs needed?  */
 long *enterorder;
 tree *curtree, *priortree, *bestree, *bestree2;
 Char ch;
@@ -333,10 +333,10 @@ void allocrest(void)
 
   x = (vector *)Malloc(spp * sizeof(vector));
   reps = (intvector *)Malloc(spp * sizeof(intvector));
-  for (i=0;i<spp;++i)
+  for (i = 0; i < spp; ++i)
   {
-    x[i]=(vector)Malloc(nonodes * sizeof(double));
-    reps[i]=(intvector)Malloc(spp * sizeof(long));
+    x[i] = (vector)Malloc(nonodes * sizeof(double));
+    reps[i] = (intvector)Malloc(spp * sizeof(long));
   }
   nayme = (naym *)Malloc(spp * sizeof(naym));
   enterorder = (long *)Malloc(spp * sizeof(long));
@@ -403,7 +403,6 @@ void fitch_getinput(void)
 {
   /* reads the input data */
   inputoptions();
-  fitch_tree_setup(nonodes, spp);  /* make the trees curtree, bestree etc. */
 }  /* fitch_getinput */
 
 
@@ -795,8 +794,9 @@ void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
 
 void fitch_buildsimpletree(tree *t, long nextsp)
 {
-  /* make and initialize a three-species tree from the first three species ... */
-  fitch_setuptip(t, enterorder[0]);                 /* ... in array enterorder */
+  /* make and initialize a three-species tree from the
+   * first three species in array enterorder */
+  fitch_setuptip(t, enterorder[0]);
   fitch_setuptip(t, enterorder[1]);
   fitch_setuptip(t, enterorder[2]);
   buildsimpletree(t, enterorder);
@@ -809,11 +809,11 @@ void fitch_setupnewfork(tree *t, long m)
   node* p;
 
   p = t->nodep[m-1];
-  for (i = 0; i <= nonodes; i++) {                /* one more than nonodes */
+  for (i = 0; i <= nonodes; i++) {                 /* one more than nonodes */
     ((dist_node*)p)->w[i] = 1.0;
     ((dist_node*)p)->d[i] = 0.0;
   }
-} /* setupnewtip */
+} /* setupnewfork */
 
 
 void describe(node *p)
@@ -1110,10 +1110,9 @@ void fitchrun(void)
   */
 
   int i;
-  for (i=0;i<spp;++i) {
+  for (i = 0; i < spp; ++i) {   /* zero enterorder (order of adding species */
     enterorder[i]=0;}
-  //printf("enterorder zeroed\n");//JRMdebug
-  for (ith = 1; ith <= datasets; ith++) {
+  for (ith = 1; ith <= datasets; ith++) {             /* loop over datasets */
     if (datasets > 1) {
       fprintf(outfile, "Data set # %ld:\n\n", ith);
       if (progress) {
@@ -1122,16 +1121,14 @@ void fitchrun(void)
       }
     }
 
-    fitch_getinput();
-    //printf("fitch_getinput done, ith: %li\n", ith);  //JRMdebug
-    for (jumb = 1; jumb <= njumble; jumb++)
+    fitch_getinput();                               /* read (next) data set */
+    for (jumb = 1; jumb <= njumble; jumb++) /* for different species orders */
     {
-      //printf("Calling maketree, jumb: %li\n", jumb);  //JRMdebug
       fflush(stdout);
-      maketree();
+      maketree();                                         /* infer the tree */
     }
 
-    firstset = false;
+    firstset = false;                  /* after this, not on first data set */
     if (eoln(infile) && (ith < datasets))
       scan_eoln(infile);
     fflush(outfile);
@@ -1171,16 +1168,16 @@ void fitch(
   )
 {
   initdata *funcs;
-  //printf("Hello from Fitch!\n");  // JRMdebug
+  /* debug: printf("Hello from Fitch!\n");  */
 
   int argc;
   Char *argv[1];
   argc = 1;
   argv[0] = "Fitch";
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = dist_node_new;
-  funcs->tree_new = fitch_tree_new;
-  phylipinit(argc, argv, funcs, true);
+  funcs->node_new = dist_node_new;          /* new nodes will be dist_nodes */
+  funcs->tree_new = fitch_tree_new;       /* new trees will be of this type */
+  phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
   /*
   //minev = false;
@@ -1231,7 +1228,7 @@ void fitch(
   {
     minev = false;
   }
-  else //if (!strcmp(Method, "ME")) // Minimum Evolution
+  else                     /* if (!strcmp(Method, "ME"))  Minimum Evolution */
   {
     minev = true;
   }
@@ -1372,7 +1369,7 @@ void fitch(
 
   power = Power;
 
-  // everything translated, start the run
+           /* all menu settings are transmitted to C program, start the run */
   infile = fopen(infilename, "r");
   outfile = fopen(OutfileName, outfileopt);
   strcpy(outfilename, OutfileName);
@@ -1380,27 +1377,27 @@ void fitch(
   if (progress)
   {
     progfile = fopen("progress.txt", "w");
-    fclose(progfile); // make sure it is there for the Java code to detect
+    fclose(progfile);  /* make sure it is there for the Java code to detect */
     progfile = fopen("progress.txt", "w");
   }
 
-  if (usertree)
+  if (usertree)                       /* if input tree file needed, open it */
   {
     intree = fopen(intreename, "r");
   }
 
-  if (trout)
+  if (trout)                         /* if output tree file needed, open it */
   {
     outtree = fopen(OuttreeName, outtreeopt);
     strcpy(outtreename, OuttreeName);
   }
 
-  ibmpc = IBMCRT;
+  ibmpc = IBMCRT;                                       /* default settings */
   ansi = ANSICRT;
   firstset = true;
 
-  doinit();
-  fitchrun();
+  doinit();                                              /* initializations */
+  fitchrun();                                         /* ... and do the run */
 
   if (trout)
   {
@@ -1412,7 +1409,7 @@ void fitch(
   }
   FClose(outfile);
   FClose(infile);
-  //printf("Done.\n\n");
+  /* debug: printf("Done.\n\n");  */
 } /* fitch */
 
 
@@ -1420,29 +1417,28 @@ int main(int argc, Char *argv[])
 {
   initdata *funcs;
 #ifdef MAC
-  argc = 1;                /* macsetup("Fitch", "");        */
+  argc = 1;                                /* macsetup("Fitch", "");        */
   argv[0]="Fitch";
 #endif
   funcs = Malloc(sizeof(initdata));
-  phylipinit(argc, argv, funcs, false);
-  funcs->node_new = dist_node_new;
-  functions.tree_new = fitch_tree_new;
+  phylipinit(argc, argv, funcs, false);                  /* do initializing */
+  funcs->node_new = dist_node_new;          /* new nodes will be dist_nodes */
+  functions.tree_new = fitch_tree_new;    /* new trees will be of this type */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
   openfile(&outfile, OUTFILE, "output file", "w", argv[0], outfilename);
 
-  ibmpc = IBMCRT;
+  ibmpc = IBMCRT;                         /* some default settings for menu */
   ansi = ANSICRT;
   mulsets = false;
   datasets = 1;
   firstset = true;
 
-  // do the work
-  doinit();
-  if (trout)
+  doinit();                     /* if character menu being used, initialize */
+  if (trout)                             /* open output tree file if needed */
     openfile(&outtree, OUTTREE, "output tree file", "w", argv[0], outtreename);
 
-  fitchrun();
+  fitchrun();                                                /* do the rest */
 
   if (trout)
   {
@@ -1460,4 +1456,4 @@ int main(int argc, Char *argv[])
 } /* main */
 
 
-// End.
+/* End. */
