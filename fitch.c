@@ -86,10 +86,10 @@ char *progname;
 
 void fitch_tree_init(tree* t, long nonodes, long spp)
 {
-  /* set up functions for a tree for Fitch */
+  /* set up functions for a tree for Fitch.  Use hierarchy of classes */
 
-/* debug   generic_tree_init((tree*)t, nonodes, spp); */
-  ((tree*)t)->evaluate = fitch_evaluate;
+  dist_tree_init((tree*)t, nonodes, spp);      /* go up the class hierarchy */
+  ((tree*)t)->evaluate = fitch_evaluate;              /* then set functions */
   ((tree*)t)->insert_ = ml_tree_insert_;
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;
   ((tree*)t)->re_move = ml_tree_re_move;
@@ -104,13 +104,10 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 
 tree* fitch_tree_new(long nonodes, long spp)
 {
-  /* initialize a tree for Fitch */
+  /* initialize a tree for Fitch, going up the class hierarchy */
   tree* t;
 
-  t = generic_tree_new(nonodes, spp);     /* the tree pointers, nodes, etc. */
-  generic_tree_init(t, nonodes, spp);           /* intialize general stuff, */
-  dist_tree_init(t, nonodes, spp);  /* stuff specific to distance programs, */
-  t->do_newbl = true;
+  t = dist_tree_new(nonodes, spp);     /* the tree pointers, nodes, etc. */
   fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
   return t;
 } /* fitch_tree_new */
