@@ -34,13 +34,16 @@ boolean inserting;
 
 void ml_tree_init(tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree */
-  t->do_newbl = true;
+/* debug: should this instead have arguments of  ml_tree  or some such? */
+
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
   t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+/* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
+  ((ml_tree*)t)->makenewv = ml_tree->makenewv;             debug: */
 } /* ml_tree_init */
 
 

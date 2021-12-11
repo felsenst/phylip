@@ -24,17 +24,17 @@ node* dist_node_new(node_type type, long index)
 } /* dist_node_new */
 
 
-void dist_node_init(node* n, node_type type, long index)
+void dist_node_init((dist_node* dn, node_type type, long index)
 {
   /* initialize a new dist_node */
-  dist_node * dn = (dist_node *)n;
+  node *n = (node *)dn;                      /* generic_node version of  n */
 
   generic_node_init(n, type, index);
   n->free = dist_node_free;
   n->copy = dist_node_copy;
   n->init = dist_node_init;
-  dn->dist = 0;
-  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));
+  dn->dist = 0.0;                                 /* used in  fitch, kitsch */
+  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));  /* some extra room */
   dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
 } /* dist_node_init */
 
@@ -181,53 +181,50 @@ void freew(long nonodes, pointptr treenode)
 
 void dist_tree_init(dist_tree* t, long nonodes, long spp)
 {
-  /* initialize a tree
+  /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
-   * acts after phylip.c: generic_tree_init  */
-  long i=0;
+   * acts after phylip.c: generic_tree_init 
+   * runs along nodep, circling each fork, and then runs
+   * along  free_fork_nodes  list too, in each case calling dist_node_init */
+ /* debug:  For that matter could we make a generic function that does running-along? */
   dist_node* p;
   node* pp;
   Slist_node_ptr q;
 
   generic_tree_init((tree*)t, nonodes+1, spp);
-  for (i = 1; i <= nonodes; i++) {
-    if (((tree*)t)->nodep[i - 1] != NULL) {
-      ((tree*)t)->nodep[i - 1]->back = NULL;
+  for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
+    if (((tree*)t)->nodep[i - 1] != NULL) {  /* these will be NULL normally */
+      ((tree*)t)->nodep[i - 1]->back = NULL;  /* debug: why bother? */
       ((tree*)t)->nodep[i - 1]->iter = true;
       ((tree*)t)->nodep[i - 1])->t = 0.0;
       ((dist_node*)(((tree*)t)->nodep[i - 1]))->sametime = false;
       (tree*)t)->nodep[i - 1]->v = 0.0;
       if (i > spp) {       /* go around fork circles initializing variables */
-        pp = (dist_node*)t->nodep[i-1]->next;
-        while (p != a->nodep[i-1]) {  /* until you get to where you entered */
-          p->back = NULL;
-          p->iter = true;
-          ((dist_node*)p)->t = 0.0;
-          ((dist_node*)p)->sametime = false;
-          ((dist_node*)(a->nodep[i - 1]))->d =
-                                  (vector)Malloc((nonodes+1)*sizeof(double));
-          ((dist_node*)(a->nodep[i - 1]))->w =
-                                  (vector)Malloc((nonodes+1)*sizeof(double));
-          p = p->next;
+        pp = ((tree*)t)->nodep[i-1]->next
+        p = (dist_node*)pp;
+        dist_node_init(p, FORK_NODE, i); 
+        while (pp != t->nodep[i-1]) { /* until you get to where you entered */
+          pp->back = NULL;   /* debug:  why bother? */
+          p->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
+          p->t = 0.0;   /* debug: initialize where? */
+          p->sametime = false;   /* debug: initialize where? */
+          pp = pp->next;                /* go to next  node  in fork circle */
+          p = pp;             /* make sure generic_node version is same one */
         }
       }
-      else {
-        ((dist_node*)(t->nodep[i - 1]))->d =
-                                  (vector)Malloc((nonodes+1)*sizeof(double));
-        ((dist_node*)(t->nodep[i - 1]))->w =
-                                  (vector)Malloc((nonodes+1)*sizeof(double));
+      else {                                         /* if instead at a tip */
+        dist_node_init(p, TIP_NODE, i); 
       }
     }
   }
-  q = a->free_fork_nodes->first;
-  while (q != NULL) {                   /* go along list of fork->nodes too */
+  q = t->free_fork_nodes->first;        /* go along list of fork->nodes too */
+  while (q != NULL) {              
     p = q->data;                        /* p  is now the node that is there */
-    ((dist_node*)(p))->d = (vector)Malloc((nonodes+1)*sizeof(double));
-    ((dist_node*)(p))->w = (vector)Malloc((nonodes+1)*sizeof(double));
+    dist_node_init((dist_node*)p, FREE_NODE, 0);           /* initialize it */
     q = q->next;                                    /* go to next list item */
   }
-  t->score = -1.0;
-  t->root = t->nodep[0];
+  t->score = -1.0;    /* debug: set this in  ml_tree_init? */
+  t->root = t->nodep[0];   /* debug: set in which function? */
 }  /* dist_tree_init */
 
 
@@ -243,8 +240,8 @@ void dist_tree_new(dist_tree* t, long nonodes, long spp)
 void inputdata(boolean replicates, boolean printdata, boolean lower,
                boolean upper, vector *x, intvector *reps)
 {
-  /* read in distance matrix */
-  /* used in fitch & neighbor */
+  /* read in distance matrix
+   * used in fitch, kitsch & neighbor */
   long i=0, j=0, k=0, columns=0;
   boolean skipit=false, skipother=false;
 
@@ -333,6 +330,7 @@ void inputdata(boolean replicates, boolean printdata, boolean lower,
 }  /* inputdata */
 
 
+/* debug: can the following functions be promoted to  phylip.c ? */
 void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *start)
 {
   /* establishes coordinates of nodes */

@@ -439,13 +439,13 @@ typedef long sitearray[3];
 typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 
 /* datastructure typedefs */
-enum node_type { FORK_NODE = 0, TIP_NODE };
+enum node_type { FORK_NODE = 0, TIP_NODE, FREED_NODE };
 typedef enum node_type node_type;
 
 typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
-typedef node* (*new_node_t)(node_type, long);
-typedef void (*tree_setupfunctions_t)(tree*);
+typedef node* (*new_node_t)(node_type, long);  /* debug: what are these? */
+typedef void (*tree_setupfunctions_t)(tree*);  /* debug: what are these? */
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
 typedef void (*node_free_t)(node**);
@@ -470,7 +470,7 @@ typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
  */
 
 typedef enum nodetype {                                /* what kind of data */
-  NODE_T_UNKNOWN,
+  NODE_T_UNKNOWN,      /* debug:  maybe rename this type "nodedatatype"? */
   NODE_T_GENERIC,
   NODE_T_ML,
   NODE_T_DNA,
@@ -487,12 +487,13 @@ struct node_vtable {
 
 extern struct node_vtable node_vtable;
 
-struct node {   /* a basic node: space for everytihing but the kitchen sink */
-  nodetype      type;                   /* Runtime type id */
+struct node {  /* a basic node: space for "everything but the kitchen sink" */
+  nodetype type;                                         /* Runtime type id */
   struct node *next, *back;
-  plotstring nayme;
   long index;
-  double xcoord, ycoord;
+  boolean tip;                                /* true if node is a tip node */
+  plotstring nayme;
+  double xcoord, ycoord;                                /* used by printree */
   double oldlen, naymlength;
   long ymin, ymax;                        /* used by printree        -plc   */
   boolean haslength;                /* haslength used in dnamlk             */
@@ -502,19 +503,13 @@ struct node {   /* a basic node: space for everytihing but the kitchen sink */
   double v, tyme, deltav, ssq;      /* ssq used only in contrast            */
   boolean deleted;                      /* true if node is deleted (retree) */
   boolean hasname;                       /* true if tip has a name (retree) */
-  double beyond;           /* distance beyond this node to most distant tip */
-                            /* (for Retree) */
-  boolean deadend;           /* true if no undeleted nodes beyond this node */
-                             /* (for Retree) */
-  boolean onebranch;         /* true if there is one undeleted node beyond  */
-                                                   /* this node (in Retree) */
-  struct node *onebranchnode;
-                            /* if there is, a pointer to that node (Retree) */
-  double onebranchlength;   /* if there is, the distance from here to there */
-                                                                /* (Retree) */
+  double beyond;       /* in retree: distance beyond it to most distant tip */
+  boolean deadend;     /* in retree: true if no undeleted nodes beyond this */
+  boolean onebranch;     /* in retree: true if is one undeleted node beyond */
+  struct node *onebranchnode;     /* if is, a pointer to that node (Retree) */
+  double onebranchlength;/* if is, the distance from here to there (Retree) */
   boolean onebranchhaslength;   /* true if there is a valid combined length */
                                              /* from here to there (Retree) */
-  boolean tip;                                /* true if node is a tip node */
   boolean bottom;                   /* used in Dnapars & Dnacomp, disc char */
   boolean visited;                  /* used in Dnapars & Dnacomp, disc char */
   bitptr stateone, statezero;    /* discrete char programs                 */
@@ -531,7 +526,7 @@ struct node {   /* a basic node: space for everytihing but the kitchen sink */
   node_print_t node_print_f;
 
   struct node_vtable *vtable;               /* Pointer to node vtable */
-};
+};                                 /* end of the basic node type declaration */
 
 
 typedef node **pointarray;
@@ -649,13 +644,13 @@ struct tree {                                              /* the tree type */
   tree_get_forknode_t get_forknode;
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
-  tree_nuview_t nuview;
-  tree_makenewv_t makenewv;
+  tree_nuview_t nuview;      /* debug:  need in generic version? */
+  tree_makenewv_t makenewv;      /* debug:  need in generic version? */
   tree_print_t tree_print_f;
   do_branchl_on_insert_t do_branchl_on_insert_f;
   do_branchl_on_re_move_t do_branchl_on_re_move_f;
 
-  tree_good_t   tree_good_f;
+  tree_good_t   tree_good_f;    /* debug: what are these for? */
   node_good_t   node_good_f;
   fork_good_t   fork_good_f;
 

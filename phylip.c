@@ -3579,7 +3579,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
   long i;
   node *q, *p;
 
-  /* these functions may be customized for each program */
+  /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
@@ -3624,7 +3624,7 @@ void generic_tree_init(tree* t, long nonodes, long spp)
 void generic_tree_setupfunctions(tree *t) 
 {
   /* initialize functions.  Mostly for parsimony, they
-   * get overwritten in dist.c, ml.c as needed */
+   * get overwritten in  ml.c, parsimony.c, dist.c  as needed */
   long i;
   
   t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
@@ -3657,7 +3657,7 @@ void generic_tree_setupfunctions(tree *t)
   t->do_branchl_on_insert_f = generic_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = generic_do_branchl_on_re_move;
 
-  t->tree_good_f = generic_tree_good;
+  t->tree_good_f = generic_tree_good;  /* debug: what are these? */
   t->node_good_f = generic_node_good;
   t->fork_good_f = generic_fork_good;
 } /* generic_tree_setupfunctions */
