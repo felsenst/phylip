@@ -15,6 +15,10 @@ typedef long *intvector;
 
 typedef node **pointptr;
 
+typedef struct dist_tree {
+  tree tree;
+} dist_tree;
+
 typedef struct dist_node {
   node node;                                  /* Base object, must be first */
   vector d, w;
@@ -31,8 +35,8 @@ void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
-void dist_tree_init(tree *, long, long);
-void dist_tree_new(tree *, long);
+void dist_tree_init(dist_tree *, long, long);
+void dist_tree_new(dist_tree *, long, long);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
 void drawline(long, double, node *, boolean);

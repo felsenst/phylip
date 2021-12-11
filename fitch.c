@@ -17,7 +17,7 @@
 #define delta           0.0001      /* a not quite so small number */
 
 typedef struct fitch_tree{
-  ml_tree ml_tree;
+  dist_tree dist_tree;
 } fitch_tree;
 
 #ifndef OLDC
@@ -107,7 +107,7 @@ tree* fitch_tree_new(long nonodes, long spp)
   /* initialize a tree for Fitch, going up the class hierarchy */
   tree* t;
 
-  t = dist_tree_new(nonodes, spp);     /* the tree pointers, nodes, etc. */
+  dist_tree_new(t, nonodes, spp);         /* the tree pointers, nodes, etc. */
   fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
   return t;
 } /* fitch_tree_new */

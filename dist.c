@@ -179,24 +179,26 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(tree* a, long nonodes, long spp)
+void dist_tree_init(dist_tree* t, long nonodes, long spp)
 {
   /* initialize a tree
    * used in fitch, kitsch, & neighbor
    * acts after phylip.c: generic_tree_init  */
   long i=0;
-  node *p;
+  dist_node* p;
+  node* pp;
   Slist_node_ptr q;
 
+  generic_tree_init((tree*)t, nonodes+1, spp);
   for (i = 1; i <= nonodes; i++) {
-    if (a->nodep[i - 1] != NULL) {
-      a->nodep[i - 1]->back = NULL;
-      a->nodep[i - 1]->iter = true;
-      ((dist_node*)a->nodep[i - 1])->t = 0.0;
-      ((dist_node*)a->nodep[i - 1])->sametime = false;
-      a->nodep[i - 1]->v = 0.0;
+    if (((tree*)t)->nodep[i - 1] != NULL) {
+      ((tree*)t)->nodep[i - 1]->back = NULL;
+      ((tree*)t)->nodep[i - 1]->iter = true;
+      ((tree*)t)->nodep[i - 1])->t = 0.0;
+      ((dist_node*)(((tree*)t)->nodep[i - 1]))->sametime = false;
+      (tree*)t)->nodep[i - 1]->v = 0.0;
       if (i > spp) {       /* go around fork circles initializing variables */
-        p = a->nodep[i-1]->next;
+        pp = (dist_node*)t->nodep[i-1]->next;
         while (p != a->nodep[i-1]) {  /* until you get to where you entered */
           p->back = NULL;
           p->iter = true;
@@ -210,9 +212,9 @@ void dist_tree_init(tree* a, long nonodes, long spp)
         }
       }
       else {
-        ((dist_node*)(a->nodep[i - 1]))->d =
+        ((dist_node*)(t->nodep[i - 1]))->d =
                                   (vector)Malloc((nonodes+1)*sizeof(double));
-        ((dist_node*)(a->nodep[i - 1]))->w =
+        ((dist_node*)(t->nodep[i - 1]))->w =
                                   (vector)Malloc((nonodes+1)*sizeof(double));
       }
     }
@@ -224,9 +226,18 @@ void dist_tree_init(tree* a, long nonodes, long spp)
     ((dist_node*)(p))->w = (vector)Malloc((nonodes+1)*sizeof(double));
     q = q->next;                                    /* go to next list item */
   }
-  a->score = -1.0;
-  a->root = a->nodep[0];
+  t->score = -1.0;
+  t->root = t->nodep[0];
 }  /* dist_tree_init */
+
+
+void dist_tree_new(dist_tree* t, long nonodes, long spp)
+{ /* make a new dist_tree.  Calls to phylip_tree_new,
+   *  then calls dist_tree_init */
+
+  t =  generic_tree_new(nonodes, spp);
+  dist_tree_init(dist_tree* t, nonodes, spp);
+} /* dist_tree_new */
 
 
 void inputdata(boolean replicates, boolean printdata, boolean lower,
