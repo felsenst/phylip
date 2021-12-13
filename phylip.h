@@ -439,7 +439,7 @@ typedef long sitearray[3];
 typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 
 /* datastructure typedefs */
-enum node_type { FORK_NODE = 0, TIP_NODE, FREED_NODE };
+enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
 typedef struct node node;               /* prototypes of types of functions */

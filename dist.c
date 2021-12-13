@@ -14,17 +14,17 @@
 extern long nonodes;
 
 
-node* dist_node_new(node_type type, long index)
+dist_node* dist_node_new(node_type type, long index)
 {
   /* make a new dist_node */
-  node *n = Malloc(sizeof(dist_node));
+  dist_node *n = Malloc(sizeof(dist_node));
 
   dist_node_init(n, type, index);
   return n;
 } /* dist_node_new */
 
 
-void dist_node_init((dist_node* dn, node_type type, long index)
+void dist_node_init(dist_node* dn, node_type type, long index)
 {
   /* initialize a new dist_node */
   node *n = (node *)dn;                      /* generic_node version of  n */
@@ -32,7 +32,7 @@ void dist_node_init((dist_node* dn, node_type type, long index)
   generic_node_init(n, type, index);
   n->free = dist_node_free;
   n->copy = dist_node_copy;
-  n->init = dist_node_init;
+/* debug:  needed?    n->init = dist_node_init; */
   dn->dist = 0.0;                                 /* used in  fitch, kitsch */
   dn->d = (vector)Malloc((nonodes+1) * sizeof(double));  /* some extra room */
   dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
@@ -179,7 +179,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(dist_tree* t, long nonodes, long spp)
+void dist_tree_init(dist_tree* dt, long nonodes, long spp)
 {
   /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
@@ -187,20 +187,23 @@ void dist_tree_init(dist_tree* t, long nonodes, long spp)
    * runs along nodep, circling each fork, and then runs
    * along  free_fork_nodes  list too, in each case calling dist_node_init */
  /* debug:  For that matter could we make a generic function that does running-along? */
+  long i;
+  tree* t;
   dist_node* p;
   node* pp;
   Slist_node_ptr q;
 
   generic_tree_init((tree*)t, nonodes+1, spp);
+  dt = (dist_tree*)t;           /* make pointer to dist_tree version of  t  */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
-    if (((tree*)t)->nodep[i - 1] != NULL) {  /* these will be NULL normally */
-      ((tree*)t)->nodep[i - 1]->back = NULL;  /* debug: why bother? */
-      ((tree*)t)->nodep[i - 1]->iter = true;
-      ((tree*)t)->nodep[i - 1])->t = 0.0;
-      ((dist_node*)(((tree*)t)->nodep[i - 1]))->sametime = false;
-      (tree*)t)->nodep[i - 1]->v = 0.0;
+    if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
+      t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
+      t->nodep[i - 1]->iter = true;
+/* debug: needed? which type of node?      ((tree*)t)->nodep[i - 1]->t = 0.0; */
+      ((dist_node*)(t->nodep[i - 1]))->sametime = false;
+      t->nodep[i - 1]->v = 0.0;
       if (i > spp) {       /* go around fork circles initializing variables */
-        pp = ((tree*)t)->nodep[i-1]->next
+        pp = t->nodep[i-1]->next;
         p = (dist_node*)pp;
         dist_node_init(p, FORK_NODE, i); 
         while (pp != t->nodep[i-1]) { /* until you get to where you entered */
@@ -209,7 +212,7 @@ void dist_tree_init(dist_tree* t, long nonodes, long spp)
           p->t = 0.0;   /* debug: initialize where? */
           p->sametime = false;   /* debug: initialize where? */
           pp = pp->next;                /* go to next  node  in fork circle */
-          p = pp;             /* make sure generic_node version is same one */
+          p = (dist_node*)pp; /* make sure generic_node version is same one */
         }
       }
       else {                                         /* if instead at a tip */
@@ -232,8 +235,8 @@ void dist_tree_new(dist_tree* t, long nonodes, long spp)
 { /* make a new dist_tree.  Calls to phylip_tree_new,
    *  then calls dist_tree_init */
 
-  t =  generic_tree_new(nonodes, spp);
-  dist_tree_init(dist_tree* t, nonodes, spp);
+  t =  (dist_tree*)generic_tree_new(nonodes, spp);
+  dist_tree_init(t, nonodes, spp);
 } /* dist_tree_new */
 
 

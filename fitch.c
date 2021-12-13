@@ -105,11 +105,11 @@ void fitch_tree_init(tree* t, long nonodes, long spp)
 tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
-  tree* t;
+  dist_tree* t;
 
   dist_tree_new(t, nonodes, spp);         /* the tree pointers, nodes, etc. */
   fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
-  return t;
+  return (tree*)t;
 } /* fitch_tree_new */
 
 

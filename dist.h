@@ -43,8 +43,8 @@ void drawline(long, double, node *, boolean);
 void printree(node *, boolean, boolean);
 void treeoutr(node *, long *, tree *);
 void treeout(node *, long *, double, boolean, node *);
-node* dist_node_new(node_type type, long index);
-void dist_node_init(node* n, node_type type, long index);
+dist_node* dist_node_new(node_type type, long index);
+void dist_node_init(dist_node* n, node_type type, long index);
 void dist_node_copy(node* src, node* dst);
 void dist_node_free(node **np);
 /*function prototypes*/
