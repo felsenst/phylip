@@ -208,7 +208,7 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
         dist_node_init(p, FORK_NODE, i); 
         while (pp != t->nodep[i-1]) { /* until you get to where you entered */
           pp->back = NULL;   /* debug:  why bother? */
-          p->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
+          pp->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
           p->t = 0.0;   /* debug: initialize where? */
           p->sametime = false;   /* debug: initialize where? */
           pp = pp->next;                /* go to next  node  in fork circle */
