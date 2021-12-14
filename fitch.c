@@ -55,7 +55,7 @@ void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
 tree*  fitch_tree_new(long, long);
-void   fitch_tree_init(tree*, long, long);
+void   fitch_tree_init(dist_tree*, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -84,11 +84,11 @@ char *progname;
 
 
 
-void fitch_tree_init(tree* t, long nonodes, long spp)
+void fitch_tree_init(dist_tree* t, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch.  Use hierarchy of classes */
 
-  dist_tree_init((tree*)t, nonodes, spp);      /* go up the class hierarchy */
+  dist_tree_init(t, nonodes, spp);             /* go up the class hierarchy */
   ((tree*)t)->evaluate = fitch_evaluate;              /* then set functions */
   ((tree*)t)->insert_ = ml_tree_insert_;
   ((tree*)t)->try_insert_ = ml_tree_try_insert_;
