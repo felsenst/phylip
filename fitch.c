@@ -105,7 +105,7 @@ void fitch_tree_init(dist_tree* t, long nonodes, long spp)
 tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
-  dist_tree* t;
+  dist_tree* t=0x0;;                   /* null pointer to keep  make  happy */
 
   dist_tree_new(t, nonodes, spp);         /* the tree pointers, nodes, etc. */
   fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
@@ -1172,7 +1172,7 @@ void fitch(
   argc = 1;
   argv[0] = "Fitch";
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = dist_node_new;          /* new nodes will be dist_nodes */
+  funcs->node_new = (new_node_t)dist_node_new;          /* new nodes will be dist_nodes */
   funcs->tree_new = fitch_tree_new;       /* new trees will be of this type */
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
@@ -1419,7 +1419,7 @@ int main(int argc, Char *argv[])
 #endif
   funcs = Malloc(sizeof(initdata));
   phylipinit(argc, argv, funcs, false);                  /* do initializing */
-  funcs->node_new = dist_node_new;          /* new nodes will be dist_nodes */
+  funcs->node_new = (new_node_t)dist_node_new;          /* new nodes will be dist_nodes */
   functions.tree_new = fitch_tree_new;    /* new trees will be of this type */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
