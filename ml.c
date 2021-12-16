@@ -837,6 +837,16 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 } /* ml_tree_insert */
 
 
+void ml_tree_new(mlt, nonodes, spp, treesize)
+{ /* make a new ml_tree.  Calls to phylip_tree_new,
+   *  then calls dist_tree_init */
+  dist_tree *dt;
+  
+  dt* = (dist_tree*)mlt;
+  ml_tree_new((ml_tree*)mlt, nonodes, spp, sizeof(dist_tree));    /* next up */
+} /* dist_tree_new */
+
+
 void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
 {
   /* only works for bifurcations */

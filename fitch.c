@@ -108,9 +108,10 @@ tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
   dist_tree* t=0x0;;                   /* null pointer to keep  make  happy */
+  long treesize;
 
-  dist_tree_new(t, nonodes, spp);         /* the tree pointers, nodes, etc. */
-  fitch_tree_init(t, nonodes, spp);     /* ... and initializations going up */
+  dist_tree_new(t, nonodes, spp, sizeof(dist_tree)); /*   the tree pointers */
+  fitch_tree_init(t, nonodes, spp, sizeof(dist_node)); /*   initializations */
   return (tree*)t;
 } /* fitch_tree_new */
 
