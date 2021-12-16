@@ -189,20 +189,22 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
  /* debug:  For that matter could we make a generic function that does running-along? */
   long i;
   tree* t;
+  ml_tree* mlt;
   dist_node* p;
   node* pp;
   Slist_node_ptr q;
 
-  generic_tree_init((tree*)t, nonodes+1, spp);
-  dt = (dist_tree*)t;           /* make pointer to dist_tree version of  t  */
+  mlt = (ml_tree*)dt;              /* make pointer to ml_tree version of dt */
+  ml_tree_init(mlt, nonodes+1, spp);        /* go on up tree_init hierarchy */
+  t = (tree*)dt;            /* make pointer to generic_tree version of  dt  */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
     if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
-      t->nodep[i - 1]->iter = true;
+      t->nodep[i - 1]->iter = true;       /* debug: at what level initiate this? */
 /* debug: needed? which type of node?      ((tree*)t)->nodep[i - 1]->t = 0.0; */
       ((dist_node*)(t->nodep[i - 1]))->sametime = false;
       t->nodep[i - 1]->v = 0.0;
-      if (i > spp) {       /* go around fork circles initializing variables */
+      if (i > spp) {  /* go around fork circles initializing node variables */
         pp = t->nodep[i-1]->next;
         p = (dist_node*)pp;
         dist_node_init(p, FORK_NODE, i); 
@@ -220,7 +222,7 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
       }
     }
   }
-  q = t->free_fork_nodes->first;        /* go along list of fork->nodes too */
+  q = t->free_fork_nodes->first;   /* go along list of fork->node items too */
   while (q != NULL) {              
     p = q->data;                        /* p  is now the node that is there */
     dist_node_init((dist_node*)p, FREE_NODE, 0);           /* initialize it */
@@ -235,8 +237,7 @@ void dist_tree_new(dist_tree* t, long nonodes, long spp)
 { /* make a new dist_tree.  Calls to phylip_tree_new,
    *  then calls dist_tree_init */
 
-  t =  (dist_tree*)generic_tree_new(nonodes, spp);
-  dist_tree_init(t, nonodes, spp);
+  t =  (dist_tree*)generic_tree_new(nonodes, spp);  /* go up, make new tree */
 } /* dist_tree_new */
 
 

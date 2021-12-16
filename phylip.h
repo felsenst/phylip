@@ -602,7 +602,7 @@ typedef enum {                           /* enum type which is type of tree */
 
 
 struct tree {                                              /* the tree type */
-  treetype      type;
+  treetype type;
   pointarray nodep;
   double score;
   node *root;
@@ -644,8 +644,8 @@ struct tree {                                              /* the tree type */
   tree_get_forknode_t get_forknode;
   tree_release_forknode_t release_forknode;
   tree_reinit_forknode_t reinit_forknode;
-  tree_nuview_t nuview;      /* debug:  need in generic version? */
-  tree_makenewv_t makenewv;      /* debug:  need in generic version? */
+  tree_nuview_t nuview;
+  tree_makenewv_t makenewv;
   tree_print_t tree_print_f;
   do_branchl_on_insert_t do_branchl_on_insert_f;
   do_branchl_on_re_move_t do_branchl_on_re_move_f;
@@ -654,7 +654,7 @@ struct tree {                                              /* the tree type */
   node_good_t   node_good_f;
   fork_good_t   fork_good_f;
 
-  tree_vtable *vtable;
+  tree_vtable *vtable;     /* debug:  is this needed?  used? */
 };
 
 typedef void (*initptr)(tree *, node **, long, long,

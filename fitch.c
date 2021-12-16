@@ -84,21 +84,23 @@ char *progname;
 
 
 
-void fitch_tree_init(dist_tree* t, long nonodes, long spp)
+void fitch_tree_init(dist_tree* dt, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch.  Use hierarchy of classes */
+  tree* t;
 
-  dist_tree_init(t, nonodes, spp);             /* go up the class hierarchy */
-  ((tree*)t)->evaluate = fitch_evaluate;              /* then set functions */
-  ((tree*)t)->insert_ = ml_tree_insert_;
-  ((tree*)t)->try_insert_ = ml_tree_try_insert_;
-  ((tree*)t)->re_move = ml_tree_re_move;
-  ((tree*)t)->nuview = fitch_nuview;
-  ((tree*)t)->makenewv = fitch_makenewv;
-  ((tree*)t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
-  ((tree*)t)->do_newbl = true;
-  ((tree*)t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  ((tree*)t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  dist_tree_init(dt, nonodes, spp);             /* go up the class hierarchy */
+  t = (tree*)dt;
+  t->evaluate = fitch_evaluate;              /* then set functions */
+  t->insert_ = ml_tree_insert_;
+  t->try_insert_ = ml_tree_try_insert_;
+  t->re_move = ml_tree_re_move;
+  t->nuview = fitch_nuview;
+  t->makenewv = fitch_makenewv;
+  t->smoothall = (tree_smoothall_t)ml_tree_smoothall;
+  t->do_newbl = true;
+  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
 
 
@@ -108,7 +110,7 @@ tree* fitch_tree_new(long nonodes, long spp)
   dist_tree* t=0x0;;                   /* null pointer to keep  make  happy */
 
   dist_tree_new(t, nonodes, spp);         /* the tree pointers, nodes, etc. */
-  fitch_tree_init(t, nonodes, spp);      /* ... and stuff specific to fitch */
+  fitch_tree_init(t, nonodes, spp);     /* ... and initializations going up */
   return (tree*)t;
 } /* fitch_tree_new */
 

@@ -3671,8 +3671,7 @@ tree* generic_tree_new(long nonodes, long spp)
   tree* t;
 
   t = (tree*)Malloc(sizeof(tree));           /* debug: add a size argument intead? */
-  generic_tree_init(t, nonodes, spp);       /* generic initialization steps */
-  return t;
+  return t;  /* returns as a result, unlike tree_new functions further down */
 } /* generic_tree_new */
 
 
