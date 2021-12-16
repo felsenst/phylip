@@ -9,8 +9,8 @@
 #endif
 
 #include "phylip.h"
-#include "dist.h"
 #include "ml.h"
+#include "dist.h"
 
 #define zsmoothings     10    /* number of zero-branch correction iterations */
 #define epsilonf        0.000001   /* a very small but not too small number  */
@@ -108,10 +108,9 @@ tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
   dist_tree* t=0x0;;                   /* null pointer to keep  make  happy */
-  long treesize;
 
   dist_tree_new(t, nonodes, spp, sizeof(dist_tree)); /*   the tree pointers */
-  fitch_tree_init(t, nonodes, spp, sizeof(dist_node)); /*   initializations */
+  fitch_tree_init(t, nonodes, spp);                /* class initializations */
   return (tree*)t;
 } /* fitch_tree_new */
 

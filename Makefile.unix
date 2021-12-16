@@ -366,7 +366,7 @@ dollo.o:      dollo.c phylip.h dollo.h
 wagner.o:     wagner.c phylip.h wagner.h
 	$(CC) -c wagner.c $(SHARED) -fPIC
 
-dist.o:       dist.c phylip.h dist.h
+dist.o:       dist.c phylip.h dist.h ml.h
 	$(CC) -c dist.c $(SHARED) -fPIC
 
 cont.o:       cont.c cont.h phylip.h

@@ -11,27 +11,24 @@
 
 extern boolean inserting;
 
-typedef struct ml_node ml_node;
-
-typedef void (*allocx_t)(ml_node*, long, long);
-typedef void (*freex_t)(ml_node*);
-typedef void (*makenewv_t)(tree*, node*);
-typedef void (*nuview_t)(tree*, node*);
-
-typedef struct ml_tree {
-  tree tree;
-  nuview_t nuview;
-  makenewv_t makenewv;
-} ml_tree;
-
-struct ml_node {
+typedef struct ml_node {
   node node;            /* Base object, must be first */
   allocx_t allocx;
   freex_t freex;
   double* underflows;
   long endsite;
   long categs;
-};
+} ml_node;
+
+typedef void (*allocx_t)(ml_node*, long, long);
+typedef void (*freex_t)(ml_node*);
+
+typedef struct ml_tree {
+  tree tree;
+} ml_tree;
+
+typedef void (*makenewv_t)(tree*, node*);
+typedef void (*nuview_t)(tree*, node*);
 
 typedef struct codon_node {
   ml_node ml_node;      /* Base object, must be first */
@@ -93,6 +90,7 @@ boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*,
                           double*, tree*, boolean, boolean, boolean);
 void    ml_tree_do_branchl_on_insert(tree*, node *, node*);
 void    ml_tree_do_branchl_on_re_move(tree*, node*, node*);
+void    ml_tree_new(ml_tree*, long, long, int);
 void    mlk_tree_insert_(tree*, node *, node *, boolean, boolean);
 double  get_tyme(node *);
 void    set_tyme (node*, double) ;

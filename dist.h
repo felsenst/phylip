@@ -17,6 +17,7 @@ typedef node **pointptr;
 
 typedef struct dist_tree {
   tree tree;
+  ml_tree ml_tree;
 } dist_tree;
 
 typedef struct dist_node {
@@ -36,7 +37,7 @@ void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
 void dist_tree_init(dist_tree *, long, long);
-void dist_tree_new(dist_tree *, long, long);
+void dist_tree_new(dist_tree *, long, long, int);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
 void drawline(long, double, node *, boolean);

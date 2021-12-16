@@ -235,6 +235,7 @@
 #define Malloc(x) mymalloc((long)x)    /* mymalloc is our wrapper for malloc */
 
 typedef void *Anyptr;
+
 #define Signed     signed
 #define Const     const
 #define Volatile  volatile
@@ -247,7 +248,7 @@ typedef unsigned int boolean;
 #endif
 
 /* Number of items per machine word in when stores a binary set of bits.
- * Used in Consense, Treedist, and Clique; can't use sign bit */
+ * Used in Consense, Treedist, and Clique, because we can't use sign bit */
 #define SETBITS 31
 
 /* Static memory parameters */
