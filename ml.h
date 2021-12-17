@@ -11,21 +11,25 @@
 
 extern boolean inserting;
 
+typedef void (*allocx_t)(ml_node*, long, long);
+typedef void (*freex_t)(ml_node*);
+
+struct ml_tree {
+  struct tree tree;
+};
+
+typedef struct ml_tree ml_tree;
+
 typedef struct ml_node {
-  node node;            /* Base object, must be first */
+  struct node node;            /* Base object, must be first */
   allocx_t allocx;
   freex_t freex;
   double* underflows;
   long endsite;
   long categs;
-} ml_node;
+};
 
-typedef void (*allocx_t)(ml_node*, long, long);
-typedef void (*freex_t)(ml_node*);
-
-typedef struct ml_tree {
-  tree tree;
-} ml_tree;
+typedef struct ml_node ml_node;
 
 typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
