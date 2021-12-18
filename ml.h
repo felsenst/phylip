@@ -11,16 +11,19 @@
 
 extern boolean inserting;
 
-typedef void (*allocx_t)(ml_node*, long, long);
-typedef void (*freex_t)(ml_node*);
-
 struct ml_tree {
   struct tree tree;
 };
 
+struct allocx_t;
+struct freex_t;
+
+typedef void (*allocx_t)(node*, long, long);
+typedef void (*freex_t)(node*);
+
 typedef struct ml_tree ml_tree;
 
-typedef struct ml_node {
+struct ml_node {
   struct node node;            /* Base object, must be first */
   allocx_t allocx;
   freex_t freex;
@@ -64,7 +67,7 @@ node *  codon_node_new(node_type, long);
 void    codon_node_init(node *, node_type, long);
 void    codon_node_allocx(ml_node*, long, long);
 void    dna_node_allocx(ml_node*, long, long);
-void    ml_tree_init(tree*, long, long);
+void    ml_tree_init(ml_tree*, long, long);
 void    ml_node_copy(node*, node*);
 void    ml_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);

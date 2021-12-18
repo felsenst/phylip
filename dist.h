@@ -7,6 +7,7 @@
     dist.h: included in fitch, kitsch, & neighbor
 */
 
+#include "ml.h"
 
 #define over            60
 
@@ -15,13 +16,16 @@ typedef long *intvector;
 
 typedef node **pointptr;
 
-typedef struct dist_tree {
-  tree tree;
-  ml_tree ml_tree;
-} dist_tree;
+typedef struct ml_tree ml_tree;
+
+struct dist_tree {
+  struct ml_tree ml_tree;
+};
+
+typedef struct dist_tree dist_tree;
 
 typedef struct dist_node {
-  node node;                                  /* Base object, must be first */
+  struct node node;                                  /* Base object, must be first */
   vector d, w;
   double t;
   boolean sametime;
