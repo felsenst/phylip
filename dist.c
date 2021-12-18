@@ -234,12 +234,15 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
 
 
 void dist_tree_new(dt, nonodes, spp, treesize)
-{ /* make a new dist_tree.  Calls to phylip_tree_new,
-   *  then calls dist_tree_init */
+{ /* make a new dist_tree.  Calls to ml_tree_new, which
+   *  calls up to generic_tree_new, then after that it
+   *  calls dist_tree_init */
   ml_tree *mlt;
 
-  dt = (ml_tree*)((tree*)mlt);
-  ml_tree_new((ml_tree*)mlt, nonodes, spp, sizeof(dist_tree));    /* next up */
+  mlt = (ml_tree*)dt;
+  ml_tree_new(mlt, nonodes, spp, sizeof(dist_tree));             /* next up */
+  dt = (dist_tree*)mlt;
+  dist_tree_init(dt, nonodes, spp);
 } /* dist_tree_new */
 
 
