@@ -3,6 +3,11 @@
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
 
+/* debug:  would it be better to split ml_tree / ml_node into two levels of
+ * the hierarchy, so ml_node / ml_tree is for cases where the branch lengths
+ * are iterated, and the codon_node / prot_node / dna_node are for cases
+ * where it not only does that, it has molecular sequences
+ * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
 #ifndef _ML_H_
 #define _ML_H_
@@ -24,7 +29,7 @@ typedef void (*freex_t)(node*);
 typedef struct ml_tree ml_tree;
 
 struct ml_node {
-  struct node node;            /* Base object, must be first */
+  struct node node;                          /* Base object, must be first */
   allocx_t allocx;
   freex_t freex;
   double* underflows;
@@ -38,17 +43,17 @@ typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
 
 typedef struct codon_node {
-  ml_node ml_node;      /* Base object, must be first */
+  ml_node ml_node;                            /* Base object, must be first */
   cphenotype codonx;
 } codon_node;
 
 typedef struct prot_node {
-  ml_node ml_node;      /* Base object, must be first */
+  ml_node ml_node;                            /* Base object, must be first */
   pphenotype x;
 } prot_node;
 
 typedef struct dna_node{
-  ml_node ml_node;      /* Base object, must be first */
+  ml_node ml_node;                            /* Base object, must be first */
   phenotype x;
 } dna_node;
 

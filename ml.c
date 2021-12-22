@@ -44,8 +44,9 @@ void ml_tree_init(ml_tree* mlt, long nonodes, long spp)
   t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
-/* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview; */
-  t->makenewv = ml_tree->makenewv;
+/* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
+  (t.tree)->makenewv_t = ml_tree->makenewv_t;
+ * */
 } /* ml_tree_init */
 
 
@@ -77,17 +78,15 @@ void ml_hookup(node* p, node* q){
 } /* ml_hookup */
 
 
-void codon_node_copy(node* srcn, node* destn)
+void codon_node_copy(codon_node* srcn, codon_node* destn)
 { /* copy a codon_node */
-  codon_node *src = (codon_node *)srcn;
-  codon_node *dest = (codon_node *)destn;
   long i, j;
   long oldendsite = dest->ml_node.endsite;
 
-  ml_node_copy(srcn, destn);
-  if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
+  codon_node_copy(src, dest);
+  if ( oldendsite != 0 && oldendsite != src->codon_node.endsite )
   {
-    ((ml_node*)dest)->freex((ml_node*)dest);
+    ((codon_node*)dest)->freex((ml_node*)dest);
     oldendsite = 0;
   }
   if ( oldendsite == 0 )
@@ -838,13 +837,10 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 
 
 void ml_tree_new(mlt, nonodes, spp, treesize)
-{ /* make a new ml_tree.  Calls to phylip_tree_new,
-   *  then calls dist_tree_init */
-  dist_tree *dt;
+{ /* make a new ml_tree.  Calls to generic_tree-new */
   
-  dt* = (dist_tree*)mlt;
-  ml_tree_new((ml_tree*)mlt, nonodes, spp, sizeof(dist_tree));    /* next up */
-} /* dist_tree_new */
+  generic_tree_new((tree*)mlt, nonodes, spp, sizeof(ml_tree)); /* next up */
+} /* ml_tree_new */
 
 
 void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)

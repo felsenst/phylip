@@ -602,7 +602,7 @@ typedef enum {                           /* enum type which is type of tree */
 } treetype;
 
 
-struct tree {                                              /* the tree type */
+struct tree {                                         /* the tree structure */
   treetype type;
   pointarray nodep;
   double score;
