@@ -81,20 +81,20 @@ void ml_hookup(node* p, node* q){
 void codon_node_copy(codon_node* srcn, codon_node* destn)
 { /* copy a codon_node */
   long i, j;
-  long oldendsite = dest->ml_node.endsite;
+  long oldendsite = (*destn).ml_node.endsite;
 
-  codon_node_copy(src, dest);
-  if ( oldendsite != 0 && oldendsite != src->codon_node.endsite )
+/* debug:  why?    codon_node_copy(srcn, destn);  */
+  if ( oldendsite != 0 && oldendsite != (*((ml_node*)srcn)).endsite )
   {
-    ((codon_node*)dest)->freex((ml_node*)dest);
+    ((ml_node*)destn)->freex((node*)destn);
     oldendsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx(((ml_node*)dest), ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
+    ((ml_node*)destn)->allocx(((node*)destn), ((ml_node*)srcn)->endsite, ((ml_node*)srcn)->categs);
 
-  for (i = 0; i < src->ml_node.endsite; i++)
-    for (j = 0; j < src->ml_node.categs; j++)
-      memcpy(dest->codonx[i][j], src->codonx[i][j], sizeof(csitelike));
+  for (i = 0; i < srcn->ml_node.endsite; i++)
+    for (j = 0; j < srcn->ml_node.categs; j++)
+      memcpy(destn->codonx[i][j], srcn->codonx[i][j], sizeof(csitelike));
 } /* codon_node_copy */
 
 
@@ -108,11 +108,11 @@ void prot_node_copy(node* srcn, node* destn)
   ml_node_copy(srcn, destn);
   if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
   {
-    ((ml_node*)dest)->freex((ml_node*)dest);
+    ((ml_node*)destn)->freex((node*)dest);
     oldendsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx(((ml_node*)dest), ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
+    ((ml_node*)dest)->allocx((node*)dest, ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
 
   for (i = 0; i < src->ml_node.endsite; i++)
     for (j = 0; j < src->ml_node.categs; j++)
@@ -131,11 +131,11 @@ void dna_node_copy(node* srcn, node* destn)
 
   if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
   {
-    dest->ml_node.freex((ml_node*)dest);
+    dest->ml_node.freex((node*)dest);
     dest->ml_node.endsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx(((ml_node*)dest), ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
+    ((ml_node*)dest)->allocx(((node*)dest), ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
   for (i = 0; i < ((ml_node*)src)->endsite; i++)
     for (j = 0; j < ((ml_node*)src)->categs; j++)
       memcpy(((dna_node*)dest)->x[i][j], ((dna_node*)src)->x[i][j], sizeof(sitelike));
@@ -193,14 +193,14 @@ void dna_node_init(node *node, node_type type, long index)
   assert(index >= 0);
 
   ml_node_init(node, type, index);
-  n->ml_node.allocx = dna_node_allocx;
+  n->ml_node.allocx = (allocx_t)dna_node_allocx;
   n->ml_node.node.copy = dna_node_copy;
   n->ml_node.node.init = dna_node_init;
-  n->ml_node.freex = dna_node_freex;
+  n->ml_node.freex = (freex_t)dna_node_freex;
   n->x = NULL;
 
   if ( endsite != 0 && rcategs != 0 )
-    n->ml_node.allocx((ml_node*)n, endsite, rcategs);
+    n->ml_node.allocx((struct node*)n, endsite, rcategs);
 } /* dna_node_init */
 
 
@@ -221,13 +221,13 @@ void prot_node_init(node *n, node_type type, long index)
   prot_node *pn = (prot_node *)n;
 
   ml_node_init(n, type, index);
-  pn->ml_node.allocx = prot_node_allocx;
+  pn->ml_node.allocx = (allocx_t)prot_node_allocx;
   pn->ml_node.node.copy = prot_node_copy;
   pn->ml_node.node.init = prot_node_init;
-  pn->ml_node.freex = prot_node_freex;
+  pn->ml_node.freex = (freex_t)prot_node_freex;
   pn->x = NULL;
   if ( endsite != 0 && rcategs != 0 )
-    pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
+    pn->ml_node.allocx(&((struct node*)(pn->ml_node)), endsite, rcategs);
 } /* prot_node_init */
 
 

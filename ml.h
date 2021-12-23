@@ -79,7 +79,7 @@ void    allocx(long, long, long, ml_node**);
 void    fix_x(dna_node*, long, double, long);
 void    fix_protx(prot_node*, long, double, long);
 void    prot_node_copy(node*, node*);
-void    codon_node_copy(node*, node*);
+void    codon_node_copy(codon_node*, codon_node*);
 void    dna_node_copy(node*, node*);
 void    codon_node_freex(ml_node*);
 void    prot_node_freex(ml_node*);
