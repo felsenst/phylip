@@ -227,7 +227,7 @@ void prot_node_init(node *n, node_type type, long index)
   pn->ml_node.freex = (freex_t)prot_node_freex;
   pn->x = NULL;
   if ( endsite != 0 && rcategs != 0 )
-    pn->ml_node.allocx(&((struct node*)(pn->ml_node)), endsite, rcategs);
+    pn->ml_node.allocx((struct node*)(&(pn->ml_node.node)), endsite, rcategs);
 } /* prot_node_init */
 
 
@@ -247,13 +247,14 @@ void codon_node_init(node *n, node_type type, long index)
   codon_node *pn = (codon_node *)n;
 
   ml_node_init(n, type, index);
-  pn->ml_node.allocx = codon_node_allocx;
-  pn->ml_node.node.copy = codon_node_copy;
+  pn->ml_node.allocx = (allocx_t)codon_node_allocx;
+  pn->ml_node.node.copy = (node_copy_t)codon_node_copy;
   pn->ml_node.node.init = codon_node_init;
-  pn->ml_node.freex = codon_node_freex;
+  pn->ml_node.freex = (freex_t)codon_node_freex;
   pn->codonx = NULL;
   if ( endsite != 0 && rcategs != 0 )
-    pn->ml_node.allocx(&(pn->ml_node), endsite, rcategs);
+    pn->ml_node.allocx((struct node*)(&(pn->ml_node.node.copy)), endsite,
+                        rcategs);
 } /* codon_node_init */
 
 
@@ -261,7 +262,7 @@ void ml_node_free(node **np)
 {
   /* free a node for ml trees */
   ml_node *n = (ml_node*)*np;
-  n->freex(n);
+  n->freex((node*)n);
   generic_node_free(np);
 } /* ml_node_free */
 
@@ -318,14 +319,14 @@ void allocx(long nonodes, long endsite, long param, ml_node** treenode)
   ml_node *q;
 
   for (i = 0; i < spp; i++)
-    treenode[i]->allocx((ml_node*)treenode[i], endsite, param);
+    treenode[i]->allocx((node*)treenode[i], endsite, param);
   for (i = spp; i < nonodes; i++)
   {
     p = treenode[i];
     q = p;
     do
     {
-      q->allocx(q, endsite, param);
+      q->allocx((node*)q, endsite, param);
       q = (ml_node*)q->node.next;
     } while ( q != p);
   }
@@ -836,10 +837,12 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 } /* ml_tree_insert */
 
 
-void ml_tree_new(mlt, nonodes, spp, treesize)
+void ml_tree_new(ml_tree *mlt, long nonodes, long spp, int treesize)
 { /* make a new ml_tree.  Calls to generic_tree-new */
+  tree *t;
   
-  generic_tree_new((tree*)mlt, nonodes, spp, sizeof(ml_tree)); /* next up */
+  t = generic_tree_new(nonodes, spp, sizeof(ml_tree));       /* next one up */
+  mlt = (ml_tree*)t;
 } /* ml_tree_new */
 
 

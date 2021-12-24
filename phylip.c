@@ -645,16 +645,16 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
     functions.node_new = generic_new_node;
-    functions.tree_new = generic_tree_new;   /* debug: ever used from this? */
+    functions.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
   } else {
     if ( ini->node_new != NULL )
       functions.node_new = ini->node_new;
     else
       functions.node_new = generic_new_node;
     if ( ini->tree_new != NULL )
-      functions.tree_new = ini->tree_new;
+      functions.tree_new = (tree_new_t)ini->tree_new;
     else
-      functions.tree_new = generic_tree_new;
+      functions.tree_new = (tree_new_t)generic_tree_new;
   }
 } /* init */
 
@@ -3663,14 +3663,14 @@ void generic_tree_setupfunctions(tree *t)
 } /* generic_tree_setupfunctions */
 
 
-tree* generic_tree_new(long nonodes, long spp)
+tree* generic_tree_new(long nonodes, long spp, int treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * also initialize the setting up of its functions to the generic version */
  /* debug:  allocate size of tree here or in the local tree_new functions? */
   tree* t;
 
-  t = (tree*)Malloc(sizeof(tree));           /* debug: add a size argument intead? */
+  t = (tree*)Malloc(treesize);           /* debug: add a size argument intead? */
   return t;  /* returns as a result, unlike tree_new functions further down */
 } /* generic_tree_new */
 

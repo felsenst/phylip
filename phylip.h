@@ -800,7 +800,7 @@ void            unroot_r(tree*, node*, long);
 void            release_all_forks(tree*);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
-tree*           generic_tree_new(long, long);
+tree*           generic_tree_new(long, long, int);
 void            generic_tree_init(tree*, long, long);
 void		generic_tree_setupfunctions(tree*);
 void            generic_tree_free(tree*);
