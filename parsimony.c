@@ -194,7 +194,7 @@ boolean pars_tree_try_insert_(tree* t, node* item, node* p, node* there,
   pos = 0;
 
   /* debug:  Uncommenting the following code will allow for a multifurcating
-   * search, However doing a search only of resolved trees will also find
+	   * searce, However doing a search only of resolved trees will also find
    * multifurcations when collapsible branches are collapsed */
 #if 0
   if ( p->tip == false )

@@ -233,7 +233,7 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
 }  /* dist_tree_init */
 
 
-void dist_tree_new(dist_tree* dt, long nonodes, long spp, int treesize)
+void dist_tree_new(struct dist_tree* dt, long nonodes, long spp, int treesize)
 { /* make a new dist_tree.  Calls to ml_tree_new, which
    *  calls up to generic_tree_new, then after that it
    *  calls dist_tree_init */
