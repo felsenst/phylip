@@ -32,7 +32,7 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_tree_init(ml_tree* mlt, long nonodes, long spp)
+void ml_tree_init(struct ml_tree** mlt, long nonodes, long spp)
 { /* set up function variables in ml_tree */
   tree* t;
 
@@ -837,12 +837,12 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 } /* ml_tree_insert */
 
 
-void ml_tree_new(ml_tree *mlt, long nonodes, long spp, int treesize)
+void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, int treesize)
 { /* make a new ml_tree.  Calls to generic_tree-new */
-  tree *t;
+  struct tree **t;
   
-  t = generic_tree_new(nonodes, spp, sizeof(ml_tree));       /* next one up */
-  mlt = (ml_tree*)t;
+  &t = generic_tree_new(nonodes, spp, sizeof(ml_tree));    /* next one up */
+  mlt = (struct ml_tree**)t;
 } /* ml_tree_new */
 
 

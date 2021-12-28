@@ -179,7 +179,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(dist_tree* dt, long nonodes, long spp)
+void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
 {
   /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
@@ -188,27 +188,27 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
    * along  free_fork_nodes  list too, in each case calling dist_node_init */
  /* debug:  For that matter could we make a generic function that does running-along? */
   long i;
-  tree* t;
-  ml_tree* mlt;
+  tree** t;
+  struct ml_tree **mlt;
   dist_node* p;
   node* pp;
   Slist_node_ptr q;
 
-  mlt = (ml_tree*)dt;              /* make pointer to ml_tree version of dt */
+  mlt = (struct ml_tree**)dt;      /* make pointer to ml_tree version of dt */
   ml_tree_init(mlt, nonodes+1, spp);        /* go on up tree_init hierarchy */
-  t = (tree*)dt;            /* make pointer to generic_tree version of  dt  */
+  t = (tree**)dt;           /* make pointer to generic_tree version of  dt  */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
-    if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
-      t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
-      t->nodep[i - 1]->iter = true;       /* debug: at what level initiate this? */
+    if ((*t)->nodep[i - 1] != NULL) {        /* these will be NULL normally */
+      (*t)->nodep[i - 1]->back = NULL;  /* debug: why bother? */
+      (*t)->nodep[i - 1]->iter = true; /* debug: at what level initiate this? */
 /* debug: needed? which type of node?      ((tree*)t)->nodep[i - 1]->t = 0.0; */
-      ((dist_node*)(t->nodep[i - 1]))->sametime = false;
-      t->nodep[i - 1]->v = 0.0;
+      ((dist_node*)((*t)->nodep[i - 1]))->sametime = false;
+      (*t)->nodep[i - 1]->v = 0.0;
       if (i > spp) {  /* go around fork circles initializing node variables */
-        pp = t->nodep[i-1]->next;
+        pp = (*t)->nodep[i-1]->next;
         p = (dist_node*)pp;
         dist_node_init(p, FORK_NODE, i); 
-        while (pp != t->nodep[i-1]) { /* until you get to where you entered */
+        while (pp != (*t)->nodep[i-1]) {  /* until get to where you entered */
           pp->back = NULL;   /* debug:  why bother? */
           pp->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
           p->t = 0.0;   /* debug: initialize where? */
@@ -222,27 +222,27 @@ void dist_tree_init(dist_tree* dt, long nonodes, long spp)
       }
     }
   }
-  q = t->free_fork_nodes->first;   /* go along list of fork->node items too */
+  q = (*t)->free_fork_nodes->first;  /* go along list of forknode items too */
   while (q != NULL) {              
     p = q->data;                        /* p  is now the node that is there */
     dist_node_init((dist_node*)p, FREE_NODE, 0);           /* initialize it */
     q = q->next;                                    /* go to next list item */
   }
-  t->score = -1.0;    /* debug: set this in  ml_tree_init? */
-  t->root = t->nodep[0];   /* debug: set in which function? */
+  (*t)->score = -1.0;    /* debug: set this in  ml_tree_init? */
+  (*t)->root = (*t)->nodep[0];   /* debug: set in which function? */
 }  /* dist_tree_init */
 
 
-void dist_tree_new(dist_tree** dt, long nonodes, long spp, int treesize)
+void dist_tree_new(struct dist_tree** dt, long nonodes, long spp, int treesize)
 { /* make a new dist_tree.  Calls to ml_tree_new, which
    *  calls up to generic_tree_new, then after that it
    *  calls dist_tree_init */
-  ml_tree **mlt;
+  struct ml_tree **mlt;
 
-  *mlt = (ml_tree*)(*dt);
-  ml_tree_new(**mlt, nonodes, spp, sizeof(dist_tree));   /* next up hierarchy */
-  dt* = (dist_tree**)mlt;
-  dist_tree_init(dt*, nonodes, spp);
+  mlt = (struct ml_tree**)dt;
+  ml_tree_new(mlt, nonodes, spp, sizeof(dist_tree));   /* next up hierarchy */
+  dt = (struct dist_tree**)mlt;
+  dist_tree_init(dt, nonodes, spp);
 } /* dist_tree_new */
 
 

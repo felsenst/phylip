@@ -107,9 +107,8 @@ void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
-  struct dist_tree** t;                /* null pointer to keep  make  happy */
+  struct dist_tree** t=0x0;            /* null pointer to keep  make  happy */
 
-  t* = 0x0;
   dist_tree_new(t, nonodes, spp, sizeof(dist_tree)); /*   the tree pointers */
   fitch_tree_init(t, nonodes, spp);                /* class initializations */
   return (tree*)t;
