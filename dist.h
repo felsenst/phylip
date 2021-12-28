@@ -16,13 +16,13 @@ typedef long *intvector;
 
 typedef node **pointptr;
 
-typedef struct ml_tree ml_tree;
+/* debug: typedef struct ml_tree ml_tree; */
 
 struct dist_tree {
-  struct ml_tree ml_tree;
-};
+  struct ml_tree ml_treepart;
+} dist_tree;
 
-typedef struct dist_tree dist_tree;
+/* debug:  ? typedef struct dist_tree dist_tree; */
 
 typedef struct dist_node {
   struct node node;                                  /* Base object, must be first */
@@ -40,8 +40,8 @@ void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
-void dist_tree_init(dist_tree *, long, long);
-void dist_tree_new(dist_tree *, long, long, int);
+void dist_tree_init(struct dist_tree**, long, long);
+void dist_tree_new(struct dist_tree**, long, long, int);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
 void drawline(long, double, node *, boolean);

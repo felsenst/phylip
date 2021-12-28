@@ -17,7 +17,7 @@
 #define delta           0.0001      /* a not quite so small number */
 
 typedef struct fitch_tree{
-  dist_tree dist_tree;
+  struct dist_tree dist_tree;
 } fitch_tree;
 
 #ifndef OLDC
@@ -55,7 +55,7 @@ void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
 tree*  fitch_tree_new(long, long);
-void   fitch_tree_init(dist_tree*, long, long);
+void   fitch_tree_init(struct dist_tree**, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -84,7 +84,7 @@ char *progname;
 
 
 
-void fitch_tree_init(dist_tree* dt, long nonodes, long spp)
+void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch.  Use hierarchy of classes */
   tree* t;
@@ -107,8 +107,9 @@ void fitch_tree_init(dist_tree* dt, long nonodes, long spp)
 tree* fitch_tree_new(long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
-  dist_tree* t=0x0;;                   /* null pointer to keep  make  happy */
+  struct dist_tree** t;                /* null pointer to keep  make  happy */
 
+  t* = 0x0;
   dist_tree_new(t, nonodes, spp, sizeof(dist_tree)); /*   the tree pointers */
   fitch_tree_init(t, nonodes, spp);                /* class initializations */
   return (tree*)t;
