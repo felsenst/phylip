@@ -234,9 +234,9 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
 
 
 void dist_tree_new(struct dist_tree** dt, long nonodes, long spp, int treesize)
-{ /* make a new dist_tree.  Calls to ml_tree_new, which
-   *  calls up to generic_tree_new, then after that it
-   *  calls dist_tree_init */
+{ /* make a new pointer to dist_tree (which is itself a pointer to the tree
+   * structure.  Calls to ml_tree_new, which calls up to generic_tree_new,
+   * then after that it calls dist_tree_init */
   struct ml_tree **mlt;
 
   mlt = (struct ml_tree**)dt;
