@@ -3666,8 +3666,7 @@ void generic_tree_setupfunctions(tree *t)
 tree* generic_tree_new(long nonodes, long spp, int treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
-   * also initialize the setting up of its functions to the generic version */
- /* debug:  allocate size of tree here or in the local tree_new functions? */
+   * to initialize the setting up of its functions in the generic version */
   tree* t;
 
   t = (tree*)Malloc(treesize);           /* debug: add a size argument intead? */
