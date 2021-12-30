@@ -239,7 +239,6 @@ void dist_tree_new(struct dist_tree** dt, long nonodes, long spp, int treesize)
    * then after that it calls dist_tree_init */
   struct ml_tree **mlt;
 
-  mlt = (struct ml_tree**)dt;
   ml_tree_new(mlt, nonodes, spp, sizeof(dist_tree));   /* next up hierarchy */
   dt = (struct dist_tree**)mlt;
   dist_tree_init(dt, nonodes, spp);

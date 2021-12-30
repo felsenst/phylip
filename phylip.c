@@ -3663,14 +3663,14 @@ void generic_tree_setupfunctions(tree *t)
 } /* generic_tree_setupfunctions */
 
 
-tree* generic_tree_new(long nonodes, long spp, int treesize)
+void generic_tree_new(tree** treep,long nonodes, long spp, int treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * to initialize the setting up of its functions in the generic version */
   tree* t;
 
   t = (tree*)Malloc(treesize);           /* debug: add a size argument intead? */
-  return t;  /* returns as a result, unlike tree_new functions further down */
+  treep = &t;   /* returns as side effect,like tree_new functions further down */
 } /* generic_tree_new */
 
 
@@ -3779,9 +3779,10 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
                            boolean thorough, double* bestfound)
 {
   /* does "global" (SPR) rearrangements on a tree */
-  tree *globtree, *oldtree, *priortree;
+  tree *globtree, *priortree, *oldtree;
+  tree **globtreep, **priortreep, **oldtreep;
   int i;
-  node *where,*sib_ptr,*qwhere;
+  node *where, *sib_ptr, *qwhere;
   double oldbestyet;
   int success = false;
   boolean succeeded;
@@ -3792,9 +3793,9 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
-  globtree = functions.tree_new(curtree->nonodes, curtree->spp);
-  priortree = functions.tree_new(curtree->nonodes, curtree->spp);
-  oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
+  functions.tree_new(globtreep, curtree->nonodes, curtree->spp);
+  functions.tree_new(priortreep, curtree->nonodes, curtree->spp);
+  functions.tree_new(oldtreep, curtree->nonodes, curtree->spp);
 
   succeeded = true;
   while ( succeeded ) {
@@ -3872,6 +3873,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
                             boolean thorough, double* bestfound)
 { /* does "global" (SPR) rearrangements on a tree */
   tree *globtree, *oldtree, *priortree;
+  tree **globtreep, **oldtreep, **priortreep;
   int i, j, k, num_sibs, num_sibs2;
   node *where, *sib_ptr, *sib_ptr2, *qwhere;
   double oldbestyet, bestyet;
@@ -3895,9 +3897,9 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     fflush(progfile);
   }
 
-  globtree = functions.tree_new(curtree->nonodes, curtree->spp);
-  priortree = functions.tree_new(curtree->nonodes, curtree->spp);  /* debug:  needed? */
-  oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
+  functions.tree_new(globtreep, curtree->nonodes, curtree->spp);
+  functions.tree_new(priortreep, curtree->nonodes, curtree->spp);  /* debug:  needed? */
+  functions.tree_new(oldtreep, curtree->nonodes, curtree->spp);
 
   while ( succeeded ) {
     succeeded = false;

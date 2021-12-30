@@ -532,7 +532,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
 typedef node **pointarray;
 
-typedef tree* (*tree_new_t)(long nonodes, long spp);
+typedef void (*tree_new_t)(tree**, long nonodes, long spp); /* new tree */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
@@ -799,9 +799,9 @@ void            unroot_here(tree*, node*, long);
 void            unroot_r(tree*, node*, long);
 void            release_all_forks(tree*);
 void            destruct_tree(tree*);
-void            rooted_tree_init(tree*, long, long);
-tree*           generic_tree_new(long, long, int);
-void            generic_tree_init(tree*, long, long);
+void            rooted_tree_init(tree**, long, long);
+void            generic_tree_new(tree**, long, long, int);
+void            generic_tree_init(tree**, long, long);
 void		generic_tree_setupfunctions(tree*);
 void            generic_tree_free(tree*);
 void            generic_tree_print(tree*);

@@ -54,7 +54,7 @@ void   initrav(node *);
 void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
-tree*  fitch_tree_new(long, long);
+void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
@@ -78,7 +78,8 @@ boolean first;                                                 /* ditto ... */
 node *addwhere, *there;
 longer seed, endsite, rcategs;   /* debug:  are endsite and rcategs needed?  */
 long *enterorder;
-tree *curtree, *priortree, *bestree, *bestree2;
+tree *curtree, *priortree, *bestree, *bestree2;         /* the trees needed */
+tree **curtreep, **priortreep, **bestreep, **bestree2p; /* pointers to them */
 Char ch;
 char *progname;
 
@@ -87,31 +88,29 @@ char *progname;
 void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch.  Use hierarchy of classes */
-  tree* t;
+  tree** t;
 
   dist_tree_init(dt, nonodes, spp);             /* go up the class hierarchy */
-  t = (tree*)dt;
-  t->evaluate = fitch_evaluate;              /* then set functions */
-  t->insert_ = ml_tree_insert_;
-  t->try_insert_ = ml_tree_try_insert_;
-  t->re_move = ml_tree_re_move;
-  t->nuview = fitch_nuview;
-  t->makenewv = fitch_makenewv;
-  t->smoothall = (tree_smoothall_t)ml_tree_smoothall;
-  t->do_newbl = true;
-  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  t = (tree**)dt;
+  (*t)->evaluate = fitch_evaluate;              /* then set functions */
+  (*t)->insert_ = ml_tree_insert_;
+  (*t)->try_insert_ = ml_tree_try_insert_;
+  (*t)->re_move = ml_tree_re_move;
+  (*t)->nuview = fitch_nuview;
+  (*t)->makenewv = fitch_makenewv;
+  (*t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
+  (*t)->do_newbl = true;
+  (*t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  (*t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
 } /* fitch_tree_init */
 
 
-tree* fitch_tree_new(long nonodes, long spp)
+void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
-  struct dist_tree** t=0x0;            /* null pointer to keep  make  happy */
 
-  dist_tree_new(t, nonodes, spp, sizeof(dist_tree)); /*   the tree pointers */
-  fitch_tree_init(t, nonodes, spp);                /* class initializations */
-  return (tree*)t;
+  dist_tree_new((struct dist_tree**)treep, nonodes, spp, sizeof(dist_tree));
+  fitch_tree_init((struct dist_tree**)treep, nonodes, spp);    /* initialize class */
 } /* fitch_tree_new */
 
 
@@ -343,14 +342,19 @@ void allocrest(void)
 
 
 void fitch_tree_setup(long nonodes, long spp) {
- /* create the trees curtree, bestree, etc. */
+ /* create the trees curtree, bestree, etc. and set up a pointer
+  * to each, which is passed up the class hierarchy */
 
-  curtree = functions.tree_new(nonodes, spp);
+  curtreep = &curtree;
+  functions.tree_new(curtreep, nonodes, spp);
   if (!usertree) {
-    bestree = functions.tree_new(nonodes, spp);
-    priortree = functions.tree_new(nonodes, spp);
+    bestreep = &bestree;
+    functions.tree_new(bestreep, nonodes, spp);
+    priortreep = &priortree;
+    functions.tree_new(priortreep, nonodes, spp);
     if (njumble > 1)
-      bestree2 = functions.tree_new(nonodes, spp);
+      bestree2p = &bestree2;
+      functions.tree_new(bestree2p, nonodes, spp);
   }
 } /* fitch_tree_setup */
 
