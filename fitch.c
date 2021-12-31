@@ -93,7 +93,7 @@ void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
    * ones that are ml_ versions here as already set */
   tree* t;
 
-  t = (tree**)dt;
+  t = (tree*)dt;
   t->evaluate = fitch_evaluate;              /* then set functions */
   t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
   t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
