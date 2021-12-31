@@ -32,14 +32,12 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_tree_init(struct ml_tree** mlt, long nonodes, long spp)
-{ /* set up function variables in ml_tree */
-  tree** tp;
+void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
+{ /* set up function variables in ml_tree.  Currently these are actually
+   * attributes of the generic tree that need ml function versions */
   tree* t;
 
-  tp = (tree**)mlt;                                    /* as a generic tree */
-  generic_tree_init(tp, nonodes, spp);          /* go to top level of inits */
-  t = *tp;
+  t = (tree*)mlt;     /* pointer points to right tree but as a generic tree */
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;
@@ -841,9 +839,11 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 
 void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, int treesize)
 { /* make a new ml_tree.  Calls to generic_tree-new,
-   * casting ml_tree** to tree** as call it  */
+   * casting ml_tree** to tree** as we call it 
+   * then call  ml_tree_init */
 
   generic_tree_new((struct tree**)mlt, nonodes, spp, sizeof(struct ml_tree*));    /* next one up */
+  ml_tree_init((struct ml_tree**)mlt, nonodes, spp);
 } /* ml_tree_new */
 
 

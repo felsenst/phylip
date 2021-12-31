@@ -72,7 +72,7 @@ node *  codon_node_new(node_type, long);
 void    codon_node_init(node *, node_type, long);
 void    codon_node_allocx(ml_node*, long, long);
 void    dna_node_allocx(ml_node*, long, long);
-void    ml_tree_init(struct ml_tree**, long, long);
+void    ml_tree_init(struct ml_tree*, long, long);
 void    ml_node_copy(node*, node*);
 void    ml_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);
@@ -122,4 +122,4 @@ void    ml_initialvtrav(tree*, node *);
 #endif /* _ML_H_ */
 
 
-// End.
+/* End.*/

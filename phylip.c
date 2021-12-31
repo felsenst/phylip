@@ -3663,14 +3663,13 @@ void generic_tree_setupfunctions(tree *t)
 } /* generic_tree_setupfunctions */
 
 
-void generic_tree_new(tree** treep,long nonodes, long spp, int treesize)
+void generic_tree_new(tree** treep, long nonodes, long spp, int treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * to initialize the setting up of its functions in the generic version */
-  tree* t;
 
-  t = (tree*)Malloc(treesize);           /* debug: add a size argument intead? */
-  treep = &t;   /* returns as side effect,like tree_new functions further down */
+  *treep = (tree*)Malloc(treesize);        /* sets actual tree pointer? */
+  generic_tree_init(*treep, nonodes, spp);
 } /* generic_tree_new */
 
 

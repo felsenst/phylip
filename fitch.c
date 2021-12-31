@@ -87,21 +87,23 @@ char *progname;
 
 void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 {
-  /* set up functions for a tree for Fitch.  Use hierarchy of classes */
-  tree** t;
+  /* set up functions for a tree for Fitch. I think this resets some that 
+   * are previously initialized in ml.c. */
+  /*  debug: Perhaps not bother with the
+   * ones that are ml_ versions here as already set */
+  tree* t;
 
-  dist_tree_init(dt, nonodes, spp);             /* go up the class hierarchy */
   t = (tree**)dt;
-  (*t)->evaluate = fitch_evaluate;              /* then set functions */
-  (*t)->insert_ = ml_tree_insert_;
-  (*t)->try_insert_ = ml_tree_try_insert_;
-  (*t)->re_move = ml_tree_re_move;
-  (*t)->nuview = fitch_nuview;
-  (*t)->makenewv = fitch_makenewv;
-  (*t)->smoothall = (tree_smoothall_t)ml_tree_smoothall;
-  (*t)->do_newbl = true;
-  (*t)->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  (*t)->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  t->evaluate = fitch_evaluate;              /* then set functions */
+  t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
+  t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
+  t->re_move = ml_tree_re_move;                 /* debug: necessary? */
+  t->nuview = fitch_nuview;
+  t->makenewv = fitch_makenewv;
+  t->smoothall = (tree_smoothall_t)ml_tree_smoothall; /* debug: necessary? */
+  t->do_newbl = true;                                 /* debug: necessary? */
+  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert; /* debug: necessary? */
+  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move; /* debug: necessary? */
 } /* fitch_tree_init */
 
 
