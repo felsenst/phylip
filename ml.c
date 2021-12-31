@@ -842,7 +842,7 @@ void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, int treesize)
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
 
-  generic_tree_new((struct tree**)mlt, nonodes, spp, sizeof(struct ml_tree*));    /* next one up */
+  generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
   ml_tree_init(*mlt, nonodes, spp);
 } /* ml_tree_new */
 
