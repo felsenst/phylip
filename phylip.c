@@ -293,7 +293,7 @@ void generic_node_init (node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;          /* hope to override these as needed */
+  n->init = generic_node_init;    /* hope later to override these as needed */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -3571,7 +3571,7 @@ void generic_tree_free(tree *t)
 } /* generic_tree_free */
 
 
-void generic_tree_init(tree* t, long nonodes, long spp)
+void generic_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
@@ -3663,15 +3663,13 @@ void generic_tree_setupfunctions(tree *t)
 } /* generic_tree_setupfunctions */
 
 
-void generic_tree_new(tree** treep, long nonodes, long spp, int treesize)
+void generic_tree_new(struct tree** treep, long nonodes, long spp, int treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * to initialize the setting up of its functions in the generic version */
-  tree *t;
 
-  t = (tree*)Malloc(treesize);        /* sets actual tree pointer? */
-  generic_tree_init(t, nonodes, spp);
-  treep = &t;
+  *treep = (struct tree*)Malloc(treesize);      /* sets actual tree pointer */
+  generic_tree_init(*treep, nonodes, spp);
 } /* generic_tree_new */
 
 
