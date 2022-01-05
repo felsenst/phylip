@@ -36,7 +36,7 @@ void   makedists(tree *, node *);
 void   makebigv(tree *, node *);
 void   correctv(tree *, node *);
 void   alter(node *, node *);
-void   fitch_nuview(tree *, node *);
+void   fitch_nuview(struct tree *, node *);
 void   insert_(node *, node *, boolean);
 void   fitch_tree_setup(long, long);
 void   fitch_setuptip(tree *, long);
@@ -662,7 +662,7 @@ void alter(node *x, node *y)
 }  /* alter */
 
 
-void fitch_nuview(tree* t, node *p)
+void fitch_nuview(struct tree* t, node *p)
 {
   double temp;
   /* renew information about subtrees */

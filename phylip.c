@@ -4634,7 +4634,7 @@ void generic_tree_release_fork(tree* t, node* n)
 } /* generic_tree_release_fork */
 
 
-void generic_tree_nuview(tree* t, node* p)
+void generic_tree_nuview(struct tree* t, node* p)
 {
   /*  calls the current nongeneric t->nuview on this branch, after first
    *  recursing through all children in this direction as needed,
@@ -4651,7 +4651,7 @@ void generic_tree_nuview(tree* t, node* p)
       }
     };
   }
-  t->nuview((tree*)t, p);   /* this actually calculates the view using the
+  t->nuview((struct tree*)t, p);   /* this actually calculates the view using the
                              * algorithm set up for that kind of data */
 /* debug printf("M"); */
   p->initialized = true;
