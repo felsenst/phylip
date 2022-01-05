@@ -354,9 +354,10 @@ void fitch_tree_setup(long nonodes, long spp) {
     functions.tree_new(bestreep, nonodes, spp);
     priortreep = &priortree;
     functions.tree_new(priortreep, nonodes, spp);
-    if (njumble > 1)
+    if (njumble > 1) {
       bestree2p = &bestree2;
       functions.tree_new(bestree2p, nonodes, spp);
+    }
   }
 } /* fitch_tree_setup */
 

@@ -316,7 +316,9 @@ void generic_node_reinit (node * n)
 
 node* generic_new_node (node_type type, long index)
 { /* Allocate, initialize, and return a new node, setting tip and index. */
-  node* n = Malloc(sizeof(node));
+  node* n;
+
+  n = (node*)Malloc(sizeof(node));
 
   generic_node_init(n, type, index);
   return n;

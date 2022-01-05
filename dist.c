@@ -217,7 +217,7 @@ void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
         }
       }
       else {                                         /* if instead at a tip */
-        dist_node_init(p, TIP_NODE, i); 
+        dist_node_init((dist_node*)(t->nodep[i-1]), TIP_NODE, i); 
       }
     }
   }

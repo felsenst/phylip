@@ -127,7 +127,7 @@ int _Slist_checklen(Slist_ptr l)
 
 int Slist_isempty(Slist_ptr l)
 {  /* check whether the Slist is empty */
-  assert( l != NULL );
+/* debug:  why this assert, can't it be true?   assert( l != NULL );   */
   return l->length == 0;
 } /* Slist_isempty */
 
