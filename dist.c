@@ -180,7 +180,7 @@ void freew(long nonodes, pointptr treenode)
 } /* freew */
 
 
-void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
+void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
 {
   /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
@@ -195,7 +195,7 @@ void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
   Slist_node_ptr q;
 
 /* debug:  extra?  (yes)   ml_tree_init(mlt, nonodes+1, spp);         */
-  t = (struct tree*)dt;     /* make pointer to generic_tree version of  dt  */
+  t = (struct tree*)(*dt);  /* make pointer to generic_tree version of  *dt */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
     if (t->nodep[i - 1] != NULL) {        /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
@@ -239,7 +239,7 @@ void dist_tree_new(struct dist_tree** dtreep, long nonodes,
    * then after that it calls dist_tree_init */
 
   ml_tree_new((struct ml_tree**)dtreep, nonodes, spp, sizeof(dist_tree)); 
-  dist_tree_init(*dtreep, nonodes, spp);    /* initialize.  Pointer to tree */
+  dist_tree_init(dtreep, nonodes, spp);     /* initialize.  Pointer to tree */
 } /* dist_tree_new */
 
 

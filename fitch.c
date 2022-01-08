@@ -55,7 +55,7 @@ void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
 void   fitch_tree_new(struct tree**, long, long);
-void   fitch_tree_init(struct dist_tree*, long, long);
+void   fitch_tree_init(struct dist_tree**, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -85,7 +85,7 @@ char *progname;
 
 
 
-void fitch_tree_init(struct dist_tree* dt, long nonodes, long spp)
+void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 {
   /* set up functions for a tree for Fitch. I think this resets some that 
    * are previously initialized in ml.c. */
@@ -93,7 +93,7 @@ void fitch_tree_init(struct dist_tree* dt, long nonodes, long spp)
    * ones that are ml_ versions here as already set */
   struct tree* t;
 
-  t = ((struct ml_tree)(struct dist_tree)dt).ml_treepart;
+  t = (tree*)*dt;
   t->evaluate = fitch_evaluate;              /* then set functions */
   t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
   t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
@@ -112,7 +112,7 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
   /* initialize a tree for Fitch, going up the class hierarchy */
 
   dist_tree_new((struct dist_tree**)treep, nonodes, spp, sizeof(dist_tree));
-  fitch_tree_init((struct dist_tree*)treep, nonodes, spp);    /* initialize */
+  fitch_tree_init((struct dist_tree**)treep, nonodes, spp);   /* initialize */
 } /* fitch_tree_new */
 
 

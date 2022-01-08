@@ -40,7 +40,7 @@ void allocd(long, pointptr);
 void freed(long, pointptr);
 void allocw(long, pointptr);
 void freew(long, pointptr);
-void dist_tree_init(struct dist_tree*, long, long);
+void dist_tree_init(struct dist_tree**, long, long);
 void dist_tree_new(struct dist_tree**, long, long, int);
 void inputdata(boolean, boolean, boolean, boolean, vector *, intvector *);
 void coordinates(node *, double, long *, double *, node *);
