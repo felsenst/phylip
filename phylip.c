@@ -289,7 +289,7 @@ void generic_node_init (node* n, node_type type, long index)
 
   n->index = index;
   n->v = initialv;
-  n->iter = true;
+  n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
 
   /* Initialize virtual functions */

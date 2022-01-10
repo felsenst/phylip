@@ -445,8 +445,8 @@ typedef enum node_type node_type;
 
 typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
-typedef node* (*new_node_t)(node_type, long);  /* debug: what are these? */
-typedef void (*tree_setupfunctions_t)(tree*);  /* debug: what are these? */
+typedef node* (*new_node_t)(node_type, long);     /* new_node function type */
+typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
 typedef void (*node_free_t)(node**);

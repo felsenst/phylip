@@ -753,6 +753,7 @@ void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
   (void)len;                            // RSGnote: Parameter never used.
   (void)ntips;                          // RSGnote: Parameter never used.
 
+
   switch (whichinit)
   {
     case bottom:
