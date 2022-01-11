@@ -463,7 +463,7 @@ typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
 #define node_copy(src,dst)      (((node*)(src))->copy((node*)(src),(node*)(dst)))
 
 /*
- * TODO: Call them like this eventually:
+ * debug:  TODO: Call them like this eventually:
  *
  * #define node_init(n,b,l)        (((node*)(n))->vtable->node_init_f((node*)(n),(b),(l)))
  * #define node_free(np)           (((node**)(np))->vtable->node_free_f((node*)(np)))
@@ -521,7 +521,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
   node_copy_t copy;
   node_free_t free;
-  node_init_t init;
+  node_init_t init;    /* debug: use this or one in node_vtable? */
   node_reinit_t reinit;
   fork_print_t fork_print_f;
   node_print_t node_print_f;
@@ -539,31 +539,31 @@ typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
                            double*, tree*, boolean, boolean, boolean, double*);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, traversetype,
                    node**, double*, tree*, boolean, boolean, boolean, double*);
-typedef void (*tree_insert_t)(tree*,node*,node*,boolean);
+typedef void (*tree_insert_t)(tree*,node*, node*, boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_free_t)(tree*);
-typedef void (*tree_globrearrange_t)(tree*,tree*,boolean,boolean,double*);
-typedef void (*tree_locrearrange_t)(tree*,node*,boolean,double*,
-                                     tree*,tree*,boolean,double*);
-typedef void (*tree_smoothall_t)(tree*,node* p);
-typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);
-typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
-typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
-typedef void (*tree_save_traverses_t)(tree*,node*,node*);
-typedef void (*tree_restore_traverses_t)(tree*,node*,node*);
-typedef void (*tree_release_fork_t)(tree*,node*);
-typedef node* (*tree_get_fork_t)(tree*, long);
-typedef node* (*tree_get_forknode_t)(tree*,long);
-typedef void (*tree_release_forknode_t)(tree*,node*);
-typedef void (*tree_reinit_forknode_t)(tree*,node*);
-typedef void (*tree_nuview_t)(tree*,node*);
-typedef void (*tree_makenewv_t)(tree*,node*);
+typedef void (*tree_globrearrange_t)(tree*, tree*, boolean, boolean, double*);
+typedef void (*tree_locrearrange_t)(tree*, node*, boolean, double*,
+                                     tree*, tree*, boolean, double*);
+typedef void (*tree_smoothall_t)(tree*, node* p);
+typedef double (*tree_evaluate_t)(tree*, node* p, boolean saveit);
+typedef void (*tree_save_lr_nodes_t)(tree*, node*, node*);
+typedef void (*tree_restore_lr_nodes_t)(tree*, node*, node*);
+typedef void (*tree_save_traverses_t)(tree*, node*, node*);
+typedef void (*tree_restore_traverses_t)(tree*, node*, node*);
+typedef void (*tree_release_fork_t)(tree*, node*);
+typedef node* (*tree_get_fork_t)(tree*,  long);
+typedef node* (*tree_get_forknode_t)(tree*, long);
+typedef void (*tree_release_forknode_t)(tree*, node*);
+typedef void (*tree_reinit_forknode_t)(tree*, node*);
+typedef void (*tree_nuview_t)(tree*, node*);
+typedef void (*tree_makenewv_t)(tree*, node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
-typedef boolean (*fork_good_t)(tree*,node*);   // check the whole "fork" -- potentially a ring of nodes
-typedef boolean (*node_good_t)(tree*,node*);   // check the individual node
+typedef boolean (*fork_good_t)(tree*, node*);   // check the whole "fork" -- potentially a ring of nodes
+typedef boolean (*node_good_t)(tree*, node*);   // check the individual node
 
 typedef struct tree_vtable tree_vtable;
 
