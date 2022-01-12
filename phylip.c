@@ -1,6 +1,6 @@
 /* Version 4.0.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Dan Fineman, Patrick Colacurcio, and Mike Palczewski.  */ 
+   Dan Fineman, Patrick Colacurcio, Lindsey Dubb, and Mike Palczewski. */ 
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -1040,8 +1040,8 @@ double randum(longer seed)
   }
   memcpy(seed, newseed, sizeof(longer));   /* new seed replaces old one ... */
   seed[5] &= 3;          /* seed is a pointer so remains updated after exit */
-  x = 0.0;              /* from the new seed, get a floating point fraction */
-  for (i = 0; i <= 5; i++)
+  x = 0.0;          /* from the new seed, get a floating point fraction ... */
+  for (i = 0; i <= 5; i++)                           /* ... between 0 and 1 */
     x = x / 64.0 + seed[i];
   x /= 4.0;
   return x;
@@ -1063,7 +1063,9 @@ void randumize(longer seed, long *enterorder)
 
 double normrand(longer seed)
 {/* standardized Normal random variate, convolution of 12 uniform variables
-  * then relocated to have mean zero.  Not perfect but good enough.       */
+  * then relocated to have mean zero. (Since a uniform random variate between
+  * 0 and 1 has mean 1/2 and variance 1/12, the sum of 12 of them has mean 6
+  * and variance 1).  Not perfect but good enough. */
   double x;
 
   x = randum(seed)+randum(seed)+randum(seed)+randum(seed)
@@ -1084,21 +1086,21 @@ void initseed(long *inseed, long *inseed0, longer seed)
   {
     do {
       printf("Random number seed (must be odd)?\n");
-      if(scanf("%ld%*[^\n]", inseed)) {} // Read number and scan to EOL.
+      if(scanf("%ld%*[^\n]", inseed)) {}    /* read number and scan to EOL. */
       (void)getchar();
       countup(&loopcount, 10);
     } while (((*inseed) < 0) || ((*inseed) & 1) == 0);
   }
   *inseed0 = *inseed;
 
-  for (i = 0; i <= 5; i++)
+  for (i = 0; i <= 5; i++)                 /* represent in base 64 notation */
     seed[i] = 0;
   i = 0;
   do {
-    seed[i] = *inseed & 63;
-    *inseed /= 64;
+    seed[i] = *inseed & 63;             /* gets the bottom 6 bits of inseed */
+    *inseed /= 64;                            /* then shift it right 6 bits */
     i++;
-  } while (*inseed != 0);
+  } while (*inseed != 0);               /* until there is nothing remaining */
 }  /*initseed*/
 
 
@@ -1111,7 +1113,7 @@ void initjumble(long *inseed, long *inseed0, longer seed, long *njumble)
   do {
     printf("Number of times to jumble?\n");
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", njumble)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", njumble)) {}     /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while ((*njumble) < 1);
@@ -1127,7 +1129,7 @@ void initoutgroup(long *outgrno, long spp)
   do {
     printf("Type number of the outgroup:\n");
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", outgrno)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", outgrno)) {}     /* read number and scan to EOL. */
     (void)getchar();
     done = (*outgrno >= 1 && *outgrno <= spp);
     if (!done) {
@@ -1148,7 +1150,7 @@ void initthreshold(double *threshold)
   do {
     printf("What will be the threshold value?\n");
     fflush(stdout);
-    if(scanf("%lf%*[^\n]", threshold)) {} // Read number and scan to EOL.
+    if(scanf("%lf%*[^\n]", threshold)) {}   /* read number and scan to EOL. */
     (void)getchar();
     done = (*threshold >= 1.0);
     if (!done)
@@ -1169,7 +1171,7 @@ void initcatn(long *categs)
   do {
     printf("Number of categories (1-%d)?\n", maxcategs);
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", categs)) {}  // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", categs)) {}      /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while (*categs > maxcategs || *categs < 1);
@@ -1255,7 +1257,7 @@ void lgr(long m, double b, raterootarray lgroot)
      stored in lgroot[m][].  Written by Lindsey Dubb. */
   long i;
   double upper, lower, x, y;
-  boolean dwn;   /* is function declining in this interval? */
+  boolean dwn;                   /* is function declining in this interval? */
 
   if (m == 1) {
     lgroot[1][1] = 1.0+b;
@@ -1268,7 +1270,7 @@ void lgr(long m, double b, raterootarray lgroot)
         else
           lower = lgroot[m-1][i-1];
         upper = lgroot[m-1][i];
-      } else {                 /* i == m, must search above */
+      } else {                                 /* i == m, must search above */
         lower = lgroot[m-1][i-1];
         x = lgroot[m-1][m-1];
         do {
@@ -1371,13 +1373,13 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
      of rates with "categs" categories and shape parameter "alpha" using
      rates and weights from Generalized Laguerre quadrature */
   long i;
-  raterootarray lgroot; /* roots of GLaguerre polynomials */
+  raterootarray lgroot;       /* roots of Generalized Laguerre polynomials */
   double f, x, xi, y;
 
   alpha = alpha - 1.0;
   lgroot[1][1] = 1.0+alpha;
   for (i = 2; i <= categs; i++)
-    lgr(i, alpha, lgroot);                   /* get roots for L^(a)_n */
+    lgr(i, alpha, lgroot);                        /* get roots for L^(a)_n */
   /* here get weights:
    * Gamma weights are (1+a)(1+a/2) ...
                        (1+a/n)*x_i/((n+1)^2 [L_{n+1}^a(x_i)]^2)  */
@@ -1557,7 +1559,7 @@ void inithowmany(long *howmanny, long howoften)
   do {
     printf("How many cycles of %4ld trees?\n", howoften);
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", howmanny)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", howmanny)) {}    /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while (*howmanny <= 0);
@@ -1572,7 +1574,7 @@ void inithowoften(long *howoften)
   do {
     printf("How many trees per cycle?\n");
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", howoften)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", howoften)) {}    /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while (*howoften <= 0);
@@ -1588,7 +1590,7 @@ void initlambda(double *lambda)
     printf(
        "Mean block length of sites having the same rate (greater than 1)?\n");
     fflush(stdout);
-    if(scanf("%lf%*[^\n]", lambda)) {}  // Read number and scan to EOL.
+    if(scanf("%lf%*[^\n]", lambda)) {}      /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while (*lambda <= 1.0);
@@ -1627,7 +1629,7 @@ void initfreqs(double *freqap, double *freqcp, double *freqgp, double *freqtp)
           fflush(stdout);
           fgetline(stdin);
         }
-        break;        /* input OK */
+        break;                                                  /* input OK */
       }
       else {
         printf("ERROR:  Frequencies cannot be negative.\n");
@@ -1653,7 +1655,7 @@ void initratio(double *ttratio)
   do {
     printf("Transition/transversion ratio?\n");
     fflush(stdout);
-    if(scanf("%lf%*[^\n]", ttratio)) {} // Read number and scan to EOL.
+    if(scanf("%lf%*[^\n]", ttratio)) {}     /* read number and scan to EOL. */
     (void)getchar();
     countup(&loopcount, 10);
   } while (*ttratio < 0.0);
@@ -1661,10 +1663,10 @@ void initratio(double *ttratio)
 
 
 void initpower(double *power)
-{ /* input power to raise distance too for Fitch, Kitsch */
+{ /* input power to raise distance to for Fitch, Kitsch */
   printf("New power?\n");
   fflush(stdout);
-  if(scanf("%lf%*[^\n]", power)) {}     // Read number and scan to EOL.
+  if(scanf("%lf%*[^\n]", power)) {}         /* read number and scan to EOL. */
   (void)getchar();
 }  /* initpower */
 
@@ -1679,7 +1681,7 @@ void initdatasets(long *datasets)
   do {
     printf("How many data sets?\n");
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", datasets)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", datasets)) {}    /* read number and scan to EOL. */
     (void)getchar();
     done = (*datasets > 1);
     if (!done)
@@ -1699,7 +1701,7 @@ void justweights(long *datasets)
   do {
     printf("How many sets of weights?\n");
     fflush(stdout);
-    if(scanf("%ld%*[^\n]", datasets)) {} // Read number and scan to EOL.
+    if(scanf("%ld%*[^\n]", datasets)) {}    /* read number and scan to EOL. */
     (void)getchar();
     done = (*datasets >= 1);
     if (!done)

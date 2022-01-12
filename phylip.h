@@ -1,12 +1,13 @@
 /* Version 4.0a.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Mike Palczewski, Doug Buxton and Dan Fineman.    */
+   Mike Palczewski, Doug Buxton, and Dan Fineman and Bob Giansiracusa. */
 
-#ifndef _PHYLIP_H_
+#ifndef _PHYLIP_H_   /* debug: needed (?) to show you're in phylip.h */
 #define _PHYLIP_H_
 
 
 /* Define VERSION string if config.h has not already */
+/* debug: is this only for configure/make compiling?  Ever used these days? */
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -28,14 +29,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define true    1                   /* messing with truth itself! */
+#define true    1                             /* messing with truth itself! */
 #define false   0
 
-#ifdef WIN32                        /* if we're in Microsoft Windows */
+#ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
 
 
-#else                               /* If not, use null macros instead */
+#else                                    /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
 
 #define phySaveConsoleAttributes()      NULL_EXPR
@@ -46,16 +47,16 @@
 
 #endif /* WIN32 */
 
-#ifdef  GNUDOS      /* GNU functions to make it act like DOS */
+#ifdef  GNUDOS                     /* GNU functions to make it act like DOS */
 #define DJGPP
 #define DOS
 #endif
 
-#ifdef THINK_C      /* Think C = Lightspeed C for MacOS 8 or 9 */
+#ifdef THINK_C                   /* Think C = Lightspeed C for MacOS 8 or 9 */
 #define MAC
 #endif
 
-#ifdef __MWERKS__   /* the defunct Metrowerks C for Apple PowerPC */
+#ifdef __MWERKS__             /* the defunct Metrowerks C for Apple PowerPC */
 #ifndef WIN32
 #define MAC
 #endif
@@ -82,7 +83,7 @@
 #define EBCDIC false
 #define INFILE "infile"
 #define OUTFILE "outfile"
-#define FONTFILE "fontfile" /* on Unix might be in /usr/local/lib/fontfile */
+#define FONTFILE "fontfile"  /* on Unix might be in /usr/local/lib/fontfile */
 #define PLOTFILE "plotfile"
 #define INTREE "intree"
 #define INTREE2 "intree2"
@@ -94,15 +95,15 @@
 #define FACTFILE "factors"
 #endif
 
-#ifdef L_ctermid            /* try and detect for Unix sysV or V7. */
+#ifdef L_ctermid                     /* try and detect for Unix sysV or V7. */
 #define SYSTEM_FIVE
 #endif
 
-#ifdef sequent              /* if on a Sequent multiprocessing machine */
+#ifdef sequent                   /* if on a Sequent multiprocessing machine */
 #define SYSTEM_FIVE
 #endif
 
-#ifndef SYSTEM_FIVE         /* diagnosing whether on BSD Unix */
+#ifndef SYSTEM_FIVE                       /* diagnosing whether on BSD Unix */
 #include <stdlib.h>
 # if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
 # define UNIX
@@ -110,12 +111,12 @@
 # endif
 #endif
 
-#ifdef __STDIO_LOADED        /* diagnosing whether on a DEC VAX */
-#define VMS                  /* running their VMS operating system */
+#ifdef __STDIO_LOADED                    /* diagnosing whether on a DEC VAX */
+#define VMS                           /* running their VMS operating system */
 #define MACHINE_TYPE "VAX/VMS C"
 #endif
 
-#ifdef __WATCOMC__           /* diagnosing whether compiler is Watcom C */
+#ifdef __WATCOMC__               /* diagnosing whether compiler is Watcom C */
 #define QUICKC
 #define WATCOM
 #define DOS
@@ -124,7 +125,7 @@
 /* Watcom-C has graphics library calls that are almost identical to
  * Microsoft Quick-C, so the "QUICKC" symbol name stays                 */
 
-#ifdef _QC                   /* is the compiler Microsoft's old Quick C? */
+#ifdef _QC                      /* is the compiler Microsoft's old Quick C? */
 #define MACHINE_TYPE "MS-DOS / Quick C"
 #define QUICKC
 #include "graph.h"
@@ -133,33 +134,33 @@
 
 #ifdef _DOS_MODE
 #define MACHINE_TYPE "MS-DOS /Microsoft C "
-#define DOS           /* DOS is always defined if on a DOS machine */
-#define MSC           /* MSC is defined for Microsoft C              */
+#define DOS                    /* DOS is always defined if on a DOS machine */
+#define MSC                               /* MSC is defined for Microsoft C */
 #endif
 
-#ifdef __MSDOS__      /* TURBO C compiler, ONLY (no other DOS C compilers) */
+#ifdef __MSDOS__       /* TURBO C compiler, ONLY (no other DOS C compilers) */
 #define DOS
 #define TURBOC
 #include <stdlib.h>
 #include <graphics.h>
 #endif
 
-#ifdef DJGPP          /* DJ Delorie's original Gnu C/C++ port */
+#ifdef DJGPP                        /* DJ Delorie's original Gnu C/C++ port */
 #include <graphics.h>
 #endif
 
-#ifndef MACHINE_TYPE        /* if none of the above, assume ANSI C */
+#ifndef MACHINE_TYPE                 /* if none of the above, assume ANSI C */
 #define MACHINE_TYPE "ANSI C"
 #endif
 
-#ifdef DOS             /* if running under MSDOS or something imitating it */
+#ifdef DOS              /* if running under MSDOS or something imitating it */
 #define MALLOCRETURN void
 #else
 #define MALLOCRETURN void   /* debug:  what ... ?  then why #ifdef ? */
 #endif
 
 #ifdef VMS
-#define signed /* signed doesn't exist in VMS */
+#define signed                               /* signed doesn't exist in VMS */
 #endif
 
 /* default screen types */
@@ -313,14 +314,14 @@ FILE *infile, *outfile, *intree, *intree2, *outtree;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
-long spp;                                              /* number of species */
-long chars;                                /* number of characters or sites */
+long spp;                                      /* global: number of species */
+long chars;                        /* global: number of characters or sites */
 long words, bits;    /* binary words, bit length for binary sets of species */
-boolean ibmpc, ansi, tranvsp;
+boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
 
-#define ebcdic          EBCDIC  /* IBM character set pre-ANSI/ISO */
+#define ebcdic EBCDIC                     /* IBM character set pre-ANSI/ISO */
 
 typedef Char plotstring[MAXNCH];
 
@@ -372,7 +373,7 @@ typedef int  group_type;
 
 /* for many programs */
 
-#define maxuser         1000        /* maximum number of user-defined trees */
+#define maxuser        10000        /* maximum number of user-defined trees */
 
 typedef enum {  /* for local vs. not, how much further to go in addtraverse */
   nofurther,
@@ -393,7 +394,7 @@ typedef enum {                               /* the amino acids in proteins */
   serine, threonine, tryptophan, tyrosine, valine
 } acids;
 
-/* for Pars */
+/* names of discrete character states for Pars */
 typedef enum {
   zero = 0, one, two, three, four, five, six, seven
 } discbases;
@@ -489,6 +490,8 @@ struct node_vtable {
 extern struct node_vtable node_vtable;
 
 struct node {  /* a basic node: space for "everything but the kitchen sink" */
+           /* debug: in future could use polymorphism to defer some of these
+            * variables to the declarations of subclasses */
   nodetype type;                                         /* Runtime type id */
   struct node *next, *back;
   long index;
@@ -496,12 +499,12 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   plotstring nayme;
   double xcoord, ycoord;                                /* used by printree */
   double oldlen, naymlength;
-  long ymin, ymax;                        /* used by printree        -plc   */
-  boolean haslength;                /* haslength used in dnamlk             */
-  boolean iter;                     /* iter used in dnaml, fitch & restml   */
-  boolean do_newbl;                  /* new branch lengths needed? */
+  long ymin, ymax;                                      /* used by printree */
+  boolean haslength;               /* haslength used in dnamlk (and fitch?) */
+  boolean iter;                       /* iter used in dnaml, fitch & restml */
+  boolean do_newbl;                           /* new branch lengths needed? */
   boolean initialized;              /* initialized used in dnamlk & restml  */
-  double v, tyme, deltav, ssq;      /* ssq used only in contrast            */
+  double v, tyme, deltav, ssq;                 /* ssq used only in contrast */
   boolean deleted;                      /* true if node is deleted (retree) */
   boolean hasname;                       /* true if tip has a name (retree) */
   double beyond;       /* in retree: distance beyond it to most distant tip */
@@ -513,11 +516,11 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
                                              /* from here to there (Retree) */
   boolean bottom;                   /* used in Dnapars & Dnacomp, disc char */
   boolean visited;                  /* used in Dnapars & Dnacomp, disc char */
-  bitptr stateone, statezero;    /* discrete char programs                 */
-  Char state;                    /* state used in Dnamove, Dolmove & Move  */
-  boolean onlyfossilsabove;  /* used in Contrast for fossil machinery */
-  boolean fossilsabove;      /* used in Contrast for fossil machinery */
-  double lowestfossilabove;  /* used in Contrast for fossil machinery */
+  bitptr stateone, statezero;                     /* discrete char programs */
+  Char state;                     /* state used in Dnamove, Dolmove & Move  */
+  boolean onlyfossilsabove;        /* used in Contrast for fossil machinery */
+  boolean fossilsabove;            /* used in Contrast for fossil machinery */
+  double lowestfossilabove;        /* used in Contrast for fossil machinery */
 
   node_copy_t copy;
   node_free_t free;
@@ -526,12 +529,12 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   fork_print_t fork_print_f;
   node_print_t node_print_f;
 
-  struct node_vtable *vtable;               /* Pointer to node vtable */
-};                                 /* end of the basic node type declaration */
+  struct node_vtable *vtable;                     /* Pointer to node vtable */
+};                                /* end of the basic node type declaration */
 
 
-typedef node **pointarray;
-
+typedef node **pointarray;       /* this type is an array of pointers to nodes
+                                  * and is the type of array nodep */
 typedef void (*tree_new_t)(tree**, long nonodes, long spp); /* new tree */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
@@ -567,7 +570,8 @@ typedef boolean (*node_good_t)(tree*, node*);   // check the individual node
 
 typedef struct tree_vtable tree_vtable;
 
-struct tree_vtable {
+struct tree_vtable { /* this is a table of tree functions to reassign as
+                      * needed in sibclasses */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
@@ -603,12 +607,12 @@ typedef enum {                           /* enum type which is type of tree */
 
 
 struct tree {                                         /* the tree structure */
-  treetype type;
-  pointarray nodep;
-  double score;
-  node *root;
-  long nonodes;
-  long spp;
+  treetype type;                                                /* its type */
+  pointarray nodep;    /* the array of pointers to tips and to fork circles */
+  double score;                             /* the quantity being maximized */
+  node *root;                       /* the rootmost node in rootmost circle */
+  long nonodes;       /* the number of node neede for tips and fork circles */
+  long spp;                                  /* the number of tip "species" */
 
   /* generic temp nodes, used to save traverses right now */
   node *temp_p, * temp_q;
@@ -621,7 +625,7 @@ struct tree {                                         /* the tree structure */
   boolean do_newbl;
 
   /* fork management bookeeping stacks */
-  Slist_ptr free_forks;
+  Slist_ptr free_forks;  .* debug: I think this is no longer used */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
