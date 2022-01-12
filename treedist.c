@@ -1157,7 +1157,7 @@ void treedistrun(void)
   countcomma(intree, &tip_count);
   tip_count++; // countcomma does a raw comma count, tips is one greater
 
-  treeForNodes = functions.tree_new(4*tip_count, 2*tip_count);
+  treeForNodes = funcs->tree_new(4*tip_count, 2*tip_count);
 
   // how many trees do we have?
   trees_in_1 = countsemic(intree);

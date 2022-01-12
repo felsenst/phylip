@@ -1397,7 +1397,7 @@ void setup_environment(int argc, Char *argv[])
   }
   firsttree = true;
   inputNumbersFromTreeFile(intree,&spp,&nonodes);
-  curtree = functions.tree_new(nonodes,spp);
+  curtree = funcs->tree_new(nonodes,spp);
   treeread (curtree,intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode,
             &haslengths, initdrawgramnode, true, -1);
   curtree->root->oldlen = 0.0;

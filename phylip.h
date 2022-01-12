@@ -374,7 +374,7 @@ typedef int  group_type;
 /* for many programs */
 
 #define maxuser        10000        /* maximum number of user-defined trees */
-
+     /* (mostly used to set up user-trees x sites arrays for KHT, SH tests) */
 typedef enum {  /* for local vs. not, how much further to go in addtraverse */
   nofurther,
   onestep,
@@ -493,13 +493,13 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
            /* debug: in future could use polymorphism to defer some of these
             * variables to the declarations of subclasses */
   nodetype type;                                         /* Runtime type id */
-  struct node *next, *back;
-  long index;
+  struct node *next, *back;           /* points around fork circle, outward */
+  long index;                                  /* number of the fork or tip */
   boolean tip;                                /* true if node is a tip node */
-  plotstring nayme;
+  plotstring nayme;                      /* name of the tip, if it is a tip */
   double xcoord, ycoord;                                /* used by printree */
-  double oldlen, naymlength;
-  long ymin, ymax;                                      /* used by printree */
+  double oldlen, naymlength;                            /*  "   "     "     */
+  long ymin, ymax;                                      /*  "   "     "     */
   boolean haslength;               /* haslength used in dnamlk (and fitch?) */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
   boolean do_newbl;                           /* new branch lengths needed? */
@@ -565,7 +565,7 @@ typedef void (*tree_makenewv_t)(tree*, node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
-typedef boolean (*fork_good_t)(tree*, node*);   // check the whole "fork" -- potentially a ring of nodes
+lem and Connie Furlong <clem@u.washington.edu
 typedef boolean (*node_good_t)(tree*, node*);   // check the individual node
 
 typedef struct tree_vtable tree_vtable;
@@ -672,13 +672,14 @@ typedef struct initdata {
   tree_new_t tree_new;
 } initdata;
 
-initdata functions;
+initdata funcs;   /* debug: this used to be "functions." */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 
 #ifndef OLDC            /* need this if not the old original K&R C compiler */
 /* function prototypes */
 void            no_op(void);
+void            phylipinit(int, char**, initdata*, boolean);
 void            even_sibs(tree*, node*, node*);
 node*           where_in_dest (tree*, tree*, node*);
 void            generic_tree_copy(tree*, tree*);
@@ -700,7 +701,6 @@ void            initializetrav (tree*, node*);
 void            inittrav (tree*, node*);
 void            EOF_error(void);
 void            crash_handler(int);
-void            phylipinit(int, char**, initdata*, boolean);
 void            scan_eoln(FILE*);
 boolean         eoff(FILE*);
 boolean         eoln(FILE*);

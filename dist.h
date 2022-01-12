@@ -24,8 +24,8 @@ struct dist_tree {
 
 /* debug:  ? typedef struct dist_tree dist_tree; */
 
-typedef struct dist_node {
-  struct node node;                                  /* Base object, must be first */
+typedef struct dist_node {                           /* subclass of ml_node */
+  struct node node;                           /* Base object, must be first */
   vector d, w;
   double t;
   boolean sametime;

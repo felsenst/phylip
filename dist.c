@@ -79,12 +79,12 @@ void alloctree(tree *t, long nonodes)
 
   t->nodep = (node**)Malloc(nonodes * sizeof(node *));
   for (i = 0; i < spp; i++)
-    t->nodep[i] = functions.node_new(TIP_NODE, i+1);
+    t->nodep[i] = funcs->node_new(TIP_NODE, i+1);
   for (i = spp; i < nonodes; i++)
   {
     q = NULL;
     for (j = 1; j <= 3; j++) {
-      p = functions.node_new(FORK_NODE, i+1);
+      p = funcs->node_new(FORK_NODE, i+1);
       p->next = q;
       q = p;
     }

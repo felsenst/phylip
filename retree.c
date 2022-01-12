@@ -1367,13 +1367,13 @@ void buildtree(void)
   spp = 50;
 
   // BUG.967 these tree_new replace the Malloc's above
-  treeone = functions.tree_new(nonodes, spp);
-  treetwo = functions.tree_new(nonodes, spp);
+  treeone = funcs->tree_new(nonodes, spp);
+  treetwo = funcs->tree_new(nonodes, spp);
   treesets[whichtree].tree_p = treeone;
   treesets[othertree].tree_p = treetwo;
   curtree = treeone;
 
-  simplifiedtree.tree_p = functions.tree_new(nonodes, spp);
+  simplifiedtree.tree_p = funcs->tree_new(nonodes, spp);
   subtree     = false;
   topedge     = 1;
   leftedge    = 1;

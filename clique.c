@@ -127,7 +127,7 @@ void clique_chuck(vecrec *p)
 
 void nunode(node **p)
 {  /* replacement for NEW */
-  *p = functions.node_new(FORK_NODE, 0);
+  *p = funcs->node_new(FORK_NODE, 0);
   (*p)->next = NULL;
 }  /* nunode */
 
@@ -316,7 +316,7 @@ void clique_setuptree(void)
       free(treenode[i]);
     //printf("functions.node_new false: %i i: %li\n", false, i+1);// JRMdebug
     //treenode[i] = functions.node_new(FORK_NODE, i+1);// JRMdebug
-    treenode[i] = functions.node_new(FORK_NODE, i+1);
+    treenode[i] = funcs->node_new(FORK_NODE, i+1);
     treenode[i]->next = NULL;
     treenode[i]->back = NULL;
   }

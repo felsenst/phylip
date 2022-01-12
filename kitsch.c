@@ -290,10 +290,10 @@ void doinit(void)
   {
     getoptions();
   }
-  curtree = functions.tree_new(nonodes, spp);
+  curtree = funcs->tree_new(nonodes, spp);
   if (!usertree && njumble > 1) {
-    bestree = functions.tree_new(nonodes, spp);
-    priortree = functions.tree_new(nonodes, spp);
+    bestree = funcs->tree_new(nonodes, spp);
+    priortree = funcs->tree_new(nonodes, spp);
   }
   nayme = (naym *)Malloc(spp * sizeof(naym));
   enterorder = (long *)Malloc(spp * sizeof(long));

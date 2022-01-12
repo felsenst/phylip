@@ -2477,7 +2477,7 @@ void setup_environment(int argc, Char *argv[])
   }
   firsttree = true;
   inputNumbersFromTreeFile(intree, &spp, &nonodes);
-  curtree = functions.tree_new(nonodes, spp);
+  curtree = funcs->tree_new(nonodes, spp);
   treeread (curtree, intree, &curtree->root, curtree->nodep, &goteof, &firsttree, &nextnode, &haslengths, initdrawtreenode, true, -1);
 
   //printf("Raw Tree nextnode: %li root: %p\n", nextnode, root); //JRMDebug

@@ -28,7 +28,7 @@ typedef void (*freex_t)(node*);
 
 /* debug:  ?  typedef ml_tree ml_tree;  */
 
-struct ml_node {
+struct ml_node {                               /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
   allocx_t allocx;
   freex_t freex;

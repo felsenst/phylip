@@ -357,7 +357,7 @@ void doinit(void)
   {
     getoptions();
   }
-  curtree = functions.tree_new(nonodes, spp);
+  curtree = funcs->tree_new(nonodes, spp);
   alloctree(&(curtree->nodep));
   setuptree(curtree->nodep);
   allocrest();

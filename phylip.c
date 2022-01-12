@@ -646,17 +646,17 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   }
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
-    functions.node_new = generic_new_node;
-    functions.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
+    funcs->node_new = generic_new_node;
+    funcs->tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
   } else {
     if ( ini->node_new != NULL )
-      functions.node_new = ini->node_new;
+      funcs->node_new = ini->node_new;
     else
-      functions.node_new = generic_new_node;
+      funcs->node_new = generic_new_node;
     if ( ini->tree_new != NULL )
-      functions.tree_new = (tree_new_t)ini->tree_new;
+      funcs->tree_new = (tree_new_t)ini->tree_new;
     else
-      functions.tree_new = (tree_new_t)generic_tree_new;
+      funcs->tree_new = (tree_new_t)generic_tree_new;
   }
 } /* init */
 
@@ -3595,19 +3595,19 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = functions.node_new(true, i+1);                /* ... tips */
-    t->nodep[i]->tip = true;
+    t->nodep[i] = funcs->node_new(true, i+1);                   /* ... tips */
+    t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
-    q = functions.node_new(false, i+1 );  /* set up a circle of three nodes */
+    q = funcs->node_new(false, i+1 );     /* set up a circle of three nodes */
     p = q;
-    p->tip = false;
-    p->next = functions.node_new(false, i+1);     /* ... the second one ... */
+    p->tip = false;   /* debug: already made by previous call? */
+    p->next = funcs->node_new(false, i+1);        /* ... the second one ... */
     p = p->next;
-    p->tip = false;
-    p->next = functions.node_new(false, i+1);     /* ... and the third one. */
+    p->tip = false;   /* debug: already made by previous call? */
+    p->next = funcs->node_new(false, i+1);        /* ... and the third one. */
     p = p->next;
-    p->tip = false;
+    p->tip = false;   /* debug: already made by previous call? */
     p->next = q;
     t->nodep[i] = q;
   }
@@ -3620,7 +3620,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->release_fork(t, t->nodep[i]);
   }
   t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
-  t->root = t->nodep[0];   /* debug:  what if enterorder? */
+  t->root = t->nodep[0];   /* debug:  what if enterorder? outgroup or root? */
   generic_tree_setupfunctions(t);             /* set up some more functions */
 } /* generic_tree_init */
 
@@ -3635,9 +3635,9 @@ void generic_tree_setupfunctions(tree *t)
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
-    t->lrsaves[i] = functions.node_new(false,0);
-  t->temp_p = functions.node_new(false,0);
-  t->temp_q = functions.node_new(false,0);
+    t->lrsaves[i] = funcs->node_new(false,0);
+  t->temp_p = funcs->node_new(false,0);
+  t->temp_q = funcs->node_new(false,0);
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -3796,9 +3796,9 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
-  functions.tree_new(globtreep, curtree->nonodes, curtree->spp);
-  functions.tree_new(priortreep, curtree->nonodes, curtree->spp);
-  functions.tree_new(oldtreep, curtree->nonodes, curtree->spp);
+  funcs->tree_new(globtreep, curtree->nonodes, curtree->spp);
+  funcs->tree_new(priortreep, curtree->nonodes, curtree->spp);
+  funcs->tree_new(oldtreep, curtree->nonodes, curtree->spp);
 
   succeeded = true;
   while ( succeeded ) {
@@ -3900,9 +3900,9 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     fflush(progfile);
   }
 
-  functions.tree_new(globtreep, curtree->nonodes, curtree->spp);
-  functions.tree_new(priortreep, curtree->nonodes, curtree->spp);  /* debug:  needed? */
-  functions.tree_new(oldtreep, curtree->nonodes, curtree->spp);
+  funcs->tree_new(globtreep, curtree->nonodes, curtree->spp);
+  funcs->tree_new(priortreep, curtree->nonodes, curtree->spp);  /* debug:  needed? */
+  funcs->tree_new(oldtreep, curtree->nonodes, curtree->spp);
 
   while ( succeeded ) {
     succeeded = false;
@@ -4757,7 +4757,7 @@ node* generic_tree_get_forknode(tree* t, long i)
   node *p;
 
   if ( Slist_isempty(t->free_fork_nodes) )
-    p = functions.node_new(0, i);
+    p = funcs->node_new(0, i);
   else {
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);

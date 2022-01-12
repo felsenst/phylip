@@ -336,7 +336,7 @@ void doinput(void)
   allocrest();
   inputoptions();
   endsite = chars;                                 // needed for allocation ??
-  curtree = functions.tree_new(nonodes, spp);      // FIXME: usertree or spp?
+  curtree = funcs->tree_new(nonodes, spp);      // FIXME: usertree or spp?
   inputdata(chars);
   makeweights();
 }  /* doinput */
