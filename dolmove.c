@@ -293,7 +293,7 @@ void doinput(void)
 
   allocrest();
   inputoptions();
-  curtree = functions.tree_new(nonodes, spp);
+  curtree = funcs->tree_new(nonodes, spp);
   alloctree(&(curtree->nodep));
   setuptree(curtree->nodep);
   inputdata(curtree->nodep, dollo, false, stdout);
