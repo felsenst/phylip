@@ -50,6 +50,15 @@ void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
 } /* ml_tree_init */
 
 
+void ml_node_new(struct ml_node nodepointer, index, nodesize)
+{
+  /* go up hierarchy creating a node, initializing it, then backing down
+   * to create an ml_node, then calling its initialization, etc. */
+
+  node_new((node*)nodepointer, spp, nonodes, nodesize);
+} /* ml_node_new */
+
+
 void ml_node_copy(node* srcn, node* destn) // RSGbugfix
 { /* copy an ml_node */
   ml_node *src = (ml_node *)srcn;

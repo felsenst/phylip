@@ -19,7 +19,7 @@ dist_node* dist_node_new(node_type type, long index)
   /* make a new dist_node */
   dist_node *n;
 
-  n = Malloc(sizeof(dist_node));
+  ml_node_new((ml_node*)n, type, index, sizeof(dist_node));
   dist_node_init(n, type, index);
   return (dist_node *)n;
 } /* dist_node_new */
@@ -28,6 +28,7 @@ dist_node* dist_node_new(node_type type, long index)
 void dist_node_init(dist_node* dn, node_type type, long index)
 {
   /* initialize a new dist_node */
+/* debug: check against  fitch_node_init too */
   node *n = (node *)dn;                      /* generic_node version of  n */
 
   generic_node_init(n, type, index);

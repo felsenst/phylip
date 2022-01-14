@@ -22,6 +22,9 @@ typedef struct fitch_tree{
 
 #ifndef OLDC
 /* function prototypes */
+void   fitch_tree_new(struct tree**, long, long);
+void   fitch_tree_init(struct dist_tree**, long, long);
+void   fitch_node_init(struct tree**, long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -54,8 +57,6 @@ void   initrav(node *);
 void   treevaluate(void);
 void   maketree(void);
 void   globrearrange(long* numtrees, boolean* succeeded);
-void   fitch_tree_new(struct tree**, long, long);
-void   fitch_tree_init(struct dist_tree**, long, long);
 void   fitchrun(void);
 void   fitch(char * infilename, char * intreename, char * outfilename, char * outfileopt, char * outtreename,
              char * outtreeopt, char * Method, int BestTree, int UseLengths, double Power, int NegLengths,
@@ -87,7 +88,7 @@ char *progname;
 
 void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
 {
-  /* set up functions for a tree for Fitch. I think this resets some that 
+  /* set up unctions for a tree for Fitch. I think this resets some that 
    * are previously initialized in ml.c. */
   /*  debug: Perhaps not bother with the
    * ones that are ml_ versions here as already set */
@@ -113,6 +114,14 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 
   dist_tree_new((struct dist_tree**)treep, nonodes, spp, sizeof(dist_tree));
   fitch_tree_init((struct dist_tree**)treep, nonodes, spp);   /* initialize */
+} /* fitch_tree_new */
+
+
+void fitch_node_init(struct tree** treep, long nonodes, long spp)
+{
+  /* in class hierarchy, allocate and initialize a node for Fitch */
+
+  dist_node_init((struct dist_tree**)treep, nonodes, spp, sizeof(dist_node));
 } /* fitch_tree_new */
 
 
@@ -348,15 +357,15 @@ void fitch_tree_setup(long nonodes, long spp) {
   * to each, which is passed up the class hierarchy */
 
   curtreep = &curtree;
-  functions.tree_new(curtreep, nonodes, spp);
+  funcs->tree_new(curtreep, nonodes, spp);
   if (!usertree) {
     bestreep = &bestree;
-    functions.tree_new(bestreep, nonodes, spp);
+    funcs->tree_new(bestreep, nonodes, spp);
     priortreep = &priortree;
-    functions.tree_new(priortreep, nonodes, spp);
+    funcs->tree_new(priortreep, nonodes, spp);
     if (njumble > 1) {
       bestree2p = &bestree2;
-      functions.tree_new(bestree2p, nonodes, spp);
+      funcs->tree_new(bestree2p, nonodes, spp);
     }
   }
 } /* fitch_tree_setup */
@@ -702,6 +711,7 @@ void fitch_makenewv(tree* t, node *p)
 void fitch_setuptip(tree *t, long m)
 {
   /* initialize branch lengths and views in a tip */
+/* debug: should this be in a routine like  fitch_node_init?? */
   long i=0;
   intvector n=(long *)Malloc(spp * sizeof(long));
   dist_node *which;
@@ -1182,7 +1192,7 @@ void fitch(
   argc = 1;
   argv[0] = "Fitch";
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = (new_node_t)dist_node_new;          /* new nodes will be dist_nodes */
+  funcs->node_new = (new_node_t)dist_node_new;  /* nodes will be dist_nodes */
   funcs->tree_new = fitch_tree_new;       /* new trees will be of this type */
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
@@ -1428,9 +1438,9 @@ int main(int argc, Char *argv[])
   argv[0]="Fitch";
 #endif
   funcs = Malloc(sizeof(initdata));
+  funcs->node_new = (new_node_t)dist_node_new;  /* nodes will be dist_nodes */
+  funcs->tree_new = (new_tree_t)fitch_tree_new;    /* new trees will be of this type */
   phylipinit(argc, argv, funcs, false);                  /* do initializing */
-  funcs->node_new = (new_node_t)dist_node_new;          /* new nodes will be dist_nodes */
-  functions.tree_new = fitch_tree_new;    /* new trees will be of this type */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
   openfile(&outfile, OUTFILE, "output file", "w", argv[0], outfilename);
