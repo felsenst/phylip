@@ -60,11 +60,14 @@ typedef struct dna_node{
 typedef void (*initialvtrav_t)(tree*, node*);
 
 #ifndef OLDC /* prototypes */
-node *  dna_node_new(node_type, long);
-void    dna_node_init(node *, node_type, long);
+void    ml_node_new(node *, node_type, long, long);
 void    ml_node_init(node *, node_type, long);
+void    ml_tree_new(struct ml_tree**, long, long, long);
+void    ml_tree_init(struct ml_tree*, long, long);
 void    ml_node_free(node **);
 void    ml_node_print(node *);
+node *  dna_node_new(node_type, long);
+void    dna_node_init(node *, node_type, long);
 node *  prot_node_new(node_type, long);
 void    prot_node_init(node *, node_type, long);
 void    prot_node_allocx(ml_node*, long, long);
@@ -72,7 +75,6 @@ node *  codon_node_new(node_type, long);
 void    codon_node_init(node *, node_type, long);
 void    codon_node_allocx(ml_node*, long, long);
 void    dna_node_allocx(ml_node*, long, long);
-void    ml_tree_init(struct ml_tree*, long, long);
 void    ml_node_copy(node*, node*);
 void    ml_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);
@@ -102,7 +104,6 @@ boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*,
                           double*, tree*, boolean, boolean, boolean);
 void    ml_tree_do_branchl_on_insert(tree*, node *, node*);
 void    ml_tree_do_branchl_on_re_move(tree*, node*, node*);
-void    ml_tree_new(struct ml_tree**, long, long, int);
 void    mlk_tree_insert_(tree*, node *, node *, boolean, boolean);
 double  get_tyme(node *);
 void    set_tyme (node*, double) ;

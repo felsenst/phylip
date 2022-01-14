@@ -122,7 +122,7 @@ void fitch_node_init(struct tree** treep, long nonodes, long spp)
   /* in class hierarchy, allocate and initialize a node for Fitch */
 
   dist_node_init((struct dist_tree**)treep, nonodes, spp, sizeof(dist_node));
-} /* fitch_tree_new */
+} /* fitch_node_init */
 
 
 void getoptions(void)

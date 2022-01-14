@@ -32,6 +32,47 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
+void ml_node_new(struct ml_node nodepointer, index, spp, nonodes, nodesize)
+{
+  /* go up hierarchy creating a node, initializing it, then backing down
+   * to create an ml_node, then calling its initialization, etc. */
+
+  node_new((node*)nodepointer, index, spp, nonodes, nodesize);
+} /* ml_node_new */
+
+
+void ml_node_init(node *n, node_type type, long index)
+{
+  /* initialize a node for ml trees */
+/* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
+  ml_node *mln = (ml_node *)n;
+
+  // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
+  // for initialization where it will be changed to > 0 before used for access.
+  // Test here is for ">= 0", which allows both cases.
+  assert(index >= 0);
+
+  generic_node_init(n, type, index);
+  n->copy = ml_node_copy;
+  n->init = ml_node_init;
+  n->free = ml_node_free;
+  n->reinit = ml_node_reinit;
+  n->node_print_f = ml_node_print;
+  mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
+  mln->node.tyme = 0;
+} /* ml_node_init */
+
+
+void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, long treesize)
+{ /* make a new ml_tree.  Calls to generic_tree-new,
+   * casting ml_tree** to tree** as we call it 
+   * then call  ml_tree_init */
+
+  generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
+  ml_tree_init(*mlt, nonodes, spp);
+} /* ml_tree_new */
+
+
 void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
@@ -48,15 +89,6 @@ void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */
 } /* ml_tree_init */
-
-
-void ml_node_new(struct ml_node nodepointer, index, nodesize)
-{
-  /* go up hierarchy creating a node, initializing it, then backing down
-   * to create an ml_node, then calling its initialization, etc. */
-
-  node_new((node*)nodepointer, spp, nonodes, nodesize);
-} /* ml_node_new */
 
 
 void ml_node_copy(node* srcn, node* destn) // RSGbugfix
@@ -274,27 +306,6 @@ void ml_node_free(node **np)
   n->freex((node*)n);
   generic_node_free(np);
 } /* ml_node_free */
-
-
-void ml_node_init(node *n, node_type type, long index)
-{
-  /* initialize a node for ml trees */
-  ml_node *mln = (ml_node *)n;
-
-  // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
-  // for initialization where it will be changed to > 0 before used for access.
-  // Test here is for ">= 0", which allows both cases.
-  assert(index >= 0);
-
-  generic_node_init(n, type, index);
-  n->copy = ml_node_copy;
-  n->init = ml_node_init;
-  n->free = ml_node_free;
-  n->reinit = ml_node_reinit;
-  n->node_print_f = ml_node_print;
-  mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
-  mln->node.tyme = 0;
-} /* ml_node_init */
 
 
 void ml_node_reinit(node * n)
@@ -844,16 +855,6 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     }
   }
 } /* ml_tree_insert */
-
-
-void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, int treesize)
-{ /* make a new ml_tree.  Calls to generic_tree-new,
-   * casting ml_tree** to tree** as we call it 
-   * then call  ml_tree_init */
-
-  generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
-  ml_tree_init(*mlt, nonodes, spp);
-} /* ml_tree_new */
 
 
 void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)

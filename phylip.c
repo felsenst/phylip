@@ -35,6 +35,75 @@ struct node_vtable node_vtable = {
 };
 
 
+void generic_tree_new(struct tree** treep, long nonodes, long spp, int treesize)
+{
+  /* allocate a new tree and call generic_tree_init on it 
+   * to initialize the setting up of its functions in the generic version */
+
+  *treep = (struct tree*)Malloc(treesize);      /* sets actual tree pointer */
+  generic_tree_init(*treep, nonodes, spp);
+/* debug: init call needs nodesize argument? */
+} /* generic_tree_new */
+
+
+void generic_tree_init(struct tree* t, long nonodes, long spp)
+{
+  /* initialize nodes and forks on a tree, generic version
+   * leaves nodes at tips but makes enough nodes for forks
+   * and then puts them on the fork_node garbage list  */
+  long i;
+  node *q, *p;
+
+  /* these functions may later be customized for each program */
+  if ( t->release_fork == NULL )    /* note, if not null does not change it */
+    t->release_fork = generic_tree_release_fork;
+  if ( t->get_fork == NULL )
+    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
+  if ( t->release_forknode == NULL )
+    t->release_forknode = generic_tree_release_forknode;
+
+  t->spp = spp;
+  t->nonodes = nonodes;
+  t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
+  for ( i = 0 ; i < spp ; i++ ) {
+    t->nodep[i] = funcs->node_new(true, i+1);                   /* ... tips */
+    t->nodep[i]->tip = true;  /* debug : already made by previous call? */
+  }
+  for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
+    q = funcs->node_new(false, i+1 );     /* set up a circle of three nodes */
+    p = q;
+    p->tip = false;   /* debug: already made by previous call? */
+    p->next = funcs->node_new(false, i+1);        /* ... the second one ... */
+    p = p->next;
+    p->tip = false;   /* debug: already made by previous call? */
+    p->next = funcs->node_new(false, i+1);        /* ... and the third one. */
+    p = p->next;
+    p->tip = false;   /* debug: already made by previous call? */
+    p->next = q;
+    t->nodep[i] = q;
+  }
+
+  /* Create garbage lists */
+  t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
+
+  /* Put all interior nodes on garbage lists by "releasing" them */
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
+    t->release_fork(t, t->nodep[i]);
+  }
+  t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
+  t->root = t->nodep[0];   /* debug:  what if enterorder? outgroup or root? */
+  generic_tree_setupfunctions(t);             /* set up some more functions */
+} /* generic_tree_init */
+
+
+void generic_node_new (node* n, long index, long spp, long nonodes, long nodesize)
+{
+   /* create a new node, of size appropriate for the type of tree */
+/* debug: Malloc call goes here */
+/* debug: then call to generic_node_init if appropriate */
+} /* generic_node_new */
+
+
 void no_op (void)
 { /* Do nothing. Used as a dummy pointer to a function that hust returns,
    * doesn't need to do anything (e.g. smooth for parsimony) */
@@ -3575,56 +3644,6 @@ void generic_tree_free(tree *t)
 } /* generic_tree_free */
 
 
-void generic_tree_init(struct tree* t, long nonodes, long spp)
-{
-  /* initialize nodes and forks on a tree, generic version
-   * leaves nodes at tips but makes enough nodes for forks
-   * and then puts them on the fork_node garbage list  */
-  long i;
-  node *q, *p;
-
-  /* these functions may later be customized for each program */
-  if ( t->release_fork == NULL )    /* note, if not null does not change it */
-    t->release_fork = generic_tree_release_fork;
-  if ( t->get_fork == NULL )
-    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
-  if ( t->release_forknode == NULL )
-    t->release_forknode = generic_tree_release_forknode;
-
-  t->spp = spp;
-  t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
-  for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = funcs->node_new(true, i+1);                   /* ... tips */
-    t->nodep[i]->tip = true;  /* debug : already made by previous call? */
-  }
-  for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
-    q = funcs->node_new(false, i+1 );     /* set up a circle of three nodes */
-    p = q;
-    p->tip = false;   /* debug: already made by previous call? */
-    p->next = funcs->node_new(false, i+1);        /* ... the second one ... */
-    p = p->next;
-    p->tip = false;   /* debug: already made by previous call? */
-    p->next = funcs->node_new(false, i+1);        /* ... and the third one. */
-    p = p->next;
-    p->tip = false;   /* debug: already made by previous call? */
-    p->next = q;
-    t->nodep[i] = q;
-  }
-
-  /* Create garbage lists */
-  t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
-
-  /* Put all interior nodes on garbage lists by "releasing" them */
-  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
-    t->release_fork(t, t->nodep[i]);
-  }
-  t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
-  t->root = t->nodep[0];   /* debug:  what if enterorder? outgroup or root? */
-  generic_tree_setupfunctions(t);             /* set up some more functions */
-} /* generic_tree_init */
-
-
 void generic_tree_setupfunctions(tree *t) 
 {
   /* initialize functions.  Mostly for parsimony, they
@@ -3665,16 +3684,6 @@ void generic_tree_setupfunctions(tree *t)
   t->node_good_f = generic_node_good;
   t->fork_good_f = generic_fork_good;
 } /* generic_tree_setupfunctions */
-
-
-void generic_tree_new(struct tree** treep, long nonodes, long spp, int treesize)
-{
-  /* allocate a new tree and call generic_tree_init on it 
-   * to initialize the setting up of its functions in the generic version */
-
-  *treep = (struct tree*)Malloc(treesize);      /* sets actual tree pointer */
-  generic_tree_init(*treep, nonodes, spp);
-} /* generic_tree_new */
 
 
 void generic_tree_print(tree * t)
