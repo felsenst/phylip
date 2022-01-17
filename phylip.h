@@ -565,7 +565,6 @@ typedef void (*tree_makenewv_t)(tree*, node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
-lem and Connie Furlong <clem@u.washington.edu
 typedef boolean (*node_good_t)(tree*, node*);   // check the individual node
 
 typedef struct tree_vtable tree_vtable;
@@ -625,7 +624,7 @@ struct tree {                                         /* the tree structure */
   boolean do_newbl;
 
   /* fork management bookeeping stacks */
-  Slist_ptr free_forks;  .* debug: I think this is no longer used */
+  Slist_ptr free_forks;   /* debug: I think this is no longer used */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
