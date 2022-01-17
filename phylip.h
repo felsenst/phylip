@@ -535,7 +535,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
 typedef node **pointarray;       /* this type is an array of pointers to nodes
                                   * and is the type of array nodep */
-typedef void (*tree_new_t)(tree**, long nonodes, long spp); /* new tree */
+typedef void (*tree_new_t)(tree**, long, long , long); /* new tree fn. type */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
@@ -671,7 +671,7 @@ typedef struct initdata {
   tree_new_t tree_new;
 } initdata;
 
-initdata funcs;   /* debug: this used to be "functions." */
+initdata funcs;  /* global declaration: initdata function pointer structure */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 

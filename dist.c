@@ -14,14 +14,14 @@
 extern long nonodes;
 
 
-dist_node* dist_node_new(node_type type, long index)
+void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
 {
-  /* make a new dist_node */
+  /* make a new dist_node.  Argument "nodesize" is not used, but in calling
+   *  ml_node_new the node size argument is set to size of dist_node  */
   dist_node *n;
 
-  ml_node_new((ml_node*)n, type, index, sizeof(dist_node));
-  dist_node_init(n, type, index);
-  return (dist_node *)n;
+  ml_node_new((ml_node*)n, type, index, sizeof(dist_node)); /* call upwards */
+  dist_node_init((dist_node*)n, type, index);     /* then set up node stuff */  /* debug: arguments? */
 } /* dist_node_new */
 
 

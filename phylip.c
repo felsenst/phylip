@@ -35,7 +35,8 @@ struct node_vtable node_vtable = {
 };
 
 
-void generic_tree_new(struct tree** treep, long nonodes, long spp, int treesize)
+void generic_tree_new(struct tree** treep, long nonodes,
+                       long spp, long treesize)
 {
   /* allocate a new tree and call generic_tree_init on it 
    * to initialize the setting up of its functions in the generic version */
