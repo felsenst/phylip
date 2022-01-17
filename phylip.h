@@ -679,7 +679,7 @@ boolean javarun;               /* boolean for when Java front-end is in use */
 #ifndef OLDC            /* need this if not the old original K&R C compiler */
 /* function prototypes */
 void            no_op(void);
-void            generic_tree_new(tree**, long, long, int);
+void            generic_tree_new(tree**, long, long, long);
 void            generic_tree_init(tree*, long, long);
 void            generic_node_new(tree*, long, long, long, long);
 void            phylipinit(int, char**, initdata*, boolean);
