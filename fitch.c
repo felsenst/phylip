@@ -357,15 +357,15 @@ void fitch_tree_setup(long nonodes, long spp) {
   * to each, which is passed up the class hierarchy */
 
   curtreep = &curtree;
-  funcs->tree_new(curtreep, nonodes, spp);
+  funcs->tree_new(curtreep, nonodes, spp, (long)sizeof(*dist_tree));
   if (!usertree) {
     bestreep = &bestree;
-    funcs->tree_new(bestreep, nonodes, spp);
+    funcs->tree_new(bestreep, nonodes, spp, (long)sizeof(*dist_tree));
     priortreep = &priortree;
-    funcs->tree_new(priortreep, nonodes, spp);
+    funcs->tree_new(priortreep, nonodes, spp, (long)sizeof(*dist_tree));
     if (njumble > 1) {
       bestree2p = &bestree2;
-      funcs->tree_new(bestree2p, nonodes, spp);
+      funcs->tree_new(bestree2p, nonodes, spp, (long)sizeof(*dist_tree));
     }
   }
 } /* fitch_tree_setup */
@@ -421,7 +421,7 @@ void fitch_getinput(void)
 }  /* fitch_getinput */
 
 
-void secondtraverse(dist_node *q, double y, long *nx, double *sum)
+void secondtraverse(dist_node *qq, double y, long *nx, double *sum)
 {
   /* from each of those places go back to all others
    * nx   comes from firsttraverse
