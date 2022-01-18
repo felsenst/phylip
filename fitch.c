@@ -357,15 +357,15 @@ void fitch_tree_setup(long nonodes, long spp) {
   * to each, which is passed up the class hierarchy */
 
   curtreep = &curtree;
-  funcs->tree_new(curtreep, nonodes, spp, (long)sizeof(*dist_tree));
+  funcs.tree_new(curtreep, nonodes, spp, (long)sizeof(dist_tree));
   if (!usertree) {
     bestreep = &bestree;
-    funcs->tree_new(bestreep, nonodes, spp, (long)sizeof(*dist_tree));
+    funcs.tree_new(bestreep, nonodes, spp, (long)sizeof(dist_tree));
     priortreep = &priortree;
-    funcs->tree_new(priortreep, nonodes, spp, (long)sizeof(*dist_tree));
+    funcs.tree_new(priortreep, nonodes, spp, (long)sizeof(dist_tree));
     if (njumble > 1) {
       bestree2p = &bestree2;
-      funcs->tree_new(bestree2p, nonodes, spp, (long)sizeof(*dist_tree));
+      funcs.tree_new(bestree2p, nonodes, spp, (long)sizeof(dist_tree));
     }
   }
 } /* fitch_tree_setup */
@@ -427,17 +427,19 @@ void secondtraverse(dist_node *qq, double y, long *nx, double *sum)
    * nx   comes from firsttraverse
    * sum  comes from evaluate via firsttraverse */
   double z=0.0, TEMP=0.0;
+  node* q;
 
+  q = (node*)qq;
   if (q != NULL) {
-    z = y + (*q).node.v;
-    if ((*q).node.tip) {
-      TEMP = q->d[(*nx) - 1] - z;
-      *sum += q->w[(*nx) - 1] * (TEMP * TEMP);
+    z = y + q->v;
+    if ((*q).tip) {
+      TEMP = qq->d[(*nx) - 1] - z;
+      *sum += qq->w[(*nx) - 1] * (TEMP * TEMP);
     } else {
-      if ((*q).node.next->back != NULL)
-        secondtraverse((dist_node*)((*q).node.next->back), z, nx, sum);
-      if ((*q).node.next->next->back != NULL)
-        secondtraverse((dist_node*)((*q).node.next->next->back), z, nx, sum);
+      if ((*q).next->back != NULL)
+        secondtraverse((dist_node*)((*q).next->back), z, nx, sum);
+      if ((*q).next->next->back != NULL)
+        secondtraverse((dist_node*)((*q).next->next->back), z, nx, sum);
     }
   }
 }  /* secondtraverse */
@@ -1192,8 +1194,8 @@ void fitch(
   argc = 1;
   argv[0] = "Fitch";
   funcs = Malloc(sizeof(initdata));
-  funcs->tree_new_f = fitch_tree_new;       /* new trees will be of this type */
-  funcs->node_new = (new_node_t)dist_node_new;  /* nodes will be dist_nodes */
+  funcs->tree_new = (tree_new_t)fitch_tree_new; /* trees will be fitch_tree */
+  funcs->node_new = (node_new_t)dist_node_new;  /* nodes will be dist_nodes */
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
   /*
@@ -1438,8 +1440,8 @@ int main(int argc, Char *argv[])
   argv[0]="Fitch";
 #endif
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = (new_node_t)dist_node_new;  /* nodes will be dist_nodes */
-  funcs->tree_new = (new_tree_t)fitch_tree_new;   /* new trees of this type */
+  funcs->node_new = (node_new_t)dist_node_new;  /* nodes will be dist_nodes */
+  funcs->tree_new = (tree_new_t)fitch_tree_new;   /* new trees of this type */
   phylipinit(argc, argv, funcs, false);                  /* do initializing */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);

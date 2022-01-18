@@ -446,7 +446,9 @@ typedef enum node_type node_type;
 
 typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
-typedef node* (*new_node_t)(node_type, long);     /* new_node function type */
+typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
+typedef void (*tree_copy_t)(tree*, tree*);
+typedef void (*node_new_t)(node*, node_type, long);    /* node_new fn. type */
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
@@ -536,8 +538,6 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
 typedef node **pointarray;       /* this type is an array of pointers to nodes
                                   * and is the type of array nodep */
-typedef void (*tree_new_t)(tree**, long, long , long); /* new tree fn. type */
-typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
                            double*, tree*, boolean, boolean, boolean, double*);
@@ -668,7 +668,7 @@ typedef void (*initptr)(tree *, node **, long, long,
 
 /* some pointers to functions we may need */
 typedef struct initdata {
-  new_node_t node_new;
+  node_new_t node_new;
   tree_new_t tree_new;
 } initdata;
 
