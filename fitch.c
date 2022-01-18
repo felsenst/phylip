@@ -24,7 +24,7 @@ typedef struct fitch_tree{
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
-void   fitch_node_init(struct tree**, long, long);
+void   fitch_node_init(struct node**, long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -117,11 +117,11 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-void fitch_node_init(struct tree** treep, long nonodes, long spp)
+void fitch_node_init(struct node** nodepp, long nonodes, long spp)
 {
   /* in class hierarchy, allocate and initialize a node for Fitch */
 
-  dist_node_init((struct dist_tree**)treep, nonodes, spp, sizeof(dist_node));
+  dist_node_init((struct dist_node**)nodepp, nonodes, spp, sizeof(dist_node));
 } /* fitch_node_init */
 
 
@@ -1192,7 +1192,7 @@ void fitch(
   argc = 1;
   argv[0] = "Fitch";
   funcs = Malloc(sizeof(initdata));
-  funcs->tree_new = fitch_tree_new;       /* new trees will be of this type */
+  funcs->tree_new_f = fitch_tree_new;       /* new trees will be of this type */
   funcs->node_new = (new_node_t)dist_node_new;  /* nodes will be dist_nodes */
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];

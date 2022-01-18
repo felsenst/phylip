@@ -36,7 +36,7 @@ typedef struct dist_node {                           /* subclass of ml_node */
 /*function prototypes*/
 void dist_tree_init(struct dist_tree**, long, long);
 void dist_tree_new(struct dist_tree**, long, long, int);
-void dist_node_init(dist_node* n, node_type type, long, long);
+void dist_node_init(dist_node** n, node_type type, long, long);
 void dist_node_new(dist_node*, node_type type, long index);
 void dist_node_copy(node* src, node* dst);
 void dist_node_free(node **np);

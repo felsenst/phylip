@@ -3683,7 +3683,7 @@ void generic_tree_setupfunctions(tree *t)
 
   t->tree_good_f = generic_tree_good;  /* debug: what are these? */
   t->node_good_f = generic_node_good;
-  t->fork_good_f = generic_fork_good;
+  t->fork_good_f = generic_fork_good;  /* debug: just needed for debugging codml.c  */
 } /* generic_tree_setupfunctions */
 
 
@@ -3743,7 +3743,7 @@ boolean generic_tree_good(tree *t)
 
 boolean generic_fork_good(tree *t, node * n)
 {
-  /* check whether fork is OK */
+  /* check whether fork is OK */  /* debug:  just needed for debugging */
   boolean firstTime = true;
   // boolean hasNullBack = false;      /* RSGdebug: Variable never used /*
   // boolean hasGoodBack = false;      /* RSGdebug: Variable never used /*
