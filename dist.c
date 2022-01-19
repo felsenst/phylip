@@ -25,18 +25,18 @@ void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
 } /* dist_node_new */
 
 
-void dist_node_init(dist_node* dn, node_type type, long index, long nodesize)
+void dist_node_init(dist_node* dn, node_type type, long index)
 {
   /* initialize a new dist_node */
 /* debug: check against  fitch_node_init too */
   node *n = (node *)dn;                      /* generic_node version of  n */
 
-  generic_node_init(n, type, index, nodesize);
+  generic_node_init(n, type, index);
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */
-  dn->dist = 0.0;                                 /* used in  fitch, kitsch */
-  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));  /* some extra room */
+  dn->dist = 0.0;                              /* used in  fitch, kitsch */
+  dn->d = (vector)Malloc((nonodes+1) * sizeof(double));    /* extra room */
   dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
 } /* dist_node_init */
 
@@ -142,13 +142,16 @@ void alloctree(tree *t, long nonodes)
   node *p, *q;
 
   t->nodep = (node**)Malloc(nonodes * sizeof(node *));
-  for (i = 0; i < spp; i++)
-    t->nodep[i] = funcs->node_new(TIP_NODE, i+1);
+  for (i = 0; i < spp; i++) {
+    funcs.node_new(p, TIP_NODE, i+1);
+    t->nodep[i] = p;
+  }
   for (i = spp; i < nonodes; i++)
   {
     q = NULL;
     for (j = 1; j <= 3; j++) {
-      p = funcs->node_new(FORK_NODE, i+1);
+      funcs.node_new(p, FORK_NODE, i+1);
+      t->nodep[i] = p;
       p->next = q;
       q = p;
     }
@@ -173,7 +176,7 @@ void allocd(long nonodes, pointptr treenode)
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
       p->d = (vector)Malloc((nonodes+1) * sizeof(double));
-      p = (dist_node*)(p->node.next);
+      p = (dist_node*)(((node*)p)->next);
     }
   }
 } /* allocd */
@@ -194,7 +197,7 @@ void freed(long nonodes, pointptr treenode)
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
       free(((dist_node*)p)->d);
-      p = (dist_node*)(p->node.next);
+      p = (dist_node*)(((node*)p)->next);
     }
   }
 } /* freed */
@@ -216,7 +219,7 @@ void allocw(long nonodes, pointptr treenode)
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
       p->w = (vector)Malloc(nonodes * sizeof(double));
-      p = (dist_node*)p->node.next;
+      p = (dist_node*)(((node*)p)->next);
     }
   }
 } /* allocw */
@@ -238,7 +241,7 @@ void freew(long nonodes, pointptr treenode)
     p = dtreenode[i];
     for (j = 1; j <= 3; j++) {
       free(p->w);
-      p = (dist_node*)p->node.next;
+      p = (dist_node*)(((node*)p)->next);
     }
   }
 } /* freew */

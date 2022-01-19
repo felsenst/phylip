@@ -119,9 +119,11 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 
 void fitch_node_init(struct node** nodepp, long nonodes, long spp)
 {
-  /* in class hierarchy, allocate and initialize a node for Fitch */
+  /* in class hierarchy, allocate and initialize a node for Fitch
+   * note that the first argument is pointer-to-pointer-to-node,
+   * and calls dist_node_init with just pointer-to-node */
 
-  dist_node_init((struct dist_node**)nodepp, nonodes, spp, sizeof(dist_node));
+  dist_node_init((struct dist_node*)(*nodepp), nonodes, spp);
 } /* fitch_node_init */
 
 

@@ -70,8 +70,8 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->nodep[i] = funcs->node_new(true, i+1);                   /* ... tips */
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
-  for ( i = spp ; i < nonodes ; i++ ) {        /* ... and to interior forks */
-    q = funcs->node_new(false, i+1 );     /* set up a circle of three nodes */
+  for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
+    q = funcs->node_new(false, i+1);      /* set up a circle of three nodes */
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
     p->next = funcs->node_new(false, i+1);        /* ... the second one ... */
@@ -719,11 +719,11 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
     funcs->node_new = generic_new_node;
     funcs->tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
   } else {
-    if ( ini->node_new != NULL )
+    if (ini->node_new != NULL)
       funcs->node_new = ini->node_new;
     else
       funcs->node_new = generic_new_node;
-    if ( ini->tree_new != NULL )
+    if (ini->tree_new != NULL)
       funcs->tree_new = (tree_new_t)ini->tree_new;
     else
       funcs->tree_new = (tree_new_t)generic_tree_new;

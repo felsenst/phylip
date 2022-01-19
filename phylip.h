@@ -448,7 +448,7 @@ typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
 typedef void (*tree_copy_t)(tree*, tree*);
-typedef void (*node_new_t)(node*, node_type, long);    /* node_new fn. type */
+typedef void (*node_new_t)(node**, node_type, long);   /* node_new fn. type */
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
