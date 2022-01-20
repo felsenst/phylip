@@ -52,7 +52,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
-  long i;
+  long i, defaultnodesize=0;
   node *q, *p;
 
   /* these functions may later be customized for each program */
@@ -67,17 +67,20 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    t->nodep[i] = funcs->node_new(true, i+1);                   /* ... tips */
+    funcs->node_new(p, true, i+1, defaultnodesize);       /* make a new tip */
+    t->nodep[i] = p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    q = funcs->node_new(false, i+1);      /* set up a circle of three nodes */
+    funcs->node_new(q, false, i+1, defaultnodesize);    /* make node circle */
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
-    p->next = funcs->node_new(false, i+1);        /* ... the second one ... */
+    funcs->node_new(q, false, i+1, defaultnodesize);    /* make node circle */
+    p->next = q;                                  /* ... the second one ... */
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
-    p->next = funcs->node_new(false, i+1);        /* ... and the third one. */
+    funcs->node_new(q, false, i+1, defaultnodesize);  /* ... and third one. */
+    p->next = q;
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
     p->next = q;
