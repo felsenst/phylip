@@ -85,7 +85,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     p->tip = false;   /* debug: already made by previous call? */
     p->next = q;
     t->nodep[i] = q;
-  }
+  
 
   /* Create garbage lists */
   t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
@@ -103,9 +103,39 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 void generic_node_new (node* n, long index, long spp, long nonodes, long nodesize)
 {
    /* create a new node, of size appropriate for the type of tree */
-/* debug: Malloc call goes here */
-/* debug: then call to generic_node_init if appropriate */
+  n = (node*)Malloc(nodesize);     /* make a big enough node using nodesize */
+  generic_node_init(n, type, index);                  /* then initialize it */
 } /* generic_node_new */
+
+
+void generic_node_init (node* n, node_type type, long index)
+{
+ /* Assign default node data. tip is set false when type is FORK_NODE (0)
+  * otherwise true. Index is assigned as given.
+  */
+  if ( type == TIP_NODE )
+    n->tip = true;
+  else {
+    if ( type == FORK_NODE )
+      n->tip = false;
+    else /* Since we used to simply pass type = true for tips, any other value
+          * will be a tip... for now. */
+      n->tip = true;
+    }
+
+  n->index = index;
+  n->v = initialv;
+  n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
+  n->initialized = false;
+
+  /* Initialize virtual functions */
+  n->init = generic_node_init;    /* hope later to override these as needed */
+  n->free = generic_node_free;
+  n->copy = generic_node_copy;
+  n->reinit = generic_node_reinit;
+  n->fork_print_f = generic_fork_print;
+  n->node_print_f = generic_node_print;
+} /* generic_node_init */
 
 
 void no_op (void)
@@ -343,36 +373,6 @@ void generic_node_free (node **n)
   free(*n);
   *n = NULL;
 } /* generic_node_free */
-
-
-void generic_node_init (node* n, node_type type, long index)
-{
- /* Assign default node data. tip is set false when type is FORK_NODE (0)
-  * otherwise true. Index is assigned as given.
-  */
-  if ( type == TIP_NODE )
-    n->tip = true;
-  else {
-    if ( type == FORK_NODE )
-      n->tip = false;
-    else /* Since we used to simply pass type = true for tips, any other value
-          * will be a tip... for now. */
-      n->tip = true;
-    }
-
-  n->index = index;
-  n->v = initialv;
-  n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
-  n->initialized = false;
-
-  /* Initialize virtual functions */
-  n->init = generic_node_init;    /* hope later to override these as needed */
-  n->free = generic_node_free;
-  n->copy = generic_node_copy;
-  n->reinit = generic_node_reinit;
-  n->fork_print_f = generic_fork_print;
-  n->node_print_f = generic_node_print;
-} /* generic_node_init */
 
 
 void generic_node_reinit (node * n)

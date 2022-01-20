@@ -32,12 +32,12 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_node_new(struct ml_node nodepointer, index, spp, nonodes, nodesize)
-{
+void ml_node_new(struct ml_node nodepointer, node_type type,
+                   long index, long nodesize)
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
 
-  node_new((node*)nodepointer, index, spp, nonodes, nodesize);
+  node_new((node*)nodepointer, type, index, nodesize);
 } /* ml_node_new */
 
 
