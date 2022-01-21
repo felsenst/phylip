@@ -67,19 +67,19 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    funcs->node_new(p, true, i+1, defaultnodesize);       /* make a new tip */
+    funcs.node_new(p, true, i+1, defaultnodesize);       /* make a new tip */
     t->nodep[i] = p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    funcs->node_new(q, false, i+1, defaultnodesize);    /* make node circle */
+    funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
-    funcs->node_new(q, false, i+1, defaultnodesize);    /* make node circle */
+    funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
     p->next = q;                                  /* ... the second one ... */
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
-    funcs->node_new(q, false, i+1, defaultnodesize);  /* ... and third one. */
+    funcs.node_new(q, false, i+1, defaultnodesize);  /* ... and third one. */
     p->next = q;
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
@@ -719,17 +719,17 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   }
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
-    funcs->node_new = generic_new_node;
-    funcs->tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
+    funcs.node_new = generic_new_node;
+    funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
   } else {
     if (ini->node_new != NULL)
-      funcs->node_new = ini->node_new;
+      funcs.node_new = ini->node_new;
     else
-      funcs->node_new = generic_new_node;
+      funcs.node_new = generic_new_node;
     if (ini->tree_new != NULL)
-      funcs->tree_new = (tree_new_t)ini->tree_new;
+      funcs.tree_new = (tree_new_t)ini->tree_new;
     else
-      funcs->tree_new = (tree_new_t)generic_tree_new;
+      funcs.tree_new = (tree_new_t)generic_tree_new;
   }
 } /* init */
 

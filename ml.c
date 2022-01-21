@@ -32,32 +32,34 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_node_new(struct ml_node nodepointer, node_type type,
-                   long index, long nodesize)
+void ml_node_new(struct ml_node* nodepointer, node_type type,
+                   long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
 
-  node_new((node*)nodepointer, type, index, nodesize);
+  generic_node_new((node*)nodepointer, type, index, nodesize);
 } /* ml_node_new */
 
 
-void ml_node_init(node *n, node_type type, long index)
+void ml_node_init(ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
   ml_node *mln = (ml_node *)n;
+  node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  generic_node_init(n, type, index);
-  n->copy = ml_node_copy;
-  n->init = ml_node_init;
-  n->free = ml_node_free;
-  n->reinit = ml_node_reinit;
-  n->node_print_f = ml_node_print;
+  generic_node_init((node*)n, type, index);
+  nn = (node*)n;
+  nn->copy = ml_node_copy;
+  nn->init = ml_node_init;
+  nn->free = ml_node_free;
+  nn->reinit = ml_node_reinit;
+  nn->node_print_f = ml_node_print;
   mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
   mln->node.tyme = 0;
 } /* ml_node_init */
@@ -233,7 +235,7 @@ void dna_node_init(node *node, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  ml_node_init(node, type, index);
+  ml_node_init((ml_node*)node, type, index);
   n->ml_node.allocx = (allocx_t)dna_node_allocx;
   n->ml_node.node.copy = dna_node_copy;
   n->ml_node.node.init = dna_node_init;
@@ -261,7 +263,7 @@ void prot_node_init(node *n, node_type type, long index)
 
   prot_node *pn = (prot_node *)n;
 
-  ml_node_init(n, type, index);
+  ml_node_init((ml_node*)n, type, index);
   pn->ml_node.allocx = (allocx_t)prot_node_allocx;
   pn->ml_node.node.copy = prot_node_copy;
   pn->ml_node.node.init = prot_node_init;
@@ -287,7 +289,7 @@ void codon_node_init(node *n, node_type type, long index)
   /* initialize a node for a codon-model tree */
   codon_node *pn = (codon_node *)n;
 
-  ml_node_init(n, type, index);
+  ml_node_init((ml_node*)n, type, index);
   pn->ml_node.allocx = (allocx_t)codon_node_allocx;
   pn->ml_node.node.copy = (node_copy_t)codon_node_copy;
   pn->ml_node.node.init = codon_node_init;
