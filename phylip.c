@@ -67,7 +67,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    funcs.node_new(&p, true, i+1, defaultnodesize);       /* make a new tip */
+    funcs.node_new(p, true, i+1, defaultnodesize);        /* make a new tip */
     t->nodep[i] = p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
@@ -100,7 +100,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-void generic_node_new (node* n, long index, long spp, long nonodes, long nodesize)
+void generic_node_new (node* n, node_type type, long index, long nodesize)
 {
    /* create a new node, of size appropriate for the type of tree */
   n = (node*)Malloc(nodesize);     /* make a big enough node using nodesize */
@@ -719,13 +719,13 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   }
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
-    funcs.node_new = generic_new_node;
+    funcs.node_new = (node_new_t)generic_node_new;
     funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
   } else {
     if (ini->node_new != NULL)
       funcs.node_new = ini->node_new;
     else
-      funcs.node_new = generic_new_node;
+      funcs.node_new = generic_node_new;
     if (ini->tree_new != NULL)
       funcs.tree_new = (tree_new_t)ini->tree_new;
     else
@@ -3658,9 +3658,9 @@ void generic_tree_setupfunctions(tree *t)
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
-    t->lrsaves[i] = funcs->node_new(false,0);
-  t->temp_p = funcs->node_new(false,0);
-  t->temp_q = funcs->node_new(false,0);
+    t->lrsaves[i] = funcs.node_new(false,0);
+  t->temp_p = funcs.node_new(false,0);
+  t.temp_q = funcs.node_new(false,0);
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -3809,9 +3809,9 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
-  funcs->tree_new(globtreep, curtree->nonodes, curtree->spp);
-  funcs->tree_new(priortreep, curtree->nonodes, curtree->spp);
-  funcs->tree_new(oldtreep, curtree->nonodes, curtree->spp);
+  funcs.tree_new(globtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  funcs.tree_new(priortreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  funcs.tree_new(oldtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
 
   succeeded = true;
   while ( succeeded ) {
@@ -3913,9 +3913,9 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     fflush(progfile);
   }
 
-  funcs->tree_new(globtreep, curtree->nonodes, curtree->spp);
-  funcs->tree_new(priortreep, curtree->nonodes, curtree->spp);  /* debug:  needed? */
-  funcs->tree_new(oldtreep, curtree->nonodes, curtree->spp);
+  funcs.tree_new(globtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  funcs.tree_new(priortreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));  /* debug:  needed? */
+  funcs.tree_new(oldtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
 
   while ( succeeded ) {
     succeeded = false;
@@ -4770,7 +4770,7 @@ node* generic_tree_get_forknode(tree* t, long i)
   node *p;
 
   if ( Slist_isempty(t->free_fork_nodes) )
-    p = funcs->node_new(0, i);
+    p = funcs.node_new(0, i);
   else {
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
@@ -5392,7 +5392,6 @@ void seetree(tree *t)
         }
       } while ((qq != NULL) && (qq != pp) && (n < 6) && !malformed);
     }
-  }
     printf("\n");
   }
   printf(" free_fork_nodes: ");    /* print the entire free_fork_nodes list */

@@ -16,11 +16,12 @@ extern long nonodes;
 
 void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
 {
-  /* make a new dist_node.  Argument "nodesize" is not used, but in calling
-   *  ml_node_new the node size argument is set to size of dist_node  */
-  dist_node *n;
+  /* make a new dist_node.  Incomin argument "nodesize" is not used, but
+   * in calling  ml_node_new  the size argument is set to size of dist_node */
+  ml_node *n;
 
-  ml_node_new((ml_node*)n, type, index, sizeof(dist_node)); /* call upwards */
+  n = (ml_node*)dn;
+  ml_node_new(n, type, index, sizeof(dist_node));           /* call upwards */
   dist_node_init((dist_node*)n, type, index);     /* then set up node stuff */  /* debug: arguments? */
 } /* dist_node_new */
 
@@ -133,32 +134,32 @@ void dist_node_copy(node* srcn, node* dstn)
 } /* dist_node_copy */
 
 
-void alloctree(tree *t, long nonodes)
-{
+// void alloctree(tree *t, long nonodes)
+// {
   /* allocate treenode dynamically
    * formerly used in fitch, kitsch & neighbor */
-  /* debug: not used now anywhere */
-  long i, j;
-  node *p, *q;
-
-  t->nodep = (node**)Malloc(nonodes * sizeof(node *));
-  for (i = 0; i < spp; i++) {
-    funcs.node_new(&p, TIP_NODE, i+1); /* debug: needs nodesizr argument.  So call from where? */
-    t->nodep[i] = p;
-  }
-  for (i = spp; i < nonodes; i++)
-  {
-    q = NULL;
-    for (j = 1; j <= 3; j++) {
-      funcs.node_new(&p, FORK_NODE, i+1); /* debug: needs nodesizr argument.  So call from where? */
-      t->nodep[i] = p;
-      p->next = q;
-      q = p;
-    }
-    p->next->next->next = p;
-    t->nodep[i] = p;
-  }
-} /* alloctree */
+  /* debug: not used now in most programs*/
+//  long i, j;
+//  node *p = NULL, *q = NULL; /* debug to avoid warning message */
+//
+//  t->nodep = (node**)Malloc(nonodes * sizeof(node *));
+//  for (i = 0; i < spp; i++) {
+//    funcs.node_new(p, TIP_NODE, i+1, sizeof(dist_node));
+//    t->nodep[i] = p;
+//  }
+//  for (i = spp; i < nonodes; i++)
+//  {
+//    q = NULL;
+//    for (j = 1; j <= 3; j++) {
+//      funcs.node_new(p, FORK_NODE, i+1, sizeof(dist_node));
+//      t->nodep[i] = p;
+//      p->next = q;
+//      q = p;
+//    }
+//    p->next->next->next = p;
+//    t->nodep[i] = p;
+//  }
+//} /* alloctree */
 
 
 void allocd(long nonodes, pointptr treenode)
