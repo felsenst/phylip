@@ -143,14 +143,14 @@ void alloctree(tree *t, long nonodes)
 
   t->nodep = (node**)Malloc(nonodes * sizeof(node *));
   for (i = 0; i < spp; i++) {
-    funcs.node_new(p, TIP_NODE, i+1);
+    funcs.node_new(&p, TIP_NODE, i+1); /* debug: needs nodesizr argument.  So call from where? */
     t->nodep[i] = p;
   }
   for (i = spp; i < nonodes; i++)
   {
     q = NULL;
     for (j = 1; j <= 3; j++) {
-      funcs.node_new(p, FORK_NODE, i+1);
+      funcs.node_new(&p, FORK_NODE, i+1); /* debug: needs nodesizr argument.  So call from where? */
       t->nodep[i] = p;
       p->next = q;
       q = p;

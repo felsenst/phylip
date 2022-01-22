@@ -67,7 +67,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    funcs.node_new(p, true, i+1, defaultnodesize);       /* make a new tip */
+    funcs.node_new(&p, true, i+1, defaultnodesize);       /* make a new tip */
     t->nodep[i] = p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
