@@ -1,0 +1,38 @@
+
+This directory contains some older versions of PHYLIP.  These were
+in Pascal, and what you will find here is the Pascal source code and
+the documentation files.  
+
+They are in the form of Unix tar archives, which can be un-tar'ed on
+any Unix server, but putting them in a directory of their own and then
+issuing the command   "tar xvf phylip17.tar" (or whatever the archive
+name is).
+
+The versions you will find here are
+
+    Version           Date of Release         Name of archive file
+    -------           ---- -- -------         ---- -- ------- ----
+
+      1.7             December, 1981            phylip17.tar
+      2.2             April, 1982               phylip22.tar
+      2.51            February, 1984            phylip251.tar
+      2.61            December, 1984            phylip261.tar
+      2.7             July, 1985                phylip27.tar
+      3.0             April, 1987               phylip30.tar
+      3.1             March, 1988               phylip31.tar
+      3.3             June, 1990                phylip33.tar
+      3.4             June, 1991                phylip34.tar
+
+More are coming.  Version 1.7 is the earliest one that I have.  Version
+1.0 was released in October, 1980.  A reading of the "bugs" file in version
+1.7 will show that only a few bug fixes and minor features separate
+versions 1.0 and 1.7.
+
+Version 3.5c is available through the PHYLIP web site for download of files
+from the page on old versions of PHYLIP.
+
+These programs are, of course, primitive compared to later programs.
+They are presented here primarily for their historical interest.
+
+Joe Felsenstein
+
