@@ -458,7 +458,7 @@ typedef void (*fork_print_t)(node*);
 typedef void (*node_print_t)(node*);
 typedef void (*do_branchl_on_insert_t)(tree*,node*,node*);
 typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
-typedef boolean (*fork_good_t)(node*);   /* debug: needed for debugging */
+typedef boolean (*fork_good_t)(tree*, node*);   /* debug: needed for debugging */
 
 /* Macros for calling dynamic functions */
 /* Might be better as actual functions if performance hit is not severe */

@@ -85,7 +85,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     p->tip = false;   /* debug: already made by previous call? */
     p->next = q;
     t->nodep[i] = q;
-  
+  } 
 
   /* Create garbage lists */
   t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
@@ -3723,7 +3723,7 @@ void generic_tree_print(tree * t)
 
 boolean generic_tree_good(tree *t)
 {
-  /* check whether tree is OK */
+  /* check whether tree is OK */  /* debug: mostly for debugging */
   long nodeIndex;
 
   for(nodeIndex = 0; nodeIndex < t->nonodes; nodeIndex++)
@@ -4770,7 +4770,7 @@ node* generic_tree_get_forknode(tree* t, long i)
   node *p;
 
   if ( Slist_isempty(t->free_fork_nodes) )
-    p = funcs.node_new(0, i);
+    funcs.node_new(p, false, i, ((long)sizeof(node)));
   else {
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);
@@ -5368,29 +5368,30 @@ void seetree(tree *t)
                 printf(")");
             }
             if (qq->next != NULL) {
-            malformed = malformed || (qq->next->next == qq);
-            if (qq->next->next == qq)
-               printf(" (->next->next is %p: same node)", qq->next->next);
-            else {
-              if (qq->back == NULL)
-              {
-                printf(" %p (nil)", qq);
-              }
-              else
-              {
-                printf(" %p index:%ld", qq, qq->back->index);
+              malformed = malformed || (qq->next->next == qq);
+              if (qq->next->next == qq)
+                printf(" (->next->next is %p: same node)", qq->next->next);
+              else {
+                if (qq->back == NULL)
+                {
+                  printf(" %p (nil)", qq);
+                }
+                else
+                {
+                  printf(" %p index:%ld", qq, qq->back->index);
+                }
               }
             }
-          }
           if (qq != NULL)
             qq = qq->next;
           n++;
           if ((qq != pp) && (n < 3))
-          {
-            printf(",");
+            {
+              printf(",");
+            }
           }
-        }
-      } while ((qq != NULL) && (qq != pp) && (n < 6) && !malformed);
+        } while ((qq != NULL) && (qq != pp) && (n < 6) && !malformed);
+      }
     }
     printf("\n");
   }
