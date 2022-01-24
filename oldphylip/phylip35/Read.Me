@@ -1,0 +1,331 @@
+
+
+             GETTING PHYLIP 3.5 BY ftp OR BY World Wide Web
+
+Anyone with an Internet connection can now get PHYLIP 3.5 (my package of
+computer programs for inferring phylogenies) using "anonymous ftp",
+either directly or by using the World Wide Web.
+
+A more detailed decription of PHYLIP and its distribution follows this
+notice.  If you want to know a little about what programs are in PHYLIP,
+for what kinds of computers there are executables, or about diskette
+distribution, you should read it, or read the comparable material on our
+Web site. 
+
+The easiest way to get PHYLIP is to use a net browser such as Netscape or
+Mosaic (or Lynx, which works less well).  Our Web page is:
+     http://evolution.genetics.washington.edu/phylip.html
+There is a menu selection that takes you to a page that you can use to
+fetch the form of PHYLIP that you need, and there is also a page that asks
+you to fill in a registration form.
+
+  PHYLIP sources and executables exist for ftp distribution in four forms.
+One is as "compressed tar archives", a system of storing many files as one
+file and then compressing the size of the file that is used in Unix systems.
+Another is as self-extracting PCDOS archives.  A third is as self-extracting
+MacBinary II archives created by CompactPro, an archiving program used on
+Macintoshes and PowerMacs.  The fourth is the BinHex format for the self-
+extracting Macintosh archives.  The names of the available archives are
+
+      Contents                 Form                         Name
+      --------                 ----                         ----
+ 
+  C Sources and docs       Compressed tar               phylip.tar.Z
+  Pascal Sources and docs  Compressed tar               phylipp.tar.Z
+  C Sources and docs       DOS Self-extracting          phylip.exe
+  Pascal Sources and docs  DOS Self-extracting          phylipp.exe
+  DOS executables          DOS Self-extracting      phylippx.exe, phylippy.exe
+  386 PCDOS executables    DOS Self-extracting      phylip3x.exe, phylip3y.exe
+  386 Windows executables  DOS Self-extracting      phylipwx.exe, phylipwy.exe,
+                                                      phylipwz.exe
+  Windows95 executables    DOS self-extracting          phylip95.exe
+  C Sources and docs       Self-extracting CompactPro   phylip.sea.bin
+  Pascal Sources and docs  Self-extracting CompactPro   phylipp.sea.bin
+  Macintosh executables    Self-extracting CompactPro   phylipmx.sea.bin
+  PowerMac executables     Self-extracting Compactpro   phylippmac.sea.bin
+  C Sources and docs       Self-extracting BinHex       phylip.sea.hqx
+  Macintosh executables    Self-extracting BinHex       phylipmx.sea.hqx
+  PowerMac executables     Self-extracting BinHex       phylippmac.sea.hqx
+
+You will only want to get PHYLIP in one of the four forms of archive, and
+generally you will need one of the two kinds of the Sources and documentation
+files, as the executables archives have essentially no documentation in them.
+
+  To extract the Compressed tar archives you need to use the utilities
+"uncompress" and "tar" which are standard on almost all Unix systems.  Other
+mainframe or workstation operating systems may have utilities to do the
+uncompression and the extraction of these archives.  We do not any longer
+distribute separate executables for Sun, SGI, and DECstation systems, as
+the C source code of the package compiles easily on those systems using
+the "make" utility.
+
+  To extract the self-extracting DOS archives, you can simply put them in a
+(big enough) directory on a DOS machine, and execute the archive as if it
+were a program!  Each contains its own extraction program and will extract the
+separate files from the archive on its own.
+
+  The self-extracting CompactPro archives were transferred to my
+workstation using the MacBinary protocol (hence the ".bin" suffix) and with
+the "binary" mode of ftp set.  They should be downloaded to a Macintosh using
+the "binary" setting (if relevant) and the MacBinary protocol.  They can then
+be extracted using the CompactPro archiver, or ... you can simply put them
+in a (big enough) disk area on a Macintosh and double click on them.  They will
+then present an opportunity to choose the directory the files go into, and
+on clicking on the "Extract" button will unstuff themselves into a number of
+subdirectories and many files.
+
+  The self-extracting BinHex archives were also made by CompactPro, and then
+translated into BinHex format.  If you decide to use these you must do a
+binary ftp transfer and then use a program such as Unstiffit Lite to convert
+the files to self-extracting executables.  These then extract when you double-
+click on them, into a directory that you are asked to choose.  We will not
+describe this option further in the instructions below.
+
+
+                      How to Transfer the Files by ftp
+
+If you for some reason cannot use our Web pages to transfer the files,
+here is how to use ftp to transfer the archives and how to extract the files
+from them:
+
+  1) Make sure you have enough room for PHYLIP on your system.  Most of
+the archives are compressed by a factor of 2-3, so that you will
+need enough space on your system to hold each archive (at least temporarily)
+plus the the files it extracts into.  Thus if an archive is 1090k in size
+you may need 1090k+3270k of disk space to extract it, 3270k being needed
+permanently.  Once you have connected to my machine by ftp, you will be able
+to see the archive file sizes by issuing a DIR command and can calculate
+whether you have enough space for the archives you want.
+
+  2) Use your local system's version of FTP to connect to my system,
+which is  evolution.genetics.washington.edu.  If your system says it has never
+heard of this address, try the number 128.95.144.41 instead.  European users may
+(or may not) get better response from ftp.bioss.sari.ac.uk  where our
+distribution is also mirrored.
+
+  3) In response to the "Name" or "Login" prompt, type "anonymous".  In
+response to the "password:" prompt, type your full e-mail address.  If you are
+using ftp from a VAX VMS system or from some Telnet programs you may have to
+type "user anonymous" to get to log in.  It is important that the password you
+type be a proper e-mail address, preferably your full Internet address.
+
+  4) Once logged in, move into the directory "pub" by typing "cd pub".
+(On some systems the command may instead be "cwd pub".)
+
+  5) Move into the subdirectory "phylip" by typing "cd phylip".  (On some
+systems the command may instead be "cwd phylip".)   On the ftp.bioss.sari.ac.uk
+system you instead move into subdirectory "phylogeny".
+
+  6) Give the appropriate command to tell ftp that the data will be binary
+(on my system you type "binary").  If you are moving the files to a Macintosh,
+make sure that the step that transfers it to the Macintosh uses the "MacBinary"
+protocol.  Some ftp programs such as "Fetch" usually do this automatically
+but many others require that you choose this option.
+
+  7) Look at the above list of archive names and types and decide what you
+want to get.  If you are to get executables, make sure you also will get the
+source code and documentation archive.
+
+  8) To get the compressed tar archive version of the package, tell ftp to get
+the file phylip.tar.Z (on my system you type "get phylip.tar.Z").  To get the
+386 DOS executables you will want to get three archives: the source code
+and documentation archive and two executables archives.  Thus you might
+for example issue the commands:
+         get phylip.exe
+         get phylip3x.exe
+         get phylip3y.exe
+Similarly for the generic DOS version, the 386 Windows version, or the
+Macintosh executables, you would issue commands to get the source code
+and documentation archive plus several executables archives.  If you
+are transferring by ftp direct to a Macintosh the Macintosh or PowerMac
+self-extracting archives, it may be important at this point to
+ensure that the transfer used the MacBinary protocol.
+
+  9) Get out of ftp. (On my system you type "quit")
+
+  10a) If you are (say) going to move the self-extracting DOS archives to a
+DOS system by a file transfer program such as Kermit, that can now be done,
+keeping in mind that the archives are binary (not text) files and need to be
+transferred using the same methods as you would use for an executable program.
+Similarly, if you are instead using Internet to transfer the archives from
+one machine to another, use the "binary" mode for the transfer.
+
+  10b) (Macintosh CompactPro archives only).  You can use a file transfer
+program to move the CompactPro archives to a Macintosh, but make sure that you
+enable the "MacBinary" mode which transfers binary files with all their
+attributes intact.  If you use ftp to transfer the CompactPro archives to your
+Mac, make sure you also have the "image" (or "binary") mode set (as well as the
+MacBinary, mode so that the files transfer properly.  If you use Versaterm to
+do the transfer to your Mac, make sure that you select "binary" in BOTH the
+"file" and "kermit commands" menus.  To extract the archives simply place them
+in a disk area that has enough space and then double-click on the file.  It
+will present a dialog box asking where the files should be put.  Work your way
+through the directories, clicking appropriately, until you reach the one where
+you want them to go.  Then click on "Extract".  It should self-extract and form
+a number of folders.
+
+  11a) (DOS self-extracting archives only):  Put each of the two archives in
+its own directory on a DOS system, and simply execute it as a program (i.e.,
+for the file phylip.exe just type PHYLIP, for the archives like phylip3x.exe,
+and phylip3y.exe that have multiple parts, type the name of each part, PHYLIP3X
+and PHYLIP3Y).  The archive will self extract and a series of files will appear
+in the directory.  At this point you have succeeded.  If all files were written
+you can now delete the archive to save space.
+
+  11b) (Tar archives only):  If you are on a Unix system you will probably
+have a utility called "uncompress".  Create and new directory and move
+the archive (say phylip.tar.Z) into it.  You can simply issue the command:
+"uncompress phylip.tar.Z".  When the command terminates you will find a file
+called "phylip.tar".  The original compressed tar archive(s) will be gone.
+Unix systems also have a utility called "tar" that can unpack archives like
+phylip.tar.  The command is most likely: "tar -xvf phylip.tar" (or analogously
+for other archive names).  It will cause the files to be unpacked and placed in
+the current directory.
+  
+  If you do not have uncompress you will have to use pdtar or zcat instead.
+If you have pdtar (Public Domain TAR), you can do this by typing "pdtar zxvf
+phylip.tar.Z" on your system.  If you have zcat, type
+"zcat phylip.tar.Z | tar xvf -".  If this doesn't work, consult your local
+"guru", who may be able to tell you how to uncompress and unpack.
+
+ 13) REGISTER YOUR COPY.  Send electronic mail to me telling me that you have
+PHYLIP 3.5, which language (C or Pascal) you got the source code in, and
+which version of the executables you got, that you got these by anonymous
+ftp.  and also tell me:
+  Your name and address (no more than 5 lines total)
+  Your telephone number and electronic mail address (together on 1 line)
+  Name of your computer, operating system, and C or Pascal compiler (all of
+    these together on 1 line)
+These should start in column 1 without indentation and fit into the required
+number of lines to make it easier for me to record them in my user database.
+
+For example, here is what this material would look like for me:
+------------------------------- cut here --------------------------------------
+Joe Felsenstein
+Department of Genetics
+University of Washington
+Box 357360
+Seattle, Washington 98195-7360, U.S.A.
+
++1-(206) 543-0150 (work), -0754 (fax), joe@genetics.washington.edu
+
+DEC Alphastation 400 4/233 with OSF/1 3.0B and DEC C++ compiler
+
+------------------------------- cut here --------------------------------------
+If you can do it in that format you will save me a lot of typing and editing.
+
+My email addresses are:
+
+                             joe@genetics.washington.edu
+                             joe@evolution.genetics.washington.edu
+                             joe@128.95.144.41
+
+and my phone numbers are:  
+     Work:   (206)-543-0150
+     Home:   (206)-526-9057
+
+I am grateful to Alan Rogers of the University of Utah for initiating the
+anonymous ftp version of PHYLIP and writing part an earlier version of this
+document, to Don Gilbert and Steve Smith for help with earlier versions
+of the archives, and to Frank Wright for maintaining the ftp.bioss.sari.ac.uk
+mirror of our distribution.
+
+                                         Joe Felsenstein
+                                         Department of Genetics
+                                         University of Washington
+                                         Box 357360
+                                         Seattle, Washington 98195-7360, U.S.A.
+
+
+==============================================================================
+
+
+              PHYLIP - Phylogeny Inference Package (version 3.5)
+
+     This is a FREE package of programs for inferring phylogenies and  carrying
+out certain related tasks.  At present it contains 30 programs, which carry out
+different algorithms on different kinds of data.  The programs in  the  package
+are:
+      ---------- Programs for molecular sequence data ----------
+  PROTPARS  Protein parsimony          DNAPARS   Parsimony method for DNA
+  DNAMOVE   Interactive DNA parsimony  DNAPENNY  Branch and bound for DNA
+  DNACOMP   Compatibility for DNA      DNAINVAR  Phylogenetic invariants
+  DNAML     Maximum likelihood method  DNAMLK    DNA ML with molecular clock
+  DNADIST   Distances from sequences   PROTDIST  Distances from proteins
+  RESTML    ML for restriction sites   SEQBOOT   Bootstraps sequence data sets
+      ----------- Programs for distance matrix data ------------
+  FITCH     Fitch-Margoliash and least-squares methods
+  KITSCH    Fitch-Margoliash and least squares methods with evolutionary clock
+  NEIGHBOR  Neighbor-joining and UPGMA methods
+      -------- Programs for gene frequencies and continuous characters -------
+  CONTML    Maximum likelihood method  GENDIST  Computes genetic distances
+  CONTRAST  Computes contrasts and correlations for comparative method studies
+      ------------- Programs for 0-1 discrete state data -----------
+  MIX       Wagner, Camin-Sokal, and mixed parsimony criteria
+  MOVE      Interactive Wagner, C-S, mixed parsimony program
+  PENNY     Finds all most parsimonious trees by branch-and-bound
+  DOLLOP, DOLMOVE, DOLPENNY   same as preceding four programs, but for
+     the Dollo and polymorphism parsimony criteria
+  CLIQUE    Compatibility method       FACTOR    recode multistate characters
+      ---------- Programs for plotting trees and consensus trees -------
+  DRAWGRAM  Draws cladograms and phenograms on screens, plotters and printers
+  DRAWTREE  Draws unrooted phylogenies on screens, plotters and printers
+  CONSENSE  Majority-rule and strict consensus trees
+  RETREE    Reroots, changes names and branch lengths, and flips trees
+
+There is also an Unsupported Division  containing  two  programs,  makeinf  and
+ProtML, which were contributed by others and are maintained by their authors.
+
+The package includes extensive documentation files that provide the information
+necessary to use and modify the programs.
+
+The programs are written in a very standard subset of C,  a  language  that  is
+available on most computers (including microcomputers). The programs require no
+modifications  to  run  on  most  machines:  for  example  they  work   without
+modification  with  Microsoft  C,  Turbo  C,  Think  C,  and on the C compilers
+available on Unix and VAX VMS systems.  C source code  is  distributed  in  the
+regular  version  of  PHYLIP.  To use it, you must have a C compiler.  A Pascal
+version can also be supplied on request.  Executables are available for  DOS,
+386 DOS, 386 Windows, and Macintoshes as described below.
+
+NETWORK DISTRIBUTION:   The  package  is  available  by  "anonymous  ftp"  over
+electronic  networks  (including  the  DOS, 386 DOS, 386 Windows, PowerMac, and
+Macintosh executables) from  evolution.genetics.washington.edu  (128.95.144.41).
+Contact   me  by  electronic  mail  for  details  or  start  by  fetching  file
+pub/phylip/Read.Me.  I can also send the source code  and  documentation  files
+(but  not  executables)  over Bitnet/EARN and other networks.  Best of all, use
+our World Wide Web site:   http://evolution.genetics.washington.edu/phylip.html
+
+DISKETTE DISTRIBUTION:  The  package  is  also  distributed  in  a  variety  of
+microcomputer  diskette  formats.  You should send FORMATTED diskettes, which I
+will return with the package written on them.  See below for how many diskettes
+to send.  The source code of the programs on the electronic network or magnetic
+tape versions may of course also be moved to microcomputers and compiled there.
+
+PRECOMPILED VERSIONS: Precompiled executable programs for DOS,  386  Windows,
+386  DOS,  and  Macintosh  systems  are  available from me.  Specify the "386
+Windows executable version", "386 DOS executable version", "DOS  executable
+version", "PowerMac executable version" or "Macintosh  executable  version" and
+send the number of diskettes indicated below.  Source code sent will be in C
+unless you specify Pascal.
+
+HOW MANY DISKETTES TO SEND: The following table shows for different formats how
+many diskettes to send, and how many extra diskettes to send for the executable
+version:
+  Diskette size     Density   For source code    For executables send
+                              and documentation      in addition
+  3.5 inch DOS       1.44 Mb         1                     3
+  5.25 inch DOS      1.2 Mb          1                     3
+  Macintosh          High density    1                     1
+Some other formats are also available.  You MUST tell me EXACTLY which of these
+formats  you need.  The diskettes MUST be formatted by you before being sent to
+me.  Sending an extra diskette may be helpful.
+
+POLICIES: The package is distributed free.  It will be written on the diskettes
+or tape, which will be mailed back.  They can be sent to:
+
+                                         Joe Felsenstein
+                                         Department of Genetics SK-50
+                                         University of Washington
+Electronic mail address:                 Box 357360
+     joe@genetics.washington.edu         Seattle, Washington 98195-7360, U.S.A.

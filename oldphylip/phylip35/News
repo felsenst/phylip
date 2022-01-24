@@ -1,0 +1,84 @@
+
+                          CHANGES SINCE THE 3.5 RELEASE
+
+The most recent of these notices come first.
+
+12/18/98
+  Source code of DNAPARS changed to fix memory problem that was crashing
+long bootstrapping runs.  We will soon upgrade the executables as well.
+
+12/15/95
+  C Sources, documentation, and all executables updated to version 3.572c.
+This fixes three problems:  (1) Removes a PCL5 operation in DRAWGRAM and
+DRAWTREE output which is in PCL (HP Laserjet) format, and which may have been
+why the plotfiles could not be used on many inkjet printers, (2) Corrects
+a bug in MIX that incorrectly calculated the number of steps in user trees
+after the first user tree (where there were more than one), (3) Fixes a
+bug in DNAMLK that sometimes did not allow a very short branch to get longer.
+
+11/13/95
+  We have recompiled the Windows executables on Watcom C++ version 10.5
+and they now work on both Windows95 (including having their icons) and also
+on Windows 3.1 (and for all we know on 3.0 too).  The README.win file now
+has a better-organized description of how to install them and the possible
+problems that may arise running them.
+
+ 7/27/95
+  We have upgraded to release 3.57, removing the flawed program coallike,
+and fixing a number of bugs including memory allocation problems in
+DNAPARS that prevented some bootstrap runs from finishing, and
+file permission problems in PICT files produced by Mac executables.
+
+ 4/27/95
+  PowerMac and Macintosh executables archives updated to reflect bug fixes to
+ensure that Drawgram and Drawtree make correct PICT files with correct
+ownership.
+
+ 2/28/95
+  PowerMac executables recompiled to upgrade them to the 3.56 release and
+placed in self-extracting CompactPro archives both in MacBinary and
+BinHexed forms.  Our regular Mac executables do not seem to run on some
+PowerMacs for reasons that are not clear, but these are faster anyway.
+
+ 12/17/94
+  Macintosh archives finally updated to correct the source code and
+executables to correct PICT and Categories problems.  They had been
+compiled using outdated source code last time and did not fix the
+problems they purported to fix.
+
+ 9/22/94
+  We have updated the archives to version 3.55, which corrects bugs that
+would not read the input for the Categories options in the Mac version,
+would not let Categories and Weights options work together properly in
+the programs (DnaML, DnaMLK, and DnaDist) that had them both, and also
+allows more species in Retree, and writes PICT files correctly in the
+tree-drawing programs.  We also have new icons in the Windows
+executables as well as improved ones in the Macintosh 68k executables.
+The BinHex format has been added for the Mac 68k archives too.
+
+ 6/21/94
+  Don Gilbert has compiled PHYLIP 3.54 (the latest version as of this date)
+for the PowerMac.  I have put this in a Compactpro self-extracting
+archive as indicated below.  These are PowerMac native code binaries,
+not "fat" binaries.   The self-extraction is 680x0 code but should run
+in emulation mode on System 7 on a PowerMac automatically.  Many thanks
+to Don for all his hard work.
+
+ 5/21/94
+Sources and executables changed to fix some bugs, especially problems
+with reading options in the Macintosh code, incorrect permutation code
+in SEQBOOT, and some problems with DNAMLK categories and jumble options.
+The program COALLIKE should not be used for data analyses -- that method
+is now known to be biased and has been superseded by a new package,
+LAMARC, available at this ftp site, as C code for workstations.
+
+ 10/1/93
+  The executables for 386 PCDOS and Windows have now been recompiled to
+allow a larger stack size.  This was causing problems in some cases.
+
+ 9/14/93
+   The Windows executables posted here have now had the math coprocessor
+emulation problem fixed.  They should run successfully with or without
+a math coprocessor, if the WEMU387.386 emulation library is used as
+described in the README.WIN documentation file.
+
