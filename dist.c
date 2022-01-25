@@ -32,7 +32,7 @@ void dist_node_init(dist_node* dn, node_type type, long index)
 /* debug: check against  fitch_node_init too */
   node *n = (node *)dn;                      /* generic_node version of  n */
 
-  generic_node_init(n, type, index);
+  generic_node_init(n, type, index);   /* debug: should this be here? */
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */

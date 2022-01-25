@@ -53,7 +53,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
   long i, defaultnodesize=0;
-  node *q, *p;
+  node *q = NULL, *p = NULL;                      /* to keep compiler happy */
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -3658,9 +3658,9 @@ void generic_tree_setupfunctions(tree *t)
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ )
-    t->lrsaves[i] = funcs.node_new(false,0);
-  t->temp_p = funcs.node_new(false,0);
-  t.temp_q = funcs.node_new(false,0);
+    funcs.node_new(t->lrsaves[i], false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
+  funcs.node_new(t->temp_p, false, 0, (long)sizeof(node));
+  funcs.node_new(t->temp_q, false, 0, (long)sizeof(node));
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -4767,7 +4767,7 @@ node* generic_tree_get_forknode(tree* t, long i)
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
    */
-  node *p;
+  node *p = NULL;                         /* to keep compiler happy */
 
   if ( Slist_isempty(t->free_fork_nodes) )
     funcs.node_new(p, false, i, ((long)sizeof(node)));

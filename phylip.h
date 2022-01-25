@@ -681,7 +681,7 @@ boolean javarun;               /* boolean for when Java front-end is in use */
 void            no_op(void);
 void            generic_tree_new(tree**, long, long, long);
 void            generic_tree_init(tree*, long, long);
-void            generic_node_new(node*, long, long, long);
+void            generic_node_new(node*, node_type, long, long);
 void            phylipinit(int, char**, initdata*, boolean);
 void            even_sibs(tree*, node*, node*);
 node*           where_in_dest (tree*, tree*, node*);
