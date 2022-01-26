@@ -71,7 +71,6 @@ void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, long treesize)
    * then call  ml_tree_init */
 
   generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
-  ml_tree_init(*mlt, nonodes, spp);
 } /* ml_tree_new */
 
 
@@ -81,6 +80,7 @@ void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
   tree* t;
 
   t = (tree*)mlt;     /* pointer points to right tree but as a generic tree */
+  generic_tree_init(*t, nonodes, spp);             /* go up class hierarchy */
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
   t->re_move = ml_tree_re_move;

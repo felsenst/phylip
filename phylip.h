@@ -447,8 +447,10 @@ typedef enum node_type node_type;
 typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
+typedef void (*tree_init_t)(tree*, long, long);       /* tree_init fn. type */
+typedef void (*node_new_t)(node*, node_type, long, long);  /* node_new type */
+typedef void (*node_init_t)(node*, node_type, long);      /* node_init type */
 typedef void (*tree_copy_t)(tree*, tree*);
-typedef void (*node_new_t)(node*, node_type, long, long); /* node_new type */
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
 typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
@@ -456,8 +458,8 @@ typedef void (*node_free_t)(node**);
 typedef void (*node_copy_t)(node*, node*);
 typedef void (*fork_print_t)(node*);
 typedef void (*node_print_t)(node*);
-typedef void (*do_branchl_on_insert_t)(tree*,node*,node*);
-typedef void (*do_branchl_on_re_move_t)(tree*,node*,node*);
+typedef void (*do_branchl_on_insert_t)(tree*, node*, node*);
+typedef void (*do_branchl_on_re_move_t)(tree*, node*, node*);
 typedef boolean (*fork_good_t)(tree*, node*);   /* debug: needed for debugging */
 
 /* Macros for calling dynamic functions */
@@ -668,8 +670,10 @@ typedef void (*initptr)(tree *, node **, long, long,
 
 /* some pointers to functions we may need */
 typedef struct initdata {
-  node_new_t node_new;
   tree_new_t tree_new;
+  tree_init_t tree_init;
+  node_new_t node_new;
+  node_init_t node_init;
 } initdata;
 
 initdata funcs;  /* global declaration: initdata function pointer structure */
