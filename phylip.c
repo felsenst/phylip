@@ -43,7 +43,6 @@ void generic_tree_new(struct tree** treep, long nonodes,
 
   *treep = (struct tree*)Malloc(treesize);      /* sets actual tree pointer */
   generic_tree_init(*treep, nonodes, spp);
-/* debug: init call needs nodesize argument? */
 } /* generic_tree_new */
 
 

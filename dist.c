@@ -26,7 +26,7 @@ void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
 } /* dist_node_new */
 
 
-void dist_node_init(dist_node* dn, node_type type, long index, (long)nodesize)
+void dist_node_init(dist_node* dn, node_type type, long index,  long nodesize)
 {
   /* initialize a new dist_node */
 /* debug: check against  fitch_node_init too */
@@ -60,7 +60,6 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
 /* debug:  extra?  (yes)   ml_tree_init(mlt, nonodes+1, spp);         */
   t = (struct tree*)dt;
   mlt = (struct ml_tree*)(*dt);         /* point to ml_tree version of  *dt */
-  ml_tree_init(mlt, nonodes, spp);       /* go up class hierarchy, init-ing */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
     if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
@@ -104,6 +103,7 @@ void dist_tree_new(struct dist_tree** dtreep, long nonodes,
    * then after that it calls dist_tree_init */
 
   ml_tree_new((struct ml_tree**)dtreep, nonodes, spp, sizeof(dist_tree)); 
+  dist_tree_init(*dtreep, nonodes, spp)
 } /* dist_tree_new */
 
 
