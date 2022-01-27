@@ -449,10 +449,9 @@ typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
 typedef void (*tree_init_t)(tree*, long, long);       /* tree_init fn. type */
 typedef void (*node_new_t)(node*, node_type, long, long);  /* node_new type */
-typedef void (*node_init_t)(node*, node_type, long);      /* node_init type */
+typedef void (*node_init_t)(node*, node_type, long, long);/* node_init type */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
-typedef void (*node_init_t)(node*, node_type, long);
 typedef void (*node_reinit_t)(node*);
 typedef void (*node_free_t)(node**);
 typedef void (*node_copy_t)(node*, node*);
@@ -464,9 +463,9 @@ typedef boolean (*fork_good_t)(tree*, node*);   /* debug: needed for debugging *
 
 /* Macros for calling dynamic functions */
 /* Might be better as actual functions if performance hit is not severe */
-#define node_init(n,b,l)        (((node*)(n))->init((node*)(n),(b),(l)))
-#define node_free(np)           (((node**)(np))->free((node*)(np)))
-#define node_copy(src,dst)      (((node*)(src))->copy((node*)(src),(node*)(dst)))
+//#define node_init(n,b,l)        (((node*)(n))->init((node*)(n),(b),(l)))
+//#define node_free(np)           (((node**)(np))->free((node*)(np)))
+//#define node_copy(src,dst)      (((node*)(src))->copy((node*)(src),(node*)(dst)))
 
 /*
  * debug:  TODO: Call them like this eventually:
@@ -694,7 +693,7 @@ void            generic_node_copy(node*, node*);
 void            generic_fork_print(node*);
 void            generic_node_print(node*);
 void            generic_node_free(node**);
-void            generic_node_init(node*, node_type, long);
+void            generic_node_init(node*, node_type, long, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);

@@ -21,18 +21,18 @@ void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
   ml_node *n;
 
   n = (ml_node*)dn;
-  ml_node_new(n, type, index, sizeof(dist_node));           /* call upwards */
-  dist_node_init((dist_node*)n, type, index);     /* then set up node stuff */  /* debug: arguments? */
+  ml_node_new(n, type, index, nodesize);                    /* call upwards */
+  dist_node_init((dist_node*)n, type, index, nodesize); /* setup node stuff */  /* debug: arguments? */
 } /* dist_node_new */
 
 
-void dist_node_init(dist_node* dn, node_type type, long index)
+void dist_node_init(dist_node* dn, node_type type, long index, (long)nodesize)
 {
   /* initialize a new dist_node */
 /* debug: check against  fitch_node_init too */
   node *n = (node *)dn;                      /* generic_node version of  n */
 
-  generic_node_init(n, type, index);   /* debug: should this be here? */
+  generic_node_init(n, type, index, nodesize);   /* debug: should this be here? */
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */
@@ -52,15 +52,17 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
  /* debug:  For that matter could we make a generic function that does running-along? */
   long i;
   struct tree* t;
+  struct ml_tree *mlt;
   dist_node* p;
-  node* pp;
+  struct node* pp;
   Slist_node_ptr q;
 
 /* debug:  extra?  (yes)   ml_tree_init(mlt, nonodes+1, spp);         */
-  t = (struct tree*)(*dt);  /* make pointer to generic_tree version of  *dt */
-  ml_tree_init(dtreep, nonodes, spp);    /* go up class hierarchy, init-ing */
+  t = (struct tree*)dt;
+  mlt = (struct ml_tree*)(*dt);         /* point to ml_tree version of  *dt */
+  ml_tree_init(mlt, nonodes, spp);       /* go up class hierarchy, init-ing */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
-    if (t->nodep[i - 1] != NULL) {        /* these will be NULL normally */
+    if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
       t->nodep[i - 1]->iter = true; /* debug: at what level initiate this? */
 /* debug: needed? which type of node?      ((tree*)t)->nodep[i - 1]->t = 0.0; */
