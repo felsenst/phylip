@@ -38,6 +38,7 @@ void ml_node_new(struct ml_node* nodepointer, node_type type,
    * to create an ml_node, then calling its initialization, etc. */
 
   generic_node_new((node*)nodepointer, type, index, nodesize);
+  generic_node_init((node*)n, type, index);
 } /* ml_node_new */
 
 
@@ -53,7 +54,6 @@ void ml_node_init(ml_node *n, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  generic_node_init((node*)n, type, index);
   nn = (node*)n;
   nn->copy = ml_node_copy;
   nn->init = (node_init_t)ml_node_init;

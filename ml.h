@@ -37,7 +37,7 @@ struct ml_node {                               /* subclass of generic node */
   long categs;
 };
 
-typedef struct ml_node ml_node;
+typedef struct ml_node ml_node;  /* debug:  necessary? */
 
 typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
@@ -62,8 +62,8 @@ typedef void (*initialvtrav_t)(tree*, node*);
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct ml_tree**, long, long, long);
 void    ml_tree_init(struct ml_tree*, long, long);
-void    ml_node_new(ml_node *, node_type, long, long);
-void    ml_node_init(ml_node *, node_type, long);
+void    ml_node_new(struct ml_node *, node_type, long, long);
+void    ml_node_init(struct ml_node *, node_type, long);
 void    ml_node_free(node **);
 void    ml_node_print(node *);
 node *  dna_node_new(node_type, long);

@@ -20,11 +20,16 @@ typedef struct fitch_tree{
   struct dist_tree dist_tree;
 } fitch_tree;
 
+typedef struct fitch_node{
+  struct dist_node dist_node;
+} fitch_node;
+
 #ifndef OLDC
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
-void   fitch_node_init(struct node**, long, long);
+void   fitch_node_new(struct fitch_node*, node_type, long, long);
+void   fitch_node_init(struct fitch_node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -117,14 +122,21 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
+void fitch_node_new(struct node** nodepp, nodetype type, long index, long nodesize) {
+  nodesize = (long)sizeof(dist_node);
+
+  dist_node_new(struct dist_node** nodepp, type, index, nodesize);
+} /* fitch_node_new */
+
+
 void fitch_node_init(struct node** nodepp, long nonodes, long spp)
 {
   /* in class hierarchy, allocate and initialize a node for Fitch
    * note that the first argument is pointer-to-pointer-to-node,
    * and calls dist_node_init with just pointer-to-node */
 
-  dist_node_init((struct dist_node*)(*nodepp), nonodes, spp, (long)sizeof(dist_node));
-} /* fitch_node_init */
+/* debug: for now this does nothing   dist_node_init((struct dist_node*)(*nodepp), nonodes, spp, (long)sizeof(dist_node)); */
+ /* fitch_node_init */
 
 
 void getoptions(void)
@@ -1198,8 +1210,8 @@ void fitch(
   funcs = Malloc(sizeof(initdata));
   funcs->tree_new = (tree_new_t)fitch_tree_new; /* trees will be fitch_tree */
   funcs->tree_init = (tree_init_t)fitch_tree_init;
-  funcs->node_new = (node_new_t)dist_node_new;  /* nodes will be dist_nodes */
-  funcs->node_init = (node_init_t)dist_node_init;
+  funcs->node_new = (node_new_t)fitch_node_new;  /* nodes will be dist_nodes */
+  funcs->node_init = (node_init_t)fitch_node_init;
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
   /*

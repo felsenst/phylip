@@ -32,7 +32,7 @@ void dist_node_init(dist_node* dn, node_type type, long index,  long nodesize)
 /* debug: check against  fitch_node_init too */
   node *n = (node *)dn;                      /* generic_node version of  n */
 
-  generic_node_init(n, type, index, nodesize);   /* debug: should this be here? */
+/* debug:  generic_node_init(n, type, index, nodesize);   should this be here? */
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */
@@ -70,7 +70,7 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
       if (i > spp) {  /* go around fork circles initializing node variables */
         pp = t->nodep[i-1]->next;
         p = (dist_node*)pp;
-        dist_node_init(p, FORK_NODE, i); 
+/* debug:         dist_node_init(p, FORK_NODE, i);   wasn't this done from node_new? */
         while (pp != t->nodep[i-1]) {  /* until get to where you entered */
           pp->back = NULL;   /* debug:  why bother? */
           pp->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
@@ -81,14 +81,14 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
         }
       }
       else {                                         /* if instead at a tip */
-        dist_node_init((dist_node*)(t->nodep[i-1]), TIP_NODE, i); 
+/* debug:         dist_node_init((dist_node*)(t->nodep[i-1]), TIP_NODE, i); wasn't this done from node_new? */  
       }
     }
   }
   q = t->free_fork_nodes->first;  /* go along list of forknode items too */
   while (q != NULL) {              
     p = q->data;                        /* p  is now the node that is there */
-    dist_node_init((dist_node*)p, FREE_NODE, 0);           /* initialize it */
+/* debug:     dist_node_init((dist_node*)p, FREE_NODE, 0);  wasn't this done from node_new? */
     q = q->next;                                    /* go to next list item */
   }
   t->score = -1.0;    /* debug: set this in  ml_tree_init? */
