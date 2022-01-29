@@ -122,21 +122,23 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-void fitch_node_new(struct node** nodepp, nodetype type, long index, long nodesize) {
+void fitch_node_new(struct fitch_node* pp, node_type type, long index, long nodesize) {
   nodesize = (long)sizeof(dist_node);
+  dist_node* dn;
 
-  dist_node_new(struct dist_node** nodepp, type, index, nodesize);
+  dn = (dist_node*)pp;
+  dist_node_new(dn, type, index, nodesize);
 } /* fitch_node_new */
 
 
-void fitch_node_init(struct node** nodepp, long nonodes, long spp)
+void fitch_node_init(struct fitch_node* pp, long nonodes, long spp)
 {
   /* in class hierarchy, allocate and initialize a node for Fitch
    * note that the first argument is pointer-to-pointer-to-node,
    * and calls dist_node_init with just pointer-to-node */
 
 /* debug: for now this does nothing   dist_node_init((struct dist_node*)(*nodepp), nonodes, spp, (long)sizeof(dist_node)); */
- /* fitch_node_init */
+} /* fitch_node_init */
 
 
 void getoptions(void)
@@ -1459,7 +1461,7 @@ int main(int argc, Char *argv[])
   funcs->tree_new = (tree_new_t)fitch_tree_new; /* trees will be fitch_tree */
   funcs->tree_init = (tree_init_t)fitch_tree_init;
   funcs->node_new = (node_new_t)dist_node_new;  /* nodes will be dist_nodes */
-  funcs->node_init = (node_new_t)dist_node_init;
+  funcs->node_init = (node_init_t)dist_node_init;
   phylipinit(argc, argv, funcs, false);                  /* do initializing */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);

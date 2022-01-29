@@ -693,7 +693,7 @@ void            generic_node_copy(node*, node*);
 void            generic_fork_print(node*);
 void            generic_node_print(node*);
 void            generic_node_free(node**);
-void            generic_node_init(node*, node_type, long, long);
+void            generic_node_init(node*, node_type, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);

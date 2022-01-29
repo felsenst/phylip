@@ -36,7 +36,9 @@ void ml_node_new(struct ml_node* nodepointer, node_type type,
                    long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
+  struct node* n;
 
+  n = (struct node*)nodepointer; 
   generic_node_new((node*)nodepointer, type, index, nodesize);
   generic_node_init((node*)n, type, index);
 } /* ml_node_new */
@@ -71,7 +73,7 @@ void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, long treesize)
    * then call  ml_tree_init */
 
   generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
-  ml_tree_init(*mlt, nonodes, spp, treesize);
+  ml_tree_init(*mlt, nonodes, spp);
 } /* ml_tree_new */
 
 

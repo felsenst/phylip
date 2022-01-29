@@ -42,7 +42,7 @@ void dist_node_init(dist_node* dn, node_type type, long index,  long nodesize)
 } /* dist_node_init */
 
 
-void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
+void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
 {
   /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
@@ -52,14 +52,12 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
  /* debug:  For that matter could we make a generic function that does running-along? */
   long i;
   struct tree* t;
-  struct ml_tree *mlt;
-  dist_node* p;
+  struct dist_node* p;
   struct node* pp;
   Slist_node_ptr q;
 
 /* debug:  extra?  (yes)   ml_tree_init(mlt, nonodes+1, spp);         */
   t = (struct tree*)dt;
-  mlt = (struct ml_tree*)(*dt);         /* point to ml_tree version of  *dt */
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
     if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
@@ -97,13 +95,15 @@ void dist_tree_init(struct dist_tree **dt, long nonodes, long spp)
 
 
 void dist_tree_new(struct dist_tree** dtreep, long nonodes,
-                    long spp, int treesize)
+                    long spp, long treesize)
 { /* make a new pointer to dist_tree (which is itself a pointer to the tree
    * structure.  Calls to ml_tree_new, which calls up to generic_tree_new,
    * then after that it calls dist_tree_init */
+  long tsz;
 
-  ml_tree_new((struct ml_tree**)dtreep, nonodes, spp, sizeof(dist_tree)); 
-  dist_tree_init(*dtreep, nonodes, spp)
+  tsz = (long)treesize;
+  ml_tree_new((struct ml_tree**)dtreep, nonodes, spp, tsz); 
+  dist_tree_init(*dtreep, nonodes, spp);
 } /* dist_tree_new */
 
 
