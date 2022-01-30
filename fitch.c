@@ -1460,8 +1460,8 @@ int main(int argc, Char *argv[])
   funcs = Malloc(sizeof(initdata));
   funcs->tree_new = (tree_new_t)fitch_tree_new; /* trees will be fitch_tree */
   funcs->tree_init = (tree_init_t)fitch_tree_init;
-  funcs->node_new = (node_new_t)dist_node_new;  /* nodes will be dist_nodes */
-  funcs->node_init = (node_init_t)dist_node_init;
+  funcs->node_new = (node_new_t)fitch_node_new;  /* nodes will be dist_nodes */
+  funcs->node_init = (node_init_t)fitch_node_init;
   phylipinit(argc, argv, funcs, false);                  /* do initializing */
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
