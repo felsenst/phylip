@@ -72,20 +72,19 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    *q = t->nodep[i];
+    q = &(t->nodep[i]);
     funcs.node_new(q, false, i+1, defaultnodesize);     /* make node circle */
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
     funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
-    p->next = q;                                  /* ... the second one ... */
+    p->next = *q;                           /* ... the second one ... */
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
     funcs.node_new(q, false, i+1, defaultnodesize);  /* ... and third one. */
-    p->next = q;
+    p->next = *q;
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
-    p->next = q;
-    t->nodep[i] = q;
+    t->nodep[i] = *q;
   } 
 
   /* Create garbage lists */

@@ -125,12 +125,12 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 void fitch_node_new(struct fitch_node** pp, node_type type, long index, long nodesize) {
   nodesize = (long)sizeof(dist_node);
   dist_node** dn;
-  fitch_node** fn;
+  fitch_node* fn;
 
   dn = (dist_node**)pp;
   dist_node_new(dn, type, index, nodesize);
-  fn = (fitch_node**)dn;
-  fitch_node_init(*fn, nonodes, spp);
+  fn = (fitch_node*)(*dn);
+  fitch_node_init(fn, nonodes, spp);
 } /* fitch_node_new */
 
 
