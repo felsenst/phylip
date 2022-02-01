@@ -14,15 +14,17 @@
 extern long nonodes;
 
 
-void dist_node_new(dist_node* dn, node_type type, long index, long nodesize)
+void dist_node_new(dist_node** dn, node_type type, long index, long nodesize)
 {
   /* make a new dist_node.  Incomin argument "nodesize" is not used, but
    * in calling  ml_node_new  the size argument is set to size of dist_node */
-  ml_node *n;
+  ml_node **n;
+  dist_node *dnn;
 
-  n = (ml_node*)dn;
+  n = (ml_node**)dn;
   ml_node_new(n, type, index, nodesize);                    /* call upwards */
-  dist_node_init((dist_node*)n, type, index, nodesize); /* setup node stuff */  /* debug: arguments? */
+  dnn = (dist_node*)(*n);
+  dist_node_init(dnn, type, index, nodesize);           /* setup node stuff */  /* debug: arguments? */
 } /* dist_node_new */
 
 
@@ -68,7 +70,6 @@ void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
       if (i > spp) {  /* go around fork circles initializing node variables */
         pp = t->nodep[i-1]->next;
         p = (dist_node*)pp;
-/* debug:         dist_node_init(p, FORK_NODE, i);   wasn't this done from node_new? */
         while (pp != t->nodep[i-1]) {  /* until get to where you entered */
           pp->back = NULL;   /* debug:  why bother? */
           pp->iter = true;   /* debug: where should  iter  be initialized?  ml_node_init? */
@@ -77,9 +78,6 @@ void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
           pp = pp->next;                /* go to next  node  in fork circle */
           p = (dist_node*)pp; /* make sure generic_node version is same one */
         }
-      }
-      else {                                         /* if instead at a tip */
-/* debug:         dist_node_init((dist_node*)(t->nodep[i-1]), TIP_NODE, i); wasn't this done from node_new? */  
       }
     }
   }

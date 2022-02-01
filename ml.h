@@ -62,7 +62,7 @@ typedef void (*initialvtrav_t)(tree*, node*);
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct ml_tree**, long, long, long);
 void    ml_tree_init(struct ml_tree*, long, long);
-void    ml_node_new(struct ml_node *, node_type, long, long);
+void    ml_node_new(struct ml_node **, node_type, long, long);
 void    ml_node_init(struct ml_node *, node_type, long);
 void    ml_node_free(node **);
 void    ml_node_print(node *);

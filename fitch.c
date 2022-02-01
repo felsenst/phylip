@@ -28,7 +28,7 @@ typedef struct fitch_node{
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
-void   fitch_node_new(struct fitch_node*, node_type, long, long);
+void   fitch_node_new(struct fitch_node**, node_type, long, long);
 void   fitch_node_init(struct fitch_node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -122,20 +122,22 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-void fitch_node_new(struct fitch_node* pp, node_type type, long index, long nodesize) {
+void fitch_node_new(struct fitch_node** pp, node_type type, long index, long nodesize) {
   nodesize = (long)sizeof(dist_node);
-  dist_node* dn;
+  dist_node** dn;
+  fitch_node** fn;
 
-  dn = (dist_node*)pp;
+  dn = (dist_node**)pp;
   dist_node_new(dn, type, index, nodesize);
+  fn = (fitch_node**)dn;
+  fitch_node_init(*fn, nonodes, spp);
 } /* fitch_node_new */
 
 
 void fitch_node_init(struct fitch_node* pp, long nonodes, long spp)
 {
   /* in class hierarchy, allocate and initialize a node for Fitch
-   * note that the first argument is pointer-to-pointer-to-node,
-   * and calls dist_node_init with just pointer-to-node */
+   * note that the first argument is pointer-to-node */
 
 /* debug: for now this does nothing   dist_node_init((struct dist_node*)(*nodepp), nonodes, spp, (long)sizeof(dist_node)); */
 } /* fitch_node_init */

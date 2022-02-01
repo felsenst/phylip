@@ -52,7 +52,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
   long i, defaultnodesize=0;
-  node *q = NULL, *p = NULL;                      /* to keep compiler happy */
+  node **q = NULL, **p = NULL;                      /* to keep compiler happy */
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -66,12 +66,14 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
+    p = &(t->nodep[i]);
     funcs.node_new(p, true, i+1, defaultnodesize);        /* make a new tip */
-    t->nodep[i] = p;
+    t->nodep[i] = *p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
+    *q = t->nodep[i];
+    funcs.node_new(q, false, i+1, defaultnodesize);     /* make node circle */
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
     funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
@@ -392,7 +394,7 @@ node* generic_new_node (node_type type, long index)
 
   n = (node*)Malloc(sizeof(node));
 
-  generic_node_init(n, type, index);
+  funcs.node_init(n, type, index);
   return n;
 } /* generic_new_node */
 
@@ -719,16 +721,26 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
   /* initialize 'functions' as given, or provide defaults */
   if ( ini == NULL ) {
     funcs.node_new = (node_new_t)generic_node_new;
+    funcs.node_init = (node_init_t)generic_node_init;
     funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
+    funcs.tree_init = (tree_init_t)generic_tree_init;   /* debug: ever used from this? */
   } else {
-    if (ini->node_new != NULL)
+    if (ini->node_new != NULL) {
       funcs.node_new = ini->node_new;
-    else
+      funcs.node_init = ini->node_init;
+    }
+    else {
       funcs.node_new = generic_node_new;
-    if (ini->tree_new != NULL)
+      funcs.node_init = generic_node_init;
+    }
+    if (ini->tree_new != NULL) {
       funcs.tree_new = (tree_new_t)ini->tree_new;
-    else
+      funcs.tree_init = (tree_init_t)ini->tree_init;
+    }
+    else {
       funcs.tree_new = (tree_new_t)generic_tree_new;
+      funcs.tree_init = (tree_init_t)generic_tree_init;
+    }
   }
 } /* init */
 
