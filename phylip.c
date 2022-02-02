@@ -52,7 +52,9 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
   long i, defaultnodesize=0;
-  node **p, **q;
+  node **pp = NULL;                /* pointer-to-pointer for node_new calls */
+  node **qq = NULL;                /* pointer-to-pointer for node_new calls */
+  node *p, *q;
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -66,19 +68,23 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    funcs.node_new(p, true, i+1, defaultnodesize);        /* make a new tip */
-    t->nodep[i] = *p;
+    funcs.node_new(pp, true, i+1, defaultnodesize);       /* make a new tip */
+    p = *pp;
+    t->nodep[i] = p;
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    funcs.node_new(q, false, i+1, defaultnodesize);     /* make node circle */
+    funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
+    q = *qq;
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
-    funcs.node_new(q, false, i+1, defaultnodesize);    /* make node circle */
+    funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
+    q = *qq;
     p->next = q;                           /* ... the second one ... */
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
-    funcs.node_new(q, false, i+1, defaultnodesize);  /* ... and third one. */
+    funcs.node_new(qq, false, i+1, defaultnodesize);  /* ... and third one. */
+    q = *qq;
     p->next = q;
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
@@ -98,11 +104,11 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-void generic_node_new (node* n, node_type type, long index, long nodesize)
+void generic_node_new (node** n, node_type type, long index, long nodesize)
 {
    /* create a new node, of size appropriate for the type of tree */
-  n = (node*)Malloc(nodesize);     /* make a big enough node using nodesize */
-  funcs.node_init(n, type, index);            /* init node, polymorphically */
+  *n = (node*)Malloc(nodesize);     /* make a big enough node using nodesize */
+  funcs.node_init(*n, type, index);            /* init node, polymorphically */
 } /* generic_node_new */
 
 
@@ -3661,14 +3667,19 @@ void generic_tree_setupfunctions(tree *t)
   /* initialize functions.  Mostly for parsimony, they
    * get overwritten in  ml.c, parsimony.c, dist.c  as needed */
   long i;
+  node **tlrsp, **ttpp, **ttqp; /* pointer-to-pointer versions for node_new */
   
   t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
 
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
-  for ( i = 0 ; i < NLRSAVES ; i++ )
-    funcs.node_new(t->lrsaves[i], false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
-  funcs.node_new(t->temp_p, false, 0, (long)sizeof(node));
-  funcs.node_new(t->temp_q, false, 0, (long)sizeof(node));
+  for ( i = 0 ; i < NLRSAVES ; i++ ) {
+    tlrsp = &(t->lrsaves[i]);
+    funcs.node_new(tlrsp, false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
+  }
+  ttpp = &(t->temp_p);
+  funcs.node_new(ttpp, false, 0, (long)sizeof(node));
+  ttqp = &(t->temp_q);
+  funcs.node_new(ttqp, false, 0, (long)sizeof(node));
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -4775,10 +4786,13 @@ node* generic_tree_get_forknode(tree* t, long i)
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
    */
-  node *p = NULL;                         /* to keep compiler happy */
+  node *p = NULL;                                 /* to keep compiler happy */
+  node **pp = NULL;         /* pointer-to-pointer version for node_new call */
 
-  if ( Slist_isempty(t->free_fork_nodes) )
-    funcs.node_new(p, false, i, ((long)sizeof(node)));
+  if ( Slist_isempty(t->free_fork_nodes) ) {
+    funcs.node_new(pp, false, i, ((long)sizeof(node)));
+    p = *pp;
+  }
   else {
     p = Slist_pop(t->free_fork_nodes);
     p->init(p, 0, i);

@@ -36,9 +36,9 @@ void ml_node_new(struct ml_node** nodepointer, node_type type,
                    long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
-  struct node* n;
+  struct node** n;
 
-  n = (struct node*)nodepointer; 
+  n = (struct node**)nodepointer; 
   generic_node_new(n, type, index, nodesize);
 } /* ml_node_new */
 
