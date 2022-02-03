@@ -127,10 +127,10 @@ void fitch_node_new(struct node** pp, node_type type,
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
    * dist_node, the next up  */
-  nodesize = (long)sizeof(dist_node);
   dist_node** dn;
   fitch_node* fn;
 
+  nodesize = (long)sizeof(dist_node);
   dn = (dist_node**)pp;
   dist_node_new(dn, type, index, nodesize);
   fn = (fitch_node*)(*dn);
