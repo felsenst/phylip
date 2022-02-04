@@ -52,7 +52,6 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
   long i, defaultnodesize=0;
-  node **pp = NULL;                /* pointer-to-pointer for node_new calls */
   node **qq = NULL;                /* pointer-to-pointer for node_new calls */
   node *p, *q;
 
@@ -68,9 +67,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
-    funcs.node_new(pp, true, i+1, defaultnodesize);       /* make a new tip */
-    p = *pp;
-    t->nodep[i] = p;
+    funcs.node_new(&(t->nodep[i]), true, i+1, defaultnodesize);       /* make a new tip */
     t->nodep[i]->tip = true;  /* debug : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
@@ -106,12 +103,12 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 
 void generic_node_new (node** n, node_type type, long index, long nodesize)
 {
+  node* m;
    /* create a new node, of size appropriate for the type of tree */
-  node *m;
 
-  m = (node*)Malloc(nodesize);     /* make a big enough node using nodesize */
-  funcs.node_init(m, type, index);            /* init node, polymorphically */
-  n = &m;
+  m  = (node*)Malloc(nodesize);    /* make a big enough node using nodesize */
+  n = &m;                           /* make  n  point to the allocated node */
+  generic_node_init(m, type, index);          /* init node, polymorphically */
 } /* generic_node_new */
 
 

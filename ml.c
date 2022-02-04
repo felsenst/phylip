@@ -37,9 +37,12 @@ void ml_node_new(struct ml_node** nodepointer, node_type type,
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
   struct node** n;
+  struct ml_node* mlnp;
 
   n = (struct node**)nodepointer; 
   generic_node_new(n, type, index, nodesize);
+  mlnp = (ml_node*)n;
+  ml_node_init(mlnp, type, index);
 } /* ml_node_new */
 
 
@@ -47,7 +50,6 @@ void ml_node_init(ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
-  ml_node *mln = (ml_node *)n;
   node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -61,8 +63,8 @@ void ml_node_init(ml_node *n, node_type type, long index)
   nn->free = ml_node_free;
   nn->reinit = ml_node_reinit;
   nn->node_print_f = ml_node_print;
-  mln->freex = NULL;                    /* x is only defined for dna_node and prot_node */
-  mln->node.tyme = 0;
+  n->freex = NULL;                    /* x is only defined for dna_node and prot_node */
+  n->node.tyme = 0;
 } /* ml_node_init */
 
 
