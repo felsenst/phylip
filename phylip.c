@@ -68,18 +68,21 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {
     funcs.node_new(&(t->nodep[i]), true, i+1, defaultnodesize);       /* make a new tip */
-    t->nodep[i]->tip = true;  /* debug : already made by previous call? */
+/* debug     t->nodep[i]->tip = true;  : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
+    qq = &(t->nodep[i]);
     funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
     q = *qq;
     p = q;
     p->tip = false;   /* debug: already made by previous call? */
+    qq = &(p->next);
     funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
     q = *qq;
     p->next = q;                           /* ... the second one ... */
     p = p->next;
     p->tip = false;   /* debug: already made by previous call? */
+    qq = &(p->next);
     funcs.node_new(qq, false, i+1, defaultnodesize);  /* ... and third one. */
     q = *qq;
     p->next = q;
@@ -101,18 +104,19 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-void generic_node_new (node** n, node_type type, long index, long nodesize)
+void generic_node_new (struct node** n, node_type type,
+                        long index, long nodesize)
 {
-  node* m;
    /* create a new node, of size appropriate for the type of tree */
+  node* m;
 
   m  = (node*)Malloc(nodesize);    /* make a big enough node using nodesize */
-  n = &m;                           /* make  n  point to the allocated node */
-  generic_node_init(m, type, index);          /* init node, polymorphically */
+  n = &m;                           /* make  n  point to the allocated node */ /* debug: necessary? */
+  funcs.node_init(m, type, index);            /* init node, polymorphically */
 } /* generic_node_new */
 
 
-void generic_node_init (node* n, node_type type, long index)
+void generic_node_init (struct node* n, node_type type, long index)
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.

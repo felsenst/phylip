@@ -37,12 +37,9 @@ void ml_node_new(struct ml_node** nodepointer, node_type type,
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
   struct node** n;
-  struct ml_node* mlnp;
 
   n = (struct node**)nodepointer; 
   generic_node_new(n, type, index, nodesize);
-  mlnp = (ml_node*)n;
-  ml_node_init(mlnp, type, index);
 } /* ml_node_new */
 
 
@@ -58,6 +55,8 @@ void ml_node_init(ml_node *n, node_type type, long index)
   assert(index >= 0);
 
   nn = (node*)n;
+  generic_node_init(nn, type, index);               /* go up node hierarchy */
+  nn = (node*)n;
   nn->copy = ml_node_copy;
   nn->init = (node_init_t)ml_node_init;
   nn->free = ml_node_free;
@@ -72,16 +71,17 @@ void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, long treesize)
 { /* make a new ml_tree.  Calls to generic_tree-new,
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
+  struct tree** t;
 
-  generic_tree_new((struct tree**)mlt, nonodes, spp, treesize);  /* next up */
-  ml_tree_init(*mlt, nonodes, spp);
+  t = (struct tree**)mlt;
+  generic_tree_new(t, nonodes, spp, treesize);    /* next up tree hierarchy */
 } /* ml_tree_new */
 
 
 void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
-  tree* t;
+  struct tree* t;
 
   t = (tree*)mlt;     /* pointer points to right tree but as a generic tree */
   generic_tree_init(t, nonodes, spp);              /* go up class hierarchy */

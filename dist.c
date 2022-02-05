@@ -14,28 +14,26 @@
 extern long nonodes;
 
 
-void dist_node_new(dist_node** dn, node_type type, long index, long nodesize)
+void dist_node_new(struct dist_node** dn, node_type type,
+                    long index, long nodesize)
 {
-  /* make a new dist_node.  Incomin argument "nodesize" is not used, but
-   * in calling  ml_node_new  the size argument is set to size of dist_node */
-  node **n;
-  ml_node** mlnp;
-  dist_node *dnn;
+  /* make a new dist_node. */
+  struct ml_node** mlnp;
 
   mlnp = (ml_node**)dn;
   ml_node_new(mlnp, type, index, nodesize);                 /* call upwards */
-  dnn = (dist_node*)(*mlnp);
-  dist_node_init(dnn, type, index, nodesize);           /* setup node stuff */  /* debug: arguments? */
 } /* dist_node_new */
 
 
-void dist_node_init(dist_node* dn, node_type type, long index,  long nodesize)
+void dist_node_init(struct dist_node* dn, node_type type, long index)
 {
-  node* n;
   /* initialize a new dist_node */
-/* debug: check against  fitch_node_init too */
+  struct node* n;
+  struct ml_node* mln;
+
+  mln = (struct ml_node*) dn;
+  ml_node_init(mln, type, index);                /* go up node hierarchy */
   n = (node *)dn;                          /* generic_node version of  n */
-/* debug:  generic_node_init(n, type, index, nodesize);   should this be here? */
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */

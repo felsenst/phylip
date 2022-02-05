@@ -126,15 +126,13 @@ void fitch_node_new(struct node** pp, node_type type,
                      long index, long nodesize) {
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
-   * dist_node, the next up  */
-  dist_node** dn;
-  fitch_node* fn;
+   * dist_node, the next up.  nodesize argument not used but  size
+   * is determined here and then passed up in node_new calls */
+  struct dist_node** dn;
 
-  nodesize = (long)sizeof(dist_node);
-  dn = (dist_node**)pp;
+  nodesize = (long)sizeof(struct fitch_node);
+  dn = (struct dist_node**)pp;
   dist_node_new(dn, type, index, nodesize);
-  fn = (fitch_node*)(*dn);
-  fitch_node_init(fn, nonodes, spp);
 } /* fitch_node_new */
 
 
@@ -142,8 +140,10 @@ void fitch_node_init(struct fitch_node* pp, long nonodes, long spp)
 {
   /* in class hierarchy, allocate and initialize a node for Fitch
    * note that the first argument is pointer-to-node */
+  struct dist_node *dln;
 
-/* debug: for now this does nothing   dist_node_init((struct dist_node*)(*nodepp), nonodes, spp, (long)sizeof(dist_node)); */
+  dln = (struct dist_node*)pp;                          /* go up one level */
+  dist_node_init(dln, nonodes, spp);
 } /* fitch_node_init */
 
 
