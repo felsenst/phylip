@@ -14,9 +14,10 @@
 extern long nonodes;
 
 
-void dist_node_new(struct dist_node** dn, node_type type,
-                    long index, long nodesize)
+struct dist_node* dist_node_new(struct dist_tree* dt, struct dist_node** dn, node_type type,
+                                 long index, long nodesize)
 {
+/* debug: work on this, ml_node_new and fitch_node_new */
   /* make a new dist_node. */
   struct ml_node** mlnp;
 

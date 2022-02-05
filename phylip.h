@@ -448,8 +448,8 @@ typedef struct node node;               /* prototypes of types of functions */
 typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
 typedef void (*tree_init_t)(tree*, long, long);       /* tree_init fn. type */
-typedef void (*node_new_t)(node**, node_type, long, long);  /* node_new type */
-typedef void (*node_init_t)(node*, node_type, long);      /* node_init type */
+typedef struct node (*node_new_t)(tree*, node_type, long, long); /* nn type */
+typedef void (*node_init_t)(struct tree*, node_type, long);  /* n_init type */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
 typedef void (*node_reinit_t)(node*);
@@ -684,7 +684,8 @@ boolean javarun;               /* boolean for when Java front-end is in use */
 void            no_op(void);
 void            generic_tree_new(tree**, long, long, long);
 void            generic_tree_init(tree*, long, long);
-void            generic_node_new(node**, node_type, long, long);
+node*           generic_node_new(tree*, node_type, long, long);
+void            generic_node_init(tree*, node*, node_type, long);
 void            phylipinit(int, char**, initdata*, boolean);
 void            even_sibs(tree*, node*, node*);
 node*           where_in_dest (tree*, tree*, node*);
@@ -693,7 +694,6 @@ void            generic_node_copy(node*, node*);
 void            generic_fork_print(node*);
 void            generic_node_print(node*);
 void            generic_node_free(node**);
-void            generic_node_init(node*, node_type, long);
 void            generic_node_reinit(node*);
 node*           generic_new_node(node_type, long);
 void            setupnode(node*, long);

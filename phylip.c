@@ -52,8 +52,6 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
   long i, defaultnodesize=0;
-  node **qq = NULL;                /* pointer-to-pointer for node_new calls */
-  node *p, *q;
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -66,29 +64,18 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->spp = spp;
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
-  for ( i = 0 ; i < spp ; i++ ) {
-    funcs.node_new(&(t->nodep[i]), true, i+1, defaultnodesize);       /* make a new tip */
+  for ( i = 0 ; i < spp ; i++ ) {                          /* make new tips */
+    t->nodep[i] = funcs.node_new(t, true, i+1, defaultnodesize);
 /* debug     t->nodep[i]->tip = true;  : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    qq = &(t->nodep[i]);
-    funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
-    q = *qq;
-    p = q;
-    p->tip = false;   /* debug: already made by previous call? */
-    qq = &(p->next);
-    funcs.node_new(qq, false, i+1, defaultnodesize);    /* make node circle */
-    q = *qq;
-    p->next = q;                           /* ... the second one ... */
-    p = p->next;
-    p->tip = false;   /* debug: already made by previous call? */
-    qq = &(p->next);
-    funcs.node_new(qq, false, i+1, defaultnodesize);  /* ... and third one. */
-    q = *qq;
-    p->next = q;
-    p = p->next;
-    p->tip = false;   /* debug: already made by previous call? */
-    t->nodep[i] = q;
+    t->nodep[i] = funcs.node_new(t, false, i+1, defaultnodesize);
+    t->nodep[i]->next = funcs.node_new(t, false, i+1, defaultnodesize);
+    t->nodep[i]->next->next = funcs.node_new(t, false, i+1, defaultnodesize);
+    t->nodep[i]->next->next->next = t->nodep[i]; /* finish connect'g circle */
+/* debug    t->nodep[i]->tip = false;   already made by previous call? */
+/* debug    t->nodep[i]->next->tip = false;   already made by previous call? */
+/* debug    t->nodep[i]->next->next->tip = false;   already made by previous call? */
   } 
 
   /* Create garbage lists */
@@ -104,23 +91,27 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-void generic_node_new (struct node** n, node_type type,
-                        long index, long nodesize)
+struct node* generic_node_new (struct tree* t, node_type type,
+                                long index, long nodesize)
 {
-   /* create a new node, of size appropriate for the type of tree */
+   /* create a new node, of size appropriate for the type of tree.  Note that
+    * this node_new function needs a tree argument and returns a pointer to
+    * the node that is created */
   node* m;
 
   m  = (node*)Malloc(nodesize);    /* make a big enough node using nodesize */
-  n = &m;                           /* make  n  point to the allocated node */ /* debug: necessary? */
-  funcs.node_init(m, type, index);            /* init node, polymorphically */
+  funcs.node_init(t, m, type, index);         /* init node, polymorphically */
+  return m;
 } /* generic_node_new */
 
 
-void generic_node_init (struct node* n, node_type type, long index)
+void generic_node_init (struct tree* t, struct node* n,
+                         node_type type, long index)
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.
   */
+/* debug  is the tree argument really neeeded here?  Maybe not? */
   if ( type == TIP_NODE )
     n->tip = true;
   else {

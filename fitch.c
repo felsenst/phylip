@@ -28,7 +28,7 @@ typedef struct fitch_node{
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
-void   fitch_node_new(struct node**, node_type, long, long);
+void   fitch_node_new(struct tree*, struct node**, node_type, long, long);
 void   fitch_node_init(struct fitch_node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -122,17 +122,18 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-void fitch_node_new(struct node** pp, node_type type, 
+void fitch_node_new(struct tree* t, struct node** pp, node_type type, 
                      long index, long nodesize) {
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
    * dist_node, the next up.  nodesize argument not used but  size
    * is determined here and then passed up in node_new calls */
   struct dist_node** dn;
+  struct dist_tree* dt;
 
   nodesize = (long)sizeof(struct fitch_node);
   dn = (struct dist_node**)pp;
-  dist_node_new(dn, type, index, nodesize);
+  dist_node_new(dt, dn, type, index, nodesize);
 } /* fitch_node_new */
 
 
@@ -1218,7 +1219,7 @@ void fitch(
   funcs = Malloc(sizeof(initdata));
   funcs->tree_new = (tree_new_t)fitch_tree_new; /* trees will be fitch_tree */
   funcs->tree_init = (tree_init_t)fitch_tree_init;
-  funcs->node_new = (node_new_t)fitch_node_new;  /* nodes will be dist_nodes */
+  funcs->node_new = (node_new_t)fitch_node_new; /* nodes will be fitch_nodes */
   funcs->node_init = (node_init_t)fitch_node_init;
   phylipinit(argc, argv, funcs, true);                   /* do initializing */
   progname = argv[0];
