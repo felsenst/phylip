@@ -60,10 +60,10 @@ typedef struct dna_node{
 typedef void (*initialvtrav_t)(tree*, node*);
 
 #ifndef OLDC /* prototypes */
-void    ml_tree_new(struct ml_tree**, long, long, long);
-void    ml_tree_init(struct ml_tree*, long, long);
-ml_node* ml_node_new(struct ml_tree*, struct ml_node**, node_type, long, long);
-void    ml_node_init(struct ml_tree*, struct ml_node*, node_type, long);
+void    ml_tree_new(struct tree**, long, long, long);
+void    ml_tree_init(struct tree*, long, long);
+node*   ml_node_new(struct tree*, struct node*, node_type, long, long);
+void    ml_node_init(struct node*, node_type, long);
 void    ml_node_free(node **);
 void    ml_node_print(node *);
 node*   dna_node_new(node_type, long);
@@ -73,8 +73,8 @@ void    prot_node_init(node *, node_type, long);
 void    prot_node_allocx(ml_node*, long, long);
 node*   codon_node_new(node_type, long);
 void    codon_node_init(node *, node_type, long);
-void    codon_node_allocx(ml_node*, long, long);
-void    dna_node_allocx(ml_node*, long, long);
+void    codon_node_allocx(node*, long, long);
+void    dna_node_allocx(node*, long, long);
 void    ml_node_copy(node*, node*);
 void    ml_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);

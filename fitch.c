@@ -28,9 +28,8 @@ typedef struct fitch_node{
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct dist_tree**, long, long);
-fitch_node*  fitch_node_new(struct tree*, struct node*,
-                              node_type, long, long);
-void   fitch_node_init(struct tree*, fitch_node*, long, long);
+node*  fitch_node_new(struct tree*, struct node*, node_type, long, long);
+void   fitch_node_init(struct node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -123,31 +122,26 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-fitch_node* fitch_node_new(struct tree* t, node* n, node_type type,
+node* fitch_node_new(struct tree* t, node* n, node_type type,
                             long index, long nodesize) {
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
    * dist_node, the next up.  nodesize argument not used but  size
    * is determined here and then passed up in node_new calls */
-  struct dist_node** dn;
-  struct dist_tree* dt;
+  node* nn;
 
   nodesize = (long)sizeof(struct fitch_node);
-  dn = (dist_node*)n;
-  dt = (struct dist_tree*)t;
-  dnn = dist_node_new(dt, dn, type, index, nodesize);
+  nn = dist_node_new(t, n, type, index, nodesize);  /* just go up hierarchy */
+  return nn;
 } /* fitch_node_new */
 
 
-void fitch_node_init(struct tree* t, struct fitch_node* pp,
-                      long nonodes, long spp)
+void fitch_node_init(struct node* n, long nonodes, long spp)
 {
-  /* in class hierarchy, allocate and initialize a node for Fitch
+  /* in class hierarchy, initialize a node for Fitch
    * note that the first argument is pointer-to-node */
-  struct dist_node* dln;
 
-  dln = (struct dist_node*)pp;                          /* go up one level */
-  dist_node_init(t, dln, nonodes, spp);
+  dist_node_init(n, nonodes, spp);                  /* just go up hierarchy */
 } /* fitch_node_init */
 
 

@@ -34,10 +34,10 @@ typedef struct dist_node {                           /* subclass of ml_node */
 
 #ifndef OLDC
 /*function prototypes*/
-void dist_tree_new(struct dist_tree**, long, long, long);
-void dist_tree_init(struct dist_tree*, long, long);
-struct dist_node* dist_node_new(struct dist_tree*, node_type, long, long);
-void dist_node_init(struct dist_tree*, struct dist_node*, node_type, long);
+void dist_tree_new(struct tree**, long, long, long);
+void dist_tree_init(struct tree*, long, long);
+struct node* dist_node_new(struct tree*, struct node*, node_type, long, long);
+void dist_node_init(struct node*, node_type, long);
 void dist_node_copy(node* src, node* dst);
 void dist_node_free(node **np);
 void alloctree(tree *, long);

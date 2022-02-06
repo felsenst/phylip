@@ -32,62 +32,51 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_node_new(struct ml_tree* mlt, struct ml_node** nodepointer,
-                   node_type type, long index, long nodesize) {
-  /* go up hierarchy creating a node, initializing it, then backing down
-   * to create an ml_node, then calling its initialization, etc. */
-  struct node** n;
-  struct tree* t;
+node* ml_node_new(struct tree* t, struct node* n,
+                  node_type type, long index, long nodesize) {
+  /* go up hierarchy creating a node, initializing it */
+  struct node* nn;
 
-  n = (struct node**)nodepointer; 
-  t = (struct tree*)mlt;
-  generic_node_new(t, n, type, index, nodesize);
+  nn = generic_node_new(t, n, type, index, nodesize);
+  return nn;
 } /* ml_node_new */
 
 
-void ml_node_init(ml_tree* mlt, ml_node *n, node_type type, long index)
+void ml_node_init(node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
-  node* nn;
-  tree* t;
+  ml_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  nn = (node*)n;
-  t = (tree*)mlt;
-  generic_node_init(t, nn, type, index);               /* go up node hierarchy */
-  nn = (node*)n;
-  nn->copy = ml_node_copy;
-  nn->init = (node_init_t)ml_node_init;
-  nn->free = ml_node_free;
-  nn->reinit = ml_node_reinit;
-  nn->node_print_f = ml_node_print;
-  n->freex = NULL;                    /* x is only defined for dna_node and prot_node */
-  n->node.tyme = 0;
+  generic_node_init(n, type, index);                /* go up node hierarchy */
+  n->copy = ml_node_copy;
+  n->init = (node_init_t)ml_node_init;
+  n->free = ml_node_free;
+  n->reinit = ml_node_reinit;
+  n->node_print_f = ml_node_print;
+  nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
+  nn->node.tyme = 0;
 } /* ml_node_init */
 
 
-void ml_tree_new(struct ml_tree **mlt, long nonodes, long spp, long treesize)
+void ml_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
 { /* make a new ml_tree.  Calls to generic_tree-new,
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
-  struct tree** t;
 
-  t = (struct tree**)mlt;
-  generic_tree_new(t, nonodes, spp, treesize);    /* next up tree hierarchy */
+  generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
 } /* ml_tree_new */
 
 
-void ml_tree_init(struct ml_tree* mlt, long nonodes, long spp)
+void ml_tree_init(struct tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
-  struct tree* t;
 
-  t = (tree*)mlt;     /* pointer points to right tree but as a generic tree */
   generic_tree_init(t, nonodes, spp);              /* go up class hierarchy */
   t->smoothall = ml_tree_smoothall;
   t->insert_ = (tree_insert_t)ml_tree_insert_;
@@ -243,7 +232,7 @@ void dna_node_init(node *node, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  ml_node_init((ml_node*)node, type, index);
+  ml_node_init(node, type, index);
   n->ml_node.allocx = (allocx_t)dna_node_allocx;
   n->ml_node.node.copy = dna_node_copy;
   n->ml_node.node.init = dna_node_init;
@@ -271,7 +260,7 @@ void prot_node_init(node *n, node_type type, long index)
 
   prot_node *pn = (prot_node *)n;
 
-  ml_node_init((ml_node*)n, type, index);
+  ml_node_init(n, type, index);
   pn->ml_node.allocx = (allocx_t)prot_node_allocx;
   pn->ml_node.node.copy = prot_node_copy;
   pn->ml_node.node.init = prot_node_init;
@@ -292,12 +281,12 @@ node * codon_node_new(node_type type, long index) // RSGbugfix
 } /* codon_node_new */
 
 
-void codon_node_init(node *n, node_type type, long index)
+void codon_node_init(node* n, node_type type, long index)
 {
   /* initialize a node for a codon-model tree */
   codon_node *pn = (codon_node *)n;
 
-  ml_node_init((ml_node*)n, type, index);
+  ml_node_init(n, type, index);
   pn->ml_node.allocx = (allocx_t)codon_node_allocx;
   pn->ml_node.node.copy = (node_copy_t)codon_node_copy;
   pn->ml_node.node.init = codon_node_init;
@@ -420,9 +409,10 @@ void codon_node_freex(ml_node* n)
 } /* codon_node_freex */
 
 
-void dna_node_allocx(ml_node* n, long endsite, long rcategs)
+void dna_node_allocx(node* n, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
+  ml_node *mln = (ml_node *)n;
   dna_node *dn = (dna_node *)n;
   long i;
 
@@ -430,9 +420,9 @@ void dna_node_allocx(ml_node* n, long endsite, long rcategs)
   for ( i = 0 ; i < endsite ; i++ )
     dn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
 
-  n->categs = rcategs;
-  n->endsite = endsite;
-  n->underflows = Malloc(endsite * sizeof(double));
+  mln->categs = rcategs;
+  mln->endsite = endsite;
+  mln->underflows = Malloc(endsite * sizeof(double));
 } /* dna_node_allocx */
 
 
@@ -452,7 +442,7 @@ void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
 } /* prot_node_allocx */
 
 
-void codon_node_allocx(ml_node* nn, long endsite, long rcategs)
+void codon_node_allocx(node* nn, long endsite, long rcategs)
 {
   /* allocate space for sequences on a codon-model tree node */
   codon_node *n = (codon_node *)nn;

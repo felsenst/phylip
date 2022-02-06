@@ -100,16 +100,19 @@ struct node* generic_node_new (struct tree* t, node_type type,
   node* m;
 
   m  = (node*)Malloc(nodesize);    /* make a big enough node using nodesize */
-  funcs.node_init(t, m, type, index);         /* init node, polymorphically */
+  funcs.node_init(m, type, index);         /* init node, polymorphically */
   return m;
 } /* generic_node_new */
 
 
-void generic_node_init (struct tree* t, struct node* n,
-                         node_type type, long index)
+void generic_node_init (struct node* n, node_type type, long index)
 {
  /* Assign default node data. tip is set false when type is FORK_NODE (0)
   * otherwise true. Index is assigned as given.
+  * Why do we go up the hierarchy of classes separately for node_new
+  * and for node_init? (why not just do the init functions during the
+  * node_new  creation?  Because at a later stage we may need to do
+  * node_init  activities on a previously-created node,
   */
 /* debug  is the tree argument really neeeded here?  Maybe not? */
   if ( type == TIP_NODE )

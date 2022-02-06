@@ -14,56 +14,48 @@
 extern long nonodes;
 
 
-struct dist_node* dist_node_new(struct dist_tree* dt, struct dist_node** dn, node_type type,
-                                 long index, long nodesize)
+struct node* dist_node_new(struct tree* t, struct node* n, node_type type,
+                            long index, long nodesize)
 {
-/* debug: work on this, ml_node_new and fitch_node_new */
   /* make a new dist_node. */
-  struct ml_node** mlnp;
-  struct ml_tree* mlt;
+  node* dn;
 
-  mlnp = (ml_node**)dn;
-  mlt = (ml_tree*)dt;
-  ml_node_new(mlt, mlnp, type, index, nodesize);        /* call upwards */
+  dn =  ml_node_new(t, n, type, index, nodesize);        /* call upwards */
+  return dn;
 } /* dist_node_new */
 
 
-void dist_node_init(struct dist_tree* dt, struct dist_node* dn, node_type type, long index)
+void dist_node_init(struct node* n, node_type type, long index)
 {
   /* initialize a new dist_node */
-  struct node* n;
-  struct ml_node* mln;
-  struct ml_tree* mlt;
+  struct dist_node* dn;
 
-  mln = (struct ml_node*) dn;
-  mlt = (ml_tree*)dt;
-  ml_node_init(mlt, mln, type, index);           /* go up node hierarchy */
-  n = (node *)dn;                          /* generic_node version of  n */
+  ml_node_init(n, type, index);                  /* go up node hierarchy */
   n->free = dist_node_free;
   n->copy = dist_node_copy;
 /* debug:  needed?    n->init = dist_node_init; */
+  dn = (struct dist_node*)n;
   dn->dist = 0.0;                              /* used in  fitch, kitsch */
   dn->d = (vector)Malloc((nonodes+1) * sizeof(double));    /* extra room */
   dn->w = (vector)Malloc((nonodes+1) * sizeof(double));
 } /* dist_node_init */
 
 
-void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
+void dist_tree_init(struct tree *t, long nonodes, long spp)
 {
   /* initialize a dist_tree.
    * used in fitch, kitsch, & neighbor
    * acts after phylip.c: generic_tree_init 
    * runs along nodep, circling each fork, and then runs
    * along  free_fork_nodes  list too, in each case calling dist_node_init */
- /* debug:  For that matter could we make a generic function that does running-along? */
+ /* debug:  For that matter could we make a generic function that does running-along?
+ * much of this function is supposed to be done in the generic_tree_init !! */
   long i;
-  struct tree* t;
   struct dist_node* p;
   struct node* pp;
   Slist_node_ptr q;
 
 /* debug:  extra?  (yes)   ml_tree_init(mlt, nonodes+1, spp);         */
-  t = (struct tree*)dt;
   for (i = 1; i <= nonodes; i++) {                       /* note  nonodes+1 */
     if (t->nodep[i - 1] != NULL) {           /* these will be NULL normally */
       t->nodep[i - 1]->back = NULL;  /* debug: why bother? */
@@ -96,16 +88,15 @@ void dist_tree_init(struct dist_tree *dt, long nonodes, long spp)
 }  /* dist_tree_init */
 
 
-void dist_tree_new(struct dist_tree** dtreep, long nonodes,
-                    long spp, long treesize)
+void dist_tree_new(struct tree** treep, long nonodes, long spp, long treesize)
 { /* make a new pointer to dist_tree (which is itself a pointer to the tree
    * structure.  Calls to ml_tree_new, which calls up to generic_tree_new,
    * then after that it calls dist_tree_init */
   long tsz;
 
-  tsz = (long)treesize;
-  ml_tree_new((struct ml_tree**)dtreep, nonodes, spp, tsz); 
-  dist_tree_init(*dtreep, nonodes, spp);
+  tsz = (long)treesize;   /* debug:  need this cast or tsz variable? */
+  ml_tree_new(treep, nonodes, spp, tsz); 
+  dist_tree_init(*treep, nonodes, spp);
 } /* dist_tree_new */
 
 
