@@ -20,20 +20,24 @@ struct dist_node* dist_node_new(struct dist_tree* dt, struct dist_node** dn, nod
 /* debug: work on this, ml_node_new and fitch_node_new */
   /* make a new dist_node. */
   struct ml_node** mlnp;
+  struct ml_tree* mlt;
 
   mlnp = (ml_node**)dn;
-  ml_node_new(mlnp, type, index, nodesize);                 /* call upwards */
+  mlt = (ml_tree*)dt;
+  ml_node_new(mlt, mlnp, type, index, nodesize);        /* call upwards */
 } /* dist_node_new */
 
 
-void dist_node_init(struct dist_node* dn, node_type type, long index)
+void dist_node_init(struct dist_tree* dt, struct dist_node* dn, node_type type, long index)
 {
   /* initialize a new dist_node */
   struct node* n;
   struct ml_node* mln;
+  struct ml_tree* mlt;
 
   mln = (struct ml_node*) dn;
-  ml_node_init(mln, type, index);                /* go up node hierarchy */
+  mlt = (ml_tree*)dt;
+  ml_node_init(mlt, mln, type, index);           /* go up node hierarchy */
   n = (node *)dn;                          /* generic_node version of  n */
   n->free = dist_node_free;
   n->copy = dist_node_copy;

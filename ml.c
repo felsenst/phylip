@@ -32,22 +32,25 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_node_new(struct ml_node** nodepointer, node_type type,
-                   long index, long nodesize) {
+void ml_node_new(struct ml_tree* mlt, struct ml_node** nodepointer,
+                   node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it, then backing down
    * to create an ml_node, then calling its initialization, etc. */
   struct node** n;
+  struct tree* t;
 
   n = (struct node**)nodepointer; 
-  generic_node_new(n, type, index, nodesize);
+  t = (struct tree*)mlt;
+  generic_node_new(t, n, type, index, nodesize);
 } /* ml_node_new */
 
 
-void ml_node_init(ml_node *n, node_type type, long index)
+void ml_node_init(ml_tree* mlt, ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
   node* nn;
+  tree* t;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -55,7 +58,8 @@ void ml_node_init(ml_node *n, node_type type, long index)
   assert(index >= 0);
 
   nn = (node*)n;
-  generic_node_init(nn, type, index);               /* go up node hierarchy */
+  t = (tree*)mlt;
+  generic_node_init(t, nn, type, index);               /* go up node hierarchy */
   nn = (node*)n;
   nn->copy = ml_node_copy;
   nn->init = (node_init_t)ml_node_init;
