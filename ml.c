@@ -32,12 +32,11 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-node* ml_node_new(struct tree* t, struct node* n,
-                  node_type type, long index, long nodesize) {
+node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct node* nn;
 
-  nn = generic_node_new(t, n, type, index, nodesize);
+  nn = generic_node_new(type, index, nodesize);
   return nn;
 } /* ml_node_new */
 
@@ -59,6 +58,7 @@ void ml_node_init(node *n, node_type type, long index)
   n->free = ml_node_free;
   n->reinit = ml_node_reinit;
   n->node_print_f = ml_node_print;
+  nn = (ml_node*)n;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->node.tyme = 0;
 } /* ml_node_init */
@@ -207,15 +207,16 @@ void fix_protx(prot_node* p, long site, double maxx, long rcategs)
 } /* fix_protx */
 
 
-node * dna_node_new(node_type type, long index) // RSGbugfix
+node * dna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  node* n = Malloc(sizeof(dna_node));
+  node* n = Malloc(sizeof(dna_node));  /* debug: where allocated? */
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
+/* debug: instead do a call upwards here? */
   dna_node_init(n, type, index);
   return n;
 } /* dna_node_new */
@@ -244,11 +245,12 @@ void dna_node_init(node *node, node_type type, long index)
 } /* dna_node_init */
 
 
-node * prot_node_new(node_type type, long index) // RSGbugfix
+node * prot_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
   /* create a node for a protein tree */
 
   node *n = Malloc(sizeof(struct prot_node));
+/* debug: instead do a call upwards here? */
   prot_node_init(n, type, index);
   return n;
 } /* prot_node_new */
@@ -271,10 +273,11 @@ void prot_node_init(node *n, node_type type, long index)
 } /* prot_node_init */
 
 
-node * codon_node_new(node_type type, long index) // RSGbugfix
+node * codon_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
   /* create a node for a codon-model tree */
   node *n = Malloc(sizeof(struct codon_node));
+/* debug:  instead do a call upwards to create node? */
 
   codon_node_init(n, type, index);
   return n;

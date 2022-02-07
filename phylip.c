@@ -29,7 +29,7 @@ void           _fgetline_finalize(void);
 
 /* Default vtable for generic nodes. */
 struct node_vtable node_vtable = {
-  generic_node_init,
+/*  generic_node_init,   debug: needed here? */
   generic_node_free,
   generic_node_copy
 };
@@ -65,13 +65,13 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {                          /* make new tips */
-    t->nodep[i] = funcs.node_new(t, true, i+1, defaultnodesize);
+    t->nodep[i] = funcs.node_new(true, i+1, defaultnodesize);
 /* debug     t->nodep[i]->tip = true;  : already made by previous call? */
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    t->nodep[i] = funcs.node_new(t, false, i+1, defaultnodesize);
-    t->nodep[i]->next = funcs.node_new(t, false, i+1, defaultnodesize);
-    t->nodep[i]->next->next = funcs.node_new(t, false, i+1, defaultnodesize);
+    t->nodep[i] = funcs.node_new(false, i+1, defaultnodesize);
+    t->nodep[i]->next = funcs.node_new(false, i+1, defaultnodesize);
+    t->nodep[i]->next->next = funcs.node_new(false, i+1, defaultnodesize);
     t->nodep[i]->next->next->next = t->nodep[i]; /* finish connect'g circle */
 /* debug    t->nodep[i]->tip = false;   already made by previous call? */
 /* debug    t->nodep[i]->next->tip = false;   already made by previous call? */
@@ -91,8 +91,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-struct node* generic_node_new (struct tree* t, struct node* n, node_type type,
-                                long index, long nodesize)
+struct node* generic_node_new (node_type type, long index, long nodesize)
 {
    /* create a new node, of size appropriate for the type of tree.  Note that
     * this node_new function needs a tree argument and returns a pointer to
@@ -387,17 +386,6 @@ void generic_node_reinit (node * n)
   /* may or may not want to change  n->index, depending
    * on whether it is going onto the free forknode list */
 } /* generic_node_reinit */
-
-
-node* generic_new_node (struct tree* t, node_type type, long index)
-{ /* Allocate, initialize, and return a new node, setting tip and index. */
-  struct node* n;
-
-  n = (node*)Malloc(sizeof(node));
-
-  funcs.node_init(n, type, index);
-  return n;
-} /* generic_new_node */
 
 
 void setupnode (node *p, long i)
@@ -3665,19 +3653,14 @@ void generic_tree_setupfunctions(tree *t)
   /* initialize functions.  Mostly for parsimony, they
    * get overwritten in  ml.c, parsimony.c, dist.c  as needed */
   long i;
-  node **tlrsp, **ttpp, **ttqp; /* pointer-to-pointer versions for node_new */
   
   t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
-
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ ) {
-    tlrsp = &(t->lrsaves[i]);
-    funcs.node_new(tlrsp, false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
+    t->lrsaves[i] = funcs.node_new(false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
   }
-  ttpp = &(t->temp_p);
-  funcs.node_new(ttpp, false, 0, (long)sizeof(node));
-  ttqp = &(t->temp_q);
-  funcs.node_new(ttqp, false, 0, (long)sizeof(node));
+  t->temp_p = funcs.node_new(false, 0, (long)sizeof(node));
+  t->temp_q = funcs.node_new(false, 0, (long)sizeof(node));
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -4785,11 +4768,9 @@ node* generic_tree_get_forknode(tree* t, long i)
    * is returned. Otherwise, create a new node and return it.
    */
   node *p = NULL;                                 /* to keep compiler happy */
-  node **pp = NULL;         /* pointer-to-pointer version for node_new call */
 
   if ( Slist_isempty(t->free_fork_nodes) ) {
-    funcs.node_new(pp, false, i, ((long)sizeof(node)));
-    p = *pp;
+    p = funcs.node_new(false, i, ((long)sizeof(node))); /* debug: size? */
   }
   else {
     p = Slist_pop(t->free_fork_nodes);

@@ -43,17 +43,17 @@ typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
 
 typedef struct codon_node {
-  ml_node ml_node;                            /* Base object, must be first */
+  struct ml_node ml_node;                     /* Base object, must be first */
   cphenotype codonx;
 } codon_node;
 
 typedef struct prot_node {
-  ml_node ml_node;                            /* Base object, must be first */
+  struct ml_node ml_node;                     /* Base object, must be first */
   pphenotype x;
 } prot_node;
 
 typedef struct dna_node{
-  ml_node ml_node;                            /* Base object, must be first */
+  struct ml_node ml_node;                     /* Base object, must be first */
   phenotype x;
 } dna_node;
 
@@ -62,17 +62,17 @@ typedef void (*initialvtrav_t)(tree*, node*);
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct tree**, long, long, long);
 void    ml_tree_init(struct tree*, long, long);
-node*   ml_node_new(struct tree*, struct node*, node_type, long, long);
+node*   ml_node_new(node_type, long, long);
 void    ml_node_init(struct node*, node_type, long);
 void    ml_node_free(node **);
 void    ml_node_print(node *);
-node*   dna_node_new(node_type, long);
-void    dna_node_init(node *, node_type, long);
-node*   prot_node_new(node_type, long);
-void    prot_node_init(node *, node_type, long);
+node*   dna_node_new(node_type, long, long);
+void    dna_node_init(struct node *, node_type, long);
+node*   prot_node_new(node_type, long, long);
+void    prot_node_init(struct node *, node_type, long);
 void    prot_node_allocx(ml_node*, long, long);
-node*   codon_node_new(node_type, long);
-void    codon_node_init(node *, node_type, long);
+node*   codon_node_new(node_type, long, long);
+void    codon_node_init(struct node *, node_type, long);
 void    codon_node_allocx(node*, long, long);
 void    dna_node_allocx(node*, long, long);
 void    ml_node_copy(node*, node*);

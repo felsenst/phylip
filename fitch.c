@@ -28,7 +28,7 @@ typedef struct fitch_node{
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
 void   fitch_tree_init(struct tree**, long, long);
-struct node* fitch_node_new(struct tree*, struct node*, node_type, long, long);
+struct node* fitch_node_new(node_type, long, long);
 void   fitch_node_init(struct node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -122,8 +122,7 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 } /* fitch_tree_new */
 
 
-node* fitch_node_new(struct tree* t, struct node* n, node_type type,
-                            long index, long nodesize) {
+struct node* fitch_node_new(node_type type, long index, long nodesize) {
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
    * dist_node, the next up.  nodesize argument not used but  size
@@ -131,7 +130,7 @@ node* fitch_node_new(struct tree* t, struct node* n, node_type type,
   struct node* nn;
 
   nodesize = (long)sizeof(struct fitch_node);
-  nn = dist_node_new(t, n, type, index, nodesize);  /* just go up hierarchy */
+  nn = dist_node_new(type, index, nodesize);  /* just go up hierarchy */
   return nn;
 } /* fitch_node_new */
 

@@ -14,13 +14,12 @@
 extern long nonodes;
 
 
-struct node* dist_node_new(struct tree* t, struct node* n, node_type type,
-                            long index, long nodesize)
+struct node* dist_node_new(node_type type, long index, long nodesize)
 {
   /* make a new dist_node. */
   struct node* dn;
 
-  dn =  ml_node_new(t, n, type, index, nodesize);        /* call upwards */
+  dn =  ml_node_new(type, index, nodesize);        /* call upwards */
   return dn;
 } /* dist_node_new */
 
