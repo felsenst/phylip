@@ -91,15 +91,15 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 } /* generic_tree_init */
 
 
-struct node* generic_node_new (struct tree* t, node_type type,
+struct node* generic_node_new (struct tree* t, struct node* n, node_type type,
                                 long index, long nodesize)
 {
    /* create a new node, of size appropriate for the type of tree.  Note that
     * this node_new function needs a tree argument and returns a pointer to
     * the node that is created */
-  node* m;
+  struct node* m;
 
-  m  = (node*)Malloc(nodesize);    /* make a big enough node using nodesize */
+  m  = (struct node*)Malloc(nodesize);           /* make big enough node */
   funcs.node_init(m, type, index);         /* init node, polymorphically */
   return m;
 } /* generic_node_new */
@@ -389,9 +389,9 @@ void generic_node_reinit (node * n)
 } /* generic_node_reinit */
 
 
-node* generic_new_node (node_type type, long index)
+node* generic_new_node (struct tree* t, node_type type, long index)
 { /* Allocate, initialize, and return a new node, setting tip and index. */
-  node* n;
+  struct node* n;
 
   n = (node*)Malloc(sizeof(node));
 

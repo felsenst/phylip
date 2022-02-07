@@ -27,8 +27,8 @@ typedef struct fitch_node{
 #ifndef OLDC
 /* function prototypes */
 void   fitch_tree_new(struct tree**, long, long);
-void   fitch_tree_init(struct dist_tree**, long, long);
-node*  fitch_node_new(struct tree*, struct node*, node_type, long, long);
+void   fitch_tree_init(struct tree**, long, long);
+struct node* fitch_node_new(struct tree*, struct node*, node_type, long, long);
 void   fitch_node_init(struct node*, long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -91,7 +91,7 @@ char *progname;
 
 
 
-void fitch_tree_init(struct dist_tree** dt, long nonodes, long spp)
+void fitch_tree_init(struct tree** dt, long nonodes, long spp)
 {
   /* set up unctions for a tree for Fitch. I think this resets some that 
    * are previously initialized in ml.c. */
@@ -117,18 +117,18 @@ void fitch_tree_new(struct tree** treep, long nonodes, long spp)
 {
   /* initialize a tree for Fitch, going up the class hierarchy */
 
-  dist_tree_new((struct dist_tree**)treep, nonodes, spp, sizeof(dist_tree));
-  fitch_tree_init((struct dist_tree**)treep, nonodes, spp);   /* initialize */
+  dist_tree_new((struct tree**)treep, nonodes, spp, sizeof(dist_tree));
+  fitch_tree_init((struct tree**)treep, nonodes, spp);   /* initialize */
 } /* fitch_tree_new */
 
 
-node* fitch_node_new(struct tree* t, node* n, node_type type,
+node* fitch_node_new(struct tree* t, struct node* n, node_type type,
                             long index, long nodesize) {
   /* function to make a new node, calls more general node_new  functions
    * as we go up the hierarchy of classes of nodes, starting with
    * dist_node, the next up.  nodesize argument not used but  size
    * is determined here and then passed up in node_new calls */
-  node* nn;
+  struct node* nn;
 
   nodesize = (long)sizeof(struct fitch_node);
   nn = dist_node_new(t, n, type, index, nodesize);  /* just go up hierarchy */
