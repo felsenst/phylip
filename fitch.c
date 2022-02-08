@@ -933,10 +933,12 @@ void nodeinit(node *p)
     }
     p = p->next;
   }
-  if ((!lngths) || p->iter)         /* and initial branch lengths if needed */
-    p->v = 1.0;
-  if ((!lngths) || p->back->iter)
-    p->back->v = 1.0;
+  if (p->back != NULL) {
+    if ((!lngths) || p->iter)       /* and initial branch lengths if needed */
+      p->v = 1.0;
+    if ((!lngths) || p->back->iter)
+      p->back->v = 1.0;
+  }
 }  /* nodeinit */
 
 

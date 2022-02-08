@@ -342,7 +342,7 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
   node *q, *first, *last;
   int nover;
 
-  if (p->tip) {
+  if (p->tip) {                                         /* if at a tip ... */
     p->xcoord = (long)(over * lengthsum + 0.5);
     p->ycoord = *tipy;
     p->ymin = *tipy;
@@ -352,7 +352,7 @@ void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *st
       *tipmax = lengthsum;
     return;
   }
-  q = p->next;
+  q = p->next;                    /* ... otherwise are at an interior node */
   do {
     if (q->back)
       coordinates(q->back, lengthsum + q->v, tipy, tipmax, start);
@@ -437,7 +437,8 @@ void drawline(long i, double scale, node *start, boolean rooted)
           break;
         }
         r = r->next;
-      } while (!((p != start && r == p) || (p == start && r == p->next)));
+      } while (!(((p != start) && (r == p)) ||
+                 ((p == start) && (r == p->next))));
       s = p;
       do {
         s = s->next;
@@ -483,8 +484,8 @@ void drawline(long i, double scale, node *start, boolean rooted)
           putc('-', outfile);
       }
     } else if (!p->tip) {
-      if ((long)last->ycoord > i && (long)first->ycoord < i
-          && i != (long)p->ycoord) {
+      if (((long)last->ycoord > i) && ((long)first->ycoord < i)
+          && (i != (long)p->ycoord)) {
         putc('!', outfile);
         for (j = 1; j < n; j++)
           putc(' ', outfile);
