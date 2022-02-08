@@ -432,7 +432,7 @@ void drawline(long i, double scale, node *start, boolean rooted)
           r = r->next;
           continue;
         }
-        if (i >= r->back->ymin && i <= r->back->ymax) {
+        if ((i >= r->back->ymin) && (i <= r->back->ymax)) {
           q = r->back;
           break;
         }
@@ -444,7 +444,7 @@ void drawline(long i, double scale, node *start, boolean rooted)
         s = s->next;
       } while (s->back == NULL);
       first = s->back;
-      r = p;
+      r = s;
       while (r->next != p)
         r = r->next;
       last = r->back;
