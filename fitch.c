@@ -93,7 +93,7 @@ char *progname;
 
 void fitch_tree_init(struct tree** dt, long nonodes, long spp)
 {
-  /* set up unctions for a tree for Fitch. I think this resets some that 
+  /* set up functions for a tree for Fitch. I think this resets some that 
    * are previously initialized in ml.c. */
   /*  debug: Perhaps not bother with the
    * ones that are ml_ versions here as already set */
@@ -1019,7 +1019,7 @@ void maketree(void)
       printree(curtree->root, treeprint, false);            /* print it out */
       if (treeprint)             /* print table of nodes and branch lengths */
         summarize(numtrees);
-      destruct_tree(curtree);                         /* dicombobulate tree */
+      destruct_tree(curtree);                        /* discombobulate tree */
       which++;
     }
     FClose(intree);

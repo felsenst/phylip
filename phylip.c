@@ -1826,11 +1826,10 @@ void newline(FILE *filename, long i, long j, long k)
 /************* Tree file routines **************/
 
 void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
-                        boolean *goteof, boolean *first,
-                        long *nexttip, long *nextnode, boolean *haslengths,
-                        boolean unifok)
-/* modification of addelement method to just read file, count number of nodes */
+                        boolean *goteof, boolean *first, long *nexttip,
+                        long *nextnode, boolean *haslengths, boolean unifok)
 {
+/* modification of addelement method to just read file, count number of nodes */
   long i;
   boolean notlast;
   Char str[MAXNCH+1];
@@ -3345,7 +3344,7 @@ void addelement2(tree* t, node *q, Char *ch, long *parens, FILE *treefile,
     print_progress(progbuf);
   }
   else
-    (*haslengths) = ((*haslengths) && q == NULL);
+    (*haslengths) = (*haslengths) && (q == NULL);
 
   if (q != NULL)
     hookup(q, pfirst);
