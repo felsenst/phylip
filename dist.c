@@ -336,57 +336,61 @@ void inputdata(boolean replicates, boolean printdata, boolean lower,
 
 
 /* debug: can the following functions be promoted to  phylip.c ? */
-void coordinates(node *p, double lengthsum, long *tipy, double *tipmax, node *start)
+void coordinates(node *p, double lengthsum, long *tipy,
+                  double *tipmax, node *start)
 {
-  /* establishes coordinates of nodes */
+  /* establishes coordinates of nodes.  Tree "grows" from left to right, so
+  *  the x coordinate is the horizontal one, from root to tips, and the  y
+  *  coordinate is the vertical one, the spacing of tips as one does a
+  *  traversal of the tree */
   node *q, *first, *last;
   int nover;
 
-  if (p->tip) {                                         /* if at a tip ... */
+  if (p->tip) {                                          /* if at a tip ... */
     p->xcoord = (long)(over * lengthsum + 0.5);
     p->ycoord = *tipy;
-    p->ymin = *tipy;
+    p->ymin = *tipy;      /* we're at a tip so the max and min are the same */
     p->ymax = *tipy;
     (*tipy) += down;
     if (lengthsum > *tipmax)
       *tipmax = lengthsum;
     return;
   }
-  q = p->next;                    /* ... otherwise are at an interior node */
-  do {
-    if (q->back)
+  q = p->next;                     /* ... otherwise are at an interior node */
+  do {         /* go out all nonempty furcs except the one you came in from */
+    if (q->back != NULL)
       coordinates(q->back, lengthsum + q->v, tipy, tipmax, start);
     q = q->next;
-  } while ((p == start || p != q) && (p != start || p->next != q));
+  } while (((p != start) && (p != q)) 
+           || ((p == start) && (q != p->next) && (q->back != NULL)));
   q = p;
   do {                                                /* find leftmost furc */
     q = q->next; 
     first = q->back;
   } while (first == NULL);
-  q = p;
-  while ((q->next != p) && q->next->back)  /* debug: is this right ? */
+  while ((q->next != p) && (q->next->back != NULL))  /* find rightmost furc */
     q = q->next;
   last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);
   if (p == start) {
-    nover = count_sibs(p);
+    nover = count_sibs(p);    /* how many nonempty furcs lead out from here */
     if ( p->back != NULL ) nover++;
-    if ( (nover % 2) == 0 ) {
+    if ( (nover % 2) == 0 ) {       /* if an even number, use halfway along */
       p->ycoord = (first->ycoord + last->ycoord) / 2;
-    } else {
-      nover = (nover / 2) + 1;
+    } else {                    /* otherwise we try to find the middle furc */
+      nover = (nover % 2) + 1;
       q = p;
-      while (nover) {
+      while (nover != 0) {                          /* set  q  to that node */
         q = q->next;
         nover--;
       }
-      if (q->back != NULL)
+      if (q->back != NULL)   /* set the  ycoord so same as that middle furc */
         p->ycoord = q->back->ycoord;
     }
   }
-  else
+  else                /* for all interior nodes other than the rootmost one */
     p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
+  p->ymin = first->ymin; /* debug: put in "nover" stuff above here?  */
   p->ymax = last->ymax;
 }  /* coordinates */
 
@@ -396,66 +400,64 @@ void drawline(long i, double scale, node *start, boolean rooted)
   /* draws one row of the tree diagram by moving up tree */
   long n=0, j=0;
   boolean extra=false, trif=false, done=false;
-  node *p, *q, *r, *s, *first =NULL, *last =NULL;
+  node *p, *q, *r, *s, *first = NULL, *last = NULL;
 
   p = start;
   q = start;
   extra = false;
   trif = false;
-  if (i == (long)p->ycoord && p == start) {  /* display the root */
-    if (rooted) {
+  if (i == (long)p->ycoord && p == start) {             /* display the root */
+    if (rooted) {                             /* print a little stem branch */
       if (p->index - spp >= 10)
         fprintf(outfile, "-");
       else
         fprintf(outfile, "--");
     }
-    else {
+    else {                                          /* print no stem branch */
       if (p->index - spp >= 10)
         fprintf(outfile, " ");
       else
         fprintf(outfile, "  ");
     }
-    if (p->index - spp >= 10)
-      fprintf(outfile, "%2ld", p->index - spp);
+    if (p->index - spp >= 10)              /* print number of rootmost node */
+      fprintf(outfile, "%2ld", p->index - spp); /* debug: need 3-digit option too? */
     else
       fprintf(outfile, "%ld", p->index - spp);
     extra = true;
     trif = true;
   } else
-    fprintf(outfile, "  ");
+    fprintf(outfile, "  ");        /* spaces until you get to where node is */
   do {
-    if (!p->tip) { /* internal nodes */
+    if (!p->tip) {                                        /* internal nodes */
       r = p->next;
-      /* r->back here is going to the same node. */
-      do {
-        if (!r->back) {
-          r = r->next;
+      do {                           /* go around fork circle finding furcs */
+        if ((r->back == NULL)) {
+          r = r->next;                                 /* skip to next furc */
           continue;
         }
         if ((i >= r->back->ymin) && (i <= r->back->ymax)) {
-          q = r->back;
+          q = r->back;                   /* is the node covering this line? */
           break;
         }
         r = r->next;
       } while (!(((p != start) && (r == p)) ||
                  ((p == start) && (r == p->next))));
       s = p;
-      do {
+      do {                         /* skip over any furcs that lead to NULL */
         s = s->next;
       } while (s->back == NULL);
-      first = s->back;
+      first = s->back;                        /* the first furc you come to */
       r = s;
       while (r->next != p)
         r = r->next;
       last = r->back;
-      if (!rooted && (p == start))
+      if (!rooted && (p->back != NULL) && (p == start))
         last = p->back;
-    } /* end internal node case... */
-    /* draw the line: */
-    done = (p->tip || p == q);
+    }                                          /* end internal node case... */
+    done = (p->tip || (p == q));                          /* draw the line: */
     n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);
-    if (!q->tip) {
-      if ((n < 3) && (q->index - spp >= 10))
+    if (!q->tip) {         /* find out how long in characters the branch is */
+      if ((n < 3) && (q->index - spp >= 10)) /* make a bit longer if needed */
         n = 3;
       if ((n < 2) && (q->index - spp < 10))
         n = 2;
@@ -464,29 +466,29 @@ void drawline(long i, double scale, node *start, boolean rooted)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i && !done) {
-      if (p->ycoord != q->ycoord)
+    if ((long)q->ycoord == i && !done) {   /* if we're at start of a branch */
+      if (p->ycoord != q->ycoord)                      /* we're at a corner */
         putc('+', outfile);
-      if (trif) {
+      if (trif) {                             /* if not, add one more space */
         n++;
         trif = false;
       }
-      if (!q->tip) {
-        for (j = 1; j <= n - 2; j++)
+      if (!q->tip) {                                 /* if an interior node */
+        for (j = 1; j <= n - 2; j++)        /* dashes, then the node number */
           putc('-', outfile);
         if (q->index - spp >= 10)
           fprintf(outfile, "%2ld", q->index - spp);
         else
           fprintf(outfile, "-%ld", q->index - spp);
         extra = true;
-      } else {
+      } else {                   /* if at a tip, draw a line of dashes here */
         for (j = 1; j < n; j++)
           putc('-', outfile);
       }
     } else if (!p->tip) {
       if (((long)last->ycoord > i) && ((long)first->ycoord < i)
           && (i != (long)p->ycoord)) {
-        putc('!', outfile);
+        putc('!', outfile);           /* crossing of this line, then blanks */
         for (j = 1; j < n; j++)
           putc(' ', outfile);
       } else {
@@ -498,11 +500,11 @@ void drawline(long i, double scale, node *start, boolean rooted)
     if (q != p)
       p = q;
   } while (!done);
-  if ((long)p->ycoord == i && p->tip) {
+  if (((long)p->ycoord == i) && p->tip) {             /* print out the name */
     for (j = 0; j < nmlngth; j++)
       putc(nayme[p->index - 1][j], outfile);
   }
-  putc('\n', outfile);
+  putc('\n', outfile);                                   /* end of the line */
 }  /* drawline */
 
 
