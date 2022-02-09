@@ -970,8 +970,10 @@ void treevaluate(void)
       curtree->evaluate(curtree, curtree->root, false);
     } while (fabs(curtree->score - oldlike) > delta);
   }
-  else
+  else {
+    curtree->smoothall(curtree, curtree->root);
     curtree->evaluate(curtree, curtree->root->next, false);
+  }
 }  /* treevaluate */
 
 

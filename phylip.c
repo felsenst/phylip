@@ -3967,7 +3967,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
           sib_ptr2 = where;
         }
         for ( k = 0 ; k <= num_sibs2 ; k++ )
-        {        /* try inserting it on branches descended from this furc */
+        {          /* try inserting it on branches descended from this furc */
           succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
                                          further, qwhere, &bestyet, bestree,
                                          thorough, false, false, bestfound)
