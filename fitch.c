@@ -814,7 +814,6 @@ void initfitchnode(tree *treep, node **p, long len, long nodei, long *ntips,
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
       (*p)->v = valyew / divisor;
-      (*p)->iter = false;
       if ((*p)->back != NULL)
       {
         (*p)->back->v = (*p)->v;
