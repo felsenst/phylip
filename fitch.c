@@ -429,7 +429,7 @@ void inputoptions(void)
     fprintf(outfile, "not ");
   fprintf(outfile, "allowed\n\n");
   if (global)
-    fprintf(outfile, "global optimization\n\n");
+    fprintf(outfile, "Subtree-pruning-and-regrafting optimization\n\n");
 }  /* inputoptions */
 
 

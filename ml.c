@@ -876,7 +876,7 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node* q)
   combinedEdgeWeight = q->v;
   if (q->back != NULL)
     combinedEdgeWeight = q->v + q->back->v;
-  q->v       = combinedEdgeWeight;
+  q->v = combinedEdgeWeight;
   if (q->back != NULL)
     q->back->v = combinedEdgeWeight;
 } /* ml_tree_do_branchl_on_re_move */

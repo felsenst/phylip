@@ -3618,7 +3618,7 @@ void generic_tree_free(tree *t)
 {
   /* frees all tree contents */
   long i;
-  node *p,*q,*r;
+  struct node *p, *q, *r;
 
   while ( !Slist_isempty(t->free_fork_nodes) )
     Slist_pop(t->free_fork_nodes);
@@ -3640,7 +3640,8 @@ void generic_tree_free(tree *t)
         q = r;
       }
     }
-    p->free(&t->nodep[i]);
+    else
+      p->free(&(t->nodep[i]));
   }
   free(t->nodep);
   free(t);
@@ -3880,10 +3881,11 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
     }
   }
 
+/* debug: do this?
   bestree->free(bestree);
   priortree->free(priortree);
   globtree->free(globtree);
-  oldtree->free(oldtree);
+  oldtree->free(oldtree);   */
 } /* rooted_globrearrange */
 
 
@@ -3956,6 +3958,8 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
           sib_ptr = sib_ptr->next;
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
           continue;                /* and also any leading to NULL or a tip */
+        if ((sib_ptr->next->back == NULL) || (sib_ptr->next->next->back == NULL))
+          continue;        /* also any where one of others connects to NULL */
 
         removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
@@ -4017,10 +4021,11 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     }
   }
 
-  bestree->free(bestree);   /* debug:  necessary? */
-  priortree->free(priortree);   /* debug:  necessary? */
+/* debug:  somehow something going wrong here
   globtree->free(globtree);
+  priortree->free((struct tree*)priortree);
   oldtree->free(oldtree);
+debug:   */
 } /* generic_globrearrange */
 
 
