@@ -860,20 +860,25 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
 } /* ml_tree_insert */
 
 
-void ml_tree_do_branchl_on_re_move(tree* t, node* p, node*q)
+void ml_tree_do_branchl_on_re_move(tree* t, node* p, node* q)
 {
-  /* only works for bifurcations */
+  /* sum up branch lengths on the two other neighbors of  p
+   * that are connected to fork q */
+ /* debug:  only works for bifurcations */
   /*
    * BUG.970 -- add this when moved into re_move
    * assert(q->next->next->next == q);
    *
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
+  double combinedEdgeWeight;
 
-  double combinedEdgeWeight = q->v + q->back->v;
+  combinedEdgeWeight = q->v;
+  if (q->back != NULL)
+    combinedEdgeWeight = q->v + q->back->v;
   q->v       = combinedEdgeWeight;
-  q->back->v = combinedEdgeWeight;
-
+  if (q->back != NULL)
+    q->back->v = combinedEdgeWeight;
 } /* ml_tree_do_branchl_on_re_move */
 
 

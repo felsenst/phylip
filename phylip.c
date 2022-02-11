@@ -3808,8 +3808,11 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
   //       sprintf(progbuf, "Doing global rearrangements\n");
   //       print_progress(progbuf);
 
+  globtreep = &globtree;
   funcs.tree_new(globtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  priortreep = &priortree;
   funcs.tree_new(priortreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  oldtreep = &oldtree;
   funcs.tree_new(oldtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
 
   succeeded = true;
@@ -3897,7 +3900,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
   node* removed;
 /* debug:  Check to make it parallel pars_globrearr's new structure */
 
-  if ( progress ) {
+  if ( progress ) {          /* print out a header line above progress dots */
     sprintf(progbuf, "Doing global rearrangements\n");
     print_progress(progbuf);
     sprintf(progbuf, "  !");
@@ -3912,31 +3915,34 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     fflush(progfile);
   }
 
+  globtreep = &globtree;                          /* set up temporary trees */
   funcs.tree_new(globtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
+  priortreep = &priortree;
   funcs.tree_new(priortreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));  /* debug:  needed? */
+  oldtreep = &oldtree;
   funcs.tree_new(oldtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
 
-  while ( succeeded ) {
+  while ( succeeded ) {    /* keep doing SPR rearrangements until no change */
     succeeded = false;
-    curtree->smoothall(curtree, curtree->root);
-    bestyet = oldbestyet = curtree->score;
+    curtree->smoothall(curtree, curtree->root); /* tune up the current tree */
+    bestyet = oldbestyet = curtree->score;                /* save its score */
 
-    if (progress) {
+    if (progress) {          /* indent enough to have dits be under the bar */
       sprintf(progbuf, "   ");
       print_progress(progbuf);
     }
 
-    curtree->copy(curtree, globtree);
+    curtree->copy(curtree, globtree);          /* save the best tree so far */
     curtree->copy(curtree, oldtree);
 
-    for ( i = 0 ; i < curtree->nonodes ; i++ ) {
+    for ( i = spp ; i < curtree->nonodes ; i++ ) {       /* go to all forks */
       sib_ptr  = curtree->nodep[i];
-      if ( sib_ptr->tip )
+      if ( sib_ptr->tip )                            /* count how many sibs */
         num_sibs = 0;
       else
         num_sibs = count_sibs(sib_ptr);
 
-      if ( progress)
+      if (progress)
       {
         if((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 )
         {
@@ -3944,12 +3950,12 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
           print_progress(progbuf);
         }
       }
-      for ( j = 0 ; j <= num_sibs ; j++ ) {
+      for ( j = 0 ; j <= num_sibs ; j++ ) {  /* go to all neighbors of fork */
         sib_ptr = curtree->nodep[i];
-        for ( k = 0 ; k < j ; k++ )
+        for ( k = 0 ; k < j ; k++ )          /* skip past first j-1 of them */
           sib_ptr = sib_ptr->next;
         if ( sib_ptr->back == NULL || sib_ptr->back->tip )
-          continue;
+          continue;                /* and also any leading to NULL or a tip */
 
         removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
