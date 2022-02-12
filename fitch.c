@@ -1114,7 +1114,7 @@ void maketree(void)
     if (trout) {
       sprintf(progbuf, "Tree also written onto file \"%s\".\n", outtreename);
       print_progress(progbuf);
-      sprintf(progbuf, "\n");
+      sprintf(progbuf, "\nDone.\n\n");
       print_progress(progbuf);
     }
   }
@@ -1491,11 +1491,11 @@ int main(int argc, Char *argv[])
   }
   FClose(outfile);
   FClose(infile);
+  printf("Done.\n\n");
 #ifdef MAC
   fixmacfile(outfilename);
   fixmacfile(outtreename);
 #endif
-  printf("Done.\n\n");
   phyRestoreConsoleAttributes();
   return 0;
 } /* main */

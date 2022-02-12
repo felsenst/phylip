@@ -16,13 +16,13 @@
 #define epsilonk         0.000001   /* a very small but not too small number */
 
 typedef struct kitsch_node {
-  dist_node dist_node;
+  struct dist_node dist_node;
   double weight;
   boolean processed;
 } kitsch_node;
 
 typedef struct kitsch_tree {
-  ml_tree ml_tree;
+  struct ml_tree ml_tree;
 } kitsch_tree;
 
 #ifndef OLDC
@@ -64,7 +64,7 @@ long numtrees, col, datasets, ith, njumble, jumb = 0, nonodes = 0;
 
 /*   numtrees is used by usertree option part of maketree */
 long inseed;
-tree *curtree, *bestree, *priortree;   /* pointers to all nodes in tree */
+struct tree *curtree, *bestree, *priortree;   /* pointers to all nodes in tree */
 boolean minev, jumble, usertree, lower, upper, negallowed, replicates, trout, printdata, progress, treeprint, mulsets, firstset;
 longer seed;
 double power;

@@ -3907,10 +3907,12 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
     print_progress(progbuf);
     sprintf(progbuf, "  !");
     print_progress(progbuf);
-    for ( i = 0 ; i < curtree->nonodes-2 ; i++)
+    for ( i = spp ; i < curtree->nonodes ; i++)
     {
-      sprintf(progbuf, "-");
-      print_progress(progbuf);
+      if((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 ) {
+        sprintf(progbuf, "-");
+        print_progress(progbuf);
+      }
     }
     sprintf(progbuf, "!\n");
     print_progress(progbuf);

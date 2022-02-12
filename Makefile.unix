@@ -218,8 +218,9 @@ PROGS = clique codml consense contml contrast dnacomp dnadist dnainvar dnaml \
 
 DYLIBS := libclique.so libconsense.so libcontml.so libdnacomp.so libdnadist.so libdnainvar.so
 DYLIBS += lidnaml.so libdnapars.so libdnapenny.so libdollop.so libdolpenny.so libdrawgram.so
-DYLIBS += libdrawtree.so libfactor.so libgendist.so libmix.so libneighbor.so libpars.so libpenny.so
-DYLIBS += libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so libtreedist.so
+DYLIBS += libdrawtree.so libfactor.so libfitch.so libgendist.so libmix.so libneighbor.so libpars.so 
+DYLIBS += libpenny.so libprotpars.so libproml.so libprotdist.so librestdist.so libseqboot.so
+DYLIBS += libtreedist.so
 
 SHARED := -shared
 
