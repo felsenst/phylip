@@ -59,13 +59,16 @@ void   kitsch(char * infilename, char * intreename, char * outfilename, char * o
 
 /* to make ml.c happy */
 boolean lngths, smoothit = true, smoothed = false, polishing  = false;
-Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH], outtreename[FNMLNGTH];
+Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
+      outtreename[FNMLNGTH];
 long numtrees, col, datasets, ith, njumble, jumb = 0, nonodes = 0;
 
 /*   numtrees is used by usertree option part of maketree */
 long inseed;
-struct tree *curtree, *bestree, *priortree;   /* pointers to all nodes in tree */
-boolean minev, jumble, usertree, lower, upper, negallowed, replicates, trout, printdata, progress, treeprint, mulsets, firstset;
+struct tree *curtree, *bestree, *priortree, *bestree2;  /* pointers to tree */
+struct tree **curtreep, **bestreep, **priortreep, **bestree2p;/* pointed-to */
+boolean minev, jumble, usertree, lower, upper, negallowed, replicates, trout,
+         printdata, progress, treeprint, mulsets, firstset;
 longer seed;
 double power;
 long *enterorder;
@@ -104,8 +107,6 @@ void kitsch_tree_init(struct tree** dt, long nonodes, long spp)
   t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
   t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
   t->re_move = ml_tree_re_move;                 /* debug: necessary? */
-  t->nuview = kitsch_nuview;
-  t->makenewv = kitsch_makenewv;
   t->smoothall = (tree_smoothall_t)ml_tree_smoothall; /* debug: necessary? */
   t->do_newbl = true;                                 /* debug: necessary? */
   t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert; /* debug: necessary? */
@@ -296,6 +297,26 @@ void getoptions(void)
 }  /* getoptions */
 
 
+void kitsch_tree_setup(long nonodes, long spp) {
+ /* create the trees curtree, bestree, etc. and set up a pointer
+  * to each, which is passed up the class hierarchy */
+
+  curtreep = &curtree;
+  funcs.tree_new(curtreep, nonodes, spp, (long)sizeof(dist_tree));
+  if (!usertree) {
+    bestreep = &bestree;
+    funcs.tree_new(bestreep, nonodes, spp, (long)sizeof(dist_tree));
+    priortreep = &priortree;
+    funcs.tree_new(priortreep, nonodes, spp, (long)sizeof(dist_tree));
+    if (njumble > 1) {
+      bestree2p = &bestree2;
+      funcs.tree_new(bestree2p, nonodes, spp, (long)sizeof(dist_tree));
+    }
+  }
+} /* fitch_tree_setup */
+
+
+
 void doinit(void)
 {
   /* initializes variables */
@@ -305,11 +326,7 @@ void doinit(void)
   {
     getoptions();
   }
-  curtree = funcs->tree_new(nonodes, spp);
-  if (!usertree && njumble > 1) {
-    bestree = funcs->tree_new(nonodes, spp);
-    priortree = funcs->tree_new(nonodes, spp);
-  }
+  kitsch_tree_setup(nonodes, spp);
   nayme = (naym *)Malloc(spp * sizeof(naym));
   enterorder = (long *)Malloc(spp * sizeof(long));
 }  /* doinit */
@@ -363,9 +380,6 @@ void input_data(void)
       fprintf(outfile, "-------------");
     fprintf(outfile, "\n\n");
   }
-  dist_tree_new(curtree, nonodes);
-  if (!usertree && njumble > 1)
-    dist_tree_new(bestree, nonodes);
   for (i = 0; i < spp; i++)
   {
     ((dist_node*)curtree->nodep[i])->d[i] = 0.0;
@@ -823,7 +837,7 @@ void maketree(void)
     names = (boolean *)Malloc(spp * sizeof(boolean));
     which = 1;
     while (which <= numtrees ) {
-      treeread2 (curtree, intree, &curtree->root, lengths &trweight,
+      treeread2 (curtree, intree, &curtree->root, lengths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes);
       if (curtree->root->back) {
         printf("Error:  Kitsch cannot read unrooted user trees\n");
@@ -1144,8 +1158,10 @@ int main(int argc, Char *argv[])
 #endif
 
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = kitsch_node_new;
-  funcs->tree_new = kitsch_tree_new;
+  funcs->tree_new = (tree_new_t)kitsch_tree_new;
+  funcs->tree_init = (tree_init_t)kitsch_tree_init;
+  funcs->node_new = (node_new_t)kitsch_node_new;
+  funcs->node_init = (node_init_t)kitsch_node_init;
   phylipinit(argc, argv, funcs, false);
 
   /* reads in spp, options, and the data, then calls maketree to construct the tree */

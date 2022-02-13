@@ -84,8 +84,8 @@ boolean first;                                                 /* ditto ... */
 node *addwhere, *there;
 longer seed, endsite, rcategs;   /* debug:  are endsite and rcategs needed?  */
 long *enterorder;
-tree *curtree, *priortree, *bestree, *bestree2;         /* the trees needed */
-tree **curtreep, **priortreep, **bestreep, **bestree2p; /* pointers to them */
+struct tree *curtree, *priortree, *bestree, *bestree2;  /* the trees needed */
+struct tree **curtreep, **priortreep, **bestreep, **bestree2p; /* pointed-to*/
 Char ch;
 char *progname;
 
