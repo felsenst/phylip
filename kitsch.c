@@ -42,12 +42,12 @@ void   sumtraverse(node *, double *);
 void   dtraverse(node *);
 void   describe(void);
 void   maketree(void);
-node * kitsch_node_new(node_type type, long index);
-void   kitsch_node_init(node* n, node_type type, long index);
-void   kitsch_node_copy(node* src, node* dst);
-tree * kitsch_tree_new(long nonodes, long spp);
-void   kitsch_tree_init(tree* t, long nonodes, long spp);
-double kitsch_tree_evaluate(tree* t, node *r, boolean dummy);
+void   kitsch_tree_new(struct tree**, long, long);
+void   kitsch_tree_init(struct tree**, long, long);
+struct node* kitsch_node_new(node_type, long, long);
+void   kitsch_node_init(struct node*, long, long);
+void   kitsch_node_copy(node*, node*);
+double kitsch_evaluate(tree*, node *, boolean);
 void   kitschrun(void);
 void   kitsch(char * infilename, char * intreename, char * outfilename, char * outfileopt,
               char * outtreename, char * outtreeopt, char * Method, int BestTree, double Power,
@@ -82,19 +82,56 @@ boolean goteof, haslengths, lengths;  /* ditto ... */
 long rcategs;
 
 
-node* kitsch_node_new(node_type type, long index)
+void kitsch_tree_new(struct tree** treep, long nonodes, long spp)
 {
-  node* n;
-  n = Malloc(sizeof(kitsch_node));
-  kitsch_node_init(n, type, index);
-  return n;
+  /* Initialize a tree for Kitsch, going up the class hierarchy */
+
+  dist_tree_new(treep, nonodes, spp, sizeof(dist_tree));
+  kitsch_tree_init((struct tree**)treep, nonodes, spp);
+} /* kitsch_tree_new */
+
+
+void kitsch_tree_init(struct tree** dt, long nonodes, long spp)
+{
+  /* set up functions for a tree for Fitch. I think this resets some that 
+   * are previously initialized in ml.c. */
+  /*  debug: Perhaps not bother with the
+   * ones that are ml_ versions here as already set */
+  struct tree* t;
+
+  t = (tree*)*dt;
+  t->evaluate = kitsch_evaluate;                      /* then set functions */
+  t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
+  t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
+  t->re_move = ml_tree_re_move;                 /* debug: necessary? */
+  t->nuview = kitsch_nuview;
+  t->makenewv = kitsch_makenewv;
+  t->smoothall = (tree_smoothall_t)ml_tree_smoothall; /* debug: necessary? */
+  t->do_newbl = true;                                 /* debug: necessary? */
+  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert; /* debug: necessary? */
+  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move; /* debug: necessary? */
+} /* kitsch_tree_init */
+
+
+struct node* kitsch_node_new(node_type type, long index, long nodesize) {
+  /* function to make a new node, calls more general node_new  functions
+   * as we go up the hierarchy of classes of nodes, starting with
+   * dist_node, the next up.  nodesize argument not used but  size
+   * is determined here and then passed up in node_new calls */
+  struct node* nn;
+
+  nodesize = (long)sizeof(struct kitsch_node);
+  nn = dist_node_new(type, index, nodesize);  /* just go up hierarchy */
+  return nn;
 } /* kitsch_node_new */
 
 
-void kitsch_node_init(node* n, node_type type, long index)
+void kitsch_node_init(struct node* n, long nonodes, long spp)
 {
-  dist_node_init(n, type, index);
-  n->copy = kitsch_node_copy;
+  /* in class hierarchy, initialize a node for Fitch
+   * note that the first argument is pointer-to-node */
+
+  dist_node_init(n, nonodes, spp);                  /* just go up hierarchy */
 } /* kitsch_node_init */
 
 
@@ -106,28 +143,6 @@ void kitsch_node_copy(node* srcn, node* dstn)
   dst->weight = src->weight;
   dst->processed = src->processed;
 } /* kitsch_node_copy */
-
-
-tree* kitsch_tree_new(long nonodes, long spp)
-{
-  tree* t = Malloc(sizeof(kitsch_tree));
-  kitsch_tree_init(t, nonodes, spp);
-  return t;
-} /* kitsch_tree_new */
-
-
-void kitsch_tree_init(tree* t, long nonodes, long spp)
-{
-  ml_tree_init(t, nonodes, spp);
-  t->globrearrange = rooted_globrearrange;
-  t->insert_ = rooted_tree_insert_;
-  t->re_move = rooted_tree_re_move;
-  t->locrearrange = rooted_locrearrange;
-  t->save_lr_nodes = rooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
-  t->evaluate = kitsch_tree_evaluate;
-  t->smoothall = (tree_smoothall_t)no_op;
-} /* kitsch_tree_init */
 
 
 void getoptions(void)
@@ -624,7 +639,7 @@ void sumtraverse(node *q, double *sum)
 }  /* sumtraverse */
 
 
-double kitsch_tree_evaluate(tree* t, node *r, boolean dummy)
+double kitsch_evaluate(tree* t, node *r, boolean dummy)
 {
   /* fill in times and evaluate sum of squares for tree
    * speed improvement could be made here.  we only evaluate the function at the
@@ -908,15 +923,17 @@ void kitsch(
   )
 {
   initdata *funcs;
-  //printf("Hello from Kitsch!\n"); // JRMdebug
+  /* debug printf("Hello from Kitsch!\n"); */
 
   int argc;
   Char *argv[1];
   argc = 1;
   argv[0] = "Kitsch";
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = kitsch_node_new;
-  funcs->tree_new = kitsch_tree_new;
+  funcs->tree_new = (tree_new_t)kitsch_tree_new;      /* trees: kitsch_tree */
+  funcs->tree_init = (tree_init_t)kitsch_tree_init;
+  funcs->node_new = (node_new_t)kitsch_node_new;       /* nodes: dist_nodes */
+  funcs->node_init = (node_init_t)kitsch_node_init;
   phylipinit(argc, argv, funcs, true);
   progname = argv[0];
   /*
