@@ -4846,7 +4846,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
  * if necessary. If multf is TRUE, newtip is added as a new child of below,
  * without an additional fork.
  *
- * TODO: implement the following:
+ * debug: TODO: implement the following:
  * If t->root is NULL, below is ignored, no fork is added, and newtip becomes
  * the new root.  CAUTION: If newtip is a tip in this case, the resulting
  * tree is degenerate and may not be handled well by other parts of the code.

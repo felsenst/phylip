@@ -52,6 +52,7 @@ extern boolean usertree;
 steptr oldweight;
 longer seed;
 tree *curtree, *bestree, *priortree; /* use bestelm in final rearrangements */
+tree **curtreep, **bestreep, **priortree;     /* pointer-to-pointer to tree */
 
 /* Local variables for Pascal maketree, propagated globally for C version: */
 extern double *threshwt;
@@ -75,9 +76,9 @@ void dnapars_tree_setup(long nonodes, long spp)
 {
   /* call allocation and initialization of three new trees */
 
-  curtree = dnapars_tree_new(nonodes, spp);
-  bestree = dnapars_tree_new(nonodes, spp);
-  priortree = dnapars_tree_new(nonodes, spp);
+  dnapars_tree_new(curtreep, nonodes, spp);
+  dnapars_tree_new(bestreep, nonodes, spp);
+  dnapars_tree_new(priortreep, nonodes, spp);
 } /* dnapar tree_setup */
 
 

@@ -104,7 +104,7 @@ void kitsch_tree_init(struct tree** dt, long nonodes, long spp)
 
   t = (tree*)*dt;
   t->evaluate = kitsch_evaluate;                      /* then set functions */
-  t->insert_ = ml_tree_insert_;                 /* debug: necessary? */
+  t->insert_ = rooted_tree_insert_;                 /* debug: necessary? */
   t->try_insert_ = ml_tree_try_insert_;         /* debug: necessary? */
   t->re_move = ml_tree_re_move;                 /* debug: necessary? */
   t->smoothall = (tree_smoothall_t)ml_tree_smoothall; /* debug: necessary? */

@@ -47,7 +47,7 @@ void    dnapars_node_copy(node* src, node* dst);
 void    dna_makevalues(tree* t, boolean usertree);
 boolean dna_branchcollapsible(tree* t, node* n);
 void    dnapars_tree_nuview(tree* t, node* p);
-tree*   dnapars_tree_new(long nonodes, long spp);
+void    dnapars_tree_new(tree**, long, long, long );
 void    dnapars_tree_init(tree*, long, long);
 
 

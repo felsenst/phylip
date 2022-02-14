@@ -32,7 +32,7 @@ typedef struct restml_node {
 } restml_node;
 
 typedef struct restml_tree {
-  ml_tree ml_tree;      /* Base object, must be first */
+  struct ml_tree ml_tree;                     /* Base object, must be first */
   transptr trans;
   long *freetrans;
   long transindex;
