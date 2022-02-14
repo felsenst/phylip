@@ -45,7 +45,7 @@ void   maketree(void);
 void   kitsch_tree_new(struct tree**, long, long);
 void   kitsch_tree_init(struct tree**, long, long);
 struct node* kitsch_node_new(node_type, long, long);
-void   kitsch_node_init(struct node*, long, long);
+void   kitsch_node_init(struct node*, nodetype, long);
 void   kitsch_node_copy(node*, node*);
 double kitsch_evaluate(tree*, node *, boolean);
 void   kitschrun(void);
@@ -127,12 +127,12 @@ struct node* kitsch_node_new(node_type type, long index, long nodesize) {
 } /* kitsch_node_new */
 
 
-void kitsch_node_init(struct node* n, long nonodes, long spp)
+void kitsch_node_init(struct node* n, nodetype type, long index)
 {
   /* in class hierarchy, initialize a node for Fitch
    * note that the first argument is pointer-to-node */
 
-  dist_node_init(n, nonodes, spp);                  /* just go up hierarchy */
+  dist_node_init(n, type, index);                   /* just go up hierarchy */
 } /* kitsch_node_init */
 
 

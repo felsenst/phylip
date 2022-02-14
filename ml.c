@@ -721,6 +721,8 @@ void smooth(tree* t, node *p)
 
   if ( p == NULL )
     return;
+  if ( p->back == NULL )
+    return;
   smoothed = false;
 
   ml_update(t, p);      /* get views at both ends updated, recursing if needed */
