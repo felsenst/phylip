@@ -1,6 +1,4 @@
-/* Version 4.0. (c) Copyright 2012-2013 by the University of Washington.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0. (c) Copyright 2012-2022 */
 
 
 #ifdef HAVE_CONFIG_H
@@ -26,13 +24,13 @@ typedef void (*free_trans_t)(_restml_tree *, long);
 typedef void (*free_all_trans_t)(void);
 
 typedef struct restml_node {
-  ml_node ml_node;      /* Base object, must be first */
+  struct ml_node ml_node;                /* Base object, must be first */
   phenotype2 x;
-  long branchnum;       /* Index of branch transition matrix entry */
+  long branchnum;           /* Index of branch transition matrix entry */
 } restml_node;
 
 typedef struct restml_tree {
-  struct ml_tree ml_tree;                     /* Base object, must be first */
+  struct ml_tree ml_tree;                /* Base object, must be first */
   transptr trans;
   long *freetrans;
   long transindex;
@@ -117,8 +115,11 @@ long nonodes2, sites, enzymes, weightsum;
 long sitelength;                /* Length of restriction site in bases default 6, overridden in menu. */
 long datasets, ith, njumble, jumb = 0;
 long inseed, inseed0;
-boolean  global, jumble, lngths, weights, trout, trunc8, usertree, progress, reusertree, mulsets, justwts, firstset, improve, smoothit, inserting = false, polishing =false;
+boolean global, jumble, lngths, weights, trout, trunc8, usertree, progress, 
+         reusertree, mulsets, justwts, firstset, improve, smoothit,
+         succeeded, inserting = false, polishing =false;
 tree *curtree, *priortree, *bestree, *bestree2;
+tree **curtreep, **priortreep, **bestreep, **bestree2p;
 longer seed;
 long *enterorder;
 steptr aliasweight;
@@ -142,11 +143,13 @@ boolean haslengths;
 
 long get_trans(restml_tree* t)
 {
+  /* return error code for freeing transition matrix */
   long ret;
+
   ret = t->freetrans[t->transindex];
   t->transindex--;
   return ret;
-}
+} /* get_trans */
 
 
 void free_trans(restml_tree* t, long trans)
@@ -169,21 +172,23 @@ void free_trans(restml_tree* t, long trans)
 
   t->transindex++;
   t->freetrans[t->transindex] = trans;
-}
+} /* free_trans */
 
 
 void free_all_trans(restml_tree* t)
 {
+  /* free transition probabilities */
   long i;
 
   for ( i = 0; i < nonodes2; i++ )
     t->freetrans[i] = i;
   t->transindex = nonodes2 - 1;
-}
+} /* free_all_trans */
 
 
 transmatrix alloctrans(long sitelength)
 {
+  /* allocate space for transition probabilities */
   transmatrix ret;
   long i;
 
@@ -191,11 +196,12 @@ transmatrix alloctrans(long sitelength)
   for (i = 0 ; i < sitelength + 1 ; i++)
     ret[i] = Malloc((sitelength + 1) * sizeof(double));
   return ret;
-}
+} /* alloctrans */
 
 
 void alloctreetrans(tree *t, long sitelength)
 {
+  /* allocate tables of transition probabilities one per node */
   long i;
 
   ((restml_tree*)t)->trans = (transptr)Malloc(t->nonodes * sizeof(transmatrix));
@@ -292,7 +298,7 @@ void restml_tree_init(tree* t, long nonodes, long spp) // RSGbugfix
   t->restore_lr_nodes = restml_tree_restore_lr_nodes;
   t->do_branchl_on_insert_f = (do_branchl_on_insert_t)restml_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = (do_branchl_on_re_move_t) restml_tree_do_branchl_on_re_move;
-  ((ml_tree*)t)->makenewv = (makenewv_t)restml_tree_makenewv;
+/*   ((ml_tree*)t)->makenewv = (makenewv_t)restml_tree_makenewv;  debug */
 
   ((restml_tree*)t)->get_trans = get_trans;
   ((restml_tree*)t)->free_trans = free_trans;
@@ -333,9 +339,9 @@ void restml_node_init(node* nn, node_type type, long index)
   restml_node *n = (restml_node *)nn;
   n->branchnum = -1;
   ml_node_init(nn, type, index);
-  n->ml_node.allocx = restml_node_allocx;
+  n->ml_node.allocx = (allocx_t)restml_node_allocx;
   n->ml_node.node.copy = restml_node_copy;
-  n->ml_node.freex = restml_node_freex;
+  n->ml_node.freex = (freex_t)restml_node_freex;
   n->ml_node.node.node_print_f = restml_node_print;
 } /* restml_node_init */
 
@@ -844,6 +850,25 @@ void restml_makevalues(void)
 }  /* restml_makevalues */
 
 
+void restml_tree_setup (long nonodes, long spp) {
+ /* create the trees curtree, bestree, etc. for restml, and set up a pointer
+  * to each, which is passed up the class hierarchy */
+
+  curtreep = &curtree;
+  funcs.tree_new(curtreep, nonodes, spp, (long)sizeof(ml_tree));
+  if (!usertree) {
+    bestreep = &bestree;
+    funcs.tree_new(bestreep, nonodes, spp, (long)sizeof(ml_tree));
+    priortreep = &priortree;
+    funcs.tree_new(priortreep, nonodes, spp, (long)sizeof(ml_tree));
+    if (njumble > 1) {
+      bestree2p = &bestree2;
+      funcs.tree_new(bestree2p, nonodes, spp, (long)sizeof(ml_tree));
+    }
+  }
+} /* restml_tree_setup */
+
+
 void getinput(void)
 {
   /* reads the input data */
@@ -853,7 +878,7 @@ void getinput(void)
     restml_inputdata();
   }
   rest_makeweights(sites, &endsite);
-  inittrees(&curtree, &bestree, &priortree, &bestree2, nonodes2, spp);
+  restml_tree_setup (nonodes2, sites);
   restml_makevalues();
 }  /* getinput */
 
@@ -1972,9 +1997,10 @@ void maketree(void)
       bestyet = - nextsp*sites*sitelength*log(4.0);
       if (smoothit)
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, curtree->nodep[enterorder[nextsp-1]-1],
-                             curtree->root, further, &qwhere, &bestyet,
-                             bestree, priortree, smoothit, NULL);
+      succeeded = curtree->addtraverse(curtree,
+                             curtree->nodep[enterorder[nextsp-1]-1],
+                             curtree->root, further, qwhere, &bestyet,
+                             bestree, thorough, smoothit, false, NULL);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else

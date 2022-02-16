@@ -313,7 +313,7 @@ void kitsch_tree_setup(long nonodes, long spp) {
       funcs.tree_new(bestree2p, nonodes, spp, (long)sizeof(dist_tree));
     }
   }
-} /* fitch_tree_setup */
+} /* kitsch_tree_setup */
 
 
 
