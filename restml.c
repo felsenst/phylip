@@ -2000,7 +2000,7 @@ void maketree(void)
       succeeded = curtree->addtraverse(curtree,
                              curtree->nodep[enterorder[nextsp-1]-1],
                              curtree->root, further, qwhere, &bestyet,
-                             bestree, thorough, smoothit, false, NULL);
+                             bestree, true, smoothit, false, NULL);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
@@ -2103,8 +2103,10 @@ int main(int argc, Char *argv[])
   argv[0] = "RestML";
 #endif
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = restml_node_new;
-  funcs->tree_new = restml_tree_new;
+  funcs->tree_new = (tree_new_t) restml_tree_new;
+  funcs->tree_init = restml_tree_init;
+  funcs->node_new = (node_new_t)restml_node_new;
+  funcs->node_init = restml_node_init;
   phylipinit(argc, argv, funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
