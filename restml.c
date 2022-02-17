@@ -59,7 +59,7 @@ void   restml_tree_nuview(tree*t, node *p);
 void   restml_tree_makenewv(tree* t, node *p);
 void   restml_node_copy(node *c, node *d);
 void   restml_buildnewtip(long , tree *);
-void   restml_buildsimpletree(tree *);
+void   restml_buildsimpletree(tree *, long *);
 void   restml_coordinates(node *, double, long *, double *, double *);
 void   restml_printree(void);
 double sigma(node *, double *);
@@ -89,7 +89,7 @@ void   restml_tree_re_move(tree* t, node **p, node **q);
 
 void   restml_tree_smooth(tree* t, node* p);
 double restml_tree_evaluate(tree* t, node *p, boolean saveit);
-tree*  restml_tree_new(long nonodes, long spp);
+tree*  restml_tree_new(tree **, long nonodes, long spp);
 void   alloctreetrans(tree *t, long sitelength);
 transmatrix alloctrans(long sitelength);
 
@@ -266,7 +266,8 @@ void restml_init_forkring(restml_node * n) // RSGbugfix
 } /* restml_init_forkring */
 
 
-tree* restml_tree_new(long nonodes, long spp)
+void restml_tree_new(tree** treep, long nonodes, long spp, long treesize)
+creenColor();
 { /* initialize a new restml_tree */
   tree* t = Malloc(sizeof(restml_tree));
   restml_tree_init(t, nonodes, spp);
@@ -1361,7 +1362,7 @@ void restml_tree_copy(restml_tree *a, restml_tree *b)
 #endif
 
 
-void restml_buildsimpletree(tree *tr)
+void restml_buildsimpletree(tree *tr, long* enterorder)
 {
   /* set up and adjust branch lengths of a three-species tree */
   hookup(tr->nodep[enterorder[0] - 1], tr->nodep[enterorder[1] - 1]);
@@ -1369,7 +1370,7 @@ void restml_buildsimpletree(tree *tr)
   tr->nodep[enterorder[1] - 1]->v = initialv;
   branchtrans(enterorder[1], initialv);
   ((restml_node*)tr->nodep[enterorder[0] - 1])->branchnum = ((restml_node*)tr->nodep[enterorder[1] - 1])->branchnum = get_trans((restml_tree*)tr);
-  tr->insert_(tr, tr->nodep[enterorder[2] - 1], tr->nodep[enterorder[1] - 1], false, false);
+  tr->insert_(tr, tr->nodep[enterorder[2] - 1], tr->nodep[enterorder[1] - 1], false);
   tr->root = tr->nodep[enterorder[2]-1]->back;
 }  /* restml_buildsimpletree */
 
@@ -1985,10 +1986,12 @@ void maketree(void)
     if (progress)
     {
       printf("\nAdding species:\n");
+      print_progress(progbuf);
       writename(0, 3, enterorder);
+      phyFillScreenColor();
     }
     nextsp = 3;
-    restml_buildsimpletree(curtree);
+    restml_buildsimpletree(curtree, enterorder);
     curtree->root = curtree->nodep[enterorder[0] - 1]->back;
     smoothit = improve;
     nextsp = 4;
@@ -2000,12 +2003,12 @@ void maketree(void)
       succeeded = curtree->addtraverse(curtree,
                              curtree->nodep[enterorder[nextsp-1]-1],
                              curtree->root, further, qwhere, &bestyet,
-                             bestree, true, smoothit, false, NULL);
+                             bestree, true, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
-        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, false, false);
+        curtree->insert_(curtree, curtree->nodep[enterorder[nextsp - 1] - 1], qwhere, false);
         curtree->smoothall(curtree, curtree->root);
         bestyet = curtree->score;
       }
@@ -2027,9 +2030,11 @@ void maketree(void)
       }
 
       if (global && nextsp == spp)
-        curtree->globrearrange(curtree, progress, smoothit);
+        curtree->globrearrange(curtree, bestree, progress, 
+                                smoothit, &bestyet);
       else
-        curtree->locrearrange(curtree, curtree->nodep[enterorder[0] - 1], smoothit, priortree, bestree);
+        curtree->locrearrange(curtree, curtree->nodep[enterorder[0] - 1],
+                     smoothit, &bestyet, bestree, priortree, false, &bestyet);
 
       nextsp++;
     }
