@@ -113,12 +113,12 @@ long col;
 vall *mp=NULL;
 
 
-void dnaml_tree_new(tree** treep, long nonodes, long spp, long treesize)
+void dnaml_tree_new(struct tree** treep, long nonodes, long spp, long treesize)
 {
   /* set up variables and then set up identities of functions */
 
-  ml_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
-  dnaml_tree_init(*treep, nonodes, spp);
+  ml_tree_new((struct tree**)treep, nonodes, spp, sizeof(dnaml_tree));
+  dnaml_tree_init((struct tree*)*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
 
@@ -137,10 +137,14 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
+  curtreep = &curtree;
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
+    bestreep = &bestree;
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
+    bestree2p = &bestree2;
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
+    priortreep = &priortree;
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
