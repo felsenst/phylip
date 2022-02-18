@@ -55,9 +55,9 @@ void   getinput(void);
 void   copymatrix(transmatrix, transmatrix);
 void   maketrans(double, transmatrix, transmatrix, transmatrix);
 void   branchtrans(long, double);
-void   restml_tree_nuview(tree*t, node *p);
-void   restml_tree_makenewv(tree* t, node *p);
-void   restml_node_copy(node *c, node *d);
+void   restml_tree_nuview(tree*, node *);
+void   restml_tree_makenewv(tree*, node *);
+void   restml_node_copy(node *, node *);
 void   restml_buildnewtip(long , tree *);
 void   restml_buildsimpletree(tree *, long *);
 void   restml_coordinates(node *, double, long *, double *, double *);
@@ -69,19 +69,19 @@ void   restml_treeout(node *);
 void   initialvtrav(restml_tree*, node *);
 void   maketree(void);
 void   adjust_lengths(tree *);
-double adjusted_v(double v);
-node * restml_node_new(node_type type, long index);
-void   restml_node_init(node* n, node_type, long);
-void   restml_node_print(node* n);
-void   restml_node_allocx(ml_node* n, long endsite, long sitelength);
-sitelike2 init_sitelike(long sitelength);
-void   free_sitelike(sitelike2 sl);
-void   copy_sitelike(sitelike2 dest, sitelike2 src, long sitelength);
+double adjusted_v(double);
+node * restml_node_new(node_type, long);
+void   restml_node_init(node*, node_type, long);
+void   restml_node_print(node*);
+void   restml_node_allocx(ml_node*, long, long);
+sitelike2 init_sitelike(long);
+void   free_sitelike(sitelike2);
+void   copy_sitelike(sitelike2, sitelike2, long);
 void   reallocsites(void);
-void   restml_initx(restml_node * n);
-void   restml_init_forkring(restml_node * n);             // RSGbugfix
-void   restml_tree_init(tree* t, long nonodes, long spp);
-void   restml_node_freex(ml_node* n);
+void   restml_initx(restml_node *);
+void   restml_init_forkring(restml_node *);             // RSGbugfix
+void   restml_tree_init(tree*, long, long);
+void   restml_node_freex(ml_node*);
 
 #if 0                                   // RSGbugfix: Never used.
 void   restml_tree_re_move(tree* t, node **p, node **q);
@@ -89,8 +89,8 @@ void   restml_tree_re_move(tree* t, node **p, node **q);
 
 void   restml_tree_smooth(tree* t, node* p);
 double restml_tree_evaluate(tree* t, node *p, boolean saveit);
-tree*  restml_tree_new(tree **, long nonodes, long spp);
-void   alloctreetrans(tree *t, long sitelength);
+void   restml_tree_new(tree **, long, long, long);
+void   alloctreetrans(tree *t, long);
 transmatrix alloctrans(long sitelength);
 
 #if 0                                   // RSGbugfix: Never used.
@@ -267,11 +267,9 @@ void restml_init_forkring(restml_node * n) // RSGbugfix
 
 
 void restml_tree_new(tree** treep, long nonodes, long spp, long treesize)
-creenColor();
 { /* initialize a new restml_tree */
-  tree* t = Malloc(sizeof(restml_tree));
-  restml_tree_init(t, nonodes, spp);
-  return t;
+  ml_tree_new(treep, nonodes, spp, sizeof(restml_tree));
+  restml_tree_init(*treep, nonodes, spp);
 } /* restml_tree_new */
 
 
