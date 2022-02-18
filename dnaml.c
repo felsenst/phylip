@@ -17,7 +17,7 @@ typedef struct valrec {
 } valrec;
 
 typedef struct dnaml_tree {
-  ml_tree ml_tree;
+  struct ml_tree ml_tree;
 } dnaml_tree;
 
 typedef long vall[maxcategs];
@@ -25,7 +25,7 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
-tree*  dnaml_tree_new(long, long);
+void   dnaml_tree_new(tree**, long, long, long);
 void   dnaml_tree_init(tree*, long, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
@@ -89,6 +89,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
 tree *curtree, *bestree, *bestree2, *priortree;
+tree **curtreep, **bestreep, **bestree2p, **priortreep;
 node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -112,16 +113,12 @@ long col;
 vall *mp=NULL;
 
 
-tree* dnaml_tree_new(long nonodes, long spp)
+void dnaml_tree_new(tree** treep, long nonodes, long spp, long treesize)
 {
   /* set up variables and then set up identities of functions */
-  tree* t;
 
-  t = generic_tree_new(nonodes, spp);
-  generic_tree_init(t, nonodes, spp);
-  ml_tree_init(t, nonodes, spp);
-  dnaml_tree_init(t, nonodes, spp);
-  return t;
+  ml_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
+  dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
 
@@ -140,11 +137,11 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
-  curtree = dnaml_tree_new(nonodes, spp);
+  dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
-    bestree = dnaml_tree_new(nonodes, spp);
-    bestree2 = dnaml_tree_new(nonodes, spp);
-    priortree = dnaml_tree_new(nonodes, spp);
+    dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
+    dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
+    dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
 

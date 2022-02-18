@@ -877,7 +877,7 @@ void getinput(void)
     restml_inputdata();
   }
   rest_makeweights(sites, &endsite);
-  restml_tree_setup (nonodes2, sites);
+  restml_tree_setup (nonodes2, spp);
   restml_makevalues();
 }  /* getinput */
 
