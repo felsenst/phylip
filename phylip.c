@@ -4802,7 +4802,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 
   if ( !multf ) {
 
-    assert(q->next->next->next == q);               /* probably unnecessary */
+/* debug    assert(q->next->next->next == q);          debug:   probably unnecessary */
 
     if (q->back != NULL) {      /* unless  q  is the root and nothing below */
       r = q->back;
