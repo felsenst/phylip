@@ -2017,7 +2017,7 @@ void maketree(void)
   boolean dummy_first, goteof;
   long nextnode;
   double bestyet;
-  node* p;
+  node *p, *q;
 
   inittable();
     //printf("in maketree - usertree: %i\n", usertree);
@@ -2141,9 +2141,13 @@ void maketree(void)
 
     nextsp = 3;
     polishing = false;
-    release_all_forks(curtree);
-    buildsimpletree(curtree, enterorder);
-    curtree->root = curtree->nodep[enterorder[0] - 1]->back;
+    release_all_forks(curtree);                   /* make sure starts empty */
+    buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
+    k = generic_tree_findemptyfork(curtree); /* put root in outgroup branch */
+    p = curtree->nodep[enterorder[k]-1];
+    q = curtree->nodep[enterorder[0]-1];
+    curtree_insert_(curtree, p, q, false);   /* by inserting on that branch */
+    curtree->root = p;
     smoothit = improve;
     thorough = true;
     nextsp = 4;
