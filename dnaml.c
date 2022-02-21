@@ -2013,7 +2013,7 @@ void dnaml_reroot(tree* t)
 
 void maketree(void)
 {
-  long i;
+  long i, k;
   boolean dummy_first, goteof;
   long nextnode;
   double bestyet;
@@ -2143,25 +2143,21 @@ void maketree(void)
     polishing = false;
     release_all_forks(curtree);                   /* make sure starts empty */
     buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
-    k = generic_tree_findemptyfork(curtree); /* put root in outgroup branch */
-    p = curtree->nodep[enterorder[k]-1];
-    q = curtree->nodep[enterorder[0]-1];
-    curtree_insert_(curtree, p, q, false);   /* by inserting on that branch */
-    curtree->root = p;
+    generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]);  /* root */
     smoothit = improve;
     thorough = true;
     nextsp = 4;
     while (nextsp <= spp)
     {
-      curtree->copy(curtree, priortree);
-      k = generic_tree_findemptyfork(curtree);
-      p = curtree->get_fork(curtree, k);
-      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], p);
+      curtree->copy(curtree, priortree);                       /* save tree */
+      k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
+      q = curtree->nodep[k-1];
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q); 
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (smoothit)
+      if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, p, curtree->root, further, qwhere,
+      curtree->addtraverse(curtree, q, curtree->root, further, qwhere,
                             &bestyet, bestree, thorough, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);

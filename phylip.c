@@ -4823,6 +4823,25 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 } /* generic_tree_insert_ */
 
 
+void generic_root_insert(struct tree* t, struct node* p)
+{
+  /* get a root fork and put it into the branch indicated by  p,
+   * and designate the unconnected node in the fork as the root */
+/* debug: maybe in future call a generic root-insert function
+ * to implement this, so it can share that with remove-and-insert */
+  node* q;
+  long k;
+    
+  k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
+  q = generic_tree_get_forknode(t, k+1);   /* get fork circle, make, index  */
+  t->nodep[k] = q;
+  hookup(p->back, q->next->next);                  /* connect the root fork */
+  hookup(p, q->next);
+  q->back = NULL;             /* make sure the rootmost node has empty back */
+  t->root = q;                          /* set the tree's root to that node */
+} /* generic_root_insert */
+
+
 /* debug:  what are these both doing here? */
 #if 0
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
@@ -4832,6 +4851,8 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
   (void)p;                              // RSGdebug: Parameter never used.
   (void)q;                              // RSGdebug: Parameter never used.
 } /* generic_do_branchl_on_re_move */
+
+
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 {
   /* for now unused.  see version in ml.c */
