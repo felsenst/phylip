@@ -20,6 +20,10 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
+typedef struct dnaml_node {
+  struct ml_node ml_node;
+} dnaml_node;
+
 typedef long vall[maxcategs];
 typedef double contribarr[maxcategs];
 
@@ -27,6 +31,8 @@ typedef double contribarr[maxcategs];
 /* function prototypes */
 void   dnaml_tree_new(tree**, long, long, long);
 void   dnaml_tree_init(tree*, long, long);
+struct node* dnaml_node_new(type, long, long);
+void   dnaml_node_init(struct node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -130,7 +136,27 @@ void dnaml_tree_init(tree* t, long nonodes, long spp)
   t->try_insert_ = ml_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
   t->makenewv = dnaml_tree_makenewv;
+  t->get_fork = generic_tree_get_fork;
 } /* dnaml_tree_init */
+
+
+struct node* dnaml_node_new(node_type type, long index, long nodesize)
+{
+  /* make new node */
+  struct node *n;
+
+  nodesize = (long)sizeof(dnaml_node);
+  n = struct node* ml_node_new(type, index, nodesize);
+  dnaml_node_init(n, type, index);
+  return n;
+} /* dnaml_node_new */
+
+
+void dnaml_node_init(struct node* n, node_type type, long index)
+{
+  /* assign functions for a new node */
+
+} /* dnaml_node_init */
 
 
 void dnaml_tree_setup(long nonodes, long spp)
