@@ -2151,8 +2151,9 @@ void maketree(void)
     {
       curtree->copy(curtree, priortree);                       /* save tree */
       k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
-      q = curtree->nodep[k-1];
-      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q); 
+      q = get_fork(curtree, k);
+      curtree->nodep[k] = q;
+      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (smoothit)  /* debug: necessary? */

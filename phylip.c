@@ -4813,6 +4813,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     else {                                         /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
+/* debug:  do we need to reset  t->root here? */
       };
 
 /* debug: needed?    assert( ! p->initialized );
@@ -4820,7 +4821,20 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
     assert( ! p->next->next->initialized );   debug */
 
   }
+/* debug: need something here for  multif = true case */
 } /* generic_tree_insert_ */
+
+
+long generic_tree_findemptyfork(tree* t)
+{ /* go through nodep finding an empty fork slot */
+  long k;
+
+  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+    if (t->nodep[k] == NULL)
+      break;
+  }
+  return k;
+} /* generic_tree_findemptyfork */
 
 
 void generic_root_insert(struct tree* t, struct node* p)
@@ -4828,18 +4842,28 @@ void generic_root_insert(struct tree* t, struct node* p)
   /* get a root fork and put it into the branch indicated by  p,
    * and designate the unconnected node in the fork as the root */
 /* debug: maybe in future call a generic root-insert function
- * to implement this, so it can share that with remove-and-insert */
+ * to implement this, so it can share that with remove-and-insert 
+ * (see also generic_root_insert) */
   node* q;
   long k;
     
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
-  q = generic_tree_get_forknode(t, k+1);   /* get fork circle, make, index  */
-  t->nodep[k] = q;
-  hookup(p->back, q->next->next);                  /* connect the root fork */
-  hookup(p, q->next);
+  q = t->get_fork(t, k);                   /* get a fork for root and tip k */
+  t->nodep[k] = q;                                   /* put it in that slot */
+  generic_insertroot(t, p, q->next);           /* insert the circle near  p */
   q->back = NULL;             /* make sure the rootmost node has empty back */
-  t->root = q;                          /* set the tree's root to that node */
 } /* generic_root_insert */
+
+
+void generic_insertroot(tree* t, node* p, node* f)
+{
+  /* take a tree that has no rootmost fork and put fork  f  in between node
+   * p  and the node it connects to, with a null root behind  f */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+
+  t->insert_(t, f, p, false);                            /* insert the fork */
+  t->root = f;                                /* set the root pointer to it */
+} /* insertroot */
 
 
 /* debug:  what are these both doing here? */
@@ -5004,18 +5028,6 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
 } /* putrootnearoutgroup */
 
 
-long generic_tree_findemptyfork(tree* t)
-{ /* go through nodep finding an empty fork slot */
-  long k;
-
-  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
-    if (t->nodep[k] == NULL)
-      break;
-  }
-  return k;
-} /* generic_tree_findemptyfork */
-
-
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
                           double* bestyet, tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
@@ -5062,9 +5074,9 @@ void buildsimpletree(tree *t, long* enterorder)
   p = t->nodep[enterorder[0] - 1];
   q = t->nodep[enterorder[1] - 1];
   r = t->nodep[enterorder[2] - 1];
+  hookup(q, r);                            /* connect 2 and 3 to each other */
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
   newnode1 = t->get_fork(t, k);            /* get a fork for root and tip 1 */
-  hookup(q, r);                            /* connect 2 and 3 to each other */
   hookup(p, newnode1);            /* connect first species to that new fork */
   t->insert_(t, newnode1, q, false);                 /* connect all of them */
 }  /* buildsimpletree */
@@ -5082,17 +5094,6 @@ node* generic_newrootfork(tree* t)
   newnode->next->next->back = NULL;       /* root connects to empty pointer */
   return newnode;
 } /* newrootfork */
-
-
-void generic_insertroot(tree* t, node* p, node* f)
-{
-  /* take a tree that has no rootmost fork and put fork  f  in between node
-   * p  and the node it connects to, with a null root behind  f */
-  /* debug: notice: one must have no pre-existing rootmost fork in tree */
-
-  t->insert_(t, f, p, false);                            /* insert the fork */
-  t->root = f;                                /* set the root pointer to it */
-} /* insertroot */
 
 
 void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
