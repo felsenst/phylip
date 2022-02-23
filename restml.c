@@ -279,7 +279,7 @@ void restml_tree_init(tree* t, long nonodes, long spp) // RSGbugfix
 
   ml_tree_init(t, nonodes, spp);
   // don't add 1 to endsite here, it's taken care of in restml-specific routines
-  allocx(nonodes, endsite, sitelength, (ml_node**)t->nodep);
+  allocx(nonodes, endsite, sitelength, (node**)t->nodep);
   alloctreetrans(t, sitelength);
   ((restml_tree*)t)->lr_temps = Malloc(NLR_TEMPS * sizeof(transmatrix));
   for ( i = 0 ; i < NLR_TEMPS ; i++ )

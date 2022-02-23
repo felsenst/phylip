@@ -31,7 +31,7 @@ typedef double contribarr[maxcategs];
 /* function prototypes */
 void   dnaml_tree_new(tree**, long, long, long);
 void   dnaml_tree_init(tree*, long, long);
-struct node* dnaml_node_new(type, long, long);
+struct node* dnaml_node_new(node_type, long, long);
 void   dnaml_node_init(struct node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
@@ -146,7 +146,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
   struct node *n;
 
   nodesize = (long)sizeof(dnaml_node);
-  n = struct node* ml_node_new(type, index, nodesize);
+  n = ml_node_new(type, index, nodesize);
   dnaml_node_init(n, type, index);
   return n;
 } /* dnaml_node_new */
@@ -1386,13 +1386,13 @@ void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
   {
     case bottom:
       *p = treep->get_forknode(treep, nodei);
-      ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs);
+      ((ml_node*)*p)->allocx((node*)*p, endsite, rcategs);
       assert((*p)->index > 0);
       nodep[(*p)->index - 1] = (*p);
       break;
     case nonbottom:
       *p = treep->get_forknode(treep, nodei);
-      ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs);
+      ((ml_node*)*p)->allocx((node*)*p, endsite, rcategs);
       break;
     case tip:
       match_names_to_data (str, nodep, p, spp);
@@ -2043,7 +2043,7 @@ void maketree(void)
   boolean dummy_first, goteof;
   long nextnode;
   double bestyet;
-  node *p, *q;
+  node *q;
 
   inittable();
     //printf("in maketree - usertree: %i\n", usertree);
@@ -2177,7 +2177,7 @@ void maketree(void)
     {
       curtree->copy(curtree, priortree);                       /* save tree */
       k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
-      q = get_fork(curtree, k);
+      q = curtree->get_fork(curtree, k);
       curtree->nodep[k] = q;
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
@@ -2191,7 +2191,7 @@ void maketree(void)
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, p, qwhere, false);
+        curtree->insert_(curtree, q, qwhere, false);
         smoothit = false;
         bestyet = curtree->score;
       }
@@ -2955,15 +2955,18 @@ void dnaml(
 
 int main(int argc, Char *argv[])
 {  /* DNA Maximum Likelihood */
-  initdata funcs;
+  initdata *funcs;
 #ifdef MAC
   argc = 1;                /* macsetup("DnaML", "");        */
   argv[0] = "DnaML";
 #endif
   memset(&funcs, 0, sizeof(funcs));
-  funcs.node_new = dna_node_new;
-  funcs.tree_new = dnaml_tree_new;
-  phylipinit(argc, argv, &funcs, false);
+  funcs = (initdata*)Malloc(sizeof(initdata));
+  funcs->tree_new = (tree_new_t)dnaml_tree_new;
+  funcs->tree_init = (tree_init_t)dnaml_tree_init;
+  funcs->node_new = (node_new_t)dna_node_new;
+  funcs->node_init = (node_init_t)dnaml_node_init;
+  phylipinit(argc, argv, funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
   openfile(&outfile, OUTFILE, "output file", "w", argv[0], outfilename);

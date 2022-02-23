@@ -4830,7 +4830,7 @@ long generic_tree_findemptyfork(tree* t)
   long k;
 
   for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
-    if (t->nodep[k] == NULL)
+    if (t->nodep[k] == NULL)       /* k  is not index, it is number of slot */
       break;
   }
   return k;
@@ -4848,9 +4848,9 @@ void generic_root_insert(struct tree* t, struct node* p)
   long k;
     
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
-  q = t->get_fork(t, k);                   /* get a fork for root and tip k */
+  q = t->get_fork(t, k);                    /* get a fork for root and node */
   t->nodep[k] = q;                                   /* put it in that slot */
-  generic_insertroot(t, p, q->next);           /* insert the circle near  p */
+  generic_insertroot(t, p, q);                 /* insert the circle near  p */
   q->back = NULL;             /* make sure the rootmost node has empty back */
 } /* generic_root_insert */
 
@@ -5091,7 +5091,7 @@ node* generic_newrootfork(tree* t)
   
   m = generic_tree_findemptyfork(t);   /* find interior node that is unused */
   newnode = t->get_fork(t, m);             /* get a fork from the free list */
-  newnode->next->next->back = NULL;       /* root connects to empty pointer */
+  newnode->back = NULL;                   /* root connects to empty pointer */
   return newnode;
 } /* newrootfork */
 
