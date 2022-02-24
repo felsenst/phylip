@@ -4093,12 +4093,12 @@ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p-
   }
   atstart = false;
   if (!succeeded) {
-    if (!q->tip) {          /* in one direction, try descendants,
-                             * maybe further unless just local rearrangements */
+    if (!q->tip) {        /* in one direction, try descendants,
+                           * maybe further unless just local rearrangements */
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
 printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
-        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+        if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
 printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
           succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
@@ -4106,19 +4106,21 @@ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /*
         }
       }
     }
-    if ((contin == further) && !q->back->tip) {
-      /* we need to go both ways, if we start in an interior branch
-       * of an unrooted tree and are not doing just local rearrangements */
-      for ( sib_ptr = q->back->next; sib_ptr != q->back;
-                                       sib_ptr = sib_ptr->next)
-      {
+    if (q->back != NULL) { /* go other way but don't go out root nil pointer */
+      if ((contin == further) && !q->back->tip) {
+          /* we need to go both ways, if we start in an interior branch
+           * of an unrooted tree and are not doing just local rearrangements */
+        for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                         sib_ptr = sib_ptr->next)
+        {
 printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
-        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+          if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
 printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
 /* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
-        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+          succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree,
                             thorough, storing, atstart, bestfound) || succeeded;
+          }
         }
       }
     }

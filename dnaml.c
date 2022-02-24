@@ -1022,14 +1022,16 @@ void free_nvd (nuview_data *local_nvd)
 
 
 void dnaml_tree_nuview(tree* t, node *p)
-{
+{ 
+  /* recursive computation of conditional likelihoods for a node based
+   * on those of its descendants */
   long i, j, k, l, num_sibs, sib_index;
   nuview_data *local_nvd;
-  node *sib_ptr, *sib_back_ptr;
-  sitelike p_xx;
+  node *sib_ptr, *sib_back_ptr;  /* for the two ends of a descendant branch */
+  sitelike p_xx;    /* vector of site conditional likelihoods for that node */
   double lw;
-  double correction;
-  double maxx;
+  double correction;                  /* correction to cope with underflows */
+  double maxx;                        /* maximum of conditional likelihoods */
 
   /* Allocate the structure and blocks for variables used in this function. */
   num_sibs = count_sibs(p);
@@ -1040,13 +1042,15 @@ void dnaml_tree_nuview(tree* t, node *p)
      what's already in tbl and the children's value of v */
   sib_ptr = p;
   for (sib_index=0; sib_index < num_sibs; sib_index++)
-  {
+  {   /* for each descendant lineage tabulate some part of transition prob */
     sib_ptr      = sib_ptr->next;
     sib_back_ptr = sib_ptr->back;
 
-    lw = - (sib_back_ptr->v);
-
-    for (i = 0; i < rcategs; i++)
+    if (sib_back_ptr != NULL)
+      lw = - (sib_back_ptr->v);
+    else
+      lw = 0.0;
+    for (i = 0; i < rcategs; i++)   /* table of terms for transition probs */
       for (j = 0; j < categs; j++)
       {
         tbl[i][j]->ww[sib_index]   = exp(tbl[i][j]->ratxi * lw);
@@ -1057,41 +1061,39 @@ void dnaml_tree_nuview(tree* t, node *p)
                                       tbl[i][j]->zz[sib_index];
       }
   }
-
-  /* Loop 2: */
-  for (i = 0; i < endsite; i++)
+  for (i = 0; i < endsite; i++)                                 /* Loop 2: */
   {
     correction = 0;
     maxx = 0;
     k = category[alias[i]-1] - 1;
-    for (j = 0; j < rcategs; j++)
+    for (j = 0; j < rcategs; j++)       /* Loop 2.1: for each rate category */
     {
-      /* Loop 2.1 */
       sib_ptr = p;
-      for (sib_index=0; sib_index < num_sibs; sib_index++)
+      for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {
         sib_ptr         = sib_ptr->next;
         sib_back_ptr    = sib_ptr->back;
 
-        if ( j == 0 )
-          correction += ((ml_node*)sib_back_ptr)->underflows[i];
+        if (sib_back_ptr != NULL) {        /* otherwise no table to fill in */
+          if ( j == 0 )
+            correction += ((ml_node*)sib_back_ptr)->underflows[i];
 
-        local_nvd->wwzz[sib_index] = tbl[j][k]->wwzz[sib_index];
-        local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
-        local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
-        memcpy(local_nvd->xx[sib_index],
-                 ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+          local_nvd->wwzz[sib_index] = tbl[j][k]->wwzz[sib_index];
+          local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
+          local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
+          memcpy(local_nvd->xx[sib_index],
+                        ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+        }
       }
 
-      /* Loop 2.2 */
-      for (sib_index=0; sib_index < num_sibs; sib_index++)
-      {
+      for (sib_index = 0; sib_index < num_sibs; sib_index++)
+      {                    /* Loop 2.2:  pieces for each descendant lineage */
         local_nvd->sum[sib_index] =
           local_nvd->yy[sib_index] *
-          (freqa * local_nvd->xx[sib_index][(long)A] +
-           freqc * local_nvd->xx[sib_index][(long)C] +
-           freqg * local_nvd->xx[sib_index][(long)G] +
-           freqt * local_nvd->xx[sib_index][(long)T]);
+            (freqa * local_nvd->xx[sib_index][(long)A] +
+             freqc * local_nvd->xx[sib_index][(long)C] +
+             freqg * local_nvd->xx[sib_index][(long)G] +
+             freqt * local_nvd->xx[sib_index][(long)T]);
         local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
                                    + freqgr*local_nvd->xx[sib_index][(long)G];
         local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
@@ -1102,14 +1104,14 @@ void dnaml_tree_nuview(tree* t, node *p)
                                        * local_nvd->sumy[sib_index];
       }
 
-      /* Initialize to one, multiply incremental values for every sibling */
-      p_xx[(long)A] = 1 ;
-      p_xx[(long)C] = 1 ;
-      p_xx[(long)G] = 1 ;
-      p_xx[(long)T] = 1 ;
+        /* Initialize to one, multiply incremental values for every sibling */
+      p_xx[(long)A] = 1.0 ;
+      p_xx[(long)C] = 1.0 ;
+      p_xx[(long)G] = 1.0 ;
+      p_xx[(long)T] = 1.0 ;
 
-      for (sib_index=0; sib_index < num_sibs; sib_index++)
-      {
+      for (sib_index = 0; sib_index < num_sibs; sib_index++)
+      {    /* go over descendant lineages, multiplying pieces for each site */
         p_xx[(long)A] *=
           local_nvd->sum[sib_index] +
           local_nvd->wwzz[sib_index] *
@@ -1134,18 +1136,19 @@ void dnaml_tree_nuview(tree* t, node *p)
 
       for ( l = 0 ; l < ((long)T - (long)A + 1); l++ )
       {
-        if ( p_xx[l] > maxx )
+        if ( p_xx[l] > maxx )       /* find max of likelihood for each site */
           maxx = p_xx[l];
       }
 
       /* And the final point of this whole function: */
       memcpy(((dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
     }
+
     ((ml_node*)p)->underflows[i] = 0;
     if ( maxx < MIN_DOUBLE)
       fix_x(((dna_node*)p), i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
-  }
+  }                                                /* end of loop over sites */
 
   p->initialized = true;
 
