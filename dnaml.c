@@ -128,7 +128,7 @@ void dnaml_tree_new(struct tree** treep, long nonodes, long spp, long treesize)
 } /* dnaml_tree_new */
 
 
-void dnaml_tree_init(tree* t, long nonodes, long spp)
+void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
@@ -178,6 +178,7 @@ void dnaml_tree_setup(long nonodes, long spp)
 
 void inittip(tree* t, long m)
 { /* initialize and hook up a new tip;  m is the index of the tip */
+/* debug:  not obvious that this is ever used */
   node *tmp;
 
   tmp = t->nodep[m - 1];
