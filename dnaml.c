@@ -1066,7 +1066,7 @@ void dnaml_tree_nuview(tree* t, node *p)
   {
     correction = 0;
     maxx = 0;
-    k = category[alias[i]-1] - 1;
+    k = category[alias[i]-1] - 1; /* get user-defined category for the site */
     for (j = 0; j < rcategs; j++)       /* Loop 2.1: for each rate category */
     {
       sib_ptr = p;
@@ -1084,6 +1084,10 @@ void dnaml_tree_nuview(tree* t, node *p)
           local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
           memcpy(local_nvd->xx[sib_index],
                         ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+        }
+        else {           /* if back is null, fill in 1's for site likelhood */
+          for ( l = 0 ; l < ((long)T - (long)A + 1); l++ )
+            local_nvd->xx[sib_index][l] = 1.0;
         }
       }
 
@@ -1151,7 +1155,7 @@ void dnaml_tree_nuview(tree* t, node *p)
     ((ml_node*)p)->underflows[i] += correction;
   }                                                /* end of loop over sites */
 
-  p->initialized = true;
+  p->initialized = true;           /* mark node as having its "view" updated */
 
   free_nvd (local_nvd);
   free (local_nvd);
