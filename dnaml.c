@@ -1091,22 +1091,34 @@ void dnaml_tree_nuview(tree* t, node *p)
         }
       }
 
+      sib_ptr = p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {                    /* Loop 2.2:  pieces for each descendant lineage */
-        local_nvd->sum[sib_index] =
-          local_nvd->yy[sib_index] *
-            (freqa * local_nvd->xx[sib_index][(long)A] +
-             freqc * local_nvd->xx[sib_index][(long)C] +
-             freqg * local_nvd->xx[sib_index][(long)G] +
-             freqt * local_nvd->xx[sib_index][(long)T]);
-        local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
-                                   + freqgr*local_nvd->xx[sib_index][(long)G];
-        local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
-                                   + freqty*local_nvd->xx[sib_index][(long)T];
-        local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
-                                       * local_nvd->sumr[sib_index];
-        local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
+        sib_ptr = sib_ptr->next;
+        sib_back_ptr = sib_ptr->back;
+        if (!(sib_back_ptr == NULL)) {
+          local_nvd->sum[sib_index] =
+            local_nvd->yy[sib_index] *
+              (freqa * local_nvd->xx[sib_index][(long)A] +
+               freqc * local_nvd->xx[sib_index][(long)C] +
+               freqg * local_nvd->xx[sib_index][(long)G] +
+               freqt * local_nvd->xx[sib_index][(long)T]);
+          local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
+                                     + freqgr*local_nvd->xx[sib_index][(long)G];
+          local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
+                                     + freqty*local_nvd->xx[sib_index][(long)T];
+          local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
+                                         * local_nvd->sumr[sib_index];
+          local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
                                        * local_nvd->sumy[sib_index];
+          }
+        else {
+          local_nvd->sum[sib_index] = 1.0;
+          local_nvd->sumr[sib_index] = 0.0;
+          local_nvd->sumy[sib_index] = 0.0;
+          local_nvd->vzsumr[sib_index] = 0.0;
+          local_nvd->vzsumy[sib_index] = 0.0;
+        }
       }
 
         /* Initialize to one, multiply incremental values for every sibling */
