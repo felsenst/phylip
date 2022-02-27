@@ -1085,40 +1085,31 @@ void dnaml_tree_nuview(tree* t, node *p)
           memcpy(local_nvd->xx[sib_index],
                         ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
         }
-        else {           /* if back is null, fill in 1's for site likelhood */
-          for ( l = 0 ; l < ((long)T - (long)A + 1); l++ )
-            local_nvd->xx[sib_index][l] = 1.0;
-        }
       }
 
       sib_ptr = p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {                    /* Loop 2.2:  pieces for each descendant lineage */
         sib_ptr = sib_ptr->next;
-        sib_back_ptr = sib_ptr->back;
-        if (!(sib_back_ptr == NULL)) {
-          local_nvd->sum[sib_index] =
-            local_nvd->yy[sib_index] *
-              (freqa * local_nvd->xx[sib_index][(long)A] +
-               freqc * local_nvd->xx[sib_index][(long)C] +
-               freqg * local_nvd->xx[sib_index][(long)G] +
-               freqt * local_nvd->xx[sib_index][(long)T]);
-          local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
-                                     + freqgr*local_nvd->xx[sib_index][(long)G];
-          local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
-                                     + freqty*local_nvd->xx[sib_index][(long)T];
-          local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
-                                         * local_nvd->sumr[sib_index];
-          local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
-                                       * local_nvd->sumy[sib_index];
-          }
-        else {
-          local_nvd->sum[sib_index] = 1.0;
-          local_nvd->sumr[sib_index] = 0.0;
-          local_nvd->sumy[sib_index] = 0.0;
-          local_nvd->vzsumr[sib_index] = 0.0;
-          local_nvd->vzsumy[sib_index] = 0.0;
-        }
+        if (sib_ptr != NULL) {
+          sib_back_ptr = sib_ptr->back;
+          if (!(sib_back_ptr == NULL)) {
+            local_nvd->sum[sib_index] =
+              local_nvd->yy[sib_index] *
+                (freqa * local_nvd->xx[sib_index][(long)A] +
+                 freqc * local_nvd->xx[sib_index][(long)C] +
+                 freqg * local_nvd->xx[sib_index][(long)G] +
+                 freqt * local_nvd->xx[sib_index][(long)T]);
+            local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
+                                       + freqgr*local_nvd->xx[sib_index][(long)G];
+            local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
+                                       + freqty*local_nvd->xx[sib_index][(long)T];
+            local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
+                                           * local_nvd->sumr[sib_index];
+            local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
+                                         * local_nvd->sumy[sib_index];
+            }
+         }
       }
 
         /* Initialize to one, multiply incremental values for every sibling */
@@ -1127,28 +1118,35 @@ void dnaml_tree_nuview(tree* t, node *p)
       p_xx[(long)G] = 1.0 ;
       p_xx[(long)T] = 1.0 ;
 
+      sib_ptr = p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {    /* go over descendant lineages, multiplying pieces for each site */
-        p_xx[(long)A] *=
-          local_nvd->sum[sib_index] +
-          local_nvd->wwzz[sib_index] *
-          local_nvd->xx[sib_index][(long)A] +
-          local_nvd->vzsumr[sib_index];
-        p_xx[(long)C] *=
-          local_nvd->sum[sib_index] +
-          local_nvd->wwzz[sib_index] *
-          local_nvd->xx[sib_index][(long)C] +
-          local_nvd->vzsumy[sib_index];
-        p_xx[(long)G] *=
-          local_nvd->sum[sib_index] +
-          local_nvd->wwzz[sib_index] *
-          local_nvd->xx[sib_index][(long)G] +
-          local_nvd->vzsumr[sib_index];
-        p_xx[(long)T] *=
-          local_nvd->sum[sib_index] +
-          local_nvd->wwzz[sib_index] *
-          local_nvd->xx[sib_index][(long)T] +
-          local_nvd->vzsumy[sib_index];
+        sib_ptr = sib_ptr->next;
+        if (sib_ptr != NULL) {
+          sib_back_ptr = sib_ptr->back;
+          if (sib_back_ptr != NULL) {
+            p_xx[(long)A] *=
+              local_nvd->sum[sib_index] +
+              local_nvd->wwzz[sib_index] *
+              local_nvd->xx[sib_index][(long)A] +
+              local_nvd->vzsumr[sib_index];
+            p_xx[(long)C] *=
+              local_nvd->sum[sib_index] +
+              local_nvd->wwzz[sib_index] *
+              local_nvd->xx[sib_index][(long)C] +
+              local_nvd->vzsumy[sib_index];
+            p_xx[(long)G] *=
+              local_nvd->sum[sib_index] +
+              local_nvd->wwzz[sib_index] *
+              local_nvd->xx[sib_index][(long)G] +
+              local_nvd->vzsumr[sib_index];
+            p_xx[(long)T] *=
+              local_nvd->sum[sib_index] +
+              local_nvd->wwzz[sib_index] *
+              local_nvd->xx[sib_index][(long)T] +
+              local_nvd->vzsumy[sib_index];
+           }
+         }
       }
 
       for ( l = 0 ; l < ((long)T - (long)A + 1); l++ )
