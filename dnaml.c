@@ -1051,7 +1051,7 @@ void dnaml_tree_nuview(tree* t, node *p)
       lw = - (sib_back_ptr->v);
     else
       lw = 0.0;
-    for (i = 0; i < rcategs; i++)   /* table of terms for transition probs */
+    for (i = 0; i < rcategs; i++) { /* table of terms for transition probs */
       for (j = 0; j < categs; j++)
       {
         tbl[i][j]->ww[sib_index]   = exp(tbl[i][j]->ratxi * lw);
@@ -1061,6 +1061,7 @@ void dnaml_tree_nuview(tree* t, node *p)
         tbl[i][j]->vvzz[sib_index] = (1.0 - tbl[i][j]->ww[sib_index]) *
                                       tbl[i][j]->zz[sib_index];
       }
+    }
   }
   for (i = 0; i < endsite; i++)                                 /* Loop 2: */
   {
@@ -1093,7 +1094,7 @@ void dnaml_tree_nuview(tree* t, node *p)
         sib_ptr = sib_ptr->next;
         if (sib_ptr != NULL) {
           sib_back_ptr = sib_ptr->back;
-          if (!(sib_back_ptr == NULL)) {
+          if (sib_back_ptr != NULL) {
             local_nvd->sum[sib_index] =
               local_nvd->yy[sib_index] *
                 (freqa * local_nvd->xx[sib_index][(long)A] +
