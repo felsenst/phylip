@@ -4091,7 +4091,6 @@ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p-
 /* debug */ if (succeeded) printf("yes, better!\n");
     atstart = false;
   }
-  atstart = false;
   if (!succeeded) {
     if (!q->tip) {        /* in one direction, try descendants,
                            * maybe further unless just local rearrangements */

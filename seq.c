@@ -608,10 +608,12 @@ void drawline(long i, double scale, node *root)
       r = p->next;
       done = false;
       do {
-        if (i >= r->back->ymin && i <= r->back->ymax)
-        {
-          q = r->back;
-          done = true;
+        if (r->back != NULL) {
+          if ((i >= r->back->ymin) && (i <= r->back->ymax))
+          {
+            q = r->back;
+            done = true;
+          }
         }
         r = r->next;
       } while (!(done || r == p));
@@ -780,20 +782,30 @@ void drawline2(long i, double scale, tree* curtree)
       r = p->next;
       done = false;
       do {
-        if (i >= r->back->ymin && i <= r->back->ymax)
-        {
-          q = r->back;
-          done = true;
+        if (r->back != NULL) {
+          if ((i >= r->back->ymin) && (i <= r->back->ymax))
+          {
+            q = r->back;
+            done = true;
+          }
         }
         r = r->next;
-      } while (!(done || (p != curtree->root && r == p) || (p == curtree->root && r == p->next)));
-      first = p->next->back;
+      } while (!(done || (p != curtree->root && r == p)
+                 || (p == curtree->root && r == p->next)));
+      if (p->next->back != NULL) {
+        first = p->next->back;
+      } else {
+        first = p->next->next->back;
+      }
       r = p;
-      while (r->next != p)
+      while (r->next != p) {
         r = r->next;
-      last = r->back;
+        if (r->back != NULL)
+          last = r->back;
+      }
       if (p == curtree->root)
-        last = p->back;
+        if (p->back != NULL)
+          last = p->back;
     }
     done = (p->tip || p == q);
     n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);

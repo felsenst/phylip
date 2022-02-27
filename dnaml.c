@@ -1465,13 +1465,18 @@ void dnaml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
   }
   q = p->next;
   do {
-    xx = fracchange * q->v;
-    if (xx > 100.0)
-      xx = 100.0;
-    dnaml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
+    if (q->back != NULL) {
+      xx = fracchange * q->v;
+      if (xx > 100.0)
+        xx = 100.0;
+      dnaml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
+    }
     q = q->next;
   } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
-  first = p->next->back;
+  if (p->next->back == NULL)
+    first = p->next->next->back;
+  else
+    first = p->next->back;
   q = p;
   while (q->next != p)
     q = q->next;
@@ -1593,7 +1598,8 @@ void describe(node *p)
     for (i=0; i < num_sibs; i++)
     {
       sib_ptr = sib_ptr->next;
-      describe(sib_ptr->back);
+      if (sib_ptr->back != NULL)
+        describe(sib_ptr->back);
     }
   }
 }  /* describe */
@@ -1988,7 +1994,8 @@ void dnaml_treeout(node *p)
         }
       }
       inloop = true;
-      dnaml_treeout(q->back);
+      if (q->back != NULL)
+        dnaml_treeout(q->back);
       q = q->next;
     } while ((p == curtree->root || p != q)
              && (p != curtree->root || p->next != q));
