@@ -759,11 +759,12 @@ void ml_tree_smoothall(tree* t, node* p)
 
   save = smoothit;
   smoothit = true;
-/* debug:   if ( p->tip ) p = p->back;   what does this do? */
+  if ( p->tip )
+    p = p->back;
 
 /* debug:   editing mistake near here when removing debugging prints? */
   /* it may seem like we are doing too many smooths, but sometimes
-   *dden while accessingbone branch near p may already be completly smoothed from an
+   * branch near p may already be completely smoothed from an
    * insert, this insures we spread out in the tree */
   for ( i = 0 ; i < smoothings ; i++ )
   {

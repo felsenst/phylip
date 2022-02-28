@@ -137,6 +137,7 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   t->nuview = dnaml_tree_nuview;
   t->makenewv = dnaml_tree_makenewv;
   t->get_fork = generic_tree_get_fork;
+  t->smoothall = ml_tree_smoothall;
 } /* dnaml_tree_init */
 
 
