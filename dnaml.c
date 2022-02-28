@@ -1450,7 +1450,7 @@ void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
 void dnaml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
 {
   /* establishes coordinates of nodes */
-  node *q, *first, *last;
+  node *q, *qprev, *first, *last;
   double xx;
 
   if (p->tip)
@@ -1479,8 +1479,12 @@ void dnaml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
   else
     first = p->next->back;
   q = p;
-  while (q->next != p)
+  while (q->next != p) {
+    qprev = q;
     q = q->next;
+  }
+  if (q->back == NULL)
+    q = qprev;
   last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);
   if (p == curtree->root)
