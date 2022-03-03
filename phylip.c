@@ -462,7 +462,7 @@ void verify_nuview (node *p)
 } /* verify_nuview */
 
 
-void invalidate_nuview (node *p)
+void invalidate_nuview (struct node *p)
 { /* Invalidate all views looking toward p. Must be called on a node
    * after changing its tyme or branch lengths before evaluating at any other
    * node. */
@@ -473,11 +473,11 @@ void invalidate_nuview (node *p)
 } /* invalidate_nuview */
 
 
-void invalidate_traverse (node *p)
+void invalidate_traverse (struct node *p)
 { /* Invalidates p's view and all views looking toward p from p->back
    * on out. */
   /* debug: is this needed in view of function inittrav? */
-  node *q;
+  struct node *q;
 
   if (p == NULL)
     return;
@@ -501,14 +501,14 @@ void invalidate_traverse (node *p)
 } /* invalidate_traverse */
 
 
-void inittrav_all (tree *t)
+void inittrav_all (struct tree *t)
 {
   /* Set initialized false on all interior fork nodes on tree, so
    * that views are regenerated regardless. For debugging nuview
    * problems. Not needed for regular program execution --
    * replaced by function initializetrav */
 
-  node *p, *q;
+  struct node *p, *q;
   long index;
 
   /* For each fork node (spp..nonodes-1) */
@@ -524,14 +524,14 @@ void inittrav_all (tree *t)
 } /* inittrav_all */
 
 
-void initializetrav (tree* t, node *p)
+void initializetrav (struct tree* t, struct node *p)
 {
   /* traverse further through tree from there outwards setting all
    * "initialized" booleans on any connected interior node to false
    * To set all initializeds to false on a tree must be called twice
    * for root branch, once at each end of the branch */
 /* debug:  does this duplicate the previous two functions? */
-  node *q;
+  struct node *q;
 
   if (p != NULL) {
     if (p->tip)
@@ -555,7 +555,7 @@ void initializetrav (tree* t, node *p)
 } /* initializetrav */
 
 
-void inittrav (tree* t, node *p)
+void inittrav (struct tree* t, struct node *p)
 { /* traverse to set inward-looking booleans uninitialized on inserting
    * This does not set all initialized booleans in the tree to false,
    * only the ones looking inwards at the branch it is first called for,
@@ -563,7 +563,7 @@ void inittrav (tree* t, node *p)
    * traverses from one end of the branch but not from the other,
    * so usually needs to be called twice, once on each end of the
    * branch, */
-  node *sib_ptr;
+  struct node *sib_ptr;
 
   if (p == NULL)
     return;
@@ -2929,7 +2929,7 @@ MALLOCRETURN *mymalloc(long x)
 
 /************* routines for altering trees ****************/
 
-void hookup(node *p, node *q)
+void hookup(struct node *p, struct node *q)
 { /* hook together two nodes 
    * IMPORTANT -- does not change branch lengths. Other routines
    * expect them to be as they were, and update them later */
@@ -2938,10 +2938,10 @@ void hookup(node *p, node *q)
 }  /* hookup */
 
 
-node* precursor (node* n)
+node* precursor (struct node* n)
 { /* go around a fork circle until we find the node that has  n  as next
    * note -- will crash if  p  is NULL or maybe if  p  is a tip */
- node *p;
+ struct node *p;
 
  for (p = n; p->next != n; p = p->next) {};   /* loop till you get there */
  return p;
@@ -3048,8 +3048,8 @@ void match_names_to_data (Char *str, pointarray treenode, node **p, long spp)
 }  /* match_names_to_data */
 
 
-void addelement(tree * treep, node **p, node *q, Char *ch,
-                 long *parens, FILE *treefile, pointarray nodep,
+void addelement(struct tree * treep, struct node **p, struct node *q,
+                 Char *ch, long *parens, FILE *treefile, pointarray nodep,
                  boolean *goteof, boolean *first, long *nextnode,
                  long *ntips, boolean *haslengths, initptr initnode,
                  boolean unifok, long maxnodes)
@@ -3057,11 +3057,11 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
 
-  node *pfirst;
+  struct node *pfirst;
   long i, len = 0, nodei = 0;
   boolean notlast;
   Char str[MAXNCH+1];
-  node *r;
+  struct node *r;
   long furcs = 0;
 
   if ((*ch) == '(') {
@@ -3176,8 +3176,8 @@ void addelement(tree * treep, node **p, node *q, Char *ch,
 }  /* addelement */
 
 
-void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
-               boolean *goteof, boolean *first,
+void treeread (struct tree * treep, FILE *treefile, node **root,
+               pointarray nodep, boolean *goteof, boolean *first,
                long *nextnode, boolean *haslengths, initptr initnode,
                boolean unifok, long maxnodes)
 {
@@ -3226,10 +3226,11 @@ void treeread (tree * treep, FILE *treefile, node **root, pointarray nodep,
 }  /* treeread */
 
 
-void addelement2(tree* t, node *q, Char *ch, long *parens, FILE *treefile,
-                 boolean lngths, double *trweight, boolean *goteof,
-                 long *nextnode, long *ntips, long no_species,
-                 boolean *haslengths, boolean unifok, long maxnodes)
+void addelement2(tree* t, struct node *q, Char *ch, long *parens,
+                 FILE *treefile, boolean lngths, double *trweight,
+                 boolean *goteof, long *nextnode, long *ntips, 
+                 long no_species, boolean *haslengths, boolean unifok,
+                 long maxnodes)
 { /* recursive procedure adds nodes to user-defined tree
    * -- old-style bifurcating-only version used only by treeread2
    * which is used only in Contml, Fitch, Kitsch, and Restml.  */
@@ -4664,19 +4665,19 @@ void generic_tree_release_fork(tree* t, node* n)
 } /* generic_tree_release_fork */
 
 
-void generic_tree_nuview(struct tree* t, node* p)
+void generic_tree_nuview(struct tree* t, struct node* p)
 {
   /*  calls the current nongeneric t->nuview on this branch, after first
    *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
-  node *sib_ptr;
+  struct node *sib_ptr;
 
   if (!p->tip) {                       /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
-        if (!sib_ptr->back->tip && !sib_ptr->back->initialized)
+        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized))
         {   /* recurse out as needed, to initialize with appropriate nuview */
-        generic_tree_nuview (t, sib_ptr->back);
+          generic_tree_nuview (t, sib_ptr->back);
         }
       }
     };
@@ -4763,7 +4764,8 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean doinit,
 #endif
 
 
-void generic_do_branchl_on_insert(tree* t, node* fork, node* q)
+void generic_do_branchl_on_insert(struct tree* t, struct node* fork,
+                                   struct node* q)
 { /* split branch length when inserting 
    * see ml.c for an example
    * this is currently a contentless do-nothing function
@@ -4774,15 +4776,16 @@ void generic_do_branchl_on_insert(tree* t, node* fork, node* q)
 } /* generic_do_branchl_on_insert */
 
 
-node* generic_tree_get_forknode(tree* t, long i)
-{ /* get de novo or from a linked garbage list a member of a circle of fork nodes
+struct node* generic_tree_get_forknode(struct tree* t, long i)
+{ /* get de novo or from a linked garbage list a member of a circle of fork
+   * nodes
    *
    * Return an unused node with index i (not  i+1)  (careful!)
    *
    * If there are any nodes on the free_fork_nodes stack, one of these
    * is returned. Otherwise, create a new node and return it.
    */
-  node *p = NULL;                                 /* to keep compiler happy */
+  struct node *p = NULL;                          /* to keep compiler happy */
 
   if ( Slist_isempty(t->free_fork_nodes) ) {
     p = funcs.node_new(false, i, ((long)sizeof(node))); /* debug: size? */
@@ -4796,7 +4799,8 @@ node* generic_tree_get_forknode(tree* t, long i)
 } /* generic_tree_get_forknode */
 
 
-void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
+void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
+                           boolean multf)
 { /* generic version of inserting fork with attached subtree
      where fork is pointed to by  p, and attached subtree is at
      p->back, inserting it near node or tip  q  */
@@ -4828,7 +4832,7 @@ void generic_tree_insert_(tree* t, node* p, node* q, boolean multf)
 } /* generic_tree_insert_ */
 
 
-long generic_tree_findemptyfork(tree* t)
+long generic_tree_findemptyfork(struct tree* t)
 { /* go through nodep finding an empty fork slot */
   long k;
 
@@ -4847,7 +4851,7 @@ void generic_root_insert(struct tree* t, struct node* p)
 /* debug: maybe in future call a generic root-insert function
  * to implement this, so it can share that with remove-and-insert 
  * (see also generic_root_insert) */
-  node* q;
+  struct node* q;
   long k;
     
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
@@ -4858,7 +4862,7 @@ void generic_root_insert(struct tree* t, struct node* p)
 } /* generic_root_insert */
 
 
-void generic_insertroot(tree* t, node* p, node* f)
+void generic_insertroot(struct tree* t, struct node* p, struct node* f)
 {
   /* take a tree that has no rootmost fork and put fork  f  in between node
    * p  and the node it connects to, with a null root behind  f */
@@ -4880,7 +4884,8 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 } /* generic_do_branchl_on_re_move */
 
 
-void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
+void generic_do_branchl_on_re_move(struct tree * t, struct node * p,
+                                    struct node *q)
 {
   /* for now unused.  see version in ml.c */
 } /* generic_do_branchl_on_re_move */
@@ -4888,7 +4893,8 @@ void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 
 
 
-void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
+void rooted_tree_insert_(struct tree* t, struct node* newtip,
+                          struct node* below, boolean multf)
 {
 /* Insert node newtip into the tree above node below, adding a new fork
  * if necessary. If multf is TRUE, newtip is added as a new child of below,
@@ -4904,7 +4910,7 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
  * NOTE:  need to add new index if new fork
  */
   long k;
-  node *newfork;
+  struct node *newfork;
 
   if ( t->root == NULL ) {
     /* TODO: insert single tip */
@@ -4942,12 +4948,13 @@ void rooted_tree_insert_(tree* t, node* newtip, node* below, boolean multf)
 } /* rooted_tree_insert_ */
 
 
-void generic_tree_re_move(tree* t, node* fork, node** where, boolean do_newbl)
+void generic_tree_re_move(struct tree* t, struct node* fork,
+                           struct node** where, boolean do_newbl)
 { /* disconnects an interior node circle with the subtree connected to it
    * at node "fork", setting *where to the node at one end
    * of branch that was disrupted.  Reheal that branch  */
 
-  node *q, *p, *oldroot;
+  struct node *q, *p, *oldroot;
   long num_sibs;
 
   oldroot = t->root;

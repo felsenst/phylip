@@ -1351,6 +1351,7 @@ void dnaml_tree_makenewv(tree* t, node *p)
   while ((it < iterations) && (ite < 20) && (!done))
   {
     slopecurv (p, y, &like, &slope, &curve);
+printf(" %ld:%ld v1,v2,like,slope,curve:%10.6f %10.5f %10.5f %10.6f %10.6f\n", p->index, q->index, p->v, yold, like, slope, curve);  /* debug */
     better = false;
     if (firsttime)    /* if no older value of y to compare with */
     {
