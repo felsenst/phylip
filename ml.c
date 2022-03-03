@@ -725,11 +725,11 @@ void smooth(tree* t, node *p)
     return;
   smoothed = false;
 
-  ml_update(t, p);      /* get views at both ends updated, recursing if needed */
-  ml_update(t, p->back); /* get views at both ends updated, recursing if needed */
-  t->makenewv (t, p);                            /* new value of branch length */
-  inittrav (t, p);                    /* set inward-looking pointers false ... */
-  inittrav (t, p->back);                  /* ... from both ends of this branch */
+  ml_update(t, p);      /* get views at both ends updated, maybe recursing  */
+  ml_update(t, p->back); /* get views at both ends updated, maybe recursing */
+  t->makenewv (t, p);                         /* new value of branch length */
+  inittrav (t, p);                 /* set inward-looking pointers false ... */
+  inittrav (t, p->back);               /* ... from both ends of this branch */
 
   if ( p->tip )
     return;
@@ -744,7 +744,7 @@ void smooth(tree* t, node *p)
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-/*  debug:  ml_update(t, p->back);  get views at both ends updated, recursing if needed */
+  ml_update(t, p->back); /* get views at both ends updated, maybe recursing */
 }  /* smooth */
 
 
