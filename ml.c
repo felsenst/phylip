@@ -687,7 +687,7 @@ void freex(long nonodes, pointarray treenode)
 }  /* freex */
 
 
-void ml_update(tree *t, node *p)
+void ml_update(struct tree *t, node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
@@ -696,11 +696,10 @@ void ml_update(tree *t, node *p)
 
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
-      generic_tree_nuview((tree*)t, p);             /* recurse from one end */
-  /* debug: try without   */
-    if ( p->back && !p->back->tip && !p->back->initialized) {
+      generic_tree_nuview(t, p);                    /* recurse from one end */
+    if ((p->back != NULL) && (!p->back->tip)) {
       if (!p->back->tip)
-        generic_tree_nuview((tree*)t, p->back);   /* recurse from the other */
+        generic_tree_nuview(t, p->back);          /* recurse from the other */
     }
   }
 }  /* ml_update */
@@ -726,7 +725,6 @@ void smooth(tree* t, node *p)
   smoothed = false;
 
   ml_update(t, p);      /* get views at both ends updated, maybe recursing  */
-  ml_update(t, p->back); /* get views at both ends updated, maybe recursing */
   t->makenewv (t, p);                         /* new value of branch length */
   inittrav (t, p);                 /* set inward-looking pointers false ... */
   inittrav (t, p->back);               /* ... from both ends of this branch */

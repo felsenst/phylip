@@ -1551,9 +1551,9 @@ void describe(node *p)
   double sumlr, sigma1, sigma2;
 
   if (!p->tip && !p->initialized)
-    curtree->nuview(curtree, p);
+    generic_tree_nuview(curtree, p);
   if (!p->back->tip && !p->back->initialized)
-    curtree->nuview(curtree, p->back);
+    generic_tree_nuview(curtree, p->back);
   q = p->back;
 
   assert(p->index > 0);                 // RSGdebug
