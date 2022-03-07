@@ -2078,7 +2078,6 @@ void maketree(void)
   node *q;
 
   inittable();
-    //printf("in maketree - usertree: %i\n", usertree);
 
   if (usertree)
   {
@@ -2182,11 +2181,10 @@ void maketree(void)
   else
   {
     smoothit = improve;
-    /* If there's no input user tree, */
-    for (i = 1; i <= spp; i++)
-      enterorder[i - 1] = i;
+    for (i = 1; i <= spp; i++)            /* If there's no input user tree, */
+      enterorder[i - 1] = i;         /* will consider species in order, but */
 
-    if (jumble)
+    if (jumble)       /* ... if species to be in random order, permute them */
       randumize(seed, enterorder);
 
     if (progress)
@@ -2271,9 +2269,11 @@ void maketree(void)
           curtree->nodep[i]->initialized = false;
         else
         {
-          curtree->nodep[i]->initialized = false;
-          curtree->nodep[i]->next->initialized = false;
-          curtree->nodep[i]->next->next->initialized = false;
+          if (curtree->nodep[i] != NULL) {
+            curtree->nodep[i]->initialized = false;
+            curtree->nodep[i]->next->initialized = false;
+            curtree->nodep[i]->next->next->initialized = false;
+          }
         }
       }
       ml_treevaluate(curtree, improve, reusertree, global, progress,
@@ -2405,16 +2405,13 @@ void dnamlrun(void)
   for (ith = 1; ith <= datasets; ith++) {
     if (datasets > 1) {
       fprintf(outfile, "Data set # %ld:\n", ith);
-      /* printf("\nData set # %ld:\n", ith);  JRMdebug */
     }
     ttratio = ttratio0;
-    /* printf("calling getinput\n");  JRMdebug */
     getinput();
     if (ith == 1)
       firstset = false;
     for (jumb = 1; jumb <= njumble; jumb++)
     {
-      //printf("calling maketree\n"); // JRMdebug
       maketree();
     }
     fflush(outfile);
