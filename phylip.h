@@ -310,7 +310,7 @@ typedef struct bestelm {      /* stores trees */
   boolean collapse;
 } bestelm;
 
-FILE *infile, *outfile, *intree, *intree2, *outtree;
+FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
@@ -505,6 +505,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   double oldlen, naymlength;                            /*  "   "     "     */
   long ymin, ymax;                                      /*  "   "     "     */
   boolean haslength;               /* haslength used in dnamlk (and fitch?) */
+  double length;                                          /* used in retree */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
   boolean do_newbl;                           /* new branch lengths needed? */
   boolean initialized;              /* initialized used in dnamlk & restml  */

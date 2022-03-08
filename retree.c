@@ -43,60 +43,61 @@ movet fromtype;
 
 #ifndef OLDC
 /* function prototypes */
-void   initretreenode(tree *, node **, long, long, long *, long *, initops, pointarray, Char *, Char *, FILE *);
-void   maketriad(tree *, node **, long);
-void   maketip(tree *, node **, long);
+void   initretreenode(struct tree *, struct node **, long, long, long *, long *, initops,
+pointarray, Char *, Char *, FILE *);
+void   maketriad(struct tree *, struct node **, long);
+void   maketip(struct tree *, struct node **, long);
 void   copytree(void);
 void   getoptions(void);
 void   configure(void);
 void   prefix(chartype);
 
 void   postfix(chartype);
-void   ltrav(node *, boolean *);
+void   ltrav(struct node *, boolean *);
 boolean ifhaslengths(void);
-void   add_at(tree *, node *, node *, node *);
-void   add_before(tree *, node *, node *);
-void   add_child(tree *, node *, node *);
-void   re_move(tree *, node **, node **);
-void   reroot(tree *, node *);
-void   ltrav_(tree *, node *, double, double, double *, long *, long *);
+void   add_at(struct tree *, struct node *, struct node *, struct node *);
+void   add_before(struct tree *, struct node *, struct node *);
+void   add_child(struct tree *, struct node *, struct node *);
+void   re_move(struct tree *, struct node **, struct node **);
+void   reroot(struct tree *, struct node *);
+void   ltrav_(struct tree *, struct node *, double, double, double *, long *, long *);
 
-void   precoord(node *, boolean *, double *, long *);
-void   coordinates(node *, double, long *, long *, double *);
-void   flatcoordinates(node *, long *);
+void   precoord(struct node *, boolean *, double *, long *);
+void   coordinates(struct node *, double, long *, long *, double *);
+void   flatcoordinates(struct node *, long *);
 void   grwrite(chartype, long, long *);
-void   drawline(long, node *, boolean *);
+void   drawline(long, struct node *, boolean *);
 void   printree(void);
 void   togglelengths(void);
-void   arbitree(tree *);
+void   arbitree(struct tree *);
 void   yourtree(void);
 void   buildtree(void);
 void   unbuildtree(void);
 void   retree_help(void);
 void   consolidatetree(long);
 void   rearrange(void);
-boolean any_deleted(node *);
-void   fliptrav(node *, boolean);
+boolean any_deleted(struct node *);
+void   fliptrav(struct node *, boolean);
 void   flip(long);
 void   transpose(long);
-void   ifdeltrav(node *, boolean *);
-double oltrav(node *);
+void   ifdeltrav(struct node *, boolean *);
+double oltrav(struct node *);
 void   outlength(void);
 void   midpoint(void);
-void   deltrav(node *, boolean );
-void   reg_del(node *, boolean);
+void   deltrav(struct node *, boolean );
+void   reg_del(struct node *, boolean);
 boolean isdeleted(long);
 void   deletebranch(void);
 void   restorebranch(void);
 void   del_or_restore(void);
 void   undo(void);
-void   treetrav(node *);
-void   simcopynode(node *, node *);
-node  *simcopytrav(tree * src, node * srcRoot, tree * dest);
+void   treetrav(struct node *);
+void   simcopynode(struct node *, struct node *);
+node  *simcopytrav(struct tree * src, struct node * srcRoot, struct tree * dest);
 void   simcopytree(void);
 void   writebranchlength(double);
-void   treeout(node *, boolean, double, long, boolean);
-void   maketemptriad(node **, long);
+void   treeout(struct node *, boolean, double, long, boolean);
+void   maketemptriad(struct node **, long);
 void   roottreeout(boolean *);
 void   notrootedtorooted(void);
 void   rootedtonotrooted(void);
@@ -125,7 +126,7 @@ long outgrno, screenwidth, vscreenwidth, screenlines, col, treenumber, leftedge,
 double     trweight;
 boolean    anywritten, waswritten, onfirsttree, hasmult, haslengths, nolengths, nexus, xmltree;
 
-tree * treeone, * treetwo, * curtree;
+struct tree * treeone, * treetwo, * curtree;
 
 boolean    reversed[14];
 boolean    graphic[14];
@@ -136,13 +137,13 @@ char       intreename[FNMLNGTH], outtreename[FNMLNGTH];
 
 boolean    subtree, written, readnext, writeindented, indentnotchanged;
 long       indentlevel;
-node      *nuroot;
+struct node      *nuroot;
 Char      ch;
 
 boolean delarray[maxsz];
 
 
-void initretreenode(tree *treep, node **p, long len,
+void initretreenode(tree *treep, struct node **p, long len,
                     long nodei, long *ntips, long *parens, initops whichinit,
                     pointarray treenode, Char *str,
                     Char *ch, FILE *intree)
@@ -1367,13 +1368,13 @@ void buildtree(void)
   spp = 50;
 
   // BUG.967 these tree_new replace the Malloc's above
-  treeone = funcs->tree_new(nonodes, spp);
-  treetwo = funcs->tree_new(nonodes, spp);
+  funcs.tree_new(&treeone, nonodes, spp, sizeof(struct tree));
+  funcs.tree_new(&treetwo, nonodes, spp, sizeof(struct tree));
   treesets[whichtree].tree_p = treeone;
   treesets[othertree].tree_p = treetwo;
   curtree = treeone;
 
-  simplifiedtree.tree_p = funcs->tree_new(nonodes, spp);
+  funcs.tree_new(&(simplifiedtree.tree_p), nonodes, spp, sizeof(struct tree));
   subtree     = false;
   topedge     = 1;
   leftedge    = 1;
