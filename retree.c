@@ -41,8 +41,18 @@ typedef enum {beforenode, atnode} movet;
 
 movet fromtype;
 
+typedef struct retree_tree {
+  struct tree tree;
+} retree_tree;
+
+typedef struct retree_node {
+  struct node node;
+} retree_node;
+
 #ifndef OLDC
 /* function prototypes */
+void   retree_tree_new(tree**, long, long, long);
+struct node* retree_node_new(node_type, long, long);
 void   initretreenode(struct tree *, struct node **, long, long, long *, long *, initops,
 pointarray, Char *, Char *, FILE *);
 void   maketriad(struct tree *, struct node **, long);
@@ -141,6 +151,18 @@ struct node      *nuroot;
 Char      ch;
 
 boolean delarray[maxsz];
+
+
+struct node* retree_node_new(node_type type, long index, long nodesize)
+{
+  /* make new node */
+  struct node *n;
+
+  nodesize = (long)sizeof(retree_node);
+  n = generic_node_new(type, index, nodesize);
+/* debug   retree_node_init(n, type, index);  */
+  return n;
+} /* retree_node_new */
 
 
 void initretreenode(tree *treep, struct node **p, long len,
@@ -3586,7 +3608,12 @@ void retreeread(
   Char *argv[1];
   argc = 1;
   argv[0] = "Retree";
-  phylipinit(argc, argv, NULL, true);
+  memset(&funcs, 0, sizeof(funcs));
+  phylipinit(argc, argv, &funcs, true);
+  funcs.tree_new = (tree_new_t)retree_tree_new;
+  funcs.node_new = retree_node_new;
+  funcs.tree_init = (tree_init_t)retree_tree_init;
+  funcs.node_init = (node_init_t)retree_node_init;
 
   if (usebranchlengths != 0)
   {
@@ -3696,7 +3723,12 @@ void retree(
   Char *argv[1];
   argc = 1;
   argv[0] = "Retree";
-  phylipinit(argc, argv, NULL, true);
+  memset(&funcs, 0, sizeof(funcs));
+  phylipinit(argc, argv, &funcs, true);
+  funcs.tree_new = (tree_new_t)retree_tree_new;
+  funcs.node_new = retree_node_new;
+  funcs.tree_init = (tree_init_t)retree_tree_init;
+  funcs.node_init = (node_init_t)retree_node_init;
 
   /*
     char * intreename,
@@ -3730,16 +3762,22 @@ int main(int argc, Char *argv[])
 {
   /* Reads in spp.  Then calls treeconstruct() to construct the tree and query the user. */
   int i;
+  initdata funcs;
 
 #ifdef MAC
   argc = 1;                /* macsetup("Retree", "");        */
   argv[0] = "Retree";
 #endif
-  phylipinit(argc, argv, NULL, false);
+  memset(&funcs, 0, sizeof(funcs));
+  phylipinit(argc, argv, &funcs, false);
 #if 0
   treesets[0].nodep = treeone;
   treesets[1].nodep = treetwo;
 #endif
+  funcs.tree_new = (tree_new_t)retree_tree_new;
+  funcs.node_new = retree_node_new;
+  funcs.tree_init = (tree_init_t)retree_tree_init;
+  funcs.node_init = (node_init_t)retree_node_init;
   nexus     = false;
   nolengths = false;
   scrollinc = 20;

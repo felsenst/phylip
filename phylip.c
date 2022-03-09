@@ -110,8 +110,8 @@ void generic_node_init (struct node* n, node_type type, long index)
   * otherwise true. Index is assigned as given.
   * Why do we go up the hierarchy of classes separately for node_new
   * and for node_init? (why not just do the init functions during the
-  * node_new  creation?  Because at a later stage we may need to do
-  * node_init  activities on a previously-created node,
+  * node_new  creation?  Answer: because at a later stage we may need
+  * to do node_init  activities on a previously-created node,
   */
 /* debug  is the tree argument really neeeded here?  Maybe not? */
   if ( type == TIP_NODE )
@@ -731,7 +731,7 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
       funcs.tree_init = (tree_init_t)generic_tree_init;
     }
   }
-} /* init */
+} /* phylipinit */
 
 
 /************* File reading *************/
