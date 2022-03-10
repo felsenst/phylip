@@ -1,4 +1,4 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2022.
    Written by Joseph Felsenstein and Andrew Keeffe.  Permission is granted to
    copy and use this program provided no fee is charged for it and provided
    that this copyright notice is not removed. */
@@ -51,8 +51,10 @@ typedef struct retree_node {
 
 #ifndef OLDC
 /* function prototypes */
-void   retree_tree_new(tree**, long, long, long);
+void   retree_tree_new(struct tree**, long, long, long);
+void   retree_tree_init(struct tree*, long, long);
 struct node* retree_node_new(node_type, long, long);
+void   retree_node_init(struct node *, node_type, long);
 void   initretreenode(struct tree *, struct node **, long, long, long *, long *, initops,
 pointarray, Char *, Char *, FILE *);
 void   maketriad(struct tree *, struct node **, long);
@@ -153,6 +155,18 @@ Char      ch;
 boolean delarray[maxsz];
 
 
+void retree_tree_new(struct tree ** t, long nonodes, long spp, long treesize)
+{
+  /* for now, nothing */
+} /* retree_tree_new */
+
+
+void retree_tree_init(struct tree *t, long nonodes, long spp)
+{
+  /* for now, nothing */
+} /* retree_tree_init */
+
+
 struct node* retree_node_new(node_type type, long index, long nodesize)
 {
   /* make new node */
@@ -163,6 +177,12 @@ struct node* retree_node_new(node_type type, long index, long nodesize)
 /* debug   retree_node_init(n, type, index);  */
   return n;
 } /* retree_node_new */
+
+
+void retree_node_init(struct node *p, node_type type, long nodesize)
+{
+  /* for now, nothing */
+} /* retree_node_init */
 
 
 void initretreenode(tree *treep, struct node **p, long len,
