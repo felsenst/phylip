@@ -55,8 +55,8 @@ void   retree_tree_new(struct tree**, long, long, long);
 void   retree_tree_init(struct tree*, long, long);
 struct node* retree_node_new(node_type, long, long);
 void   retree_node_init(struct node *, node_type, long);
-void   initretreenode(struct tree *, struct node **, long, long, long *, long *, initops,
-pointarray, Char *, Char *, FILE *);
+void   initretreenode(struct tree *, struct node **, long, long, long *,
+                       long *, initops, pointarray, Char *, Char *, FILE *);
 void   maketriad(struct tree *, struct node **, long);
 void   maketip(struct tree *, struct node **, long);
 void   copytree(void);
@@ -72,8 +72,8 @@ void   add_before(struct tree *, struct node *, struct node *);
 void   add_child(struct tree *, struct node *, struct node *);
 void   re_move(struct tree *, struct node **, struct node **);
 void   reroot(struct tree *, struct node *);
-void   ltrav_(struct tree *, struct node *, double, double, double *, long *, long *);
-
+void   ltrav_(struct tree *, struct node *, double, double,
+               double *, long *, long *);
 void   precoord(struct node *, boolean *, double *, long *);
 void   coordinates(struct node *, double, long *, long *, double *);
 void   flatcoordinates(struct node *, long *);
@@ -105,7 +105,8 @@ void   del_or_restore(void);
 void   undo(void);
 void   treetrav(struct node *);
 void   simcopynode(struct node *, struct node *);
-node  *simcopytrav(struct tree * src, struct node * srcRoot, struct tree * dest);
+node  *simcopytrav(struct tree * src, struct node * srcRoot,
+                    struct tree * dest);
 void   simcopytree(void);
 void   writebranchlength(double);
 void   treeout(struct node *, boolean, double, long, boolean);
@@ -123,20 +124,26 @@ void   clade(void);
 void   changeoutgroup(void);
 void   redisplay(void);
 void   treeconstruct(void);
-void   retreeread(char * intreename, int intreenum, char * usefont, int usebranchlengths);
-void   retree(char * intreename, char * intree, char * outtreename, char * outtreeopt, char * outtreefmt, char * usefont,
-              char * plotfilename, char * plotfileopt, int usebranchlengths, char * option, int activenode, int refnode,
-              double branchlength, int rearrbefore, char * newname, int rootnode, char * outtreeformat, int readtree,
-              int writetree, int update, int undo, int doplot, char * finalplotkind);
+void   retreeread(char * intreename, int intreenum, char * usefont, 
+                   int usebranchlengths);
+void   retree(char * intreename, char * intree, char * outtreename,
+              char * outtreeopt, char * outtreefmt, char * usefont,
+              char * plotfilename, char * plotfileopt, int usebranchlengths,
+              char * option, int activenode, int refnode, double branchlength,
+              int rearrbefore, char * newname, int rootnode,
+              char * outtreeformat, int readtree, int writetree, int update,
+              int undo, int doplot, char * finalplotkind);
 void   fill_del(node*p);
 /* function prototypes */
 #endif
 
-long outgrno, screenwidth, vscreenwidth, screenlines, col, treenumber, leftedge, topedge, treelines,
-  hscroll, vscroll, scrollinc, whichtree, othertree, numtrees, treesread, nonodes = 0;
+long outgrno, screenwidth, vscreenwidth, screenlines, col, treenumber,
+      leftedge, topedge, treelines, hscroll, vscroll, scrollinc, whichtree,
+      othertree, numtrees, treesread, nonodes = 0;
 
 double     trweight;
-boolean    anywritten, waswritten, onfirsttree, hasmult, haslengths, nolengths, nexus, xmltree;
+boolean    anywritten, waswritten, onfirsttree, hasmult,
+            haslengths, nolengths, nexus, xmltree;
 
 struct tree * treeone, * treetwo, * curtree;
 
@@ -157,7 +164,9 @@ boolean delarray[maxsz];
 
 void retree_tree_new(struct tree ** t, long nonodes, long spp, long treesize)
 {
-  /* for now, nothing */
+  treesize = (long)sizeof(struct retree_tree);
+  generic_tree_new(t, nonodes, spp, treesize); /* go up the class hierarchy */
+  /* for now, no tree_init function call here */
 } /* retree_tree_new */
 
 
@@ -1389,7 +1398,7 @@ void yourtree(void)
 void buildtree(void)
 {
   /* variables needed to be passed to treeread() */
-  long    nextnode   = 0;
+  long nextnode   = 0;
   pointarray dummy_treenode = NULL;  /* Ignore what happens to this */
   boolean goteof     = false;
   boolean haslengths = false;
@@ -1398,25 +1407,18 @@ void buildtree(void)
   long nodecount = 0;
 
 
-  /* These assignments moved from treeconstruct -- they seem to happen only here. */
-  /*xx treeone & treetwo assignments should probably happen in treeconstruct.  Memory leak if user reads multiple trees. */
-  /*
-    treeone = (node **)Malloc(maxsz * sizeof(node *));
-    treetwo = (node **)Malloc(maxsz * sizeof(node *));
-  */
-  // BUG.967 -- these are default values below, this should be
-  // done more carefully
   nonodes = 100;
   spp = 50;
 
   // BUG.967 these tree_new replace the Malloc's above
-  funcs.tree_new(&treeone, nonodes, spp, sizeof(struct tree));
-  funcs.tree_new(&treetwo, nonodes, spp, sizeof(struct tree));
+  funcs.tree_new(&treeone, nonodes, spp, sizeof(struct retree_tree));
+  funcs.tree_new(&treetwo, nonodes, spp, sizeof(struct retree_tree));
   treesets[whichtree].tree_p = treeone;
   treesets[othertree].tree_p = treetwo;
   curtree = treeone;
 
-  funcs.tree_new(&(simplifiedtree.tree_p), nonodes, spp, sizeof(struct tree));
+  funcs.tree_new(&(simplifiedtree.tree_p), nonodes,
+                  spp, sizeof(struct retree_tree));
   subtree     = false;
   topedge     = 1;
   leftedge    = 1;
@@ -1439,7 +1441,8 @@ void buildtree(void)
         /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
         if (!javarun)
         {
-            openfile(&intree, INTREE, "input tree file", "rb", "retree", intreename);
+            openfile(&intree, INTREE, "input tree file", "rb", "retree",
+                      intreename);
         }
         numtrees = countsemic(intree);
         treesread = 0;
@@ -1459,7 +1462,9 @@ void buildtree(void)
         nayme = (naym *)Malloc(spp * sizeof(naym));
       printf("calling treeread\n");
       fflush(stdout);
-      treeread(treesets[whichtree].tree_p, intree, &(treesets[whichtree].tree_p->root), dummy_treenode, &goteof, &firsttree, &nextnode, &haslengths, initretreenode, true, -1);
+      treeread(treesets[whichtree].tree_p, intree,
+                &(treesets[whichtree].tree_p->root), dummy_treenode, &goteof,
+                &firsttree, &nextnode, &haslengths, initretreenode, true, -1);
       nonodes = nextnode;
       treesread++;
       treesets[othertree].tree_p = treetwo;
@@ -1543,7 +1548,7 @@ void retree_help(void)
 
 
 void consolidatetree(long index)
-{
+{ /* debug: ?some sort of reducing the tree */
   node *start, *r, *q;
   int i;
 
@@ -1580,6 +1585,8 @@ void consolidatetree(long index)
 
 void rearrange(void)
 {
+  /* rearranging the tree by removing the subtree to the right of a node,
+   * and then inserting it elsewhere, at or before a particular node */
   long i, j, maxinput;
   boolean ok;
   node *p, *q;
@@ -1731,6 +1738,7 @@ boolean any_deleted(node *p)
 
 void fliptrav(node *p, boolean recurse)
 {
+  /* flip a subtree, with or without flipping its subtrees too */
   node *q, *temp, *r =NULL, *rprev =NULL, *l, *lprev;
   boolean lprevflag;
   int nodecount, loopcount, i;
@@ -1873,6 +1881,7 @@ void transpose(long atnode)
 
 void ifdeltrav(node *p, boolean *localdl)
 {
+  /* debug: ?if-delete traversal? */
   node *q;
 
   if (*localdl)
@@ -1894,6 +1903,7 @@ void ifdeltrav(node *p, boolean *localdl)
 
 double oltrav(node *p)
 {
+  /* traversal to compute farthest-out length from a node */
   node *q;
   double maxlen, templen;
   if (p->deleted)
@@ -2477,10 +2487,9 @@ void simcopytree(void)
 
 void writebranchlength(double x)
 {
-  long w;
-
   /* write branch length onto output file, keeping track of what
      column of line you are in, and writing to correct precision */
+  long w;
 
   if (x > 0.0)
     w = (long)(0.43429448222 * log(x));
@@ -2556,7 +2565,6 @@ void treeout(node *p, boolean writeparens, double addlength, long indent, boolea
   boolean comma;
   node *q;
 
-  /* If this is a tip or there are no non-deleted branches from this node, render this node as a tip (write its name).  */
   if (p == curtree->root)
   {
     indent = 0;
@@ -2587,8 +2595,8 @@ void treeout(node *p, boolean writeparens, double addlength, long indent, boolea
       }
     }
   }
-  if (p->tip)
-  {
+  if (p->tip) /* If this is a tip or there are no non-deleted branches from */
+  {           /* this node, render this node as a tip (write its name).  */
     if (p->hasname)
     {
       n = 0;
@@ -2937,6 +2945,7 @@ void roottreeout(boolean *userwantsrooted)
 
 void notrootedtorooted(void)
 {
+  /* change an unrooted tree to be rooted */
   node *newbase, *temp;
 
   /* root halfway along leftmost branch of unrooted tree */
@@ -2968,13 +2977,14 @@ void notrootedtorooted(void)
 
 void rootedtonotrooted(void)
 {
+  /* change a rooted tree to be unrooted:
+   * Use the leftmost non-tip immediate descendant of the root,
+   * root at that, write a multifurcation with that as the base.
+   * If both descendants are tips, write tree as is. */
   node *q, *r, *temp, *newbase;
   boolean sumhaslength = false;
   double sumlength = 0;
 
-  /* Use the leftmost non-tip immediate descendant of the root,
-     root at that, write a multifurcation with that as the base.
-     If both descendants are tips, write tree as is. */
   curtree->root = simplifiedtree.tree_p->root;
   /* first, search for leftmost non-tip immediate descendent of root */
   q = curtree->root->next->back;
@@ -3137,7 +3147,8 @@ void retree_window(adjwindow action)
 
 
 void getlength(double *length, reslttype *reslt, boolean *hslngth)
-{
+{ 
+  /* get the length of the branch, or remove it, or leave with no length */
   long maxinput;
   double valyew;
   char tmp[100];
@@ -3393,6 +3404,7 @@ void clade(void)
 
 void changeoutgroup(void)
 {
+  /* change the outgroup of the tree */
   long i, maxinput;
   boolean ok;
 
@@ -3423,6 +3435,7 @@ void changeoutgroup(void)
 
 void redisplay(void)
 {
+  /* display the tree again, and get character to choose next operation */
   long maxinput;
   boolean done;
   char    ch;
@@ -3613,12 +3626,10 @@ void treeconstruct(void)
 }  /* treeconstruct */
 
 
-void retreeread(
-  char * intreename,
-  int    intreenum,
-  char * usefont,
-  int    usebranchlengths)
+void retreeread(char * intreename, int intreenum,
+                 char * usefont, int usebranchlengths)
 {
+  /* debug:  does this function ever get used? */
   (void)intreenum;                      // RSGnote: unused.
   (void)usefont;                        // RSGnote: unused.
 
@@ -3631,7 +3642,7 @@ void retreeread(
   memset(&funcs, 0, sizeof(funcs));
   phylipinit(argc, argv, &funcs, true);
   funcs.tree_new = (tree_new_t)retree_tree_new;
-  funcs.node_new = retree_node_new;
+  funcs.node_new = (node_new_t)retree_node_new;
   funcs.tree_init = (tree_init_t)retree_tree_init;
   funcs.node_init = (node_init_t)retree_node_init;
 
@@ -3689,6 +3700,7 @@ void retreeread(
 
 
 void retree(
+  /* retree function as entry point after Java interface collects choices */
   char * intreename,
   char * intree,
   char * outtreename,
@@ -3746,7 +3758,7 @@ void retree(
   memset(&funcs, 0, sizeof(funcs));
   phylipinit(argc, argv, &funcs, true);
   funcs.tree_new = (tree_new_t)retree_tree_new;
-  funcs.node_new = retree_node_new;
+  funcs.node_new = (node_new_t)retree_node_new;
   funcs.tree_init = (tree_init_t)retree_tree_init;
   funcs.node_init = (node_init_t)retree_node_init;
 
@@ -3795,8 +3807,8 @@ int main(int argc, Char *argv[])
   treesets[1].nodep = treetwo;
 #endif
   funcs.tree_new = (tree_new_t)retree_tree_new;
-  funcs.node_new = retree_node_new;
   funcs.tree_init = (tree_init_t)retree_tree_init;
+  funcs.node_new = (node_new_t)retree_node_new;
   funcs.node_init = (node_init_t)retree_node_init;
   nexus     = false;
   nolengths = false;
