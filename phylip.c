@@ -4644,24 +4644,24 @@ void generic_tree_release_fork(tree* t, node* n)
 { /* release the fork attached to a removed node,
    * and put its nodes back on list */
   node *p, *q;
-  long m;
   boolean done;
 
-  m = n->index - 1;
-  n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
-  p = n;
-  q = n;                                    /* keep at first node in circle */
-  done = false;
-  do {                                              /* go around circle ... */
-    p = n->next;
-    if (p != NULL) {
-      n->next = n->next->next;                     /* cut  p  out of circle */
-      t->release_forknode(t, p);         /* put  p  on free_fork_nodes list */
-    } else {
-      done = true;
-    }
-  } while ((!done) && (p != q));
-  t->nodep[m] = NULL;      /* circle is released so nodep entry set to NULL */
+  if (n != NULL) {
+    p = n;
+    q = n;                                  /* keep at first node in circle */
+    done = false;
+    do {                                            /* go around circle ... */
+      p = n->next;
+      if (p != NULL) {
+        n->next = n->next->next;                   /* cut  p  out of circle */
+        t->release_forknode(t, p);       /* put  p  on free_fork_nodes list */
+      } else {
+        done = true;
+      }
+    } while ((!done) && (p != q));
+    if (n->index > 0)
+      t->nodep[n->index-1] = NULL;  /* circle is released so nodep set NULL */
+  }
 } /* generic_tree_release_fork */
 
 
