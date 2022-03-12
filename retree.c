@@ -3794,7 +3794,6 @@ int main(int argc, Char *argv[])
 {
   /* Reads in spp.  Then calls treeconstruct() to construct the tree and query the user. */
   int i;
-  initdata funcs;
 
 #ifdef MAC
   argc = 1;                /* macsetup("Retree", "");        */
