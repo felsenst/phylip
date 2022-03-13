@@ -58,8 +58,8 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
-  if ( t->release_forknode == NULL )
-    t->release_forknode = generic_tree_release_forknode;
+/* debug   if ( t->release_forknode == NULL )   */
+  t->release_forknode = generic_tree_release_forknode;
 
   t->spp = spp;
   t->nonodes = nonodes;
@@ -714,22 +714,18 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
     funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
     funcs.tree_init = (tree_init_t)generic_tree_init;   /* debug: ever used from this? */
   } else {
-    if (ini->node_new != NULL) {
-      funcs.node_new = ini->node_new;
-      funcs.node_init = ini->node_init;
-    }
-    else {
-      funcs.node_new = generic_node_new;
-      funcs.node_init = generic_node_init;
-    }
-    if (ini->tree_new != NULL) {
-      funcs.tree_new = (tree_new_t)ini->tree_new;
-      funcs.tree_init = (tree_init_t)ini->tree_init;
-    }
-    else {
-      funcs.tree_new = (tree_new_t)generic_tree_new;
-      funcs.tree_init = (tree_init_t)generic_tree_init;
-    }
+    funcs.node_new = (node_new_t)generic_node_new;
+    funcs.node_init = (node_init_t)generic_node_init;
+    funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
+    funcs.tree_init = (tree_init_t)generic_tree_init;   /* debug: ever used from this? */
+  }
+  if (ini->tree_new != NULL) {
+    funcs.tree_new = (tree_new_t)ini->tree_new;
+    funcs.tree_init = (tree_init_t)ini->tree_init;
+  }
+  else {
+    funcs.tree_new = (tree_new_t)generic_tree_new;
+    funcs.tree_init = (tree_init_t)generic_tree_init;
   }
 } /* phylipinit */
 

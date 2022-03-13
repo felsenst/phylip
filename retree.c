@@ -183,14 +183,14 @@ struct node* retree_node_new(node_type type, long index, long nodesize)
 
   nodesize = (long)sizeof(retree_node);
   n = generic_node_new(type, index, nodesize);
-/* debug   retree_node_init(n, type, index);  */
+  retree_node_init(n, type, index);
   return n;
 } /* retree_node_new */
 
 
 void retree_node_init(struct node *p, node_type type, long nodesize)
 {
-  /* for now, nothing */
+  /* nothing for now */
 } /* retree_node_init */
 
 
