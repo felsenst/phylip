@@ -1941,10 +1941,10 @@ void maketree(void)
     which = 1;
     while (which <= numtrees)
     {
-      preparetree(curtree);
+      /*  debug:   preparetree(curtree);   needed?  */
       treeread2 (curtree, intree, &curtree->root, lngths, &trweight,
                   &goteof, &haslengths, &spp, false, nonodes2);
-      fixtree(curtree);
+      /*  debug:   fixtree(curtree);   needed? */
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
       ml_treevaluate(curtree, improve, reusertree, global, progress, priortree, bestree, (initialvtrav_t)initialvtrav );

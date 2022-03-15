@@ -613,11 +613,10 @@ struct tree {                                         /* the tree structure */
   pointarray nodep;    /* the array of pointers to tips and to fork circles */
   double score;                             /* the quantity being maximized */
   node *root;                       /* the rootmost node in rootmost circle */
-  long nonodes;       /* the number of node neede for tips and fork circles */
+  long nonodes;     /* the number of nodes needed for tips and fork circles */
   long spp;                                  /* the number of tip "species" */
 
-  /* generic temp nodes, used to save traverses right now */
-  node *temp_p, * temp_q;
+  node *temp_p, * temp_q;  /* generic temporary nodes, used for now to save */
 
   /* for local rearrangement */
   node **lrsaves;
@@ -668,19 +667,19 @@ typedef void (*initptr)(tree *, node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-/* some pointers to functions we may need */
+/* some pointers to functions needed in the node and tree class hierarchies */
 typedef struct initdata {
-  tree_new_t tree_new;
-  tree_init_t tree_init;
-  node_new_t node_new;
-  node_init_t node_init;
+  tree_new_t tree_new;                                  /* makes a new tree */
+  tree_init_t tree_init;                     /* initiates stuff in the tree */
+  node_new_t node_new;                      /* makes a new node in the tree */
+  node_init_t node_init;                     /* initiates stuff in the node */
 } initdata;
 
-initdata funcs;  /* global declaration: initdata function pointer structure */
+initdata funcs;    /* declaration of the  funcs  function pointer structure */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 
-#ifndef OLDC            /* need this if not the old original K&R C compiler */
+#ifndef OLDC /* need if not the old original Kernighan & Rtichie C compiler */
 /* function prototypes */
 void            no_op(void);
 void            generic_tree_new(struct tree**, long, long, long);

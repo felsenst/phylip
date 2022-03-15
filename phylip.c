@@ -707,23 +707,9 @@ void phylipinit(int argc, char** argv, initdata* ini, boolean isjavarun)
     phySetConsoleAttributes();
     phyClearScreen();
   }
-  /* initialize 'functions' as given, or provide defaults */
-  if ( ini == NULL ) {
+  if ( ini == NULL ) { /* if global "funcs" is unfilled, fill with defaults */
     funcs.node_new = (node_new_t)generic_node_new;
     funcs.node_init = (node_init_t)generic_node_init;
-    funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
-    funcs.tree_init = (tree_init_t)generic_tree_init;   /* debug: ever used from this? */
-  } else {
-    funcs.node_new = (node_new_t)generic_node_new;
-    funcs.node_init = (node_init_t)generic_node_init;
-    funcs.tree_new = (tree_new_t)generic_tree_new;   /* debug: ever used from this? */
-    funcs.tree_init = (tree_init_t)generic_tree_init;   /* debug: ever used from this? */
-  }
-  if (ini->tree_new != NULL) {
-    funcs.tree_new = (tree_new_t)ini->tree_new;
-    funcs.tree_init = (tree_init_t)ini->tree_init;
-  }
-  else {
     funcs.tree_new = (tree_new_t)generic_tree_new;
     funcs.tree_init = (tree_init_t)generic_tree_init;
   }
@@ -5214,10 +5200,11 @@ void hsbut(tree* curtree, tree* bestree, tree* priortree,
 }  /* hsbut */
 
 
+#if 0
+/* debug:  this function is probably no longer used, can be deleted? */
 void preparetree(tree* t)
 {
   /* throw all the forknodes onto the stack so treeread can use them */
-/* debug:  this function is probably no longer used, can be deleted? */
   node* p;
   long i;
 
@@ -5230,6 +5217,7 @@ void preparetree(tree* t)
   for ( i = spp ; i < t->nonodes ; i++ )
     t->nodep[i] = NULL;
 } /* preparetree */
+#endif
 
 
 void fixtree(tree* t)

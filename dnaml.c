@@ -2119,11 +2119,11 @@ void maketree(void)
       nextnode         = 0;
       dummy_first      = true;
       goteof           = false;
-      preparetree(curtree);
+/* debug:        preparetree(curtree);   needed? */
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
                 &dummy_first, &nextnode, &haslengths, initdnamlnode,
                 false, nonodes2);
-      fixtree(curtree);
+/* debug:       fixtree(curtree);    needed? */
       dnaml_reroot(curtree);                          // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
@@ -2494,7 +2494,6 @@ void dnaml(
   int DotDiff,
   int RecHypo)
 {
-  initdata funcs;
 
   //printf("Hello from DnaML!\n"); // JRMdebug
 
@@ -2503,9 +2502,10 @@ void dnaml(
   argc = 1;
   argv[0] = "DnaML";
 
-  memset(&funcs, 0, sizeof(funcs));
-  funcs.node_new = dna_node_new;
   funcs.tree_new = dnaml_tree_new;
+  funcs.tree_init = (tree_init_t)dnaml_tree_init;
+  funcs.node_new = (node_new_t)dnaml_node_new;
+  funcs.node_init = (node_init_t)dnaml_node_init;
   progname = argv[0];
 
   phylipinit(argc, argv, &funcs, true);
@@ -2987,18 +2987,15 @@ void dnaml(
 
 int main(int argc, Char *argv[])
 {  /* DNA Maximum Likelihood */
-  initdata *funcs;
 #ifdef MAC
   argc = 1;                /* macsetup("DnaML", "");        */
   argv[0] = "DnaML";
 #endif
-  memset(&funcs, 0, sizeof(funcs));
-  funcs = (initdata*)Malloc(sizeof(initdata));
-  funcs->tree_new = (tree_new_t)dnaml_tree_new;
-  funcs->tree_init = (tree_init_t)dnaml_tree_init;
-  funcs->node_new = (node_new_t)dna_node_new;
-  funcs->node_init = (node_init_t)dnaml_node_init;
-  phylipinit(argc, argv, funcs, false);
+  funcs.tree_new = (tree_new_t)dnaml_tree_new;
+  funcs.tree_init = (tree_init_t)dnaml_tree_init;
+  funcs.node_new = (node_new_t)dna_node_new;
+  funcs.node_init = (node_init_t)dnaml_node_init;
+  phylipinit(argc, argv, &funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
   openfile(&outfile, OUTFILE, "output file", "w", argv[0], outfilename);

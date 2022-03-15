@@ -2150,11 +2150,11 @@ void maketree(void)
       nextnode         = 0;
       dummy_first      = true;
       goteof           = false;
-      preparetree(curtree);
+      /* debug: preparetree(curtree);   needed? */
       treeread(curtree, intree, &curtree->root, dummy_treenode,
                 &goteof, &dummy_first, &nextnode, &haslengths,
                 initpromlnode, false, nonodes2);
-      fixtree(curtree);
+      /* debug: fixtree(curtree); needed?  */
       proml_reroot(curtree);                     // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
