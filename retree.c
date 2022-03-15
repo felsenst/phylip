@@ -2986,7 +2986,7 @@ void rootedtonotrooted(void)
   boolean sumhaslength = false;
   double sumlength = 0;
 
-  curtree->root = simplifiedtree.tree_p->root;
+  curtree->root = simplifiedtree.tree_p->root;  /* to write simplified tree */
   /* first, search for leftmost non-tip immediate descendent of root */
   q = curtree->root->next->back;
   r = curtree->root->next->next->back;
