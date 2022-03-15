@@ -17,7 +17,7 @@
 extern boolean inserting;
 
 struct ml_tree {
-  tree treepart;
+  struct tree treepart;
 } ml_tree;
 
 struct allocx_t;

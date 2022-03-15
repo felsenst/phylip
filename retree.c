@@ -191,6 +191,7 @@ struct node* retree_node_new(node_type type, long index, long nodesize)
 void retree_node_init(struct node *p, node_type type, long nodesize)
 {
   /* nothing for now */
+  generic_node_init(p, type, nodesize);
 } /* retree_node_init */
 
 
