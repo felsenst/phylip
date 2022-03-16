@@ -1,4 +1,4 @@
-/* Version 4.0.
+/* Version 4.0. Copyright 2022
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
    */
 
@@ -30,6 +30,10 @@ typedef double** matrix;
 
 #ifndef OLDC
 /* function prototypes */
+void   contrast_tree_new(struct tree**, long, long);
+void   contrast_tree_init(struct tree* t, long nonodes, long spp);
+struct node* contrast_node_new(node_type, long, long);
+void   contrast_node_init(struct node*, node_type, long);
 void   getoptions(void);
 void   bookstein(void);
 double linesearch (double*, double, long, long, boolean*);
@@ -46,7 +50,6 @@ void   morph(void);
 void   getdata(void);
 void   allocrest(void);
 void   doinit(void);
-tree*  contrast_tree_new(long, long);
 void   rotate(long, long, double);
 void   resize(long, long, double);
 void   copyztotemp(long, long);
@@ -98,7 +101,6 @@ void   writemeans (void);
 void   contrast_node_copy(node *, node *);
 void   contrast_node_init(node*, node_type, long);
 void   contrast_node_reinit(node*);
-node*  contrast_node_new(node_type, long);
 node*  contrast_node_make(tree *, node_type, long);
 void   makenewbranches(void);
 void   updatebounds(node *);
@@ -120,6 +122,14 @@ void   calculatecovsetc(void);
 void   maketree(void);
 /* function prototypes */
 #endif
+
+typedef struct contrast_tree {
+  struct ml_tree ml_tree;
+} contrast_tree;
+
+typedef struct contrast_node {
+  struct ml_node ml_node;
+} contrast_node;
 
 
 Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH];
@@ -157,6 +167,47 @@ tree *curtree;
 boolean haslengths, goteof, first;
 double trweight;
 
+
+tree* contrast_tree_new(struct tree** treep, nonodes, spp)
+{
+  /* set up variables and then set up identities of functions */
+  tree* t;
+
+  t = generic_tree_new(struct tree** treep, nonodes, spp);
+  t->setupfunctions = generic_tree_setupfunctions;
+  generic_tree_init(t, nonodes, spp);
+  return t;
+} /* contrast_tree_new */
+
+
+void contrast_tree_init(struct tree* t, long nonodes, long spp)
+{
+  /* set up functions for a dnaml_tree */
+
+  t->evaluate = contrast_tree_evaluate;
+  t->try_insert_ = ml_tree_try_insert_;
+  t->nuview = contrast_tree_nuview;
+  t->get_fork = generic_tree_get_fork;
+} /* contrast_tree_init */
+
+
+struct node* contrast_node_new(node_type type, long index, long nodesize)
+{
+  /* make new node */
+  struct node *n;
+
+  nodesize = (long)sizeof(contrast_node);
+  n = ml_node_new(type, index, nodesize);
+  contrast_node_init(n, type, index);
+  return n;
+} /* contrast_node_new */
+
+
+void contrast_node_init(struct node* n, node_type type, long index)
+{
+  /* assign functions for a new node */
+  /* blank for now */
+} /* dnaml_node_init */
 
 void getoptions(void)
 {
@@ -919,18 +970,6 @@ void doinit(void)
   getoptions();
   allocrest();
 }  /* doinit */
-
-
-tree* contrast_tree_new(long nonodes, long spp)
-{
-  /* set up a new tree */
-  tree* t;
-
-  t = generic_tree_new(nonodes, spp);
-  t->setupfunctions = generic_tree_setupfunctions;
-  generic_tree_init(t, nonodes, spp);
-  return t;
-} /* contrast_tree_new */
 
 
 void rotate(long i, long j, double sintheta) {
@@ -2253,7 +2292,7 @@ void getscales(void) {
 
 void writescales(void) {
    /* report estimated scales (sizes) from ML, Procrustes, or linear case */
-  long i;
+  long i, j;
 
   fprintf(outfile, "Inferred scales (sizes) of the specimens\n");
   fprintf(outfile, "-------- ------ ------- -- --- ---------\n\n");
@@ -3966,9 +4005,11 @@ int main(int argc, Char *argv[])
   argc = 1;                /* macsetup("Contrast","Contrast");                */
   argv[0] = "Contrast";
 #endif
-  funcs = Malloc(sizeof(initdata));
-  funcs->node_new = contrast_node_new;
-  phylipinit(argc, argv, funcs, false);
+  funcs.tree_new = (tree_new_t)contrast_tree_new;
+  funcs.tree.init = (tree_init_t)contrast_tree_init;
+  funcs.node_new = (node_new_t)contrast_node_new;
+  funcs.node.init = (node_init_t)contrast_node_init;
+  phylipinit(argc, argv, &funcs, false);
   openfile(&infile, INFILE, "input data", "r", argv[0], infilename);
   /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
   openfile(&intree, INTREE, "input tree", "rb", argv[0], intreename);
@@ -4010,7 +4051,7 @@ int main(int argc, Char *argv[])
     }
     if (treesfirst || ((ithwas%datasper) == 0)) {
       jth++;
-      readthetree ();                   /* read a tree ... */
+      readthetree ();                                    /* read a tree ... */
     }
     if (treesfirst && (ith > ithwas)) {
       if (ndatas > 1) {
