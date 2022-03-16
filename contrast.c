@@ -19,18 +19,14 @@ debug)   */
 #endif
 
 #include "phylip.h"
+#include "ml.h"
 #include "cont.h"
-
-
-typedef struct contrast_node {
-  cont_node_type cont_node_var;
-} contrast_node;
 
 typedef double** matrix;
 
 #ifndef OLDC
 /* function prototypes */
-void   contrast_tree_new(struct tree**, long, long);
+void   contrast_tree_new(struct tree**, long, long, long);
 void   contrast_tree_init(struct tree* t, long nonodes, long spp);
 struct node* contrast_node_new(node_type, long, long);
 void   contrast_node_init(struct node*, node_type, long);
@@ -131,6 +127,12 @@ typedef struct contrast_node {
   struct ml_node ml_node;
 } contrast_node;
 
+/* debug:
+typedef struct contrast_node {
+  cont_node_type cont_node_var;
+} contrast_node;
+debig */
+
 
 Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH];
 long nonodes, chars, startmchar, endmchar, dropchars=0,
@@ -168,32 +170,30 @@ boolean haslengths, goteof, first;
 double trweight;
 
 
-tree* contrast_tree_new(struct tree** treep, nonodes, spp)
+void contrast_tree_new(struct tree** treep, long nonodes, long spp, long treesize)
 {
   /* set up variables and then set up identities of functions */
   tree* t;
 
-  t = generic_tree_new(struct tree** treep, nonodes, spp);
+  generic_tree_new(treep, nonodes, spp, treesize);
+  t = *treep;
   t->setupfunctions = generic_tree_setupfunctions;
   generic_tree_init(t, nonodes, spp);
-  return t;
 } /* contrast_tree_new */
 
 
 void contrast_tree_init(struct tree* t, long nonodes, long spp)
 {
-  /* set up functions for a dnaml_tree */
+  /* set up functions for a contrast_tree */
 
-  t->evaluate = contrast_tree_evaluate;
   t->try_insert_ = ml_tree_try_insert_;
-  t->nuview = contrast_tree_nuview;
   t->get_fork = generic_tree_get_fork;
 } /* contrast_tree_init */
 
 
 struct node* contrast_node_new(node_type type, long index, long nodesize)
 {
-  /* make new node */
+  /* make new contrast_node */
   struct node *n;
 
   nodesize = (long)sizeof(contrast_node);
@@ -203,11 +203,18 @@ struct node* contrast_node_new(node_type type, long index, long nodesize)
 } /* contrast_node_new */
 
 
-void contrast_node_init(struct node* n, node_type type, long index)
+void contrast_node_init(node* n, node_type type, long index)
 {
-  /* assign functions for a new node */
-  /* blank for now */
-} /* dnaml_node_init */
+  /* initialize a contrast_node */
+  contrast_node *cn = (contrast_node*)n;
+
+  generic_node_init(&(cn->cont_node_var.node_var), type, index);
+  ((cont_node_type*)(cn))->view = (phenotype3)Malloc((long)charspp * sizeof(double));
+  cn->cont_node_var.node_var.copy = contrast_node_copy;
+  cn->cont_node_var.node_var.reinit = contrast_node_reinit;
+} /* contrast_node_init */
+
+
 
 void getoptions(void)
 {
@@ -1787,7 +1794,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
              bestlogL = evaluate(curtree->root);
              logLnow = bestlogL;
              bestrot = rotation[i][j];
-             bestsize = specsize[i][j];
+             bestsize = specsize[i][j][charspp-1];
              incparam = incparam0;
              do {           /* line search of parameter (angle or size) */
                if (sizes || (k == 0)) {  /* rotate or resize, depending */
@@ -1805,7 +1812,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
                    bestlogL = logLnow;
                    copyztotemp(i, j);
                    bestrot = rotation[i][j];
-                   bestsize = specsize[i][j];
+                   bestsize = specsize[i][j][charspp-1];
                    incparam = 2.0*incparam;
                  }
                  else  {
@@ -1813,7 +1820,7 @@ void felsmorph2() { /* do log-likelihood rotation, resizing (if called for)
                     if (k == 0)
                      rotation[i][j] = bestrot;
                    else
-                     specsize[i][j] = bestsize;
+                     specsize[i][j][charspp-1] = bestsize;
                    copytemptoz(i, j);
                    incparam = -incparam*0.3;
                  }
@@ -1931,7 +1938,7 @@ void morph(void)
       if (sizes) {
         z[i][j][charspp] = 0.0;   /* initialize size character  debug: this will be deleted */
       }
-      specsize[i][j] = 0.0;  /* initialize sizes array */
+      specsize[i][j][charspp] = 0.0;  /* initialize sizes array */
     }
   if (bookmorph || mlrots || justprocrust) {
     if (morphall) {
@@ -2257,7 +2264,7 @@ void writesizes (void)
   fprintf(outfile, "-------- ----- ------\n\n");
   for (i = 0; i < spp; i++)
     for (j = 0; j < sample[i]; j++)
-      fprintf(outfile, "%10.6f\n", 1.0 + specsize[i][j]);
+      fprintf(outfile, "%10.6f\n", 1.0 + specsize[i][j][charspp-1]);
 } /* writesizes */
 
 
@@ -2274,17 +2281,17 @@ void writemeans (void)
 
 void getscales(void) {
    /* compute scales (sizes) */
-  long i, j;
+  long i, j, k;
 
   for (i = 0; i < spp; i++) {  /* debug  ignores within-species case */
     for (j = 0; j < sample[i]; j++) {
       if (linearsize) {
-        specsize[i][j] = 0.0;
+        specsize[i][j][charspp-1] = 0.0;
         for (k = 0; k < charsp; j++)
-          specsize[i][j] += x[i][j][j]*mean[k]/(unorm*unorm);
+          specsize[i][j][charspp-1] += x[i][j][j]*mean[k]/(unorm*unorm);
       }
     else 
-      specsize[i][0] = exp(specsize[i][0]);
+      specsize[i][0][charspp-1] = exp(specsize[i][0][charspp-1]);
     }
   }
 } /* getscales */
@@ -2298,7 +2305,7 @@ void writescales(void) {
   fprintf(outfile, "-------- ------ ------- -- --- ---------\n\n");
   for (i = 0; i < spp; i++) { 
     for (j = 0; j < sample[i]; j++) {
-      fprintf(outfile, "%12.8f\n", specsize[i][j]);
+      fprintf(outfile, "%12.8f\n", specsize[i][j][charspp-1]);
     }
   }
 } /* writescales */
@@ -3253,18 +3260,6 @@ void contrast_node_copy(node *src, node *dst)
 }  /* contrast_node_copy */
 
 
-void contrast_node_init(node* n, node_type type, long index)
-{
-  /* initialize a contrast_node */
-  contrast_node *cn = (contrast_node*)n;
-
-  generic_node_init(&(cn->cont_node_var.node_var), type, index);
-  ((cont_node_type*)(cn))->view = (phenotype3)Malloc((long)charspp * sizeof(double));
-  cn->cont_node_var.node_var.copy = contrast_node_copy;
-  cn->cont_node_var.node_var.reinit = contrast_node_reinit;
-} /* contrast_node_init */
-
-
 void contrast_node_reinit(node* n)
 {
   /* re-init a contrast_node */
@@ -3272,17 +3267,6 @@ void contrast_node_reinit(node* n)
 
   generic_node_reinit(&(cn->cont_node_var.node_var));
 } /* contrast_node_reinit */
-
-
-node* contrast_node_new(node_type type, long index)
-{
-  /* create a contrast_node as there is none on the garbage list */
-  contrast_node* n;
-
-  n = Malloc(sizeof(contrast_node));
-  contrast_node_init((node*)n, type, index);
-  return (node *)n;
-} /* contrast_node_new */
 
 
 node* contrast_node_make(tree * treep, node_type type, long index)
@@ -4005,11 +3989,11 @@ int main(int argc, Char *argv[])
   argc = 1;                /* macsetup("Contrast","Contrast");                */
   argv[0] = "Contrast";
 #endif
-  funcs.tree_new = (tree_new_t)contrast_tree_new;
-  funcs.tree.init = (tree_init_t)contrast_tree_init;
-  funcs.node_new = (node_new_t)contrast_node_new;
-  funcs.node.init = (node_init_t)contrast_node_init;
-  phylipinit(argc, argv, &funcs, false);
+  funcs->tree_new = (tree_new_t)contrast_tree_new;
+  funcs->tree_init = (tree_init_t)contrast_tree_init;
+  funcs->node_new = (node_new_t)contrast_node_new;
+  funcs->node_init = (node_init_t)contrast_node_init;
+  phylipinit(argc, argv, funcs, false);
   openfile(&infile, INFILE, "input data", "r", argv[0], infilename);
   /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
   openfile(&intree, INTREE, "input tree", "rb", argv[0], intreename);
@@ -4019,7 +4003,7 @@ int main(int argc, Char *argv[])
   reg = true;
   numtrees = 1;
   doinit();
-  curtree = contrast_tree_new(nonodes, spp);
+  contrast_tree_new(&curtree, nonodes, spp, 0);        /* default tree size */
   ncases = numtrees;    /* ncases will be how many tree-data pairs are done */
   if (ndatas > numtrees)
     ncases = ndatas;
@@ -4027,10 +4011,10 @@ int main(int argc, Char *argv[])
     ncases = ndatas * numtrees;
   datafirst = muldata && !treeswithin;    /* which one always gets advanced */
   treesfirst = multrees && !datawithin;
-  treesper = ncases / ndatas;       /* how many trees per data set */
-  datasper = ncases / numtrees;     /* how many data sets per tree */
-  ith = 0;                              /* which data set was just done */
-  jth = 0;                              /* which tree was just done */
+  treesper = ncases / ndatas;                /* how many trees per data set */
+  datasper = ncases / numtrees;              /* how many data sets per tree */
+  ith = 0;                                  /* which data set was just done */
+  jth = 0;                                      /* which tree was just done */
   if (progress)
     if (muldata || multrees)
       printf("\nProcessed:\n\n");
@@ -4039,14 +4023,15 @@ int main(int argc, Char *argv[])
     jthwas = jth;
     if (datafirst || ((jth%treesper) == 0)) {
       ith++;
-      getdata ();                   /* read a data set ... */
+      getdata ();                                    /* read a data set ... */
     }
     if (((printdata && (pca || reg || nocorr || nophylo))
          || pca || reg || (!writecont)) && (!superposition) &&
         (ith == 1) && (jth == 0))
     {
       fprintf(outfile,
-              "\nContinuous character contrasts analysis, version %s\n\n", VERSION);
+              "\nContinuous character contrasts analysis, version %s\n\n",
+              VERSION);
       fprintf(outfile, "%4ld Species, %4ld Characters\n\n", spp, chars);
     }
     if (treesfirst || ((ithwas%datasper) == 0)) {
@@ -4080,7 +4065,7 @@ int main(int argc, Char *argv[])
         printf("  Data set # %ld\n", ith);
       }
     }
-    maketree();         /* process one data set with one tree */
+    maketree();                       /* process one data set with one tree */
     fflush(outfile);
     if ((cross && datawithin) && (ith == ndatas) && (kth < ncases)) {
       FClose(infile);
@@ -4092,8 +4077,8 @@ int main(int argc, Char *argv[])
       openfile(&intree, INTREE, "input tree file", "r", argv[0], intreename);
       jth = 0;
     }
-  }                     /* end loop over trees and data sets */
-  for (i = 0; i < charspp; i++)   /* probably unnecessary */
+  }                                     /* end loop over trees and data sets */
+  for (i = 0; i < charspp; i++)                      /* probably unnecessary */
     free(sumprod[i]);
   free(sumprod);
   FClose(infile);

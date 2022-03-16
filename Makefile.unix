@@ -404,7 +404,7 @@ consense.o:   consense.c cons.h phylip.h
 contml.o:     contml.c cont.h phylip.h ml.h Slist.h
 	$(CC) -c contml.c $(SHARED) -fPIC
 
-contrast.o:   contrast.c cont.h phylip.h
+contrast.o:   contrast.c cont.h phylip.h ml.h
 	$(CC) -c contrast.c $(SHARED) -fPIC
 
 dnacomp.o:    dnacomp.c seq.h phylip.h dnaparsimony.h parsimony.h
@@ -528,7 +528,7 @@ consense:     consense.o cons.o $(LIBS)
 contml:       contml.o cont.o ml.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-contrast:     contrast.o cont.o $(LIBS)
+contrast:     contrast.o cont.o ml.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 dnacomp:      dnacomp.o seq.o parsimony.o dnaparsimony.o $(LIBS)

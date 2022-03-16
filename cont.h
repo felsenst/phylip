@@ -1,7 +1,5 @@
-/* Version 4.0. (c) Copyright 1993-2013 by the University of Washington.
-   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* Version 4.0. (c) Copyright 1993-2013.
+   Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe */
 
 
 /*
@@ -12,12 +10,13 @@
 #ifndef _CONT_H_
 #define _CONT_H_
 
+typedef double* view;  /* debig: can we define this here? */
+
 typedef struct cont_node_type
 {
   node node_var;
   phenotype3 view;
   long totalleles;
-
 } cont_node_type;
 
 
