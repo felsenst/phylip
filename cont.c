@@ -15,9 +15,11 @@
 #define SAMPLES 1000
 
 
-node * cont_node_new(node_type type, long index) // RSGbugfix
+node * cont_node_new(node_type type, long index, long nodesize)
 { /* make a new node of type cont_node_type */
-  node *n = Malloc(sizeof(cont_node_type));
+  node *n;
+ 
+  n = ml_node_new(type, index, nodesize);
   cont_node_init((cont_node_type *)n, type, index);
   return n;
 } /* cont_node_new */
@@ -49,6 +51,7 @@ void cont_node_copy(node* srcn, node* dstn)
 } /* cont_node_copy */
 
 
+#if 0
 void alloctree(pointarray *treenode, long nonodes)
 {
   /* allocate array treenode dynamically */
@@ -66,6 +69,7 @@ void alloctree(pointarray *treenode, long nonodes)
     (*treenode)[i] = NULL;
   }
 } /* alloctree */
+#endif
 
 
 void freetree(pointarray *treenode, long nonodes)

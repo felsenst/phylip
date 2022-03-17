@@ -22,7 +22,7 @@ typedef struct cont_node_type
 
 #ifndef OLDC
 /*function prototypes*/
-node* cont_node_new(node_type, long);
+node* cont_node_new(node_type, long, long);
 void cont_node_init(cont_node_type*, node_type, long);
 void cont_node_copy(node* src, node* dst);
 void alloctree(pointarray *, long);

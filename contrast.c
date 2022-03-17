@@ -127,12 +127,6 @@ typedef struct contrast_node {
   struct ml_node ml_node;
 } contrast_node;
 
-/* debug:
-typedef struct contrast_node {
-  cont_node_type cont_node_var;
-} contrast_node;
-debig */
-
 
 Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH];
 long nonodes, chars, startmchar, endmchar, dropchars=0,
@@ -208,10 +202,10 @@ void contrast_node_init(node* n, node_type type, long index)
   /* initialize a contrast_node */
   contrast_node *cn = (contrast_node*)n;
 
-  generic_node_init(&(cn->cont_node_var.node_var), type, index);
-  ((cont_node_type*)(cn))->view = (phenotype3)Malloc((long)charspp * sizeof(double));
-  cn->cont_node_var.node_var.copy = contrast_node_copy;
-  cn->cont_node_var.node_var.reinit = contrast_node_reinit;
+  ((cont_node_type*)(cn))->view =
+                           (phenotype3)Malloc((long)charspp * sizeof(double));
+  ((node*)(cn))->copy = contrast_node_copy;
+  ((node*)(cn))->reinit= contrast_node_reinit;
 } /* contrast_node_init */
 
 
@@ -3265,7 +3259,7 @@ void contrast_node_reinit(node* n)
   /* re-init a contrast_node */
   contrast_node *cn = (contrast_node *)n;
 
-  generic_node_reinit(&(cn->cont_node_var.node_var));
+  generic_node_reinit((node*)cn);
 } /* contrast_node_reinit */
 
 
@@ -3330,7 +3324,7 @@ void readthetree (void)
   /* read in the tree */
   long nextnode;
 
-  alloctree(&curtree->nodep, nonodes);
+/* debug:   alloctree(&curtree->nodep, nonodes); */
   setuptree(curtree, nonodes);
   nextnode = 0;
   goteof = false;
@@ -3981,7 +3975,6 @@ void maketree(void)
 int main(int argc, Char *argv[])
 {
   /* main program */
-  initdata *funcs;
   long ncases, datasper, treesper;
   boolean datafirst, treesfirst;
 
@@ -3989,11 +3982,11 @@ int main(int argc, Char *argv[])
   argc = 1;                /* macsetup("Contrast","Contrast");                */
   argv[0] = "Contrast";
 #endif
-  funcs->tree_new = (tree_new_t)contrast_tree_new;
-  funcs->tree_init = (tree_init_t)contrast_tree_init;
-  funcs->node_new = (node_new_t)contrast_node_new;
-  funcs->node_init = (node_init_t)contrast_node_init;
-  phylipinit(argc, argv, funcs, false);
+  funcs.tree_new = (tree_new_t)contrast_tree_new;
+  funcs.tree_init = (tree_init_t)contrast_tree_init;
+  funcs.node_new = (node_new_t)contrast_node_new;
+  funcs.node_init = (node_init_t)contrast_node_init;
+  phylipinit(argc, argv, &funcs, false);
   openfile(&infile, INFILE, "input data", "r", argv[0], infilename);
   /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
   openfile(&intree, INTREE, "input tree", "rb", argv[0], intreename);
@@ -4088,7 +4081,7 @@ int main(int argc, Char *argv[])
     printf("\nOutput written to file \"%s\".\n\n", outfilename);
   printf("Done.\n\n");
   phyRestoreConsoleAttributes();
-  free(funcs);
+/* debug:    free(&funcs);  */
   return 0;
 } /* main */
 
