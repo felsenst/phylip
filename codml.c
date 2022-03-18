@@ -339,6 +339,63 @@ void codon_tree_setup(long nonodes, long spp)
 } /* codon_tree_setup */
 
 
+void codon_node_copy(codon_node* srcn, codon_node* destn)
+{ /* copy a codon_node */
+  long i, j;
+  long oldendsite = (*destn).ml_node.endsite;
+
+/* debug:  why?    codon_node_copy(srcn, destn);  */
+  if ( oldendsite != 0 && oldendsite != (*((ml_node*)srcn)).endsite )
+  {
+    ((ml_node*)destn)->freex((node*)destn);
+    oldendsite = 0;
+  }
+  if ( oldendsite == 0 )
+    ((ml_node*)destn)->allocx(((node*)destn), ((ml_node*)srcn)->endsite, ((ml_node*)srcn)->categs);
+
+  for (i = 0; i < srcn->ml_node.endsite; i++)
+    for (j = 0; j < srcn->ml_node.categs; j++)
+      memcpy(destn->codonx[i][j], srcn->codonx[i][j], sizeof(csitelike));
+} /* codon_node_copy */
+
+
+node * codon_node_new(node_type type, long index, long nodesize) // RSGbugfix
+{
+  /* create a node for a codon-model tree */
+  node *n = Malloc(sizeof(struct codon_node));
+/* debug:  instead do a call upwards to create node? */
+
+  codon_node_init(n, type, index);
+  return n;
+} /* codon_node_new */
+
+
+void codon_node_init(node* n, node_type type, long index)
+{
+  /* initialize a node for a codon-model tree */
+  codon_node *pn = (codon_node *)n;
+
+  ml_node_init(n, type, index);
+  pn->ml_node.allocx = (allocx_t)codon_node_allocx;
+  pn->ml_node.node.copy = (node_copy_t)codon_node_copy;
+  pn->ml_node.node.init = codon_node_init;
+  pn->ml_node.freex = (freex_t)codon_node_freex;
+  pn->codonx = NULL;
+  if ( endsite != 0 && rcategs != 0 )
+    pn->ml_node.allocx((struct node*)(&(pn->ml_node.node.copy)), endsite,
+                        rcategs);
+} /* codon_node_init */
+
+
+void ml_node_free(node **np)
+{
+  /* free a node for ml trees */
+  ml_node *n = (ml_node*)*np;
+  n->freex((node*)n);
+  generic_node_free(np);
+} /* ml_node_free */
+
+
 void init_nucSubRates(double ttratio)
 {
   /* establishes instantaneous rates of change for nucleotides */

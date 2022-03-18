@@ -1,4 +1,4 @@
-/* Version 4.0.
+/* Version 4.0. Copyright 2021.
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
    */
 
