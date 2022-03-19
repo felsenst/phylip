@@ -32,6 +32,32 @@ extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
+void ml_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
+{ /* make a new ml_tree.  Calls to generic_tree-new,
+   * casting ml_tree** to tree** as we call it 
+   * then call  ml_tree_init */
+
+  generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
+} /* ml_tree_new */
+
+
+void ml_tree_init(struct tree* t, long nonodes, long spp)
+{ /* set up function variables in ml_tree.  Currently these are actually
+   * attributes of the generic tree that need ml function versions */
+
+  generic_tree_init(t, nonodes, spp);              /* go up class hierarchy */
+  t->smoothall = ml_tree_smoothall;
+  t->insert_ = (tree_insert_t)ml_tree_insert_;
+  t->re_move = ml_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
+  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+/* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
+  (t.tree)->makenewv_t = ml_tree->makenewv_t;
+ * */
+} /* ml_tree_init */
+
+
 node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct node* nn;
@@ -62,32 +88,6 @@ void ml_node_init(node *n, node_type type, long index)
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->node.tyme = 0;
 } /* ml_node_init */
-
-
-void ml_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
-{ /* make a new ml_tree.  Calls to generic_tree-new,
-   * casting ml_tree** to tree** as we call it 
-   * then call  ml_tree_init */
-
-  generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
-} /* ml_tree_new */
-
-
-void ml_tree_init(struct tree* t, long nonodes, long spp)
-{ /* set up function variables in ml_tree.  Currently these are actually
-   * attributes of the generic tree that need ml function versions */
-
-  generic_tree_init(t, nonodes, spp);              /* go up class hierarchy */
-  t->smoothall = ml_tree_smoothall;
-  t->insert_ = (tree_insert_t)ml_tree_insert_;
-  t->re_move = ml_tree_re_move;
-  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
-  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
-/* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
-  (t.tree)->makenewv_t = ml_tree->makenewv_t;
- * */
-} /* ml_tree_init */
 
 
 void ml_node_copy(node* srcn, node* destn) // RSGbugfix
@@ -140,368 +140,13 @@ void ml_node_print(node * n)
 } /* ml_node_print */
 
 
-void allocx(long nonodes, long endsite, long param, ml_node** treenode)
-{
-  /* allocate sequences */
-  /* param =  sitelength in restml */
-  /* param =  rcategs in dnaml/proml */
-  long i;
-  ml_node *p;
-  ml_node *q;
-
-  for (i = 0; i < spp; i++)
-    treenode[i]->allocx((node*)treenode[i], endsite, param);
-  for (i = spp; i < nonodes; i++)
-  {
-    p = treenode[i];
-    q = p;
-    do
-    {
-      q->allocx((node*)q, endsite, param);
-      q = (ml_node*)q->node.next;
-    } while ( q != p);
-  }
-}  /* allocx */
-
-
-void dna_node_freex(ml_node* n)
-{
-  /* free a dna tree node */
-  dna_node *dn;
-  long i;
-
-  dn = (dna_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
-  {
-    free(dn->x[i]);
-  }
-
-  free(dn->x);
-  dn->x = NULL;
-  free(n->underflows);
-  n->underflows = NULL;
-} /* dna_node_freex */
-
-
-void prot_node_freex(ml_node* n)
-{
-  /* free a protein tree node */
-  prot_node *pn;
-  long i;
-
-  pn = (prot_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
-  {
-    free(pn->x[i]);
-  }
-
-  free(pn->x);
-  pn->x = NULL;
-  free(n->underflows);
-  n->underflows = NULL;
-} /* prot_node_freex */
-
-
-void codon_node_freex(ml_node* n)
-{
-  /* free a codon-model tree node */
-  codon_node *pn;
-  long i;
-
-  pn = (codon_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
-  {
-    free(pn->codonx[i]);
-  }
-
-  free(pn->codonx);
-  pn->codonx = NULL;
-  free(n->underflows);
-  n->underflows = NULL;
-} /* codon_node_freex */
-
-
-void dna_node_allocx(node* n, long endsite, long rcategs)
-{
-  /* allocate space for sequences on a dna tree node */
-  ml_node *mln = (ml_node *)n;
-  dna_node *dn = (dna_node *)n;
-  long i;
-
-  dn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
-  for ( i = 0 ; i < endsite ; i++ )
-    dn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
-
-  mln->categs = rcategs;
-  mln->endsite = endsite;
-  mln->underflows = Malloc(endsite * sizeof(double));
-} /* dna_node_allocx */
-
-
-void prot_node_allocx(ml_node* nn, long endsite, long rcategs)
-{
-  /* allocate space for sequences on a protein tree node */
-  prot_node *n = (prot_node *)nn;
-  long i;
-
-  n->ml_node.categs = rcategs;
-  n->ml_node.endsite = endsite;
-
-  n->x = (pphenotype)Malloc(endsite * sizeof(pratelike));
-  for ( i = 0 ; i < endsite ; i++ )
-    n->x[i] = (pratelike)Malloc(rcategs * sizeof(psitelike));
-  n->ml_node.underflows= Malloc(endsite * sizeof(double));
-} /* prot_node_allocx */
-
-
-void codon_node_allocx(node* nn, long endsite, long rcategs)
-{
-  /* allocate space for sequences on a codon-model tree node */
-  codon_node *n = (codon_node *)nn;
-  long i;
-
-  n->ml_node.categs = rcategs;
-  n->ml_node.endsite = endsite;
-
-  n->codonx = (cphenotype)Malloc(endsite * sizeof(cratelike));
-  for ( i = 0 ; i < endsite ; i++ )
-    n->codonx[i] = (cratelike)Malloc(rcategs * sizeof(csitelike));
-  n->ml_node.underflows= Malloc(endsite * sizeof(double));
-} /* codon_node_allocx */
-
-
-void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence y, steptr alias)
-{
-  /* set up fractional likelihoods at tips 
-   * used by dnaml & dnamlk */
-  long i, j, k, l;
-  bases b;
-
-  for (k = 0; k < endsite; k++)
-  {
-    j = alias[k];
-    for (i = 0; i < spp; i++)
-    {
-      for (l = 0; l < categs; l++)
-      {
-        for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-          ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 0.0;
-
-        switch (y[i][j - 1])
-        {
-          case 'A':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            break;
-
-          case 'C':
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            break;
-
-          case 'G':
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            break;
-
-          case 'T':
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'U':
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'M':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            break;
-
-          case 'R':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            break;
-
-          case 'W':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'S':
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            break;
-
-          case 'Y':
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'K':
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'B':
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'D':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'H':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
-            break;
-
-          case 'V':
-            ((dna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((dna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            break;
-
-          case 'N':
-            for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
-            break;
-
-          case 'X':
-            for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
-            break;
-
-          case '?':
-            for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
-          break;
-
-          case 'O':
-            for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
-            break;
-
-          case '-':
-            for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((dna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
-            break;
-        }
-      }
-    }
-  }
-}  /* makevalues2 */
-
-
-void prot_freex_notip(long nonodes, pointarray treenode)
-{
-  /* free interior fork nodes
-   * used in proml */
-  long i, j;
-  node *p;
-
-  for (i = spp; i < nonodes; i++)
-  {
-    p = treenode[i];
-    if ( p == NULL ) continue;
-    do {
-      for (j = 0; j < endsite; j++)
-      {
-        free(((prot_node*)p)->x[j]);
-        ((prot_node*)p)->x[j] = NULL;
-      }
-      free(((prot_node*)p)->x);
-      ((prot_node*)p)->x = NULL;
-      p = p->next;
-    } while (p != treenode[i]);
-  }
-}  /* prot_freex_notip */
-
-
-void codon_freex_notip(long nonodes, pointarray treenode)
-{
-  /* free interior fork nodes
-   * used in proml */
-  long i, j;
-  node *p;
-
-  for (i = spp; i < nonodes; i++)
-  {
-    p = treenode[i];
-    if ( p == NULL ) continue;
-    do
-    {
-      for (j = 0; j < endsite; j++)
-      {
-        free(((codon_node*)p)->codonx[j]);
-        ((codon_node*)p)->codonx[j] = NULL;
-      }
-      free(((codon_node*)p)->codonx);
-      ((codon_node*)p)->codonx = NULL;
-      p = p->next;
-    } while (p != treenode[i]);
-  }
-}  /* codon_freex_notip */
-
-
-void freex_notip(long nonodes, pointarray treenode)
-{
-  /* free interior fork nodes
-   * used in dnaml & dnamlk */
-  long i, j;
-  node *p;
-
-  for (i = spp; i < nonodes; i++)
-  {
-    p = treenode[i];
-    if ( p == NULL ) continue;
-    do
-    {
-      for (j = 0; j < endsite; j++)
-        free(((dna_node*)p)->x[j]);
-      free(((dna_node*)p)->x);
-      p = p->next;
-    } while (p != treenode[i]);
-  }
-}  /* freex_notip */
-
-
-void freex(long nonodes, pointarray treenode)
-{
-  /* used in dnaml & dnamlk */
-  long i, j;
-  node *p;
-
-  for (i = 0; i < spp; i++)
-  {
-    for (j = 0; j < endsite; j++)
-      free(((dna_node*)treenode[i])->x[j]);
-    free(((dna_node*)treenode[i])->x);
-  }
-
-  for (i = spp; i < nonodes; i++)
-  {
-    if(treenode[i])
-    {
-      p = treenode[i];
-      do {
-        for (j = 0; j < endsite; j++)
-          free(((dna_node*)p)->x[j]);
-        free(((dna_node*)p)->x);
-        p = p->next;
-      } while (p != treenode[i]);
-    }
-  }
-}  /* freex */
-
-
 void ml_update(struct tree *t, node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
+/* debug:   I think redundant with calls in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
@@ -1364,58 +1009,6 @@ void getthree(tree* t, node *p, double thigh, double tlow, double tdelta, double
 }  /* getthree */
 
 
-void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, steptr weight, pointarray treenode)
-{
-  /* Get empirical base frequencies from the data */
-  /* used in dnaml & dnamlk */
-  /* this is kind of strange */
-  long i, j, k;
-  double sum, suma, sumc, sumg, sumt, w;
-
-  *freqa = 0.25;
-  *freqc = 0.25;
-  *freqg = 0.25;
-  *freqt = 0.25;
-
-  for (k = 1; k <= 8; k++)
-  {
-    suma = 0.0;
-    sumc = 0.0;
-    sumg = 0.0;
-    sumt = 0.0;
-
-    for (i = 0; i < spp; i++)
-    {
-      for (j = 0; j < endsite; j++)
-      {
-        w = weight[j];
-        sum = (*freqa) * ((dna_node*)treenode[i])->x[j][0][0];
-        sum += (*freqc) * ((dna_node*)treenode[i])->x[j][0][(long)C - (long)A];
-        sum += (*freqg) * ((dna_node*)treenode[i])->x[j][0][(long)G - (long)A];
-        sum += (*freqt) * ((dna_node*)treenode[i])->x[j][0][(long)T - (long)A];
-        suma += w * (*freqa) * ((dna_node*)treenode[i])->x[j][0][0] / sum;
-        sumc += w * (*freqc) * ((dna_node*)treenode[i])->x[j][0][(long)C - (long)A] / sum;
-        sumg += w * (*freqg) * ((dna_node*)treenode[i])->x[j][0][(long)G - (long)A] / sum;
-        sumt += w * (*freqt) * ((dna_node*)treenode[i])->x[j][0][(long)T - (long)A] / sum;
-      }
-    }
-    sum = suma + sumc + sumg + sumt;
-    *freqa = suma / sum;
-    *freqc = sumc / sum;
-    *freqg = sumg / sum;
-    *freqt = sumt / sum;
-  }
-  if (*freqa <= 0.0)
-    *freqa = 0.000001;
-  if (*freqc <= 0.0)
-    *freqc = 0.000001;
-  if (*freqg <= 0.0)
-    *freqg = 0.000001;
-  if (*freqt <= 0.0)
-    *freqt = 0.000001;
-}  /* empiricalfreqs */
-
-
 void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
                     boolean global, boolean progress, tree* priortree,
                     tree* bestree, initialvtrav_t initialvtrav)
@@ -1482,3 +1075,4 @@ void ml_initialvtrav(tree* t, node *p)
 
 
 /* End. */
+
