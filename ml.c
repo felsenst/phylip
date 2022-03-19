@@ -108,6 +108,15 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
 } /* ml_node_copy */
 
 
+void ml_node_free(node **np)
+{
+  /* free a node for ml trees */
+  ml_node *n = (ml_node*)*np;
+  n->freex((node*)n);
+  generic_node_free(np);
+} /* ml_node_free */
+
+
 void ml_hookup(node* p, node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */

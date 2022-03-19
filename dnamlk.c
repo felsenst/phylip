@@ -21,7 +21,7 @@ typedef struct valrec {
 } valrec;
 
 typedef struct dnamlk_tree{
-  ml_tree ml_tree;
+  ml_dna_tree ml_dna_tree;
 } dnamlk_tree;
 
 typedef double contribarr[maxcategs];
@@ -911,7 +911,7 @@ void dnamlk_tree_nuview(tree *t, node *p)
         if (sib_back_ptr != NULL)
         {
           memcpy(local_nvd->xx[sib_index],
-                 ((dna_node*)sib_back_ptr)->x[i][j],
+                 ((ml_dna_node*)sib_back_ptr)->x[i][j],
                  sizeof(sitelike));
           if ( j == 0)
             correction += ((ml_node*)sib_back_ptr)->underflows[i];
@@ -984,11 +984,11 @@ void dnamlk_tree_nuview(tree *t, node *p)
       }
 
       /* And the final point of this whole function: */
-      memcpy(((dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
+      memcpy(((ml_dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
     }
     ((ml_node*)p)->underflows[i] = 0;
     if ( maxx < MIN_DOUBLE)
-      fix_x(((dna_node*)p), i, maxx, rcategs);
+      fix_x(((ml_dna_node*)p), i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
 
   }
@@ -1073,9 +1073,9 @@ double dnamlk_tree_evaluate(tree* t, node *p, boolean dummy)
         z1zz = 1.0;
         z1yy = 0.0;
       }
-      memcpy(x1, ((dna_node*)r)->x[i][j], sizeof(sitelike));
+      memcpy(x1, ((ml_dna_node*)r)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] + freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
-      memcpy(x2, ((dna_node*)q)->x[i][j], sizeof(sitelike));
+      memcpy(x2, ((ml_dna_node*)q)->x[i][j], sizeof(sitelike));
       prod2 = freqa * x2[0] + freqc * x2[(long)C - (long)A] + freqg * x2[(long)G - (long)A] + freqt * x2[(long)T - (long)A];
       prod3 = (x1[0] * freqa + x1[(long)G - (long)A] * freqg) * (x2[0] * freqar + x2[(long)G - (long)A] * freqgr) + (x1[(long)C - (long)A] * freqc + x1[(long)T - (long)A] * freqt) * (x2[(long)C - (long)A] * freqcy + x2[(long)T - (long)A] * freqty);
       prod12 = freqa * x1[0] * x2[0] + freqc * x1[(long)C - (long)A] * x2[(long)C - (long)A] + freqg * x1[(long)G - (long)A] * x2[(long)G - (long)A] + freqt * x1[(long)T - (long)A] * x2[(long)T - (long)A];
@@ -1456,13 +1456,13 @@ void reconstr(node *p, long n)
     if (p == curtree->root)    /* ... as  x  has not been computed there */
       f = 1.0;
     else
-      f = ((dna_node*)p)->x[j][mx-1][i];
+      f = ((ml_dna_node*)p)->x[j][mx-1][i];
     num_sibs = count_sibs(p);
     q = p;
     for (k = 0; k < num_sibs; k++)
     {
       q = q->next;
-      f *= ((dna_node*)q)->x[j][mx-1][i];
+      f *= ((ml_dna_node*)q)->x[j][mx-1][i];
     }
     if (f > 0.0)
       f = exp(log(f)/(num_sibs-1.0));
@@ -2318,7 +2318,7 @@ void dnamlk(
   argv[0] = "Dnamlk";
 
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = dna_node_new;
+  funcs->node_new = ml_dna_node_new;
   funcs->tree_new = dnamlk_tree_new;
   progname = argv[0];
 
@@ -2778,7 +2778,7 @@ int main(int argc, Char *argv[])
 #endif
 
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = dna_node_new;
+  funcs->node_new = dnamlk_node_new;
   funcs->tree_new = dnamlk_tree_new;
   phylipinit(argc, argv, funcs, false);
   progname = argv[0];

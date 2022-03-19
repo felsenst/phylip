@@ -21,7 +21,7 @@ typedef struct dnaml_tree {
 } dnaml_tree;
 
 typedef struct dnaml_node {
-  struct ml_node ml_node;
+  struct ml_dna_node ml_dna_node;
 } dnaml_node;
 
 typedef long vall[maxcategs];
@@ -183,7 +183,7 @@ void inittip(tree* t, long m)
   node *tmp;
 
   tmp = t->nodep[m - 1];
-/* debug    memcpy(((dna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
+/* debug    memcpy(((ml_dna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
   tmp->deltav = 0.0;
 }  /* inittip */
 
@@ -918,10 +918,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
         z1yy = 0.0;
       }
 
-      memcpy(x1, ((dna_node*)p)->x[i][j], sizeof(sitelike));
+      memcpy(x1, ((ml_dna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
-      memcpy(x2, ((dna_node*)q)->x[i][j], sizeof(sitelike));
+      memcpy(x2, ((ml_dna_node*)q)->x[i][j], sizeof(sitelike));
       prod2 = freqa * x2[0] + freqc * x2[(long)C - (long)A] +
         freqg * x2[(long)G - (long)A] + freqt * x2[(long)T - (long)A];
       prod3 = (x1[0] * freqa + x1[(long)G - (long)A] * freqg) *
@@ -1085,7 +1085,7 @@ void dnaml_tree_nuview(tree* t, node *p)
           local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
           local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
           memcpy(local_nvd->xx[sib_index],
-                        ((dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+                        ((ml_dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
         }
       }
 
@@ -1158,12 +1158,12 @@ void dnaml_tree_nuview(tree* t, node *p)
       }
 
       /* And the final point of this whole function: */
-      memcpy(((dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
+      memcpy(((ml_dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
     }
 
     ((ml_node*)p)->underflows[i] = 0;
     if ( maxx < MIN_DOUBLE)
-      fix_x(((dna_node*)p), i, maxx, rcategs);
+      fix_x(((ml_dna_node*)p), i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
   }                                                /* end of loop over sites */
 
@@ -1217,10 +1217,10 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
       zzc = temp * temp * zz;
       temp = tbl[j][k]->ratxv;
       z1c = temp * temp * z1;
-      memcpy(x1, ((dna_node*)p)->x[i][j], sizeof(sitelike));
+      memcpy(x1, ((ml_dna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
-      memcpy(x2, ((dna_node*)q)->x[i][j], sizeof(sitelike));
+      memcpy(x2, ((ml_dna_node*)q)->x[i][j], sizeof(sitelike));
       prod2 = freqa * x2[0] + freqc * x2[(long)C - (long)A] +
         freqg * x2[(long)G - (long)A] + freqt * x2[(long)T - (long)A];
       prod3 = (x1[0] * freqa + x1[(long)G - (long)A] * freqg) *
@@ -1621,13 +1621,13 @@ void reconstr(node *p, long n)
   j = location[ally[n]-1] - 1;
   for (i = 0; i < 4; i++)
   {
-    f = ((dna_node*)p)->x[j][mx-1][i];
+    f = ((ml_dna_node*)p)->x[j][mx-1][i];
     num_sibs = count_sibs(p);
     q = p;
     for (k = 0; k < num_sibs; k++)
     {
       q = q->next;
-      f *= ((dna_node*)q)->x[j][mx-1][i];
+      f *= ((ml_dna_node*)q)->x[j][mx-1][i];
     }
     if (f > 0.0)   /* correct for overcounting of conditional likelihoods */
       f = exp(log(f)/num_sibs);
@@ -2993,7 +2993,7 @@ int main(int argc, Char *argv[])
 #endif
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  funcs.node_new = (node_new_t)dna_node_new;
+  funcs.node_new = (node_new_t)dnaml_node_new;
   funcs.node_init = (node_init_t)dnaml_node_init;
   phylipinit(argc, argv, &funcs, false);
   progname = argv[0];

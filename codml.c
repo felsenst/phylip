@@ -47,6 +47,12 @@ typedef struct codon_tree {
 void   debugtree(tree*);
 tree * codon_tree_new(long, long);
 void   codon_tree_init(tree*, long, long);
+node   codon_node_new(node_type, long, long);
+void   codon_node_init(struct node *, node_type, long);
+void   codon_node_allocx(node*, long, long);
+void   codon_node_copy(codon_node*, codon_node*);
+void   codon_node_freex(ml_node*);
+void   codon_freex_notip(long, pointarray);
 void   init_nucSubRates(double);
 void   fill_codon64_to(long, long, long, double);
 void   init_codon64matrix(double);
@@ -204,6 +210,11 @@ double codonfreq[NUM_SENSE_CODONS];    /* codon frequencies         */
 double **  InstMatrix;   /* Instantaneous Matrix */
 double **  SymMatrix;    /* Symmetric Matrix     */
 
+
+typedef struct codon_node {
+  struct ml_node ml_node;                     /* Base object, must be first */
+  cphenotype codonx;
+} codon_node;
 
 void debugtree(tree* t)
 {
@@ -401,15 +412,6 @@ void codon_node_allocx(node* nn, long endsite, long rcategs)
     n->codonx[i] = (cratelike)Malloc(rcategs * sizeof(csitelike));
   n->ml_node.underflows= Malloc(endsite * sizeof(double));
 } /* codon_node_allocx */
-
-
-void ml_node_free(node **np)
-{
-  /* free a node for ml trees */
-  ml_node *n = (ml_node*)*np;
-  n->freex((node*)n);
-  generic_node_free(np);
-} /* ml_node_free */
 
 
 void init_nucSubRates(double ttratio)
