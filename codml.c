@@ -387,6 +387,22 @@ void codon_node_init(node* n, node_type type, long index)
 } /* codon_node_init */
 
 
+void codon_node_allocx(node* nn, long endsite, long rcategs)
+{
+  /* allocate space for sequences on a codon-model tree node */
+  codon_node *n = (codon_node *)nn;
+  long i;
+
+  n->ml_node.categs = rcategs;
+  n->ml_node.endsite = endsite;
+
+  n->codonx = (cphenotype)Malloc(endsite * sizeof(cratelike));
+  for ( i = 0 ; i < endsite ; i++ )
+    n->codonx[i] = (cratelike)Malloc(rcategs * sizeof(csitelike));
+  n->ml_node.underflows= Malloc(endsite * sizeof(double));
+} /* codon_node_allocx */
+
+
 void ml_node_free(node **np)
 {
   /* free a node for ml trees */
@@ -3613,6 +3629,32 @@ void free_all_codonx (long nonodes, pointarray treenode)
 }  /* free_all_codonx */
 
 
+void codon_freex_notip(long nonodes, pointarray treenode)
+{
+  /* free interior fork nodes
+   * used in proml */
+  long i, j;
+  node *p;
+
+  for (i = spp; i < nonodes; i++)
+  {
+    p = treenode[i];
+    if ( p == NULL ) continue;
+    do
+    {
+      for (j = 0; j < endsite; j++)
+      {
+        free(((codon_node*)p)->codonx[j]);
+        ((codon_node*)p)->codonx[j] = NULL;
+      }
+      free(((codon_node*)p)->codonx);
+      ((codon_node*)p)->codonx = NULL;
+      p = p->next;
+    } while (p != treenode[i]);
+  }
+}  /* codon_freex_notip */
+
+
 void codml_reroot(tree* t)              // RSGbugfix: Name change.
 {
   node *q;
@@ -3702,6 +3744,25 @@ void initcodonmlnode(tree *treep, node **p, long len, long nodei, long *ntips, l
       break;      /* should never occur               */
   }
 } /* initcodonmlnode */
+
+
+void codon_node_freex(ml_node* n)
+{
+  /* free a codon-model tree node */
+  codon_node *pn;
+  long i;
+
+  pn = (codon_node *)n;
+  for ( i = 0 ; i < n->endsite ; i++ )
+  {
+    free(pn->codonx[i]);
+  }
+
+  free(pn->codonx);
+  pn->codonx = NULL;
+  free(n->underflows);
+  n->underflows = NULL;
+} /* codon_node_freex */
 
 
 void maketree(void)
