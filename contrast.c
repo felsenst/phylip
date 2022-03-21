@@ -154,7 +154,7 @@ boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
   firstplace, reportplacefossils, changed, somechanged,
   superposition, weightsuper, supshapesonly, omitheaders, includesppchars,
   toladjusted, *isfossil;
-boolean smoothit, smoothed, polishing, lngths;           /* keep ml.c happy */
+boolean smoothit, smoothed, polishing, lngths;   /* just to keep ml.c happy */
 Char ch;
 
 /* Local variables for maketree, propagated globally for C version: */
