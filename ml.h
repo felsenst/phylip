@@ -14,7 +14,7 @@
 
 #include "phylip.h"
 
-extern boolean inserting;
+extern boolean inserting, smoothit, smoothed, polishing;
 
 struct allocx_t;
 struct freex_t;
