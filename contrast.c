@@ -170,6 +170,7 @@ void contrast_tree_new(struct tree** treep, long nonodes, long spp, long treesiz
   /* set up variables and then set up identities of functions */
   tree* t;
 
+  treesize = (long)sizeof(struct tree);
   generic_tree_new(treep, nonodes, spp, treesize);
   t = *treep;
   t->setupfunctions = generic_tree_setupfunctions;
@@ -3332,7 +3333,7 @@ void readthetree (void)
   first = true;
   treeread (curtree, intree, &curtree->root, curtree->nodep, &goteof, &first,
             &nextnode, &haslengths,
-            initcontrastnode, false, nonodes);
+            contrast_node_new, false, nonodes);
 } /* readthetree */
 
 
