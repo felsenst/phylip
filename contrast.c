@@ -192,13 +192,13 @@ struct node* contrast_node_new(node_type type, long index, long nodesize)
   struct node *n;
 
   nodesize = (long)sizeof(contrast_node);
-  n = ml_node_new(type, index, nodesize);
+  n = cont_node_new(type, index, nodesize);
   contrast_node_init(n, type, index);
   return n;
 } /* contrast_node_new */
 
 
-void contrast_node_init(node* n, node_type type, long index)
+void contrast_node_init(struct node* n, node_type type, long index)
 {
   /* initialize a contrast_node */
   contrast_node *cn = (contrast_node*)n;
@@ -208,7 +208,6 @@ void contrast_node_init(node* n, node_type type, long index)
   ((node*)(cn))->copy = contrast_node_copy;
   ((node*)(cn))->reinit= contrast_node_reinit;
 } /* contrast_node_init */
-
 
 
 void getoptions(void)

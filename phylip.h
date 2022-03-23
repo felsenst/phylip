@@ -1,18 +1,20 @@
-/* Version 4.0a.
-   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
-   Mike Palczewski, Doug Buxton, and Dan Fineman and Bob Giansiracusa. */
+/* Version 4.0a.  Copyright 1993-2022.
+   Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
+   Mike Palczewski, Doug Buxton, Dan Fineman and Bob Giansiracusa. */
 
 #ifndef _PHYLIP_H_   /* debug: needed (?) to show you're in phylip.h */
 #define _PHYLIP_H_
 
-
-/* Define VERSION string if config.h has not already */
-/* debug: is this only for configure/make compiling?  Ever used these days? */
+/* this is only for configure/make compiles, which we do not use these days */
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
+
+/* Define VERSION string if config.h has not done that already.  This is
+ * used throughout the PHYLIP package instead of having version strings
+ * that have to be kept up-to-date in other places */
 #ifndef VERSION
-#  define VERSION "4.0a"
+#define VERSION "4.0a"
 #endif
 
 /* machine-specific stuff:
@@ -34,7 +36,6 @@
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
-
 
 #else                                    /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
@@ -100,24 +101,24 @@
 #endif
 
 #ifdef sequent                   /* if on a Sequent multiprocessing machine */
-#define SYSTEM_FIVE
+#define SYSTEM_FIVE                      /* (which went extinct about 2002) */
 #endif
 
 #ifndef SYSTEM_FIVE                       /* diagnosing whether on BSD Unix */
 #include <stdlib.h>
-# if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
-# define UNIX
-# define MACHINE_TYPE "BSD Unix C"
-# endif
+#if defined(_STDLIB_H_) || defined(_H_STDLIB) || defined(H_SCCSID) || defined(unix)
+#define UNIX
+#define MACHINE_TYPE "BSD Unix C"
+#endif
 #endif
 
 #ifdef __STDIO_LOADED                    /* diagnosing whether on a DEC VAX */
 #define VMS                           /* running their VMS operating system */
-#define MACHINE_TYPE "VAX/VMS C"
+#define MACHINE_TYPE "VAX/VMS C"                   /* also, now almost gone */
 #endif
 
 #ifdef __WATCOMC__               /* diagnosing whether compiler is Watcom C */
-#define QUICKC
+#define QUICKC                     /* which was multiplatform, now obsolete */
 #define WATCOM
 #define DOS
 #include "graph.h"
@@ -209,7 +210,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Slist.h"
+#include "Slist.h"  /* debug: why quotes and not angle-braces here? */
 
 #ifdef MAC
 #ifdef DRAW
@@ -222,11 +223,11 @@
 
 /* delimiters in paths to files */
 #ifdef MAC
-#define DELIMITER ':'
+#define DELIMITER ':'                           /* In MacOS, use the colon? */
 #else
 #ifdef WIN32
-#define DELIMITER '\\'     /* a backslash character */
-#else
+#define DELIMITER '\\'                             /* a backslash character */
+#else                           /* otherwise the Unix/Linux style delimiter */
 #define DELIMITER '/'
 #endif
 #endif
@@ -249,40 +250,41 @@ typedef unsigned int boolean;
 #endif
 
 /* Number of items per machine word in when stores a binary set of bits.
- * Used in Consense, Treedist, and Clique, because we can't use sign bit */
+ * Used in Consense, Treedist, and Clique, because can't use the sign bit */
 #define SETBITS 31
 
 /* Static memory parameters */
 
-#define FNMLNGTH        200     /* length of array to store a file name */
-#define MAXNCH          20
-#define nmlngth         10      /* number of characters in species name    */
-#define maxcategs       9       /* maximum number of site types */
-#define maxcategs2     11       /* maximum number of site types + 2 */
+#define FNMLNGTH        200         /* length of array to store a file name */
+#define MAXNCH          20     /* extra-long names for Drawtree or Drawgram */
+#define nmlngth         10          /* number of characters in species name */
+#define maxcategs       9                   /* maximum number of site types */
+#define maxcategs2     11               /* maximum number of site types + 2 */
 #define point           "."
 #define pointe          '.'
 #define down            2
-#define MAXNUMTREES    10000000  /* greater than number of user trees can be */
-#define MAXSHIMOTREES 100    /* SHT test.  Yes, he uses this as his nickname */
+#define MAXNUMTREES    10000000 /* greater than number of user trees can be */
+#define MAXSHIMOTREES 100  /* SHT test. (Yes, he uses this as his nickname) */
 
 /* Maximum likelihood parameters */
 
-#define smoothings      8       /* number of passes through smoothing algorithm */
-#define iterations      8       /* number of iterates for each branch           */
-#define epsilon         0.0001  /* small number used in makenewv */
-#define EPSILON         0.00001 /* small number used in hermite root-finding */
-#define initialv        0.1     /* starting branch length unless otherwise */
-#define over            60      /* maximum width all branches of tree on screen */
+#define smoothings      8   /* number of passes through smoothing algorithm */
+#define iterations      8             /* number of iterates for each branch */
+#define epsilon         0.0001             /* small number used in makenewv */
+#define EPSILON         0.00001 /* small number used in Hermite rootfinding */
+#define initialv        0.1      /* starting branch length unless otherwise */
+#define over            60  /* maximum width all branches of tree on screen */
 #define LIKE_EPSILON    1e-10   /* Estimate of round-off error in likelihood
                                  * calculations. */
 
 /* Math constants */
-#define SQRTPI 1.7724538509055160273     /* square root of Pi, for Normal */
-#define SQRT2  1.4142135623730950488     /* square root of 2. */
-#define  purset ((1 << (long)A) + (1 << (long)G))   /* the purine bases */
-#define  pyrset ((1 << (long)C) + (1 << (long)T))   /* the pyrimidines */
-#define NLRSAVES 5 /* number of views that need to be saved during local  *
-                    * rearrangement                                       */
+
+#define SQRTPI 1.7724538509055160273       /* square root of Pi, for Normal */
+#define SQRT2  1.4142135623730950488                   /* square root of 2. */
+#define purset ((1 << (long)A) + (1 << (long)G))        /* the purine bases */
+#define pyrset ((1 << (long)C) + (1 << (long)T))         /* the pyrimidines */
+#define NLRSAVES 5    /* number of views that need to be saved during local
+                       * rearrangement                                      */
 
 /* Used in Proml, Promlk, Dnaml, Dnamlk and in the parsimony programs
  * for undefined bestyet value */
@@ -299,11 +301,11 @@ struct stack {
 
 typedef long *steptr;
 typedef long longer[6];
-typedef char naym[MAXNCH];    /* for species names */
+typedef char naym[MAXNCH];                             /* for species names */
 typedef long *bitptr;
 typedef double raterootarray[maxcategs2][maxcategs2];
 
-typedef struct bestelm {      /* stores trees */
+typedef struct bestelm {                                    /* stores trees */
   long *btree;
   boolean gloreange;
   boolean locreange;
@@ -329,9 +331,6 @@ typedef Char plotstring[MAXNCH];
 #define TOO_MUCH_MEMORY 1000000000      /* debug: maybe should make bigger? */
 
 
-/* The below pre-processor commands define the type used to store
-   group arrays.  We can't use #elif for Metrowerks C, so we use
-   cascaded if statements */
 #include <limits.h>
 
 /* minimum double we feel safe with, anything less will be considered
@@ -344,30 +343,25 @@ typedef Char plotstring[MAXNCH];
 #define MAX_32BITS        2147483647    /* max integer if 32-bit arithmetic */
 #define MAX_32BITS_PLUS  +2147483647
 
-/* If ints are 4 bytes, use them */
-#if INT_MAX == MAX_32BITS
+/* The below pre-processor commands define the type used to store
+   group arrays.  We can't use #elif for Metrowerks C, so we use
+   cascaded if statements */
+#if INT_MAX == MAX_32BITS                  /* If ints are 4 bytes, use them */
 typedef int  group_type;
-
 #else
-     #if INT_MAX == MAX_32BITS_PLUS
-     typedef int  group_type;
-
-     #else
-          /* Else, if longs are 4 bytes, use them */
-          #if LONG_MAX == MAX_32BITS
-          typedef long group_type;
-
-          #else
-               #if LONG_MAX == MAX_32BITS_PLUS
-                typedef long group_type;
-
-               /* Default to longs */
-               #else
-                    typedef long group_type;
-               #endif
-
-          #endif
-     #endif
+  #if INT_MAX == MAX_32BITS_PLUS
+  typedef int group_type;
+  #else                             /* else, if longs are 4 bytes, use them */
+    #if LONG_MAX == MAX_32BITS
+    typedef long group_type;
+    #else
+      #if LONG_MAX == MAX_32BITS_PLUS
+      typedef long group_type;                          /* Default to longs */
+      #else
+        typedef long group_type;
+      #endif
+    #endif
+  #endif
 #endif
 
 
@@ -399,24 +393,23 @@ typedef enum {
   zero = 0, one, two, three, four, five, six, seven
 } discbases;
 
-
 /* used by Protpars and Protdist */
 typedef enum {          /* the three-letter amino acid codes, extended */
   ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, pro,
   ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
 } aas;
 
-/* arrays for likelihoods in Dnaml, Dnamlk, Dnadist...                              */
+/* arrays for likelihoods in Dnaml, Dnamlk, Dnadist ... */
 typedef double sitelike[(long)T - (long)A + 1];
 typedef sitelike *ratelike;
 typedef ratelike *phenotype;
 
-/* arrays for likelihoods in Proml, Prokmlk...                              */
+/* arrays for likelihoods in Proml, Prokmlk ... */
 typedef double psitelike[(long)valine - (long)alanine + 1];
 typedef psitelike *pratelike;
 typedef pratelike *pphenotype;
 
-/* arrays for likelihoods in Codml                                       */
+/* arrays for likelihoods in Codml */
 typedef double csitelike[61];
 typedef csitelike *cratelike;
 typedef cratelike *cphenotype;

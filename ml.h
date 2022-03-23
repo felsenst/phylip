@@ -29,7 +29,7 @@ typedef struct ml_tree {
 typedef struct ml_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
   allocx_t allocx;
-  freex_t freex;
+  freex_t freex;    /* debug: stuff after here to be later moved to mldna.c ? */
   double* underflows;
   long endsite;
   long categs;

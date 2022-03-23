@@ -1,11 +1,9 @@
-/* Version 4.0. (c) Copyright 1999-2013 by the University of Washington.
-   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+/* (c) Copyright 1999-2022.
+   Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe. */
 
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include "phylip.h"
@@ -15,20 +13,19 @@
 #define SAMPLES 1000
 
 
-node * cont_node_new(node_type type, long index, long nodesize)
+struct node* cont_node_new(node_type type, long index, long nodesize)
 { /* make a new node of type cont_node_type */
   node *n;
  
   n = ml_node_new(type, index, nodesize);
-  cont_node_init((cont_node_type *)n, type, index);
+  cont_node_init((struct node*)n, type, index);
   return n;
 } /* cont_node_new */
 
 
-void cont_node_init(cont_node_type* n, node_type type, long index)
+void cont_node_init(struct node* n, node_type type, long index)
 {  /* make and init variables for a new node of type cont_node_type */
-  generic_node_init((node*)n, type, index);
-  ((node*)n)->copy = cont_node_copy;
+  n->copy = cont_node_copy;
 } /* cont_node_init */
 
 
