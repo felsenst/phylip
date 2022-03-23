@@ -529,7 +529,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
   node_copy_t copy;
   node_free_t free;
-  node_init_t init;    /* debug: use this or one in node_vtable? */
+  node_init_t node_init;    /* debug: use this or one in node_vtable? */
   node_reinit_t reinit;
   fork_print_t fork_print_f;
   node_print_t node_print_f;

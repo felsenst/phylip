@@ -95,7 +95,6 @@ void   getshapecovars (double **);
 void   reportshapes(void);
 void   writemeans (void);
 void   contrast_node_copy(node *, node *);
-void   contrast_node_init(node*, node_type, long);
 void   contrast_node_reinit(node*);
 node*  contrast_node_make(tree *, node_type, long);
 void   makenewbranches(void);
@@ -3301,7 +3300,7 @@ void initcontrastnode(tree * treep, node **p, long len, long nodei,
       break;
     case tip:
       match_names_to_data (str, nodep, p, spp);
-      nodei = (*p)->index; /* debug  Why not also necessary in initdnamlnode?  */
+      nodei = (*p)->index; /* debug: Why not also necessary in initdnamlnode?  */
       contrast_node_init(*p, TIP_NODE, nodei);
       (*p)->deltav = 0.0;
       (*p)->tip = (nodei <= spp);
@@ -3333,7 +3332,7 @@ void readthetree (void)
   first = true;
   treeread (curtree, intree, &curtree->root, curtree->nodep, &goteof, &first,
             &nextnode, &haslengths,
-            contrast_node_new, false, nonodes);
+            initcontrastnode, false, nonodes);
 } /* readthetree */
 
 

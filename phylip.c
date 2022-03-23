@@ -130,7 +130,6 @@ void generic_node_init (struct node* n, node_type type, long index)
   n->initialized = false;
 
   /* Initialize virtual functions */
-  n->init = generic_node_init;    /* hope later to override these as needed */
   n->free = generic_node_free;
   n->copy = generic_node_copy;
   n->reinit = generic_node_reinit;
@@ -3038,9 +3037,10 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 {
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
+/* debug.  Now using  generic_node_new, rest needs simplifying */
 
   struct node *pfirst;
-  long i, len = 0, nodei = 0;
+  long i, k, len = 0, nodei = 0;
   boolean notlast;
   Char str[MAXNCH+1];
   struct node *r;
@@ -4774,7 +4774,7 @@ struct node* generic_tree_get_forknode(struct tree* t, long i)
   }
   else {
     p = Slist_pop(t->free_fork_nodes);
-    p->init(p, 0, i);
+    node_init(p, 0, i);
   }
   p->tip = (i <= spp);
   return p;

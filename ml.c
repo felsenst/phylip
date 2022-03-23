@@ -80,7 +80,6 @@ void ml_node_init(node *n, node_type type, long index)
 
   generic_node_init(n, type, index);                /* go up node hierarchy */
   n->copy = ml_node_copy;
-  n->init = (node_init_t)ml_node_init;
   n->free = ml_node_free;
   n->reinit = ml_node_reinit;
   n->node_print_f = ml_node_print;
