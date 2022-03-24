@@ -3066,16 +3066,16 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     }
 
     /* do what needs to be done at bottom */
-    type = FORK;
-    p = funcs_node_new(treep, 
-    funcs->node_init(p, type, nodei);
+    type = FORK_NODE;
+    *p = funcs.node_new(type, nodei, 0);
+    funcs.node_init(*p, type, nodei);
     (*initnode)(treep, p, len, nodei, ntips, parens,
                  bottom, nodep, str, ch, treefile);
     pfirst = (*p);
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
       furcs++;
-      funcs->node_init(p, type, nodei);
+      funcs.node_init(*p, type, nodei);
       (*initnode)(treep, &(*p)->next, len, nodei,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
@@ -4779,7 +4779,7 @@ struct node* generic_tree_get_forknode(struct tree* t, long i)
   }
   else {
     p = Slist_pop(t->free_fork_nodes);
-    node_init(p, 0, i);
+    funcs.node_init(p, 0, i);
   }
   p->tip = (i <= spp);
   return p;
