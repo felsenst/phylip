@@ -145,7 +145,7 @@ double logL, bestlogL, logLvara, logLnocorr, logLnovara, multiplier,
   bestmult, howworse, tolerance, tollimit, tolstart, unorm, varz, zsum,
   incparam0, startlogL, endlogL, nmepsilon, nmupsilon, worstlogL, alpha,
   gammma, rho, sigma;
-boolean nomorph, bookmorph, mlrots, justprocrust, centroidsize, mlsizes,
+boolean nomorph, centroidssuperposed, bookmorph, justprocrust, centroidsize,
   linearsize, morphall, sizes, sizes, sizechar, shapes, nophylo, printdata,
   progress, reg, multrees, muldata, treeswithin,
   datawithin, cross, fossil, inferscale, varywithin,
@@ -217,13 +217,13 @@ void getoptions(void)
   Char ch;
   boolean done;
 
-  nomorph = true;
+  nomorph = true;                            /* default is no morphometrics */
+  centroidssuperposed = true;                  /* default for morphometrics */
   bookmorph = false;
-  mlrots = false;
   justprocrust = false;
   centroidsize = false;;
   sizes = false;
-  mlsizes = true;
+  mlsizes = true;  /* debug: remove? */
   linearsize = false;
   dimensions = 2;
   numtrees = 1;
@@ -265,11 +265,11 @@ void getoptions(void)
     if (nomorph)
       printf("  No, not morphometric data\n");
     else {
-      if (bookmorph)
-        printf("  Bookstein transform\n");
+      if (centroidsuperposed)
+        printf("  Centroids superposed, no rotations\n");
       else {
-        if (mlrots)
-          printf("  ML optimum rotations\n");
+        if (bookmorph)
+          printf("  Bookstein transform\n");
         else {
           if (justprocrust && centroidsize)
             printf("  Procrustes transform\n");
@@ -1934,39 +1934,20 @@ void morph(void)
       }
       specsize[i][j][charspp] = 0.0;  /* initialize sizes array */
     }
-  if (bookmorph || mlrots || justprocrust) {
+  if (bookmorph || justprocrust) {
     if (morphall) {
       startmchar = 1;
       endmchar = chars;
     }
     if (((endmchar-startmchar+1)%2) > 0) {  /* debug:   change for 3D */
       printf("\nERROR:   Number of characters which are morphometric coordinates\n");
-      printf("         must be even, but it is %ld.\n\n", endmchar-startmchar+1);
+      printf("         must be even, but it is %ld\n\n", endmchar-startmchar+1);
       exxit(-1);
     }
     morphchars = endmchar - startmchar + 1;
     boasfit(); /*  for a rough start, Boas-fit z's to each other */
   }
 
-  if (mlrots) {
-    do {
-      startlogL = bestlogL;
-      incparam0 = 0.0006;
-      felsmorph2(); /*  debug */
-      felsmorph3(); /*  debug */
-      incparam0 = 0.0002;
-      felsmorph2(); /*  debug */
-      felsmorph3(); /*  debug */
-      incparam0 = 0.0001;
-      felsmorph2(); /*  debug */
-      felsmorph3(); /*  debug */
-      endlogL = bestlogL;
-    } while (endlogL - startlogL > 0.00001);
-  }
-  else {
-    logL = evaluate(curtree->root);
-    bestlogL = logL;
-  }
   if (bookmorph)
     bookstein();       /* the Bookstein Transformation */
 
@@ -2107,11 +2088,7 @@ void getcovariances (void) {
   /* infer the covariances from the contrasts */
   long i, j, k;
 
-  /* debug -- check that the covariances are not done already if fossil case */
-// printf("contrast:   %5ld\n", contno);/* debug */  
-// printf("how many:   %5ld\n", charspp);/* debug */  
   for (i = 0; i < contno; i++) {
-// printf("contrast:   %5ld\n", i);/* debug  */  
     for (j = 0; j < charspp; j++) {
       for (k = 0; k < charspp; k++) {
         if (i == 0)
@@ -2124,9 +2101,7 @@ void getcovariances (void) {
   for (i = 0; i < charspp; i++) {  /* compute covariance from sum or products */
     for (j = 0; j < charspp; j++) {
       sumprod[i][j] /= contno;
-// printf(" %20.12lf", sumprod[i][j]);  /* debug */
     }
-// printf("\n");  /* debug */
   }
 } /* getcovariances */
 
@@ -2432,8 +2407,6 @@ void writemethods (void) {
     fprintf(outfile, "\nProcrustes transform is used to align specimens\n\n");
   if (bookmorph)
     fprintf(outfile, "\nBookstein Transform is used to align specimens\n\n");
-  if (mlrots)
-    fprintf(outfile, "\nMaximum Likelihood rotations are used to align specimens\n\n");
   if (sizes && linearsize) {
     fprintf(outfile, "\nScale, shape and allometry are inferred by a linear\n");
     fprintf(outfile, "approximate model, after covariances are inferred\n\n");

@@ -3041,7 +3041,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 
   struct node *pfirst;
   node_type type;
-  long i, k, len = 0, nodei = 0;
+  long i, len = 0, nodei = 0;
   boolean notlast;
   Char str[MAXNCH+1];
   struct node *r;
