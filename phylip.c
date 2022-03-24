@@ -3040,15 +3040,16 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 /* debug.  Now using  generic_node_new, rest needs simplifying */
 
   struct node *pfirst;
+  node_type type;
   long i, k, len = 0, nodei = 0;
   boolean notlast;
   Char str[MAXNCH+1];
   struct node *r;
   long furcs = 0;
 
-  if ((*ch) == '(') {
+  if ((*ch) == '(') {   /* if see a left-paren, start to make interior node */
     (*nextnode)++;                    /* get ready to use new interior node */
-    nodei = *nextnode;                /* do what needs to be done at bottom */
+    nodei = *nextnode;
     if ( (maxnodes != -1) && (nodei > maxnodes)) {
       sprintf(progbuf,
                "ERROR in input tree file: Attempting to allocate too\n");
@@ -3065,12 +3066,16 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     }
 
     /* do what needs to be done at bottom */
+    type = FORK;
+    p = funcs_node_new(treep, 
+    funcs->node_init(p, type, nodei);
     (*initnode)(treep, p, len, nodei, ntips, parens,
                  bottom, nodep, str, ch, treefile);
     pfirst = (*p);
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
       furcs++;
+      funcs->node_init(p, type, nodei);
       (*initnode)(treep, &(*p)->next, len, nodei,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);
       /* ... doing what is done before each */
