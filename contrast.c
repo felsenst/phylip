@@ -37,6 +37,7 @@ double linesearchsz (double*, double, long, long, boolean*);
 void   rotateform(long, long);
 void   resizeform(long, long);
 /* void   felsie(void);   debug:  maybe use later */
+void   centroidsuperpose(void);
 void   boasfit (void);
 void   nmalterspecimen(long, long, double*);
 void   initnmiterate(void);
@@ -223,7 +224,6 @@ void getoptions(void)
   justprocrust = false;
   centroidsize = false;;
   sizes = false;
-  mlsizes = true;  /* debug: remove? */
   linearsize = false;
   dimensions = 2;
   numtrees = 1;
@@ -265,16 +265,16 @@ void getoptions(void)
     if (nomorph)
       printf("  No, not morphometric data\n");
     else {
-      if (centroidsuperposed)
-        printf("  Centroids superposed, no rotations\n");
+      if (centroidssuperposed)
+        printf("  Yes, centroids superposed, no rotations\n");
       else {
         if (bookmorph)
-          printf("  Bookstein transform\n");
+          printf("  Yes, Bookstein transform\n");
         else {
           if (justprocrust && centroidsize)
-            printf("  Procrustes transform\n");
+            printf("  Yes, Procrustes transform\n");
           else
-            printf("  Boas transform\n");
+            printf("  Yes, Boas transform\n");
         }
       }
     }
@@ -283,13 +283,11 @@ void getoptions(void)
       if (sizes && !bookmorph) {
         printf("  Yes\n");
         printf("  I       Method of inferring sizes and shapes?");
-        if (mlsizes)
-          printf("  by ML\n");
-        else if (linearsize)
-            printf("  linear inference of sizes\n");
-          else {
-            if (centroidsize)
-              printf("  centroid size\n");
+        if (linearsize)
+          printf("  linear inference of sizes\n");
+        else {
+          if (centroidsize)
+        printf("  by centroid size\n");
           }
         printf("  E                     Report size variation?");
         if (sizes)
@@ -429,23 +427,16 @@ void getoptions(void)
           case 'B':
             if (nomorph) {
               nomorph = false;
-              mlrots = true;
               }
             else {
-              if (mlrots) {
-              mlrots = false;
-              justprocrust = true;
-              }
-              else {
-                if (justprocrust) {
-                  justprocrust = false;
-                  bookmorph = true;
-                  }
-                else
-                  if (bookmorph) {
-                    bookmorph = false;
-                    nomorph = true;
-                  }
+              if (justprocrust) {
+                justprocrust = false;
+                bookmorph = true;
+                }
+              else
+                if (bookmorph) {
+                  bookmorph = false;
+                  nomorph = true;
                 }
               }
             break;
@@ -461,23 +452,18 @@ void getoptions(void)
             sizes = !sizes;
             if (sizes) {
               centroidsize = justprocrust;
-              mlsizes = !justprocrust;
             }
             break;
 
           case 'I':
             if (sizes) {
-              if (mlsizes) {
-                mlsizes = false;
-                linearsize = true;
-              }
-              else if (linearsize) {
-                  centroidsize = true;
+              if (linearsize) {
+                centroidsize = true;
+                linearsize = false;
+              } else if (centroidsize) {
+                  centroidsize = false;
                   linearsize = false;
-                } else if (centroidsize) {
-                    mlsizes = true;
-                    centroidsize = false;
-                  }
+                }
             }
             break;
 
@@ -651,7 +637,7 @@ void getoptions(void)
     countup(&loopcount, 100);
   } while (!done);
   printf("\n");
-  if (bookmorph || mlrots || justprocrust) {
+  if (bookmorph || justprocrust) {
     loopcount = 0;
     done = false;
     while (!done) {
@@ -700,7 +686,7 @@ void getoptions(void)
   } else {
     if (sizes && (!sizechar))
       dropchars = 4;
-    else if (mlrots || justprocrust)
+    else if (justprocrust)
       dropchars = 3;
       else 
         dropchars = 0;
@@ -1368,22 +1354,18 @@ double linesearchsz (double* logsz, double tol, long n, long m, boolean* changed
 //} /* resizeform */
 
 
-void boasfit(void)
+void centroidsuperpose(void)
 {
-  /* make a Boas least squares fit of the forms in z to each other for a rough start */
-  long i, j, k, num, specimens;
-  double meanx, meany, eps, maxrotation, A, B, D, oldx, oldy,
-         absrot, suma, targetsize, suma2, lnsize;
-  boolean firstcycle;
+  /* Superpose the individuals on the centroid of the first specimen.
+   * For the linear model, done as the only superposition, otherwise
+   * done as the first step of a Boas or Procrustes fit.  They are
+   * centered on the centroid of the first specimen. */
+  long i, j, k;
+  double meanx, meany, meanx0, meany0;
 
   nmpoints = morphchars/2;               /* ... as these are (x,y) pairs */
   if (firsttime)                        /* allocate only the first time */
     meanz = (phenotype3)Malloc((long)charsp * sizeof(double));
-  for (i = 0; i < spp; i++) {   /* start with zero rotations */
-    for (j = 0; j < sample[i]; j++) {
-      rotation[i][j] = 0.0;
-    }
-  }
   for (i = 0; i < spp; i++) {
     for (j = 0; j < sample[i]; j++) {   /* center each individual on (0,0) */
       meanx = 0.0;                   /* obtain the mean for the form */
@@ -1392,30 +1374,51 @@ void boasfit(void)
       meany = 0.0;
       for (k = startmchar; k <= endmchar-1; k += 2)
         meany += z[i][j][k];
+      if ((i == 0) && (j == 0)) {  /* set aside mean x,y for first specimen */
+        meanx0 = meanx;
+        meany0 = meany;
+      }
       meanx /= nmpoints;
       meany /= nmpoints;
       for (k = startmchar-1; k <= endmchar-2; k += 2)
-        z[i][j][k] -= meanx;        /* subtract out the mean for the form */
+        z[i][j][k] -= (meanx-meanx0); /* subtract out the mean for the form */
       for (k = startmchar; k <= endmchar-1; k += 2)
-        z[i][j][k] -= meany;
+        z[i][j][k] -= (meany-meany0);
+    }
+  }
+} /* centroidsuperpose */
+
+
+void boasfit(void)
+{
+  /* make a Boas least squares fit of the forms in z to each other for a rough start */
+  long i, j, k, num, specimens;
+  double eps, maxrotation, A, B, D, oldx, oldy,
+           absrot, suma, targetsize, suma2, lnsize;
+  boolean firstcycle;
+
+  centroidsuperpose();              /* superpose the centroids of the forms */
+  for (i = 0; i < spp; i++) {                  /* start with zero rotations */
+    for (j = 0; j < sample[i]; j++) {
+      rotation[i][j] = 0.0;
     }
   }
   firstcycle = true;
   eps = 0.0000001;
   specimens = 0;
-  targetsize = 0.0;    /* compute initial mean centroid size */
+  targetsize = 0.0;                   /* compute initial mean centroid size */
   for (i = 0; i < spp; i++) {
     for (j = 0; j < sample[i]; j++) {
       suma = 0.0;
       for (k = startmchar-1; k <= endmchar-1; k++)
         suma += z[i][j][k]*z[i][j][k];     
-      suma = sqrt(suma/(morphchars/2.0));  /* centroid size (2D only) */
-      targetsize += suma;   /* centroid size for this specimen */
+      suma = sqrt(suma/(morphchars/2.0));        /* centroid size (2D only) */
+      targetsize += suma;                /* centroid size for this specimen */
       specimens++;
     }
   } 
-  targetsize /= specimens;  /* mean centroid size of all individuals */
-  if (sizes && (!linearsize)) {     /* if sizes being computed */
+  targetsize /= specimens;         /* mean centroid size of all individuals */
+  if (sizes && (!linearsize)) {                  /* if sizes being computed */
     for (i = 0; i < spp; i++) {
       for (j = 0; j < sample[i]; j++) {
         suma2 = 0.0;
@@ -1431,9 +1434,9 @@ void boasfit(void)
     maxrotation = 0.0;
     if (firstcycle) {
       for (j = startmchar-1; j <= endmchar-1; j++)
-        meanz[j] = z[0][0][j]; /* fitting all to the first one */
+        meanz[j] = z[0][0][j];              /* fitting all to the first one */
       firstcycle = false;
-    } else {    /* after that, each time fit them all to the mean form */
+    } else {         /* after that, each time fit them all to the mean form */
       for (k = startmchar-1; k <= endmchar-1; k++)
         meanz[k] = 0.0;
       num = 0;
@@ -1448,7 +1451,7 @@ void boasfit(void)
         meanz[k] /= num;
     }
     for (i = 0; i < spp; i++) {
-      for (j = 0; j < sample[i]; j++) {  /* find rotation needed */
+      for (j = 0; j < sample[i]; j++) { /* find the rotation that is needed */
         A = 0.0;
         B = 0.0;
         for (k = startmchar-1; k <= endmchar-2; k += 2) {
@@ -1456,21 +1459,21 @@ void boasfit(void)
           B += z[i][j][k]*meanz[k] + z[i][j][k+1]*meanz[k+1];
         }
         D = sqrt(A*A+B*B);
-        for (k = startmchar-1; k <= endmchar-2; k += 2) { /* rotate it */
+        for (k = startmchar-1; k <= endmchar-2; k += 2) {      /* rotate it */
           oldx = z[i][j][k];
           oldy = z[i][j][k+1];
           z[i][j][k] = (B/D)*oldx - (A/D)*oldy;
           z[i][j][k+1] = (A/D)*oldx + (B/D)*oldy;
         }
-        absrot = fabs(asin(A/D));   /* keep track of max of rotation */
-        rotation[i][j] += asin(A/D);  /* save the rotation */
+        absrot = fabs(asin(A/D));          /* keep track of max of rotation */
+        rotation[i][j] += asin(A/D);                   /* save the rotation */
         if (absrot > maxrotation)
           maxrotation = absrot;
         copyztox(i, j);
       }
     }
   firstcycle = false;
-  } while (maxrotation > eps);  /* repeatedly Boas-fit until little change */
+  } while (maxrotation > eps);   /* repeatedly Boas-fit until little change */
 } /* boasfit */
 
 
@@ -1932,24 +1935,28 @@ void morph(void)
       if (sizes) {
         z[i][j][charspp] = 0.0;   /* initialize size character  debug: this will be deleted */
       }
-      specsize[i][j][charspp] = 0.0;  /* initialize sizes array */
+      specsize[i][j][charspp] = 0.0;              /* initialize sizes array */
     }
+  if (!nomorph)               /* if some morphometrics, superpose centroids */
+    centroidsuperpose();
   if (bookmorph || justprocrust) {
     if (morphall) {
       startmchar = 1;
       endmchar = chars;
     }
     if (((endmchar-startmchar+1)%2) > 0) {  /* debug:   change for 3D */
-      printf("\nERROR:   Number of characters which are morphometric coordinates\n");
-      printf("         must be even, but it is %ld\n\n", endmchar-startmchar+1);
+      printf(
+      "\nERROR:   Number of characters which are morphometric coordinates\n");
+      printf("         must be even, but it is %ld\n\n",
+              endmchar-startmchar+1);
       exxit(-1);
     }
     morphchars = endmchar - startmchar + 1;
-    boasfit(); /*  for a rough start, Boas-fit z's to each other */
+    boasfit();            /*  for a rough start, Boas-fit z's to each other */
   }
 
   if (bookmorph)
-    bookstein();       /* the Bookstein Transformation */
+    bookstein();                            /* the Bookstein Transformation */
 
   for (i = 0; i < spp; i++)      /* copy the possibly transformed data to x */
     for (j = 0; j < sample[i]; j++) {
@@ -2417,17 +2424,11 @@ void writemethods (void) {
   }
   if (!linearsize) {
     if (sizes) {
-      if (mlsizes) {
-        fprintf(outfile, "\nSizes are being inferred by ML:\n variables 1 - %ld are shape variables\n", chars);
-        if (sizechar)
-          fprintf(outfile, "  and variable %ld is the inferred log(size)\n\n", charspp);
-      } else {
-        fprintf(outfile,
-          "\nSizes are being inferred by Generalized Procrustes:\n");
-        fprintf(outfile, "   variables 1 - %ld are shape variables\n", chars);
-      if (sizechar)
-        fprintf(outfile, "    and variable %ld is the inferred log(size)\n\n", charspp);
-      }
+      fprintf(outfile,
+        "\nSizes are being inferred by Generalized Procrustes:\n");
+      fprintf(outfile, "   variables 1 - %ld are shape variables\n", chars);
+    if (sizechar)
+      fprintf(outfile, "    and variable %ld is the inferred log(size)\n\n", charspp);
     }
   }
   if (pca) {
@@ -3432,7 +3433,7 @@ double evaluate (node *q) {
   if (fossil)
     makefossilcovars(curtree->root);
   matcopy(sumprod, temp5, charspp);
-/* debug  if ((chars == df) && !(justprocrust || bookmorph || mlrots))     if full rank */
+/* debug  if ((chars == df) && !(justprocrust || bookmorph))     if full rank */
 /* debug     ldet = logdet(temp5);   */           /* can just take Log Det */
 /* debug   else { */
     qreigen(temp5, charspp);      /* all eigenvalues including (near-)zeros */
