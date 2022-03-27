@@ -36,7 +36,6 @@ double linesearch (double*, double, long, long, boolean*);
 double linesearchsz (double*, double, long, long, boolean*);
 void   rotateform(long, long);
 void   resizeform(long, long);
-/* void   felsie(void);   debug:  maybe use later */
 void   centroidsuperpose(void);
 void   boasfit (void);
 void   nmalterspecimen(long, long, double*);
@@ -1476,82 +1475,6 @@ void boasfit(void)
   } while (maxrotation > eps);   /* repeatedly Boas-fit until little change */
 } /* boasfit */
 
-
-// void felsie(void)
-// {
-//   /* do optimal rotations using likelihood on the tree (which amounts to
-//      minimizing the determinant of the estimated covariance matrix,
-//      which amounts to minimizing  x'C^{-1}x where C is the covariances
-//      of the contrasts of the other species) */
-//   /* note -- this function is not being used right now at all but parts of
-//      it may be used later */
-//   node *storedroot, *wherefrom, *nearestinternalnode;
-//   double leftbranchlength, rightbranchlength, maxangle, theta, cos2theta,
-//     A1122, A12, alpha11, alpha12, alpha22, costheta, sintheta, oldx, oldy;
-//   long i, j, k;
-//   boolean wasrootedatinteriornode;
-// 
-//   // RSGnote: "maxtheta" was originally not initialized and is referenced as such
-//   // below.  This is definately a bug.  Initialized here only to silence compiler warning.
-//   double maxtheta = 0.0;
-// 
-//   storedroot = curtree->root; /* store the root of the tree to restore later */
-//   (void)storedroot;          // RSGnote: Variable set but never used.
-// 
-//   wasrootedatinteriornode = (curtree->root->back == NULL);  /* debug: works? */
-//   if (!wasrootedatinteriornode)
-//   {
-//     leftbranchlength = curtree->root->next->v;
-//     rightbranchlength = curtree->root->next->next->v;
-//     (void)leftbranchlength;             // RSGnote: Variable set but never used.
-//     (void)rightbranchlength;            // RSGnote: Variable set but never used.
-//   }
-//   do {   /* repeated rounds of improvement until angles all small enough */
-//     maxangle = 0.0;
-//     for (i = 0; i < spp; i++) { /* for each species reroot where connects */
-//       wherefrom = curtree->root;
-//       nearestinternalnode = wherefrom;
-//       if (wherefrom->tip)
-//         nearestinternalnode = wherefrom->back;
-//       (void)nearestinternalnode;        // RSGnote: Variable set but never used.
-//       /* code to remove root, fuse branches, put it near species i here */
-//       /* compute covariance matrix for contrasts down to there */
-//       /* double check the next statement: is it calling contrasting on the
-//          correct nearby node?  Must have inserted root, done this call
-//          in a correctly coordinated way    -- debug */
-//       makecontrasts(curtree->root->next->back);
-//       getcovariances();
-//       /* now compute inverse of contrasts, plus get JC^(-1)I etc. */
-//       /*   question -- what to do if C is not of full rank? */
-//       /* find optimal rotation of that species to minimize det(Cov)*/
-//       /* debug  dummy*/
-//       alpha11 = 0.0;
-//       alpha12 = 0.0;
-//       alpha22 = 0.0;
-//       /* put here code to compute quadratic forms.  Helmertize first? */
-//       A1122 = alpha11-alpha22;
-//       A12 = 2.0*alpha12;
-//       cos2theta = A1122/sqrt(A1122*A1122+A12*A12);
-//       costheta = sqrt((1.0+cos2theta)/2.0);    /* use these to rotate */
-//       sintheta = sqrt((1.0-cos2theta)/2.0);
-//       theta = acos(costheta);   /* just to test convergence */
-//       if (fabs(theta) > maxtheta)
-//         maxangle = fabs(theta);
-//       for (j = 0; j < sample[i]; j++) {            /* find rotation needed */
-//         for (k = startmchar-1; k <= endmchar-2; k += 2) {     /* rotate it */
-//           oldx = z[i][j][k];
-//           oldy = z[i][j][k+1];
-//           z[i][j][k] =   costheta*oldx - sintheta*oldy;
-//           z[i][j][k+1] = sintheta*oldx + costheta*oldy;
-//         }
-//       }
-//     }  /* end of loop over species */
-//     /* this next is just to be used while we are debugging  -- debug */
-//     printf("largest absolute angle changed = %10.8f\n", maxangle);
-//   } while (maxangle > 0.00001);
-//   /* then finally restore root to its original location */
-// } /* felsie */
-//
 
 void nmalterspecimen (long i, long j, double* newparameters) {
 /* rotate or resize  z  depending on  k  */
@@ -3651,9 +3574,11 @@ void makenewbranches (void)
 
   p = NULL;                             // RSGnote: "p" initialized merely to silence compiler warning.
 
-/* #if 0                                    debug; may not need this  
+/*
+#if 0                                    debug; may not need this  
   curtree->nodep = realloc(curtree->nodep, (nonodes + numfossils) * sizeof(node *  *));
-  #endif      debug  */
+#endif
+debug  */
 
   *t = curtree;                         // RSGnote: Write from uniititialized pointer.
 
