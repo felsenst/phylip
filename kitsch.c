@@ -1150,7 +1150,7 @@ void kitsch(
 
 int main(int argc, Char *argv[])
 {  /* Fitch-Margoliash criterion with contemporary tips */
-  initdata* funcs;
+  initdata *funcs;
 
 #ifdef MAC
   argc = 1;                /* macsetup("Kitsch", "");        */
