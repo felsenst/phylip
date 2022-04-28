@@ -1208,7 +1208,6 @@ void fitch(
   int WriteTree
   )
 {
-  initdata *funcs;
   /* debug: printf("Hello from Fitch!\n");  */
 
   int argc;
@@ -1458,7 +1457,6 @@ void fitch(
 
 int main(int argc, Char *argv[])
 {
-  initdata *funcs;
 #ifdef MAC
   argc = 1;                                /* macsetup("Fitch", "");        */
   argv[0]="Fitch";
