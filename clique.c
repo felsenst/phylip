@@ -66,7 +66,7 @@ void clique_printree(void);
 void DoAll(boolean *, boolean *, boolean *, long);
 void Gen2(long, long, boolean *, boolean *, boolean *);
 void GetMaxCliques(vecrec **);
-node* clique_node_new(node_type, long);
+node* clique_node_new(node_type, long, long);
 void reallocchars(void);
 /* function prototypes */
 #endif
@@ -127,7 +127,7 @@ void clique_chuck(vecrec *p)
 
 void nunode(node **p)
 {  /* replacement for NEW */
-  *p = funcs->node_new(FORK_NODE, 0);
+  *p = funcs.node_new(FORK_NODE, 0, nodesize);
   (*p)->next = NULL;
 }  /* nunode */
 
@@ -316,7 +316,7 @@ void clique_setuptree(void)
       free(treenode[i]);
     //printf("functions.node_new false: %i i: %li\n", false, i+1);// JRMdebug
     //treenode[i] = functions.node_new(FORK_NODE, i+1);// JRMdebug
-    treenode[i] = funcs->node_new(FORK_NODE, i+1);
+    treenode[i] = funcs.node_new(FORK_NODE, i+1);
     treenode[i]->next = NULL;
     treenode[i]->back = NULL;
   }
@@ -1757,10 +1757,9 @@ void clique(
   Char *argv[1];
   argc = 1;
   argv[0] = "Clique";
-  initdata* funcs;
-  funcs = Malloc(sizeof(initdata));
-  funcs->node_new = clique_node_new;
-  phylipinit(argc, argv, funcs, true);
+  funcs = (*initdata)Malloc(sizeof(initdata));
+  funcs.node_new = clique_node_new;
+  phylipinit(argc, argv, &funcs, true);
 
   treenode = NULL;
 
@@ -1832,7 +1831,7 @@ int main(int argc, Char *argv[])
   argv[0] = "Clique";
 #endif
   funcs = Malloc(sizeof(initdata));
-  funcs->node_new = clique_node_new;
+  funcs.node_new = clique_node_new;
   phylipinit(argc, argv, funcs, false);
 
   treenode = NULL;
