@@ -343,6 +343,9 @@ seq.o:        seq.c phylip.h seq.h
 ml.o:         ml.c phylip.h ml.h
 	$(CC) -c ml.c $(SHARED) -fPIC 
 
+mldna.o:         mldna.c phylip.h ml.h
+	$(CC) -c mldna.c $(SHARED) -fPIC 
+
 rest_common.o:  rest_common.c rest_common.h phylip.h
 	$(CC) -c rest_common.c $(SHARED) -fPIC
 
@@ -540,7 +543,7 @@ dnadist:      dnadist.o pmatrix.o matrixd.o seq.o $(LIBS)
 dnainvar:     dnainvar.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-dnaml:        dnaml.o seq.o ml.o $(LIBS)
+dnaml:        dnaml.o seq.o ml.o mldna.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 dnamlk:       dnamlk.o seq.o ml.o $(LIBS)
