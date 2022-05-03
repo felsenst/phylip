@@ -19,14 +19,13 @@ sequence inputSequences;
 node** lrsaves;
 
 
-void allocx(long nonodes, long endsite, long param, ml_node** treenode)
+void allocx(long nonodes, long endsite, long param, node** treenode)
 {
   /* allocate sequences */
   /* param =  sitelength in restml */
   /* param =  rcategs in dnaml/proml */
   long i;
-  ml_node *p;
-  ml_node *q;
+  node *p, *q;
 
   for (i = 0; i < spp; i++)
     treenode[i]->allocx((node*)treenode[i], endsite, param);
@@ -37,7 +36,7 @@ void allocx(long nonodes, long endsite, long param, ml_node** treenode)
     do
     {
       q->allocx((node*)q, endsite, param);
-      q = (ml_node*)q->node.next;
+      q = (node*)q->next;
     } while ( q != p);
   }
 }  /* allocx */
@@ -189,7 +188,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
     if (i <= spp || !usertree)
     {
       treenode[i-1]->back = NULL;
-      treenode[i-1]->init(treenode[i-1], i<=spp, i);
+      treenode[i-1].init(treenode[i-1], i<=spp, i);
       treenode[i-1]->iter = true;
       treenode[i-1]->initialized = true;
     }

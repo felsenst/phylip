@@ -1,21 +1,8 @@
 /* Copyright, 2022 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
+#include <mldna.h>
 
-#ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
-node*   ml_dna_node_new(node_type, long, long);
-void    ml_dna_node_init(struct node *, node_type, long);
-void    ml_dna_node_allocx(node*, long, long);
-void    fix_x(ml_dna_node*, long, double, long);
-void    ml_dna_node_copy(node*, node*);
-void    ml_dna_node_freex(ml_node*);
-#endif
-
-
-typedef struct ml_dna_node{
-  struct ml_node ml_node;                     /* Base object, must be first */
-  phenotype x;
-} ml_dna_node;
 
 void ml_dna_node_copy(node* srcn, node* destn)
 {
@@ -43,8 +30,8 @@ void ml_dna_node_copy(node* srcn, node* destn)
 void fix_x(ml_dna_node* p, long site, double maxx, long rcategs)
 { /* used in  Dnaml, Dnamlk */
   long i, j;
-  ((ml_node*)p)->underflows[site] += log(maxx);
 
+  ((ml_node*)p)->underflows[site] += log(maxx);
   for ( i = 0 ; i < rcategs ; i++ )
   {
     for ( j = 0 ; j < ((long)T - (long)A + 1) ; j++)

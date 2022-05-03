@@ -10,6 +10,7 @@
 #include "phylip.h"
 #include "seq.h"
 #include "ml.h"
+#include "mldna.h"
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
@@ -1163,7 +1164,7 @@ void dnaml_tree_nuview(tree* t, node *p)
 
     ((ml_node*)p)->underflows[i] = 0;
     if ( maxx < MIN_DOUBLE)
-      fix_x(((ml_dna_node*)p), i, maxx, rcategs);
+      fix_x((ml_dna_node*)p, i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
   }                                                /* end of loop over sites */
 
