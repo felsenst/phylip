@@ -188,7 +188,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
     if (i <= spp || !usertree)
     {
       treenode[i-1]->back = NULL;
-      treenode[i-1].init(treenode[i-1], i<=spp, i);
+      treenode[i-1]->node_init(treenode[i-1], i<=spp, i);
       treenode[i-1]->iter = true;
       treenode[i-1]->initialized = true;
     }
@@ -201,7 +201,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
       while (p != treenode[i-1])
       {
         p->back = NULL;
-        p->init(p, false, i);
+        p->node_init(p, false, i);
         p->iter = true;
         p->initialized = false;
         p = p->next;
