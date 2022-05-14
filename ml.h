@@ -19,7 +19,7 @@ extern boolean inserting, smoothit, smoothed, polishing;
 struct allocx_t;
 struct freex_t;
 
-typedef void (*allocx_t)(long, long, long, node**);
+typedef void (*allocx_t)(struct node*, long, long);
 typedef void (*freex_t)(node*);
 
 typedef struct ml_tree {
@@ -44,6 +44,9 @@ typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
 
 typedef void (*initialvtrav_t)(tree*, node*);
+
+
+long endsite;
 
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct tree**, long, long, long);

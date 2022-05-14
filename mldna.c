@@ -1,7 +1,9 @@
 /* Copyright, 2022 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#include <mldna.h>
+#include "phylip.h"
+#include "ml.h"
+#include "mldna.h"
 
 
 void ml_dna_node_copy(node* srcn, node* destn)
@@ -20,11 +22,11 @@ void ml_dna_node_copy(node* srcn, node* destn)
     dest->ml_node.endsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx(((node*)dest), ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
+    ((ml_node*)dest)->allocx((node*)dest, ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
   for (i = 0; i < ((ml_node*)src)->endsite; i++)
     for (j = 0; j < ((ml_node*)src)->categs; j++)
       memcpy(((ml_dna_node*)dest)->x[i][j], ((ml_dna_node*)src)->x[i][j], sizeof(sitelike));
-}
+} /* ml_dna_node_copy */
 
 
 void fix_x(ml_dna_node* p, long site, double maxx, long rcategs)

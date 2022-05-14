@@ -1,13 +1,15 @@
 /* Copyright 2022
- * Functions for ML on sequences, applicable to DNA, protein, codon, and restriction sites data
+ * Functions for ML on sequences, all applicable to DNA, protein, codon, 
+ * and restriction sites data
  * Written by Mike Palczewski and Joe Felsenstein */
 
 
 void allocx(long nonodes, long endsite, long param, ml_node** treenode)
 {
-  /* allocate sequences */
+  /* allocate ML sequences */
   /* param =  sitelength in restml */
   /* param =  rcategs in dnaml/proml */
+/* debug is this function ever used?  Just calls node-alocx's */
   long i;
   ml_node *p;
   ml_node *q;
