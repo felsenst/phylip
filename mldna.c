@@ -72,7 +72,7 @@ void ml_dna_node_init(node *node, node_type type, long index)
   ml_node_init(node, type, index);
   n->ml_node.allocx = (allocx_t)ml_dna_node_allocx;
   n->ml_node.node.copy = ml_dna_node_copy;
-  n->ml_node.node.init = ml_dna_node_init;
+  n->ml_node.node.node_init = ml_dna_node_init;
   n->ml_node.freex = (freex_t)ml_dna_node_freex;
   n->x = NULL;
 
