@@ -35,11 +35,6 @@ typedef struct ml_node {                       /* subclass of generic node */
   long categs;
 } ml_node;
 
-typedef struct ml_dna_node{
-  struct ml_node ml_node;                     /* Base object, must be first */
-  phenotype x;
-} ml_dna_node;
-
 typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
 
