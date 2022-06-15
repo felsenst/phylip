@@ -180,10 +180,6 @@ LDADD   = -lm
 DLIBS= -L/usr/X11R6/lib/ -lX11 -lXt
 # was: DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt   Athena widgets available? needed?
 #
-
-# For clang compiler with MacOS
-# (still not put in)
-#
 # For IBM Visualage compiler for AIX:
 #DLIBS= -L/usr/X11R6/lib/ -lX11 -lXaw -lXt -lXmu -lXext
 #
@@ -196,7 +192,7 @@ DLIBS= -L/usr/X11R6/lib/ -lX11 -lXt
 #CC        = cc $(CFLAGS)
 #
 #  To use GCC instead, if it is not the compiler that "cc" invokes:
-CC         = gcc $(CFLAGS)
+#CC         = gcc $(CFLAGS)
 #
 # For the clang compiler on MacOS
 CC         = clang $(CFLAGS)
