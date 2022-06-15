@@ -1,11 +1,16 @@
-/* Copyright 2022 */
+/* Version 4.0.  Copyright 2022.
+   Written by Joe Felsenstein  */
+
+/* specializing  ml_node  for DNA data type */
 
 long rcategs;                    /* number of rate categories, default is 1 */
 
 typedef struct ml_dna_node{                          /* subclass of ml_node */
   struct ml_node ml_node;                     /* Base object, must be first */
+  double* underflows;
   phenotype x;
 } ml_dna_node;
+
 
 #ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
 node*   ml_dna_node_new(node_type, long, long);
