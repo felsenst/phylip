@@ -22,7 +22,7 @@ typedef struct dnaml_tree {
 } dnaml_tree;
 
 typedef struct dnaml_node {
-  struct ml_dna_node ml_dna_node;
+  struct mldna_node mldna_node;
 } dnaml_node;
 
 typedef long vall[maxcategs];
@@ -144,11 +144,11 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 
 struct node* dnaml_node_new(node_type type, long index, long nodesize)
 {
-  /* make new node */
+  /* make new dnaml_node */
   struct node *n;
 
   nodesize = (long)sizeof(dnaml_node);
-  n = ml_node_new(type, index, nodesize);
+  n = mldna_node_new(type, index, nodesize);
   dnaml_node_init(n, type, index);
   return n;
 } /* dnaml_node_new */
@@ -157,7 +157,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-
+  /* none yet */
 } /* dnaml_node_init */
 
 
@@ -184,7 +184,7 @@ void inittip(tree* t, long m)
   node *tmp;
 
   tmp = t->nodep[m - 1];
-/* debug    memcpy(((ml_dna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
+/* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
   tmp->deltav = 0.0;
 }  /* inittip */
 
@@ -919,10 +919,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
         z1yy = 0.0;
       }
 
-      memcpy(x1, ((ml_dna_node*)p)->x[i][j], sizeof(sitelike));
+      memcpy(x1, ((mldna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
-      memcpy(x2, ((ml_dna_node*)q)->x[i][j], sizeof(sitelike));
+      memcpy(x2, ((mldna_node*)q)->x[i][j], sizeof(sitelike));
       prod2 = freqa * x2[0] + freqc * x2[(long)C - (long)A] +
         freqg * x2[(long)G - (long)A] + freqt * x2[(long)T - (long)A];
       prod3 = (x1[0] * freqa + x1[(long)G - (long)A] * freqg) *
@@ -1086,7 +1086,7 @@ void dnaml_tree_nuview(tree* t, node *p)
           local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
           local_nvd->yy[sib_index]   = 1.0 - tbl[j][k]->zz[sib_index];
           memcpy(local_nvd->xx[sib_index],
-                        ((ml_dna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
+                        ((mldna_node*)sib_back_ptr)->x[i][j], sizeof(sitelike));
         }
       }
 
@@ -1159,12 +1159,12 @@ void dnaml_tree_nuview(tree* t, node *p)
       }
 
       /* And the final point of this whole function: */
-      memcpy(((ml_dna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
+      memcpy(((mldna_node*)p)->x[i][j], p_xx, sizeof(sitelike));
     }
 
     ((ml_node*)p)->underflows[i] = 0;
     if ( maxx < MIN_DOUBLE)
-      fix_x((ml_dna_node*)p, i, maxx, rcategs);
+      fix_x((mldna_node*)p, i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
   }                                                /* end of loop over sites */
 
@@ -1218,10 +1218,10 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
       zzc = temp * temp * zz;
       temp = tbl[j][k]->ratxv;
       z1c = temp * temp * z1;
-      memcpy(x1, ((ml_dna_node*)p)->x[i][j], sizeof(sitelike));
+      memcpy(x1, ((mldna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
-      memcpy(x2, ((ml_dna_node*)q)->x[i][j], sizeof(sitelike));
+      memcpy(x2, ((mldna_node*)q)->x[i][j], sizeof(sitelike));
       prod2 = freqa * x2[0] + freqc * x2[(long)C - (long)A] +
         freqg * x2[(long)G - (long)A] + freqt * x2[(long)T - (long)A];
       prod3 = (x1[0] * freqa + x1[(long)G - (long)A] * freqg) *
@@ -1622,13 +1622,13 @@ void reconstr(node *p, long n)
   j = location[ally[n]-1] - 1;
   for (i = 0; i < 4; i++)
   {
-    f = ((ml_dna_node*)p)->x[j][mx-1][i];
+    f = ((mldna_node*)p)->x[j][mx-1][i];
     num_sibs = count_sibs(p);
     q = p;
     for (k = 0; k < num_sibs; k++)
     {
       q = q->next;
-      f *= ((ml_dna_node*)q)->x[j][mx-1][i];
+      f *= ((mldna_node*)q)->x[j][mx-1][i];
     }
     if (f > 0.0)   /* correct for overcounting of conditional likelihoods */
       f = exp(log(f)/num_sibs);
