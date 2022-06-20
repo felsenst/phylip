@@ -66,19 +66,27 @@ void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
 double dnaml_tree_evaluate(tree*, node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
-void   dnaml(char * infilename, char * intreename, char * wgtsfilename, char * catsfilename,
-             char * outfilename, char * outfileopt, char * outtreename, char * outtreeopt,
-             char * TreeUseMethod, int UseLengths, double TTratio, int useEmpBF, double BaseFreqA,
-             double BaseFreqC, double BaseFreqG, double BaseFreqTU, int OneCat, int NumCats,
-             double SiteRate1, double SiteRate2, double SiteRate3, double SiteRate4, double SiteRate5,
-             double SiteRate6, double SiteRate7, double SiteRate8, double SiteRate9, char * RateVar,
-             int AdjCor, double BlockLen, double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
-             double HMMRate3, double HMMRate4, double HMMRate5, double HMMRate6, double HMMRate7, double HMMRate8,
-             double HMMRate9, double HMMProb1, double HMMProb2, double HMMProb3, double HMMProb4, double HMMProb5,
-             double HMMProb6, double HMMProb7, double HMMProb8, double HMMProb9, double InvarFract, int SitesWeight,
-             int SpeedAn, int GlobalRe, int RandInput, int RandNum, int Njumble, int OutRoot, int OutNum,
-             int MultData, int MultDSet, int NumSeqs, int InputSeq, int PrintData, int PrintInd, int PrintTree,
-             int WriteTree, int DotDiff, int RecHypo);
+void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
+              char * catsfilename, char * outfilename, char * outfileopt,
+              char * outtreename, char * outtreeopt, char * TreeUseMethod,
+              int UseLengths, double TTratio, int useEmpBF, double BaseFreqA,
+              double BaseFreqC, double BaseFreqG, double BaseFreqTU,
+              int OneCat, int NumCats, double SiteRate1, double SiteRate2,
+              double SiteRate3, double SiteRate4, double SiteRate5,
+              double SiteRate6, double SiteRate7, double SiteRate8,
+              double SiteRate9, char * RateVar, int AdjCor, double BlockLen,
+              double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
+              double HMMRate3, double HMMRate4, double HMMRate5,
+              double HMMRate6, double HMMRate7, double HMMRate8,
+              double HMMRate9, double HMMProb1, double HMMProb2,
+              double HMMProb3, double HMMProb4, double HMMProb5,
+              double HMMProb6, double HMMProb7, double HMMProb8,
+              double HMMProb9, double InvarFract, int SitesWeight,
+              int SpeedAn, int GlobalRe, int RandInput, int RandNum,
+              int Njumble, int OutRoot, int OutNum, int MultData,
+              int MultDSet, int NumSeqs, int InputSeq, int PrintData,
+              int PrintInd, int PrintTree, int WriteTree, int DotDiff,
+              int RecHypo);
 /* function prototypes */
 #endif
 
@@ -157,7 +165,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  /* none yet */
+  /* debug: none yet */
 } /* dnaml_node_init */
 
 
@@ -1103,14 +1111,16 @@ void dnaml_tree_nuview(tree* t, node *p)
                  freqc * local_nvd->xx[sib_index][(long)C] +
                  freqg * local_nvd->xx[sib_index][(long)G] +
                  freqt * local_nvd->xx[sib_index][(long)T]);
-            local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
-                                       + freqgr*local_nvd->xx[sib_index][(long)G];
-            local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
-                                       + freqty*local_nvd->xx[sib_index][(long)T];
+            local_nvd->sumr[sib_index] =
+                                  freqar*local_nvd->xx[sib_index][(long)A]
+                                   + freqgr*local_nvd->xx[sib_index][(long)G];
+            local_nvd->sumy[sib_index] =
+                                  freqcy*local_nvd->xx[sib_index][(long)C]
+                                   + freqty*local_nvd->xx[sib_index][(long)T];
             local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
                                            * local_nvd->sumr[sib_index];
             local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
-                                         * local_nvd->sumy[sib_index];
+                                          * local_nvd->sumy[sib_index];
             }
          }
       }
@@ -1166,9 +1176,9 @@ void dnaml_tree_nuview(tree* t, node *p)
     if ( maxx < MIN_DOUBLE)
       fix_x((mldna_node*)p, i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
-  }                                                /* end of loop over sites */
+  }                                               /* end of loop over sites */
 
-  p->initialized = true;           /* mark node as having its "view" updated */
+  p->initialized = true;          /* mark node as having its "view" updated */
 
   free_nvd (local_nvd);
   free (local_nvd);

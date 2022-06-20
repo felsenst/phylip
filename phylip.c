@@ -301,9 +301,10 @@ void generic_node_copy (node* src, node* dst)
 {
   /* Copy node data from src to dst.
    *
-   * FIXME how do we want this to work?  we probably don't want to copy
+   * debug: how do we want this to work?  we probably don't want to copy
    * next and back, but copy everything else
    * some already needed things are here
+   * maybe make this function have a hierarchy too
    */
   dst->v = src->v;
   dst->xcoord = src->xcoord;
@@ -378,6 +379,7 @@ void generic_node_free (node **n)
 void generic_node_reinit (node * n)
 {
   /*  re-initialize node */
+/* debug: maybe make this hierarchical too? */
   n->back = NULL;
   n->v = initialv;
   n->iter = true;

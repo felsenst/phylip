@@ -71,7 +71,7 @@ struct node* ml_node_new(node_type type, long index, long nodesize) {
 void ml_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
-/* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
+/* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
   ml_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
