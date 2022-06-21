@@ -2211,7 +2211,7 @@ void maketree(void)
     release_all_forks(curtree);                   /* make sure starts empty */
     buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
     curtree->root = curtree->nodep[enterorder[0]-1];
-/* debug:     generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]);  root */
+generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]); /* debug:      root */
     smoothit = improve;
     thorough = true;
     nextsp = 4;
