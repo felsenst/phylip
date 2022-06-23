@@ -2211,7 +2211,7 @@ void maketree(void)
     release_all_forks(curtree);                   /* make sure starts empty */
     buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
     curtree->root = curtree->nodep[enterorder[0]-1];
-generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]); /* debug:      root */
+/* debug */ generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]); /* debug:      root */
     smoothit = improve;
     thorough = true;
     nextsp = 4;
@@ -2224,7 +2224,7 @@ generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]); /* debug:      ro
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (outgrno == (enterorder[nextsp-1]+1))
+      if (outgrno == (enterorder[nextsp-1]+1))   /* debug: why oh why? */
         curtree->root = curtree->nodep[outgrno-1];
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);
