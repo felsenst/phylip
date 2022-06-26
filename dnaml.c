@@ -2090,11 +2090,10 @@ void maketree(void)
 
   inittable();
 
-  if (usertree)
+  if (usertree)       /* case in which we are reading in user-defined trees */
   {
     if (!javarun)
-    {
-      /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
+    {  /* Open in binary: ftell() broken for UNIX line-endings under WIN32 */
       openfile(&intree, INTREE, "input tree file", "rb", progname, intreename);
     }
     //printf("calling inittable_for_usertree\n");
@@ -2120,9 +2119,9 @@ void maketree(void)
       fprintf(outfile, ":\n\n");
     }
 
-    /* This taken out of tree read, used to be [spp-1], but referring to
-     * [0] produces output identical to what pre-modified dnaml produced. */
-    for (which  = 1; which <= numtrees ; which++)
+    /* This taken out of treeread, used to be [spp-1], but referring to [0]
+     * produces output identical to what pre-modified dnaml produced. */
+    for (which  = 1; which <= numtrees ; which++)   /* loop over user trees */
     {
       /* These initializations required each time through the loop since
        * multiple trees require re-initialization */
@@ -2189,7 +2188,7 @@ void maketree(void)
                 aliasweight, seed);
     }
   }
-  else
+  else                /* make tree by sequential addition and rearrangement */
   {
     smoothit = improve;
     for (i = 1; i <= spp; i++)            /* If there's no input user tree, */
