@@ -165,7 +165,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  /* debug: none yet */
+  n->index = index;                      /* give it the proper index number */
 } /* dnaml_node_init */
 
 
