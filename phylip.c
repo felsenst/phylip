@@ -4075,7 +4075,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
   if (oktoinsertthere(t, q)) {
-/* printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
 /* debug */ if (succeeded) printf("yes, better!\n");
@@ -4140,7 +4140,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   boolean succeeded = false;
 
   if (oktoinsertthere(t, q)) {
-/* printf(" addtraverse: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
 /* debug */ if (succeeded) printf("  yes, better!\n");
