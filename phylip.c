@@ -4030,7 +4030,9 @@ boolean oktoinsertthere(tree* t, node* p) {
   if (ok)
     ok = !(p->back == NULL);
   if (ok) {
-    ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
+    /* debug: need to check if branch leads to outgroup, somehow
+    ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
+    if root branch does not */
   }
   return ok;
 } /* oktoinsertthere */
