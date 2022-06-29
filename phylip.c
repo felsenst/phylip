@@ -4023,16 +4023,22 @@ debug:   */
 
 boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
-   * the outgroup and the fork to which it is attached */
+   * the outgroup and a binary fork to which it is attached */
   boolean ok;
 
-  ok = !(p == NULL);
+  ok = !(p == NULL);                                     /* p  is not empty */
   if (ok)
-    ok = !(p->back == NULL);
+    ok = !(p->back == NULL);                  /* and  p->back  isn't either */
   if (ok) {
-    /* debug: need to check if branch leads to outgroup, somehow
-    ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
-    if root branch does not */
+    ok = (t->root == NULL) {                            /* there is no root */
+    ok = ok ||               /* or there is one with two other branches ... */
+               t->root-
+/* debug:  needs work here */           
+    if (!ok)
+      ok = (t->root->back == NULL) && (t->
+    if (ok)
+      ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
+    }
   }
   return ok;
 } /* oktoinsertthere */
