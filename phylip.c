@@ -4029,15 +4029,16 @@ boolean oktoinsertthere(tree* t, node* p) {
   ok = !(p == NULL);                                     /* p  is not empty */
   if (ok)
     ok = !(p->back == NULL);                  /* and  p->back  isn't either */
-  if (ok) {
-    ok = (t->root == NULL) {                            /* there is no root */
-    ok = ok ||               /* or there is one with two other branches ... */
-               t->root-
+  if (ok) {         /* ... and neither  p  nor  p->back is the outgroup tip */
+    ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
+     /* or if either is, the rootmost fork connects to more than two others */
+    if (!ok) {
+      ok =  !(t->root->next->next == t->root) &&
+      ok =  
+                 /* or there is one with two other branches ... */
+                            /* ... and  p  or  p->back are the outgroup tip */ 
+    ok = (t->root == NULL)  {            /* and either there is no root ... */
 /* debug:  needs work here */           
-    if (!ok)
-      ok = (t->root->back == NULL) && (t->
-    if (ok)
-      ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
     }
   }
   return ok;
