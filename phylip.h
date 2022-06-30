@@ -605,7 +605,8 @@ struct tree {                                         /* the tree structure */
   treetype type;                                                /* its type */
   pointarray nodep;    /* the array of pointers to tips and to fork circles */
   double score;                             /* the quantity being maximized */
-  node *root;                       /* the rootmost node in rootmost circle */
+  node *root;     /* the rootmost node in rootmost circle, null if unrooted */
+  long outgrno;                                /* the index of the outgroup */
   long nonodes;     /* the number of nodes needed for tips and fork circles */
   long spp;                                  /* the number of tip "species" */
 
