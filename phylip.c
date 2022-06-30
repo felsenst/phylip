@@ -4024,6 +4024,7 @@ debug:   */
 boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
    * the outgroup and a binary fork to which it is attached */
+  long neighbors;
   boolean ok;
   node *q, *qq;
 
@@ -4032,19 +4033,18 @@ boolean oktoinsertthere(tree* t, node* p) {
     ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
     ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
-    if (!ok)              /* but if  p  or  p->back is the outgroup tip ... */
-      if (
-      qq = p->back;                              /* the fork connected to it */
+    if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
+      q = p;
+      if (p->back->index == t->outgrno)
+        q = p->back;                            /* the fork connected to it */
       /* now check that this fork has no more than two non-null branches --
          if so, it is not ok */
-      ok = ok && (q->next->next != q);  /* ok if not a bir
-     /* or if either is, the rootmost fork connects to more than two others */
-    if (!ok) {
-      ok =  
-                 /* or there is one with two other branches ... */
-                            /* ... and  p  or  p->back are the outgroup tip */ 
-    ok = (t->root == NULL)
-/* debug:  needs work here */           
+      neighbors = 1;           /* count nonempty neighbors of rootmost fork */
+      for (qq = q->next; qq == q; q = q->next)
+        if (q->back != NULL)
+          neighbors++;
+      if (neighbors > 2)                   /* has enough neighbors to be ok */
+        ok = true;
     }
   }
   return ok;
@@ -5244,6 +5244,7 @@ void preparetree(tree* t)
 
 void fixtree(tree* t)
 { /* after a treeread */
+/* debug:  exactly what does this actually do? */
   long i;
 
   for ( i = spp ; i < t->nonodes ; i++ ) {
