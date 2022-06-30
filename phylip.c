@@ -4025,19 +4025,25 @@ boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
    * the outgroup and a binary fork to which it is attached */
   boolean ok;
+  node *q, *qq;
 
-  ok = !(p == NULL);                                     /* p  is not empty */
+  ok = !(p == NULL);                                 /* p  is not empty ... */
   if (ok)
-    ok = !(p->back == NULL);                  /* and  p->back  isn't either */
-  if (ok) {         /* ... and neither  p  nor  p->back is the outgroup tip */
-    ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
+    ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
+  if (ok) {
+    ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
+    if (!ok)              /* but if  p  or  p->back is the outgroup tip ... */
+      if (
+      qq = p->back;                              /* the fork connected to it */
+      /* now check that this fork has no more than two non-null branches --
+         if so, it is not ok */
+      ok = ok && (q->next->next != q);  /* ok if not a bir
      /* or if either is, the rootmost fork connects to more than two others */
     if (!ok) {
-      ok =  !(t->root->next->next == t->root) &&
       ok =  
                  /* or there is one with two other branches ... */
                             /* ... and  p  or  p->back are the outgroup tip */ 
-    ok = (t->root == NULL)  {            /* and either there is no root ... */
+    ok = (t->root == NULL)
 /* debug:  needs work here */           
     }
   }
