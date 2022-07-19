@@ -4086,14 +4086,16 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    *  is at  p->back  */
   node *sib_ptr;
   boolean succeeded;     /* a dummy result for calls that have side effects */
+/*  debug: needed in testing */  double temp;
 
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
   if (oktoinsertthere(t, q)) {
 /* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+/* debug: */ temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better! %14.7f\n", t->score);
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
     atstart = false;
   }
   if (!succeeded) {
@@ -4153,12 +4155,14 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   /* NOTE: will back out if comes to fork connected to outgroup */
   node *sib_ptr;
   boolean succeeded = false;
+  /* debug: for testing */ double temp;
 
   if (oktoinsertthere(t, q)) {
 /* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
+/* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better! %14.7f\n", t->score);
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
   }
   if ( !(q == NULL)) {
     if (!q->tip ) {                      /* go to branches beyond this node */

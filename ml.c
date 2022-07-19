@@ -392,6 +392,7 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
 
   if (atstart) {
     bettertree = true;
+    *bestyet = like;
   } else {
     bettertree = (like > *bestyet);
     succeeded = bettertree;
@@ -404,7 +405,7 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   t->re_move(t, p, &whereRemoved, false);
 
 /* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
-/* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
+/* debug:  probably redundant: */   t->restore_traverses(t, p, q); /*  debug */
 
   /* Update t->score */
   like = t->evaluate(t, q, 0);
