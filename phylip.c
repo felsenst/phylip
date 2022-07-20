@@ -4092,10 +4092,11 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
   atstart = true;
   if (oktoinsertthere(t, q)) {
 /* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
-/* debug: */ temp = *bestyet;
+/* debug: */ temp = bestree->score;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
+                    else printf("no, worse!   was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
     atstart = false;
   }
   if (!succeeded) {
@@ -4675,7 +4676,7 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(struct tree* t, struct node* p)
 {
-  /*  calls the current nongeneric t->nuview on this branch, after first
+  /*  calls the current nongeneric  t->nuview  on this branch, after first
    *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
   struct node *sib_ptr;
@@ -4683,16 +4684,16 @@ void generic_tree_nuview(struct tree* t, struct node* p)
   if (!p->tip) {                       /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
-        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized))
-        {   /* recurse out as needed, to initialize with appropriate nuview */
+        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
+            /* recurse out as needed, to initialize with appropriate nuview */
           generic_tree_nuview (t, sib_ptr->back);
         }
       }
     };
   }
-  t->nuview((struct tree*)t, p);   /* this actually calculates the view using the
-                             * algorithm set up for that kind of data */
-/* debug printf("M"); */
+  t->nuview((struct tree*)t, p);   /* this actually calculates the view using 
+                               * the algorithm set up for that kind of data */
+/* debug: indicate did one nuview step   printf("M"); */
   p->initialized = true;
 } /* generic_tree_nuview */
 
