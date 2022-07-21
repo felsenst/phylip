@@ -887,7 +887,7 @@ void inittable(void)
 
 
 double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
-{
+{ /* dnaml version of evaluation of likeihood */
   contribarr tterm;
   double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
           sumterm, lterm;
@@ -895,13 +895,13 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   node *q;
   sitelike x1, x2;
 
-  generic_tree_evaluate(t, p, saveit);
+  generic_tree_evaluate(t, p, saveit);     /* do traversals to update views */
 
   sum = 0.0;
   q = p->back;
   y = p->v;
   lz = -y;
-  for (i = 0; i < rcategs; i++)
+  for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
     {
       tbl[i][j]->orig_zz = exp(tbl[i][j]->ratxi * lz);
@@ -909,10 +909,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
       tbl[i][j]->z1zz = tbl[i][j]->z1 * tbl[i][j]->orig_zz;
       tbl[i][j]->z1yy = tbl[i][j]->z1 - tbl[i][j]->z1zz;
     }
-  for (i = 0; i < endsite; i++)
+  for (i = 0; i < endsite; i++)             /* do over all aliases of sites */
   {
     k = category[alias[i]-1] - 1;
-    for (j = 0; j < rcategs; j++)
+    for (j = 0; j < rcategs; j++)       /* ... and over all rate categories */
     {
       if (y > 0.0)
       {
@@ -926,7 +926,7 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
         z1zz = 1.0;
         z1yy = 0.0;
       }
-
+            /* the detailed putting-together of the probabilities of change */
       memcpy(x1, ((mldna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
@@ -957,17 +957,17 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   }
   for (j = 0; j < rcategs; j++)
     like[j] = 1.0;
-  for (i = 0; i < sites; i++)
+  for (i = 0; i < sites; i++)              /* calculation for actual sites */
   {
     sumc = 0.0;
-    for (k = 0; k < rcategs; k++)
+    for (k = 0; k < rcategs; k++)           /* ... and for rate categories */
       sumc += probcat[k] * like[k];
     sumc *= lambda;
     if ((ally[i] > 0) && (location[ally[i]-1] > 0))
     {
       lai = location[ally[i] - 1];
       memcpy(clai, contribution[lai - 1], rcategs * sizeof(double));
-      for (j = 0; j < rcategs; j++)
+      for (j = 0; j < rcategs; j++)    /* autocorrelated rates calculation */
         nulike[j] = ((1.0 - lambda) * like[j] + sumc) * clai[j];
     }
     else
@@ -981,10 +981,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   for (i = 0; i < rcategs; i++)
     sum2 += probcat[i] * like[i];
   sum += log(sum2);
-  ((tree*)t)->score = sum;
+  ((tree*)t)->score = sum;                       /* putting into tree score */
   if (!saveit || auto_ || !usertree || reusertree)
     return sum;
-  if(which <= shimotrees)
+  if (which <= shimotrees)             /* saving log likelihood in SH table */
     l0gl[which - 1] = sum;
   if (which == 1)
   {
@@ -992,7 +992,7 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
     maxlogl = sum;
     return sum;
   }
-  if (sum > maxlogl)
+  if (sum > maxlogl)                             /* upate which is besttree */
   {
     maxwhich = which;
     maxlogl = sum;
