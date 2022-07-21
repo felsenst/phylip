@@ -1050,7 +1050,7 @@ void dnaml_tree_nuview(tree* t, node *p)
   alloc_nvd (num_sibs, local_nvd);
 
   /* Loop 1: makes assignments to tbl based on some combination of
-     what's already in tbl and the children's value of v */
+     what's already in tbl and the children's values of v */
   sib_ptr = p;
   for (sib_index=0; sib_index < num_sibs; sib_index++)
   {   /* for each descendant lineage tabulate some part of transition prob */

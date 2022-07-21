@@ -389,18 +389,23 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   t->insert_(t, p, q, false);
   t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
+printf("t->score, like are now  %14.8f, %14.8f\n", t->score, like);   /* debug */
 
   if (atstart) {
     bettertree = true;
     *bestyet = like;
+printf("set *bestyet to  %14.8f\n", like);   /* debug */
   } else {
     bettertree = (like > *bestyet);
+printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
     succeeded = bettertree;
     }
   if (bettertree) {
     *bestyet = like;
+printf("set *bestyet to  %14.8f\n", like);   /* debug */
     qwherein = q;
     t->copy(t, bestree);
+printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
   }
   t->re_move(t, p, &whereRemoved, false);
 
