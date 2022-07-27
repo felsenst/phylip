@@ -397,6 +397,7 @@ printf("t->score, like are now  %14.8f, %14.8f\n", t->score, like);   /* debug *
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
   } else {
     bettertree = (like > *bestyet);
+printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   /* debug */
 printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
     succeeded = bettertree;
     }

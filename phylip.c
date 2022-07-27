@@ -4111,7 +4111,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
-                            thorough, storing, atstart, bestfound) || succeeded;
+                            thorough, storing, &atstart, bestfound) || succeeded;
         }
       }
     }
@@ -4129,7 +4129,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
-                                 storing, atstart, bestfound) || succeeded;
+                                 storing, &atstart, bestfound) || succeeded;
           }
         }
       }
@@ -4142,7 +4142,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                               traversetype contin, node *qwherein,
                               double* bestyet, tree* bestree, boolean thorough,
-                              boolean storing, boolean atstart,
+                              boolean storing, boolean* atstart,
                               double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
@@ -4163,8 +4163,8 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
 /* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
 /* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                                thorough, storing, atstart, bestfound);
-    atstart = false;
+                                thorough, storing, *atstart, bestfound);
+    *atstart = false;
 /* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
   }
   if ( !(q == NULL)) {
