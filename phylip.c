@@ -4085,12 +4085,13 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    * p  should be a fork subtree connected to it so root of subtree 
    *  is at  p->back  */
   node *sib_ptr;
-  boolean succeeded;     /* a dummy result for calls that have side effects */
+  boolean succeeded, wasok;
 /*  debug: needed in testing */  double temp;
 
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
-  if (oktoinsertthere(t, q)) {
+  wasok = oktoinsertthere(t, q);
+  if (wasok) {
 /* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
 /* debug: */ temp = bestree->score;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
@@ -4163,6 +4164,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
 /* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
+    atstart = false;
 /* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
   }
   if ( !(q == NULL)) {
