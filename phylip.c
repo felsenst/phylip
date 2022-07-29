@@ -4086,18 +4086,14 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    *  is at  p->back  */
   node *sib_ptr;
   boolean succeeded, wasok;
-/*  debug: needed in testing */  double temp;
 
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
   wasok = oktoinsertthere(t, q);
   if (wasok) {
 /* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
-/* debug: */ temp = bestree->score;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
-                    else printf("no, worse!   was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
     atstart = false;
   }
   if (!succeeded) {
