@@ -2150,6 +2150,7 @@ void maketree(void)
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
 
+      improve = !lngths;    /* re-estimate lengths of branches in user tree */
       ml_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
