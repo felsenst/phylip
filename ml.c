@@ -1057,9 +1057,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     polishing = true;
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
-    curtree->smoothall(curtree, curtree->root);
+    if (!lngths)
+      curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
-    polishing= false;
+    polishing = false;
   }
   curtree->evaluate(curtree, curtree->root, true);
 }  /* ml_treevaluate */
