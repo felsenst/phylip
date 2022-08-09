@@ -4161,7 +4161,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, *atstart, bestfound);
     *atstart = false;
-/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
   }
   if ( !(q == NULL)) {
     if (!q->tip ) {                      /* go to branches beyond this node */
