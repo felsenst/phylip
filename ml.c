@@ -71,7 +71,7 @@ struct node* ml_node_new(node_type type, long index, long nodesize) {
 void ml_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
-/* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? */
+/* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
   ml_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -183,8 +183,9 @@ void smooth(tree* t, node *p)
 
   if ( p == NULL )
     return;
-  if ( p->back == NULL )
+/* debug:    if ( p->back == NULL )
     return;
+debug */
   smoothed = false;
 
   ml_update(t, p);      /* get views at both ends updated, maybe recursing  */
@@ -389,24 +390,31 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   t->insert_(t, p, q, false);
   t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
+printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", t->score, *bestyet, like);   /* debug */
 
   if (atstart) {
     bettertree = true;
+    *bestyet = like;
+printf("set *bestyet to  %14.8f\n", like);   /* debug */
   } else {
     bettertree = (like > *bestyet);
+printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   /* debug */
+if(bettertree) printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
     succeeded = bettertree;
     }
   if (bettertree) {
     *bestyet = like;
+printf("set *bestyet to  %14.8f\n", like);   /* debug */
     qwherein = q;
     t->copy(t, bestree);
+printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
   }
   t->re_move(t, p, &whereRemoved, false);
 
 /* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
-/* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
+/* debug:  probably redundant: */   t->restore_traverses(t, p, q); /*  debug */
 
-  /* Update t->score */
+  /* Update t->score of tree on which placements are being tested */
   like = t->evaluate(t, q, 0);
 
   return succeeded;
@@ -1049,9 +1057,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     polishing = true;
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
-    curtree->smoothall(curtree, curtree->root);
+    if (!lngths)
+      curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
-    polishing= false;
+    polishing = false;
   }
   curtree->evaluate(curtree, curtree->root, true);
 }  /* ml_treevaluate */

@@ -66,19 +66,27 @@ void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
 double dnaml_tree_evaluate(tree*, node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
-void   dnaml(char * infilename, char * intreename, char * wgtsfilename, char * catsfilename,
-             char * outfilename, char * outfileopt, char * outtreename, char * outtreeopt,
-             char * TreeUseMethod, int UseLengths, double TTratio, int useEmpBF, double BaseFreqA,
-             double BaseFreqC, double BaseFreqG, double BaseFreqTU, int OneCat, int NumCats,
-             double SiteRate1, double SiteRate2, double SiteRate3, double SiteRate4, double SiteRate5,
-             double SiteRate6, double SiteRate7, double SiteRate8, double SiteRate9, char * RateVar,
-             int AdjCor, double BlockLen, double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
-             double HMMRate3, double HMMRate4, double HMMRate5, double HMMRate6, double HMMRate7, double HMMRate8,
-             double HMMRate9, double HMMProb1, double HMMProb2, double HMMProb3, double HMMProb4, double HMMProb5,
-             double HMMProb6, double HMMProb7, double HMMProb8, double HMMProb9, double InvarFract, int SitesWeight,
-             int SpeedAn, int GlobalRe, int RandInput, int RandNum, int Njumble, int OutRoot, int OutNum,
-             int MultData, int MultDSet, int NumSeqs, int InputSeq, int PrintData, int PrintInd, int PrintTree,
-             int WriteTree, int DotDiff, int RecHypo);
+void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
+              char * catsfilename, char * outfilename, char * outfileopt,
+              char * outtreename, char * outtreeopt, char * TreeUseMethod,
+              int UseLengths, double TTratio, int useEmpBF, double BaseFreqA,
+              double BaseFreqC, double BaseFreqG, double BaseFreqTU,
+              int OneCat, int NumCats, double SiteRate1, double SiteRate2,
+              double SiteRate3, double SiteRate4, double SiteRate5,
+              double SiteRate6, double SiteRate7, double SiteRate8,
+              double SiteRate9, char * RateVar, int AdjCor, double BlockLen,
+              double CoeffVar, int NumRates, double HMMRate1, double HMMRate2,
+              double HMMRate3, double HMMRate4, double HMMRate5,
+              double HMMRate6, double HMMRate7, double HMMRate8,
+              double HMMRate9, double HMMProb1, double HMMProb2,
+              double HMMProb3, double HMMProb4, double HMMProb5,
+              double HMMProb6, double HMMProb7, double HMMProb8,
+              double HMMProb9, double InvarFract, int SitesWeight,
+              int SpeedAn, int GlobalRe, int RandInput, int RandNum,
+              int Njumble, int OutRoot, int OutNum, int MultData,
+              int MultDSet, int NumSeqs, int InputSeq, int PrintData,
+              int PrintInd, int PrintTree, int WriteTree, int DotDiff,
+              int RecHypo);
 /* function prototypes */
 #endif
 
@@ -157,7 +165,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  /* none yet */
+  n->index = index;                      /* give it the proper index number */
 } /* dnaml_node_init */
 
 
@@ -879,7 +887,7 @@ void inittable(void)
 
 
 double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
-{
+{ /* dnaml version of evaluation of likeihood */
   contribarr tterm;
   double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
           sumterm, lterm;
@@ -887,13 +895,13 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   node *q;
   sitelike x1, x2;
 
-  generic_tree_evaluate(t, p, saveit);
+  generic_tree_evaluate(t, p, saveit);     /* do traversals to update views */
 
   sum = 0.0;
   q = p->back;
   y = p->v;
   lz = -y;
-  for (i = 0; i < rcategs; i++)
+  for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
     {
       tbl[i][j]->orig_zz = exp(tbl[i][j]->ratxi * lz);
@@ -901,10 +909,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
       tbl[i][j]->z1zz = tbl[i][j]->z1 * tbl[i][j]->orig_zz;
       tbl[i][j]->z1yy = tbl[i][j]->z1 - tbl[i][j]->z1zz;
     }
-  for (i = 0; i < endsite; i++)
+  for (i = 0; i < endsite; i++)             /* do over all aliases of sites */
   {
     k = category[alias[i]-1] - 1;
-    for (j = 0; j < rcategs; j++)
+    for (j = 0; j < rcategs; j++)       /* ... and over all rate categories */
     {
       if (y > 0.0)
       {
@@ -918,7 +926,7 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
         z1zz = 1.0;
         z1yy = 0.0;
       }
-
+            /* the detailed putting-together of the probabilities of change */
       memcpy(x1, ((mldna_node*)p)->x[i][j], sizeof(sitelike));
       prod1 = freqa * x1[0] + freqc * x1[(long)C - (long)A] +
         freqg * x1[(long)G - (long)A] + freqt * x1[(long)T - (long)A];
@@ -949,17 +957,17 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   }
   for (j = 0; j < rcategs; j++)
     like[j] = 1.0;
-  for (i = 0; i < sites; i++)
+  for (i = 0; i < sites; i++)              /* calculation for actual sites */
   {
     sumc = 0.0;
-    for (k = 0; k < rcategs; k++)
+    for (k = 0; k < rcategs; k++)           /* ... and for rate categories */
       sumc += probcat[k] * like[k];
     sumc *= lambda;
     if ((ally[i] > 0) && (location[ally[i]-1] > 0))
     {
       lai = location[ally[i] - 1];
       memcpy(clai, contribution[lai - 1], rcategs * sizeof(double));
-      for (j = 0; j < rcategs; j++)
+      for (j = 0; j < rcategs; j++)    /* autocorrelated rates calculation */
         nulike[j] = ((1.0 - lambda) * like[j] + sumc) * clai[j];
     }
     else
@@ -973,10 +981,10 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   for (i = 0; i < rcategs; i++)
     sum2 += probcat[i] * like[i];
   sum += log(sum2);
-  ((tree*)t)->score = sum;
+  ((tree*)t)->score = sum;                       /* putting into tree score */
   if (!saveit || auto_ || !usertree || reusertree)
     return sum;
-  if(which <= shimotrees)
+  if (which <= shimotrees)             /* saving log likelihood in SH table */
     l0gl[which - 1] = sum;
   if (which == 1)
   {
@@ -984,7 +992,7 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
     maxlogl = sum;
     return sum;
   }
-  if (sum > maxlogl)
+  if (sum > maxlogl)                             /* upate which is besttree */
   {
     maxwhich = which;
     maxlogl = sum;
@@ -1042,7 +1050,7 @@ void dnaml_tree_nuview(tree* t, node *p)
   alloc_nvd (num_sibs, local_nvd);
 
   /* Loop 1: makes assignments to tbl based on some combination of
-     what's already in tbl and the children's value of v */
+     what's already in tbl and the children's values of v */
   sib_ptr = p;
   for (sib_index=0; sib_index < num_sibs; sib_index++)
   {   /* for each descendant lineage tabulate some part of transition prob */
@@ -1103,14 +1111,16 @@ void dnaml_tree_nuview(tree* t, node *p)
                  freqc * local_nvd->xx[sib_index][(long)C] +
                  freqg * local_nvd->xx[sib_index][(long)G] +
                  freqt * local_nvd->xx[sib_index][(long)T]);
-            local_nvd->sumr[sib_index] = freqar*local_nvd->xx[sib_index][(long)A]
-                                       + freqgr*local_nvd->xx[sib_index][(long)G];
-            local_nvd->sumy[sib_index] = freqcy*local_nvd->xx[sib_index][(long)C]
-                                       + freqty*local_nvd->xx[sib_index][(long)T];
+            local_nvd->sumr[sib_index] =
+                                  freqar*local_nvd->xx[sib_index][(long)A]
+                                   + freqgr*local_nvd->xx[sib_index][(long)G];
+            local_nvd->sumy[sib_index] =
+                                  freqcy*local_nvd->xx[sib_index][(long)C]
+                                   + freqty*local_nvd->xx[sib_index][(long)T];
             local_nvd->vzsumr[sib_index] = local_nvd->vvzz[sib_index]
                                            * local_nvd->sumr[sib_index];
             local_nvd->vzsumy[sib_index] = local_nvd->vvzz[sib_index]
-                                         * local_nvd->sumy[sib_index];
+                                          * local_nvd->sumy[sib_index];
             }
          }
       }
@@ -1166,9 +1176,9 @@ void dnaml_tree_nuview(tree* t, node *p)
     if ( maxx < MIN_DOUBLE)
       fix_x((mldna_node*)p, i, maxx, rcategs);
     ((ml_node*)p)->underflows[i] += correction;
-  }                                                /* end of loop over sites */
+  }                                               /* end of loop over sites */
 
-  p->initialized = true;           /* mark node as having its "view" updated */
+  p->initialized = true;          /* mark node as having its "view" updated */
 
   free_nvd (local_nvd);
   free (local_nvd);
@@ -2080,11 +2090,10 @@ void maketree(void)
 
   inittable();
 
-  if (usertree)
+  if (usertree)       /* case in which we are reading in user-defined trees */
   {
     if (!javarun)
-    {
-      /* Open in binary: ftell() is broken for UNIX line-endings under WIN32 */
+    {  /* Open in binary: ftell() broken for UNIX line-endings under WIN32 */
       openfile(&intree, INTREE, "input tree file", "rb", progname, intreename);
     }
     //printf("calling inittable_for_usertree\n");
@@ -2110,9 +2119,9 @@ void maketree(void)
       fprintf(outfile, ":\n\n");
     }
 
-    /* This taken out of tree read, used to be [spp-1], but referring to
-     * [0] produces output identical to what pre-modified dnaml produced. */
-    for (which  = 1; which <= numtrees ; which++)
+    /* This taken out of treeread, used to be [spp-1], but referring to [0]
+     * produces output identical to what pre-modified dnaml produced. */
+    for (which  = 1; which <= numtrees ; which++)   /* loop over user trees */
     {
       /* These initializations required each time through the loop since
        * multiple trees require re-initialization */
@@ -2141,6 +2150,7 @@ void maketree(void)
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
 
+      improve = !lngths;    /* re-estimate lengths of branches in user tree */
       ml_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
@@ -2179,7 +2189,7 @@ void maketree(void)
                 aliasweight, seed);
     }
   }
-  else
+  else                /* make tree by sequential addition and rearrangement */
   {
     smoothit = improve;
     for (i = 1; i <= spp; i++)            /* If there's no input user tree, */
@@ -2201,7 +2211,7 @@ void maketree(void)
     release_all_forks(curtree);                   /* make sure starts empty */
     buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
     curtree->root = curtree->nodep[enterorder[0]-1];
-/* debug:     generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]);  root */
+/* debug */ generic_root_insert(curtree, curtree->nodep[enterorder[0]-1]); /* debug:      root */
     smoothit = improve;
     thorough = true;
     nextsp = 4;
@@ -2214,7 +2224,7 @@ void maketree(void)
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (outgrno == (enterorder[nextsp-1]+1))
+      if (outgrno == (enterorder[nextsp-1]+1))   /* debug: why oh why? */
         curtree->root = curtree->nodep[outgrno-1];
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);

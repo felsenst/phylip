@@ -264,7 +264,7 @@ void generic_tree_copy (tree* src, tree* dst)
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     if (src->nodep[i] != NULL) {
       if (dst->nodep[i] != NULL) {
-        generic_node_copy(src->nodep[i], dst->nodep[i]);
+        generic_node_copy(src->nodep[i], dst->nodep[i]); /* debug: make polymorphic? */
       }
       if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
         dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
@@ -301,9 +301,10 @@ void generic_node_copy (node* src, node* dst)
 {
   /* Copy node data from src to dst.
    *
-   * FIXME how do we want this to work?  we probably don't want to copy
+   * debug: how do we want this to work?  we probably don't want to copy
    * next and back, but copy everything else
    * some already needed things are here
+   * maybe make this function have a hierarchy too
    */
   dst->v = src->v;
   dst->xcoord = src->xcoord;
@@ -378,6 +379,7 @@ void generic_node_free (node **n)
 void generic_node_reinit (node * n)
 {
   /*  re-initialize node */
+/* debug: maybe make this hierarchical too? */
   n->back = NULL;
   n->v = initialv;
   n->iter = true;
@@ -4021,14 +4023,29 @@ debug:   */
 
 boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
-   * the outgroup and the fork to which it is attached */
+   * the outgroup and a binary fork to which it is attached */
+  long neighbors;
   boolean ok;
+  node *q, *qq;
 
-  ok = !(p == NULL);
+  ok = !(p == NULL);                                 /* p  is not empty ... */
   if (ok)
-    ok = !(p->back == NULL);
+    ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
-    ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
+    ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
+    if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
+      q = p;
+      if (p->back->index == t->outgrno)
+        q = p->back;                            /* the fork connected to it */
+      /* now check that this fork has no more than two non-null branches --
+         if so, it is not ok */
+      neighbors = 1;           /* count nonempty neighbors of rootmost fork */
+      for (qq = q->next; qq == q; q = q->next)
+        if (q->back != NULL)
+          neighbors++;
+      if (neighbors > 2)                   /* has enough neighbors to be ok */
+        ok = true;
+    }
   }
   return ok;
 } /* oktoinsertthere */
@@ -4068,15 +4085,15 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    * p  should be a fork subtree connected to it so root of subtree 
    *  is at  p->back  */
   node *sib_ptr;
-  boolean succeeded;     /* a dummy result for calls that have side effects */
+  boolean succeeded, wasok;
 
-  succeeded = false; /* debug OK to set true?? */ /* in case can't try more inserts than this */
+  succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
-  if (oktoinsertthere(t, q)) {
-/* printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+  wasok = oktoinsertthere(t, q);
+  if (wasok) {
+/* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better!\n");
     atstart = false;
   }
   if (!succeeded) {
@@ -4090,7 +4107,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
-                            thorough, storing, atstart, bestfound) || succeeded;
+                            thorough, storing, &atstart, bestfound) || succeeded;
         }
       }
     }
@@ -4108,7 +4125,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
-                                 storing, atstart, bestfound) || succeeded;
+                                 storing, &atstart, bestfound) || succeeded;
           }
         }
       }
@@ -4121,7 +4138,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                               traversetype contin, node *qwherein,
                               double* bestyet, tree* bestree, boolean thorough,
-                              boolean storing, boolean atstart,
+                              boolean storing, boolean* atstart,
                               double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
@@ -4136,12 +4153,15 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   /* NOTE: will back out if comes to fork connected to outgroup */
   node *sib_ptr;
   boolean succeeded = false;
+  /* debug: for testing */ double temp;
 
   if (oktoinsertthere(t, q)) {
-/* printf(" addtraverse: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+/* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
+/* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                                thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("  yes, better!\n");
+                                thorough, storing, *atstart, bestfound);
+    *atstart = false;
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
   }
   if ( !(q == NULL)) {
     if (!q->tip ) {                      /* go to branches beyond this node */
@@ -4654,7 +4674,7 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(struct tree* t, struct node* p)
 {
-  /*  calls the current nongeneric t->nuview on this branch, after first
+  /*  calls the current nongeneric  t->nuview  on this branch, after first
    *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
   struct node *sib_ptr;
@@ -4662,16 +4682,16 @@ void generic_tree_nuview(struct tree* t, struct node* p)
   if (!p->tip) {                       /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
-        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized))
-        {   /* recurse out as needed, to initialize with appropriate nuview */
+        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
+            /* recurse out as needed, to initialize with appropriate nuview */
           generic_tree_nuview (t, sib_ptr->back);
         }
       }
     };
   }
-  t->nuview((struct tree*)t, p);   /* this actually calculates the view using the
-                             * algorithm set up for that kind of data */
-/* debug printf("M"); */
+  t->nuview((struct tree*)t, p);   /* this actually calculates the view using 
+                               * the algorithm set up for that kind of data */
+/* debug: indicate did one nuview step   printf("M"); */
   p->initialized = true;
 } /* generic_tree_nuview */
 
@@ -5227,6 +5247,7 @@ void preparetree(tree* t)
 
 void fixtree(tree* t)
 { /* after a treeread */
+/* debug:  exactly what does this actually do? */
   long i;
 
   for ( i = spp ; i < t->nonodes ; i++ ) {
