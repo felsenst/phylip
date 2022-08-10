@@ -51,7 +51,7 @@ node * mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  ml_node_new(type, index, nodesize);
+  n = ml_node_new(type, index, nodesize);
   mldna_node_init(n, type, index);
   return n;
 } /* mldna_node_new */
