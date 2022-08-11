@@ -438,7 +438,7 @@ long count_sibs (node *p)
 
 
 node* findroot (tree* t, node* p, boolean* found) {
-  /* find the node in the rootmost fork circle that has a null back pointer.
+  /* find the node in the current fork circle that has a null back pointer.
    * This assumes that the current fork circle is the one that will have
    * such a node */
   node *q, *r;
@@ -453,6 +453,21 @@ node* findroot (tree* t, node* p, boolean* found) {
   }
   return r;
 } /* findroot */
+
+
+node* findrootmostandroot (tree* t, node* p, boolean* found) {
+  /* find the rootmost circle, traversing if needed, and then
+   * return a pointer to its rootmost node, with  *found
+   * set to true if that node has a null back pointer */
+  node *q, *r;
+
+  r = p;                               /* return same node if never find it */
+  *found = false;
+  r = findroot (t, p, found);         /* in case it's on the current circle */
+  if (*found == false) {                /* then need to traverse to find it */
+    for (q = p->next; q != p; q = q->next) {              /* go around circle */
+  }
+} /* findrootmostandroot */
 
 
 void verify_nuview (node *p)
@@ -5040,7 +5055,7 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
        generic_tree_re_move(curtree, p, &(p->next->back->back), true);
        generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
      }                                      /* and put next to outgroup tip */
-      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
+     curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
   }
 } /* putrootnearoutgroup */
 
