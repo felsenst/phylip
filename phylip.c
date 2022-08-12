@@ -437,35 +437,51 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-node* findroot (tree* t, node* p, boolean* found) {
+boolean* isemptyroot (node* p, boolean* found) {
+  /* check whether the back pointer of the node is null */
+
+ return(p->back == NULL);
+} /* isemptyroot */
+
+
+node* findroot (node* p, boolean* found) {
   /* find the node in the current fork circle that has a null back pointer.
    * This assumes that the current fork circle is the one that will have
-   * such a node */
+   * such a node.  It is used since in many cases the root is likely to
+   * be in this circle, often at first or last node in the circle */
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  *found = false;
-  for (q = p->next; q != p; q = q->next) {              /* go around circle */
-    if (q->back == NULL) {            /* ... until find one with back empty */
-      r = q;
-      *found = true;      /* return pointer to that node and set found true */
-    }
+  if(isemptyroot(p)) {        /* check this one before go around the circle */
+    *found = true;
+    r = p;
+  } else {
+    *found = false;
+    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+      if (isemptyroot(q, found)) {    /* ... until find one with back empty */
+        r = q;          /* return pointer to that node, *found will be true */
+      }
   }
   return r;
 } /* findroot */
 
 
 node* findrootmostandroot (tree* t, node* p, boolean* found) {
-  /* find the rootmost circle, traversing if needed, and then
-   * return a pointer to its rootmost node, with  *found
+  /* find the rootmost circle, traversing out from it if needed, and 
+   * then return a pointer to its rootmost node, with  *found
    * set to true if that node has a null back pointer */
   node *q, *r;
 
-  r = p;                               /* return same node if never find it */
-  *found = false;
-  r = findroot (t, p, found);         /* in case it's on the current circle */
-  if (*found == false) {                /* then need to traverse to find it */
-    for (q = p->next; q != p; q = q->next) {              /* go around circle */
+  r = findroot (t, p, found);  /* in likely case it's on the current circle */
+  if (*found == false) {           /* otherwise need to traverse to find it */
+    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+      if (istheroot(q)) {                            /* if you found it ... */
+        r = q;
+        *found == true;
+      } else {                              /* otherwise go out that branch */
+	p = findrootmostandroot (t, q->back, found);
+      }
+    }
   }
 } /* findrootmostandroot */
 
@@ -474,7 +490,7 @@ void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
-  /* TODO: implement */
+  /* debug: TO DO: implement it */
 } /* verify_nuview */
 
 
