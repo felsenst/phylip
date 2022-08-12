@@ -475,7 +475,7 @@ node* findrootmostandroot (tree* t, node* p, boolean* found) {
   r = findroot (t, p, found);  /* in likely case it's on the current circle */
   if (*found == false) {           /* otherwise need to traverse to find it */
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
-      if (istheroot(q)) {                            /* if you found it ... */
+      if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
         *found == true;
       } else {                              /* otherwise go out that branch */
@@ -3559,7 +3559,7 @@ void unroot(tree* t, long nonodes)
   node* p;
   boolean found;
 
-  p = findroot(t, t->root, &found);     /* find node with NULL back pointer */
+  p = findrootmostandroot(t->root, &found);     /* find node with NULL back */
   if (found == true) {
     if (p->next->back->tip)            /* interior node descended from ...  */
       t->root = p->next->next->back;         /* that rootmost interior node */
