@@ -2000,7 +2000,7 @@ void dnaml_treeout(node *p)
     inloop = false;
     q = p->next;
     do  {
-      if (inloop)
+      if (inloop && (!(q->back == NULL)))
       {
         putc(',', outtree);
         col++;
