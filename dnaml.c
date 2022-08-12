@@ -1971,10 +1971,13 @@ void dnaml_treeout(node *p)
   Char c;
   double x;
   node *q;
-  boolean inloop;
+  boolean inloop, found;
 
   assert(p->index > 0);                 // RSGdebug
 
+  q = findrootmostandroot(p, &found);
+  if (found)
+    p = q;
   if (p->tip)
   {
     n = 0;

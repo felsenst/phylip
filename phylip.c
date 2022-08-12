@@ -437,10 +437,13 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-boolean* isemptyroot (node* p, boolean* found) {
+boolean isemptyroot (node* p) {
   /* check whether the back pointer of the node is null */
 
- return(p->back == NULL);
+ if (p == NULL)
+   return false;
+ else
+   return (p->back == NULL);
 } /* isemptyroot */
 
 
@@ -458,31 +461,32 @@ node* findroot (node* p, boolean* found) {
   } else {
     *found = false;
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
-      if (isemptyroot(q, found)) {    /* ... until find one with back empty */
+      if (isemptyroot(q)) {           /* ... until find one with back empty */
         r = q;          /* return pointer to that node, *found will be true */
       }
+    }
   }
   return r;
 } /* findroot */
 
 
-node* findrootmostandroot (tree* t, node* p, boolean* found) {
+node* findrootmostandroot (node* p, boolean* found) {
   /* find the rootmost circle, traversing out from it if needed, and 
    * then return a pointer to its rootmost node, with  *found
    * set to true if that node has a null back pointer */
   node *q, *r;
 
-  r = findroot (t, p, found);  /* in likely case it's on the current circle */
+  r = findroot (p, found);  /* in likely case it's on the current circle */
   if (*found == false) {           /* otherwise need to traverse to find it */
-    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+    for (q = p->next; (!(*found)) && (q != p); q = q->next) {  /* go around */
       if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
-        *found == true;
       } else {                              /* otherwise go out that branch */
-	p = findrootmostandroot (t, q->back, found);
+	p = findrootmostandroot (q->back, found);
       }
     }
   }
+  return(r);
 } /* findrootmostandroot */
 
 
@@ -5064,7 +5068,7 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
   node* p;
   boolean found;
 
-  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+  p = findroot(curtree->root, &found);                 /* ensure is at root */
    
   if (found) {       /* if did find root is connected to a null pointer ... */
     if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
