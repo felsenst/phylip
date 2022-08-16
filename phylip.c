@@ -455,14 +455,17 @@ node* findroot (node* p, boolean* found) {
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  if(isemptyroot(p)) {        /* check this one before go around the circle */
-    *found = true;
-    r = p;
-  } else {
-    *found = false;
-    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
-      if (isemptyroot(q)) {           /* ... until find one with back empty */
-        r = q;          /* return pointer to that node, *found will be true */
+  *found = false;
+  if (!(p->tip)) {
+    if(isemptyroot(p)) {      /* check this one before go around the circle */
+      *found = true;
+      r = p;
+    } else {
+      *found = false;
+      for (q = p->next; (!found) && (q != p); q = q->next) {   /* go around */
+        if (isemptyroot(q)) {         /* ... until find one with back empty */
+          r = q;        /* return pointer to that node, *found will be true */
+        }
       }
     }
   }
@@ -477,10 +480,11 @@ node* findrootmostandroot (node* p, boolean* found) {
   node *q, *r;
 
   r = findroot (p, found);  /* in likely case it's on the current circle */
-  if (*found == false) {           /* otherwise need to traverse to find it */
+  if ((!(p->tip)) && (*found == false)) {           /* otherwise need to traverse to find it */
     for (q = p->next; (!(*found)) && (q != p); q = q->next) {  /* go around */
       if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
+        *found = true;
       } else {                              /* otherwise go out that branch */
 	p = findrootmostandroot (q->back, found);
       }
