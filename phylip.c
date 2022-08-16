@@ -437,29 +437,64 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-node* findroot (tree* t, node* p, boolean* found) {
-  /* find the node in the rootmost fork circle that has a null back pointer.
+boolean isemptyroot (node* p) {
+  /* check whether the back pointer of the node is null */
+
+ if (p == NULL)
+   return false;
+ else
+   return (p->back == NULL);
+} /* isemptyroot */
+
+
+node* findroot (node* p, boolean* found) {
+  /* find the node in the current fork circle that has a null back pointer.
    * This assumes that the current fork circle is the one that will have
-   * such a node */
+   * such a node.  It is used since in many cases the root is likely to
+   * be in this circle, often at first or last node in the circle */
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  *found = false;
-  for (q = p->next; q != p; q = q->next) {              /* go around circle */
-    if (q->back == NULL) {            /* ... until find one with back empty */
-      r = q;
-      *found = true;      /* return pointer to that node and set found true */
+  if(isemptyroot(p)) {        /* check this one before go around the circle */
+    *found = true;
+    r = p;
+  } else {
+    *found = false;
+    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+      if (isemptyroot(q)) {           /* ... until find one with back empty */
+        r = q;          /* return pointer to that node, *found will be true */
+      }
     }
   }
   return r;
 } /* findroot */
 
 
+node* findrootmostandroot (node* p, boolean* found) {
+  /* find the rootmost circle, traversing out from it if needed, and 
+   * then return a pointer to its rootmost node, with  *found
+   * set to true if that node has a null back pointer */
+  node *q, *r;
+
+  r = findroot (p, found);  /* in likely case it's on the current circle */
+  if (*found == false) {           /* otherwise need to traverse to find it */
+    for (q = p->next; (!(*found)) && (q != p); q = q->next) {  /* go around */
+      if (isemptyroot(q)) {                          /* if you found it ... */
+        r = q;
+      } else {                              /* otherwise go out that branch */
+	p = findrootmostandroot (q->back, found);
+      }
+    }
+  }
+  return(r);
+} /* findrootmostandroot */
+
+
 void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
-  /* TODO: implement */
+  /* debug: TO DO: implement it */
 } /* verify_nuview */
 
 
@@ -3528,7 +3563,7 @@ void unroot(tree* t, long nonodes)
   node* p;
   boolean found;
 
-  p = findroot(t, t->root, &found);     /* find node with NULL back pointer */
+  p = findrootmostandroot(t->root, &found);     /* find node with NULL back */
   if (found == true) {
     if (p->next->back->tip)            /* interior node descended from ...  */
       t->root = p->next->next->back;         /* that rootmost interior node */
@@ -4086,18 +4121,14 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    *  is at  p->back  */
   node *sib_ptr;
   boolean succeeded, wasok;
-/*  debug: needed in testing */  double temp;
 
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
   wasok = oktoinsertthere(t, q);
   if (wasok) {
 /* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
-/* debug: */ temp = bestree->score;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
-                    else printf("no, worse!   was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
     atstart = false;
   }
   if (!succeeded) {
@@ -4111,7 +4142,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
-                            thorough, storing, atstart, bestfound) || succeeded;
+                            thorough, storing, &atstart, bestfound) || succeeded;
         }
       }
     }
@@ -4129,7 +4160,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 /* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
-                                 storing, atstart, bestfound) || succeeded;
+                                 storing, &atstart, bestfound) || succeeded;
           }
         }
       }
@@ -4142,7 +4173,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                               traversetype contin, node *qwherein,
                               double* bestyet, tree* bestree, boolean thorough,
-                              boolean storing, boolean atstart,
+                              boolean storing, boolean* atstart,
                               double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
@@ -4163,9 +4194,9 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
 /* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
 /* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                                thorough, storing, atstart, bestfound);
-    atstart = false;
-/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, t->score);
+                                thorough, storing, *atstart, bestfound);
+    *atstart = false;
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
   }
   if ( !(q == NULL)) {
     if (!q->tip ) {                      /* go to branches beyond this node */
@@ -5037,14 +5068,14 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
   node* p;
   boolean found;
 
-  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+  p = findroot(curtree->root, &found);                 /* ensure is at root */
    
   if (found) {       /* if did find root is connected to a null pointer ... */
     if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
        generic_tree_re_move(curtree, p, &(p->next->back->back), true);
        generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
      }                                      /* and put next to outgroup tip */
-      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
+     curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
   }
 } /* putrootnearoutgroup */
 

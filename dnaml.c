@@ -1971,10 +1971,13 @@ void dnaml_treeout(node *p)
   Char c;
   double x;
   node *q;
-  boolean inloop;
+  boolean inloop, found;
 
   assert(p->index > 0);                 // RSGdebug
 
+  q = findrootmostandroot(p, &found);
+  if (found)
+    p = q;
   if (p->tip)
   {
     n = 0;
@@ -2000,7 +2003,7 @@ void dnaml_treeout(node *p)
     inloop = false;
     q = p->next;
     do  {
-      if (inloop)
+      if (inloop && (!(q->back == NULL)))
       {
         putc(',', outtree);
         col++;
@@ -2150,6 +2153,7 @@ void maketree(void)
       if ( outgropt )
         curtree->root = curtree->nodep[outgrno - 1]->back;
 
+      improve = !lngths;    /* re-estimate lengths of branches in user tree */
       ml_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, ml_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))

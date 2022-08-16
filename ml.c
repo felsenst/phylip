@@ -183,8 +183,9 @@ void smooth(tree* t, node *p)
 
   if ( p == NULL )
     return;
-  if ( p->back == NULL )
+/* debug:    if ( p->back == NULL )
     return;
+debug */
   smoothed = false;
 
   ml_update(t, p);      /* get views at both ends updated, maybe recursing  */
@@ -389,7 +390,7 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   t->insert_(t, p, q, false);
   t->smoothall(t, t->root);
   like = t->evaluate(t, p, false);
-printf("t->score, like are now  %14.8f, %14.8f\n", t->score, like);   /* debug */
+printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", t->score, *bestyet, like);   /* debug */
 
   if (atstart) {
     bettertree = true;
@@ -397,7 +398,8 @@ printf("t->score, like are now  %14.8f, %14.8f\n", t->score, like);   /* debug *
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
   } else {
     bettertree = (like > *bestyet);
-printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
+printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   /* debug */
+if(bettertree) printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
     succeeded = bettertree;
     }
   if (bettertree) {
@@ -1055,9 +1057,10 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     polishing = true;
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
-    curtree->smoothall(curtree, curtree->root);
+    if (!lngths)
+      curtree->smoothall(curtree, curtree->root);
     smoothit = improve;
-    polishing= false;
+    polishing = false;
   }
   curtree->evaluate(curtree, curtree->root, true);
 }  /* ml_treevaluate */
