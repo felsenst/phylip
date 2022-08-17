@@ -437,7 +437,7 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-boolean* isemptyroot (node* p, boolean* found) {
+boolean isemptyroot (node* p) {
   /* check whether the back pointer of the node is null */
 
  return(p->back == NULL);
@@ -458,9 +458,10 @@ node* findroot (node* p, boolean* found) {
   } else {
     *found = false;
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
-      if (isemptyroot(q, found)) {    /* ... until find one with back empty */
+      if (isemptyroot(q)) {           /* ... until find one with back empty */
         r = q;          /* return pointer to that node, *found will be true */
       }
+    }
   }
   return r;
 } /* findroot */
@@ -469,20 +470,23 @@ node* findroot (node* p, boolean* found) {
 node* findrootmostandroot (tree* t, node* p, boolean* found) {
   /* find the rootmost circle, traversing out from it if needed, and 
    * then return a pointer to its rootmost node, with  *found
-   * set to true if that node has a null back pointer */
+   * set to true if that node has a null back pointer, and in
+   * either case, set the tree's root pointer to it */
   node *q, *r;
 
-  r = findroot (t, p, found);  /* in likely case it's on the current circle */
+  r = findroot (p, found);  /* in likely case it's on the current circle */
   if (*found == false) {           /* otherwise need to traverse to find it */
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
       if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
-        *found == true;
+        *found = true;
       } else {                              /* otherwise go out that branch */
 	p = findrootmostandroot (t, q->back, found);
       }
     }
   }
+  t->root = r;
+  return r;
 } /* findrootmostandroot */
 
 
@@ -3559,7 +3563,7 @@ void unroot(tree* t, long nonodes)
   node* p;
   boolean found;
 
-  p = findrootmostandroot(t->root, &found);     /* find node with NULL back */
+  p = findrootmostandroot(t, t->root, &found);  /* find node with NULL back */
   if (found == true) {
     if (p->next->back->tip)            /* interior node descended from ...  */
       t->root = p->next->next->back;         /* that rootmost interior node */
@@ -5064,7 +5068,7 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
   node* p;
   boolean found;
 
-  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+  p = findroot(curtree->root, &found);                 /* ensure is at root */
    
   if (found) {       /* if did find root is connected to a null pointer ... */
     if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
@@ -5278,7 +5282,8 @@ void preparetree(tree* t)
 
 void fixtree(tree* t)
 { /* after a treeread */
-/* debug:  exactly what does this actually do? */
+/* debug:  exactly what does this actually do? seems to make forks for
+ * any empty fork slots, then release them to forknode list */
   long i;
 
   for ( i = spp ; i < t->nonodes ; i++ ) {

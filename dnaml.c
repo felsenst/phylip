@@ -1975,28 +1975,24 @@ void dnaml_treeout(node *p)
 
   assert(p->index > 0);                 // RSGdebug
 
-  if (p->tip)
-  {
+  if (p->tip) {                                       /* write out tip name */
     n = 0;
-    for (i = 1; i <= nmlngth; i++)
+    for (i = 1; i <= nmlngth; i++)         /* find out how long the name is */
     {
       if (nayme[p->index-1][i - 1] != ' ')
         n = i;
     }
-    for (i = 0; i < n; i++)
-    {
+    for (i = 0; i < n; i++) {                      /* ... then write it out */
       c = nayme[p->index-1][i];
       if (c == ' ')
         c = '_';
       putc(c, outtree);
     }
-    col += n;
+    col += n;                     /* ... and update where on is in the line */
   }
-  else
-  {
+  else {                                           /* if this is a fork ... */
     putc('(', outtree);
     col++;
-
     inloop = false;
     q = p->next;
     do  {
@@ -2020,7 +2016,7 @@ void dnaml_treeout(node *p)
     putc(')', outtree);
     col++;
   }
-  x = p->v * fracchange;
+  x = p->v * fracchange;                 /* now write out the branch length */
   if (x > 0.0)
     w = (long)(0.43429448222 * log(x));
   else if (x == 0.0)
