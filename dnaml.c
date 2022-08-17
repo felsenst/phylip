@@ -1991,30 +1991,34 @@ void dnaml_treeout(node *p)
     col += n;                     /* ... and update where on is in the line */
   }
   else {                                           /* if this is a fork ... */
-    putc('(', outtree);
-    col++;
-    inloop = false;
-    q = p->next;
-    do  {
-      if (inloop && (!(q->back == NULL)))
-      {
-        putc(',', outtree);
-        col++;
-        if (col > 45)
+    if (isemptyroot(p))    
+      q = p->next;
+    else {
+      putc('(', outtree);
+      col++;
+      inloop = false;
+      q = p;
+      do  {
+        if (inloop && (!(q->back == NULL)))
         {
-          putc('\n', outtree);
-          col = 0;
+          putc(',', outtree);
+          col++;
+          if (col > 45)
+          {
+            putc('\n', outtree);
+            col = 0;
+          }
         }
-      }
-      inloop = true;
-      if (q->back != NULL)
-        dnaml_treeout(q->back);
-      q = q->next;
-    } while ((p == curtree->root || p != q)
+        inloop = true;
+        if (q->back != NULL)
+          dnaml_treeout(q->back);
+        q = q->next;
+      } while ((p == curtree->root || p != q)
              && (p != curtree->root || p->next != q));
 
-    putc(')', outtree);
-    col++;
+      putc(')', outtree);
+      col++;
+    }
   }
   x = p->v * fracchange;                 /* now write out the branch length */
   if (x > 0.0)
