@@ -83,6 +83,7 @@ void    empiricalfreqs(double *, double *, double *, double *, steptr, pointarra
 void    ml_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
 void    ml_initialvtrav(tree*, node *);
+void    ml_treeout(tree *, node *);
 #endif
 
 #endif /* _ML_H_ */

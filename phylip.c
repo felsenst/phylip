@@ -470,7 +470,7 @@ node* findroot (node* p, boolean* found) {
 } /* findroot */
 
 
-node* findrootmostandroot (node* p, boolean* found) {
+node* findrootmostandroot (tree* t, node* p, boolean* found) {
   /* find the rootmost circle, traversing out from it if needed, and 
    * then return a pointer to its rootmost node, with  *found
    * set to true if that node has a null back pointer, and in
@@ -478,27 +478,18 @@ node* findrootmostandroot (node* p, boolean* found) {
   node *q, *r;
 
   r = findroot (p, found);  /* in likely case it's on the current circle */
-<<<<<<< HEAD
   if (*found == false) {           /* otherwise need to traverse to find it */
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
-=======
-  if ((!(p->tip)) && (*found == false)) {           /* otherwise need to traverse to find it */
-    for (q = p->next; (!(*found)) && (q != p); q = q->next) {  /* go around */
->>>>>>> 954c4fbdd0e8913c9b898b2e76a63642e496fc8f
       if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
         *found = true;
       } else {                              /* otherwise go out that branch */
-	p = findrootmostandroot (q->back, found);
+	p = findrootmostandroot (t, q->back, found);
       }
     }
   }
-<<<<<<< HEAD
   t->root = r;
   return r;
-=======
-  return(r);
->>>>>>> 954c4fbdd0e8913c9b898b2e76a63642e496fc8f
 } /* findrootmostandroot */
 
 

@@ -1092,5 +1092,83 @@ void ml_initialvtrav(tree* t, node *p)
 }  /* ml_initialvtrav */
 
 
+void ml_treeout(tree* t, node* p)
+{
+  /* write out file with representation of final tree2 */
+  long i, n, w;
+  Char c;
+  double x;
+  node *p, *q;
+  boolean inloop, found;
+
+  assert(p->index > 0);                 // RSGdebug
+
+  q = findrootmostandroot(t, p, &found);
+  if (found)
+    p = q;
+  if (p->tip)
+  {
+    n = 0;
+    for (i = 1; i <= nmlngth; i++)         /* find out how long the name is */
+    {
+      if (nayme[p->index-1][i - 1] != ' ')
+        n = i;
+    }
+    for (i = 0; i < n; i++) {                      /* ... then write it out */
+      c = nayme[p->index-1][i];
+      if (c == ' ')
+        c = '_';
+      putc(c, outtree);
+    }
+    col += n;                     /* ... and update where on is in the line */
+  }
+  else {                                           /* if this is a fork ... */
+    if (isemptyroot(p))    
+      q = p->next;
+    else {
+      putc('(', outtree);
+      col++;
+      inloop = false;
+      q = p;
+      do  {
+        if (inloop && (!(q->back == NULL)))
+        {
+          putc(',', outtree);
+          col++;
+          if (col > 45)
+          {
+            putc('\n', outtree);
+            col = 0;
+          }
+        }
+        inloop = true;
+        if (q->back != NULL)
+          ml_treeout(t, q->back);
+        q = q->next;
+      } while ((p == curtree->root || p != q)
+             && (p != curtree->root || p->next != q));
+
+      putc(')', outtree);
+      col++;
+    }
+  }
+  x = p->v * fracchange;                 /* now write out the branch length */
+  if (x > 0.0)
+    w = (long)(0.43429448222 * log(x));
+  else if (x == 0.0)
+    w = 0;
+  else
+    w = (long)(0.43429448222 * log(-x)) + 1;
+  if (w < 0)
+    w = 0;
+  if (p == curtree->root)
+    fprintf(outtree, ";\n");
+  else
+  {
+    fprintf(outtree, ":%*.5f", (int)(w + 7), x);
+    col += w + 8;
+  }
+}  /* ml_treeout */
+
 /* End. */
 
