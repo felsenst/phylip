@@ -80,12 +80,11 @@ boolean valid_tyme(tree *, node *, double);
 double  set_tyme_evaluate(tree *, node *, double);
 void    mlk_tree_makenewv(tree*, node *);
 void    empiricalfreqs(double *, double *, double *, double *, steptr, pointarray);
-void    ml_treeoutrecurs(file*, tree*, node*, double*, int*);
-void    ml_treeout(file*, tree*, node*, double*);
+void    ml_treeoutrecurs(FILE*, tree*, node*, double, int*);
+void    ml_treeout(FILE*, tree*, node*, double);
 void    ml_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
 void    ml_initialvtrav(tree*, node *);
-void    ml_treeout(tree *, node *);
 #endif
 
 #endif /* _ML_H_ */

@@ -62,7 +62,7 @@ void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_treeout(file*, tree*, node*, double);
+void   dnaml_treeout(FILE *, tree*, node*);
 double dnaml_tree_evaluate(tree*, node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -2005,12 +2005,12 @@ void dnaml_reroot(tree* t)
 } /* dnaml_reroot */
 
 
-void dnaml_treeout(file* outtreefile, tree* t, node* p) {
+void dnaml_treeout(FILE  *outtree, tree* t, node* p) {
 /* call ml_treeout to write tree out to tree output file */
   double bl_scale;
 
   bl_scale = fracchange;
-  ml_treeout(outtreefile, t, p, bl_scale);
+  ml_treeout(outtree, t, p, bl_scale);
 } /* dnaml_treeout */
 
 
@@ -2105,7 +2105,7 @@ void maketree(void)
       summarize();
 
       if (trout) {
-        dnaml_treeout(curtree, curtree->root);
+        dnaml_treeout(outtree, curtree, curtree->root);
       }
       if(which < numtrees)
       {
@@ -2227,7 +2227,7 @@ void maketree(void)
       dnaml_printree();
       summarize();
       if (trout) {
-        dnaml_treeout(curtree, curtree->root);
+        dnaml_treeout(outtree, curtree, curtree->root);
       }
     }
   }
