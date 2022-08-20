@@ -1099,7 +1099,7 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
   Char c;
   double x;
   node *q;
-  boolean inloop, found;
+  boolean inloop;
 
   assert(p->index > 0);                 // RSGdebug
 

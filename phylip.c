@@ -463,6 +463,7 @@ node* findroot (node* p, boolean* found) {
     for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
       if (isemptyroot(q)) {           /* ... until find one with back empty */
         r = q;          /* return pointer to that node, *found will be true */
+        *found = true;
       }
     }
   }
@@ -477,14 +478,14 @@ node* findrootmostandroot (tree* t, node* p, boolean* found) {
    * either case, set the tree's root pointer to it */
   node *q, *r;
 
-  r = findroot (p, found);  /* in likely case it's on the current circle */
+  r = findroot (p, found);     /* in likely case it's on the current circle */
   if (*found == false) {           /* otherwise need to traverse to find it */
-    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+    for (q = p->next; (!(*found)) && (q != p); q = q->next) {     /* go around */
       if (isemptyroot(q)) {                          /* if you found it ... */
         r = q;
         *found = true;
       } else {                              /* otherwise go out that branch */
-	p = findrootmostandroot (t, q->back, found);
+	r = findrootmostandroot (t, q->back, found);
       }
     }
   }
