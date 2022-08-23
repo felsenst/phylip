@@ -1098,7 +1098,7 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
   long i, n, w;
   Char c;
   double x;
-  node *q;
+  node *q, *qfirst;
   boolean inloop;
 
   assert(p->index > 0);                 // RSGdebug
@@ -1106,62 +1106,59 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
   if (p->tip)
   {
     n = 0;
-    for (i = 1; i <= nmlngth; i++)         /* find out how long the name is */
-    {
+    for (i = 1; i <= nmlngth; i++) {       /* find out how long the name is */
       if (nayme[p->index-1][i - 1] != ' ')
         n = i;
     }
     for (i = 0; i < n; i++) {                      /* ... then write it out */
       c = nayme[p->index-1][i];
-      if (c == ' ')
+      if (c == ' ')                          /* convert blank to underscore */
         c = '_';
       putc(c, outtree);
     }
-    (*col) += n;                     /* ... and update where on is in the line */
+    (*col) += n;                  /* ... and update where on is in the line */
   }
   else {                                           /* if this is a fork ... */
-    if (isemptyroot(p))    
-      q = p->next;
-    else {
-      putc('(', outtree);
-      (*col)++;
-      inloop = false;
+    qfirst = p;                       /* save node where you entered circle */
+    if ((t->root == p) || (p->back != NULL))   /* if root has non-null back */
       q = p;
-      do  {
-        if (inloop && (!(q->back == NULL)))
-        {
-          putc(',', outtree);
-          (*col)++;
-          if (*col > 45)
-          {
-            putc('\n', outtree);
-            *col = 0;
-          }
+    else
+      q = p->next;                           /* if null back or not at root */
+    putc('(', outtree);                     /* open the paren for this fork */
+    (*col)++;
+    inloop = false;
+    do {
+      if (inloop) {                                 /* if not in first furc */
+        putc(',', outtree);
+        (*col)++;
+        if (*col > 45) {                                  /* if got too far */
+          putc('\n', outtree);
+          *col = 0;
         }
-        inloop = true;
-        if (q->back != NULL)
-          ml_treeoutrecurs(outtreefile, t, q->back, bl_scale, col);
-        q = q->next;
-      } while ((p == t->root || p != q)
-             && (p != t->root || p->next != q));
-
-      putc(')', outtree);
-      (*col)++;
-    }
+      }
+      if (q->back != NULL) {                /* just making sure is not null */
+        ml_treeoutrecurs(outtreefile, t, q->back, bl_scale, col); /* go out */
+        inloop = true;                  /* will need comma before next furc */
+      }
+      q = q->next;                                  /* continue around fork */
+    } while (q != qfirst); /* until you get to where you entered the circle */
+    putc(')', outtree);             /* then close the paren for this circle */
+    (*col)++;
   }
   x = p->v * bl_scale;                   /* now write out the branch length */
   if (x > 0.0)
     w = (long)(0.43429448222 * log(x));
-  else if (x == 0.0)
-    w = 0;
-  else
-    w = (long)(0.43429448222 * log(-x)) + 1;
+  else {
+    if (x == 0.0)
+      w = 0;
+    else
+      w = (long)(0.43429448222 * log(-x)) + 1;
+  }
   if (w < 0)
     w = 0;
   if (p == t->root)
     fprintf(outtree, ";\n");
-  else
-  {
+  else {
     fprintf(outtree, ":%*.5f", (int)(w + 7), x);
     col += w + 8;
   }
