@@ -1101,8 +1101,6 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
   node *q, *qfirst;
   boolean inloop;
 
-  assert(p->index > 0);                 // RSGdebug
-
   if (p->tip)
   {
     n = 0;
@@ -1120,7 +1118,7 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
   }
   else {                                           /* if this is a fork ... */
     qfirst = p;                       /* save node where you entered circle */
-    if ((t->root == p) || (p->back != NULL))   /* if root has non-null back */
+    if ((t->root == p) && (p->back != NULL))   /* if root has non-null back */
       q = p;
     else
       q = p->next;                           /* if null back or not at root */
