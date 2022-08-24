@@ -887,7 +887,7 @@ void inittable(void)
 
 
 double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
-{ /* dnaml version of evaluation of likeihood */
+{ /* dnaml version of evaluation of likelihood */
   contribarr tterm;
   double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
           sumterm, lterm;
@@ -895,8 +895,9 @@ double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
   node *q;
   sitelike x1, x2;
 
-  generic_tree_evaluate(t, p, saveit);     /* do traversals to update views */
-
+  if (p->back == NULL)           /* to make sure branch has non-null ends */
+    p = p->next;
+  generic_tree_evaluate(t, p, saveit);   /* do traversals to update views */
   sum = 0.0;
   q = p->back;
   y = p->v;
@@ -1561,62 +1562,64 @@ void describe(node *p)
   node *q, *sib_ptr;
   double sumlr, sigma1, sigma2;
 
-  if (!p->tip && !p->initialized)
-    generic_tree_nuview(curtree, p);
-  if (!p->back->tip && !p->back->initialized)
-    generic_tree_nuview(curtree, p->back);
-  q = p->back;
+  if (p != NULL) {
+    if (!p->tip && !p->initialized)
+      generic_tree_nuview(curtree, p);
+    if (!p->back->tip && !p->back->initialized)
+      generic_tree_nuview(curtree, p->back);
+    q = p->back;
 
-  assert(p->index > 0);                 // RSGdebug
-  assert(q->index > 0);                 // RSGdebug
+    assert(p->index > 0);                 // RSGdebug
+    assert(q->index > 0);                 // RSGdebug
 
-  if (q->tip)
-  {
-    fprintf(outfile, " ");
-    for (i = 0; i < nmlngth; i++)
-      putc(nayme[q->index-1][i], outfile);
-    fprintf(outfile, "    ");
-  }
-  else
-    fprintf(outfile, "  %4ld          ", q->index - spp);
-  if (p->tip)
-  {
-    for (i = 0; i < nmlngth; i++)
-      putc(nayme[p->index-1][i], outfile);
-  }
-  else
-    fprintf(outfile, "%4ld      ", p->index - spp);
-  fprintf(outfile, "%15.5f", q->v * fracchange);
-  if (reusertree || !usertree || (usertree && !lngths) || p->iter )
-  {
-    sigma(q, &sumlr, &sigma1, &sigma2);
-    if (sigma1 <= sigma2)
-      fprintf(outfile, "     (     zero,    infinity)");
-    else
+    if (q->tip)
     {
-      fprintf(outfile, "     (");
-      if (sigma2 <= 0.0)
-        fprintf(outfile, "     zero");
-      else
-        fprintf(outfile, "%9.5f", sigma2 * fracchange);
-      fprintf(outfile, ",%12.5f", sigma1 * fracchange);
-      putc(')', outfile);
+      fprintf(outfile, " ");
+      for (i = 0; i < nmlngth; i++)
+        putc(nayme[q->index-1][i], outfile);
+      fprintf(outfile, "    ");
     }
-    if (sumlr > 1.9205)
-      fprintf(outfile, " *");
-    if (sumlr > 2.995)
-      putc('*', outfile);
-  }
-  putc('\n', outfile);
-  if (!p->tip)
-  {
-    num_sibs = count_sibs (p);
-    sib_ptr  = p;
-    for (i=0; i < num_sibs; i++)
+    else
+      fprintf(outfile, "  %4ld          ", q->index - spp);
+    if (p->tip)
     {
-      sib_ptr = sib_ptr->next;
-      if (sib_ptr->back != NULL)
-        describe(sib_ptr->back);
+      for (i = 0; i < nmlngth; i++)
+        putc(nayme[p->index-1][i], outfile);
+    }
+    else
+      fprintf(outfile, "%4ld      ", p->index - spp);
+    fprintf(outfile, "%15.5f", q->v * fracchange);
+    if (reusertree || !usertree || (usertree && !lngths) || p->iter )
+    {
+      sigma(q, &sumlr, &sigma1, &sigma2);
+      if (sigma1 <= sigma2)
+        fprintf(outfile, "     (     zero,    infinity)");
+      else
+      {
+        fprintf(outfile, "     (");
+        if (sigma2 <= 0.0)
+          fprintf(outfile, "     zero");
+        else
+          fprintf(outfile, "%9.5f", sigma2 * fracchange);
+        fprintf(outfile, ",%12.5f", sigma1 * fracchange);
+        putc(')', outfile);
+      }
+      if (sumlr > 1.9205)
+        fprintf(outfile, " *");
+      if (sumlr > 2.995)
+        putc('*', outfile);
+    }
+    putc('\n', outfile);
+    if (!p->tip)
+    {
+      num_sibs = count_sibs (p);
+      sib_ptr  = p;
+      for (i=0; i < num_sibs; i++)
+      {
+        sib_ptr = sib_ptr->next;
+        if (sib_ptr->back != NULL)
+          describe(sib_ptr->back);
+      }
     }
   }
 }  /* describe */
@@ -2068,7 +2071,7 @@ void maketree(void)
                 &dummy_first, &nextnode, &haslengths, initdnamlnode,
                 false, nonodes2);
 /* debug:       fixtree(curtree);    needed? */
-      dnaml_reroot(curtree);                          // RSGbugfix: Name change.
+/* debug:      dnaml_reroot(curtree);   */                     // RSGbugfix: Name change.
 
       if (goteof && (which <= numtrees))
       {

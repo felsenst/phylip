@@ -1094,7 +1094,8 @@ void ml_initialvtrav(tree* t, node *p)
 
 void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int* col)
 { 
-  /* write out to output file a subtree, recursively */
+  /* write out to output file a subtree, recursively.  This is the version 
+   * with branch lengths and a scale factor,  bl_scale  */
   long i, n, w;
   Char c;
   double x;
