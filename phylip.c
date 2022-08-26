@@ -3895,7 +3895,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
           success = true;
         }
       } else {
-        if ( succeeded && where != qwhere) {
+        if ( succeeded && (where != qwhere)) {
           curtree->insert_(curtree, sib_ptr, qwhere, true);
           curtree->smoothall(curtree, where);
           success = true;
