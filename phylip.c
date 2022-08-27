@@ -4859,7 +4859,7 @@ void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
   node *r;
 /* debug:   boolean thorough = true;  needed at all? Maybe */
 
-  if ( !multf ) {
+  if ( !multf ) {                                     /* if bifurcating ... */
 
 /* debug    assert(q->next->next->next == q);          debug:   probably unnecessary */
 
@@ -4872,7 +4872,7 @@ void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
     else {                                         /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
-/* debug:  do we need to reset  t->root here? */
+      t->root = p->next->next;
       };
 
 /* debug: needed?    assert( ! p->initialized );
