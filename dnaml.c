@@ -2164,8 +2164,9 @@ void maketree(void)
       ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (outgrno == (enterorder[nextsp-1]+1))
+      if (outgrno == enterorder[nextsp-1]+1)
         curtree->root = curtree->nodep[outgrno-1];
+/* debug:  here make sure add rootmost fork in right place */
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);
       curtree->addtraverse(curtree, q, curtree->root, further, qwhere,
