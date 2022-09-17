@@ -21,15 +21,9 @@
 const double MIN_BRANCH_LENGTH = epsilon/4.0;
 const double MIN_ROOT_TYME = -10;
 
-/* TODO check to see which of these are needed here */
-long endsite;                           // RSGdebug: Check this.
-extern long nextree, which;
-extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
-extern steptr weight, category, alias, location, ally;
+long endsite;
 extern sequence inputSequences;
-extern node** lrsaves;
-extern long rcategs;
-extern boolean usertree, lngths, smoothit, smoothed, polishing;
+extern boolean lngths, smoothit, polishing;
 boolean inserting;
 
 
@@ -74,13 +68,13 @@ void bl_node_init(struct node *n, node_type type, long index)
   generic_node_init(n, type, index);                /* go up node hierarchy */
   nn = (bl_node*)n;
   nn->node.tyme = 0;
-} /* ml_node_init */
+} /* bl_node_init */
 
 
-void ml_node_copy(node* srcn, node* destn) // RSGbugfix
-{ /* copy an ml_node */
-  ml_node *src = (ml_node *)srcn;
-  ml_node *dest = (ml_node *)destn;
+void bl_node_copy(node* srcn, node* destn)
+{ /* copy a bl_node */
+  bl_node *src = (bl_node *)srcn;
+  bl_node *dest = (bl_node *)destn;
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(srcn, destn);
@@ -92,22 +86,21 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
     memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
   else
     assert(src->underflows == NULL);    // RSGdebug
-} /* ml_node_copy */
+} /* bl_node_copy */
 
 
-void ml_node_free(node **np)
+void bl_node_free(node **np)
 {
-  /* free a node for ml trees */
-  ml_node *n = (ml_node*)*np;
+  /* free a node for bl trees */
+  bl_node *n = (bl_node*)*np;
   n->freex((node*)n);
   generic_node_free(np);
-} /* ml_node_free */
+} /* bl_node_free */
 
 
-void ml_hookup(node* p, node* q){
+void bl_hookup(node* p, node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
-/* debug:  change this so is in  bl.c  not in  ml.c */
 
   hookup(p, q);
   p->v = initialv;
@@ -115,28 +108,29 @@ void ml_hookup(node* p, node* q){
 } /* ml_hookup */
 
 
-void ml_node_reinit(node * n)
+void bl_node_reinit(node * n)
 {
   /* reset things for an ml tree node */
-  ml_node * mln = (ml_node*)n;
+  bl_node * bln = (bl_node*)n;
 
-  mln->node.tyme = 0;
-  // BUG.970 -- does freex need refreshing ?
-  // BUG.970 -- leave for dna_node and prot_node ?
+  bln->node.tyme = 0;
+  // debug:  BUG.970 -- does freex need refreshing ?
+  //  debug: BUG.970 -- leave for dna_node and prot_node ?
   generic_node_reinit(n);
 } /* ml_node_reinit */
 
 
-void ml_node_print(node * n)
+void bl_node_print(node * n)
 {
   /* for debugging */
   generic_node_print(n);
-  ml_node * mn = (ml_node*)n;
-  printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
+  bl_node * bn = (bl_node*)n;
+
+  printf(" bl(endsite:%ld tyme:%lf)", bn->endsite, bn->node.tyme);
 } /* ml_node_print */
 
 
-void ml_update(struct tree *t, node *p)
+void bl_update(struct tree *t, node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
@@ -152,12 +146,13 @@ void ml_update(struct tree *t, node *p)
         generic_tree_nuview(t, p->back);          /* recurse from the other */
     }
   }
-}  /* ml_update */
+}  /* bl_update */
 
 
 void smooth_traverse(tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
+ /* debug: in which file should this be defined? bl.c? ml.c? */
 
   smooth(t, p);
   smooth(t, p->back);
@@ -166,6 +161,7 @@ void smooth_traverse(tree* t, node *p)
 
 void smooth(tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
+ /* debug: in which file should this be defined? bl.c? ml.c? */
   node *sib_ptr;
 
   if ( p == NULL )
@@ -175,7 +171,7 @@ void smooth(tree* t, node *p)
 debug */
   smoothed = false;
 
-  ml_update(t, p);      /* get views at both ends updated, maybe recursing  */
+  bl_update(t, p);      /* get views at both ends updated, maybe recursing  */
   t->makenewv (t, p);                         /* new value of branch length */
   inittrav (t, p);                 /* set inward-looking pointers false ... */
   inittrav (t, p->back);               /* ... from both ends of this branch */
@@ -193,7 +189,7 @@ debug */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  ml_update(t, p->back); /* get views at both ends updated, maybe recursing */
+  bl_update(t, p->back); /* get views at both ends updated, maybe recursing */
 }  /* smooth */
 
 
@@ -201,7 +197,10 @@ void ml_tree_smoothall(tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
-   * as needed   */
+   * as needed.  It may seem like we are doing too many smooths, but sometimes
+   * branch near p may already be completely smoothed from an
+   * insert, this insures we spread out in the tree */
+ /* debug: in which file should this be defined? bl.c? ml.c? */
   boolean save;
   int i;
   node* q;
@@ -212,9 +211,6 @@ void ml_tree_smoothall(tree* t, node* p)
     p = p->back;
 
 /* debug:   editing mistake near here when removing debugging prints? */
-  /* it may seem like we are doing too many smooths, but sometimes
-   * branch near p may already be completely smoothed from an
-   * insert, this insures we spread out in the tree */
   for ( i = 0 ; i < smoothings ; i++ )
   {
     smooth(t, p->back);
@@ -227,16 +223,15 @@ void ml_tree_smoothall(tree* t, node* p)
 } /* ml_tree_smoothall */
 
 
-void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
+void bl_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
 { /* split original  q->v  branch length evenly beween forknode->next and 
    * forknode->next->next.  forknode->back  must be subtree or tip.
    * This assumes interior node is a bifurcation.  Not able to cope if we 
-   * insert at a rootmost branch one of whose ends is NULL */
+   * insert at a rootmost branch one of whose ends is NULL
+   * forknode should be where tip was hooked to.
+   * that connection set to initial v for *both* directions.  */
   double newv;
 
-  /* forknode should be where tip was hooked to.
-   * that connection set to initial v for *both* directions.
-   */
   if (forknode->back != NULL) {              /* condition should never fail */
     forknode->v = initialv; 
     forknode->back->v = initialv;
@@ -247,19 +242,17 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   else
     newv = initialv;
 
-  /* forknode->next for both directions */
-  if (forknode->next->back != NULL) {
+  if (forknode->next->back != NULL) { /* forknode->next for both directions */
     forknode->next->v = newv ;
     forknode->next->back->v = newv ;
   }
 
-  /* forknode->next->next for both directions */
-  if (forknode->next->back != NULL) {
+  if (forknode->next->back != NULL) {     /* next->next for both directions */
     forknode->next->next->v = newv;
     forknode->next->next->back->v = newv;
   }
 
-  /* BUG.970 -- might consider invalidating views here or in generic */
+  /* debug:  BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
   inittrav(t, forknode);         /* some of this block of code unnexessary? */
   inittrav(t, forknode->back);
@@ -269,11 +262,11 @@ void ml_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   inittrav(t, forknode->next->next);
   if (forknode-> next->next->back != NULL)
     inittrav(t, forknode->next->next->back);
-} /* ml_tree_do_branchl_on_insert */
+} /* bl_tree_do_branchl_on_insert */
 
 
 
-void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
+void bl_tree_insert_(tree *t, node *p, node *q, boolean multif)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
@@ -294,31 +287,31 @@ void ml_tree_insert_(tree *t, node *p, node *q, boolean multif)
     p->next->initialized = false;  /* ... out from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
-    ml_update(t, p);               /* update the views outward */
-    ml_update(t, p->next);
-    ml_update(t, p->next->next);
+    bl_update(t, p);               /* update the views outward */
+    bl_update(t, p->next);
+    bl_update(t, p->next->next);
     inserting = false;
   }
   else    /* this is the case where we recurse outwards, smoothing */
   {
     inittrav(t, p);        /* set inward-looking pointers false */
     inittrav(t, p->back);
-    ml_update(t, p);
+    bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
       smooth_traverse(t, p);   /* go around fork, out each other branch */
     }
   }
-} /* ml_tree_insert */
+} /* bl_tree_insert */
 
 
-void ml_tree_do_branchl_on_re_move(tree* t, node* p, node* q)
+void bl_tree_do_branchl_on_re_move(tree* t, node* p, node* q)
 {
   /* sum up branch lengths on the two other neighbors of  p
-   * that are connected to fork q */
+   * that are connected to fork  q */
  /* debug:  only works for bifurcations */
   /*
-   * BUG.970 -- add this when moved into re_move
+   * debug: BUG.970 -- add this when moved into re_move
    * assert(q->next->next->next == q);
    *
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
@@ -331,10 +324,10 @@ void ml_tree_do_branchl_on_re_move(tree* t, node* p, node* q)
   q->v = combinedEdgeWeight;
   if (q->back != NULL)
     q->back->v = combinedEdgeWeight;
-} /* ml_tree_do_branchl_on_re_move */
+} /* bl_tree_do_branchl_on_re_move */
 
 
-void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
+void bl_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 {
   /* remove  p  and record in  q  where it was
    * assumes bifurcations
@@ -355,14 +348,14 @@ void ml_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
   }
   else {   /* update views at both ends of branch connected to q */
     if (!((*q)->tip))
-      ml_update(t, *q);
+      bl_update(t, *q);
     if (!((*q)->back->tip))
-      ml_update(t, (*q)->back);
+      bl_update(t, (*q)->back);
   }
-} /* ml_tree_re_move */
+} /* bl_tree_re_move */
 
 
-boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
+boolean bl_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
 {
  /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
   * better than bestyet, updates bestyet and returns true.  If this is the
@@ -376,10 +369,10 @@ boolean ml_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, d
   t->save_traverses(t, p, q);
   t->insert_(t, p, q, false);
   t->smoothall(t, t->root);
-  like = t->evaluate(t, p, false);
+  like = t->evaluate(t, p, false);                    /* get score for tree */
 printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", t->score, *bestyet, like);   /* debug */
 
-  if (atstart) {
+  if (atstart) {          /* save the tree if it is the first one or better */
     bettertree = true;
     *bestyet = like;
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
@@ -389,37 +382,36 @@ printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   /* debug */
 if(bettertree) printf("found better tree, t->score = %14.8f\n", t->score); /* debug */
     succeeded = bettertree;
     }
-  if (bettertree) {
+  if (bettertree) {                    /* set variables for return, and ...*/
     *bestyet = like;
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
     qwherein = q;
-    t->copy(t, bestree);
+    t->copy(t, bestree);              /* save the tree in bestree, and ... */
 printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
   }
-  t->re_move(t, p, &whereRemoved, false);
+  t->re_move(t, p, &whereRemoved, false);    /* then remove inserted stuff */
 
 /* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
 /* debug:  probably redundant: */   t->restore_traverses(t, p, q); /*  debug */
 
   /* Update t->score of tree on which placements are being tested */
-  like = t->evaluate(t, q, 0);
+  like = t->evaluate(t, q, 0);   /* evaluate restored tree to update views */
 
   return succeeded;
-} /* ml_tree_try_insert_thorough */
+} /* bl_tree_try_insert_thorough */
 
 
-boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
+boolean bl_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
                           double* bestyet, tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
 {
- /* Passes to ml_tree_try_insert_thorough or ml_tree_try_insert_notthorough
+ /* Passes to bl_tree_try_insert_thorough or bl_tree_try_insert_notthorough
  *  depending on the value of thorough. If multf is given, sets to
- *  false.
- */
+ *  false.  */
   boolean succeeded = false;
 
   if ( thorough )
-    succeeded = ml_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
+    succeeded = bl_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
@@ -428,7 +420,7 @@ boolean ml_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
 } /* ml_tree_try_insert_ */
 
 
-void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
+void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
@@ -442,11 +434,11 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   newfork = t->nodep[newtip->back->index - 1];
   newtip = t->nodep[newtip->index-1];
   /* now for the tyme stuff */
-  if (((ml_node*)newtip)->node.tyme < ((ml_node*)below)->node.tyme)
+  if (((bl_node*)newtip)->node.tyme < ((bl_node*)below)->node.tyme)
     p = newtip;
   else p = below;
 
-  set_tyme(newfork, ((ml_node*)p)->node.tyme);
+  set_tyme(newfork, ((bl_node*)p)->node.tyme);
   if (newfork->back != NULL)
   {
     /* here we rescale the tree to fit the subtree being added      *
@@ -454,71 +446,64 @@ void mlk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
      * the branches are only epsilon appart, allow the branch       *
      * lengths to be 1/2 epsilon, so that we interfere with the     *
      * tree minimally                                               */
-    if (((ml_node*)p)->node.tyme > ((ml_node*)newfork->back)->node.tyme)
-      set_tyme(newfork, (((ml_node*)p)->node.tyme + ((ml_node*)newfork->back)->node.tyme) / 2.0);
+    if (((bl_node*)p)->node.tyme > ((bl_node*)newfork->back)->node.tyme)
+      set_tyme(newfork, (((bl_node*)p)->node.tyme + ((bl_node*)newfork->back)->node.tyme) / 2.0);
     else
-      set_tyme(newfork, ((ml_node*)p)->node.tyme - (epsilon/2));
-    do
-    {
+      set_tyme(newfork, ((bl_node*)p)->node.tyme - (epsilon/2));
+    do {
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
-      if (!done)
-        done = (((ml_node*)t->nodep[p->back->index - 1])->node.tyme < ((ml_node*)p)->node.tyme);
-      if (!done)
-      {
+      if (!done) {
+        done = (((bl_node*)t->nodep[p->back->index - 1])->node.tyme < ((bl_node*)p)->node.tyme);
         set_tyme(p->back, ((ml_node*)p)->node.tyme - epsilon/2);
       }
     } while (!done);
   }
   else
-    set_tyme(newfork, ((ml_node*)newfork)->node.tyme - initialv);
+    set_tyme(newfork, ((bl_node*)newfork)->node.tyme - initialv);
 
   if ( !smoothit ) {
     smooth(t, newfork);
     smooth(t, newfork->back);
   }
-  else
-  {
+  else {
     inittrav(t, newtip);
     inittrav(t, newtip->back);
-    for (i = 0 ; i < smoothings ; i++)
-    {
+    for (i = 0 ; i < smoothings ; i++) {
       smooth(t, newfork);
       smooth(t, newfork->back);
     }
   }
-}  /* mlk_tree_insert_ */
+}  /* blk_tree_insert_ */
 
 
 double get_tyme(node *p)
-{ /* Return the tyme of an ml_node. p must point to struct ml_node. */
-  return ((ml_node *)p)->node.tyme;
+{ /* Return the tyme of a bl_node. p must point to struct bl_node. */
+  return ((bl_node *)p)->node.tyme;
 }
 
 
 void set_tyme (node* p, double tyme)
 { /* Set the tyme of a node and its sibs. p must point to struct ml_node. */
   node *sib_ptr;
+
   sib_ptr = p;
   if ( p->next )
     do {
-      ((ml_node*)sib_ptr)->node.tyme = tyme;
+      ((bl_node*)sib_ptr)->node.tyme = tyme;
       /* added because changing tymes usually invalidates data likelihood.
        * This set seems to fix a failure to find the best tree in some
        * cases, but if the flags are being properly maintained it shouldn't...
        * apparent fix to bug#296, JY and MK 2015/05/18 */
-      ((ml_node*)sib_ptr)->node.initialized = false;
+      ((bl_node*)sib_ptr)->node.initialized = false;
       sib_ptr = sib_ptr->next;
     } while (sib_ptr != p );
   else
-    ((ml_node*)p)->node.tyme = tyme;
+    ((bl_node*)p)->node.tyme = tyme;
 } /* set_tyme */
 
 
-void mlk_tree_re_move(tree* t, node *item, node** where, boolean do_newbl)
-{
-  // RSGnote: Originally the word "where" was the word "fork" in this comment, but that makes
-  // no sense, as there is no variable "fork".  I *think* that the variable "where" was intended.
+void blk_tree_re_move(tree* t, node *item, node** where, boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
      The new descendant of where's ancestor is made to be where's second descendant (other than item).
      Also returns pointers to the deleted nodes, item and where, and records where they were deleted from. */
@@ -528,18 +513,16 @@ void mlk_tree_re_move(tree* t, node *item, node** where, boolean do_newbl)
   rooted_tree_re_move(t, item, &whereloc, do_newbl);
   if ( where )  *where = whereloc;
 
-  if ( do_newbl )
-  {
+  if ( do_newbl ) {
     inittrav(t, whereloc);
     inittrav(t, whereloc->back);
-    for ( i = 0 ;  i < smoothings ; i++)
-    {
+    for ( i = 0 ;  i < smoothings ; i++) {
       smooth(t, whereloc);
       smooth(t, whereloc->back);
     }
   }
   else smooth(t, whereloc->back);
-}  /* mlk_tree_re_move */
+}  /* blk_tree_re_move */
 
 
 #ifdef USE_NEW_MAKENEWV
@@ -552,30 +535,26 @@ double min_child_tyme(node *p)
   double min;
   node *q;
 
-  min = 1.0; /* Tymes are always nonpositive */
-
-  for ( q = p->next; q != p; q = q->next )
-  {
+  min = 1.0;                                /* Tymes are always nonpositive */
+  for ( q = p->next; q != p; q = q->next ) {
     if ( get_tyme(q->back) < min )
       min = get_tyme(q->back);
   }
-
   return min;
-}
+} /* min_child_tyme */
 
 
 double parent_tyme(node *p)
 {
-  /* Return the tyme of the parent of node p. p must be a parent nodelet. */
-  if ( p->back )
+  /* Return the tyme of the parent of node p.  p must be a parent node. */
+  if (p->back)
     return get_tyme(p->back);
   /* else */
   return MIN_ROOT_TYME;
-}
+} /* parent_tyme */
 
 
-boolean valid_tyme(tree *t, node *p, double tyme)
-{
+boolean valid_tyme(tree *t, node *p, double tyme) {
   /* Return true if tyme is a valid tyme to assign to node p. tyme must be
    * finite, not greater than any of p's children, and not less than p's
    * parent. Also, tip nodes can only be assigned 0. Otherwise false is
@@ -583,15 +562,14 @@ boolean valid_tyme(tree *t, node *p, double tyme)
 
   p = t->nodep[p->index - 1];
 
-#ifdef __USE_C99        /* TODO Find a way to check without this. */
+#ifdef __USE_C99        /* debug: TODO Find a way to check without this. */
   if ( !isfinite(tyme) ) return false;
 #endif
   if ( p->tip == true && tyme != 0.0 ) return false;
   if ( tyme > min_child_tyme(p) ) return false;
   if ( tyme < parent_tyme(p) ) return false;
-
   return true;
-}
+} /* valid_tyme */
 
 
 double set_tyme_evaluate(tree *t, node *p, double tyme)
@@ -638,46 +616,39 @@ void mlk_tree_makenewv(tree* t, node *p)
    *   '<' ->   Retracting back by retract_factor
    *   'X' ->   Retraction failed, keeping current point
    */
-
   /* Tuning constants */
   const double likelihood_epsilon = epsilon/1000.0;
-  /* Any change in likelihood less than this, and we're done. */
-  const double tyme_delta = epsilon;            /* Small tyme difference used
-                                                   to compute slope and
-                                                   curvature. */
-  const double min_tyme_delta = tyme_delta / 10.0; /* Absolute smallest tyme_delta */
-  const double uphill_step_factor = 0.05;       /* Fraction of the current
-                                                   branch length to move uphill
-                                                   in positive curvature
-                                                   regions. */
-  const double retract_factor = 0.5;            /* This defines how far back we
-                                                   go if the interpolated point
-                                                   is lower than the original
-                                                */
-  const double min_tdelta = epsilon;            /* Minimum to which we will
-                                                   retract before giving up.
-                                                */
-  const long max_iterations = 100;              /* Maximum iterations -
-                                                   typically we stop much
-                                                   sooner */
-
+                     /* Any change in score less than this, and we're done. */
+  const double tyme_delta = epsilon;  /* Small tyme difference used
+                                            to compute slope and curvature. */
+  const double min_tyme_delta = tyme_delta / 10.0;     /* absolute smallest */
+  const double uphill_step_factor = 0.05; /* Fraction of the current branch 
+                                             length to move uphill in positive
+                                             curvature regions. */
+  const double retract_factor = 0.5; /* This defines how far back we go if the
+                                        interpolated point is lower than the 
+                                        original value */
+  const double min_tdelta = epsilon; /* Minimum to which we will retract 
+                                        before giving up. */
+  const long max_iterations = 100; /* Maximum iterations - typically we stop 
+                                      much sooner */
   double min_tyme, max_tyme;
   double current_tyme, new_tyme;
   double current_likelihood, new_likelihood;
-  double x[3], lnl[3];                          /* tyme (x) and log likelihood
-                                                   (lnl) points below, at, and
-                                                   above the current tyme */
+  double x[3], lnl[3];       /* tyme (x) and score (lnl) points below, at, and
+                                above the current tyme */
+/* debug: rename lnl? change "likelihood" to "score" in comments? */
   double s21, s10, slope;
   double curv;
   double uphill_step;
-  double tdelta;                /* interpolated point minus current point */
+  double tdelta;                  /* interpolated point minus current point */
   long iteration;
   boolean done;
   long num_sibs, i;
   node *sib_ptr;
 
-  if ( p->tip )
-    return;                     /* Skip tips. */
+  if ( p->tip )                                               /* skip tips. */
+    return;
 
   node *s = t->nodep[p->index - 1];
 
@@ -687,18 +658,15 @@ void mlk_tree_makenewv(tree* t, node *p)
   long uphill_steps = 0;
 #endif /* MAKENEWV_DEBUG */
 
-  /* Tyme cannot be less than parent */
-  if (s == t->root)
+  if (s == t->root)                  /* Tyme cannot be less than parent ... */
     min_tyme = MIN_ROOT_TYME;
   else
     min_tyme = get_tyme(s) + MIN_BRANCH_LENGTH;
 
-  /* Tyme cannot be greater than any children */
-  max_tyme = min_child_tyme(s) - MIN_BRANCH_LENGTH;
+  max_tyme = min_child_tyme(s) - MIN_BRANCH_LENGTH;    /* or > any children */
 
   /* Nothing to do if we can't move */
-  if ( max_tyme < min_tyme + 2.0*min_tyme_delta )
-  {
+  if ( max_tyme < min_tyme + 2.0*min_tyme_delta ) {  /* done if can't move! */
     done = true;
     return;
   }
@@ -709,10 +677,8 @@ void mlk_tree_makenewv(tree* t, node *p)
   uphill_step = (max_tyme - min_tyme) * uphill_step_factor;
 
   done = false;
-  for ( iteration = 0; iteration < max_iterations; iteration++)
-  {
-    /* Evaluate three points for interpolation */
-    x[0] = current_tyme - tyme_delta;
+  for ( iteration = 0; iteration < max_iterations; iteration++) {
+    x[0] = current_tyme - tyme_delta;     /* three points for interpolation */
     if ( x[0] < min_tyme )
       x[0] = min_tyme;
     x[2] = current_tyme + tyme_delta;
@@ -720,65 +686,51 @@ void mlk_tree_makenewv(tree* t, node *p)
       x[2] = max_tyme;
     x[1] = (x[0] + x[2]) / 2.0;
 
-    lnl[0] = set_tyme_evaluate(t, s, x[0]);
+    lnl[0] = set_tyme_evaluate(t, s, x[0]);   /* scores of the three points */
     lnl[1] = set_tyme_evaluate(t, s, x[1]);
     lnl[2] = set_tyme_evaluate(t, s, x[2]);
 
-    /* Compute slopes */
-    s21 = (lnl[2] - lnl[1]) / (x[2] - x[1]);
+    s21 = (lnl[2] - lnl[1]) / (x[2] - x[1]);              /* compute slopes */
     s10 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
     slope = s21 + s10 / 2.0;
 
-    /* Compute curvature */
-    curv = (s21 - s10) / ((x[2] - x[0]) / 2);
-
-    if (curv >= 0.0)
-    {
-      /* In negative curvature regions, just move uphill by a
-       * fraction of the current length */
+    curv = (s21 - s10) / ((x[2] - x[0]) / 2);          /* compute curvature */
+    if (curv >= 0.0) { /* In negative curvature regions, just move uphill by a
+                        * fraction of the current length */
       tdelta = copysign(uphill_step, slope);
 #ifdef MAKENEWV_DEBUG
       uphill_steps++;
-      if ( tdelta > 0 ) putchar('/');
+      if (tdelta > 0) putchar('/');
       else putchar('\\');
 #endif /* MAKENEWV_DEBUG */
     }
-    else
-    {
-      /* Otherwise guess where slope is 0 */
+    else {                              /* otherwise guess where slope is 0 */
       tdelta = -(slope / curv);
 #ifdef MAKENEWV_DEBUG
-      if ( tdelta > 0 ) putchar(')');
+      if (tdelta > 0) putchar(')');
       else putchar('(');
 #endif /* MAKENEWV_DEBUG */
     }
 
-    new_tyme = current_tyme + tdelta;
-    if ( new_tyme <= min_tyme )
-    {
+    new_tyme = current_tyme + tdelta;              /* propose to move there */
+    if (new_tyme <= min_tyme) {               /* but don't go past min_tyme */
       new_tyme = min_tyme;
       tdelta = new_tyme - current_tyme;
     }
-    else if ( new_tyme >= max_tyme )
-    {
-      new_tyme = max_tyme;
-      tdelta = new_tyme - current_tyme;
-    }
-
+    else if (new_tyme >= max_tyme) {                /* ... or past max_tyme */
+        new_tyme = max_tyme;
+        tdelta = new_tyme - current_tyme;
+      }
     new_likelihood = set_tyme_evaluate(t, s, new_tyme);
-
-    while ( new_likelihood < current_likelihood )
-    {
-      /* If our estimate is worse, retract until we find a better one */
+    while ( new_likelihood < current_likelihood ) {
+            /* if our estimate is worse, retract until we find a better one */
 #ifdef MAKENEWV_DEBUG
       putchar('<');
 #endif /* MAKENEWV_DEBUG */
       tdelta *= retract_factor;
       uphill_step *= retract_factor;
-
-      if ( fabs(tdelta) < min_tdelta )
-      {
-        /* Keep the current point and quit */
+      if (fabs(tdelta) < min_tdelta) {      /* if can't retract far enough ...
+                                         /* keep the current point and quit */
         new_likelihood = set_tyme_evaluate(t, s, current_tyme);
         done = true;
 #ifdef MAKENEWV_DEBUG
@@ -786,43 +738,33 @@ void mlk_tree_makenewv(tree* t, node *p)
 #endif /* MAKENEWV_DEBUG */
         break;
       }
-
       new_tyme = current_tyme + tdelta;
       new_likelihood = set_tyme_evaluate(t, s, new_tyme);
     }
-
-    if ( new_likelihood - current_likelihood < likelihood_epsilon )
-    {
+    if ( new_likelihood - current_likelihood < likelihood_epsilon ) {
       done = true;
     }
-
     current_likelihood = new_likelihood;
-    if ( done ) break;
+    if (done) break;
   }
-
-  /* invalidate and regenerate views */
-  num_sibs = count_sibs(s);
+  num_sibs = count_sibs(s);              /* invalidate and regenerate views */
   sib_ptr = p;
-  for ( i = 0 ; i < num_sibs; i++ )
-  {
+  for (i = 0 ; i < num_sibs; i++ ) {
     sib_ptr = sib_ptr->next;
     inittrav (t, sib_ptr);
   }
-
-  if ( !done ) smoothed = false;
-
+  if (!done) smoothed = false;
 #ifdef MAKENEWV_DEBUG
   fprintf(stdout, "\nmakenewv(): node %ld: %ld iterations (%f,%f) => (%f,%f)\n", p->index, iteration+1, start_tyme, start_likelihood, current_tyme, current_likelihood);
 #endif
-}  /* mlk_tree_makenewv */
+}  /* blk_tree_makenewv */
 
 
 /******* END PROPAGATED FROM 3.6 ************/
 
 #else /* ifndef USE_NEW_MAKENEWV */
 
-void mlk_tree_makenewv(tree* t, node *p)
-{
+void blk_tree_makenewv(tree* t, node *p) {
   /* improve a node time */
   long it, imin, imax, i;
   double tt, tfactor, tlow, thigh, oldlike, oldx, ymin, ymax, s32, s21, yold;
@@ -831,59 +773,48 @@ void mlk_tree_makenewv(tree* t, node *p)
   double tdelta, curv, slope, lnlike;
   double  x[3], lnl[3];
 
-  /* don't do tips */
-  if ( p->tip )
+  if ( p->tip )                                            /* don't do tips */
     return;
 
   s = t->nodep[p->index - 1];
-  oldx = ((ml_node*)s)->node.tyme;                   /* store old tyme */
-  lnlike = oldlike = t->evaluate(t, p, 0);           /* eval and store old likelihood */
+  oldx = ((bl_node*)s)->node.tyme;                        /* store old tyme */
+  lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
   if (s == t->root)
-    tlow = -10.0;                       /* default minimum tyme at root */
+    tlow = -10.0;                           /* default minimum tyme at root */
   else
-    tlow = ((ml_node*)(s->back))->node.tyme; /* otherwise tyme >= parent tyme */
+    tlow = ((bl_node*)(s->back))->node.tyme;    /* otherwise tyme >= parent */
 
-  /* set maximum tyme to smallest child tyme */
-  sib_ptr = s;
-  thigh = ((ml_node*)s->next->back)->node.tyme;
-  for ( sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next )
-  {
+  sib_ptr = s;                   /* set maximum tyme to smallest child tyme */
+  thigh = ((bl_node*)s->next->back)->node.tyme;
+  for (sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next) {
     sib_back_ptr = sib_ptr->back;
-    if (((ml_node*)sib_back_ptr)->node.tyme < thigh)
-      thigh = ((ml_node*)sib_back_ptr)->node.tyme;
+    if (((bl_node*)sib_back_ptr)->node.tyme < thigh)
+      thigh = ((bl_node*)sib_back_ptr)->node.tyme;
   }
-  /* nothing to be done if thigh and tlow are close to equal */
-  if (thigh - tlow < 4.0*epsilon) return;
-
+  if (thigh - tlow < 4.0*epsilon)   /* if thigh and tlow are close to equal */
+    return;
   if (s != t->root)
     tdelta = (thigh - tlow) / 10.0;
-  else
-  {
-    tdelta = (thigh - ((ml_node*)s)->node.tyme) / 5.0;
+  else {
+    tdelta = (thigh - ((bl_node*)s)->node.tyme) / 5.0;
     if (tdelta  < 2 * epsilon ) tdelta = 2 * epsilon;
   }
-
-  getthree(t, s, thigh, tlow, tdelta, x, lnl); /* get three points for interpolation */
-
+  getthree(t, s, thigh, tlow, tdelta, x, lnl);          /* get three points */
   it = 0;
   tfactor = 1.0;
   done = false;
-  while (it < iterations && !done)
-  {
+  while (it < iterations && !done) {
     ymax = lnl[0];
     imax = 0;
-    for (i = 1; i <= 2; i++)            /* figure out which point has the largest */
-    {
-      if (lnl[i] > ymax)                /* score */
-      {
+    for (i = 1; i <= 2; i++) {  /* figure out which point has largest score */
+      if (lnl[i] > ymax) {
         ymax = lnl[i];
         imax = i;
       }
     }
-    if (imax != 1)                      /* swap points so that x[1] scores highest */
-    {
-      /* TODO Explain why we are doing this */
-      ymax = x[1];                      /* ymax is temporary only */
+    if (imax != 1) {             /* swap points so that x[1] scores highest */
+      /* debug: TODO Explain why we are doing this */
+      ymax = x[1];                                /* ymax is temporary only */
       x[1] = x[imax];
       x[imax] = ymax;
       ymax = lnl[1];
@@ -892,29 +823,24 @@ void mlk_tree_makenewv(tree* t, node *p)
     }
     tt = x[1];
     yold = tt;
-
-    /* avg slope near (x[2]+x[1])/2 */
-    s32 = (lnl[2] - lnl[1]) / (x[2] - x[1]);
+    s32 = (lnl[2] - lnl[1]) / (x[2] - x[1]);               /* average slope */
     /* avg slope near (x[1]+x[0])/2 */
     s21 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
-
-    if (fabs(x[2] - x[0]) > epsilon)
-      /* avg curvature near (x[2]+2x[1]+x[0])/4 */
+    if (fabs(x[2] - x[0]) > epsilon)                   /* average curvature */
       curv = (s32 - s21) / ((x[2] - x[0]) / 2);
     else
       curv = 0.0;
-    /* interpolate slope at x[1] */
     slope = (s32 + s21) / 2 - curv * (x[2] - 2 * x[1] + x[0]) / 4;
-    if (curv >= 0.0)
-    {
+                                               /* interpolate slope at x[1] */
+    if (curv >= 0.0) {
       if (slope < 0)
         tdelta = -fabs(tdelta);
       else
         tdelta = fabs(tdelta);
     }
     else
-      tdelta = -(tfactor * slope / curv);
-    if (tt + tdelta <= tlow + epsilon)
+      tdelta = -(tfactor * slope / curv);     /* approximate Newton-Raphson */
+    if (tt + tdelta <= tlow + epsilon)           /* don't let it go too far */
       tdelta = tlow + epsilon - tt;
     if (tt + tdelta >= thigh - epsilon)
       tdelta = thigh - epsilon - tt;
@@ -925,22 +851,19 @@ void mlk_tree_makenewv(tree* t, node *p)
     lnlike = t->evaluate(t, s, false);
     ymin = lnl[0];
     imin = 0;
-    for (i = 1; i <= 2; i++)            /* figure out which of the three original */
-    {
-      if (lnl[i] < ymin)                /* points has the lowest ln score */
-      {
+    for (i = 1; i <= 2; i++) {    /* figure out which of the three original */
+      if (lnl[i] < ymin) {                /* points has the lowest ln score */
         ymin = lnl[i];
         imin = i;
       }
     }
     already = (tt == x[0]) || (tt == x[1]) || (tt == x[2]);
-    if (!already && ymin < lnlike)      /* if the minimum point is lower than   */
-    {
-      x[imin] = tt;                     /* our new interpolated point than take */
-      lnl[imin] = lnlike;               /* that point and put it where the*/
-    }                                   /* interpolated point is */
+    if (!already && ymin < lnlike) {  /* if the minimum point is lower than */
+      x[imin] = tt;                 /* our new interpolated point then take */
+      lnl[imin] = lnlike;                /* that point and put it where the */
+    }                                              /* interpolated point is */
     if (already || lnlike < oldlike)
-    {
+    {  /* debug: GOT TO HERE */
       tt = oldx;                        /* if either our interpolated point has */
       set_tyme(s, oldx);                /* a lower score or is equivalent to    */
       tfactor /= 2;                     /* our original, reinterpolate this */
@@ -976,7 +899,7 @@ void mlk_tree_makenewv(tree* t, node *p)
   }
   t->score = lnlike;
   smoothed = smoothed && done;
-}  /* mlk_tree_makenewv */
+}  /* blk_tree_makenewv */
 
 #endif /* USE_NEW_MAKENEWV */
 
