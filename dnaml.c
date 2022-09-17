@@ -2124,7 +2124,7 @@ void maketree(void)
                 aliasweight, seed);
     }
   }
-  else                /* make tree by sequential addition and rearrangement */
+  else  /* case in which make tree by sequential addition and rearrangement */
   {
     smoothit = improve;
     for (i = 1; i <= spp; i++)            /* If there's no input user tree, */
@@ -2151,7 +2151,7 @@ void maketree(void)
     if (enterorder[2] == outgrno)
       currentoutgrno = outgrno;
     curtree->root = curtree->nodep[currentoutgrno-1];
-    generic_root_insert(curtree, curtree->root); /* debug:      root */
+    generic_root_insert(curtree, curtree->root); /* debug: bl.c version? */
     smoothit = improve;
     thorough = true;
     nextsp = 4;
