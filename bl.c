@@ -862,37 +862,32 @@ void blk_tree_makenewv(tree* t, node *p) {
       x[imin] = tt;                 /* our new interpolated point then take */
       lnl[imin] = lnlike;                /* that point and put it where the */
     }                                              /* interpolated point is */
-    if (already || lnlike < oldlike)
-    {  /* debug: GOT TO HERE */
-      tt = oldx;                        /* if either our interpolated point has */
-      set_tyme(s, oldx);                /* a lower score or is equivalent to    */
+    if (already || lnlike < oldlike) {
+      tt = oldx;                    /* if either our interpolated point has */
+      set_tyme(s, oldx);            /* a lower score or is equivalent to    */
       tfactor /= 2;                     /* our original, reinterpolate this */
-      tdelta /= 2;                      /* time go only half as far             */
+      tdelta /= 2;                              /* time go only half as far */
       t->score = oldlike;
       lnlike = oldlike;
     }
-    else
-    {
+    else {
       tfactor = 1.0;
       oldlike = lnlike;
       oldx = tt;
     }
-
     if (!done)                          /* apply it to the sibs */
     {
       set_tyme(p, tt);
       t->nuview(t, p);
-      for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
+      for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next)
         t->nuview(t, sib_ptr);
     }
     it++;
   }
-
   if ( smoothit )
     inittrav(t, p);
   p->initialized = false;
-  for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {
+  for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
     sib_ptr->initialized = false;
     if ( smoothit )
       inittrav(t, sib_ptr);
@@ -906,47 +901,41 @@ void blk_tree_makenewv(tree* t, node *p) {
 
 void getthree(tree* t, node *p, double thigh, double tlow, double tdelta, double *x, double *lnl)
 {
-  /* compute score at a new triple of points */
+  /* compute scores at a new triple of points */
   int i;
-  double tt = ((ml_node*)p)->node.tyme;
+  double tt = ((bl_node*)p)->node.tyme;
   double td = fabs(tdelta);
 
-  x[0] = tt - td;
+  x[0] = tt - td;                        /* points are on either side of tt */
   x[1] = tt;
   x[2] = tt + td;
-
-  if ( x[0] < tlow + epsilon )
-  {
+  if (x[0] < tlow + epsilon) {                /* make sure not to go to low */
     x[0] = tlow + epsilon;
     x[1] = ( x[0] + x[2] ) / 2;
-  }
-
-  if ( x[2] > thigh - epsilon )
-  {
+  }``
+  if (x[2] > thigh - epsilon) {                          /* ... or too high */
     x[2] = thigh - epsilon;
     x[1] = ( x[0] + x[2] ) / 2;
   }
-
-  for ( i = 0 ; i < 3 ; i++ )
-  {
+  for ( i = 0 ; i < 3 ; i++ ) {                 /* get scores for all three */
     set_tyme(p, x[i]);
     t->nuview(t, p);
-    lnl[i] = t->evaluate(t, p, 0);
+    lnl[i] = t->evaluate(t, p, 0);  /* debug: make sure score of tree is not reset */
   }
 }  /* getthree */
 
 
-void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
+void bl_treevaluate(tree* curtree, boolean improve, boolean reusertree,
                     boolean global, boolean progress, tree* priortree,
                     tree* bestree, initialvtrav_t initialvtrav)
 {
-  double bestyet;
   /* evaluate a user tree */
+  double bestyet;
 
   smoothit = improve;
-  if (reusertree)
+  if (reusertree)                             /* if rearrange on user trees */
   {
-    arbitrary_resolve(curtree);
+    arbitrary_resolve(curtree);              /* put in zero-length branches */
     curtree->smoothall(curtree, curtree->root);
     if (global)
       curtree->globrearrange(curtree, bestree, progress, smoothit, &bestyet);
@@ -958,9 +947,8 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     curtree->smoothall(curtree, curtree->root);
     polishing = false;
   }
-  else
-  {
-    if (!lngths) {
+  else {
+    if (!lngths) {                  /* put initial lengths on all branches */
       inittrav(curtree, curtree->root);
       inittrav(curtree, curtree->root->back);
     }
@@ -968,15 +956,15 @@ void ml_treevaluate(tree* curtree, boolean improve, boolean reusertree,
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
     if (!lngths)
-      curtree->smoothall(curtree, curtree->root);
+      curtree->smoothall(curtree, curtree->root); /* improve branch lengths */
     smoothit = improve;
     polishing = false;
   }
-  curtree->evaluate(curtree, curtree->root, true);
-}  /* ml_treevaluate */
+  curtree->evaluate(curtree, curtree->root, true);             /* get score */
+}  /* bl_treevaluate */
 
 
-void ml_initialvtrav(tree* t, node *p)
+void bl_initialvtrav(tree* t, node *p)
 {
   /* traverse tree to set branch lengths  v  to initial values
    * must be called twice the first time, at both ends of
@@ -984,25 +972,23 @@ void ml_initialvtrav(tree* t, node *p)
    * task of setting initialized booleans for views to false   */
   node* q;
 
-  if ((!lngths) || p->iter)
-  {
+  if (p == NULL)                       /* if this is a NULL branch bail out */
+    return;
+  if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
     p->v = initialv;
     p->back->v = initialv;
   }
-
-  if (!p->tip)
-  {
+  if (!p->tip) {     /* go around circle, calling initialvtrav on all backs */
     q = p->next;
-    while ( q != p )
-    {
+    while ( q != p ) {
       ml_initialvtrav(t, q->back);
       q = q->next;
     }
   }
-}  /* ml_initialvtrav */
+}  /* bl_initialvtrav */
 
 
-void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int* col)
+void bl_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int* col)
 { 
   /* write out to output file a subtree, recursively.  This is the version 
    * with branch lengths and a scale factor,  bl_scale  */
@@ -1046,7 +1032,7 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
         }
       }
       if (q->back != NULL) {                /* just making sure is not null */
-        ml_treeoutrecurs(outtreefile, t, q->back, bl_scale, col); /* go out */
+        bl_treeoutrecurs(outtreefile, t, q->back, bl_scale, col); /* go out */
         inloop = true;                  /* will need comma before next furc */
       }
       q = q->next;                                  /* continue around fork */
@@ -1055,7 +1041,7 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
     (*col)++;
   }
   x = p->v * bl_scale;                   /* now write out the branch length */
-  if (x > 0.0)
+  if (x > 0.0)           /* widths in decimal places hence divide by ln(10) */
     w = (long)(0.43429448222 * log(x));
   else {
     if (x == 0.0)
@@ -1071,10 +1057,10 @@ void ml_treeoutrecurs(FILE* outtreefile, tree* t, node* p, double bl_scale, int*
     fprintf(outtree, ":%*.5f", (int)(w + 7), x);
     col += w + 8;
   }
-} /* ml_treeoutrecurse */
+} /* bl_treeoutrecurse */
 
 
-void ml_treeout(FILE* outtreefile, tree* t, node* p, double bl_scale)
+void bl_treeout(FILE* outtreefile, tree* t, node* p, double bl_scale)
 {
   /* write out file with representation of final tree2 */
   int col;
@@ -1087,8 +1073,8 @@ void ml_treeout(FILE* outtreefile, tree* t, node* p, double bl_scale)
   if (found)
     p = q;
   col = 0;
-  ml_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
-}  /* ml_treeout */
+  bl_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
+}  /* bl_treeout */
 
 /* End. */
 
