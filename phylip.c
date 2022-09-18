@@ -437,29 +437,74 @@ long count_sibs (node *p)
 }  /* count_sibs */
 
 
-node* findroot (tree* t, node* p, boolean* found) {
-  /* find the node in the rootmost fork circle that has a null back pointer.
+boolean isemptyroot (node* p) {
+  /* check whether the back pointer of the node is null */
+
+ if (p == NULL)
+   return false;
+ else
+   return (p->back == NULL);
+} /* isemptyroot */
+
+
+node* findroot (node* p, boolean* found) {
+  /* find the node in the current fork circle that has a null back pointer.
    * This assumes that the current fork circle is the one that will have
-   * such a node */
+   * such a node.  It is used since in many cases the root is likely to
+   * be in this circle, often at first or last node in the circle */
   node *q, *r;
 
   r = p;                /* return same node if never find the rootmost node */
-  *found = false;
-  for (q = p->next; q != p; q = q->next) {              /* go around circle */
-    if (q->back == NULL) {            /* ... until find one with back empty */
-      r = q;
-      *found = true;      /* return pointer to that node and set found true */
+  if(isemptyroot(p)) {        /* check this one before go around the circle */
+    *found = true;
+    r = p;
+  } else {
+    *found = false;
+    for (q = p->next; (!found) && (q != p); q = q->next) {     /* go around */
+      if (isemptyroot(q)) {           /* ... until find one with back empty */
+        r = q;          /* return pointer to that node, *found will be true */
+        *found = true;
+      }
     }
   }
   return r;
 } /* findroot */
 
 
+node* findrootmostandroot (tree* t, node* p, boolean* found) {
+  /* find the rootmost circle, traversing out from it if needed, and 
+   * then return a pointer to its rootmost node, with  *found
+   * set to true if that node has a null back pointer, and in
+   * either case, set the tree's root pointer to it */
+  node *q, *r;
+
+  if (!p->tip) {
+    r = findroot (p, found);     /* in likely case it's on the current circle */
+    if (*found == false) {           /* otherwise need to traverse to find it */
+      for (q = p->next; (!(*found)) && (q != p); q = q->next) {     /* go around */
+        if (isemptyroot(q)) {                          /* if you found it ... */
+          r = q;
+          *found = true;
+        } else {                              /* otherwise go out that branch */
+	  r = findrootmostandroot (t, q->back, found);
+        }
+      }
+    }
+    t->root = r;
+  }
+  else {
+    r = p->back;
+    *found = false;
+  }
+  return r;
+} /* findrootmostandroot */
+
+
 void verify_nuview (node *p)
 { /* DEBUG function. Traverses entire tree and prints error message
    * if any view towards p has not been initialized. */
   (void)p;                              /* Unused */
-  /* TODO: implement */
+  /* debug: TO DO: implement it */
 } /* verify_nuview */
 
 
@@ -3528,7 +3573,7 @@ void unroot(tree* t, long nonodes)
   node* p;
   boolean found;
 
-  p = findroot(t, t->root, &found);     /* find node with NULL back pointer */
+  p = findrootmostandroot(t, t->root, &found);  /* find node with NULL back */
   if (found == true) {
     if (p->next->back->tip)            /* interior node descended from ...  */
       t->root = p->next->next->back;         /* that rootmost interior node */
@@ -3850,7 +3895,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
           success = true;
         }
       } else {
-        if ( succeeded && where != qwhere) {
+        if ( succeeded && (where != qwhere)) {
           curtree->insert_(curtree, sib_ptr, qwhere, true);
           curtree->smoothall(curtree, where);
           success = true;
@@ -4023,16 +4068,29 @@ debug:   */
 
 boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
-   * the outgroup and the fork to which it is attached */
+   * the outgroup and a binary fork to which it is attached */
+  long neighbors;
   boolean ok;
+  node *q, *qq;
 
-  ok = !(p == NULL);
+  ok = !(p == NULL);                                 /* p  is not empty ... */
   if (ok)
-    ok = !(p->back == NULL);
+    ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
-    /* debug: need to check if branch leads to outgroup, somehow
-    ok = !((p->index == t->outgrno) || (p->back->index == t->outgrno));
-    if root branch does not */
+    ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
+    if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
+      q = p;
+      if (p->back->index == t->outgrno)
+        q = p->back;                            /* the fork connected to it */
+      /* now check that this fork has no more than two non-null branches --
+         if so, it is not ok */
+      neighbors = 1;           /* count nonempty neighbors of rootmost fork */
+      for (qq = q->next; qq == q; q = q->next)
+        if (q->back != NULL)
+          neighbors++;
+      if (neighbors > 2)                   /* has enough neighbors to be ok */
+        ok = true;
+    }
   }
   return ok;
 } /* oktoinsertthere */
@@ -4072,15 +4130,15 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
    * p  should be a fork subtree connected to it so root of subtree 
    *  is at  p->back  */
   node *sib_ptr;
-  boolean succeeded;     /* a dummy result for calls that have side effects */
+  boolean succeeded, wasok;
 
   succeeded = false; /* debug: OK to set true?? */ /* in case can't try more inserts than this */
   atstart = true;
-  if (oktoinsertthere(t, q)) {
-printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
+  wasok = oktoinsertthere(t, q);
+  if (wasok) {
+/* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("yes, better!\n");
     atstart = false;
   }
   if (!succeeded) {
@@ -4094,7 +4152,7 @@ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p-
 /* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
-                            thorough, storing, atstart, bestfound) || succeeded;
+                            thorough, storing, &atstart, bestfound) || succeeded;
         }
       }
     }
@@ -4112,7 +4170,7 @@ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p-
 /* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
-                                 storing, atstart, bestfound) || succeeded;
+                                 storing, &atstart, bestfound) || succeeded;
           }
         }
       }
@@ -4125,7 +4183,7 @@ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p-
 boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
                               traversetype contin, node *qwherein,
                               double* bestyet, tree* bestree, boolean thorough,
-                              boolean storing, boolean atstart,
+                              boolean storing, boolean* atstart,
                               double* bestfound)
 {
   /* try adding  p  at  q, then maybe recursively through tree
@@ -4140,12 +4198,15 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   /* NOTE: will back out if comes to fork connected to outgroup */
   node *sib_ptr;
   boolean succeeded = false;
+  /* debug: for testing */ double temp;
 
   if (oktoinsertthere(t, q)) {
-printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); /* debug */
+/* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
+/* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
-                                thorough, storing, atstart, bestfound);
-/* debug */ if (succeeded) printf("  yes, better!\n");
+                                thorough, storing, *atstart, bestfound);
+    *atstart = false;
+/* debug */ if (succeeded) printf("yes, better! was: %14.7f,  is now: %14.7f\n", temp, bestree->score);
   }
   if ( !(q == NULL)) {
     if (!q->tip ) {                      /* go to branches beyond this node */
@@ -4658,7 +4719,7 @@ void generic_tree_release_fork(tree* t, node* n)
 
 void generic_tree_nuview(struct tree* t, struct node* p)
 {
-  /*  calls the current nongeneric t->nuview on this branch, after first
+  /*  calls the current nongeneric  t->nuview  on this branch, after first
    *  recursing through all children in this direction as needed,
    *  when boolean initialized shows that they have not been updated yet */
   struct node *sib_ptr;
@@ -4666,16 +4727,16 @@ void generic_tree_nuview(struct tree* t, struct node* p)
   if (!p->tip) {                       /* is this end of the branch a fork? */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
-        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized))
-        {   /* recurse out as needed, to initialize with appropriate nuview */
+        if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
+            /* recurse out as needed, to initialize with appropriate nuview */
           generic_tree_nuview (t, sib_ptr->back);
         }
       }
     };
   }
-  t->nuview((struct tree*)t, p);   /* this actually calculates the view using the
-                             * algorithm set up for that kind of data */
-/* debug printf("M"); */
+  t->nuview((struct tree*)t, p);   /* this actually calculates the view using 
+                               * the algorithm set up for that kind of data */
+/* debug: indicate did one nuview step   printf("M"); */
   p->initialized = true;
 } /* generic_tree_nuview */
 
@@ -4798,7 +4859,7 @@ void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
   node *r;
 /* debug:   boolean thorough = true;  needed at all? Maybe */
 
-  if ( !multf ) {
+  if ( !multf ) {                                     /* if bifurcating ... */
 
 /* debug    assert(q->next->next->next == q);          debug:   probably unnecessary */
 
@@ -4811,7 +4872,7 @@ void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
     else {                                         /* if q is the root fork */
       hookup(p->next, q);
       p->next->next->back = NULL;
-/* debug:  do we need to reset  t->root here? */
+      t->root = p->next->next;
       };
 
 /* debug: needed?    assert( ! p->initialized );
@@ -4835,33 +4896,39 @@ long generic_tree_findemptyfork(struct tree* t)
 } /* generic_tree_findemptyfork */
 
 
+void generic_insertroot(struct tree* t, struct node* p, struct node* f)
+{
+  /* take a tree that has no rootmost fork and put fork  f  in between node
+   * p  and the node it connects to, with a null root behind  f
+   * notice: one must have no pre-existing rootmost fork in tree */
+
+  t->insert_(t, f, p, false);                            /* insert the fork */
+  t->root = f;                                /* set the root pointer to it */
+} /* insertroot */
+
+
 void generic_root_insert(struct tree* t, struct node* p)
 {
   /* get a root fork and put it into the branch indicated by  p,
-   * and designate the unconnected node in the fork as the root */
+   * and designate the unconnected node in the fork as the root
+   * if there is already a rootmost fork, pull it off and heal
+   * the tree first */
 /* debug: maybe in future call a generic root-insert function
  * to implement this, so it can share that with remove-and-insert 
  * (see also generic_root_insert) */
   struct node* q;
   long k;
     
-  k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
-  q = t->get_fork(t, k);                    /* get a fork for root and node */
-  t->nodep[k] = q;                                   /* put it in that slot */
-  generic_insertroot(t, p, q);                 /* insert the circle near  p */
-  q->back = NULL;             /* make sure the rootmost node has empty back */
+  if (t->root != NULL) {   /* debug: note t->root must have back NULL */
+    q = removeroot(t->root);
+  } else {
+   .k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
+    q = t->get_fork(t, k);                    /* get a fork for root and node */
+    t->nodep[k] = q;                                   /* put it in that slot */
+  }
+    generic_insertroot(t, p, q);                 /* insert the circle near  p */
+    q->back = NULL;             /* make sure the rootmost node has empty back */
 } /* generic_root_insert */
-
-
-void generic_insertroot(struct tree* t, struct node* p, struct node* f)
-{
-  /* take a tree that has no rootmost fork and put fork  f  in between node
-   * p  and the node it connects to, with a null root behind  f */
-  /* debug: notice: one must have no pre-existing rootmost fork in tree */
-
-  t->insert_(t, f, p, false);                            /* insert the fork */
-  t->root = f;                                /* set the root pointer to it */
-} /* insertroot */
 
 
 /* debug:  what are these both doing here? */
@@ -5017,14 +5084,14 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
   node* p;
   boolean found;
 
-  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+  p = findroot(curtree->root, &found);                 /* ensure is at root */
    
   if (found) {       /* if did find root is connected to a null pointer ... */
     if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
        generic_tree_re_move(curtree, p, &(p->next->back->back), true);
        generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
      }                                      /* and put next to outgroup tip */
-      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
+     curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
   }
 } /* putrootnearoutgroup */
 
@@ -5231,6 +5298,8 @@ void preparetree(tree* t)
 
 void fixtree(tree* t)
 { /* after a treeread */
+/* debug:  exactly what does this actually do? seems to make forks for
+ * any empty fork slots, then release them to forknode list */
   long i;
 
   for ( i = spp ; i < t->nonodes ; i++ ) {

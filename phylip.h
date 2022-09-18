@@ -537,7 +537,7 @@ typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
 typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
                            double*, tree*, boolean, boolean, boolean, double*);
 typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, traversetype,
-                   node**, double*, tree*, boolean, boolean, boolean, double*);
+                   node**, double*, tree*, boolean, boolean, boolean*, double*);
 typedef void (*tree_insert_t)(tree*,node*, node*, boolean);
 typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
     tree*, boolean, boolean, boolean, double*);
@@ -605,7 +605,8 @@ struct tree {                                         /* the tree structure */
   treetype type;                                                /* its type */
   pointarray nodep;    /* the array of pointers to tips and to fork circles */
   double score;                             /* the quantity being maximized */
-  node *root;                       /* the rootmost node in rootmost circle */
+  node *root;     /* the rootmost node in rootmost circle, null if unrooted */
+  long outgrno;                                /* the index of the outgroup */
   long nonodes;     /* the number of nodes needed for tips and fork circles */
   long spp;                                  /* the number of tip "species" */
 
@@ -690,7 +691,9 @@ void            generic_node_free(node**);
 void            generic_node_reinit(node*);
 void            setupnode(node*, long);
 long            count_sibs(node*);
-node*           findroot(tree*, node*, boolean*);
+boolean         isemptyroot(node*);
+node*           findroot(node*, boolean*);
+node*           findrootmostandroot(tree*, node*, boolean*);
 void            generic_root_insert(tree*, node*);
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
@@ -818,7 +821,7 @@ boolean         generic_tree_addtraverse(tree*, node*, node*, traversetype,
                    node*, double*, tree*, boolean, boolean, boolean, double*);
 boolean         generic_tree_addtraverse_1way(tree*, node*, node*,
                   traversetype, node*, double*, tree*, boolean, boolean,
-                  boolean, double*);
+                  boolean*, double*);
 #ifdef WIN32              /* if using screen attributes of a Windows system */
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
