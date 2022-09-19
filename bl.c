@@ -10,9 +10,9 @@
 #endif
 
 #include <assert.h>
+#include "phylip.h"
 #include "bl.h"
 #include "ml.h"
-#include "phylip.h"
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -105,7 +105,7 @@ void bl_hookup(node* p, node* q){
   hookup(p, q);
   p->v = initialv;
   q->v = initialv;
-} /* ml_hookup */
+} /* bl_hookup */
 
 
 void bl_node_reinit(node * n)
@@ -117,7 +117,7 @@ void bl_node_reinit(node * n)
   // debug:  BUG.970 -- does freex need refreshing ?
   //  debug: BUG.970 -- leave for dna_node and prot_node ?
   generic_node_reinit(n);
-} /* ml_node_reinit */
+} /* bl_node_reinit */
 
 
 void bl_node_print(node * n)
@@ -127,7 +127,7 @@ void bl_node_print(node * n)
   bl_node * bn = (bl_node*)n;
 
   printf(" bl(endsite:%ld tyme:%lf)", bn->endsite, bn->node.tyme);
-} /* ml_node_print */
+} /* bl_node_print */
 
 
 void bl_update(struct tree *t, node *p)
@@ -185,7 +185,7 @@ debug */
   {      /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, sib_ptr->back);      /* go out branch leading from there */
+      %smooth(t, sib_ptr->back);      /* go out branch leading from there */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
@@ -193,7 +193,7 @@ debug */
 }  /* smooth */
 
 
-void ml_tree_smoothall(tree* t, node* p)
+void bl_tree_smoothall(tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -220,7 +220,7 @@ void ml_tree_smoothall(tree* t, node* p)
       smooth(t, q->back);
   }
   smoothit = save;
-} /* ml_tree_smoothall */
+} /* bl_tree_smoothall */
 
 
 void bl_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
@@ -263,7 +263,6 @@ void bl_tree_do_branchl_on_insert(tree* t, node* forknode, node* q)
   if (forknode-> next->next->back != NULL)
     inittrav(t, forknode->next->next->back);
 } /* bl_tree_do_branchl_on_insert */
-
 
 
 void bl_tree_insert_(tree *t, node *p, node *q, boolean multif)
@@ -406,8 +405,8 @@ boolean bl_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
                           boolean storing, boolean atstart, double* bestfound)
 {
  /* Passes to bl_tree_try_insert_thorough or bl_tree_try_insert_notthorough
- *  depending on the value of thorough. If multf is given, sets to
- *  false.  */
+  * depending on the value of thorough. If multf is given, sets to
+  * false.  */
   boolean succeeded = false;
 
   if ( thorough )
@@ -417,7 +416,7 @@ boolean bl_tree_try_insert_(tree* t, node* p, node* q, node* qwherein,
     generic_tree_insert_(t, p, q, false);
 
   return succeeded;
-} /* ml_tree_try_insert_ */
+} /* bl_tree_try_insert_ */
 
 
 void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean dummy2)
@@ -447,14 +446,16 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
      * lengths to be 1/2 epsilon, so that we interfere with the     *
      * tree minimally                                               */
     if (((bl_node*)p)->node.tyme > ((bl_node*)newfork->back)->node.tyme)
-      set_tyme(newfork, (((bl_node*)p)->node.tyme + ((bl_node*)newfork->back)->node.tyme) / 2.0);
+      set_tyme(newfork, (((bl_node*)p)->node.tyme +
+               ((bl_node*)newfork->back)->node.tyme) / 2.0);
     else
       set_tyme(newfork, ((bl_node*)p)->node.tyme - (epsilon/2));
     do {
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
       if (!done) {
-        done = (((bl_node*)t->nodep[p->back->index - 1])->node.tyme < ((bl_node*)p)->node.tyme);
+        done = (((bl_node*)t->nodep[p->back->index - 1])->node.tyme < 
+                 ((bl_node*)p)->node.tyme);
         set_tyme(p->back, ((ml_node*)p)->node.tyme - epsilon/2);
       }
     } while (!done);
@@ -478,9 +479,9 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
 
 
 double get_tyme(node *p)
-{ /* Return the tyme of a bl_node. p must point to struct bl_node. */
+{ /* return the tyme of a bl_node. p must point to struct bl_node. */
   return ((bl_node *)p)->node.tyme;
-}
+} /* get_tyme */
 
 
 void set_tyme (node* p, double tyme)
@@ -590,7 +591,7 @@ double set_tyme_evaluate(tree *t, node *p, double tyme)
 } /* set_tyme_evaluate */
 
 
-void mlk_tree_makenewv(tree* t, node *p)
+void blk_tree_makenewv(tree* t, node *p)
 {
   /* Improve a node tyme using Newton-Raphson
    *
@@ -899,7 +900,8 @@ void blk_tree_makenewv(tree* t, node *p) {
 #endif /* USE_NEW_MAKENEWV */
 
 
-void getthree(tree* t, node *p, double thigh, double tlow, double tdelta, double *x, double *lnl)
+void getthree(tree* t, node *p, double thigh, double tlow, double tdelta, 
+               double *x, double *lnl)
 {
   /* compute scores at a new triple of points */
   int i;

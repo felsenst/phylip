@@ -59,16 +59,6 @@ void ml_tree_init(struct tree* t, long nonodes, long spp)
 } /* ml_tree_init */
 
 
-struct node* ml_node_new(node_type type, long index, long nodesize) {
-  /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
-
-  nn = generic_node_new(type, index, nodesize);
-  ml_node_init(nn, type, index);
-  return nn;
-} /* ml_node_new */
-
-
 void ml_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
@@ -91,13 +81,23 @@ void ml_node_init(struct node *n, node_type type, long index)
 } /* ml_node_init */
 
 
+struct node* ml_node_new(node_type type, long index, long nodesize) {
+  /* go up hierarchy creating a node, initializing it */
+  struct node* nn;
+
+  nn = bl_node_new(type, index, nodesize);
+  ml_node_init(nn, type, index);
+  return nn;
+} /* ml_node_new */
+
+
 void ml_node_copy(node* srcn, node* destn) // RSGbugfix
 { /* copy an ml_node */
   ml_node *src = (ml_node *)srcn;
   ml_node *dest = (ml_node *)destn;
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(srcn, destn);
+  bl_node_copy(srcn, destn);
   dest->categs = src->categs;
   dest->endsite = src->endsite;
   set_tyme((node*)dest, src->node.tyme);
@@ -133,7 +133,7 @@ void ml_node_reinit(node * n)
 void ml_node_print(node * n)
 {
   /* for debugging */
-  generic_node_print(n);
+  bl_node_print(n);
   ml_node * mn = (ml_node*)n;
   printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
 } /* ml_node_print */
