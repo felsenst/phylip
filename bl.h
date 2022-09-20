@@ -24,11 +24,11 @@ typedef void (*freex_t)(node*);
 
 typedef struct bl_tree {
   struct tree treepart;
-} ml_tree;
+} bl_tree;
 
 typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
-} ml_node;
+} bl_node;
 
 typedef void (*makenewv_t)(tree*, node*);
 typedef void (*nuview_t)(tree*, node*);
@@ -50,7 +50,7 @@ void    bl_node_reinit(node *);
 void    bl_node_print(node *);
 void    bl_update(tree *, node *);
 void    smooth_traverse(tree *, node *);
-void    smooth(tree *, node %*);
+void    smooth(tree *, node *);
 void 	bl_tree_smoothall(tree *, node *);
 void    bl_tree_do_branchl_on_insert(tree *, node *, node *);
 void    bl_tree_insert_(tree *, node *, node *, boolean);

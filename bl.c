@@ -126,7 +126,7 @@ void bl_node_print(node * n)
   generic_node_print(n);
   bl_node * bn = (bl_node*)n;
 
-  printf(" bl(endsite:%ld tyme:%lf)", bn->endsite, bn->node.tyme);
+  printf(" bl(tyme:%lf)", bn->node.tyme);
 } /* bl_node_print */
 
 
@@ -185,7 +185,7 @@ debug */
   {      /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      %smooth(t, sib_ptr->back);      /* go out branch leading from there */
+      smooth(t, sib_ptr->back);      /* go out branch leading from there */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
@@ -456,7 +456,7 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
       if (!done) {
         done = (((bl_node*)t->nodep[p->back->index - 1])->node.tyme < 
                  ((bl_node*)p)->node.tyme);
-        set_tyme(p->back, ((ml_node*)p)->node.tyme - epsilon/2);
+        set_tyme(p->back, ((bl_node*)p)->node.tyme - epsilon/2);
       }
     } while (!done);
   }
@@ -485,7 +485,7 @@ double get_tyme(node *p)
 
 
 void set_tyme (node* p, double tyme)
-{ /* Set the tyme of a node and its sibs. p must point to struct ml_node. */
+{ /* Set the tyme of a node and its sibs. p must point to struct bl_node. */
   node *sib_ptr;
 
   sib_ptr = p;
@@ -914,7 +914,7 @@ void getthree(tree* t, node *p, double thigh, double tlow, double tdelta,
   if (x[0] < tlow + epsilon) {                /* make sure not to go to low */
     x[0] = tlow + epsilon;
     x[1] = ( x[0] + x[2] ) / 2;
-  }``
+  }
   if (x[2] > thigh - epsilon) {                          /* ... or too high */
     x[2] = thigh - epsilon;
     x[1] = ( x[0] + x[2] ) / 2;
@@ -983,7 +983,7 @@ void bl_initialvtrav(tree* t, node *p)
   if (!p->tip) {     /* go around circle, calling initialvtrav on all backs */
     q = p->next;
     while ( q != p ) {
-      ml_initialvtrav(t, q->back);
+      bl_initialvtrav(t, q->back);
       q = q->next;
     }
   }

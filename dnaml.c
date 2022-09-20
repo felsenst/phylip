@@ -9,6 +9,7 @@
 
 #include "phylip.h"
 #include "seq.h"
+#include "bl.h"
 #include "ml.h"
 #include "mldna.h"
 
@@ -142,11 +143,11 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   /* set up functions for a dnaml_tree */
 
   t->evaluate = dnaml_tree_evaluate;
-  t->try_insert_ = ml_tree_try_insert_;
+  t->try_insert_ = bl_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
   t->makenewv = dnaml_tree_makenewv;
   t->get_fork = generic_tree_get_fork;
-  t->smoothall = ml_tree_smoothall;
+  t->smoothall = bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
@@ -2013,7 +2014,7 @@ void dnaml_treeout(FILE  *outtree, tree* t, node* p) {
   double bl_scale;
 
   bl_scale = fracchange;
-  ml_treeout(outtree, t, p, bl_scale);
+  bl_treeout(outtree, t, p, bl_scale);
 } /* dnaml_treeout */
 
 
@@ -2088,8 +2089,8 @@ void maketree(void)
         curtree->root = curtree->nodep[outgrno - 1]->back;
 
       improve = !lngths;    /* re-estimate lengths of branches in user tree */
-      ml_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, ml_initialvtrav);
+      bl_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, bl_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2161,7 +2162,7 @@ void maketree(void)
       k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
       q = curtree->get_fork(curtree, k);
       curtree->nodep[k] = q;
-      ml_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
+      bl_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (outgrno == enterorder[nextsp-1]+1)
@@ -2231,8 +2232,8 @@ void maketree(void)
           }
         }
       }
-      ml_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, ml_initialvtrav );
+      bl_treevaluate(curtree, improve, reusertree, global, progress,
+                      priortree, bestree, bl_initialvtrav );
       dnaml_printree();
       summarize();
       if (trout) {
