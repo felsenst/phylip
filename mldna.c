@@ -34,8 +34,8 @@ void mldna_node_init(node *node, node_type type, long index)
 
   ml_node_init(node, type, index);
   n->ml_node.allocx = (allocx_t)mldna_node_allocx;
-  n->ml_node.node.copy = mldna_node_copy;
-  n->ml_node.node.node_init = mldna_node_init;
+  n->ml_node.bl_node.copy = mldna_node_copy;
+  n->ml_node.bl_node.node_init = mldna_node_init;
   n->ml_node.freex = (freex_t)mldna_node_freex;
   n->x = NULL;
 

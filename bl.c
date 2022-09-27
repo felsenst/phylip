@@ -28,9 +28,9 @@ boolean inserting;
 
 
 void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
-{ /* make a new ml_tree.  Calls to generic_tree_new,
-   * casting ml_tree** to tree** as we call it 
-   * then call  ml_tree_init */
+{ /* make a new bl_tree.  Calls to generic_tree_new,
+   * casting bl_tree** to tree** as we call it 
+   * then call  bl_tree_init */
 
   generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
 } /* bl_tree_new */
@@ -78,14 +78,7 @@ void bl_node_copy(node* srcn, node* destn)
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(srcn, destn);
-  dest->categs = src->categs;
-  dest->endsite = src->endsite;
   set_tyme((node*)dest, src->node.tyme);
-
-  if(dest->underflows)                  // RSGbugfix
-    memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
-  else
-    assert(src->underflows == NULL);    // RSGdebug
 } /* bl_node_copy */
 
 
@@ -93,7 +86,6 @@ void bl_node_free(node **np)
 {
   /* free a node for bl trees */
   bl_node *n = (bl_node*)*np;
-  n->freex((node*)n);
   generic_node_free(np);
 } /* bl_node_free */
 

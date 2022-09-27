@@ -47,12 +47,12 @@ void ml_tree_init(struct tree* t, long nonodes, long spp)
    * attributes of the generic tree that need ml function versions */
 
   bl_tree_init(t, nonodes, spp);                   /* go up class hierarchy */
-  t->smoothall = ml_tree_smoothall;
-  t->insert_ = (tree_insert_t)ml_tree_insert_;
-  t->re_move = ml_tree_re_move;
-  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
-  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  t->smoothall = bl_tree_smoothall;
+  t->insert_ = (tree_insert_t)bl_tree_insert_;
+  t->re_move = bl_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->do_branchl_on_insert_f = bl_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = bl_tree_do_branchl_on_re_move;
 /* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */
@@ -77,7 +77,7 @@ void ml_node_init(struct node *n, node_type type, long index)
   n->node_print_f = ml_node_print;
   nn = (ml_node*)n;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
-  nn->node.tyme = 0;
+  nn->bl_node.tyme = 0;
 } /* ml_node_init */
 
 
@@ -100,7 +100,7 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
   bl_node_copy(srcn, destn);
   dest->categs = src->categs;
   dest->endsite = src->endsite;
-  set_tyme((node*)dest, src->node.tyme);
+  set_tyme((node*)dest, src->bl_node.tyme);
 
   if(dest->underflows)                  // RSGbugfix
     memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
@@ -123,7 +123,7 @@ void ml_node_reinit(node * n)
   /* reset things for an ml tree node */
   ml_node * mln = (ml_node*)n;
 
-  mln->node.tyme = 0;
+  mln->bl_node.tyme = 0;
   // BUG.970 -- does freex need refreshing ?
   // BUG.970 -- leave for dna_node and prot_node ?
   bl_node_reinit(n);                                 /* go up the hierarchy */
@@ -135,7 +135,7 @@ void ml_node_print(node * n)
   /* for debugging */
   bl_node_print(n);
   ml_node * mn = (ml_node*)n;
-  printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->node.tyme);
+  printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->bl_node.tyme);
 } /* ml_node_print */
 
 /* End. */

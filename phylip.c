@@ -4922,7 +4922,7 @@ void generic_root_insert(struct tree* t, struct node* p)
   if (t->root != NULL) {   /* debug: note t->root must have back NULL */
     q = removeroot(t->root);
   } else {
-   .k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
+    k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
     q = t->get_fork(t, k);                    /* get a fork for root and node */
     t->nodep[k] = q;                                   /* put it in that slot */
   }
