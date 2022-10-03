@@ -4931,6 +4931,81 @@ void generic_root_insert(struct tree* t, struct node* p)
 } /* generic_root_insert */
 
 
+void generic_tree_re_move(struct tree* t, struct node* fork,
+                           struct node** where, boolean do_newbl)
+{ /* disconnects an interior node circle with the subtree connected to it
+   * at node "fork", setting *where to the node at one end
+   * of branch that was disrupted.  Reheal that branch  */
+
+  struct node *q, *p, *oldroot;
+  long num_sibs;
+
+  oldroot = t->root;
+  if ( fork->back != NULL) {
+    if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
+      fork->back = NULL;                   /* debug: why?  */
+      return;
+    }
+  }
+
+  num_sibs = count_sibs(fork);
+
+  if ( num_sibs > 2 ) {       /* multifurcation case: may not be used a lot */
+    for ( q = fork ; q->next != fork ; q = q->next)
+      /* inside loop, do nothing */;
+    q->next = fork->next;  /* debug: check if OK */       /* heal up circle */
+    fork->next = NULL;
+    if ( t->root == fork )
+      t->root = q;
+    if ( do_newbl ) {
+      inittrav(t, q);
+      for ( p = q->next ; p != q ; p = p->next )
+        inittrav(t, p);
+    }
+    (*where) = q;
+  } else {                               /* the main case, of a bifurcation */
+    if (fork->next->back != NULL)  /* set where to the place it was next to */
+      (*where) = fork->next->back;
+    else
+      (*where) = fork->next->next->back;
+    if (fork->next->back != NULL)            /* connect remaining neighbors */
+      fork->next->back->back = fork->next->next->back;
+    if (fork->next->next->back != NULL)
+      fork->next->next->back->back = fork->next->back;
+    if (fork->next->index == t->root->index)
+      t->root = *where;                                         /* set root */
+    fork->next->back = NULL;    /* set fork to have only the one connection */
+    fork->next->next->back = NULL;
+
+    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
+
+    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
+      inittrav(t, *where);                       /* ... towards this branch */
+      inittrav(t, (*where)->back);
+    }   
+    t->root = oldroot;
+  }
+} /* generic_tree_re_move */
+
+
+void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
+{ /* if root bifurcating node is somewhere else, move it to the branch
+   * that connects to the outgroup */
+  node* p;
+  boolean found;
+
+  p = findroot(curtree->root, &found);                 /* ensure is at root */
+   
+  if (found) {       /* if did find root is connected to a null pointer ... */
+    if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
+       generic_tree_re_move(curtree, p, &(p->next->back->back), true);
+       generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
+     }                                      /* and put next to outgroup tip */
+     curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
+  }
+} /* putrootnearoutgroup */
+
+
 /* debug:  what are these both doing here? */
 #if 0
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
@@ -5006,63 +5081,6 @@ void rooted_tree_insert_(struct tree* t, struct node* newtip,
 } /* rooted_tree_insert_ */
 
 
-void generic_tree_re_move(struct tree* t, struct node* fork,
-                           struct node** where, boolean do_newbl)
-{ /* disconnects an interior node circle with the subtree connected to it
-   * at node "fork", setting *where to the node at one end
-   * of branch that was disrupted.  Reheal that branch  */
-
-  struct node *q, *p, *oldroot;
-  long num_sibs;
-
-  oldroot = t->root;
-  if ( fork->back != NULL) {
-    if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
-      fork->back = NULL;                   /* debug: why?  */
-      return;
-    }
-  }
-
-  num_sibs = count_sibs(fork);
-
-  if ( num_sibs > 2 ) {       /* multifurcation case: may not be used a lot */
-    for ( q = fork ; q->next != fork ; q = q->next)
-      /* inside loop, do nothing */;
-    q->next = fork->next;  /* debug: check if OK */       /* heal up circle */
-    fork->next = NULL;
-    if ( t->root == fork )
-      t->root = q;
-    if ( do_newbl ) {
-      inittrav(t, q);
-      for ( p = q->next ; p != q ; p = p->next )
-        inittrav(t, p);
-    }
-    (*where) = q;
-  } else {                               /* the main case, of a bifurcation */
-    if (fork->next->back != NULL)  /* set where to the place it was next to */
-      (*where) = fork->next->back;
-    else
-      (*where) = fork->next->next->back;
-    if (fork->next->back != NULL)            /* connect remaining neighbors */
-      fork->next->back->back = fork->next->next->back;
-    if (fork->next->next->back != NULL)
-      fork->next->next->back->back = fork->next->back;
-    if (fork->next->index == t->root->index)
-      t->root = *where;                                         /* set root */
-    fork->next->back = NULL;    /* set fork to have only the one connection */
-    fork->next->next->back = NULL;
-
-    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
-
-    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
-      inittrav(t, *where);                       /* ... towards this branch */
-      inittrav(t, (*where)->back);
-    }   
-    t->root = oldroot;
-  }
-} /* generic_tree_re_move */
-
-
 void generic_do_branchl_on_re_move(tree * t, node * p, node *q)
 {
   /* for now unused.  see version in ml.c */
@@ -5076,24 +5094,6 @@ void generic_tree_release_forknode(tree* t, node* n)
   n->next = NULL;                    /* node_reinit(n) sets n->back to NULL */
   Slist_push(t->free_fork_nodes, n); /* put it on the tree's free node list */
 } /* generic_tree_release_forknode */
-
-
-void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
-{ /* if root bifurcating node is somewhere else, move it to the branch
-   * that connects to the outgroup */
-  node* p;
-  boolean found;
-
-  p = findroot(curtree->root, &found);                 /* ensure is at root */
-   
-  if (found) {       /* if did find root is connected to a null pointer ... */
-    if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
-       generic_tree_re_move(curtree, p, &(p->next->back->back), true);
-       generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
-     }                                      /* and put next to outgroup tip */
-     curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
-  }
-} /* putrootnearoutgroup */
 
 
 boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
