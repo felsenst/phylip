@@ -16,7 +16,6 @@
 CONSOLE_SCREEN_BUFFER_INFO      savecsbi;
 boolean    savecsbi_valid = false;
 HANDLE  hConsoleOutput;
-#endif /* WIN32 */
 
 #include "Slist.h"
 
@@ -4988,7 +4987,7 @@ void generic_tree_re_move(struct tree* t, struct node* fork,
 } /* generic_tree_re_move */
 
 
-void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
+void put_root_near_outgroup (tree* curtree, long outgrno, boolean branchlengths)
 { /* if root bifurcating node is somewhere else, move it to the branch
    * that connects to the outgroup */
   node* p;
@@ -5003,7 +5002,7 @@ void putrootnearoutgroup (tree* curtree, long outgrno, boolean branchlengths)
      }                                      /* and put next to outgroup tip */
      curtree->root = curtree->nodep[outgrno - 1]->back;     /* fix root ... */
   }
-} /* putrootnearoutgroup */
+} /* put_root_near_outgroup */
 
 
 /* debug:  what are these both doing here? */

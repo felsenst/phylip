@@ -1101,7 +1101,7 @@ void maketree(void)
     }
     if (jumb == njumble) {       /* on last jumbling of species input order */
       if (njumble > 1) bestree2->copy(bestree2, curtree); /* bestree2 is it */
-      putrootnearoutgroup(curtree, outgrno, true); /* root to near outgroup */
+      put_root_near_outgroup(curtree, outgrno, true); /* root near outgroup */
       printree(curtree->root, treeprint, false);    /* print the tree if OK */
       if (treeprint)
         summarize(numtrees);  /* print table of connections, branch lengths */

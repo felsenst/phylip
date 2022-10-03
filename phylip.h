@@ -2,9 +2,6 @@
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    Mike Palczewski, Doug Buxton, Dan Fineman and Bob Giansiracusa. */
 
-#ifndef _PHYLIP_H_   /* debug: needed (?) to show you're in phylip.h */
-#define _PHYLIP_H_
-
 /* this is only for configure/make compiles, which we do not use these days */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -675,13 +672,12 @@ boolean javarun;               /* boolean for when Java front-end is in use */
 
 #ifndef OLDC /* need if not the old original Kernighan & Rtichie C compiler */
 /* function prototypes */
-void            no_op(void);
 void            generic_tree_new(struct tree**, long, long, long);
 void            generic_tree_init(struct tree*, long, long);
 struct node*    generic_node_new(node_type, long, long);
 void            generic_node_init(struct node*, node_type, long);
+void            no_op(void);
 void            phylipinit(int, char**, initdata*, boolean);
-void            even_sibs(tree*, node*, node*);
 node*           where_in_dest (tree*, tree*, node*);
 void            generic_tree_copy(tree*, tree*);
 void            generic_node_copy(node*, node*);
@@ -694,7 +690,9 @@ long            count_sibs(node*);
 boolean         isemptyroot(node*);
 node*           findroot(node*, boolean*);
 node*           findrootmostandroot(tree*, node*, boolean*);
+void            generic_insertroot(tree*, node*, node*);
 void            generic_root_insert(tree*, node*);
+/* GOT TOHERE */
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);
@@ -848,7 +846,7 @@ void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
-void            putrootnearoutgroup(tree*, long, boolean);
+void            put_root_near_outgroup(tree*, long, boolean);
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
@@ -864,7 +862,6 @@ boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
 void            rooted_tree_insert_(tree*, node*, node*, boolean);
 void            buildsimpletree(tree*, long*);
 node*           generic_newrootfork(tree*);
-void            generic_insertroot(tree*, node*, node*);
 void            rooted_tree_re_move(tree*, node*, node**, boolean);
 void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
                        longer, boolean, double*);
@@ -889,8 +886,6 @@ void            generic_tree_reinit_forknode(tree*, node*);
 void            generic_initialvtrav(node*);
 void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
-
-#endif /* _PHYLIP_H_ */
 
 
 /* End. */
