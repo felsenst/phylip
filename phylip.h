@@ -692,7 +692,31 @@ node*           findroot(node*, boolean*);
 node*           findrootmostandroot(tree*, node*, boolean*);
 void            generic_insertroot(tree*, node*, node*);
 void            generic_root_insert(tree*, node*);
+void            generic_tree_re_move(struct tree*, struct node*,
+                                      struct node**, boolean);
+void            put_root_near_outgroup(tree*, long, boolean);
+void            rooted_tree_insert_(tree*, node*, node*, boolean);
+void            generic_do_branchl_on_re_move(tree*, node*, node*);
+void            generic_tree_release_forknode(tree*, node*);
+boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
+                                   tree*, boolean, boolean, boolean, double*);
+void            buildsimpletree(tree*, long*);
+node*           generic_newrootfork(tree*);
+void            rooted_tree_re_move(tree*, node*, node**, boolean);
+void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
+                       longer, boolean, double*);
+void            preparetree(tree*);  /* debug: need this here? */
+void            fixtree(tree*);
+void            arbitrary_resolve(tree*) ;
+void            writename(long, long, long*);
+void            print_progress(char*);
+void 		seetree(tree * curtree);
+void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);/*debug*/
 /* GOT TOHERE */
+
+/* following not in phylip.c. best to demote them downwards unless shared
+   by two branches of hierarchy that split below this */
+
 void            verify_nuview(node*);
 void            invalidate_nuview(node*);
 void            invalidate_traverse(node*);
@@ -846,7 +870,6 @@ void*		pop(stack**);
 stack* 		push(stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
-void            put_root_near_outgroup(tree*, long, boolean);
 long		generic_tree_findemptyfork(tree*);
 void            generic_tree_nuview(tree*, node*);
 double          generic_tree_evaluate(tree*, node*, boolean);
@@ -855,27 +878,6 @@ void            generic_do_branchl_on_insert(tree*, node*, node*);
 node*           generic_tree_get_forknode(tree*, long);
 void            generic_tree_re_move(tree*, node*, node**, boolean);
 void            generic_re_move(tree*, node*, node*, boolean);
-void            generic_do_branchl_on_re_move(tree*, node*, node*);
-void            generic_tree_release_forknode(tree*, node*);
-boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
-                                   tree*, boolean, boolean, boolean, double*);
-void            rooted_tree_insert_(tree*, node*, node*, boolean);
-void            buildsimpletree(tree*, long*);
-node*           generic_newrootfork(tree*);
-void            rooted_tree_re_move(tree*, node*, node**, boolean);
-void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
-                       longer, boolean, double*);
-void            preparetree(tree*);
-void            fixtree(tree*);
-void            arbitrary_resolve(tree*) ;
-void            writename(long, long, long*);
-void            print_progress(char*);
-
-void 		seetree(tree * curtree);
-void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);
-
-/* following not in phylip.c */
-
 void            allocdiscnontip(node*, long );
 void            allocnode(node**, long);
 void            allocdiscnode(node**, long);
