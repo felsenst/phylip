@@ -2,17 +2,23 @@
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    Mike Palczewski, Doug Buxton, Dan Fineman and Bob Giansiracusa. */
 
-/* this is only for configure/make compiles, which we do not use these days */
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 /* Define VERSION string if config.h has not done that already.  This is
  * used throughout the PHYLIP package instead of having version strings
  * that have to be kept up-to-date in other places */
 #ifndef VERSION
 #define VERSION "4.0a"
 #endif
+
+/* this is only for configure/make compiles, which we do not use these days */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define true    1                             /* messing with truth itself! */
+#define false   0
 
 /* machine-specific stuff:
    based on a number of factors in the library stdlib.h, we will try
@@ -22,14 +28,9 @@
 
    We will try to figure out machine type
    based on defines in stdio, and compiler-defined things as well.:
+
    Quite a bit of this is being paranoid about being on antique operating
    systems or antique compilers */
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#define true    1                             /* messing with truth itself! */
-#define false   0
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
@@ -81,7 +82,7 @@
 #define EBCDIC false
 #define INFILE "infile"
 #define OUTFILE "outfile"
-#define FONTFILE "fontfile"  /* on Unix might be in /usr/local/lib/fontfile */
+#define FONTFILE "fontfile"     /* on Unix maybe in /usr/local/lib/fontfile */
 #define PLOTFILE "plotfile"
 #define INTREE "intree"
 #define INTREE2 "intree2"
@@ -162,6 +163,7 @@
 #endif
 
 /* default screen types */
+
 /*  if on a DOS but not a Windows system can use IBM PC screen controls */
 #ifdef DOS
 #ifndef WIN32
@@ -264,6 +266,7 @@ typedef unsigned int boolean;
 #define MAXSHIMOTREES 100  /* SHT test. (Yes, he uses this as his nickname) */
 
 /* Maximum likelihood parameters */
+/* debug: should these go into  bl.h ? */
 
 #define smoothings      8   /* number of passes through smoothing algorithm */
 #define iterations      8             /* number of iterates for each branch */
@@ -280,6 +283,7 @@ typedef unsigned int boolean;
 #define SQRT2  1.4142135623730950488                   /* square root of 2. */
 #define purset ((1 << (long)A) + (1 << (long)G))        /* the purine bases */
 #define pyrset ((1 << (long)C) + (1 << (long)T))         /* the pyrimidines */
+/* debug: should these go into something like  dna.h ? */
 #define NLRSAVES 5    /* number of views that need to be saved during local
                        * rearrangement                                      */
 
