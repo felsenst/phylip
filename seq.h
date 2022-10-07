@@ -9,9 +9,10 @@
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
+#include "phylip.h"
+
 /* move */
 /* All the below moved here in the Great TreeRead Migration of '96 */
-
 
 #ifndef _SEQ_H_
 #define _SEQ_H_

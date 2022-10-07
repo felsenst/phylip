@@ -292,12 +292,10 @@ typedef unsigned int boolean;
 #define UNDEFINED -99.99999
 
 /* a basic stack */
-typedef struct stack stack;
-
-struct stack {
+typedef struct stack {
   struct stack* next;
   void *data;
-};
+} stack;
 
 
 typedef long *steptr;
@@ -870,8 +868,8 @@ void            rooted_locrearrange(tree*, node*, boolean, double*,
                                      tree*, tree*, boolean, double*);
 void            generic_tree_save_lr_nodes(tree*, node*, node*);
 void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
-void*		pop(stack**);
-stack* 		push(stack*,void*);
+void*		pop(struct stack**);
+struct stack* 	push(struct stack*,void*);
 node*           generic_tree_get_fork(tree*, long);
 void            generic_tree_release_fork(tree*, node*);
 long		generic_tree_findemptyfork(tree*);
