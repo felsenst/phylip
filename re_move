@@ -1,0 +1,1767 @@
+clique.c:{  /* this and the following are do-it-yourself garbage collectors.
+clique.c:  p = root->next;
+clique.c:    root->next->back->back = p->back;
+clique.c:    p->back->back = root->next->back;
+clique.c:    q = root->next;
+clique.c:    p->next = root->next;
+clique.c:    nunode(&root->next);
+clique.c:    q = root->next;
+clique.c:  first = p->next->back;
+clique.c:  p->ycoord = (first->ycoord + last->ycoord) / 2;
+clique.c:  p->ymin = first->ymin;
+clique.c:  p->ymax = last->ymax;
+clique.c:      first = p->next->back;
+clique.c:    else if (!p->tip && (long)last->ycoord > i && (long)first->ycoord < i && (i != (long)p->ycoord || p == root))
+codml0.c:   if(t->root)
+codml0.c:        printf("root = %p (%ld)\n",t->root,t->root->index);
+codml0.c:   // could add here t->spp ; t->nonodes2 ; t->score
+codml0.c:      p=t->nodep[i];
+codml0.c:  // allocx(nonodes, endsite, rcategs,(ml_node**)t->nodep);
+codml0.c:  t->evaluate = codon_tree_evaluate;
+codml0.c:  t->nuview = codon_tree_nuview;
+codml0.c:  t->tree_print_f = debugtree;
+codml0.c:  t->restore_traverses = codml_restore_traverses;
+codml0.c:  t->node_good_f = codml_good_node;
+codml0.c:        b->nodep[i]->back = b->nodep[a->nodep[i]->back->index - 1]->next->next;
+codml0.c:          q->back = b->nodep[p->back->index - 1]->next->next;
+codml0.c:  first = p->next->back;
+codml0.c:    p->ycoord = p->next->next->back->ycoord;
+codml0.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+codml0.c:  p->ymin = first->ymin;
+codml0.c:  p->ymax = last->ymax;
+codml0.c:  describe(curtree->root->back);
+codml0.c:      rectrav(curtree->root->back, i, k);
+codml0.c:  long numsibs = count_sibs(t->root);
+codml0.c:    q = t->root;
+codml0.c:    r = t->root;
+codml0.c:    while ( q->next != t->root )
+codml0.c:    q->next = t->root->next;
+codml0.c:    t->root = q;
+codml0.c:    t->release_forknode(t, r);
+codml0.c:    t->nodep[spp] = q;
+codml0.c:    newl = t->root->next->oldlen + t->root->next->next->oldlen;
+codml0.c:    t->root->next->back->oldlen = newl;
+codml0.c:    t->root->next->next->back->oldlen = newl;
+codml0.c:    newl = t->root->next->v + t->root->next->next->v;
+codml0.c:    t->root->next->back->v = newl;
+codml0.c:    t->root->next->next->back->v = newl;
+codml0.c:    t->root->next->back->back = t->root->next->next->back;
+codml0.c:    t->root->next->next->back->back = t->root->next->back;
+codml0.c:    t->release_fork(t,t->root);
+codml.c:  if(t->root)
+codml.c:    printf("root = %p (%ld)\n", (void *)t->root, t->root->index);
+codml.c:  // could add here t->spp ; t->nonodes2 ; t->score
+codml.c:    p=t->nodep[i];
+codml.c:  t->evaluate = codon_tree_evaluate;
+codml.c:  t->try_insert_ = ml_tree_try_insert_;
+codml.c:  t->nuview = codon_tree_nuview;
+codml.c:  t->makenewv = codon_tree_makenewv;
+codml.c:  t->tree_print_f = debugtree;
+codml.c:  t->restore_traverses = codml_restore_traverses;
+codml.c:  t->node_good_f = codml_node_good;
+codml.c:        b->nodep[i]->back = b->nodep[a->nodep[i]->back->index - 1]->next->next;
+codml.c:          q->back = b->nodep[p->back->index - 1]->next->next;
+codml.c:  first = p->next->back;
+codml.c:    p->ycoord = p->next->next->back->ycoord;
+codml.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+codml.c:  p->ymin = first->ymin;
+codml.c:  p->ymax = last->ymax;
+codml.c:  describe(curtree->root->back);
+codml.c:      rectrav(curtree->root->back, i, k);
+codml.c:  node *r = t->root;
+codml.c:    t->release_forknode(t, r);
+codml.c:    t->nodep[spp] = q;
+codml.c:    newl = r->next->oldlen + r->next->next->oldlen;
+codml.c:    r->next->back->oldlen = newl;
+codml.c:    r->next->next->back->oldlen = newl;
+codml.c:    newl = r->next->v + r->next->next->v;
+codml.c:    r->next->back->v = newl;
+codml.c:    r->next->next->back->v = newl;
+codml.c:    r->next->back->back = r->next->next->back;
+codml.c:    r->next->next->back->back = r->next->back;
+codml.c:    t->release_fork(t, r);
+codml.c:  t->root = t->nodep[0]->back;          // Reset ROOT; moved from line just after call to CODML_REROOT.
+cons.c:      q->next->index = q->index;
+cons.c:  first = p->next->back;
+cons.c:  p->ycoord = (long)((first->ycoord + last->ycoord) / 2);
+cons.c:  p->ymin = first->ymin;
+cons.c:  p->ymax = last->ymax;
+cons.c:      first = p->next->back;
+cons.c:        if (noroot && (root->next->next->next == root) &&
+cons.c:            (((root->next->back == q) && root->next->next->back->tip)
+cons.c:             || ((root->next->next->back == q) && root->next->back->tip)))
+cons.c:    } else if (!p->tip && last->ycoord > i && first->ycoord < i &&
+cons.c:  if ((!r->tip && (r->next->next != r)) || r->tip)
+cons.c:      dupname2(name, p->next->back, this);
+cons.c:      dupname(p->next->back);
+cons.c:      missingnameRecurs(p->next->back);
+cons.c:    q = root->next;
+cons.c:      root->next = p;
+cons.c:    p->next = root->next;              /* join old root nodes */
+cons.c:    treep->nodep[root->index-1] = root->next; /* make root->next the primary node */
+cons.c:    root->next = treep->get_forknode(treep, *nextnode);
+cons.c:    q = root->next;
+cons.c:    root->index = *nextnode;
+cons.c:    root->next->index = root->index;
+cons.c:    root->next->next->index = root->index;
+cons.c:  /* q == root->next */
+cons.c:  /* p == root->next->next */
+cons.c:  root->v = 0;
+cont.c:  if ( dst->totalleles != 0 && dst->totalleles != src->totalleles )
+cont.c:    free(dst->view);
+cont.c:    dst->view = NULL;
+cont.c:  dst->totalleles = src->totalleles;
+cont.c:  if ( dst->view == NULL )
+cont.c:    dst->view = Malloc(src->totalleles * sizeof(double));
+cont.c:  memcpy(dst->view, src->view, dst->totalleles * sizeof(double));
+cont.c:  q = (Slist_data_ptr)(a->free_fork_nodes->first->data);
+contml.c:  t->evaluate = contml_tree_evaluate;
+contml.c:  t->nuview = contml_tree_nuview;
+contml.c:  t->makenewv = contml_tree_makenewv;
+contml.c:  t->free = contml_tree_free;
+contml.c:    sumlikely(p->next->back, p->next->next->back, sum);
+contml.c:    sumlikely(q->next->back, q->next->next->back, sum);
+contml.c:  t->score = sum;
+contml.c:  v1 = p->next->v;           /*  length (v1') of leftmost branch */
+contml.c:  a = p->next->back;                 /* other end of that branch */
+contml.c:  for (q = p->next->next; q != p; q = q->next) {  /* around other furcs */
+contml.c:  tmp = t->nodep[m - 1];
+contml.c:  first = p->next->back;
+contml.c:    p->ycoord = p->next->next->back->ycoord;
+contml.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+contml.c:  p->ymin = first->ymin;
+contml.c:  p->ymax = last->ymax;
+contml.c:      first = p->next->back;
+contml.c:      if ((long)last->ycoord > i && (long)first->ycoord < i && i != (long)p->ycoord)
+contml.c:    treeout(p->next->back);
+contml.c:    treeout(p->next->next->back);
+contml.c:  if (!curtree->root->tip) {  /* recurse out all nonempty branches */
+contml.c:  q = p->next->back;
+contml.c:  r = p->next->next->back;
+contml.c:  if (curtree->root->back == NULL)
+contml.c:  initializetrav (curtree, curtree->root->back);
+contml.c:    ml_initialvtrav (curtree, curtree->root->back);
+contml.c:    initializetrav(curtree, curtree->root->back);
+contml.c:    ml_initialvtrav (curtree, curtree->root->back);
+contml.c:    inittravall(curtree, curtree->root->back);   debug */
+contrast.c:      printf("  H   How close to best-yet logL to show value: ");
+contrast.c:  t->setupfunctions = generic_tree_setupfunctions;
+contrast.c:  copyztotemp(n, m);  /* set aside best-yet value */
+contrast.c:      copyztotemp(n, m);  /* set aside best-yet value */
+contrast.c:  copytemptoz(n, m);  /* restore best-yet value */
+contrast.c:  copyztotemp(n, m);  /* set aside best-yet value */
+contrast.c:      copyztotemp(n, m);  /* set aside best-yet value */
+contrast.c:  copytemptoz(n, m);  /* set aside best-yet value */
+contrast.c://   wasrootedatinteriornode = (curtree->root->back == NULL);  /* debug: works? */
+contrast.c://     leftbranchlength = curtree->root->next->v;
+contrast.c://     rightbranchlength = curtree->root->next->next->v;
+contrast.c://       makecontrasts(curtree->root->next->back);
+contrast.c:  if (loglike[2] > loglike[nmbestone]) {  /* sort-of assumes no ties */
+contrast.c:    r = pp->next->back;
+contrast.c:           || (atbase && (((curtree->root->back == NULL)
+contrast.c:                          || ((curtree->root->back != NULL)
+contrast.c:    rr = r->back->next->next;
+contrast.c:    bestplace = r->back->next->back->index; // RSGnote: If "numfossils" == 0, "r" will be uninitialized here.
+contrast.c:    p->back->next->v = (twhere - q->tyme)/multiplier;
+contrast.c:    p->back->next->back->v = p->back->next->v;
+contrast.c:    if (p->back->next->next->back != NULL) {
+contrast.c:      p->back->next->next->v =
+contrast.c:        (curtree->nodep[p->back->next->next->back->index - 1]->tyme
+contrast.c:      p->back->next->next->back->v = p->back->next->next->v;
+contrast.c:    p->back->next->next->tyme = p->tyme + p->v;
+contrast.c:      q->back->next->tyme = tnew;
+contrast.c:    p->back->next->tyme = p->back->tyme;  /* set tymes of new root node */
+contrast.c:    p->back->next->next->tyme = p->back->tyme;
+contrast.c:    curtree->root = p->back->next->next;
+contrast.c:             || (atbase && (((curtree->root->back == NULL) && (pp != curtree->root))
+contrast.c:                            || ((curtree->root->back != NULL) && (pp != curtree->root->next))
+contrast.c:    t->get_forknode(t, emptynode);      /* get a fork */
+contrast.c:    p->next->index = p->index;          // RSGnote: Using a non-initialized pointer for a memory write.
+contrast.c:    p->next->next->index = p->index;
+contrast.c:    multiplier = (minmultmult*(2*nmult-j)+maxmultmult*j)*multiplier0/(2*nmult);
+contrast.c:  bifurcating = (curtree->root->next->next == curtree->root);
+debug.c:  if ((pt == NULL) || pt->root)         // OK to print or check if pt is NULL or if pt is valid and pt->root is valid, but don't call if pt->root is NULL.
+debug.c:    // Next line expressions evaluated left-to-right, so GLOBAL_ERRORCODE will contain value set by COUNT_EM (if it gets set) after call to TREEPRINTER returns.
+debug.c:    tnonodes = (int)pt->nonodes;
+debug.c:    tspp = (int)pt->spp;
+debug.c:              (void *) pt, tspp, tnonodes, pt->type, (void *)pt->nodep, (void *)pt->root, (void *)pt->free_forkrings, (void *)pt->free_forknodes);
+debug.c:          pq = pt->nodep[nodepidx];
+debug.c:            pq->type = NODE_T_UNKNOWN;  // Clear its INTREE bit (using MODE_T_UNKNOWN in TYPE slot as "not-INTREE" indication; slot is otherwise unused).
+debug.c:        clearintreebits(pt->free_forknodes, false);
+debug.c:        clearintreebits(pt->free_forkrings, true);
+debug.c:        if (pt->root->tip)
+debug.c:          if (pt->root->back)              // If ROOT node (TIP, in this case) has non-NULL BACK, traverse from there; it may have a NULL BACK.
+debug.c:            tree_traverse(pt->root->back); // Then traverse the tree recursively, starting from the FORKnode pointing to this TIPnode, marking all nodes which ARE in the tree as being INTREE nodes.
+debug.c:          tree_traverse(pt->root);      // Or traverse the tree recursively from the ROOT node, starting from this FORKnode, marking all nodes which ARE in the tree as being INTREE nodes.
+debug.c:        pq = pt->nodep[nodepidx];
+debug.c:              errorcode = nodeloopprinter("non-INTREE", pq, pt->root, 1, stream); // BACK is arbitary (may be partially initialized and not yet on garbage list).
+debug.c:            else if (pq == pt->root)    // INTREE and ROOT TIPnode.
+debug.c:                errorcode = nodeloopprinter("yes-INTREE", pq, pt->root, 1, stream);
+debug.c:                errorcode = nodeloopprinter("yes-INTREE", pq, pt->root, 1, stream);
+debug.c:              errorcode = nodeloopprinter("yes-INTREE", pq, pt->root, 1, stream);
+debug.c:              errorcode = nodeloopprinter("      non-INTREE", pq, pt->root, 0, stream);
+debug.c:            else if (pq == pt->root)    // INTREE and ROOT FORKnode.
+debug.c:                errorcode = nodeloopprinter("      yes-INTREE", pq, pt->root, 2, stream);
+debug.c:                errorcode = nodeloopprinter("      yes-INTREE", pq, pt->root, 2, stream);
+debug.c:              errorcode = nodeloopprinter("      yes-INTREE", pq, pt->root, 2, stream);
+debug.c:      if (pt->free_forkrings == NULL && pt->free_forknodes == NULL)
+debug.c:      else if (pt->free_forknodes == NULL)
+debug.c:          fprintf(stream, "  FREE_FORKRINGS (length %d):\n", (int)pt->free_forkrings->length);
+debug.c:        errorcode = forklistprinter(pt->free_forkrings, pt->root, 2, true, stream);
+debug.c:      else if (pt->free_forkrings == NULL)
+debug.c:          fprintf(stream, "  FREE_FORKNODES (length %d):\n", (int)pt->free_forknodes->length);
+debug.c:        errorcode = forklistprinter(pt->free_forknodes, pt->root, 1, false, stream);
+debug.c:          fprintf(stream, "  FREE_FORKNODES (length %d):\n", (int)pt->free_forknodes->length);
+debug.c:        errorcode = forklistprinter(pt->free_forknodes, pt->root, 1, false, stream);
+debug.c:          fprintf(stream, "  FREE_FORKRINGS (length %d):\n", (int)pt->free_forkrings->length);
+debug.c:        errorcode = forklistprinter(pt->free_forkrings, pt->root, 2, true, stream);
+debug.c:  int listidx, listlen = (int)forklist->length;
+debug.c:  Slist_node_ptr snp = forklist->first;
+debug.c:    pq->type = NODE_T_UNKNOWN;          // Clear its INTREE bit (using MODE_T_UNKNOWN in TYPE slot as "not-INTREE" indication; slot is otherwise unused).
+debug.c:  int listidx, errorcode, listlen = (int)forklist->length;
+debug.c:  Slist_node_ptr snp = forklist->first;
+debug.c:    if ((listidx == listlen - 1) && (snp != forklist->last))
+disc.c:    p->next->next->next = p;
+disc.c:    p->next->next->next = p;
+disc.c:  below->back = newfork->next->next;
+disc.c:  newfork->next->next->back = below;
+disc.c:  newfork->next->back = newtip;
+disc.c:  rtdesc->back = newfork->next->next;
+disc.c:  newfork->next->next->back = rtdesc;
+disc.c:  newfork->next->back = leftdesc;
+disc.c:  below->back = newfork->next->next;
+disc.c:  newfork->next->next->back = below;
+disc.c:  newfork->next->back = newtip;
+disc.c:    if (*item == (*forknode)->next->back)
+disc.c:      *root = (*forknode)->next->next->back;
+disc.c:      *root = (*forknode)->next->back;
+disc.c:  p = (*item)->back->next->back;
+disc.c:  q = (*item)->back->next->next->back;
+disc.c:  if (*item == (*forknode)->next->back)
+disc.c:      *root = (*forknode)->next->next->back;
+disc.c:      *root = (*forknode)->next->back;
+disc.c:  p = (*item)->back->next->back;
+disc.c:  q = (*item)->back->next->next->back;
+disc.c:    if (*item == (*forknode)->next->back)
+disc.c:      *root = (*forknode)->next->next->back;
+disc.c:      *root = (*forknode)->next->back;
+disc.c:  p = (*item)->back->next->back;
+disc.c:  q = (*item)->back->next->next->back;
+disc.c:  first = p->next->back;
+disc.c:  p->xcoord = (last->ymax - first->ymin) * f;
+disc.c:  p->ycoord = (first->ycoord + last->ycoord) / 2;
+disc.c:  p->ymin = first->ymin;
+disc.c:  p->ymax = last->ymax;
+disc.c:  first = p->next->back;
+disc.c:  p->xcoord = last->ymax - first->ymin;
+disc.c:  p->ycoord = (first->ycoord + last->ycoord) / 2;
+disc.c:  p->ymin = first->ymin;
+disc.c:  p->ymax = last->ymax;
+disc.c:    treeout2(p->next->back, col, root);
+disc.c:    treeout2(p->next->next->back, col, root);
+disc.c:  /* this is a do-it-yourself garbage collectors for move
+discrete.c:  t->nuview = discretepars_tree_nuview;
+discrete.c:  t->evaluate = discretepars_tree_evaluate;
+discrete.c:      ((discretepars_node*)t->nodep[i])->discbase[j] = ns;
+discrete.c:      ((pars_node*)t->nodep[i])->numsteps[j] = 0;
+discrete.c:      Vars.anc = ((discretepars_node*)t->nodep[Vars.r->back->index - 1]) ->discbase[j - 1];
+discrete.c:    dischyptrav(t, t->root, nothing, i * 40 - 39, n, true);
+discrete.c:      htrav->anc = ((discretepars_node*)t->nodep[htrav->r->back->index - 1]) ->discbase[j - 1];
+discrete.c:        newbase = ((discretepars_node*)p->next->back)->discbase[i] |
+discrete.c:          ((discretepars_node*)p->next->next->back)->discbase[i];
+discrete.c:  t->score = -sum;
+discrete.c:  return t->score;
+discrete.c:  if ( q->initialized == false ) t->nuview(t, q);
+discrete.c:  if ( n->initialized == false ) t->nuview(t, n);
+dist.c:  dst->dist = src->dist;
+dist.c:  memcpy(dst->d, src->d, nonodes * sizeof(double));
+dist.c:  memcpy(dst->w, src->w, nonodes * sizeof(double));
+dist.c:  dst->sametime = src->sametime;
+dist.c:  dst->t = src->t;
+dist.c:  t->nodep = (node**)Malloc(nonodes * sizeof(node *));
+dist.c:    t->nodep[i] = functions.node_new(TIP_NODE, i+1);
+dist.c:    p->next->next->next = p;
+dist.c:    t->nodep[i] = p;
+dist.c:  first = p->next->back;
+dist.c:  while (q->next != p && q->next->back)  /* is this right ? */
+dist.c:      p->ycoord = (first->ycoord + last->ycoord) / 2;
+dist.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+dist.c:  p->ymin = first->ymin;
+dist.c:  p->ymax = last->ymax;
+dist.c:      first = p->next->back;
+dist.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+dist.c:    treeoutr(p->next->back, col, curtree);
+dist.c:    treeoutr(p->next->next->back, col, curtree);
+dist.c:    treeout(p->next->back, col, m, njoin, start);
+dist.c:    treeout(p->next->next->back, col, m, njoin, start);
+dnacomp.c:  t->evaluate = dnacomp_tree_evaluate;
+dnacomp.c:  t->score = like;
+dnacomp.c:        curtree->nodep[curtree->root->index - 1] = curtree->root;
+dnadist.c:boolean dotdiff         = true;         /* use dot-difference format */
+dnadist.c:  ///boolean dotdiff         = true;         /* use dot-difference format */
+dnainvar.c:      printf("  .  Use dot-differencing to display them  %s\n",
+dnaml.c:  t->evaluate = dnaml_tree_evaluate;
+dnaml.c:  t->try_insert_ = ml_tree_try_insert_;
+dnaml.c:  t->nuview = dnaml_tree_nuview;
+dnaml.c:  t->makenewv = dnaml_tree_makenewv;
+dnaml.c:  tmp = t->nodep[m - 1];
+dnaml.c:      /* Then allocate for worst-case multifurcations */
+dnaml.c:  first = p->next->back;
+dnaml.c:    p->ycoord = p->next->next->back->ycoord;
+dnaml.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+dnaml.c:  p->ymin = first->ymin;
+dnaml.c:  p->ymax = last->ymax;
+dnaml.c:    rectrav(p->next->back, m, n);
+dnaml.c:    rectrav(p->next->next->back, m, n);
+dnaml.c:  describe(curtree->root->back);
+dnaml.c:      rectrav(curtree->root->back, i, k);
+dnaml.c:  node *r = t->root;
+dnaml.c:    t->release_forknode(t, r);
+dnaml.c:    t->nodep[spp] = q;
+dnaml.c:    newl = r->next->oldlen + r->next->next->oldlen;
+dnaml.c:    r->next->back->oldlen = newl;
+dnaml.c:    r->next->next->back->oldlen = newl;
+dnaml.c:    newl = r->next->v + r->next->next->v;
+dnaml.c:    r->next->back->v = newl;
+dnaml.c:    r->next->next->back->v = newl;
+dnaml.c:    r->next->back->back = r->next->next->back;
+dnaml.c:    r->next->next->back->back = r->next->back;
+dnaml.c:   t->release_fork(t, r);
+dnaml.c:  t->root = t->nodep[0]->back;
+dnaml.c:          curtree->nodep[i]->next->initialized = false;
+dnaml.c:          curtree->nodep[i]->next->next->initialized = false;
+dnamlk.c:  t->insert_  = mlk_tree_insert_;
+dnamlk.c:  t->try_insert_ = ml_tree_try_insert_;
+dnamlk.c:  t->re_move = mlk_tree_re_move;
+dnamlk.c:  t->evaluate = dnamlk_tree_evaluate;
+dnamlk.c:  t->globrearrange = rooted_globrearrange;
+dnamlk.c:  t->locrearrange = rooted_locrearrange;
+dnamlk.c:  t->nuview = dnamlk_tree_nuview;
+dnamlk.c:  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+dnamlk.c:  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+dnamlk.c:      /* Then allocate for worst-case multifurcations */
+dnamlk.c:  if (p == t->root && (count_sibs(p) == 2))
+dnamlk.c:    r = p->next->back;
+dnamlk.c:    q = p->next->next->back;
+dnamlk.c:    if (!r->tip && !r->initialized) t->nuview (t, r);
+dnamlk.c:    if (!q->tip && !q->initialized) t->nuview (t, q);
+dnamlk.c:  else if (p == t->root)
+dnamlk.c:    t->nuview(t, p->next);
+dnamlk.c:    q = p->next->back;
+dnamlk.c:    if (!r->tip && !r->initialized) t->nuview (t, r);
+dnamlk.c:    if (!q->tip && !q->initialized) t->nuview (t, q);
+dnamlk.c:  t->score = sum;
+dnamlk.c:  p->ymin = first->ymin;
+dnamlk.c:  p->ymax = last->ymax;
+dnamlk.c:      first = p->next->back;
+dnamlk.c:      if ((long)(last->ycoord) > i && (long)(first->ycoord) < i &&
+dnamlk.c:    p = p->next->back;
+dnamlk.c:  lowertyme = get_tyme(p->next->back);
+dnamlk.c:  t->nuview(t, p);
+dnamlk.c:    curtree->root = curtree->nodep[curtree->root->index - 1];
+dnamove.c:  rtdesc->back = newfork->next->next;
+dnamove.c:  newfork->next->next->back = rtdesc;
+dnamove.c:  newfork->next->back = leftdesc;
+dnamove.c:  curtree->root->back = NULL;
+dnamove.c:    if (newtip == q->next->next->back)
+dnamove.c:      q->next->back = newtip;
+dnamove.c:      q->next->next->back = NULL;
+dnamove.c:  if (parent != curtree->nodep[parent->index - 1])
+dnamove.c:    parent = curtree->nodep[parent->index - 1];
+dnamove.c:  newnode = curtree->get_forknode(curtree, parent->index);
+dnamove.c:  if(outgroup->back->index == curtree->root->index)
+dnamove.c:  q = curtree->root->next;
+dnamove.c:  while (p->index != curtree->root->index)
+dnamove.c:    r->next = curtree->root->next;
+dnamove.c:    curtree->root->next = NULL;
+dnamove.c:      /* root->haslength remains false, or else treeout() will generate
+dnamove.c:      curtree->root->next->haslength = true;
+dnamove.c:      curtree->root->next->next->haslength = true;
+dnamove.c:    q = curtree->root->next;
+dnamove.c:  curtree->root->next->back = outgroup;
+dnamove.c:  curtree->root->next->next->back = outgroup->back;
+dnamove.c:  outgroup->back->back = curtree->root->next->next;
+dnamove.c:  outgroup->back = curtree->root->next;
+dnamove.c:    curtree->root->next->next->length = templen;
+dnamove.c:    curtree->root->next->next->back->length = templen;
+dnamove.c:      first = p->next->back;
+dnamove.c:      if (last->ycoord > i && first->ycoord < i && i != p->ycoord)
+dnamove.c:          st = p->next->back->state;
+dnamove.c:          st = p->next->next->back->state;
+dnamove.c:    if (curtree->root->tip)
+dnamove.c:      outgrno = curtree->root->index;
+dnamove.c:      outgrno = curtree->root->next->back->index;
+dnamove.c:  q = start->next;
+dnamove.c:  ok1 = (ok1 && i >= 1 && i <= (spp * 2 - 1) && i != curtree->root->index);
+dnamove.c:      if (j != curtree->root->index)
+dnamove.c:          if (j != curtree->root->index) /* can't insert at root */
+dnamove.c:              curtree->nodep[q->index-1]->next->back = curtree->nodep[i-1];
+dnamove.c:  if (!(ok && i >= 1 && i <= nonodes && i != curtree->root->index))
+dnamove.c:  if (q->next->back->index == i)
+dnamove.c:    fromwhere = q->next->next->back->index;
+dnamove.c:    fromwhere = q->next->back->index;
+dnamove.c:  if (q->next->next->next == q)
+dnamove.c:      if (curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back == curtree->nodep[i - 1])
+dnamove.c:        rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->next->back;
+dnamove.c:        rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back;
+dnamove.c:    if (q->next->next == p)
+dnamove.c:  /* flip at a node left-right */
+dnamove.c:          i != curtree->root->index);
+dnapars.c:      printf("  .  Use dot-differencing to display them  %s\n",
+dnapars.c:        initializetrav(curtree, curtree->root->back);
+dnapars.c:        curtree->nodep[curtree->root->index - 1] = curtree->root;
+dnapars.c:        initializetrav(curtree, curtree->root->back);
+dnaparsimony.c:  t->evaluate = dnapars_tree_evaluate;
+dnaparsimony.c:  t->nuview = dnapars_tree_nuview;
+dnaparsimony.c:  if (dst->base == NULL )
+dnaparsimony.c:    dst->base = Malloc(endsite * sizeof(long));
+dnaparsimony.c:    dst->numnuc = Malloc(endsite * sizeof(nucarray));
+dnaparsimony.c:  memcpy(dst->base, src->base, endsite * sizeof(long));
+dnaparsimony.c:  memcpy(dst->numnuc, src->numnuc, endsite * sizeof(nucarray));
+dnaparsimony.c:   * achieve most-parsimonious count  */
+dnaparsimony.c:      Vars.anc = ((dnapars_node*)t->nodep[Vars.r->back->index - 1])
+dnaparsimony.c:    dna_hyptrav(t, t->root, nothing, i * 40 - 39, n, true, basechar);
+dnaparsimony.c:      htrav->anc = ((dnapars_node*)t->nodep[htrav->r->back->index - 1])->base[j - 1];
+dnaparsimony.c:  t->score = -sum;
+dnaparsimony.c:  return t->score;
+dnaparsimony.c:        newbase = ((dnapars_node*)(p->next->back))->base[i]
+dnaparsimony.c:                   | ((dnapars_node*)(p->next->next->back))->base[i];
+dnaparsimony.c:    ((pars_node*)p)->numsteps[i] = steps;    /* count at-or-above this node */
+dnaparsimony.c:  if ( q->initialized == false ) t->nuview(t, q);
+dnaparsimony.c:  if ( n->initialized == false ) t->nuview(t, n);
+dnaparsimony.c:      ((dnapars_node*)t->nodep[i])->base[j] = ns;
+dnaparsimony.c:      ((pars_node*)t->nodep[i])->numsteps[j] = 0;
+dnapenny.c:  t->try_insert_ = dnapenny_tree_try_insert_;
+dnapenny.c:      t->insert_(t, item, p, false);
+dnapenny.c:      t->nodep[i]->initialized = false;
+dnapenny.c:        t->nodep[i]->next->initialized = false;
+dnapenny.c:        t->nodep[i]->next->next->initialized = false;
+dnapenny.c:    like = t->evaluate(t, item, 0);
+dnapenny.c:      t->re_move(t, item, &qwhere, false);
+dnapenny.c:      t->root->back = NULL;
+dnapenny.c:  if (outgroup->back->index == curtree->root->index)
+dnapenny.c:  while (p->index != curtree->root->index)
+dnapenny.c:  p = curtree->root->next;
+dnapenny.c:  q = curtree->root->next->next;
+dnapenny.c:  outgroup->back->back = curtree->root->next->next;
+dnapenny.c:  outgroup->back = curtree->root->next;
+dollo.c:         (p->next->back->statezero[i] & p->next->next->back->statezero[i]);
+dollo.c:         (p->next->back->stateone[i] & p->next->next->back->stateone[i]);
+dollo.c:    p->stateone[i] = p->next->back->stateone[i] | p->next->next->back->stateone[i];
+dollo.c:    p->statezero[i] = p->next->back->statezero[i] | p->next->next->back->statezero[i];
+dollo.c:  postorder(p->next->back);
+dollo.c:  postorder(p->next->next->back);
+dollo.c:  filltrav(r->next->back);
+dollo.c:  filltrav(r->next->next->back);
+dollo.c:    hyptrav(HypVars.r->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
+dollo.c:    hyptrav(HypVars.r->next->next->back, unknown, dohyp, fullset, dollo, guess, treenode, garbage, zeroanc, oneanc);
+dollo.c:      first = p->next->back;
+dollo.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+dollop.c:    preorder(p->next->back, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+dollop.c:    preorder(p->next->next->back, numsone, numszero, words, dollo, fullset, zeroanc, treenode);
+dollop.c:  place[curtree->root->index - 1] = 1;
+dollop.c:    addpreorder(p->next->back, item, nufork);
+dollop.c:    addpreorder(p->next->next->back, item, nufork);
+dollop.c:  if (p->back->next->next == forknode)
+dollop.c:    frombelow = forknode->next->next->back;
+dollop.c:    frombelow = forknode->next->back;
+dollop.c:    repreorder(p->next->back, r, success);
+dollop.c:    repreorder(p->next->next->back, r, success);
+dolmove.c:    z0 = (s0 & p->statezero[i]) | (p->next->back->statezero[i] & p->next->next->back->statezero[i]);
+dolmove.c:    z1 = (s1 & p->stateone[i]) | (p->next->back->stateone[i] & p->next->next->back->stateone[i]);
+dolmove.c:    preorder(p->next->back);
+dolmove.c:    preorder(p->next->next->back);
+dolmove.c:  if (outgroup->back->index == curtree->root->index)
+dolmove.c:  while (p->index != curtree->root->index) {
+dolmove.c:  onleft = (p == curtree->root->next);
+dolmove.c:      p = curtree->root->next->next;
+dolmove.c:      q = curtree->root->next;
+dolmove.c:      p = curtree->root->next;
+dolmove.c:      q = curtree->root->next->next;
+dolmove.c:      oldoutgrno = curtree->root->next->next->back->index;
+dolmove.c:      oldoutgrno = curtree->root->next->back->index;
+dolmove.c:    p = curtree->root->next;
+dolmove.c:    q = curtree->root->next->next;
+dolmove.c:      outgroup->back->back = curtree->root->next;
+dolmove.c:      outgroup->back = curtree->root->next->next;
+dolmove.c:      outgroup->back->back = curtree->root->next->next;
+dolmove.c:      outgroup->back = curtree->root->next;
+dolmove.c:    outgroup->back->back = curtree->root->next->next;
+dolmove.c:    outgroup->back = curtree->root->next;
+dolmove.c:    dolmove_hyptrav(r->next->back);
+dolmove.c:    dolmove_hyptrav(r->next->next->back);
+dolmove.c:      first = p->next->back;
+dolmove.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+dolmove.c:          s = p->next->back->state;
+dolmove.c:          s = p->next->next->back->state;
+dolmove.c:  outgrno = curtree->root->next->back->index;
+dolmove.c:  ok1 = (ok1 && i >= 1 && i < spp * 2 && i != curtree->root->index);
+dolmove.c:        if (q->next->back->index == i)
+dolmove.c:          fromwhere = q->next->next->back->index;
+dolmove.c:          fromwhere = q->next->back->index;
+dolmove.c:    addpreorder(p->next->back, item, nufork, place);
+dolmove.c:    addpreorder(p->next->next->back, item, nufork, place);
+dolmove.c:  if (!(ok && i >= 1 && i <= nonodes && i != curtree->root->index)) {
+dolmove.c:  if (q->next->back->index == i)
+dolmove.c:    fromwhere = q->next->next->back->index;
+dolmove.c:    fromwhere = q->next->back->index;
+dolmove.c:  if (curtree->root->index == curtree->nodep[i - 1]->back->index) {
+dolmove.c:    if (curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back == curtree->nodep[i - 1])
+dolmove.c:      rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->next->back;
+dolmove.c:      rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back;
+dolmove.c:      q = curtree->nodep[atwhat - 1]->next->back;
+dolmove.c:      curtree->nodep[atwhat - 1]->next->back =
+dolmove.c:        curtree->nodep[atwhat - 1]->next->next->back;
+dolmove.c:      curtree->nodep[atwhat - 1]->next->next->back = q;
+dolmove.c:      curtree->nodep[atwhat - 1]->next->back->back = curtree->nodep[atwhat - 1]->next;
+dolmove.c:      curtree->nodep[atwhat - 1]->next->next->back->back =
+dolmove.c:        curtree->nodep[atwhat - 1]->next->next;
+dolmove.c:  /* flip at a node left-right */
+dolmove.c:    p = curtree->nodep[i - 1]->next->back;
+dolmove.c:    curtree->nodep[i - 1]->next->back = curtree->nodep[i - 1]->next->next->back;
+dolmove.c:    curtree->nodep[i - 1]->next->next->back = p;
+dolmove.c:    curtree->nodep[i - 1]->next->back->back = curtree->nodep[i - 1]->next;
+dolmove.c:    curtree->nodep[i - 1]->next->next->back->back = curtree->nodep[i - 1]->next->next;
+dolmove.c:          i != curtree->root->index);
+dolpenny.c:    preorder(p->next->back);
+dolpenny.c:    preorder(p->next->next->back);
+dolpenny.c:    addtraverse(a->next->back, b, c, place, valyew, n);
+dolpenny.c:    addtraverse(a->next->next->back, b, c, place, valyew, n);
+draw2.c:          XDrawLine(display,mainwin,gc1,(long)oldx,(long)(height-oldy), (long)xabs,(long)(height-yabs));
+draw2.c:          LineTo(hdc, (int) xabs, (int)(winheight-yabs));
+draw2.c:          MoveToEx(hdc, (int) xabs, (int) (winheight-yabs), (LPPOINT) NULL);
+draw2.c:      fprintf(plotfile,"<path stroke=\"black\" stroke-width=\"%.1f\" d=\"M %8.2f,%8.2f ", treeline, x1, svg_height-y1);
+draw2.c:                (x1+(0.55*(x2-x1))), svg_height-y1, x2, svg_height-(y1+(0.45*(y2-y1))),
+draw2.c:                x2, svg_height-y2);
+draw2.c:                x1, svg_height-(y1+(0.55*(y2-y1))), (x1+(0.45*(x2-x1))), svg_height-y2,
+draw2.c:                x2, svg_height-y2);
+draw2.c:            pleft--;
+draw2.c:    /* For a non-last-stripe, figure out if the last stripe is going
+draw.c:  /* the dot-skip is resolution-independent. */
+draw.c:  /* this makes all the point-skip instructions skip the same # of dots. */
+draw.c:  printf("        H         Hewlett-Packard pen plotter (HPGL file format)\n");
+draw.c:  printf("        E         Epson MX-80 dot-matrix printer\n");
+draw.c:  printf("        C         Prowriter/Imagewriter dot-matrix printer\n");
+draw.c:  printf("        T         Toshiba 24-pin dot-matrix printer\n");
+draw.c:  printf("        O         Okidata dot-matrix printer\n");
+draw.c:  text->heightfont = text->font[*place + 1];
+draw.c:  text->yfactor = text->height / text->heightfont;
+draw.c:  text->xfactor = text->yfactor;
+draw.c:    text->coord = text->font[*place - 1];
+draw.c:    if (text->coord > 0)
+draw.c:      text->penstatus = pendown;
+draw.c:      text->penstatus = penup;
+draw.c:    text->coord = abs(text->coord);
+draw.c:    text->coord %= 10000;
+draw.c:    text->xfont = (text->coord / 100 - xstart) * text->xfactor;
+draw.c:    text->yfont = (text->coord % 100 - ystart) * text->yfactor;
+draw.c:    text->xplot = text->xx + (text->xfont * text->cosslope +
+draw.c:                              text->yfont * text->sinslope) * text->compress;
+draw.c:    text->yplot = text->yy - text->xfont * text->sinslope +
+draw.c:      text->yfont * text->cosslope;
+draw.c:    plot(text->penstatus, text->xplot, text->yplot);
+draw.c:  } while (abs(text->font[*place - 1]) < 10000);
+draw.c:  text->xx = text->xplot;
+draw.c:  text->yy = text->yplot;
+draw.c:      fprintf(plotfile, "<text transform=\"translate(%.2f,%.2f) rotate(%.2f)\" font-size=\"%.1f\" font-family=\"%s\" font-style=\"%s\" font-weight=\"%s\">%s</text>\n",
+draw.c:      fprintf(plotfile, "<text transform=\"translate(%.2f,%.2f) rotate(%.2f)\" font-size=\"%.1f\" font-family=\"%s\">%s</text>\n",
+draw.c:  if (event->type != ClientMessage || event->xclient.data.l[0] !=
+drawgram.c:      printf(" Epson dot-matrix printer\n");
+drawgram.c:    x1 = p->next->back->xcoord;
+drawgram.c:    x2 = plast->back->xcoord;
+drawgram.c:    y1 = p->next->back->ycoord;
+drawgram.c:    y2 = plast->back->ycoord;
+drawgram.c:  rooty = curtree->root->ycoord;
+drawgram.c:  curtree->root->oldlen = 0.0;
+drawtree.c:      printf(" Epson dot-matrix printer\n");
+drawtree.c:    lookatit = (p->next->next != p || p->index != curtree->root->index);
+drawtree.c:  if (fabs(p->xcoord - curtree->root->xcoord) > epsilon)
+drawtree.c:      atan((p->ycoord - curtree->root->ycoord) / (p->xcoord - curtree->root->xcoord));
+drawtree.c:  else if (p->ycoord - curtree->root->ycoord > 0.0)
+drawtree.c:  if (p->xcoord - curtree->root->xcoord < -epsilon)
+drawtree.c:  TEMP = p->xcoord - curtree->root->xcoord;
+drawtree.c:  TEMP1 = p->ycoord - curtree->root->ycoord;
+drawtree.c:  ppp = p->next->next;
+drawtree.c:      distance = pFrontOfLinkedList->value;
+drawtree.c:      distance = (pFrontOfLinkedList->value +
+drawtree.c:                  pFrontOfLinkedList->pBack->value)/(double)2;
+drawtree.c:      free(pFrontOfLinkedList->pBack);
+drawtree.c:      distance = pFrontOfLinkedList->value;
+drawtree.c:  else if (pToSubNode->back->next->next == pToSubNode->back)
+drawtree.c:    pRightSubNode = pRightSubNode->next->back;
+drawtree.c:    pSubNode = pLeftSubNode->next->next;
+drawtree.c:  xDistance = curtree->nodep[pPivot->index-1]->xcoord - curtree->nodep[pToNode->index-1]->xcoord;
+drawtree.c:  yDistance = curtree->nodep[pPivot->index-1]->ycoord - curtree->nodep[pToNode->index-1]->ycoord;
+drawtree.c:           &(curtree->nodep[pPivot->index - 1]->xcoord),
+drawtree.c:           &(curtree->nodep[pPivot->index - 1]->ycoord),
+drawtree.c:                  &(curtree->nodep[pPivot->index - 1]->xcoord),
+drawtree.c:                  &(curtree->nodep[pPivot->index - 1]->ycoord));
+drawtree.c:  //printf("calling getwidth root: %p root->type: %i nayme: %s index: %li\n", root, root->type, root->nayme, root->index);  //JRMDebug
+drawtree.c:  q->next = curtree->root->next;
+drawtree.c:    //printf("Tree after reroot root: %p  next: %p back: %p\n", root, root->next, root->back); //JRMDebug
+dumptree.c:  printf ("\ttree root %p\n", t->root);
+dumptree.c:  printf ("\tnum nodes %ld\n", t->nonodes);
+dumptree.c:  printf ("\tnum spp   %ld\n", t->spp);
+dumptree.c:  dumpSlist(t->free_forkrings, "\t", "forkrings");
+dumptree.c:  dumpSlist(t->free_forknodes, "\t", "forknodes");
+dumptree.c:  dumppointarray(t->nodep,t->nonodes, "\t");
+factor.c:  root->state = ' ';
+factor.c:  root->descendant = (statenode *)Malloc(sizeof(statenode));
+factor.c:  root->descendant->ancstr = root;
+factor.c:  root = root->descendant;
+factor.c:  root->descendant = NULL;
+factor.c:  root->sibling = NULL;
+factor.c:  root->state = rootstate;
+fitch.c:/* debug:   dist_tree_init(&(ft->ml_tree.tree), nonodes, spp);   debug */
+fitch.c:  t->evaluate = fitch_evaluate;
+fitch.c:  t->insert_ = ml_tree_insert_;
+fitch.c:  t->re_move = ml_tree_re_move;
+fitch.c:  t->nuview = fitch_nuview;
+fitch.c:  ft->ml_tree.makenewv = fitch_makenewv;
+fitch.c:    secondtraverse(q->next->back, z, nx, sum);
+fitch.c:    secondtraverse(q->next->next->back, z, nx, sum);
+fitch.c:    firsttraverse(p->next->back, nx, sum);
+fitch.c:    firsttraverse(p->next->next->back, nx, sum);
+fitch.c:  t->score = -sum;
+fitch.c:  rprime = qprime->next->back;
+fitch.c:    alter(x, y->next->back);
+fitch.c:    alter(x, y->next->next->back);
+fitch.c:  t->nuview(t, p);
+fitch.c:  WITH = (dist_node*)t->nodep[m - 1];
+fitch.c:    describe(p->next->back);
+fitch.c:    describe(p->next->next->back);
+fitch.c:  describe(curtree->root->next->back);
+fitch.c:  describe(curtree->root->next->next->back);
+fitch.c:  describe(curtree->root->back);
+fitch.c:  initrav(p->next->back);
+fitch.c:  initrav(p->next->next->back);
+fitch.c:  if (curtree->root->back != NULL) {
+fitch.c:    initrav(curtree->root->back);
+interface.c:  winwidth=gfxBounds.right-gfxBounds.left;
+interface.c:    winwidth=newBox.right-newBox.left;
+kitsch.c:  dst->weight = src->weight;
+kitsch.c:  dst->processed = src->processed;
+kitsch.c:  t->globrearrange = rooted_globrearrange;
+kitsch.c:  t->insert_ = rooted_tree_insert_;
+kitsch.c:  t->re_move = rooted_tree_re_move;
+kitsch.c:  t->locrearrange = rooted_locrearrange;
+kitsch.c:  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+kitsch.c:  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+kitsch.c:  t->evaluate = kitsch_tree_evaluate;
+kitsch.c:  t->smoothall = (tree_smoothall_t)no_op;
+kitsch.c:    scrunchtraverse(u->next->back, closest, tmax);
+kitsch.c:    scrunchtraverse(u->next->next->back, closest, tmax);
+kitsch.c:      scrunchtraverse(s->next->back, &closest, &tmax);
+kitsch.c:      scrunchtraverse(s->next->next->back, &closest, &tmax);
+kitsch.c:    secondtraverse(a->next->back, q, u, v, i, j, k, sum);
+kitsch.c:    secondtraverse(a->next->next->back, q, u, v, i, j, k, sum);
+kitsch.c:    firstraverse(q->next->back, r, sum);
+kitsch.c:    firstraverse(q->next->next->back, r, sum);
+kitsch.c:  u = q->next->back;
+kitsch.c:  v = q->next->next->back;
+kitsch.c:  sumtraverse(q->next->back, sum);
+kitsch.c:  sumtraverse(q->next->next->back, sum);
+kitsch.c:    u = q->next->back;
+kitsch.c:    v = q->next->next->back;
+kitsch.c:  r = t->root;
+kitsch.c:  for (i = 0; i < (t->nonodes); i++)
+kitsch.c:  t->score = like;
+kitsch.c:    dtraverse(q->next->back);
+kitsch.c:    dtraverse(q->next->next->back);
+kitsch.c:      if (curtree->root->back) {
+mix.c:  if (outgroup->back->index == root->index)
+mix.c:  p = root->next;
+mix.c:  q = root->next->next;
+mix.c:  p->next->bottom = false;
+mix.c:  savetraverse(p->next->back);
+mix.c:  p->next->next->bottom = false;
+mix.c:  savetraverse(p->next->next->back);
+mix.c:  place[root->index - 1] = 1;
+mix.c:      rute = root->next->back;
+mix.c:    addpreorder(p->next->back, item, nufork);
+mix.c:    addpreorder(p->next->next->back, item, nufork);
+mix.c:  if (p->back->next->next == forknode)
+mix.c:    frombelow = forknode->next->next->back;
+mix.c:    frombelow = forknode->next->back;
+mix.c:    repreorder(p->next->back, r, success);
+mix.c:    repreorder(p->next->next->back, r, success);
+mix.c:    mix_addelement(&q->next->back, nextnode, lparens, names);
+mix.c:    q->next->back->back = q->next;
+mix.c:    mix_addelement(&q->next->next->back, nextnode, lparens, names);
+mix.c:    q->next->next->back->back = q->next->next;
+mix.c:  root->back = NULL;
+mix.c:    clearallnodes(p->next->back);
+mix.c:    clearallnodes(p->next->next->back);
+mix.c:    p->next->visited = false;
+mix.c:    p->next->next->visited = false;
+ml.c:  t->do_newbl = true;
+ml.c:  t->smoothall = ml_tree_smoothall;
+ml.c:  t->insert_ = (tree_insert_t)ml_tree_insert_;
+ml.c:  t->re_move = ml_tree_re_move;
+ml.c:  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
+ml.c:  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
+ml.c:  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+ml.c:  dest->categs = src->categs;
+ml.c:  dest->endsite = src->endsite;
+ml.c:  if(dest->underflows)                  // RSGbugfix
+ml.c:    memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
+ml.c:  long oldendsite = dest->ml_node.endsite;
+ml.c:      memcpy(dest->codonx[i][j], src->codonx[i][j], sizeof(csitelike));
+ml.c:  long oldendsite = dest->ml_node.endsite;
+ml.c:      memcpy(dest->x[i][j], src->x[i][j], sizeof(psitelike));
+ml.c:  long oldendsite = dest->ml_node.endsite;
+ml.c:    dest->ml_node.freex((ml_node*)dest);
+ml.c:    dest->ml_node.endsite = 0;
+ml.c:  t->makenewv (t, p);     /* new value of branch length */
+ml.c:{ /* split original  q->v  branch length evenly beween forknode->next and forknode->next->next */
+ml.c:  forknode->next->v = newv ;
+ml.c:  forknode->next->back->v = newv ;
+ml.c:  /* forknode->next->next for both directions */
+ml.c:  forknode->next->next->v = newv;
+ml.c:  forknode->next->next->back->v = newv;
+ml.c:  inittrav(t, forknode->next->back);
+ml.c:  inittrav(t, forknode->next->next);
+ml.c:  inittrav(t, forknode->next->next->back);
+ml.c:  * t->do_newbl is true, all branches optimized.
+ml.c:  if ( !t->do_newbl )
+ml.c:    invalidate_traverse(p->next->next);
+ml.c:    p->next->initialized = false;  /* ... out from the interior node */
+ml.c:    p->next->next->initialized = false;  
+ml.c:    ml_update(t, p->next->next);
+ml.c:   * assert(q->next->next->next == q);
+ml.c:  t->save_traverses(t, p, q);
+ml.c:  t->insert_(t, p, q, false);
+ml.c:  like = t->evaluate(t, p, false);
+ml.c:    t->copy(t, bestree);
+ml.c:    t->copy(t, bestree);
+ml.c:  t->re_move(t, p, &whereRemoved, false);
+ml.c:/* debug:  probably redundant:   t->restore_traverses(t, p, q);  debug */
+ml.c:  /* Update t->score */
+ml.c:  like = t->evaluate(t, q, 0);
+ml.c:  below = t->nodep[below->index - 1];
+ml.c:  newfork = t->nodep[newtip->back->index - 1];
+ml.c:  newtip = t->nodep[newtip->index-1];
+ml.c:      p = t->nodep[p->back->index - 1];
+ml.c:      done = (p == t->root);
+ml.c:        done = (((ml_node*)t->nodep[p->back->index - 1])->node.tyme < ((ml_node*)p)->node.tyme);
+ml.c:  p = t->nodep[p->index - 1];
+ml.c:  t->nuview(t, p);
+ml.c:  return t->evaluate(t, p, false);
+ml.c:  node *s = t->nodep[p->index - 1];
+ml.c:  double start_likelihood = t->score;
+ml.c:  if (s == t->root)
+ml.c:  current_likelihood = t->evaluate(t, s, false);
+ml.c:  s = t->nodep[p->index - 1];
+ml.c:  lnlike = oldlike = t->evaluate(t, p, 0);           /* eval and store old likelihood */
+ml.c:  if (s == t->root)
+ml.c:  thigh = ((ml_node*)s->next->back)->node.tyme;
+ml.c:  if (s != t->root)
+ml.c:    t->nuview(t, s);
+ml.c:    lnlike = t->evaluate(t, s, false);
+ml.c:      t->score = oldlike;
+ml.c:      t->nuview(t, p);
+ml.c:        t->nuview(t, sib_ptr);
+ml.c:  t->score = lnlike;
+ml.c:    t->nuview(t, p);
+ml.c:    lnl[i] = t->evaluate(t, p, 0);
+ml.c:      curtree->locrearrange(curtree, curtree->root->back, smoothit, &bestyet,
+ml.c:      initialvtrav(curtree, curtree->root->back);
+move.c:    l0 = p->next->back->statezero[i];
+move.c:    l1 = p->next->back->stateone[i];
+move.c:    r0 = p->next->next->back->statezero[i];
+move.c:    r1 = p->next->next->back->stateone[i];
+move.c:  move_postorder(p->next->back);
+move.c:  move_postorder(p->next->next->back);
+move.c:  if (outgroup->back->index == curtree->root->index)
+move.c:  while (p->index != curtree->root->index)
+move.c:  onleft = (p == curtree->root->next);
+move.c:      p = curtree->root->next->next;
+move.c:      q = curtree->root->next;
+move.c:      p = curtree->root->next;
+move.c:      q = curtree->root->next->next;
+move.c:      oldoutgrno = curtree->root->next->next->back->index;
+move.c:      oldoutgrno = curtree->root->next->back->index;
+move.c:    p = curtree->root->next;
+move.c:    q = curtree->root->next->next;
+move.c:      outgroup->back->back = curtree->root->next;
+move.c:      outgroup->back = curtree->root->next->next;
+move.c:      outgroup->back->back = curtree->root->next->next;
+move.c:      outgroup->back = curtree->root->next;
+move.c:    outgroup->back->back = curtree->root->next->next;
+move.c:    outgroup->back = curtree->root->next;
+move.c:  move_filltrav(r->next->back);
+move.c:  move_filltrav(r->next->next->back);
+move.c:      l0 = r->next->back->statezero[i];
+move.c:      l1 = r->next->back->stateone[i];
+move.c:      r0 = r->next->next->back->statezero[i];
+move.c:      r1 = r->next->next->back->stateone[i];
+move.c:    move_hyptrav(r->next->back);
+move.c:    move_hyptrav(r->next->next->back);
+move.c:      first = p->next->back;
+move.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+move.c:          st = p->next->back->state;
+move.c:          st = p->next->next->back->state;
+move.c:    outgrno = curtree->root->next->back->index;
+move.c:  ok1 = (ok1 && i >= 1 && i < spp * 2 && i != curtree->root->index);
+move.c:        if (q->next->back->index == i)
+move.c:          fromwhere = q->next->next->back->index;
+move.c:          fromwhere = q->next->back->index;
+move.c:    addpreorder(p->next->back, item, nufork, place);
+move.c:    addpreorder(p->next->next->back, item, nufork, place);
+move.c:  if (!(ok && i >= 1 && i <= nonodes && i != curtree->root->index))
+move.c:  if (q->next->back->index == i)
+move.c:    fromwhere = q->next->next->back->index;
+move.c:    fromwhere = q->next->back->index;
+move.c:  if (curtree->root->index == curtree->nodep[i - 1]->back->index)
+move.c:    if (curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back == curtree->nodep[i - 1])
+move.c:      rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->next->back;
+move.c:      rute = curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->next->back;
+move.c:      q = curtree->nodep[atwhat - 1]->next->back;
+move.c:      curtree->nodep[atwhat - 1]->next->back = curtree->nodep[atwhat - 1]->next->next->back;
+move.c:      curtree->nodep[atwhat - 1]->next->next->back = q;
+move.c:      curtree->nodep[atwhat - 1]->next->back->back = curtree->nodep[atwhat - 1]->next;
+move.c:      curtree->nodep[atwhat - 1]->next->next->back->back = curtree->nodep[atwhat - 1]->next->next;
+move.c:  /* flip at a node left-right */
+move.c:    p = curtree->nodep[i - 1]->next->back;
+move.c:    curtree->nodep[i - 1]->next->back = curtree->nodep[i - 1]->next->next->back;
+move.c:    curtree->nodep[i - 1]->next->next->back = p;
+move.c:    curtree->nodep[i - 1]->next->back->back = curtree->nodep[i - 1]->next;
+move.c:    curtree->nodep[i - 1]->next->next->back->back = curtree->nodep[i - 1]->next->next;
+move.c:    ok = (ok && in_tree[i - 1] && i >= 1 && i <= nonodes && i != curtree->root->index);
+neighbor.c:    describe(p->next->back, height+q->v);
+neighbor.c:    describe(p->next->next->back, height+q->v);
+neighbor.c:  describe(curtree->root->next->back, 0.0);
+neighbor.c:  describe(curtree->root->next->next->back, 0.0);
+neighbor.c:    describe(curtree->root->back, 0.0);
+neighbor.c:    hookup(curtree->nodep[nextnode - 1]->next->next, cluster[minj - 1]);
+neighbor.c:    curtree->root->back = NULL;
+neighbor.c:  hookup(curtree->nodep[nextnode - 1]->next->next, cluster[el[2] - 1]);
+newmove.c:  (*p)->next->next->next = *p;
+newmove.c:  rtdesc->back = newfork->next->next;
+newmove.c:  newfork->next->next->back = rtdesc;
+newmove.c:  newfork->next->back = leftdesc;
+newmove.c:  root->back = NULL;
+newmove.c:    if (newtip == q->next->next->back) {
+newmove.c:      q->next->back = newtip;
+newmove.c:      q->next->next->back = NULL;
+newmove.c:  if (parent != treenode[parent->index - 1])
+newmove.c:    parent = treenode[parent->index - 1];
+newmove.c:  newnode->index = parent->index;
+newmove.c:  rtdesc->back = newfork->next->next;
+newmove.c:  newfork->next->next->back = rtdesc;
+newmove.c:  newfork->next->back = leftdesc;
+newmove.c:  root->back = NULL;
+newmove.c:  if ((*fork)->next->back == *item)
+newmove.c:    if (q->next->back == *item)
+newmove.c:    if (*item == (*fork)->next->back) {
+newmove.c:        root = (*fork)->next->next->back;
+newmove.c:        root = (*fork)->next->back;
+newmove.c:    p = (*item)->back->next->back;
+newmove.c:    q = (*item)->back->next->next->back;
+newmove.c:        (*item)->length = (*fork)->next->length + (*fork)->next->next->length;
+newmove.c:    printf("%d", (p->next->back->statezero[j-1] & (1L << k)) > 0);
+newmove.c:    printf("%d", (p->next->back->stateone[j-1] & (1L << k)) > 0);
+newmove.c:    printf("%d", (p->next->next->back->statezero[j-1] & (1L << k)) > 0);
+newmove.c:    printf("%d", (p->next->next->back->stateone[j-1] & (1L << k)) > 0);
+newmove.c:    l0 = p->next->back->statezero[i];
+newmove.c:    l1 = p->next->back->stateone[i];
+newmove.c:    r0 = p->next->next->back->statezero[i];
+newmove.c:    r1 = p->next->next->back->stateone[i];
+newmove.c:  if(outgroup->back->index == root->index)
+newmove.c:  q = root->next;
+newmove.c:  while (p->index != root->index) {
+newmove.c:    r->next = root->next;
+newmove.c:    root->next = NULL;
+newmove.c:      /* root->haslength remains false, or else treeout() will generate
+newmove.c:      root->next->haslength = true;
+newmove.c:      root->next->next->haslength = true;
+newmove.c:    q = root->next;
+newmove.c:  root->next->back = outgroup;
+newmove.c:  root->next->next->back = outgroup->back;
+newmove.c:  outgroup->back->back = root->next->next;
+newmove.c:  outgroup->back = root->next;
+newmove.c:    root->next->next->length = templen;
+newmove.c:    root->next->next->back->length = templen;
+newmove.c:  if (outgroup->back->index == root->index)
+newmove.c:  while (p->index != root->index) {
+newmove.c:  onleft = (p == root->next);
+newmove.c:      p = root->next->next;
+newmove.c:      q = root->next;
+newmove.c:      p = root->next;
+newmove.c:      q = root->next->next;
+newmove.c:      oldoutgrno = root->next->next->back->index;
+newmove.c:      oldoutgrno = root->next->back->index;
+newmove.c:    p = root->next;
+newmove.c:    q = root->next->next;
+newmove.c:      outgroup->back->back = root->next;
+newmove.c:      outgroup->back = root->next->next;
+newmove.c:      outgroup->back->back = root->next->next;
+newmove.c:      outgroup->back = root->next;
+newmove.c:    outgroup->back->back = root->next->next;
+newmove.c:    outgroup->back = root->next;
+newmove.c:      l0 = r->next->back->statezero[i];
+newmove.c:      l1 = r->next->back->stateone[i];
+newmove.c:      r0 = r->next->next->back->statezero[i];
+newmove.c:      r1 = r->next->next->back->stateone[i];
+newmove.c:    move_hyptrav(r->next->back);
+newmove.c:    move_hyptrav(r->next->next->back);
+newmove.c:      first = p->next->back;
+newmove.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+newmove.c:          st = p->next->back->state;
+newmove.c:          st = p->next->next->back->state;
+newmove.c:    outgrno = root->next->back->index;
+newmove.c:  q = start->next;
+newmove.c:  ok1 = (ok1 && i >= 1 && i <= (spp * 2 - 1) && i != root->index);
+newmove.c:      if (j != root->index)
+newmove.c:          if (j != root->index) { /* can't insert at root */
+newmove.c:              treenode[q->index-1]->next->back = treenode[i-1];
+newmove.c:  ok1 = (ok1 && i >= 1 && i < spp * 2 && i != root->index);
+newmove.c:        if (q->next->back->index == i)
+newmove.c:          fromwhere = q->next->next->back->index;
+newmove.c:          fromwhere = q->next->back->index;
+newmove.c:    addpreorder(p->next->back, item, nufork, place);
+newmove.c:    addpreorder(p->next->next->back, item, nufork, place);
+newmove.c:  if (!(ok && i >= 1 && i <= nonodes && i != root->index)) {
+newmove.c:  if (q->next->back->index == i)
+newmove.c:    fromwhere = q->next->next->back->index;
+newmove.c:    fromwhere = q->next->back->index;
+newmove.c:  if (root->index == treenode[i - 1]->back->index) {
+newmove.c:    if (treenode[treenode[i - 1]->back->index - 1]->next->back == treenode[i - 1])
+newmove.c:      rute = treenode[treenode[i - 1]->back->index - 1]->next->next->back;
+newmove.c:      rute = treenode[treenode[i - 1]->back->index - 1]->next->back;
+newmove.c:      q = treenode[atwhat - 1]->next->back;
+newmove.c:      treenode[atwhat - 1]->next->back =
+newmove.c:        treenode[atwhat - 1]->next->next->back;
+newmove.c:      treenode[atwhat - 1]->next->next->back = q;
+newmove.c:      treenode[atwhat - 1]->next->back->back = treenode[atwhat - 1]->next;
+newmove.c:      treenode[atwhat - 1]->next->next->back->back =
+newmove.c:        treenode[atwhat - 1]->next->next;
+newmove.c:  /* flip at a node left-right */
+newmove.c:    p = treenode[i - 1]->next->back;
+newmove.c:    treenode[i - 1]->next->back = treenode[i - 1]->next->next->back;
+newmove.c:    treenode[i - 1]->next->next->back = p;
+newmove.c:    treenode[i - 1]->next->back->back = treenode[i - 1]->next;
+newmove.c:    treenode[i - 1]->next->next->back->back = treenode[i - 1]->next->next;
+newmove.c:    if (q->next->next == p) {
+newmove.c:  /* flip at a node left-right */
+newmove.c:          i != root->index);
+pars.c:      printf("  .  Use dot-differencing to display them  %s\n",
+pars.c:  first = p->next->back;
+pars.c:    p->ycoord = p->next->next->back->ycoord;
+pars.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+pars.c:  p->ymin = first->ymin;
+pars.c:  p->ymax = last->ymax;
+parsimony.c:  nuroot1 = t->get_forknode(t, k+1);
+parsimony.c:  nuroot2 = t->get_forknode(t, k+1);
+parsimony.c:  nuroot3 = t->get_forknode(t, k+1);
+parsimony.c:  t->nodep[k] = nuroot3;
+parsimony.c:  fakeroot = t->root;     /* make sure it becomes the bottom node in circle */
+parsimony.c:  while (fakeroot->back != NULL)
+parsimony.c:    fakeroot = fakeroot->next;
+parsimony.c:      p->next = fakeroot->next;           /* bypass node fakeroot points to */
+parsimony.c:    if ( t->nodep[fakeroot->index - 1 ] == fakeroot)
+parsimony.c:      t->nodep[fakeroot->index - 1 ] = p;    /* have fakeroot point to fork */
+parsimony.c:    hookup(fakeroot->next->back, fakeroot->next->next->back); /* debug: always OK? */
+parsimony.c:  if ( t->root == fakeroot) /* set root of tree if was pointing to fakeroot */
+parsimony.c:    if (t->nodep[outgrno-1]->back != NULL)    /* if that tip is on the tree */
+parsimony.c:      t->root = t->nodep[outgrno - 1]->back;
+parsimony.c:      for (i = 0; t->nodep[i]->back == NULL; i++) { }
+parsimony.c:      t->root = t->nodep[i]->back;                        /* set it to root */
+parsimony.c:  t->release_fork(t, fakeroot);
+parsimony.c:  t->root = t->nodep[outgrno - 1]->back;
+parsimony.c:  t->save_traverses(t, item, p);     /* need to restore to leave tree same  */
+parsimony.c:  t->insert_(t, item, p->back, false);
+parsimony.c:  initializetrav(t, t->root);
+parsimony.c:  initializetrav(t, t->root->back);
+parsimony.c:  like = t->evaluate(t, p, false);
+parsimony.c:  t->score = like;
+parsimony.c:  t->re_move(t, item, &dummy, true);       /* pull the branch back off the tree */
+parsimony.c:  t->restore_traverses(t, item, p);           /* debug: what is tis doing? */
+parsimony.c:  t->evaluate(t, p, 0);   /* debug:   as in dnaml, but may not be needed */
+parsimony.c:    t->insert_(t, item, p, false);
+parsimony.c:    like = t->evaluate(t, p, false);
+parsimony.c:    t->re_move(t, item, p, true);
+parsimony.c:  t->globrearrange = pars_globrearrange;
+parsimony.c:  t->try_insert_ = (tree_try_insert_t)pars_tree_try_insert_;
+parsimony.c:  t->evaluate = pars_tree_evaluate;
+parsimony.c:  if (dst->numsteps == NULL )
+parsimony.c:    dst->numsteps = Malloc(endsite * sizeof(long));
+parsimony.c:  memcpy(dst->numsteps, src->numsteps, endsite * sizeof(long));
+parsimony.c:    while ( treecollapsible(t, t->nodep[0]))
+parsimony.c:      collapsetree(t, t->nodep[0]);
+parsimony.c:    if ( k != (treeLimit-1) ) {          /* if not at the last tree already */
+parsimony.c:    treeLimit--;         /* because there is now one fewer tree in bestrees */
+parsimony.c:  if ( root->index == p->index && root != p)
+parsimony.c:       (p->next->back == NULL && p->next != root))
+parsimony.c:  if (outgroup->back->index == root->index)
+parsimony.c:  p = root->next;
+parsimony.c:  q = root->next->next;
+parsimony.c:  root->next = outgroup->back;
+parsimony.c:  p = root->next;
+parsimony.c:  t->release_forknode(t, root);
+parsimony.c:  right = (*root)->next->next->back;
+parsimony.c:  left = (*root)->next->back;
+parsimony.c:  if (right->tip)
+parsimony.c:    (*root)->next = right->back;
+parsimony.c:    (*root)->next->next = left->back;
+parsimony.c:    right->back->next = *root;
+parsimony.c:  newnode = t->get_forknode(t, right->index);
+parsimony.c:  newnode->next = right->next;
+parsimony.c:  left->back = newnode;
+parsimony.c:  right->next = newnode;
+parsimony.c:  (*root)->next->back = (*root)->next->next->back = NULL;
+parsimony.c:  outgrnode = t->nodep[outgrno - 1];
+parsimony.c:  setbottomtraverse(t->root);  /* set booleans indicating which way is down */
+parsimony.c:    p = t->nodep[i - 1];                           /* start with species  i */
+parsimony.c:      q = t->nodep[i - 1];  /* ... works, how  r  is initialized */
+parsimony.c:        if (parentinmulti(r, t->root))
+parsimony.c:        reroot3(t, outgrnode, t->root, root2, lastdesc);
+parsimony.c:        t->root = root2;
+parsimony.c:      backtobinary(t, &t->root, binroot);
+parsimony.c:  outgrnode = t->nodep[outgrno - 1];
+parsimony.c:    oldroot = t->nodep[outgrno-1];
+parsimony.c:    t->root = root_tree(t, oldroot);           /* put in a "fake" root fork */
+parsimony.c:    t->root = oldroot;
+parsimony.c:   add_to_besttrees(t, t->score, bestrees, bestfound);     debug */
+parsimony.c:  p = root->next;
+parsimony.c:      flipnodes(root->next->back, p->back);
+parsimony.c:    last--;                     /* go earlier in forks to find nonempty one */
+parsimony.c:  binroot->next->back = (*root)->next->back;
+parsimony.c:  (*root)->next->back->back = binroot->next;
+parsimony.c:  binroot->next->next->back = *root;
+parsimony.c:  (*root)->back = binroot->next->next;
+parsimony.c:  t->release_forknode(t, p);
+parsimony.c:  forknode = t->get_fork(t, spp);      /* was put on nodep, index is  spp+1 */
+parsimony.c:  hookup(t->nodep[1], forknode->next);
+parsimony.c:  hookup(t->nodep[0], forknode->next->next);
+parsimony.c:    newtip = t->nodep[j-1];
+parsimony.c:      forknode = t->get_fork(t, spp+j-2);       /* put a new fork circle in */
+parsimony.c:      below = t->nodep[bestrees[treei].btree[j - 1] - 1];
+parsimony.c:        hookup(forknode->next->next, bback);
+parsimony.c:      t->nodep[spp+j-2] = forknode->next->next;   /* know which way is down */
+parsimony.c:      bback= t->nodep[t->nodep[-bestrees[treei].btree[j-1]-1]->back->index-1];
+parsimony.c:      afterwhere = bback->next->next;   /* ... the nodes before, after that */
+parsimony.c:      forknode = t->get_forknode(t, below->index);        /* get a new node */
+parsimony.c:    p = t->nodep[i];
+parsimony.c:      t->nodep[q->index - 1] = q;           /* and have nodep point to that */
+parsimony.c:      t->release_forknode(t, forknode);                      /* and toss it */
+parsimony.c:      hookup(forknode->next->back, forknode->next->next->back);
+parsimony.c:      t->release_fork(t, forknode);        /* release the whole fork circle */
+parsimony.c:  t->root = t->nodep[outgrno - 1]->back;
+parsimony.c:  p = root->next;
+parsimony.c:      newfork = t->get_forknode(t, n->index);
+parsimony.c:  t->release_fork(t, m); 
+parsimony.c:  coordinates(t, t->root, 0.0, &tipy, &tipmax);
+parsimony.c:    drawline3(i, scale, t->root);
+parsimony.c:  first = p->next->back;
+parsimony.c:  if ((p == t->root) || count_sibs(p) > 2)
+parsimony.c:    p->ycoord = p->next->next->back->ycoord;
+parsimony.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+parsimony.c:  p->ymin = first->ymin;
+parsimony.c:  p->ymax = last->ymax;
+parsimony.c:      first = p->next->back;
+parsimony.c:      if ((long)last->ycoord > i && (long)first->ycoord < i &&
+parsimony.c:  if (t->root->initialized == false ) t->nuview(t, t->root);
+parsimony.c:                    * (((pars_node*)t->root)->numsteps[l - 1] / weight[l - 1]));
+parsimony.c:          fprintf(outfile, "%4ld", (((pars_node*)t->root)->numsteps[k - 1] ));
+parsimony.c:      bestyet = t->evaluate(t, t->root, 0);                /* get its score */
+parsimony.c:      t->globrearrange(t, bestree, progress, true, bestfound); /* rearrange */
+parsimony.c:    root = t->get_forknode(t, t->nonodes);
+parsimony.c:    left = t->get_forknode(t, t->nonodes);
+parsimony.c:    right = t->get_forknode(t, t->nonodes);
+parsimony.c:    root->next = left;
+parsimony.c:    left->next = right;
+parsimony.c:    right->next = root;
+parsimony.c:    left->back = p;
+parsimony.c:    right->back = p->back;
+parsimony.c:  t->nuview(t, root);
+parsimony.c:    t->release_forknode(t, root);
+parsimony.c:    t->release_forknode(t, left);
+parsimony.c:    t->release_forknode(t, right);
+parsimony.c:  t->score = -sum;
+penny.c:  if ((*m) <= 2 || !(noroot && (a == root || a == root->next->back))) {
+penny.c:    addtraverse(a->next->back, b, c, m, n, valyew, place);
+penny.c:    addtraverse(a->next->next->back, b, c, m, n, valyew, place);
+penny.c:  if (outgroup->back->index == root->index)
+penny.c:  while (p->index != root->index) {
+penny.c:  p = root->next;
+penny.c:  q = root->next->next;
+penny.c:  outgroup->back->back = root->next->next;
+penny.c:  outgroup->back = root->next;
+phylip.c:      ret = dst->nodep[nsrc->index - 1];
+phylip.c:          ret = ret->next;
+phylip.c:  if (dst->nonodes > src->nonodes) {
+phylip.c:    maxcircles = dst->nonodes;
+phylip.c:    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
+phylip.c:    if ((dst_num == 1) && (dst->nodep[i] == NULL))
+phylip.c:      p = dst->nodep[i];    
+phylip.c:        dst->nodep[i] = p->next;                     /* cut  p  out of circle */
+phylip.c:        dst->nodep[i] = NULL;
+phylip.c:      dst->release_forknode(dst, p);    /* it goes onto free_forknodes list */
+phylip.c:    dst_sibs = count_sibs(dst->nodep[i]);   /* how many nodes in dst circle */
+phylip.c:    if ((dst_num == 1) && (dst->nodep[i] == NULL))
+phylip.c:      if (dst->nodep[i] == NULL) {
+phylip.c:        p = dst->get_forknode(dst, i+1);   /* ... from free_fork_nodes list */
+phylip.c:        dst->nodep[i] = p;
+phylip.c:        p = dst->get_forknode(dst, i+1);            /* take another one off */
+phylip.c:	p->next = dst->nodep[i];
+phylip.c:	dst->nodep[i] = p;
+phylip.c:      q->next = dst->nodep[i];                          /* close the circle */
+phylip.c:    src->nodep[i]->copy(src->nodep[i], dst->nodep[i]);
+phylip.c:      dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+phylip.c:    q = dst->nodep[i];
+phylip.c:  dst->score = src->score;
+phylip.c:    if (src->root->back != NULL) {
+phylip.c:    dst->root = where_in_dest(src, dst, src->root);
+phylip.c:  dst->v = src->v;
+phylip.c:  dst->xcoord = src->xcoord;
+phylip.c:  dst->ycoord = src->ycoord;
+phylip.c:  dst->ymin = src->ymin;
+phylip.c:  dst->ymax = src->ymax;
+phylip.c:  dst->iter = src->iter;
+phylip.c:  dst->haslength = src->haslength;
+phylip.c:  dst->initialized = src->initialized;
+phylip.c:  dst->deltav = src->deltav;
+phylip.c:  for ( index = spp; index < t->nonodes; index++ ) {
+phylip.c:    p = t->nodep[index];
+phylip.c:    for ( p = p->next; p != t->nodep[index]; p = p->next ) {
+phylip.c:    hroot[start-1] = 0.0;
+phylip.c:    hookup(nodep[nodenum], nodep[local_nodenum]->next->next);
+phylip.c:      addelement(treep, &(*p)->next->back, (*p)->next, ch, parens, treefile,
+phylip.c:    if (q->branchnum < pfirst->branchnum)
+phylip.c:    pfirst->branchnum = q->branchnum;
+phylip.c:    q->branchnum = pfirst->branchnum;
+phylip.c:  if (t->root->back == NULL) {      /* move root pointer point to leftmost  */
+phylip.c:    p = t->root;
+phylip.c:    if (t->root->next->back->tip)   /* interior node descended from ...  */
+phylip.c:      t->root = t->root->next->next->back;   /* that rootmost interior node */
+phylip.c:    else  t->root = t->root->next->back;
+phylip.c:  if (t->root->next->back == NULL) {
+phylip.c:    if (t->root->back->tip)
+phylip.c:      t->root = t->root->next->next->back;
+phylip.c:    else t->root = t->root->back;
+phylip.c:  if (t->root->next->next->back == NULL) {
+phylip.c:    if (t->root->back->tip)
+phylip.c:      t->root = t->root->next->back;
+phylip.c:    else t->root = t->root->back;
+phylip.c:  unroot_r(t, t->root, nonodes); /* traverse to find interior ... */
+phylip.c:  unroot_r(t, t->root->back, nonodes); /*  forks to be released */
+phylip.c:  newl = root->next->oldlen + root->next->next->oldlen; /* add lengths */
+phylip.c:  root->next->back->oldlen = newl;
+phylip.c:  root->next->next->back->oldlen = newl;
+phylip.c:  newl = root->next->v + root->next->next->v;
+phylip.c:  root->next->back->v = newl;
+phylip.c:  root->next->next->back->v = newl;
+phylip.c:  root->next->back->back = root->next->next->back;
+phylip.c:  root->next->next->back->back = root->next->back;
+phylip.c:  while ( root->index != nonodes ) {
+phylip.c:    tmpnode = t->nodep[ root->index ];
+phylip.c:    t->nodep[root->index] = root;
+phylip.c:    root->index++;
+phylip.c:    root->next->index++;
+phylip.c:    root->next->next->index++;
+phylip.c:    t->nodep[root->index - 2] = tmpnode;
+phylip.c:    tmpnode->next->index--;
+phylip.c:    tmpnode->next->next->index--;
+phylip.c:  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+phylip.c:    if (t->nodep[j] != NULL) {                   /* make there is one there */
+phylip.c:      p = t->nodep[j];
+phylip.c:        q = p->next->next;
+phylip.c:        t->release_forknode(t, p->next);
+phylip.c:      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
+phylip.c:    if (t->nodep[j] != NULL)
+phylip.c:      t->nodep[j]->back = NULL;
+phylip.c:  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+phylip.c:    if (t->nodep[j] != NULL)
+phylip.c:      t->release_forknode(t, t->nodep[j]);
+phylip.c:  t->globrearrange = rooted_globrearrange;
+phylip.c:  t->insert_ = (tree_insert_t)rooted_tree_insert_;
+phylip.c:  t->re_move = rooted_tree_re_move;
+phylip.c:  t->locrearrange = rooted_locrearrange;
+phylip.c:  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+phylip.c:  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+phylip.c:  while ( !Slist_isempty(t->free_fork_nodes) )
+phylip.c:    Slist_pop(t->free_fork_nodes);
+phylip.c:  Slist_delete(t->free_fork_nodes);
+phylip.c:    t->lrsaves[i]->free(&(t->lrsaves[i]));
+phylip.c:  free(t->lrsaves);
+phylip.c:  t->temp_p->free(&(t->temp_p));
+phylip.c:  t->temp_q->free(&(t->temp_q));
+phylip.c:  for ( i = 0 ; i < t->nonodes ; i++ ) {
+phylip.c:    p = t->nodep[i];
+phylip.c:    p->free(&t->nodep[i]);
+phylip.c:  free(t->nodep);
+phylip.c:  if ( t->release_fork == NULL )
+phylip.c:    t->release_fork = generic_tree_release_fork;
+phylip.c:  if ( t->get_fork == NULL )
+phylip.c:    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
+phylip.c:  if ( t->release_forknode == NULL )
+phylip.c:    t->release_forknode = generic_tree_release_forknode;
+phylip.c:  t->spp = spp;
+phylip.c:  t->nonodes = nonodes;
+phylip.c:  t->nodep = Malloc(nonodes * sizeof(node *));
+phylip.c:    t->nodep[i] = functions.node_new(true, i+1);
+phylip.c:    t->nodep[i]->tip = true;
+phylip.c:    t->nodep[i] = q;
+phylip.c:  t->free_fork_nodes = Slist_new();
+phylip.c:    t->release_fork(t, t->nodep[i]);
+phylip.c:  t->nodep[nonodes] = NULL;   /* might need this */
+phylip.c:  t->root = t->nodep[0];   /* debug:  what if enterorder? */
+phylip.c:  t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
+phylip.c:  t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
+phylip.c:    t->lrsaves[i] = functions.node_new(false,0);
+phylip.c:  t->temp_p = functions.node_new(false,0);
+phylip.c:  t->temp_q = functions.node_new(false,0);
+phylip.c:  t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
+phylip.c:  t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
+phylip.c:  t->globrearrange = generic_globrearrange;
+phylip.c:  t->free = generic_tree_free;
+phylip.c:  t->copy = generic_tree_copy;
+phylip.c:  t->smoothall = (tree_smoothall_t)no_op;
+phylip.c:  t->score = UNDEFINED;
+phylip.c:  t->locrearrange = generic_unrooted_locrearrange;
+phylip.c:  t->save_lr_nodes = unrooted_tree_save_lr_nodes;
+phylip.c:  t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
+phylip.c:  t->save_traverses = generic_tree_save_traverses;
+phylip.c:  t->restore_traverses = generic_tree_restore_traverses;
+phylip.c:  t->nuview = generic_tree_nuview;
+phylip.c:  t->evaluate = generic_tree_evaluate;
+phylip.c:  t->insert_ = (tree_insert_t)generic_tree_insert_;
+phylip.c:  t->get_forknode = generic_tree_get_forknode;
+phylip.c:  t->re_move = generic_tree_re_move;
+phylip.c:  t->try_insert_ = generic_tree_try_insert_;
+phylip.c:  t->tree_print_f = generic_tree_print;
+phylip.c:  t->do_branchl_on_insert_f = generic_do_branchl_on_insert;
+phylip.c:  t->do_branchl_on_re_move_f = generic_do_branchl_on_re_move;
+phylip.c:  t->tree_good_f = generic_tree_good;
+phylip.c:  t->node_good_f = generic_node_good;
+phylip.c:  t->fork_good_f = generic_fork_good;
+phylip.c:  sprintf(progbuf, "tree %p spp = %ld ; nonodes = %ld root = %p\n", (void *)t, t->spp, t->nonodes, (void *)t->root);
+phylip.c:  for(nodeIndex=0;nodeIndex<t->nonodes;nodeIndex++)
+phylip.c:    node * p = t->nodep[nodeIndex];
+phylip.c:    if(p == t->root) {
+phylip.c:  for(nodeIndex = 0; nodeIndex < t->nonodes; nodeIndex++)
+phylip.c:    node * n = t->nodep[nodeIndex];
+phylip.c:      boolean thisNodeGood = t->node_good_f(t,n);
+phylip.c:      boolean thisNodeGood = t->fork_good_f(t,n);
+phylip.c:      boolean nodeGood = t->node_good_f(t,p);
+phylip.c:      if (sib_ptr->index == curtree->root->index)
+phylip.c:  succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+phylip.c:  succeeded = t->try_insert_(t, p, q->back, qwherein, bestyet, bestree,
+phylip.c:  r->copy(r, t->lrsaves[0]);
+phylip.c:  r->next->copy(r->next->back, t->lrsaves[1]);
+phylip.c:  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
+phylip.c:  p->next->copy(p->next, t->lrsaves[3]);
+phylip.c:  p->next->next->copy(p->next->next, t->lrsaves[4]);
+phylip.c:  t->rb = r;                       /* pointers to the nodes of the fork ... */
+phylip.c:  t->rnb = r->next;                                /* ... that contains  r  */
+phylip.c:  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+phylip.c:  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
+phylip.c:  t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
+phylip.c:  t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
+phylip.c:  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
+phylip.c:  t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
+phylip.c:  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
+phylip.c:  t->rnb->back->v = t->rnb->v;
+phylip.c:  t->rnnb->back->v = t->rnnb->v;
+phylip.c:  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
+phylip.c:  p->next->next->back->v = p->next->next->v;
+phylip.c:  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
+phylip.c:  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
+phylip.c:  inittrav(t, t->rnnb);
+phylip.c:  inittrav(t, p->next->next);
+phylip.c:  if (start->tip)                  /* make sure that start at interior node */
+phylip.c:    start = start->back;                   /* that is connected to outgroup */
+phylip.c:   * insert it in two neighboring branches.  p->back->next->next  points to
+phylip.c:   * the interior node that is to be removed, p->back->next->next->back  is
+phylip.c:    r = p->back->next->next;           /* these are the two connected ... */
+phylip.c:      t->save_lr_nodes(t, p, r);  /* save the views at the fork 
+phylip.c:    t->re_move(t, r, &q, false);   /* remove r with subtree to back of it */
+phylip.c:      t->copy(t, priortree);
+phylip.c:    t->addtraverse(t, r, q, false, qwhere,
+phylip.c:      t->addtraverse(t, r, p->next->next->back, false, qwhere, bestyet,
+phylip.c:      t->insert_(t, r, qwhere, false);           /* put it in best location */
+phylip.c:        t->restore_lr_nodes(t, p, r);
+phylip.c:        t->score = *bestyet;
+phylip.c:        t->smoothall(t, r->back);
+phylip.c:        *bestyet = t->evaluate(t, p, 0);
+phylip.c:      succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+phylip.c:                                     p->next->next->back, bestyet, thorough,
+phylip.c:  p->copy(p,t->temp_p);
+phylip.c:  q->copy(q,t->temp_q);
+phylip.c:  t->temp_p->copy(t->temp_p,p);
+phylip.c:  t->temp_q->copy(t->temp_q,q);
+phylip.c:  p = t->nodep[p->index - 1];
+phylip.c:  if (p == t->root)
+phylip.c:  forknode = t->nodep[p->back->index - 1];
+phylip.c:  if (forknode == t->root)
+phylip.c:  oldlike = t->score;
+phylip.c:  whereto = t->nodep[forknode->back->index - 1];
+phylip.c:  t->save_lr_nodes(t, p, whereto);
+phylip.c:  t->re_move(t, p, &where, false);
+phylip.c:  t->insert_(t, p, whereto, false);
+phylip.c:  like = t->evaluate(t, p, false);
+phylip.c:    t->restore_lr_nodes(t, p, whereto);
+phylip.c:    t->score = oldlike;
+phylip.c:    t->smoothall(t, t->root);
+phylip.c:  t->evaluate(t, start, 0); /* need to start of with a valid t->score */
+phylip.c:  node* forknode = t->nodep[p->back->index - 1];
+phylip.c:  p->back->copy(p->back, t->lrsaves[0]);
+phylip.c:  whereto->copy(whereto, t->lrsaves[1]);
+phylip.c:  t->rnb = forknode->back;
+phylip.c:  if ( p == forknode->next->back ) {
+phylip.c:    t->onleft = false;
+phylip.c:    t->rnnb = forknode->next->next->back;
+phylip.c:    t->onleft = true;
+phylip.c:    t->rnnb = forknode->next->back;
+phylip.c:  node* forknode = t->nodep[p->back->index - 1];
+phylip.c:  if ( p == forknode->next->back ) {
+phylip.c:      hookup( forknode->back, forknode->next->next->back);
+phylip.c:      forknode->next->next->back->back = NULL;
+phylip.c:      t->root = forknode->next->next->back;
+phylip.c:      hookup( forknode->back, forknode->next->back);
+phylip.c:      forknode->next->back->back = NULL;
+phylip.c:      t->root = forknode->next->back;
+phylip.c:  hookup(forknode, t->rnb);
+phylip.c:  if ( t->onleft ) {
+phylip.c:    hookup(forknode->next->next, p);
+phylip.c:    hookup(forknode->next, t->rnnb);
+phylip.c:    hookup(forknode->next->next, t->rnnb);
+phylip.c:  t->lrsaves[0]->copy(t->lrsaves[0], p->back);
+phylip.c:  t->lrsaves[1]->copy(t->lrsaves[1], whereto);
+phylip.c:  retval->next->next = generic_tree_get_forknode(t, k+1);
+phylip.c:  retval->next->next->next = retval;
+phylip.c:  retval->next->initialized = false;
+phylip.c:  retval->next->next->initialized = false;
+phylip.c:  retval->next->tip = false;
+phylip.c:  retval->next->next->tip = false;
+phylip.c:  t->nodep[k] = retval;
+phylip.c:  n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
+phylip.c:    n->next = n->next->next;
+phylip.c:    t->release_forknode(t, p);
+phylip.c:  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
+phylip.c:  /*  calls the current nongeneric t->nuview on this branch, after first
+phylip.c:  t->nuview((tree*)t, p);   /* this actually calculates the view using the
+phylip.c:  if ( Slist_isempty(t->free_fork_nodes) )
+phylip.c:    p = Slist_pop(t->free_fork_nodes);
+phylip.c:    assert(p->next->next->next == p);
+phylip.c:      hookup(p->next->next, r);
+phylip.c:      p->next->next->back = NULL;
+phylip.c:    t->do_branchl_on_insert_f(t, p, q);
+phylip.c:    assert( ! p->next->initialized );
+phylip.c:    assert( ! p->next->next->initialized );   debug */
+phylip.c:    newnode = t->get_forknode(t, q->index);  /* debug: this used? correct? */
+phylip.c: * If t->root is NULL, below is ignored, no fork is added, and newtip becomes
+phylip.c:  if ( t->root == NULL ) {
+phylip.c:  below = t->nodep[below->index - 1];
+phylip.c:  newtip = t->nodep[newtip->index-1];
+phylip.c:    below = t->nodep[below->index - 1];
+phylip.c:    newfork = t->nodep[t->get_fork(t, k)->index - 1];
+phylip.c:    newtip = t->nodep[newtip->index-1];
+phylip.c:    below->back = newfork->next->next;
+phylip.c:    newfork->next->next->back = below;
+phylip.c:    newfork->next->back = newtip;
+phylip.c:    if (t->root == below)
+phylip.c:      t->root = newfork;
+phylip.c:    newfork = t->get_forknode(t, below->index);
+phylip.c:  oldroot = t->root;
+phylip.c:    if ( t->root == fork )
+phylip.c:      t->root = q;
+phylip.c:    if (fork->next->back != NULL)  /* set where to the place it was next to */
+phylip.c:      (*where) = fork->next->back;
+phylip.c:      (*where) = fork->next->next->back;
+phylip.c:    if (fork->next->back != NULL)            /* connect remaining neighbors */
+phylip.c:      fork->next->back->back = fork->next->next->back;
+phylip.c:    if (fork->next->next->back != NULL)
+phylip.c:      fork->next->next->back->back = fork->next->back;
+phylip.c:    if ((fork->next == t->root) || (fork->next->next == t->root))
+phylip.c:      t->root = *where;                                         /* set root */
+phylip.c:    fork->next->back = NULL;
+phylip.c:    fork->next->next->back = NULL;
+phylip.c:    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
+phylip.c:    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
+phylip.c:    t->root = oldroot;
+phylip.c:  Slist_push(t->free_fork_nodes, n);
+phylip.c:  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+phylip.c:    if (t->nodep[k] == NULL)
+phylip.c:  t->insert_(t, p, q, false);
+phylip.c:  like = t->evaluate(t, t->root, false);
+phylip.c:    bettertree = (t->score > *bestyet);           /* note: better is bigger */
+phylip.c:    t->copy(t, bestree);
+phylip.c:  t->re_move(t, p, &dummy, false);
+phylip.c:  p = t->nodep[enterorder[0] - 1];
+phylip.c:  q = t->nodep[enterorder[1] - 1];
+phylip.c:  r = t->nodep[enterorder[2] - 1];
+phylip.c:  newnode = t->get_fork(t, k);                  /* get a three-species fork */
+phylip.c:  t->insert_(t, newnode, q, false);                  /* connect all of them */
+phylip.c:  t->root = p;
+phylip.c:    /* or even set t->root to NULL if item->back == NULL? */
+phylip.c:    item = t->nodep[item->index-1];
+phylip.c:    fork = t->nodep[item->back->index - 1];
+phylip.c:    if (item == fork->next->back)
+phylip.c:      sib = fork->next->next->back;
+phylip.c:      sib = fork->next->back;
+phylip.c:    if (t->root == fork)
+phylip.c:      t->root = sib;
+phylip.c:    p = item->back->next->back; /* assumes bifurcation */
+phylip.c:    q = item->back->next->next->back;
+phylip.c:    t->release_fork(t, fork);
+phylip.c:  while( !Slist_isempty(t->free_forks) ) {
+phylip.c:    p = t->get_fork(t, 0);             /* debug: why this?  JF */
+phylip.c:    t->release_forknode(t, p->next->next);
+phylip.c:    t->release_forknode(t, p->next);
+phylip.c:    t->release_forknode(t, p);
+phylip.c:  for ( i = spp ; i < t->nonodes ; i++ )
+phylip.c:    t->nodep[i] = NULL;
+phylip.c:  for ( i = spp ; i < t->nonodes ; i++ ) {
+phylip.c:    if ( t->nodep[i] == NULL ) {
+phylip.c:      t->nodep[i] = t->get_forknode(t, i+1);
+phylip.c:      t->nodep[i]->next = t->get_forknode(t, i+1);
+phylip.c:      t->nodep[i]->next->next = t->get_forknode(t, i+1);
+phylip.c:      t->nodep[i]->next->next->next = t->nodep[i];
+phylip.c:      t->release_fork(t, t->nodep[i]);
+phylip.c:      if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
+phylip.c:        t->release_fork(t, t->nodep[i]);
+phylip.c:  for ( i = spp ; i < t->nonodes ; i++ ) {
+phylip.c:    if ( count_sibs(t->nodep[i]) > 2 ) {
+phylip.c:      item = t->nodep[i]->back;
+phylip.c:      t->re_move(t, item, &where, false);
+phylip.c:      t->insert_(t, item, where, false);/*debug: need to correct last argument*/
+phylip.c:/*  printing-out-of-tree functions for debugging */
+phylip.c:  long int nonodes = t->nonodes;
+phylip.c:    qq = t->nodep[i];
+phylip.c:          malformed = ((qq->next == qq) || (qq->next->next == qq));
+phylip.c:            if (qq->next->next == qq)
+phylip.c:               printf(" (->next->next is %p: same node)", qq->next->next);
+phylip.c:      sprintf(progbuf, "                       next->next: %p ->back: %p\n",
+phylip.c:              (void *)qq->next->next, (void *)qq->next->next->back);
+phylip.c:      sprintf(progbuf, "                 next->next->next: %p ->back: %p\n",
+phylip.c:             (void *)qq->next->next->next, (void *)qq->next->next->next->back);
+phylip.c:      sprintf(progbuf, "           next->next->next->next: %p ->back: %p\n",
+phylip.c:              (void *)qq->next->next->next->next,
+phylip.c:              (void *)qq->next->next->next->next->back);
+pmatrix.c:        /* right-justify for non-machine-readable */
+pmatrix.c:        /* left-justify for machine-readable */
+proml.c:  t->evaluate = proml_tree_evaluate;
+proml.c:  t->try_insert_ = ml_tree_try_insert_;
+proml.c:  t->nuview = proml_tree_nuview;
+proml.c:  t->makenewv = proml_tree_makenewv;
+proml.c:          case '-':                /* deletion event-absent data or aa */
+proml.c:  first = p->next->back;
+proml.c:    p->ycoord = p->next->next->back->ycoord;
+proml.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+proml.c:  p->ymin = first->ymin;
+proml.c:  p->ymax = last->ymax;
+proml.c:  describe(curtree->root->back);
+proml.c:      rectrav(curtree->root->back, i, k);
+proml.c:  node *r = t->root;
+proml.c:    t->release_forknode(t, r);
+proml.c:    t->nodep[spp] = q;
+proml.c:    newl = r->next->oldlen + r->next->next->oldlen;
+proml.c:    r->next->back->oldlen = newl;
+proml.c:    r->next->next->back->oldlen = newl;
+proml.c:    newl = r->next->v + r->next->next->v;
+proml.c:    r->next->back->v = newl;
+proml.c:    r->next->next->back->v = newl;
+proml.c:    r->next->back->back = r->next->next->back;
+proml.c:    r->next->next->back->back = r->next->back;
+proml.c:    t->release_fork(t, r);
+proml.c:  t->root = t->nodep[0]->back; // Reset ROOT; moved from line just after call to PROML_REROOT.
+promlk.c:  t->insert_  = mlk_tree_insert_;
+promlk.c:  t->try_insert_ = ml_tree_try_insert_;
+promlk.c:  t->re_move = mlk_tree_re_move;
+promlk.c:  t->evaluate = promlk_tree_evaluate;
+promlk.c:  t->globrearrange = rooted_globrearrange;
+promlk.c:  t->locrearrange = rooted_locrearrange;
+promlk.c:  t->nuview = promlk_tree_nuview;
+promlk.c:  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+promlk.c:  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+promlk.c:        case '-':               /* deletion event-absent data or aa */
+promlk.c:        t->nuview(t, sib_back_ptr);
+promlk.c:    r = p->next->back;
+promlk.c:    q = p->next->next->back;
+promlk.c:    if (!r->tip && !r->initialized) t->nuview(t, r);
+promlk.c:    if (!q->tip && !q->initialized) t->nuview(t, q);
+promlk.c:    t->nuview(t, p->next);
+promlk.c:    q = p->next->back;
+promlk.c:    if (!r->tip && !r->initialized) t->nuview(t, r);
+promlk.c:    if (!q->tip && !q->initialized) t->nuview(t, q);
+promlk.c:  t->score = sum;
+promlk.c:  hookup(newtip, newfork->next->next);
+promlk.c:  set_tyme(newfork->next->next, prevtyme);
+promlk.c:  lowertyme = get_tyme(p->next->back);
+promlk.c:  p->ymin = first->ymin;
+promlk.c:  p->ymax = last->ymax;
+promlk.c:      first = p->next->back;
+promlk.c:      if ((long)(last->ycoord) > i && (long)(first->ycoord) < i &&
+promlk.c:    p = p->next->back;
+promlk.c:      root = curtree->nodep[root->index - 1];
+promlk.c:    curtree->root->back = NULL;
+promlk.c:      // the lowest-index forknode to be the first to be popped from the stack.
+protdist.c:      elambdat = exp(-cvi*log(1.0-rate[cat-1]*tt*(eig[m]/(1.0-invarfrac))/cvi));
+protdist.c:      elambdat = exp(rate[cat-1]*tt * eig[m]);
+protdist.c:      dp += rate[cat-1]*eig[m] * q;
+protdist.c:      dp += (rate[cat-1]*eig[m]/(1.0-rate[cat-1]*tt*(eig[m]/(1.0-invarfrac))/cvi)) * q;
+protdist.c:      d2p += (rate[cat-1]*rate[cat-1]*eig[m]*eig[m]*(1.0+1.0/cvi)/
+protdist.c:              ((1.0-rate[cat-1]*tt*eig[m]/cvi)
+protdist.c:               *(1.0-rate[cat-1]*tt*eig[m]/cvi))) * q;
+protpars.c:#define TEST3(x) fprintf(outfile, "score(%c)=%g\n", x, t->score)
+protpars.c:                      i, hypset[i], ((protpars_node*)r->next->back)->siteset[i], \
+protpars.c:                      ((protpars_node*)r->next->next->back)->siteset[i], temparray->seq[i], k)
+protpars.c:  t->nuview = protpars_tree_nuview;
+protpars.c:  t->evaluate = protpars_tree_evaluate;
+protpars.c:  /* this and the following are do-it-yourself garbage collectors.
+protpars.c:      printf("  .  Use dot-differencing to display them  %s\n",
+protpars.c:    ((node*)t->nodep[i - 1])->back = NULL;
+protpars.c:    ((node*)t->nodep[i - 1])->tip = (i <= spp);
+protpars.c:    ((node*)t->nodep[i - 1])->index = i;
+protpars.c:      ((pars_node*)t->nodep[i - 1])->numsteps[j] = 0;
+protpars.c:      p = ((node*)t->nodep[i - 1])->next;
+protpars.c:      while (p != ((node*)t->nodep[i - 1]))
+protpars.c:  t->score = -sum;
+protpars.c:  protfillin(p, p->next->back, p->next->next->back);
+protpars.c:    protfillin (p->next, p->next->next->back, p->back);
+protpars.c:    protfillin (p->next->next, p->back, p->next->back);
+protpars.c:    protpreorder (p->next->back);
+protpars.c:    protpreorder (p->next->next->back);
+protpars.c:  if (outgroup->back->index == curtree->root->index)
+protpars.c:  p = curtree->root->next;
+protpars.c:  q = curtree->root->next->next;
+protpars.c:    protaddelement(&q->next->back, nextnode, lparens, names, ch);
+protpars.c:    q->next->back->back = q->next;
+protpars.c:    protaddelement(&q->next->next->back, nextnode, lparens, names, ch);
+protpars.c:    q->next->next->back->back = q->next->next;
+protpars.c:  curtree->root->back = NULL;
+protpars.c:      protancestset(hypset[i], ((protpars_node*)r->next->back)->siteset[i], ((protpars_node*)r->next->next->back)->siteset[i], temparray->seq[i], k);
+protpars.c:    memcpy(temparray->seq, ((protpars_node*)r->next->back)->siteset, chars * sizeof(sitearray));
+protpars.c:      protancestset(hypset[i], ((protpars_node*)r->next->next->back)->siteset[i], nothing, ancset->seq[i], k);
+protpars.c:    prothyptrav(r->next->back, ancset->seq, b1, b2, k, bottom, nothing );
+protpars.c:      protancestset(hypset[i], temparray->seq[i], nothing, ancset->seq[i], k);
+protpars.c:    prothyptrav(r->next->next->back, ancset->seq, b1, b2, k, bottom, nothing);
+protpars.c:        initializetrav(curtree, curtree->root->back);
+protpars.c:  fprintf(f, "t->score=%f\n", t->score);
+protpars.c:  if(t->root) fprintf(f, "t->root=%p (%ld)\n", t->root, t->root->index);
+protpars.c:  fprintf(f, "t->spp=%ld\n", t->spp);
+protpars.c:  fprintf(f, "t->nonodes=%ld\n", t->nonodes);
+protpars.c:    p=t->nodep[i];
+protpars.c:    fprintf(f, "t->nodep[%d]=%p\n", i, p);
+protpars.c:    if(p && p->next) fprintf(f, "nodep[%d]->next=%p (%ld)\n", i, p->next, p->next->index);
+protpars.c:    if(p && p->next && p->next->back)
+protpars.c:      fprintf(f, "nodep[%d]->next->back=%p (%ld)\n", i, p->next->back, p->next->back->index);
+restml.c:  ret = t->freetrans[t->transindex];
+restml.c:  t->transindex--;
+restml.c:  for ( i = 0 ; i < t->transindex; i++ )
+restml.c:    if ( t->freetrans[i] == trans )
+restml.c:  t->transindex++;
+restml.c:  t->freetrans[t->transindex] = trans;
+restml.c:    t->freetrans[i] = i;
+restml.c:  t->transindex = nonodes2 - 1;
+restml.c:  ((restml_tree*)t)->trans = (transptr)Malloc(t->nonodes * sizeof(transmatrix));
+restml.c:  for (i = 0; i < t->nonodes; ++i)
+restml.c:  ((restml_tree*)t)->freetrans = Malloc(t->nonodes* sizeof(long));
+restml.c:  for ( i = 0; i < t->nonodes; i++ )
+restml.c:  ((restml_tree*)t)->transindex = t->nonodes - 1;
+restml.c:  allocx(nonodes, endsite, sitelength, (ml_node**)t->nodep);
+restml.c:  t->evaluate = restml_tree_evaluate;
+restml.c:  t->save_traverses = restml_tree_save_traverses;
+restml.c:  t->restore_traverses = restml_tree_restore_traverses;
+restml.c:  t->nuview = restml_tree_nuview;
+restml.c:  t->save_lr_nodes = restml_tree_save_lr_nodes;
+restml.c:  t->restore_lr_nodes = restml_tree_restore_lr_nodes;
+restml.c:  t->do_branchl_on_insert_f = (do_branchl_on_insert_t)restml_tree_do_branchl_on_insert;
+restml.c:  t->do_branchl_on_re_move_f = (do_branchl_on_re_move_t) restml_tree_do_branchl_on_re_move;
+restml.c:  q = p->next->back;
+restml.c:  r = p->next->next->back;
+restml.c:  t->score = oldlike;
+restml.c:  forknode->next->next->v = where->v;
+restml.c:  forknode->next->next->back->v = forknode->next->next->v;
+restml.c:      ((restml_node*)where->back->next->next)->x[i][j] = 1.0;
+restml.c:  ((restml_node*)forknode->next->next->back)->branchnum = ((restml_node*)forknode->next->next)->branchnum = t->get_trans(t);
+restml.c:  ((restml_node*)forknode)->branchnum = ((restml_node*)forknode->back)->branchnum = t->get_trans(t);
+restml.c:  branchtrans(((restml_node*)forknode->next->next)->branchnum, forknode->next->next->v);
+restml.c:  long oldendsite = dst->ml_node.endsite;
+restml.c:  dst->branchnum = src->branchnum;
+restml.c:  /* If src->endsite differs from dst->endsite, free dst->x[] */
+restml.c:  if ( oldendsite != 0 && oldendsite != dst->ml_node.endsite)
+restml.c:      free(dst->x[i]);
+restml.c:    free(dst->x);
+restml.c:    dst->x = (phenotype2)Malloc(((((ml_node*)src)->endsite)+1) * sizeof(sitelike2));
+restml.c:      dst->x[i] = init_sitelike(sitelength);
+restml.c:    copy_sitelike(dst->x[i], src->x[i], sitelength);
+restml.c:  copymatrix(rt->lr_temps[0], rt->trans[((restml_node *)r->back)->branchnum - 1]);
+restml.c:  copymatrix(rt->lr_temps[1], rt->trans[((restml_node*)r->back->next)->branchnum - 1]);
+restml.c:  copymatrix(rt->lr_temps[2], rt->trans[((restml_node*)r->back->next->next)->branchnum - 1]);
+restml.c:  copymatrix(rt->lr_temps[3], rt->trans[((restml_node*)p->next)->branchnum - 1]);
+restml.c:  copymatrix(rt->lr_temps[4], rt->trans [((restml_node*)p->next->next)->branchnum - 1]);
+restml.c:  restoredFork->next->branchnum = restoredFork->next->back->branchnum;
+restml.c:  restoredFork->next->next->branchnum = restoredFork->next->next->back->branchnum;
+restml.c:  ((restml_node*)r->back->next->back)->branchnum = ((restml_node*)(r->back->next))->branchnum;
+restml.c:  ((restml_node*)r->back->next->next->back)->branchnum = ((restml_node*)(r->back->next->next))->branchnum;
+restml.c:  copymatrix(rt->trans[((restml_node*)r->back)->branchnum - 1], rt->lr_temps[0]);
+restml.c:  copymatrix(rt->trans[((restml_node*)r->back->next)->branchnum - 1], rt->lr_temps[1]);
+restml.c:  copymatrix(rt->trans[((restml_node*)r->back->next->next)->branchnum - 1], rt->lr_temps[2]);
+restml.c:  copymatrix(rt->trans[((restml_node*)p->next)->branchnum - 1], rt->lr_temps[3]);
+restml.c:  copymatrix(rt->trans[((restml_node*)p->next->next)->branchnum - 1], rt->lr_temps[4]);
+restml.c:  first = p->next->back;
+restml.c:    p->ycoord = p->next->next->back->ycoord;
+restml.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+restml.c:  p->ymin = first->ymin;
+restml.c:  p->ymax = last->ymax;
+restml.c:    describe(p->next->back);
+restml.c:    describe(p->next->next->back);
+restml.c:  describe(curtree->root->next->back);
+restml.c:  describe(curtree->root->next->next->back);
+restml.c:  describe(curtree->root->back);
+restml.c:    restml_treeout(p->next->back);
+restml.c:    restml_treeout(p->next->next->back);
+restml.c: * Save node q in t->temp, including the branch number and
+restml.c:  branchnum = ((restml_node *)t->temp_q)->branchnum = rq->branchnum;
+restml.c:  copymatrix (rt->travmatrix, rt->trans[branchnum-1]);
+restml.c:    rt->free_trans(rt, ((restml_node*)q->back->next)->branchnum);
+restml.c:    rt->free_trans(rt, ((restml_node*)q->back->next->next)->branchnum);
+restml.c:  rq->branchnum = ((restml_node*)t->temp_q)->branchnum;
+restml.c:  copymatrix (rt->trans[rq->branchnum-1], rt->travmatrix);
+restml.c:    ((restml_node*)p)->branchnum = t->get_trans(t);
+restml.c:    t->nodep[i]->v = adjusted_v(t->nodep[i]->v);
+restml.c:    t->nodep[i]->v = adjusted_v(t->nodep[i]->v);
+restml.c:    t->nodep[i]->next->v = adjusted_v(t->nodep[i]->next->v);
+restml.c:    t->nodep[i]->next->next->v = adjusted_v(t->nodep[i]->next->next->v);
+restore.c:  pool_usecount--;
+retree.c:  (*p)->next->next->next = *p;
+retree.c:      newfork->next->haslength = true;
+retree.c:      newfork->next->next->haslength = true;
+retree.c:  rtdesc->back = newfork->next->next;
+retree.c:  newfork->next->next->back = rtdesc;
+retree.c:  newfork->next->back = leftdesc;
+retree.c:  treep->root->back = NULL;
+retree.c:    if (newtip == q->next->next->back)
+retree.c:      q->next->back = newtip;
+retree.c:      q->next->next->back = NULL;
+retree.c:  if (parent != treep->nodep[parent->index - 1])
+retree.c:    parent = treep->nodep[parent->index - 1];
+retree.c:  newnode = treep->get_forknode(treep, parent->index);
+retree.c:  newnode->index = parent->index;
+retree.c:  if ((*forknode)->next->back == *item)
+retree.c:    if (q->next->back == *item)
+retree.c:    if (*item == (*forknode)->next->back)
+retree.c:        treep->root = (*forknode)->next->next->back;
+retree.c:        treep->root = (*forknode)->next->back;
+retree.c:    p = (*item)->back->next->back;
+retree.c:    q = (*item)->back->next->next->back;
+retree.c:        (*item)->length = (*forknode)->next->length + (*forknode)->next->next->length;
+retree.c:  q = treep->root->next;
+retree.c:  if((outgroup->back->index == treep->root->index) && !(nodecount > 2))
+retree.c:  while (p->index != treep->root->index)
+retree.c:    r->next = treep->root->next;
+retree.c:    treep->root->next = NULL;
+retree.c:      /* root->haslength remains false, or else treeout() will generate a bogus extra length */
+retree.c:      treep->root->next->haslength = true;
+retree.c:      treep->root->next->next->haslength = true;
+retree.c:    q = treep->root->next;
+retree.c:  treep->root->next->back = outgroup;
+retree.c:  treep->root->next->next->back = outgroup->back;
+retree.c:  outgroup->back->back = treep->root->next->next;
+retree.c:  outgroup->back = treep->root->next;
+retree.c:    treep->root->next->next->length = templen;
+retree.c:    treep->root->next->next->back->length = templen;
+retree.c:  first = p->next->back;
+retree.c:    if (curtree->root->next->next->next == curtree->root)
+retree.c:      p->ycoord = (first->ycoord + last->ycoord) / 2;
+retree.c:      p->ycoord = p->next->next->back->ycoord;
+retree.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+retree.c:  p->ymin = first->ymin;
+retree.c:  p->ymax = last->ymax;
+retree.c:  first = p->next->back;
+retree.c:  p->xcoord = (last->ymax - first->ymin) * 3 / 2;
+retree.c:    if (curtree->root->next->next->next == curtree->root)
+retree.c:      p->ycoord = (first->ycoord + last->ycoord) / 2;
+retree.c:      p->ycoord = p->next->next->back->ycoord;
+retree.c:    p->ycoord = (first->ycoord + last->ycoord) / 2;
+retree.c:  p->ymin = first->ymin;
+retree.c:  p->ymax = last->ymax;
+retree.c:      first = p->next->back;
+retree.c:      if ((long)last->ycoord > i && (long)first->ycoord < i &&
+retree.c:          curtree->nodep[k - 1]->next->index = k;
+retree.c:          curtree->nodep[k - 1]->next->next->index = k;
+retree.c:    curtree->nodep[spp + i]->next->index = spp + i + 1;
+retree.c:    curtree->nodep[spp + i]->next->next->index = spp + i + 1;
+retree.c:  q = treesets[whichtree].tree_p->root->next;
+retree.c:  outgrno = treesets[whichtree].tree_p->root->next->back->index;
+retree.c:  q = start->next;
+retree.c:  else if (i == curtree->root->index )
+retree.c:    else if (j != curtree->root->index && curtree->nodep[curtree->nodep[j-1]->back->index - 1]->deleted )
+retree.c:          if (j == curtree->root->index) /* can't insert at root */
+retree.c:              curtree->nodep[q->index-1]->next->back = curtree->nodep[i-1];
+retree.c:    if (q->next->next == p)
+retree.c:  /* flip at a node left-right */
+retree.c:  /* flip at a node left-right */
+retree.c:  q = curtree->root->next;
+retree.c:  q = curtree->root->next;
+retree.c:  ok1 = (ok1 && i >= 1 && i <= nonodes && i != curtree->root->index && !isdeleted(i));
+retree.c:  ok1 = (ok1 && i >= 1 && i < spp * 2 && isdeleted(i) && ( i == curtree->root->index || !curtree->nodep[curtree->nodep[i - 1]->back->index - 1]->deleted));
+retree.c:  (*p)->next->next->next = *p;
+retree.c:  curtree->root->haslength = false;              /* Root should not have a length */
+retree.c:  if (curtree->root->tip)
+retree.c:    if (curtree->root->next->next->next == curtree->root)
+retree.c:  newbase->next->back = curtree->root->next->back;
+retree.c:  newbase->next->next->back = curtree->root;
+retree.c:  if (newbase->next->back->haslength)
+retree.c:    newbase->next->back->length /= 2.0;
+retree.c:    newbase->next->next->back->length =
+retree.c:      newbase->next->back->length;
+retree.c:    newbase->next->next->back->haslength = true;
+retree.c:  temp = curtree->root->next->next;
+retree.c:  curtree->root->next = temp;
+retree.c:  q = curtree->root->next->back;
+retree.c:  r = curtree->root->next->next->back;
+retree.c:  if ( curtree->root->deleted )
+retree.c:          curtree->nodep[i]->next->haslength = false;
+retree.c:          curtree->nodep[i]->next->next->haslength = false;
+retree.c:    ok = (ok && i >= 1 && i <= nonodes && i != curtree->root->index);
+seqboot.c:      printf("  .     Use dot-differencing to display them  %s\n",
+seqboot.c:{ /* write out one set of post-bootstrapping weights */
+seq.c:      first = p->next->back;
+seq.c:      if ((long)last->ycoord > i && (long)first->ycoord < i && i != (long)p->ycoord)
+seq.c:      first = p->next->back;
+seq.c:      if ((long)last->ycoord > i && (long)first->ycoord < i
+Slist.c:  /* make a new list-node and put it on "last" */
+Slist.c:  node = Slist_node_new(data); /* make new list-node which points to "data" */
+Slist.c:    l->last = node;          /* then have "last" point to the new list-node */
+Slist.c:  node->next = l->first;    /* have new list-node point to previous "first" */
+Slist.c:  Slist_node_ptr    del;   /* del is the "list-node" that has a "next" */
+Slist.c:  del = l->first;                      /* the list-node that was "on first" */
+Slist.c:  l->first = del->next;  /* make "first" point it the list-node's successor */
+Slist.c:  Slist_node_delete(del);         /* toss the list-node that was popped off */
+Slist.c:  return data;  /* return the "data" from the list-node that was popped off */
+Slist.c:    l->last->next = node;
+Slist.c:  data = iter->next->data;
+Slist.c:  iter->next = iter->next->next;
+threshml.c:  if (norm > 0.0)               /* norm is the root-sum-of-squares */
+threshml.c:  /* compute for next-to-last chain, if testing, the log determinants of the
+threshml.c:      nexttolasttime = (i == (cycles-1));   /* ... the next-to-last one? */
+treedist.c:  maxgrp = 4*(tip_count-1);
+usertree.c:  ut->tree = treestr;
+usertree.c:  ut->nnodes = nnodes;
+usertree.c:  ut->nspecies = nspecies;
+wagner.c:      l0 = p->next->back->fulstte0[i];
+wagner.c:      l1 = p->next->back->fulstte1[i];
+wagner.c:      r0 = p->next->next->back->fulstte0[i];
+wagner.c:      r1 = p->next->next->back->fulstte1[i];
+wagner.c:      l0 = p->next->back->empstte0[i];
+wagner.c:      l1 = p->next->back->empstte1[i];
+wagner.c:      r0 = p->next->next->back->empstte0[i];
+wagner.c:      r1 = p->next->next->back->empstte1[i];
+wagner.c:  postorder(p->next->back, fullset, full, wagner, zeroanc);
+wagner.c:  postorder(p->next->next->back, fullset, full, wagner, zeroanc);
+wagner.c:  cpostorder(p->next->back, full, zeroanc, numszero, numsone);
+wagner.c:  cpostorder(p->next->next->back, full, zeroanc, numszero, numsone);
+wagner.c:  filltrav(r->next->back, fullset, full, wagner, zeroanc);
+wagner.c:  filltrav(r->next->next->back, fullset, full, wagner, zeroanc);
+wagner.c:      l0 = vars.r->next->back->empstte0[i];
+wagner.c:      l1 = vars.r->next->back->empstte1[i];
+wagner.c:      r0 = vars.r->next->next->back->empstte0[i];
+wagner.c:      r1 = vars.r->next->next->back->empstte1[i];
+wagner.c:    hyptrav(vars.r->next->back, unknown, dohyp, fullset, noroot, didreroot,
+wagner.c:    hyptrav(vars.r->next->next->back, unknown, dohyp, fullset, noroot,
+wagner.c:      first = p->next->back;
+wagner.c:      if (last->ycoord > i && first->ycoord < i && i != p->ycoord) {

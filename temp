@@ -1,0 +1,55 @@
+void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
+                    long *parens, initops whichinit, pointarray nodep,
+                    Char *str, Char *ch, FILE *intree)
+{
+  /* initializes a node */
+  boolean minusread;
+  double valyew, divisor;
+
+  (void)len;                            // RSGnote: Parameter never used.
+  (void)ntips;                          // RSGnote: Parameter never used.
+
+  switch (whichinit)
+  {
+    case bottom:
+      *p = treep->get_forknode(treep, nodei);
+      ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs);
+      assert((*p)->index > 0);
+      nodep[(*p)->index - 1] = (*p);
+      break;
+    case nonbottom:
+      *p = treep->get_forknode(treep, nodei);
+      ((ml_node*)*p)->allocx((ml_node*)*p, endsite, rcategs);
+      break;
+    case tip:
+      match_names_to_data (str, nodep, p, spp);
+      break;
+    case iter:
+      (*p)->initialized = false;
+      (*p)->v = initialv;
+      (*p)->iter = true;
+      if ((*p)->back != NULL)
+      {
+        (*p)->back->iter = true;
+        (*p)->back->v = initialv;
+        (*p)->back->initialized = false;
+      }
+      break;
+    case length:
+      processlength(&valyew, &divisor, ch, &minusread, intree, parens);
+      (*p)->v = valyew / divisor / fracchange;
+      (*p)->iter = false;
+      if ((*p)->back != NULL)
+      {
+        (*p)->back->v = (*p)->v;
+        (*p)->back->iter = false;
+      }
+      break;
+    case hsnolength:
+      haslengths = false;
+      break;
+    default:        /* cases hslength, treewt, unittrwt */
+      break;        /* should never occur               */
+  }
+} /* initdnamlnode */
+
