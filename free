@@ -1,0 +1,951 @@
+    p = src->nodep[nsrc->index - 1];   /* tip or fork that has nsrc's index */
+      ret = dst->nodep[nsrc->index - 1];     /* tip or start of fork circle */
+        p = p->next;         /* ... the circle in  src  until find the node */
+          ret = ret->next;            /* along both  src  and  dst  circles */
+  maxsrcnodes = src->nonodes;       /* finding highest-numbered fork in src */
+    if (src->nodep[i] != NULL) {
+      if (src->nodep[i]->back != NULL) {   /* if connected, see whether ... */
+        if (src->nodep[i]->back->index > maxsrcnodes) /* fork number is ... */
+          maxsrcnodes = src->nodep[i]->back->index;    /* ... > maxsrcnodes */
+  for (i = src->spp; i < maxsrcnodes; i++) {  /* look at nodes in src forks */
+    p = src->nodep[i];
+        if (p->back != NULL) {         /* when it is connected to something */
+          if (p->back->index > maxsrcnodes)     /* find any numbered higher */
+            maxsrcnodes = p->index;       /* ... and increasing maxsrcnodes */
+        p = p->next;                        /* go on to next in fork circle */
+  if (dst->nonodes > maxsrcnodes) {   /* debug:  need this?? */
+    maxcircles = dst->nonodes;
+    src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
+    if ((src_num == 1) && (src->nodep[i] == NULL))
+      p = dst->nodep[i];    
+      while (q->next != p) {
+        q = q->next;                               /* ... move along circle */
+      if (p->next != p) {
+        dst->nodep[i] = p->next;                   /* cut  p  out of circle */
+        q->next = p->next;
+        dst->nodep[i] = NULL;
+      dst->release_forknode(dst, p);    /* it goes onto free_forknodes list */
+      dst_num--;
+    src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
+    if ((src_num == 1) && (src->nodep[i] == NULL))
+      p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
+      p->next = NULL;   /* debug: insurance, but should not be needed */
+      if (dst->nodep[i] == NULL) {
+        if (src->nodep[i] != NULL) {
+          dst->nodep[i] = p;                /* this case is start of circle */
+        q->next = p;          /* add new node to most recent node in circle */
+        q = p;       /* ... and now set the most-recent pointer to that one */
+      q->next = dst->nodep[i];                          /* close the circle */
+    if (src->nodep[i] != NULL) {
+      if (dst->nodep[i] != NULL) {
+        generic_node_copy(src->nodep[i], dst->nodep[i]);
+      if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
+        dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
+    p = src->nodep[i];
+    q = dst->nodep[i];         /* the start of the destination fork circle */
+        p->copy(p, q);               /* copy some stuff esp. function names */
+        q->back = where_in_dest(src, dst, p->back);       /* find right one */
+        p = p->next;                                   /* move to next ones */
+        q = q->next;
+  dst->score = src->score;                           /* copy score and root */
+  if (src->root != NULL) {
+    if (src->root->back != NULL) {
+    dst->root = where_in_dest(src, dst, src->root);
+  dst->v = src->v;
+  dst->xcoord = src->xcoord;
+  dst->ycoord = src->ycoord;
+  dst->ymin = src->ymin;
+  dst->ymax = src->ymax;
+  dst->iter = src->iter;
+  dst->haslength = src->haslength;
+  dst->initialized = src->initialized;
+  dst->deltav = src->deltav;
+      p->node_print_f(p);
+      p = p->next;
+  sprintf(progbuf, "%10p : %10p", (void *)n, (void *)n->back);
+  if(n->back != NULL)
+    sprintf(progbuf, " %3ld", n->back->index-1);
+  sprintf(progbuf, " p->v : %lf", n->v);
+  sprintf(progbuf, " p->iter : %d", n->iter);
+  sprintf(progbuf, " init : %d", n->initialized);
+    n->tip = true;
+      n->tip = false;
+      n->tip = true;
+  n->index = index;
+  n->v = initialv;
+  n->iter = true;
+  n->initialized = false;
+  n->init = generic_node_init;          /* hope to override these as needed */
+  n->free = generic_node_free;
+  n->copy = generic_node_copy;
+  n->reinit = generic_node_reinit;
+  n->fork_print_f = generic_fork_print;
+  n->node_print_f = generic_node_print;
+  /*  re-initialize node */
+  n->back = NULL;
+  n->v = initialv;
+  n->iter = true;
+  n->initialized = false;
+  /* may or may not want to change  n->index, depending
+  p->next = NULL;
+  p->back = NULL;
+  p->index = i;
+  p->tip = false;
+    if (p->tip) {
+      exxit (-1);
+    q = p->next;
+        exxit (-1);
+        q = q->next;
+  for (q = p->next; q != p; q = q->next) {              /* go around circle */
+    if (q->back == NULL) {            /* ... until find one with back empty */
+  invalidate_traverse(p->back);
+{ /* Invalidates p's view and all views looking toward p from p->back
+  if (p->tip)
+  p->initialized = false;
+  if (p->back == NULL) {
+  p->back->initialized = false;
+  q = p->back;
+  if ( q->tip ) return;
+  /* Call ourselves on p->back's sibs */
+  for ( q = q->next ; q != p->back ; q = q->next) {
+   * problems. Not needed for regular program execution --
+  /* For each fork node (spp..nonodes-1) */
+  for ( index = spp; index < t->nonodes; index++ ) {
+    p = t->nodep[index];
+    p->initialized = false;
+    for ( q = p->next; q != p; q = q->next ) {
+      q->initialized = false;
+    if (p->tip)
+      p->initialized = true;
+      p->initialized = false;
+    if (p->back != NULL) {
+      if (p->back->tip)
+        p->back->initialized = true;
+        p->back->initialized = false;
+    if (p->tip)                                         /* bail if at a tip */
+    for (q = p->next; q != p; q = q->next) {   /* go to rest of fork circle */
+      q->initialized = false;            /* ... setting nodes uninitialized */
+      initializetrav (t, q->back);        /* ... and on outwards from there */
+{ /* traverse to set inward-looking booleans uninitialized on inserting
+  if (p->tip)
+  for ( sib_ptr  = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
+    if (sib_ptr->initialized) {   /* if not already uninitialized ... */
+      sib_ptr->initialized = false;  /* set booleans looking back in, then */
+      inittrav(t, sib_ptr->back);    /* further traverse from this circle */
+  puts("\n\nERROR:  Unexpected End-of-File.\n");
+  exxit(-1);
+} /* EOF-error */
+    if ( ini->node_new != NULL )
+      functions.node_new = ini->node_new;
+    if ( ini->tree_new != NULL )
+      functions.tree_new = ini->tree_new;
+          exxit(-1);
+          exxit(-1);
+   * considered read-only and not valid across calls to this function. */
+    if ( fgets(b, size - (b - _fgetline_buffer), fp) == NULL )
+    lastch = _fgetline_buffer + len - 1;
+   * non-whitespace char, or '\0' if no such char exists. Aborts if EOF is
+    exxit(-1);
+{ /* random number generator -- slow but machine independent.  This is a
+   * multiplicative congruential 32-bit generator:
+   * Coveyou-Macpherson and Lehmer tests, see Knuth "The Art of Computer
+   * in base-64 notation -- i.e. as an array of 6 six-bit chunks         */
+  mult[1] = 24;   /* -- they are its "digits" in a base-64    */
+      sum += mult[j] * seed[i-j];
+{ /* randomize input order of species -- randomly permute array enterorder */
+    + randum(seed)+randum(seed)+randum(seed)+randum(seed)-6.0;
+      printf("  Must be in range 1 - %ld.\n", spp);
+    printf("Number of categories (1-%d)?\n", maxcategs);
+      if ((scanned < 2 && i < (categs - 1)) ||
+          (scanned < 1 && i == (categs - 1)))
+      if ((scanned < 2 && i < (categs - 1)) ||
+          (scanned < 1 && i == (categs - 1)))
+    if (fabs(1.0 - (*probsum)) > 0.001) {
+{ /* For use by initgammacat.  Get roots of m-th Generalized Laguerre
+     polynomial, given roots of (m-1)-th, these are to be
+          lower = lgroot[m-1][i-1];
+        upper = lgroot[m-1][i];
+        lower = lgroot[m-1][i-1];
+        x = lgroot[m-1][m-1];
+      while (upper-lower > 0.000000001) {
+  double gln, glnm1, glnp1; /* L_n, L_(n-1), L_(n+1) */
+      return 1.0 + b - x;
+      gln = 1.0+b-x;
+        glnp1 = ((2*(i-1)+b+1.0-x)*gln - (i-1+b)*glnm1)/i;
+  alpha = alpha - 1.0;
+    rate[i-1] = xi/(1.0+alpha);
+    probcat[i-1] = x;
+  /* seems to be unprecise for n>13 -> root finder does not converge */
+    xx = 2. * x * h2 - 2. * (i) * h1;
+    hroot[start-1] = 0.0;
+    hroot[ii] = halfroot(hermite, n, hroot[ii-1]+EPSILON, 1./n);
+    hroot[start - z] = -hroot[ii];
+     other-bound=startx+delta)
+  gradient = (fl-fu)/(xl-xu);
+      gradient = (fl-fu)/(xl-xu);
+      xm = xl - fl / gradient;
+      gradient = (fl-fu)/(xl-xu);
+  numerator = exp(0.6931471805599 * ( n-1.) + logfac(n)) / (n*n);
+    hr2 = hermite(n-1, hroot[i]);
+        if (fabs(sum - 1.0) >= 1.0e-3)
+  /* handle multi-data set option */
+  /* handle multi-data set option by weights */
+  if ((i - 1) % j != 0 || i <= 1)
+    // initnode call with "bottom" --> first forknode of the group, normally goes in to nodep
+      // initnode call with "nonbottom" --> remaining forknodes hooked up
+      /* initnode call with "hslength" --> no need to do anything here,
+      exxit(-1);
+      (*parens)--;         /* decrement count of open parentheses */
+    /* initnode call with "tip" --> typically copies str info above,
+  /* initnode call with "iter" --> sets iter/initialv/initialized code
+   *   -- nothing to do here */
+    /* initnode call with "length" -> must read length using processlength */
+      /* initnode call with "hsnolength" --> sets flag that not all items
+    /* initnode call with "treewt" --> can do something for cons.c things
+     * -- need to read */
+        exxit(-1);
+        exxit(-1);
+          exxit(-1);
+      /* initnode call with "unittrwt" --> can do something for cons.c things
+       *  -- need to read  */
+  /* read in user-defined tree to determine values of spp, maximum name
+       encounter an open-paren */
+    exxit(-1);
+  /* Re-set to where it pointed when the function was called */
+   * (*spp * 2 - n)  in *nonodes */
+    exxit(-1);
+  *nonodes = *spp * 2 - n;
+    exxit(-1);
+  *nonodes = *spp * 2 - n;
+    exxit(-1);
+    exxit(-1);
+    exxit(-1);
+    exxit(-1);
+      exxit(-1);
+    exxit(-1);
+  j = nmlngth + (chars + (chars - 1) / 10) / 2 - 5;
+  if (j < nmlngth - 1)
+    j = nmlngth - 1;
+  fprintf(outfile, "----");
+   * If has a Tab character, signals to blank-fill rest of name, */
+      sprintf(progbuf, "\n\nERROR:  End-of-Line or End-of-File");
+      exxit(-1);
+        exxit(-1);
+    else {  /* once a tab character has been seen, blank-fill */
+  for (i = 0; i < num_species-1; ++i)
+      { /* This should print a name space-padded to 'nmlngth' chars,
+         * end-of-string.                                               */
+    exxit(-1);
+  /* input the character weights, 0-9 and A-Z for weights 0 - 35 */
+      weight[i] = (long)ch - (long)('0');
+      weight[i] = (long)ch - (long)'A' + 10;
+      exxit(-1);
+  for (i = a-1; i < b; i++) {    /*  i  is off-by-one from character number */
+      weight[i] = ch - '0';
+      sprintf(progbuf, "\n\nERROR:  Bad weight character: %c -- ", ch);
+      exxit(-1);
+      fprintf(filename, "%c", 'A'-10+(int)weight[i + inc]);
+  /* input the categories, 1-9 */
+      category[i] = ch - '0';
+               " -- categories in %s are currently 1-%ld.\n", prog, categs);
+      exxit(-1);
+  for (i = 1; i <= nmlngth - 5; i++)
+    putc(factor[i - 1], filename);
+  upper = nextree - 1;
+      done = (place[i-1] != bestrees[*pos].btree[i - 1]);
+    below = (place[i-1] < bestrees[*pos].btree[i - 1]);
+      upper = (*pos) - 1;
+   * pos takes range 0 ... nextree-1.  There are currently  nextree trees
+  for (i = *nextree; i > pos; i--) /* coming down from just above end ... */
+    memcpy(bestrees[i].btree, bestrees[i - 1].btree, spp * sizeof(long));
+    bestrees[i].gloreange = bestrees[i - 1].gloreange;
+    bestrees[i].locreange = bestrees[i - 1].locreange;
+    bestrees[i].collapse = bestrees[i - 1].collapse;
+    for (i = 0; i <= nextree - 1; i++)
+    for (i = 0; i <= nextree - 1; i++)
+  return -1;
+   * (and a pleasingly short program)  Shell was the discover's name -- it
+      j = i - gap;                             /* compare elements j, j+gap */
+        if (a[j - 1] > a[j + gap - 1]) {            /* swap if out of order */
+          rtemp = a[j - 1];
+          a[j - 1] = a[j + gap - 1];
+          a[j + gap - 1] = rtemp;
+          itemp = b[j - 1];              /* swap the accompanying array too */
+          b[j - 1] = b[j + gap - 1];
+          b[j + gap - 1] = itemp;
+        j -= gap;                   /* loop over all pairs separated by gap */
+    (*parens)--;
+        exxit(-1);
+        sprintf(progbuf, "unmatched parenthesis or non-bifurcated node.\n\n");
+        exxit(-1);
+        exxit(-1);
+  exponentIsNegative = -1; /* 3 states: -1=unassigned, 1=true, 0=false */
+  else if ('-' == *ch)
+  digit = (long)(*ch - ordzero);
+  while ( ((digit <= 9) && (digit >= 0)) || '.' == *ch || '-' == *ch
+        exxit(-1);
+      if (hasExponent && -1 == exponentIsNegative)
+        exponentIsNegative = 0; /* 3 states: -1=unassigned, 1=true, 0=false */
+        exxit(-1);
+    else if ('-' == *ch)
+      if (hasExponent && -1 == exponentIsNegative)
+        exponentIsNegative = 1; /* 3 states: -1=unassigned, 1=true, 0=false */
+    "\n\nERROR:  Branch length found with \'-\' in an unexpected place.\n\n");
+        exxit(-1);
+        exxit(-1);
+    digit = (long)(*ch - ordzero);
+    *valyew = -(*valyew);
+      exxit(-1);
+  (*bracket)--;
+   * pointing to where it found it, not just re-winding it. */
+  /* Re-set to where it pointed when the function was called */
+  /* Then figure out if the first non-white character is a digit; if
+      exxit(-1);
+  exxit(-1);
+  exxit(-1);
+   * IMPORTANT -- does not change branch lengths. Other routines
+  p->back = q;
+  q->back = p;
+   * note -- will crash if  p  is NULL or maybe if  p  is a tip */
+ for (p = n; p->next != n; p = p->next) {};   /* loop till you get there */
+    hookup(nodep[nodenum], nodep[local_nodenum]->next);
+    hookup(nodep[nodenum], nodep[local_nodenum]->next->next);
+    exxit(-1);
+{ /* pre-compute space and allocate memory for nodep */
+} /* allocate_nodep -plc */
+     least MAXNCH bytes, but no effort is made to null-terminate
+      found = (found && ((str[i] == nayme[n - 1][i]) ||
+                         (((nayme[n - 1][i] == '_') && (str[i] == ' ')) ||
+                          ((nayme[n - 1][i] == ' ') && (str[i] == '\0')))));
+      *p = treenode[n - 1];
+    exxit(-1);
+  /* Recursive procedure adds nodes to user-defined tree
+     This is the main (new) tree-reading procedure */
+    if ( (maxnodes != -1) && (nodei > maxnodes)) {
+      exxit(-1);
+      (*initnode)(treep, &(*p)->next, len, nodei,
+      r = (*p)->next;
+      addelement(treep, &(*p)->next->back, (*p)->next, ch, parens, treefile,
+      exxit(-1);
+    (*p)->next = pfirst;
+      (*parens)--;         /* decrement count of open parentheses */
+  /* read in user-defined tree and set it up */
+       encounter an open-paren */
+    exxit(-1);
+{ /* recursive procedure adds nodes to user-defined tree
+     -- old-style bifurcating-only version used only by treeread2
+    if ( maxnodes != -1 && current_loop_index > maxnodes) {
+      exxit(-1);
+      p = p->next;
+      p->index = current_loop_index + 1;
+      exxit(-1);
+      (*parens)--;
+    strncpy (p->nayme, str, len);
+        exxit(-1);
+        exxit(-1);
+          exxit(-1);
+    if (q->branchnum < pfirst->branchnum)
+    pfirst->branchnum = q->branchnum;
+    q->branchnum = pfirst->branchnum;
+        q->oldlen = valyew / divisor;
+        q->oldlen = initialv;
+        q->v = valyew / divisor;
+        q->back->v = q->v;
+        q->iter = false;
+        q->back->iter = false;
+  /* read in user-defined tree and set it up
+     -- old-style bifurcating-only version used only in Fitch, Kitsch,
+       encounter an open-paren */
+  (*root)->oldlen = 0.0;
+    exxit(-1);
+  p = findroot(t, t->root, &found);      /* find node with NULL back pointer */
+  if (p->back == NULL) {            /* move root pointer point to leftmost  */
+    p = t->root;
+    if (t->root->next->back->tip)      /* interior node descended from ...  */
+      t->root = t->root->next->next->back;   /* that rootmost interior node */
+    else t->root = t->root->next->back;
+  if (t->root->next->back == NULL) {
+    if (t->root->back->tip)
+      t->root = t->root->next->next->back;
+    else t->root = t->root->back;
+  if (t->root->next->next->back == NULL) {
+    if (t->root->back->tip)
+      t->root = t->root->next->back;
+    else t->root = t->root->back;
+  unroot_r(t, t->root, nonodes); /* traverse to find interior ... */
+  unroot_r(t, t->root->back, nonodes); /*  forks to be released */
+   * assumes bifurcation -- it is only called in that case */
+  newl = root->next->oldlen + root->next->next->oldlen; /* add lengths */
+  root->next->back->oldlen = newl;
+  root->next->next->back->oldlen = newl;
+  newl = root->next->v + root->next->next->v;
+  root->next->back->v = newl;
+  root->next->next->back->v = newl;
+  root->next->back->back = root->next->next->back;
+  root->next->next->back->back = root->next->back;
+  while ( root->index != nonodes ) {
+    tmpnode = t->nodep[ root->index ];
+    t->nodep[root->index] = root;
+    root->index++;
+    root->next->index++;
+    root->next->next->index++;
+    t->nodep[root->index - 2] = tmpnode;
+    tmpnode->index--;
+    tmpnode->next->index--;
+    tmpnode->next->next->index--;
+  if ( p->tip) return;
+  q = p->next;
+    if (q->back == NULL) {
+    else unroot_r(t, q->back, nonodes);
+    q = q->next;
+  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+    if (t->nodep[j] != NULL) {                   /* make there is one there */
+      p = t->nodep[j];
+      p->back = NULL;
+      p->initialized = false;
+      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
+        q = p->next->next;
+        t->release_forknode(t, p->next);
+        p->next = q;
+        p->initialized = false;
+        p->back = NULL;
+      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
+  for ( j = 0; j < t->spp; j++) {/* set the "back" pointers of tips to NULL */
+    if (t->nodep[j] != NULL)
+      t->nodep[j]->back = NULL;
+  for ( j = spp; j < t->nonodes; j++)   /* make sure interior pointers NULL */
+    t->nodep[j] = NULL;
+  for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
+    if (t->nodep[j] != NULL)
+      if (t->nodep[j]->back != NULL)
+        t->release_forknode(t, t->nodep[j]->back);
+  t->globrearrange = rooted_globrearrange;
+  t->insert_ = (tree_insert_t)rooted_tree_insert_;
+  t->re_move = rooted_tree_re_move;
+  t->locrearrange = rooted_locrearrange;
+  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+  while ( !Slist_isempty(t->free_fork_nodes) )
+    Slist_pop(t->free_fork_nodes);
+  Slist_delete(t->free_fork_nodes);
+    t->lrsaves[i]->free(&(t->lrsaves[i]));
+  free(t->lrsaves);
+  t->temp_p->free(&(t->temp_p));
+  t->temp_q->free(&(t->temp_q));
+  for ( i = 0 ; i < t->nonodes ; i++ ) {
+    p = t->nodep[i];
+      q = p->next;
+        r = q->next;
+        q->free(&q);
+    p->free(&t->nodep[i]);
+  free(t->nodep);
+  if ( t->release_fork == NULL )
+    t->release_fork = generic_tree_release_fork;
+  if ( t->get_fork == NULL )
+    t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
+  if ( t->release_forknode == NULL )
+    t->release_forknode = generic_tree_release_forknode;
+  t->spp = spp;
+  t->nonodes = nonodes;
+  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to ... */
+    t->nodep[i] = functions.node_new(true, i+1);               /* ... tips */
+    t->nodep[i]->tip = true;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);    /* ... the second one ... */
+    p = p->next;
+    p->tip = false;
+    p->next = functions.node_new(false, i+1);    /* ... and the third one. */
+    p = p->next;
+    p->tip = false;
+    p->next = q;
+    t->nodep[i] = q;
+  t->free_fork_nodes = Slist_new();   /* where the fork nodes will be kept */
+  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
+    t->release_fork(t, t->nodep[i]);
+  t->nodep[nonodes] = NULL; /* might need if unrooted tree is later rooted */
+  t->root = t->nodep[0];   /* debug:  what if enterorder? */
+  t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
+  t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
+    t->lrsaves[i] = functions.node_new(false,0);
+  t->temp_p = functions.node_new(false,0);
+  t->temp_q = functions.node_new(false,0);
+  t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
+  t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
+  t->globrearrange = generic_globrearrange;
+  t->free = generic_tree_free;
+  t->copy = generic_tree_copy;
+  t->smoothall = (tree_smoothall_t)no_op;
+  t->score = UNDEFINED;
+  t->locrearrange = generic_unrooted_locrearrange;
+  t->save_lr_nodes = unrooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
+  t->save_traverses = generic_tree_save_traverses;
+  t->restore_traverses = generic_tree_restore_traverses;
+  t->nuview = generic_tree_nuview;
+  t->evaluate = generic_tree_evaluate;
+  t->insert_ = (tree_insert_t)generic_tree_insert_;
+  t->get_forknode = generic_tree_get_forknode;
+  t->re_move = generic_tree_re_move;
+  t->try_insert_ = generic_tree_try_insert_;
+  t->tree_print_f = generic_tree_print;
+  t->do_branchl_on_insert_f = generic_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = generic_do_branchl_on_re_move;
+  t->tree_good_f = generic_tree_good;
+  t->node_good_f = generic_node_good;
+  t->fork_good_f = generic_fork_good;
+  sprintf(progbuf, "-----------------------------------------------\n");
+  sprintf(progbuf, "tree %p spp = %ld ; nonodes = %ld root = %p\n", (void *)t, t->spp, t->nonodes, (void *)t->root);
+  for(nodeIndex=0;nodeIndex<t->nonodes;nodeIndex++)
+    node * p = t->nodep[nodeIndex];
+    sprintf(progbuf, "---\nnodep[%ld]: %p", nodeIndex, (void *)p);
+    if(p->tip) {
+    if(p == t->root) {
+      p->fork_print_f(p);
+  for(nodeIndex = 0; nodeIndex < t->nonodes; nodeIndex++)
+    node * n = t->nodep[nodeIndex];
+    if( n->tip )
+      boolean thisNodeGood = t->node_good_f(t,n);
+      boolean thisNodeGood = t->fork_good_f(t,n);
+      boolean nodeGood = t->node_good_f(t,p);
+      p = p->next;
+  if ( n->back != NULL)
+    boolean edgesEqual = (n->back->v == n->v);
+  globtree = functions.tree_new(curtree->nonodes, curtree->spp);
+  priortree = functions.tree_new(curtree->nonodes, curtree->spp);
+  oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
+    bestyet = oldbestyet = curtree->score;
+    curtree->copy(curtree, globtree);
+    curtree->copy(curtree, oldtree);
+    for ( i = 0 ; i < curtree->nonodes ; i++ ) {
+      bestyet = curtree->score;
+      sib_ptr  = curtree->nodep[i];
+        if ((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 )
+      if (sib_ptr->index == curtree->root->index)
+      if ( sib_ptr->back == NULL )   /* this implies unused node */
+      curtree->re_move(curtree, sib_ptr, &where, true);
+      curtree->copy(curtree, priortree);
+      succeeded = curtree->addtraverse(curtree, sib_ptr, curtree->root, true,
+        if ( where != qwhere && bestyet > globtree->score)
+          bestree->copy(bestree, globtree);
+          curtree->insert_(curtree, sib_ptr, qwhere, true);
+          curtree->smoothall(curtree, where);
+          curtree->copy(curtree, globtree);
+      oldtree->copy(oldtree, curtree);
+      oldtree->copy(oldtree, bestree);
+    globtree->copy(globtree, curtree);
+    globtree->copy(globtree, bestree);
+    succeeded = success && globtree->score > oldbestyet;
+  bestree->free(bestree);
+  priortree->free(priortree);
+  globtree->free(globtree);
+  oldtree->free(oldtree);
+    for ( i = 0 ; i < curtree->nonodes-2 ; i++)
+      sprintf(progbuf, "-");
+  globtree = functions.tree_new(curtree->nonodes, curtree->spp);
+  priortree = functions.tree_new(curtree->nonodes, curtree->spp);
+  oldtree = functions.tree_new(curtree->nonodes, curtree->spp);
+    curtree->smoothall(curtree, curtree->root);
+    bestyet = oldbestyet = curtree->score;
+    curtree->copy(curtree, globtree);
+    curtree->copy(curtree, oldtree);
+    for ( i = 0 ; i < curtree->nonodes ; i++ ) {
+      sib_ptr  = curtree->nodep[i];
+      if ( sib_ptr->tip )
+        if((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 )
+        sib_ptr = curtree->nodep[i];
+          sib_ptr = sib_ptr->next;
+        if ( sib_ptr->back == NULL || sib_ptr->back->tip )
+        curtree->re_move(curtree, removed, &where, true);
+        curtree->smoothall(curtree, where);
+        curtree->copy(curtree, priortree);
+        if ( where->tip) {
+          sib_ptr2 = where->back;
+          succeeded = curtree->addtraverse(curtree, removed, sib_ptr2->back,
+          sib_ptr2 = sib_ptr2->next;
+          if (succeeded && (qwhere != where) && (qwhere != where->back)
+            curtree->insert_(curtree, removed, qwhere, true);
+            curtree->smoothall(curtree, where);
+            curtree->copy(curtree, globtree);
+            globtree->copy(globtree, curtree);
+          if ( qwhere && where != qwhere && bestyet > globtree->score)
+            bestree->copy(bestree, globtree);
+          oldtree->copy(oldtree, curtree);
+          oldtree->copy(oldtree, bestree);
+    globtree->copy(globtree, curtree);
+    globtree->copy(globtree, bestree);
+    globtree->copy(globtree, oldtree);
+    succeeded = success && (globtree->score > oldbestyet);
+  bestree->free(bestree);
+  priortree->free(priortree);
+  globtree->free(globtree);
+  oldtree->free(oldtree);
+    ok = !(p->back == NULL);
+    ok = !( (t->root == p->back) || (t->root == p));  /* if not root branch */
+    r = p->back;               /* this will be the other end of this branch */
+    if ( !(p->tip) ) {
+        ok = !(r->tip);                              /* neither end if NULL */
+          ok = (t->root->index != p->index) &&        /* both  p, r not ... */
+               (t->root->index != r->index);       /* ... the rootmost fork */
+   *  is at  p->back  */
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+    if (!q->tip) {          /* in one direction, try descendants,
+      for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
+        if ( !(sib_ptr->back == NULL)) {     /* don't go out nil root pointer */
+/* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
+          succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+    if (contin && !q->back->tip) {
+      for ( sib_ptr = q->back->next; sib_ptr != q->back;
+                                       sib_ptr = sib_ptr->next)
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+    succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
+    outgroupfork = (q == t->root);
+    if (contin && !q->tip && !outgroupfork) {        /* go to all branches
+      for ( sib_ptr = q->next ; q != sib_ptr ; sib_ptr = sib_ptr->next)
+        succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
+  r->copy(r, t->lrsaves[0]);
+  r->next->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
+  p->next->copy(p->next, t->lrsaves[3]);
+  p->next->next->copy(p->next->next, t->lrsaves[4]);
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                                /* ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
+  t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
+  t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
+  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
+  t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
+  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
+  t->rnb->back->v = t->rnb->v;
+  t->rnnb->back->v = t->rnnb->v;
+  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
+  p->next->next->back->v = p->next->next->v;
+  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
+  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
+  inittrav(t, t->rnnb);
+inittrav(t, p->next);    /* debug  removed as unnecessary */
+  inittrav(t, p->next->next);
+  if (start->tip)           /* should make sure that start at interior node */
+    start = start->back;                   /* that is connected to outgroup */
+   * insert it in two neighboring branches.  p->back->next->next  points to
+   * the interior node that is to be removed, p->back->next->next->back  is
+    r = p->back;        /* these are the two connected and might be removed */
+    rr = r->next;                   /* pointer to fork node used in removal */
+      t->save_lr_nodes(t, p, rr);  /* save the views at the fork 
+                                    containing  rr  and inward-looking at p */
+    t->re_move(t, rr, &q, false);              /* remove r with subtree ,,, */
+    t->addtraverse(t, rr, q, false, qwhere,
+      bestree->copy(bestree, t);
+      t->insert_(t, rr, qwhere, false);            /* put it in best location */
+      if ((qwhere == q) || (qwhere == q->back) ) {
+        t->restore_lr_nodes(t, p, r);
+        t->score = *bestyet;
+        t->smoothall(t, r->back);
+        *bestyet = t->evaluate(t, p, 0);
+    if ( !(p->tip) ) {
+      if (p->next->back != NULL) {
+        succeeded = unrooted_tree_locrearrange_recurs(t, p->next->back,
+        if (p->next->next->back != NULL)
+                                     p->next->next->back, bestyet, thorough,
+  p->copy(p,t->temp_p);
+  q->copy(q,t->temp_q);
+  t->temp_p->copy(t->temp_p,p);
+  t->temp_q->copy(t->temp_q,q);
+  if ( p->back )
+    p->back->v = p->v;
+    inittrav(t, p->back);
+  if ( q->back )
+    q->back->v = q->v;
+    inittrav(t, q->back);
+  /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
+  // p->node_print_f(p);
+  // q->node_print_f(q);
+  p = t->nodep[p->index - 1];
+  if (p == t->root)
+  forknode = t->nodep[p->back->index - 1];
+  if (forknode == t->root)
+  oldlike = t->score;
+  whereto = t->nodep[forknode->back->index - 1];
+  t->save_lr_nodes(t, p, whereto);
+  t->re_move(t, p, &where, false);
+  t->insert_(t, p, whereto, false);
+  like = t->evaluate(t, p, false);
+  t->score = like;
+  if (like - oldlike < LIKE_EPSILON) {
+    t->restore_lr_nodes(t, p, whereto);
+    t->score = oldlike;
+    t->smoothall(t, t->root);
+  if (p->tip)
+  for ( q = p->next ; q != p && !(*success) ; q = q->next )
+    rooted_repreorder(t, q->back, success);
+  t->evaluate(t, start, 0); /* need to start of with a valid t->score */
+  node* forknode = t->nodep[p->back->index - 1];
+  p->back->copy(p->back, t->lrsaves[0]);
+  whereto->copy(whereto, t->lrsaves[1]);
+  t->rnb = forknode->back;
+  if ( p == forknode->next->back ) {
+    t->onleft = false;
+    t->rnnb = forknode->next->next->back;
+    t->onleft = true;
+    t->rnnb = forknode->next->back;
+  whereto->initialized = false;
+  p->back->initialized = false;
+  node* forknode = t->nodep[p->back->index - 1];
+  if ( p == forknode->next->back ) {
+    if (forknode->back != NULL)
+      hookup( forknode->back, forknode->next->next->back);
+      forknode->next->next->back->back = NULL;
+      t->root = forknode->next->next->back;
+    if ( forknode->back != NULL)
+      hookup( forknode->back, forknode->next->back);
+      forknode->next->back->back = NULL;
+      t->root = forknode->next->back;
+  hookup(forknode, t->rnb);
+  if ( t->onleft ) {
+    hookup(forknode->next->next, p);
+    hookup(forknode->next, t->rnnb);
+    hookup(forknode->next, p);
+    hookup(forknode->next->next, t->rnnb);
+  t->lrsaves[0]->copy(t->lrsaves[0], p->back);
+  t->lrsaves[1]->copy(t->lrsaves[1], whereto);
+  retval = (*oldstack)->data;
+  newstack = (*oldstack)->next;
+  newstack->data = newdata;
+  newstack->next = oldstack;
+   * circles of nodes off the now-defunct list-of-circles
+  retval->next = generic_tree_get_forknode(t, k+1);
+  retval->next->next = generic_tree_get_forknode(t, k+1);
+  retval->next->next->next = retval;
+  retval->initialized = false;
+  retval->next->initialized = false;
+  retval->next->next->initialized = false;
+  retval->tip = false;
+  retval->next->tip = false;
+  retval->next->next->tip = false;
+  t->nodep[k] = retval;
+  m = n->index - 1;
+  n = t->nodep[n->index  - 1];  /* the node in the fork pointed to by nodep */
+    p = n->next;
+      n->next = n->next->next;
+      t->release_forknode(t, p);
+  t->nodep[m] = NULL;   /* circle is released so nodep entry set to NULL */
+  /*  calls the current nongeneric t->nuview on this branch, after first
+  if (!p->tip) {                       /* is this end of the branch a fork? */
+    for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
+      if (sib_ptr->back ) {                          /* don't do it if NULL */
+        if (!sib_ptr->back->tip && !sib_ptr->back->initialized)
+        generic_tree_nuview (t, sib_ptr->back);
+  t->nuview((tree*)t, p);   /* this actually calculates the view using the
+  p->initialized = true;
+   * Updates views for p and p->back in preparation for evaluation specific
+  if ( (p->initialized == false) && (p->tip == false) )
+  if (p->back != NULL) {
+    if ( (p->back->initialized == false) && (p->back->tip == false) )
+      generic_tree_nuview((tree*)t, p->back);
+   * k  is index of new fork, first available slot in t->nodep
+    newnode = t->get_fork(t, k);
+    assert(newnode->next->next->next == newnode);
+    if (q->back != NULL) /* in case  q  is the root and nothing below */
+      hookup(newnode->next->next, q->back);
+      newnode->next->next->back = NULL;
+    hookup(newnode->next, q);
+    t->do_branchl_on_insert_f(t,newnode,q);
+    assert( ! newnode->initialized );
+    assert( ! newnode->next->initialized );
+    assert( ! newnode->next->next->initialized );
+      inittrav(t, p->back);
+    newnode = t->get_forknode(t, q->index);
+    newnode->next = q->next;
+    q->next = newnode;
+    assert( ! newnode->initialized );
+      inittrav(t, p->back);
+   * this is currently a contentless do-nothing function
+   * It is set to a do-something version if branchlengths exist */
+  if ( Slist_isempty(t->free_fork_nodes) )
+    p = Slist_pop(t->free_fork_nodes);
+    p->init(p, 0, i);
+  p->tip = (i <= spp);
+     p->back, inserting it near node or tip  q  */
+    assert(p->next->next->next == p);
+    if (q->back != NULL) { /* unless  q  is the root and nothing below */
+      r = q->back;
+      hookup(p->next, q);
+      hookup(p->next->next, r);
+      t->do_branchl_on_insert_f(t, p, q);
+      hookup(p->next, q);
+      p->next->next->back = NULL;
+/* debug: needed?    assert( ! p->initialized );
+    assert( ! p->next->initialized );
+    assert( ! p->next->next->initialized );   debug */
+ * If t->root is NULL, below is ignored, no fork is added, and newtip becomes
+  if ( t->root == NULL ) {
+  below = t->nodep[below->index - 1];
+  newtip = t->nodep[newtip->index-1];
+    below = t->nodep[below->index - 1];
+    newfork = t->nodep[t->get_fork(t, k)->index - 1];
+    newtip = t->nodep[newtip->index-1];
+    if (below->back != NULL)
+      below->back->back = newfork;
+    newfork->back = below->back;
+    below->back = newfork->next->next;
+    newfork->next->next->back = below;
+    newfork->next->back = newtip;
+    newtip->back = newfork->next;
+    if (t->root == below)
+      t->root = newfork;
+    newfork = t->get_forknode(t, below->index);
+    newfork->next = below->next;
+    below->next = newfork;
+  oldroot = t->root;
+  if ( fork->back != NULL) {
+    if ( fork->back->tip && fork->tip ) {  /* debug: does this ever occur? */
+      fork->back = NULL;                                   /* debug: why?  */
+    for ( q = fork ; q->next != fork ; q = q->next)
+    q->next = fork->next;   /* heal up circle */
+    fork->next = NULL;
+    if ( t->root == fork )
+      t->root = q;
+      for ( p = q->next ; p != q ; p = p->next )
+    if (fork->next->back != NULL)  /* set where to the place it was next to */
+      (*where) = fork->next->back;
+      (*where) = fork->next->next->back;
+    if (fork->next->back != NULL)            /* connect remaining neighbors */
+      fork->next->back->back = fork->next->next->back;
+    if (fork->next->next->back != NULL)
+      fork->next->next->back->back = fork->next->back;
+    if (fork->next->index == t->root->index)
+      t->root = *where;                                         /* set root */
+    fork->next->back = NULL;
+    fork->next->next->back = NULL;
+    t->do_branchl_on_re_move_f(t, fork, *where);  /* adds up branch lengths */
+    if ( do_newbl ) {     /* set not-initialized on branches looking in ... */
+      inittrav(t, (*where)->back);
+    t->root = oldroot;
+  n->reinit(n);
+  n->next = NULL;                    /* node_reinit(n) sets n->back to NULL */
+  Slist_push(t->free_fork_nodes, n); /* put it on the tree's free node list */
+  p = findroot(curtree, curtree->root, &found);    /* ensure is at root */
+    if (p->index != curtree->nodep[outgrno-1]->back->index) { /* remove ... */
+       generic_tree_re_move(curtree, p, &(p->next->back->back), true);
+       generic_insertroot(curtree, curtree->nodep[outgrno-1]->back, p);
+      curtree->root = curtree->nodep[outgrno - 1]->back;    /* fix root ... */
+  for (k = t->spp; k < t->nonodes; k++) {   /* look for an empty slot in  t */
+    if (t->nodep[k] == NULL)
+  t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
+  inittrav(t, t->root);
+  inittrav(t, t->root->back);
+  like = t->evaluate(t, t->root, false);
+  t->score = like;
+    bettertree = (t->score > *bestyet);           /* note: bigger is better */
+    t->copy(t, bestree);
+  t->re_move(t, p, &q, false);      /* then remove from the place tried */
+  /* build a simple three-tip tree with interior fork, by hooking
+  p = t->nodep[enterorder[0] - 1];
+  q = t->nodep[enterorder[1] - 1];
+  r = t->nodep[enterorder[2] - 1];
+  newnode1 = t->get_fork(t, k);            /* get a fork for root and tip 1 */
+  t->insert_(t, newnode1, q, false);                 /* connect all of them */
+  /* get a fork to serve as rootmost fork for a currently-unrooted tree */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+  newnode = t->get_fork(t, m);             /* get a fork from the free list */
+  newnode->next->next->back = NULL;       /* root connects to empty pointer */
+  /* debug: notice: one must have no pre-existing rootmost fork in tree */
+  t->insert_(t, f, p, false);                            /* insert the fork */
+  t->root = f;                                /* set the root pointer to it */
+  if (item == NULL || item->back == NULL) {
+    /* or even set t->root to NULL if item->back == NULL? */
+  if ( count_sibs(item->back) != 2 ) {
+    /* removing a node from a multi-furcation is the same in the rooted and
+    item = t->nodep[item->index-1];
+    fork = t->nodep[item->back->index - 1];
+    if (item == fork->next->back)
+      sib = fork->next->next->back;
+      sib = fork->next->back;
+    if (t->root == fork)
+      t->root = sib;
+    p = item->back->next->back; /* assumes bifurcation */
+    q = item->back->next->next->back;
+      p->back = q;
+      q->back = p;
+    t->release_fork(t, fork);
+    item->back = NULL;
+      inittrav(t, whereloc->back);
+  /* Heuristic Search for Best Unrooted Tree -- generic form of tree search
+    enterorder[i - 1] = i;
+  curtree->root = curtree->nodep[enterorder[0] - 1];            /* its root */
+    item = curtree->nodep[enterorder[i - 1] - 1];
+    curtree->root = curtree->nodep[enterorder[0] - 1]->back;  /* debug: redundant? */
+    there = curtree->root;
+    p = curtree->nodep[enterorder[i-1]-1];
+    item = curtree->get_fork(curtree, k);
+    bestyet = -50*spp*chars;              /* I sure hope this is bad enough */
+    curtree->addtraverse(curtree, item, curtree->root, true, there, &bestyet,
+    curtree->copy(bestree, curtree);   /*  replace current tree by best one */
+    curtree->locrearrange(curtree, curtree->root, false, &bestyet, bestree,
+      writename(i - 1, 1, enterorder);     /* announce addition of that tip */
+  while( !Slist_isempty(t->free_forks) ) {
+    p = t->get_fork(t, 0);             /* debug: why this?  JF */
+    t->release_forknode(t, p->next->next);
+    t->release_forknode(t, p->next);
+    t->release_forknode(t, p);
+  for ( i = spp ; i < t->nonodes ; i++ )
+    t->nodep[i] = NULL;
+  for ( i = spp ; i < t->nonodes ; i++ ) {
+    if ( t->nodep[i] == NULL ) {
+      t->nodep[i] = t->get_forknode(t, i+1);
+      t->nodep[i]->next = t->get_forknode(t, i+1);
+      t->nodep[i]->next->next = t->get_forknode(t, i+1);
+      t->nodep[i]->next->next->next = t->nodep[i];
+      t->release_fork(t, t->nodep[i]);
+      if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
+        t->release_fork(t, t->nodep[i]);
+  for ( i = spp ; i < t->nonodes ; i++ ) {
+    if ( count_sibs(t->nodep[i]) > 2 ) {
+      item = t->nodep[i]->back;
+      t->re_move(t, item, &where, false);
+      t->insert_(t, item, where, false);/*debug: need to correct last argument*/
+      i--; /* do it again, just in case it still multifurcs */
+/* ---------------------------------------------------------------- */
+/*  printing-out-of-tree functions for debugging */
+      sprintf(progbuf, "%c", nayme[enterorder[i] - 1][j]);
+      if (qq->back == NULL)
+        sprintf(progbuf, " node: %ld connects to (nil) \n", qq->index);
+        sprintf(progbuf, " node: %p index:%ld  connects to node: %p index: %ld \n", (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+      sprintf(progbuf, " node: %p index:%ld connects to nodes:", (void *)qq, qq->index);
+        if (qq->back == NULL)
+          sprintf(progbuf, " %p index:%ld", (void *)qq->back, qq->back->index);
+  long int nonodes = t->nonodes;
+    qq = t->nodep[i];
+        if (qq->back == NULL)
+                 qq->index);
+                 (void *)qq, qq->index, (void *)qq->back, qq->back->index);
+                  (void *)qq, qq->index);
+            malformed = (qq == qq->next);
+              printf(" (->next is %p: ", qq->next);
+              if (qq->next == qq)
+            if (qq->next != NULL) {
+            malformed = malformed || (qq->next->next == qq);
+            if (qq->next->next == qq)
+               printf(" (->next->next is %p: same node)", qq->next->next);
+              if (qq->back == NULL)
+                printf(" %p index:%ld", (void *)qq, qq->back->index);
+            qq = qq->next;
+    if (qq->next == NULL)
+      sprintf(progbuf, " node: %p index:%ld ->next: %p         ->back: %p\n",
+              (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
+    else if (qq->back == NULL) {
+      sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
+              (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
+      sprintf(progbuf, "                       next->next: %p ->back: %p\n",
+              (void *)qq->next->next, (void *)qq->next->next->back);
+      sprintf(progbuf, "                 next->next->next: %p ->back: %p\n",
+             (void *)qq->next->next->next, (void *)qq->next->next->next->back);
+      sprintf(progbuf, "           next->next->next->next: %p ->back: %p\n",
+              (void *)qq->next->next->next->next,
+              (void *)qq->next->next->next->next->back);
+        sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
+              (void *)qq, qq->index, (void *)qq->next, (void *)qq->back);
+        pp = qq->next;
+          sprintf(progbuf, " node: %p index:%ld ->next: %p ->back: %p\n",
+                  (void *)pp, pp->index, (void *)pp->next, (void *)pp->back);
+          pp = pp->next;
