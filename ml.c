@@ -47,12 +47,12 @@ void ml_tree_init(struct tree* t, long nonodes, long spp)
    * attributes of the generic tree that need ml function versions */
 
   bl_tree_init(t, nonodes, spp);                   /* go up class hierarchy */
-  t->smoothall = ml_tree_smoothall;
-  t->insert_ = (tree_insert_t)ml_tree_insert_;
-  t->re_move = ml_tree_re_move;
-  t->try_insert_ = (tree_try_insert_t)ml_tree_try_insert_;
-  t->do_branchl_on_insert_f = ml_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = ml_tree_do_branchl_on_re_move;
+  t->smoothall = bl_tree_smoothall;
+  t->insert_ = (tree_insert_t)bl_tree_insert_;
+  t->re_move = bl_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->do_branchl_on_insert_f = bl_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = bl_tree_do_branchl_on_re_move;
 /* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */
@@ -64,7 +64,6 @@ struct node* ml_node_new(node_type type, long index, long nodesize) {
   struct node* nn;
 
   nn = generic_node_new(type, index, nodesize);
-  ml_node_init(nn, type, index);
   return nn;
 } /* ml_node_new */
 
@@ -81,10 +80,7 @@ void ml_node_init(struct node *n, node_type type, long index)
   assert(index >= 0);
 
   generic_node_init(n, type, index);                /* go up node hierarchy */
-  n->copy = ml_node_copy;
-  n->free = ml_node_free;
-  n->reinit = ml_node_reinit;
-  n->node_print_f = ml_node_print;
+  n->node_print_f = bl_node_print;
   nn = (ml_node*)n;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->node.tyme = 0;
