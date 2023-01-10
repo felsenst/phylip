@@ -44,47 +44,47 @@ typedef void (*initialvtrav_t)(tree*, node*);
 long endsite;
 
 #ifndef OLDC /* prototypes */
-void    ml_tree_new(struct tree**, long, long, long);
-void    ml_tree_init(struct tree*, long, long);
-node*   ml_node_new(node_type, long, long);
-void    ml_node_init(struct node*, node_type, long);
-void    ml_node_free(node **);
-void    ml_node_print(node *);
-void    ml_node_copy(node*, node*);
-void    ml_hookup(node*, node*);
+void    bl_tree_new(struct tree**, long, long, long);
+void    bl_tree_init(struct tree*, long, long);
+node*   bl_node_new(node_type, long, long);
+void    bl_node_init(struct node*, node_type, long);
+void    bl_node_free(node **);
+void    bl_node_print(node *);
+void    bl_node_copy(node*, node*);
+void    bl_hookup(node*, node*);
 void    allocx(long, long, long, ml_node**);
 void    makevalues2(long, pointarray, long, long, sequence, steptr);
 void    freex_notip(long, pointarray);
 void    freex(long, pointarray);
-void    ml_update(tree*, node *);
+void    bl_update(tree*, node *);
 void    smooth(tree*, node *);
 void    smooth_traverse(tree*, node *);
-void 	ml_tree_smoothall(tree*, node*);
-void 	ml_node_reinit(node * n);
-void    ml_tree_insert_(tree*, node*, node*, boolean);
-void    ml_tree_re_move(tree*, node*, node**, boolean);
-boolean ml_tree_try_insert_(tree* , node* , node* , node* , double*, tree*,
+void 	bl_tree_smoothall(tree*, node*);
+void 	bl_node_reinit(node * n);
+void    bl_tree_insert_(tree*, node*, node*, boolean);
+void    bl_tree_re_move(tree*, node*, node**, boolean);
+boolean bl_tree_try_insert_(tree* , node* , node* , node* , double*, tree*,
                             boolean, boolean, boolean, double*);
-boolean ml_tree_try_insert_thorough(tree*, node*, node*, node*, 
+boolean bl_tree_try_insert_thorough(tree*, node*, node*, node*, 
                           double*, tree*, boolean, boolean, boolean);
-void    ml_tree_do_branchl_on_insert(tree*, node *, node*);
-void    ml_tree_do_branchl_on_re_move(tree*, node*, node*);
-void    mlk_tree_insert_(tree*, node *, node *, boolean, boolean);
+void    bl_tree_do_branchl_on_insert(tree*, node *, node*);
+void    bl_tree_do_branchl_on_re_move(tree*, node*, node*);
+void    blk_tree_insert_(tree*, node *, node *, boolean, boolean);
 double  get_tyme(node *);
 void    set_tyme (node*, double) ;
-void    mlk_tree_re_move(tree* t, node *item, node** where, boolean recompute);
+void    blk_tree_re_move(tree* t, node *item, node** where, boolean recompute);
 void    getthree(tree*, node *, double, double, double, double *, double *);
 double  min_child_tyme(node *);
 double  parent_tyme(node *);
 boolean valid_tyme(tree *, node *, double);
 double  set_tyme_evaluate(tree *, node *, double);
-void    mlk_tree_makenewv(tree*, node *);
+void    blk_tree_makenewv(tree*, node *);
 void    empiricalfreqs(double *, double *, double *, double *, steptr, pointarray);
-void    ml_treeoutrecurs(FILE*, tree*, node*, double, int*);
-void    ml_treeout(FILE*, tree*, node*, double);
-void    ml_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
+void    bl_treeoutrecurs(FILE*, tree*, node*, double, int*);
+void    bl_treeout(FILE*, tree*, node*, double);
+void    bl_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
-void    ml_initialvtrav(tree*, node *);
+void    bl_initialvtrav(tree*, node *);
 #endif
 
 #endif /* _ML_H_ */

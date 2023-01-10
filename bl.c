@@ -28,9 +28,9 @@ boolean inserting;
 
 
 void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
-{ /* make a new ml_tree.  Calls to generic_tree_new,
-   * casting ml_tree** to tree** as we call it 
-   * then call  ml_tree_init */
+{ /* make a new bl_tree.  Calls to generic_tree_new,
+   * casting bl_tree** to tree** as we call it 
+   * then call  bl_tree_init */
 
   generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
 } /* bl_tree_new */
