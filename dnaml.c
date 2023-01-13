@@ -2010,7 +2010,7 @@ void dnaml_reroot(tree* t)
 
 
 void dnaml_treeout(FILE  *outtree, tree* t, node* p) {
-/* call ml_treeout to write tree out to tree output file */
+/* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
   bl_scale = fracchange;
