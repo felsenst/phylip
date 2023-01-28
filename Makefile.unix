@@ -330,7 +330,7 @@ clean:
 Slist.o:      Slist.c Slist.h
 	$(CC) -c Slist.c $(SHARED) -fPIC
 
-phylip.o:     phylip.c phylip.h Slist.h
+phylip.o:     phylip.c Slist.h
 	$(CC) -c phylip.c $(SHARED) -fPIC 
 
 # Add this to include debugging facility.
@@ -340,10 +340,13 @@ phylip.o:     phylip.c phylip.h Slist.h
 seq.o:        seq.c phylip.h seq.h
 	$(CC) -c seq.c $(SHARED) -fPIC
 
-ml.o:         ml.c phylip.h ml.h
+bl.o:         bl.c phylip.h bl.h
+	$(CC) -c bl.c $(SHARED) -fPIC 
+
+ml.o:         ml.c phylip.h bl.h ml.h
 	$(CC) -c ml.c $(SHARED) -fPIC 
 
-mldna.o:         mldna.h mldna.c phylip.h ml.h
+mldna.o:         mldna.h mldna.c phylip.h bl.h ml.h
 	$(CC) -c mldna.c $(SHARED) -fPIC 
 
 rest_common.o:  rest_common.c rest_common.h phylip.h
@@ -419,10 +422,10 @@ dnadist.o:    dnadist.c seq.h pmatrix.h phylip.h
 dnainvar.o:   dnainvar.c seq.h phylip.h
 	$(CC) -c dnainvar.c $(SHARED) -fPIC
 
-dnaml.o:      dnaml.c seq.h ml.h phylip.h
+dnaml.o:      dnaml.c seq.h bl.h ml.h mldna.h phylip.h
 	$(CC) -c dnaml.c $(SHARED) -fPIC
 
-dnamlk.o:     dnamlk.c seq.h ml.h phylip.h
+dnamlk.o:     dnamlk.c seq.h bl.h ml.h phylip.h
 	$(CC) -c dnamlk.c $(SHARED) -fPIC
 
 dnamove.o:    dnamove.c seq.h moves.h phylip.h parsimony.h dnaparsimony.h
