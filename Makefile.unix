@@ -338,7 +338,7 @@ clean:
 Slist.o:      Slist.c Slist.h
 	$(CC) -c Slist.c $(SHARED) -fPIC
 
-phylip.o:     phylip.c phylip.h Slist.h
+phylip.o:     phylip.c Slist.h
 	$(CC) -c phylip.c $(SHARED) -fPIC 
 
 # Add this to include debugging facility.
@@ -429,7 +429,7 @@ dnadist.o:    dnadist.c seq.h pmatrix.h phylip.h
 dnainvar.o:   dnainvar.c seq.h phylip.h
 	$(CC) -c dnainvar.c $(SHARED) -fPIC
 
-dnaml.o:      dnaml.c seq.h bl.h ml.h phylip.h
+dnaml.o:      dnaml.c seq.h bl.h ml.h mldna.h phylip.h
 	$(CC) -c dnaml.c $(SHARED) -fPIC
 
 dnamlk.o:     dnamlk.c seq.h bl.h ml.h phylip.h

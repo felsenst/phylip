@@ -1,0 +1,4044 @@
+Script started on Sun 05 Jul 2020 08:58:20 AM PDT
+]0;felsenst@penguin: ~/phylip/gitproject[01;32mfelsenst@penguin[00m:[01;34m~/phylip/gitproject[00m$ ./contml
+[2J[H
+contml: the file "outfile" that you wanted to
+     use as output file already exists.
+     Do you want to Replace it, Append to it,
+     write to a new File, or Quit?
+     (please type R, A, F, or Q) 
+r
+
+[2J[H
+Continuous character Maximum Likelihood method version 4.0a
+
+Settings for this run:
+  U                       Search for best tree?  Yes
+  C  Gene frequencies or continuous characters?  Gene frequencies
+  A   Input file has all alleles at each locus?  No, one allele missing at each
+  O                              Outgroup root?  No, use as outgroup species 1
+  G                      Global rearrangements?  No
+  J           Randomize input order of species?  No. Use input order
+  M                 Analyze multiple data sets?  No
+  0         Terminal type (IBM PC, ANSI, none)?  ANSI
+  1          Print out the data at start of run  No
+  2        Print indications of progress of run  Yes
+  3                              Print out tree  Yes
+  4             Write out trees onto tree file?  Yes
+
+  Y to accept these or type the letter for one to change
+y
+
+contml: the file "outtree" that you wanted to
+     use as output tree file already exists.
+     Do you want to Replace it, Append to it,
+     write to a new File, or Quit?
+     (please type R, A, F, or Q) 
+r
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 6 to 3, dist is:     0.0010274270
+ p->deltav:    0.0250000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0010274270
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0014599735
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0014599735
+ v is     0.0014599735
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0008864302
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004595635
+ estimated bigv is     0.0008864302
+ v is     0.0004268667
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 6 to 3, dist is:     0.0008864302
+ p->deltav:    0.0004595635, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0008864302
+ v is     0.0004268667
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0007917094
+ p->deltav:    0.0000000000, p->back->deltav:    0.0002608456
+ estimated bigv is     0.0007917094
+ v is     0.0005308638
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000786261
+ p->deltav:    0.0000000000, p->back->deltav:    0.0002366094
+ estimated bigv is     0.0000786261
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 6 to 3, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 6 to 3, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000461395
+ p->deltav:    0.0000000000, p->back->deltav:    0.0500000000
+ estimated bigv is     0.0000461395
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 6 to 1, dist is:     0.0000461395
+ p->deltav:    0.0500000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000461395
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+
+Adding species:
+   1. European  
+   2. African   
+   3. Chinese   
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  7
+ makenewv: branch from 1 to 7, dist is:     0.0000326612
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001234353
+ estimated bigv is     0.0000326612
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0000277518
+ p->deltav:    0.0001236435, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  7
+ makenewv: branch from 1 to 7, dist is:     0.0000326612
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001234353
+ estimated bigv is     0.0000326612
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0000277518
+ p->deltav:    0.0001236435, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  7
+ makenewv: branch from 1 to 7, dist is:     0.0000326612
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001234353
+ estimated bigv is     0.0000326612
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0000277518
+ p->deltav:    0.0001236435, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  7
+ makenewv: branch from 1 to 7, dist is:     0.0000326612
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001234353
+ estimated bigv is     0.0000326612
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0000277518
+ p->deltav:    0.0001236435, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 3 and 2
+p->v, q->v:   0.00067068,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.025897404, q->view[0]:    -0.012312195
+contrast is:      0.03820960
+squared contrast is:      0.00145997
+v1'+v2' is:      0.00082227
+sumsq is now      0.001459973
+ vee:    0.0008222657, df: 1, sumsq:    0.0014599735
+ terms:    3.5517235025,   -0.8877747772
+ adding in:     2.663948725
+ sum now:     2.6639487253 
+ like now:    2.6639487253 
+doing contrast between 1 and 6
+p->v, q->v:   0.00000000,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00012364
+p->view[0]:     0.000000000, q->view[0]:    -0.005268001
+contrast is:      0.00526800
+squared contrast is:      0.00002775
+v1'+v2' is:      0.00012364
+sumsq is now      0.000027752
+ vee:    0.0001236435, df: 1, sumsq:    0.0000277518
+ terms:    4.4990540816,   -0.1122252228
+ adding in:     4.386828859
+ sum now:     7.0507775841 
+ like now:    7.0507775841 
+doing contrast between 7 and 4
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.270772843
+contrast is:      0.27077284
+squared contrast is:      0.07331793
+v1'+v2' is:      0.14663586
+sumsq is now      0.073317932
+ vee:    0.1466358646, df: 1, sumsq:    0.0733179323
+ terms:    0.9599014385,   -0.2500000000
+ adding in:     0.709901439
+ sum now:     7.7606790226 
+ like now:    7.7606790226 
+ likelihood sum now:     7.7606790226 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 3 and 2
+p->v, q->v:   0.00067068,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.025897404, q->view[0]:    -0.012312195
+contrast is:      0.03820960
+squared contrast is:      0.00145997
+v1'+v2' is:      0.00082227
+sumsq is now      0.001459973
+ vee:    0.0008222657, df: 1, sumsq:    0.0014599735
+ terms:    3.5517235025,   -0.8877747772
+ adding in:     2.663948725
+ sum now:     2.6639487253 
+ like now:    2.6639487253 
+doing contrast between 1 and 6
+p->deltav, q->deltav:   0.00000000,   0.00012364
+p->view[0]:     0.000000000, q->view[0]:    -0.005268001
+contrast is:      0.00526800
+squared contrast is:      0.00002775
+v1'+v2' is:      0.00012364
+sumsq is now      0.000027752
+ vee:    0.0001236435, df: 1, sumsq:    0.0000277518
+ terms:    4.4990540816,   -0.1122252228
+ adding in:     4.386828859
+ sum now:     7.0507775841 
+ like now:    7.0507775841 
+ likelihood sum now:     7.0507775841 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0804979148
+ p->deltav:    0.0001676689, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0804979148
+ v is     0.0803302460
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0006083181
+ p->deltav:    0.0000000000, p->back->deltav:    0.0003339437
+ estimated bigv is     0.0006083181
+ v is     0.0002743744
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000243639
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001213502
+ estimated bigv is     0.0000243639
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  7
+ makenewv: branch from 3 to 7, dist is:     0.0007192642
+ p->deltav:    0.0000000000, p->back->deltav:    0.0002734404
+ estimated bigv is     0.0007192642
+ v is     0.0004458238
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0787582447
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001698458
+ estimated bigv is     0.0787582447
+ v is     0.0785883989
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0787582447
+ p->deltav:    0.0001698458, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0787582447
+ v is     0.0785883989
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0005867982
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004433090
+ estimated bigv is     0.0005867982
+ v is     0.0001434892
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000231494
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001204689
+ estimated bigv is     0.0000231494
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  7
+ makenewv: branch from 3 to 7, dist is:     0.0006964790
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001432277
+ estimated bigv is     0.0006964790
+ v is     0.0005532513
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0762346594
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001139385
+ estimated bigv is     0.0762346594
+ v is     0.0761207208
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0762346594
+ p->deltav:    0.0001139385, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0762346594
+ v is     0.0761207208
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0005643827
+ p->deltav:    0.0000000000, p->back->deltav:    0.0005492592
+ estimated bigv is     0.0005643827
+ v is     0.0000151235
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000218599
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001194946
+ estimated bigv is     0.0000218599
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  7
+ makenewv: branch from 3 to 7, dist is:     0.0006734642
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000151205
+ estimated bigv is     0.0006734642
+ v is     0.0006583438
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0736332096
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000147839
+ estimated bigv is     0.0736332096
+ v is     0.0736184257
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0736332096
+ p->deltav:    0.0000147839, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0736332096
+ v is     0.0736184257
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0005413952
+ p->deltav:    0.0000000000, p->back->deltav:    0.0006525086
+ estimated bigv is     0.0005413952
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+ makenewv: branch from 2 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000314112
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001230121
+ estimated bigv is     0.0000314112
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  7
+ makenewv: branch from 3 to 7, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0733179323
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0733179323
+ v is     0.0733179323
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 1
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:     0.000000000
+contrast is:     -0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     3.8971650341 
+ like now:    3.8971650341 
+doing contrast between 6 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     7.0507775841 
+ like now:    7.0507775841 
+doing contrast between 7 and 4
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.270772843
+contrast is:      0.27077284
+squared contrast is:      0.07331793
+v1'+v2' is:      0.14663586
+sumsq is now      0.073317932
+ vee:    0.1466358646, df: 1, sumsq:    0.0733179323
+ terms:    0.9599014385,   -0.2500000000
+ adding in:     0.709901439
+ sum now:     7.7606790226 
+ like now:    7.7606790226 
+ likelihood sum now:     7.7606790226 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 1
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:     0.000000000
+contrast is:     -0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     3.8971650341 
+ like now:    3.8971650341 
+doing contrast between 6 and 3
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00134135
+sumsq is now      0.000670676
+ vee:    0.0013413511, df: 1, sumsq:    0.0006706755
+ terms:    3.3070389597,   -0.2500000000
+ adding in:     3.057038960
+ sum now:     6.9542039938 
+ like now:    6.9542039938 
+ likelihood sum now:     6.9542039938 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0700220217
+ p->deltav:    0.0000378975, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0700220217
+ v is     0.0699841242
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001585538
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000757131
+ estimated bigv is     0.0001585538
+ v is     0.0000828407
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000273784
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001282373
+ estimated bigv is     0.0000273784
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001438095
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000827428
+ estimated bigv is     0.0001438095
+ v is     0.0000610667
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0695299341
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000351532
+ estimated bigv is     0.0695299341
+ v is     0.0694947809
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0695299341
+ p->deltav:    0.0000351532, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0695299341
+ v is     0.0694947809
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001572293
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000610131
+ estimated bigv is     0.0001572293
+ v is     0.0000962162
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000274528
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001273695
+ estimated bigv is     0.0000274528
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001425117
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000960832
+ estimated bigv is     0.0001425117
+ v is     0.0000464285
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0688894846
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000313168
+ estimated bigv is     0.0688894846
+ v is     0.0688581678
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0688894846
+ p->deltav:    0.0000313168, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0688894846
+ v is     0.0688581678
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001559089
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000463972
+ estimated bigv is     0.0001559089
+ v is     0.0001095117
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000275255
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001265016
+ estimated bigv is     0.0000275255
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001411877
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001093378
+ estimated bigv is     0.0001411877
+ v is     0.0000318499
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0682435610
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000246739
+ estimated bigv is     0.0682435610
+ v is     0.0682188871
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 7 to 4, dist is:     0.0682435610
+ p->deltav:    0.0000246739, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0682435610
+ v is     0.0682188871
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001545747
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000318351
+ estimated bigv is     0.0001545747
+ v is     0.0001227397
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000275973
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001256219
+ estimated bigv is     0.0000275973
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001398518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001225192
+ estimated bigv is     0.0001398518
+ v is     0.0000173326
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0675917634
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000151878
+ estimated bigv is     0.0675917634
+ v is     0.0675765756
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 6 and 2
+p->v, q->v:   0.00012274,   0.00001733
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00014007
+sumsq is now      0.000151590
+ vee:    0.0001400722, df: 1, sumsq:    0.0001515901
+ terms:    4.4366762047,   -0.5411142501
+ adding in:     3.895561955
+ sum now:     7.0491745046 
+ like now:    7.0491745046 
+doing contrast between 7 and 4
+p->deltav, q->deltav:   0.00001519,   0.00000000
+p->view[0]:    -0.010788683, q->view[0]:    -0.270772843
+contrast is:      0.25998416
+squared contrast is:      0.06759176
+v1'+v2' is:      0.13516834
+sumsq is now      0.067591763
+ vee:    0.1351683390, df: 1, sumsq:    0.0675917634
+ terms:    1.0006171610,   -0.2500280906
+ adding in:     0.750589070
+ sum now:     7.7997635751 
+ like now:    7.7997635751 
+ likelihood sum now:     7.7997635751 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 6 and 2
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00028014
+sumsq is now      0.000151590
+ vee:    0.0002801444, df: 1, sumsq:    0.0001515901
+ terms:    4.0901026144,   -0.2705571250
+ adding in:     3.819545489
+ sum now:     6.9731580394 
+ like now:    6.9731580394 
+ likelihood sum now:     6.9731580394 
+   4. American  
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 4
+p->v, q->v:   0.00001733,   0.06757658
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06759391
+sumsq is now      0.066801906
+ vee:    0.0675939081, df: 1, sumsq:    0.0668019063
+ terms:    1.3471187082,   -0.4941414703
+ adding in:     0.852977238
+ sum now:     0.8529772379 
+ like now:    0.8529772379 
+doing contrast between 3 and 7
+p->v, q->v:   0.00067068,   0.00012274
+p->deltav, q->deltav:   0.00000000,   0.00001733
+p->view[0]:     0.025897404, q->view[0]:    -0.012378470
+contrast is:      0.03827587
+squared contrast is:      0.00146504
+v1'+v2' is:      0.00081074
+sumsq is now      0.001465043
+ vee:    0.0008107433, df: 1, sumsq:    0.0014650425
+ terms:    3.5587795349,   -0.9035181172
+ adding in:     2.655261418
+ sum now:     3.5082386556 
+ like now:    3.5082386556 
+doing contrast between 1 and 6
+p->deltav, q->deltav:   0.00000000,   0.00011587
+p->view[0]:     0.000000000, q->view[0]:    -0.005765752
+contrast is:      0.00576575
+squared contrast is:      0.00003324
+v1'+v2' is:      0.00011587
+sumsq is now      0.000033244
+ vee:    0.0001158690, df: 1, sumsq:    0.0000332439
+ terms:    4.5315250849,   -0.1434546626
+ adding in:     4.388070422
+ sum now:     7.8963090780 
+ like now:    7.8963090780 
+ likelihood sum now:     7.8963090780 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000332439
+ p->deltav:    0.0001158690, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000332439
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001532265
+ p->deltav:    0.0000173281, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001532265
+ v is     0.0001358984
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001385036
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001356257
+ estimated bigv is     0.0001385036
+ v is     0.0000028780
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0669339576
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000028183
+ estimated bigv is     0.0669339576
+ v is     0.0669311393
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  8
+ makenewv: branch from 1 to 8, dist is:     0.0000692972
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001045807
+ estimated bigv is     0.0000692972
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000332995
+ p->deltav:    0.0001149838, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000332995
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001518639
+ p->deltav:    0.0000028778, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001518639
+ v is     0.0001489861
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001371429
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001486552
+ estimated bigv is     0.0001371429
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  8
+ makenewv: branch from 1 to 8, dist is:     0.0000655859
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001102757
+ estimated bigv is     0.0000655859
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000288048
+ p->deltav:    0.0001219056, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000288048
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  8
+ makenewv: branch from 1 to 8, dist is:     0.0000647099
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001116959
+ estimated bigv is     0.0000647099
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000277518
+ p->deltav:    0.0001236435, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  8
+ makenewv: branch from 1 to 8, dist is:     0.0000647099
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001116959
+ estimated bigv is     0.0000647099
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     0.8530118308 
+ like now:    0.8530118308 
+doing contrast between 3 and 7
+p->v, q->v:   0.00067068,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.025897404, q->view[0]:    -0.012312195
+contrast is:      0.03820960
+squared contrast is:      0.00145997
+v1'+v2' is:      0.00082227
+sumsq is now      0.001459973
+ vee:    0.0008222657, df: 1, sumsq:    0.0014599735
+ terms:    3.5517235025,   -0.8877747772
+ adding in:     2.663948725
+ sum now:     3.5169605561 
+ like now:    3.5169605561 
+doing contrast between 6 and 1
+p->v, q->v:   0.00000000,   0.00000000
+p->deltav, q->deltav:   0.00012364,   0.00000000
+p->view[0]:    -0.005268001, q->view[0]:     0.000000000
+contrast is:     -0.00526800
+squared contrast is:      0.00002775
+v1'+v2' is:      0.00012364
+sumsq is now      0.000027752
+ vee:    0.0001236435, df: 1, sumsq:    0.0000277518
+ terms:    4.4990540816,   -0.1122252228
+ adding in:     4.386828859
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+doing contrast between 8 and 5
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.033998803
+contrast is:      0.03399880
+squared contrast is:      0.00115592
+v1'+v2' is:      0.00231184
+sumsq is now      0.001155919
+ vee:    0.0023118372, df: 1, sumsq:    0.0011559186
+ terms:    3.0348563733,   -0.2500000000
+ adding in:     2.784856373
+ sum now:    10.6886457882 
+ like now:   10.6886457882 
+ likelihood sum now:    10.6886457882 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     0.8530118308 
+ like now:    0.8530118308 
+doing contrast between 3 and 7
+p->v, q->v:   0.00067068,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.025897404, q->view[0]:    -0.012312195
+contrast is:      0.03820960
+squared contrast is:      0.00145997
+v1'+v2' is:      0.00082227
+sumsq is now      0.001459973
+ vee:    0.0008222657, df: 1, sumsq:    0.0014599735
+ terms:    3.5517235025,   -0.8877747772
+ adding in:     2.663948725
+ sum now:     3.5169605561 
+ like now:    3.5169605561 
+doing contrast between 6 and 1
+p->deltav, q->deltav:   0.00012364,   0.00000000
+p->view[0]:    -0.005268001, q->view[0]:     0.000000000
+contrast is:     -0.00526800
+squared contrast is:      0.00002775
+v1'+v2' is:      0.00012364
+sumsq is now      0.000027752
+ vee:    0.0001236435, df: 1, sumsq:    0.0000277518
+ terms:    4.4990540816,   -0.1122252228
+ adding in:     4.386828859
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+ likelihood sum now:     7.9037894149 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0022040682
+ p->deltav:    0.0001676689, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0022040682
+ v is     0.0020363993
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0003037607
+ p->deltav:    0.0000000000, p->back->deltav:    0.0002879247
+ estimated bigv is     0.0003037607
+ v is     0.0000158361
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000058138
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001011245
+ estimated bigv is     0.0000058138
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  8
+ makenewv: branch from 3 to 8, dist is:     0.0006843328
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000157139
+ estimated bigv is     0.0006843328
+ v is     0.0006686189
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011970206
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000154697
+ estimated bigv is     0.0011970206
+ v is     0.0011815509
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011970206
+ p->deltav:    0.0000154697, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011970206
+ v is     0.0011815509
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000180792
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004269918
+ estimated bigv is     0.0000180792
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000635582
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001118731
+ estimated bigv is     0.0000635582
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  8
+ makenewv: branch from 3 to 8, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000152502
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004244218
+ estimated bigv is     0.0000152502
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000647099
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001116959
+ estimated bigv is     0.0000647099
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  8
+ makenewv: branch from 3 to 8, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0000152502
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004244218
+ estimated bigv is     0.0000152502
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+ makenewv: branch from 7 to 6, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0001368698
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001512469
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000647099
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001116959
+ estimated bigv is     0.0000647099
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  8
+ makenewv: branch from 3 to 8, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0011559186
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0011559186
+ v is     0.0011559186
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     0.8530118308 
+ like now:    0.8530118308 
+doing contrast between 7 and 1
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:     0.000000000
+contrast is:     -0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     4.7501768649 
+ like now:    4.7501768649 
+doing contrast between 6 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+doing contrast between 8 and 5
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.033998803
+contrast is:      0.03399880
+squared contrast is:      0.00115592
+v1'+v2' is:      0.00231184
+sumsq is now      0.001155919
+ vee:    0.0023118372, df: 1, sumsq:    0.0011559186
+ terms:    3.0348563733,   -0.2500000000
+ adding in:     2.784856373
+ sum now:    10.6886457882 
+ like now:   10.6886457882 
+ likelihood sum now:    10.6886457882 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     0.8530118308 
+ like now:    0.8530118308 
+doing contrast between 7 and 1
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:     0.000000000
+contrast is:     -0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     4.7501768649 
+ like now:    4.7501768649 
+doing contrast between 6 and 3
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00134135
+sumsq is now      0.000670676
+ vee:    0.0013413511, df: 1, sumsq:    0.0006706755
+ terms:    3.3070389597,   -0.2500000000
+ adding in:     3.057038960
+ sum now:     7.8072158246 
+ like now:    7.8072158246 
+ likelihood sum now:     7.8072158246 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0007752162
+ p->deltav:    0.0000378975, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0007752162
+ v is     0.0007373187
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0002054558
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000687298
+ estimated bigv is     0.0002054558
+ v is     0.0001367260
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000240040
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001572757
+ estimated bigv is     0.0000240040
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0000489131
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001153381
+ estimated bigv is     0.0000489131
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000427227
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001151393
+ estimated bigv is     0.0000427227
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+ makenewv: branch from 6 to 8, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     4.0066243808 
+ like now:    4.0066243808 
+doing contrast between 6 and 7
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+doing contrast between 8 and 5
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.033998803
+contrast is:      0.02168661
+squared contrast is:      0.00047031
+v1'+v2' is:      0.00094062
+sumsq is now      0.000470309
+ vee:    0.0009406179, df: 1, sumsq:    0.0004703090
+ terms:    3.4844867717,   -0.2500000000
+ adding in:     3.234486772
+ sum now:    11.1382761866 
+ like now:   11.1382761866 
+ likelihood sum now:    11.1382761866 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 2 and 4
+p->v, q->v:   0.00000000,   0.06680191
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.06680191
+sumsq is now      0.066801906
+ vee:    0.0668019063, df: 1, sumsq:    0.0668019063
+ terms:    1.3530118308,   -0.5000000000
+ adding in:     0.853011831
+ sum now:     4.0066243808 
+ like now:    4.0066243808 
+doing contrast between 6 and 7
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00030318
+sumsq is now      0.000151590
+ vee:    0.0003031803, df: 1, sumsq:    0.0001515901
+ terms:    4.0505914438,   -0.2500000000
+ adding in:     3.800591444
+ sum now:     7.8072158246 
+ like now:    7.8072158246 
+ likelihood sum now:     7.8072158246 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0001368698
+ p->deltav:    0.0001512469, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  8
+ makenewv: branch from 2 to 8, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0001368698
+ p->deltav:    0.0001512469, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  8
+ makenewv: branch from 2 to 8, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0001368698
+ p->deltav:    0.0001512469, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  8
+ makenewv: branch from 2 to 8, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0001368698
+ p->deltav:    0.0001512469, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001368698
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+ makenewv: branch from 4 to 7, dist is:     0.0668019063
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0668019063
+ v is     0.0668019063
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  8
+ makenewv: branch from 2 to 8, dist is:     0.0000127819
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001144431
+ estimated bigv is     0.0000127819
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 4 and 6
+p->v, q->v:   0.06680191,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.270772843, q->view[0]:     0.000000000
+contrast is:     -0.27077284
+squared contrast is:      0.07331793
+v1'+v2' is:      0.06695350
+sumsq is now      0.073317932
+ vee:    0.0669534964, df: 1, sumsq:    0.0733179323
+ terms:    1.3518784918,   -0.5475287788
+ adding in:     0.804349713
+ sum now:     3.9579622630 
+ like now:    3.9579622630 
+doing contrast between 7 and 2
+p->v, q->v:   0.00000000,   0.00000000
+p->deltav, q->deltav:   0.00015125,   0.00000000
+p->view[0]:    -0.000613060, q->view[0]:    -0.012312195
+contrast is:      0.01169914
+squared contrast is:      0.00013687
+v1'+v2' is:      0.00015125
+sumsq is now      0.000136870
+ vee:    0.0001512469, df: 1, sumsq:    0.0001368698
+ terms:    4.3982983731,   -0.4524712212
+ adding in:     3.945827152
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+doing contrast between 8 and 5
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.033998803
+contrast is:      0.02168661
+squared contrast is:      0.00047031
+v1'+v2' is:      0.00094062
+sumsq is now      0.000470309
+ vee:    0.0009406179, df: 1, sumsq:    0.0004703090
+ terms:    3.4844867717,   -0.2500000000
+ adding in:     3.234486772
+ sum now:    11.1382761866 
+ like now:   11.1382761866 
+ likelihood sum now:    11.1382761866 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 4 and 6
+p->v, q->v:   0.06680191,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.270772843, q->view[0]:     0.000000000
+contrast is:     -0.27077284
+squared contrast is:      0.07331793
+v1'+v2' is:      0.06695350
+sumsq is now      0.073317932
+ vee:    0.0669534964, df: 1, sumsq:    0.0733179323
+ terms:    1.3518784918,   -0.5475287788
+ adding in:     0.804349713
+ sum now:     3.9579622630 
+ like now:    3.9579622630 
+doing contrast between 7 and 2
+p->deltav, q->deltav:   0.00015125,   0.00000000
+p->view[0]:    -0.000613060, q->view[0]:    -0.012312195
+contrast is:      0.01169914
+squared contrast is:      0.00013687
+v1'+v2' is:      0.00015125
+sumsq is now      0.000136870
+ vee:    0.0001512469, df: 1, sumsq:    0.0001368698
+ terms:    4.3982983731,   -0.4524712212
+ adding in:     3.945827152
+ sum now:     7.9037894149 
+ like now:    7.9037894149 
+ likelihood sum now:     7.9037894149 
+ml_tree_try_insert_
+start ml_tree_try_insert_thorough
+starting function ml_tree_insert
+starting function generic_tree_insert
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0115656508
+ p->deltav:    0.0167004766, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0115656508
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  8
+ makenewv: branch from 4 to 8, dist is:     0.0560619459
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0560619459
+ v is     0.0560619459
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0003816707
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004663963
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0003816707
+ p->deltav:    0.0004663963, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  8
+ makenewv: branch from 4 to 8, dist is:     0.0560619459
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0560619459
+ v is     0.0560619459
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0003816707
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004663963
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0003816707
+ p->deltav:    0.0004663963, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  8
+ makenewv: branch from 4 to 8, dist is:     0.0560619459
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0560619459
+ v is     0.0560619459
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0003816707
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004663963
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth_traverse
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 8 to 5, dist is:     0.0003816707
+ p->deltav:    0.0004663963, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+ makenewv: branch from 7 to 8, dist is:     0.0004703090
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0004703090
+ v is     0.0004703090
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+ makenewv: branch from 6 to 7, dist is:     0.0001515901
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0001515901
+ v is     0.0001515901
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  1  to  6
+ makenewv: branch from 1 to 6, dist is:     0.0000277518
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001236435
+ estimated bigv is     0.0000277518
+ v is     0.0000000000
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  3  to  6
+ makenewv: branch from 3 to 6, dist is:     0.0006706755
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0006706755
+ v is     0.0006706755
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  6
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  2  to  7
+ makenewv: branch from 2 to 7, dist is:     0.0000161995
+ p->deltav:    0.0000000000, p->back->deltav:    0.0001146395
+ estimated bigv is     0.0000161995
+ v is     0.0000000000
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  8  to  7
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  8
+ makenewv: branch from 4 to 8, dist is:     0.0560619459
+ p->deltav:    0.0000000000, p->back->deltav:    0.0000000000
+ estimated bigv is     0.0560619459
+ v is     0.0560619459
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function smooth
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+ makenewv: branch from 5 to 8, dist is:     0.0003816707
+ p->deltav:    0.0000000000, p->back->deltav:    0.0004663963
+ estimated bigv is     0.0003816707
+ v is     0.0000000000
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  5  to  8
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 6 and 2
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     7.0507775841 
+ like now:    7.0507775841 
+doing contrast between 7 and 4
+p->v, q->v:   0.00047031,   0.05606195
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.05653225
+sumsq is now      0.066801906
+ vee:    0.0565322548, df: 1, sumsq:    0.0668019063
+ terms:    1.4364719609,   -0.5908300181
+ adding in:     0.845641943
+ sum now:     7.8964195269 
+ like now:    7.8964195269 
+doing contrast between 8 and 5
+p->deltav, q->deltav:   0.00046640,   0.00000000
+p->view[0]:    -0.014462408, q->view[0]:    -0.033998803
+contrast is:      0.01953640
+squared contrast is:      0.00038167
+v1'+v2' is:      0.00046640
+sumsq is now      0.000381671
+ vee:    0.0004663963, df: 1, sumsq:    0.0003816707
+ terms:    3.8352374127,   -0.4091699819
+ adding in:     3.426067431
+ sum now:    11.3224869577 
+ like now:   11.3224869577 
+ likelihood sum now:    11.3224869577 
+start ml_tree_remove
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  4  to  7
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 1 and 3
+p->v, q->v:   0.00000000,   0.00067068
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:     0.025897404
+contrast is:     -0.02589740
+squared contrast is:      0.00067068
+v1'+v2' is:      0.00067068
+sumsq is now      0.000670676
+ vee:    0.0006706755, df: 1, sumsq:    0.0006706755
+ terms:    3.6536125500,   -0.5000000000
+ adding in:     3.153612550
+ sum now:     3.1536125500 
+ like now:    3.1536125500 
+doing contrast between 6 and 2
+p->v, q->v:   0.00015159,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.000000000, q->view[0]:    -0.012312195
+contrast is:      0.01231220
+squared contrast is:      0.00015159
+v1'+v2' is:      0.00015159
+sumsq is now      0.000151590
+ vee:    0.0001515901, df: 1, sumsq:    0.0001515901
+ terms:    4.3971650341,   -0.5000000000
+ adding in:     3.897165034
+ sum now:     7.0507775841 
+ like now:    7.0507775841 
+doing contrast between 7 and 4
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.270772843
+contrast is:      0.25846065
+squared contrast is:      0.06680191
+v1'+v2' is:      0.11306451
+sumsq is now      0.066801906
+ vee:    0.1130645097, df: 1, sumsq:    0.0668019063
+ terms:    1.0898983706,   -0.2954150091
+ adding in:     0.794483362
+ sum now:     7.8452609457 
+ like now:    7.8452609457 
+ likelihood sum now:     7.8452609457 
+   5. Australian
+starting function contml_tree_evaluate
+starting function ml_update
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function generic_tree_nuview
+starting function contml_tree_nuview
+new view from  7  to  8
+starting function contml_tree_nuview
+new view from  6  to  7
+starting function contml_tree_nuview
+new view from  1  to  6
+starting function generic_tree_evaluate
+ likelihood sum before:     0.0000000000 
+doing contrast between 4 and 5
+p->v, q->v:   0.05606195,   0.00000000
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.270772843, q->view[0]:    -0.033998803
+contrast is:     -0.23677404
+squared contrast is:      0.05606195
+v1'+v2' is:      0.05606195
+sumsq is now      0.056061946
+ vee:    0.0560619459, df: 1, sumsq:    0.0560619459
+ terms:    1.4406490117,   -0.5000000000
+ adding in:     0.940649012
+ sum now:     0.9406490117 
+ like now:    0.9406490117 
+doing contrast between 2 and 8
+p->v, q->v:   0.00000000,   0.00047031
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:    -0.012312195, q->view[0]:    -0.033998803
+contrast is:      0.02168661
+squared contrast is:      0.00047031
+v1'+v2' is:      0.00047031
+sumsq is now      0.000470309
+ vee:    0.0004703090, df: 1, sumsq:    0.0004703090
+ terms:    3.8310603619,   -0.5000000000
+ adding in:     3.331060362
+ sum now:     4.2717093736 
+ like now:    4.2717093736 
+doing contrast between 3 and 7
+p->v, q->v:   0.00067068,   0.00015159
+p->deltav, q->deltav:   0.00000000,   0.00000000
+p->view[0]:     0.025897404, q->view[0]:    -0.012312195
+contrast is:      0.03820960
+squared contrast is:      0.00145997
+v1'+v2' is:      0.00082227
+sumsq is now      0.001459973
+ vee:    0.0008222657, df: 1, sumsq:    0.0014599735
+ terms:    3.5517235025,   -0.8877747772
+ adding in:     2.663948725
+ sum now:     6.9356580990 
+ like now:    6.9356580990 
+doing contrast between 1 and 6
+p->deltav, q->deltav:   0.00000000,   0.00012364
+p->view[0]:     0.000000000, q->view[0]:    -0.005268001
+contrast is:      0.00526800
+squared contrast is:      0.00002775
+v1'+v2' is:      0.00012364
+sumsq is now      0.000027752
+ vee:    0.0001236435, df: 1, sumsq:    0.0000277518
+ terms:    4.4990540816,   -0.1122252228
+ adding in:     4.386828859
+ sum now:    11.3224869577 
+ like now:   11.3224869577 
+ likelihood sum now:    11.3224869577 
+
+
+Output written to file "outfile".
+
+Tree also written onto file "outtree".
+
+Done.
+
+]0;felsenst@penguin: ~/phylip/gitproject[01;32mfelsenst@penguin[00m:[01;34m~/phylip/gitproject[00m$ exit
+
+Script done on Sun 05 Jul 2020 08:58:30 AM PDT

@@ -59,6 +59,15 @@ void ml_tree_init(struct tree* t, long nonodes, long spp)
 } /* ml_tree_init */
 
 
+struct node* ml_node_new(node_type type, long index, long nodesize) {
+  /* go up hierarchy creating a node, initializing it */
+  struct node* nn;
+
+  nn = generic_node_new(type, index, nodesize);
+  return nn;
+} /* ml_node_new */
+
+
 void ml_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
@@ -71,10 +80,7 @@ void ml_node_init(struct node *n, node_type type, long index)
   assert(index >= 0);
 
   generic_node_init(n, type, index);                /* go up node hierarchy */
-  n->copy = ml_node_copy;
-  n->free = ml_node_free;
-  n->reinit = ml_node_reinit;
-  n->node_print_f = ml_node_print;
+  n->node_print_f = bl_node_print;
   nn = (ml_node*)n;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->bl_node.tyme = 0;

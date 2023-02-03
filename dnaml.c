@@ -7,6 +7,7 @@
 #  include <config.h>
 #endif
 
+#include "phylip.h" 
 #include "seq.h"
 #include "bl.h"
 #include "ml.h"
@@ -132,7 +133,7 @@ void dnaml_tree_new(struct tree** treep, long nonodes, long spp, long treesize)
 {
   /* set up variables and then set up identities of functions */
 
-  ml_tree_new((struct tree**)treep, nonodes, spp, sizeof(dnaml_tree));
+  bl_tree_new((struct tree**)treep, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init((struct tree*)*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
@@ -2009,7 +2010,7 @@ void dnaml_reroot(tree* t)
 
 
 void dnaml_treeout(FILE  *outtree, tree* t, node* p) {
-/* call ml_treeout to write tree out to tree output file */
+/* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
   bl_scale = fracchange;

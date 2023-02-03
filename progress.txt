@@ -1,0 +1,6 @@
+ERROR:  This program has caused a Segmentation fault.
+        This may have been caused by an incorrectly formatted input file
+        or input tree file.  You should check those files carefully.
+        If this seems to be a bug, please mail joe@gs.washington.edu
+        with the name of the program, your computer system type,
+        a full description of the problem, and with the input data file.

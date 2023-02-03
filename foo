@@ -1,0 +1,1428 @@
+Script started on 2020-12-14 13:55:02-08:00 [TERM="xterm" TTY="/dev/pts/1" COLUMNS="84" LINES="21"]
+]0;felsenst@penguin: ~/phylip/gitprojectfelsenst@penguin:~/phylip/gitproject$ ./pars
+[2J[H
+pars: the file "outfile" that you wanted to
+     use as output file already exists.
+     Do you want to Replace it, Append to it,
+     write to a new File, or Quit?
+     (please type R, A, F, or Q) 
+r
+[2J[H
+Discrete character parsimony algorithm, version 4.0a
+
+Setting for this run:
+  U                 Search for best tree?  Yes
+  S                        Search option?  More thorough search
+  V              Number of trees to save?  10000
+  J     Randomize input order of species?  No. Use input order
+  O                        Outgroup root?  No, use as outgroup species 1
+  T              Use Threshold parsimony?  No, use ordinary parsimony
+  W                       Sites weighted?  No
+  M           Analyze multiple data sets?  No
+  I            Input species interleaved?  Yes
+  0   Terminal type (IBM PC, ANSI, none)?  ANSI
+  1    Print out the data at start of run  No
+  2  Print indications of progress of run  Yes
+  3                        Print out tree  Yes
+  4          Print out steps in each site  No
+  5  Print character at all nodes of tree  No
+  6       Write out trees onto tree file?  Yes
+
+  Y to accept these or type the letter for one to change
+y j
+Random number seed (must be odd)?
+3133
+Number of times to jumble?
+10
+[2J[H
+Discrete character parsimony algorithm, version 4.0a
+
+Setting for this run:
+  U                 Search for best tree?  Yes
+  S                        Search option?  More thorough search
+  V              Number of trees to save?  10000
+  J     Randomize input order of species?  Yes (seed =    3133, 10 times)
+  O                        Outgroup root?  No, use as outgroup species 1
+  T              Use Threshold parsimony?  No, use ordinary parsimony
+  W                       Sites weighted?  No
+  M           Analyze multiple data sets?  No
+  I            Input species interleaved?  Yes
+  0   Terminal type (IBM PC, ANSI, none)?  ANSI
+  1    Print out the data at start of run  No
+  2  Print indications of progress of run  Yes
+  3                        Print out tree  Yes
+  4          Print out steps in each site  No
+  5  Print character at all nodes of tree  No
+  6       Write out trees onto tree file?  Yes
+
+  Y to accept these or type the letter for one to change
+y
+
+pars: the file "outtree" that you wanted to
+     use as output tree file already exists.
+     Do you want to Replace it, Append to it,
+     write to a new File, or Quit?
+     (please type R, A, F, or Q) 
+r
+
+Adding species:
+   1. Stegotetra
+   2. Mammuthus 
+   3. Elephas   
+ score = -6.000000, bestyet = -14000.000000, bestfound = 0.000000 (new bestyet)
+ score = -6.000000, bestyet = -6.000000, bestfound = 0.000000
+ score = -6.000000, bestyet = -6.000000, bestfound = 0.000000
+ score = -6.000000, bestyet = -6.000000, bestfound = 0.000000
+ score = -6.000000, bestyet = -6.000000, bestfound = 0.000000
+ score = -6.000000, bestyet = -6.000000, bestfound = 0.000000
+   4. Loxodonta 
+ score = -12.000000, bestyet = -14000.000000, bestfound = 0.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+   5. maluvalens
+ score = -12.000000, bestyet = -14000.000000, bestfound = 0.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = 0.000000
+   6. Primelepha
+ score = -15.000000, bestyet = -14000.000000, bestfound = -14000.000000 (new bestyet)
+ score = -15.000000, bestyet = -15.000000, bestfound = -15.000000  (Initial)
+Added an initial tree to bestrees, now 1 of them
+ score = -14.000000, bestyet = -15.000000, bestfound = -15.000000 (new bestyet)
+ score = -14.000000, bestyet = -14.000000, bestfound = -14.000000  (Better)
+Added new best tree to bestrees, score = -14.000000, now 1 of them
+ score = -14.000000, bestyet = -14.000000, bestfound = -14.000000
+ score = -14.000000, bestyet = -14.000000, bestfound = -14.000000  (Tied)
+Added another tied tree to bestrees, now 2 of them
+ score = -15.000000, bestyet = -14.000000, bestfound = -14.000000
+ score = -15.000000, bestyet = -14.000000, bestfound = -14.000000
+ score = -14.000000, bestyet = -14.000000, bestfound = -14.000000
+ score = -14.000000, bestyet = -14.000000, bestfound = -14.000000  (Tied)
+Added another tied tree to bestrees, now 3 of them
+ score = -15.000000, bestyet = -14.000000, bestfound = -14.000000
+ score = -12.000000, bestyet = -14.000000, bestfound = -14.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000  (Better)
+Added new best tree to bestrees, score = -12.000000, now 1 of them
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000  (Tied)
+Added another tied tree to bestrees, now 2 of them
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000  (Tied)
+Added another tied tree to bestrees, now 3 of them
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000  (Tied)
+Added another tied tree to bestrees, now 4 of them
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Stegodibel
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -163.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Loxodonta 
+   2. Mammuthus 
+   3. Elephas   
+ score = -9.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -9.000000, bestfound = -12.000000 (new bestyet)
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+   4. maluvalens
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -11.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -10.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+   5. Stegodibel
+ score = -12.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+   6. Primelepha
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -15.000000, bestyet = -15.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -15.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Stegotetra
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -124.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Loxodonta 
+   2. Stegodibel
+   3. Mammuthus 
+ score = -4.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -5.000000, bestyet = -4.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -4.000000, bestfound = -12.000000
+ score = -4.000000, bestyet = -4.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -4.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -4.000000, bestfound = -12.000000
+   4. Elephas   
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -11.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -10.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+   5. maluvalens
+ score = -12.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+   6. Primelepha
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -15.000000, bestyet = -15.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -15.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Stegotetra
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -124.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Primelepha
+   2. Stegodibel
+   3. Elephas   
+ score = -7.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -6.000000, bestyet = -7.000000, bestfound = -12.000000 (new bestyet)
+ score = -7.000000, bestyet = -6.000000, bestfound = -12.000000
+ score = -6.000000, bestyet = -6.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -6.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -6.000000, bestfound = -12.000000
+   4. Loxodonta 
+ score = -12.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+   5. maluvalens
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+   6. Stegotetra
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Mammuthus 
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -89.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. maluvalens
+   2. Stegotetra
+   3. Primelepha
+ score = -10.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+   4. Mammuthus 
+ score = -12.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+   5. Elephas   
+ score = -12.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+   6. Stegodibel
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -13.000000, bestfound = -12.000000
+   7. Loxodonta 
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -87.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+   ........ score = -12.000000, bestyet = -90.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+   ......... score = -12.000000, bestyet = -52.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+   ........ score = -12.000000, bestyet = -51.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Primelepha
+   2. Elephas   
+   3. Loxodonta 
+ score = -5.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -5.000000, bestyet = -5.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -5.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -5.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -5.000000, bestfound = -12.000000
+ score = -5.000000, bestyet = -5.000000, bestfound = -12.000000
+   4. Mammuthus 
+ score = -7.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -8.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+ score = -7.000000, bestyet = -7.000000, bestfound = -12.000000
+   5. Stegodibel
+ score = -8.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+   6. Stegotetra
+ score = -14.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -13.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. maluvalens
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -124.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Stegodibel
+   2. maluvalens
+   3. Mammuthus 
+ score = -10.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -10.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -9.000000, bestfound = -12.000000
+   4. Primelepha
+ score = -14.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -12.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -11.000000, bestfound = -12.000000
+   5. Loxodonta 
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+   6. Stegotetra
+ score = -16.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -16.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -14.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -14.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -14.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Elephas   
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -128.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Primelepha
+   2. Stegodibel
+   3. Loxodonta 
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -11.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -9.000000, bestfound = -12.000000
+   4. maluvalens
+ score = -10.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+   5. Stegotetra
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   6. Mammuthus 
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Elephas   
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -128.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Stegotetra
+   2. Loxodonta 
+   3. Primelepha
+ score = -9.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -6.000000, bestyet = -9.000000, bestfound = -12.000000 (new bestyet)
+ score = -6.000000, bestyet = -6.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -6.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -6.000000, bestfound = -12.000000
+   4. Mammuthus 
+ score = -9.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -9.000000, bestfound = -12.000000 (new bestyet)
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+   5. Stegodibel
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -11.000000, bestfound = -12.000000 (new bestyet)
+ score = -9.000000, bestyet = -9.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -9.000000, bestfound = -12.000000 (new bestyet)
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -9.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+ score = -8.000000, bestyet = -8.000000, bestfound = -12.000000
+   6. Elephas   
+ score = -14.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -14.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -14.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. maluvalens
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -163.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Adding species:
+   1. Stegotetra
+   2. maluvalens
+   3. Mammuthus 
+ score = -11.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -11.000000, bestyet = -11.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -11.000000, bestfound = -12.000000 (new bestyet)
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+   4. Stegodibel
+ score = -10.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -10.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+ score = -11.000000, bestyet = -10.000000, bestfound = -12.000000
+   5. Primelepha
+ score = -14.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -13.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -13.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   6. Loxodonta 
+ score = -15.000000, bestyet = -14000.000000, bestfound = -12.000000 (new bestyet)
+ score = -14.000000, bestyet = -15.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -14.000000, bestfound = -12.000000 (new bestyet)
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -16.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -15.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+   7. Elephas   
+
+Doing global rearrangements on all trees tied for best
+  !-------------!
+   ........ score = -12.000000, bestyet = -128.000000, bestfound = -12.000000 (new bestyet)
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+. score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -12.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -14.000000, bestyet = -12.000000, bestfound = -12.000000
+ score = -13.000000, bestyet = -12.000000, bestfound = -12.000000
+..
+
+
+Collapsing best trees
+   ...
+
+Output written to file "outfile".
+
+Trees also written onto file "outtree".
+
+Done.
+
+]0;felsenst@penguin: ~/phylip/gitprojectfelsenst@penguin:~/phylip/gitproject$ exit
+
+Script done on 2020-12-14 13:55:22-08:00 [COMMAND_EXIT_CODE="0"]

@@ -1,0 +1,21 @@
+  ft->ml_tree.makenewv = fitch_makenewv;
+      if (q->next->back != NULL)
+        secondtraverse(q->next->back, z, nx, sum);
+      if (q->next->next->back != NULL)
+        secondtraverse(q->next->next->back, z, nx, sum);
+    if (p->next->back != NULL)
+      firsttraverse(p->next->back, nx, sum);
+    if (p->next->next->back != NULL)
+      firsttraverse(p->next->next->back, nx, sum);
+  t->score = -sum;
+   * is being computed.  They are  qprime->back  and qprime-next->back.
+      alter(x, y->next->back);
+      alter(x, y->next->next->back);
+  t->nuview(t, p);
+  which = (dist_node*)t->nodep[m - 1];
+    describe(p->next->back);
+    describe(p->next->next->back);
+  initrav(p->next->back);
+  initrav(p->next->next->back);
+  if (curtree->root->back != NULL) {
+    initrav(curtree->root->back);
