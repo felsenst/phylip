@@ -7,7 +7,7 @@
     dist.h: included in fitch, kitsch, & neighbor
 */
 
-#include "ml.h"
+#include "bl.h"
 
 #define over            60
 
