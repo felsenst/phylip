@@ -8,9 +8,9 @@
 #endif
 
 /* debug % #include "phylip.h"   */
-#include "seq.h"
-#include "bl.h"
-#include "ml.h"
+/* debig #include "seq.h"  */
+/* #include "bl.h" debug */
+/* #include "ml.h" debug */
 #include "mldna.h"
 
 typedef struct valrec {

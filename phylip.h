@@ -292,7 +292,7 @@ typedef unsigned int boolean;
 #define UNDEFINED -99.99999
 
 /* a basic stack */
-typedef struct stack {
+typedef struct {
   struct stack* next;
   void *data;
 } stack;

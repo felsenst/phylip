@@ -46,7 +46,7 @@ void    bl_node_init(struct node*, node_type, long);
 void    bl_node_free(node **);
 void    bl_node_print(node *);
 void    bl_hookup(node*, node*);
-void    allocx(long, long, long, ml_node**);
+void    allocx(long, long, long, bl_node**);
 void    makevalues2(long, pointarray, long, long, sequence, steptr);
 void    freex_notip(long, pointarray);
 void    freex(long, pointarray);
