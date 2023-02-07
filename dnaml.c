@@ -7,7 +7,7 @@
 #  include <config.h>
 #endif
 
-#include "phylip.h" 
+/* debug % #include "phylip.h"   */
 #include "seq.h"
 #include "bl.h"
 #include "ml.h"
