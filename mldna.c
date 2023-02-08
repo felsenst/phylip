@@ -1,8 +1,8 @@
 /* Copyright, 2022 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#include "phylip.h"
-#include "ml.h"
+/* debug:  #include "phylip.h"   debug */
+/* debug  #include "ml.h"   debug */
 #include "mldna.h"
 
 
