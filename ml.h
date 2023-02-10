@@ -14,7 +14,6 @@
 #endif
 
 
-#include "phylip.h"
 #include "bl.h"
 
 extern boolean inserting, smoothit, smoothed, polishing;
