@@ -436,7 +436,8 @@ typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
-typedef struct node node;               /* prototypes of types of functions */
+/* typedef struct node node; debug */
+/* prototypes of types of functions */
 typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
 typedef void (*tree_init_t)(tree*, long, long);       /* tree_init fn. type */
