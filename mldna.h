@@ -3,6 +3,10 @@
 
 /* specializing  ml_node  for DNA data type */
 
+#ifndef ML_H
+#include "ml.h"
+#endif
+
 long rcategs;                    /* number of rate categories, default is 1 */
 
 typedef struct mldna_node{                          /* subclass of ml_node */

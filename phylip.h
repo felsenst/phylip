@@ -9,6 +9,8 @@
 #define VERSION "4.0a"
 #endif
 
+#define PHYLIP_H
+
 /* this is only for configure/make compiles, which we do not use these days */
 #ifdef HAVE_CONFIG_H
 #include <config.h>

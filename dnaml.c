@@ -7,11 +7,11 @@
 #  include <config.h>
 #endif
 
-/* debug % #include "phylip.h"   */
-/* debig #include "seq.h"  */
-/* #include "bl.h" debug */
-/* #include "ml.h" debug */
 #include "mldna.h"
+
+#ifndef SEQ_H
+#include "seq.h"
+#endif
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;

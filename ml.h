@@ -13,9 +13,9 @@
 #define _ML_H_
 #endif
 
-
-#include "phylip.h"
+#ifndef BL_H
 #include "bl.h"
+#endif
 
 extern boolean inserting, smoothit, smoothed, polishing;
 

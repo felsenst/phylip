@@ -9,7 +9,9 @@
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
 /* move */
 /* All the below moved here in the Great TreeRead Migration of '96 */

@@ -11,8 +11,11 @@
 
 #ifndef _BL_H_
 #define _BL_H_
+#endif
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
@@ -72,8 +75,5 @@ void    bl_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
 void    bl_initialvtrav(tree*, node *);
 #endif
-
-#endif /* _BL_H_ */
-
 
 /* End. */
