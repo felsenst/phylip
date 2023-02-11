@@ -438,7 +438,7 @@ typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
-typedef struct node node;               /* prototypes of types of functions */
+/* prototypes of types of functions */
 typedef struct tree tree;
 typedef void (*tree_new_t)(tree**, long, long, long);  /* tree_new fn. type */
 typedef void (*tree_init_t)(tree*, long, long);       /* tree_init fn. type */
@@ -446,14 +446,14 @@ typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
 typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
 typedef void (*tree_copy_t)(tree*, tree*);
 typedef void (*tree_setupfunctions_t)(tree*); /* function sets up functions */
-typedef void (*node_reinit_t)(node*);
-typedef void (*node_free_t)(node**);
-typedef void (*node_copy_t)(node*, node*);
-typedef void (*fork_print_t)(node*);
-typedef void (*node_print_t)(node*);
-typedef void (*do_branchl_on_insert_t)(tree*, node*, node*);
-typedef void (*do_branchl_on_re_move_t)(tree*, node*, node*);
-typedef boolean (*fork_good_t)(tree*, node*);   /* debug: needed for debugging */
+typedef void (*node_reinit_t)(struct node*);
+typedef void (*node_free_t)(struct node**);
+typedef void (*node_copy_t)(struct node*, struct node*);
+typedef void (*fork_print_t)(struct node*);
+typedef void (*node_print_t)(struct node*);
+typedef void (*do_branchl_on_insert_t)(tree*, struct node*, struct node*);
+typedef void (*do_branchl_on_re_move_t)(tree*, struct node*, struct node*);
+typedef boolean (*fork_good_t)(tree*, struct node*);   /* debug: needed for debugging */
 
 /* Macros for calling dynamic functions */
 /* Might be better as actual functions if performance hit is not severe */
@@ -532,37 +532,40 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 };                                /* end of the basic node type declaration */
 
 
-typedef node **pointarray;       /* this type is an array of pointers to nodes
+typedef struct node **pointarray; /* type is an array of pointers to nodes
                                   * and is the type of array nodep */
-typedef void (*tree_re_move_t)(tree*, node*, node**, boolean);
-typedef boolean (*tree_addtraverse_t)(tree*, node*, node*, traversetype, node*,
-                           double*, tree*, boolean, boolean, boolean, double*);
-typedef boolean (*tree_addtraverse_1way_t)(tree*, node*, node*, traversetype,
-                   node**, double*, tree*, boolean, boolean, boolean*, double*);
-typedef void (*tree_insert_t)(tree*,node*, node*, boolean);
-typedef boolean (*tree_try_insert_t)(tree*, node*, node*, node*, double*,
+typedef void (*tree_re_move_t)(tree*, struct node*, struct node**, boolean);
+typedef boolean (*tree_addtraverse_t)(tree*, struct node*, struct node*, 
+                           traversetype, struct node*, double*, tree*, 
+                           boolean, boolean, boolean, double*);
+typedef boolean (*tree_addtraverse_1way_t)(tree*, struct node*, struct node*, 
+                   traversetype, struct node**, double*, tree*, boolean, 
+                   boolean, boolean*, double*);
+typedef void (*tree_insert_t)(tree*, struct node*, struct node*, boolean);
+typedef boolean (*tree_try_insert_t)(tree*, struct node*, struct node*, 
+                   struct node*, double*,
     tree*, boolean, boolean, boolean, double*);
 typedef void (*tree_free_t)(tree*);
 typedef void (*tree_globrearrange_t)(tree*, tree*, boolean, boolean, double*);
-typedef void (*tree_locrearrange_t)(tree*, node*, boolean, double*,
+typedef void (*tree_locrearrange_t)(tree*, struct node*, boolean, double*,
                                      tree*, tree*, boolean, double*);
-typedef void (*tree_smoothall_t)(tree*, node* p);
-typedef double (*tree_evaluate_t)(tree*, node* p, boolean saveit);
-typedef void (*tree_save_lr_nodes_t)(tree*, node*, node*);
-typedef void (*tree_restore_lr_nodes_t)(tree*, node*, node*);
-typedef void (*tree_save_traverses_t)(tree*, node*, node*);
-typedef void (*tree_restore_traverses_t)(tree*, node*, node*);
-typedef void (*tree_release_fork_t)(tree*, node*);
-typedef node* (*tree_get_fork_t)(tree*,  long);
-typedef node* (*tree_get_forknode_t)(tree*, long);
-typedef void (*tree_release_forknode_t)(tree*, node*);
-typedef void (*tree_reinit_forknode_t)(tree*, node*);
-typedef void (*tree_nuview_t)(tree*, node*);
-typedef void (*tree_makenewv_t)(tree*, node*);
+typedef void (*tree_smoothall_t)(tree*, struct node*);
+typedef double (*tree_evaluate_t)(tree*, struct node*, boolean);
+typedef void (*tree_save_lr_nodes_t)(tree*, struct node*, struct node*);
+typedef void (*tree_restore_lr_nodes_t)(tree*, struct node*, struct node*);
+typedef void (*tree_save_traverses_t)(tree*, struct node*, struct node*);
+typedef void (*tree_restore_traverses_t)(tree*, struct node*, struct node*);
+typedef void (*tree_release_fork_t)(tree*, struct node*);
+typedef struct node* (*tree_get_fork_t)(tree*,  long);
+typedef struct node* (*tree_get_forknode_t)(tree*, long);
+typedef void (*tree_release_forknode_t)(tree*, struct node*);
+typedef void (*tree_reinit_forknode_t)(tree*, struct node*);
+typedef void (*tree_nuview_t)(tree*, struct node*);
+typedef void (*tree_makenewv_t)(tree*, struct node*);
 typedef void (*tree_print_t)(tree*);
 
 typedef boolean (*tree_good_t)(tree*);
-typedef boolean (*node_good_t)(tree*, node*);   // check the individual node
+typedef boolean (*node_good_t)(tree*, struct node*);   // check the individual node
 
 typedef struct tree_vtable tree_vtable;
 
@@ -606,16 +609,16 @@ struct tree {                                         /* the tree structure */
   treetype type;                                                /* its type */
   pointarray nodep;    /* the array of pointers to tips and to fork circles */
   double score;                             /* the quantity being maximized */
-  node *root;     /* the rootmost node in rootmost circle, null if unrooted */
+  struct node *root;  /* rootmost node in rootmost circle, null if unrooted */
   long outgrno;                                /* the index of the outgroup */
   long nonodes;     /* the number of nodes needed for tips and fork circles */
   long spp;                                  /* the number of tip "species" */
 
-  node *temp_p, * temp_q;  /* generic temporary nodes, used for now to save */
+  struct node *temp_p, * temp_q;   /* generic temporary nodes, used to save */
 
   /* for local rearrangement */
-  node **lrsaves;
-  node *rb, *rnb, *rnnb;
+  struct node **lrsaves;
+  struct node *rb, *rnb, *rnnb;
   boolean mulf;
   boolean onleft;
   boolean do_newbl;
@@ -652,13 +655,13 @@ struct tree {                                         /* the tree structure */
   do_branchl_on_re_move_t do_branchl_on_re_move_f;
 
   tree_good_t   tree_good_f;    /* debug: what are these for? */
-  node_good_t   node_good_f;
+  node_good_t node_good_f;
   fork_good_t   fork_good_f;
 
   tree_vtable *vtable;     /* debug:  is this needed?  used? */
 };
 
-typedef void (*initptr)(tree *, node **, long, long,
+typedef void (*initptr)(tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
@@ -682,31 +685,35 @@ struct node*    generic_node_new(node_type, long, long);
 void            generic_node_init(struct node*, node_type, long);
 void            no_op(void);
 void            phylipinit(int, char**, initdata*, boolean);
-node*           where_in_dest (tree*, tree*, node*);
+struct node*    where_in_dest (tree*, tree*, struct node*);
 void            generic_tree_copy(tree*, tree*);
-void            generic_node_copy(node*, node*);
-void            generic_fork_print(node*);
-void            generic_node_print(node*);
-void            generic_node_free(node**);
-void            generic_node_reinit(node*);
-void            setupnode(node*, long);
-long            count_sibs(node*);
-boolean         isemptyroot(node*);
-node*           findroot(node*, boolean*);
-node*           findrootmostandroot(tree*, node*, boolean*);
-void            generic_insertroot(tree*, node*, node*);
-void            generic_root_insert(tree*, node*);
+void            generic_node_copy(struct node*, struct node*);
+void            generic_fork_print(struct node*);
+void            generic_node_print(struct node*);
+void            generic_node_free(struct node**);
+void            generic_node_reinit(struct node*);
+void            setupnode(struct node*, long);
+long            count_sibs(struct node*);
+boolean         isemptyroot(struct node*);
+struct node*    findroot(struct node*, boolean*);
+struct node*    findrootmostandroot(tree*, struct node*, boolean*);
+void            generic_insertroot(tree*, struct node*, struct node*);
+void            generic_root_insert(tree*, struct node*);
 void            generic_tree_re_move(struct tree*, struct node*,
                                       struct node**, boolean);
 void            put_root_near_outgroup(tree*, long, boolean);
-void            rooted_tree_insert_(tree*, node*, node*, boolean);
-void            generic_do_branchl_on_re_move(tree*, node*, node*);
-void            generic_tree_release_forknode(tree*, node*);
-boolean         generic_tree_try_insert_(tree*, node*, node*, node*, double*,
-                                   tree*, boolean, boolean, boolean, double*);
+void            rooted_tree_insert_(tree*, struct node*, 
+                                     struct node*, boolean);
+void            generic_do_branchl_on_re_move(tree*, struct node*, 
+                                               struct node*);
+void            generic_tree_release_forknode(tree*, struct node*);
+boolean         generic_tree_try_insert_(tree*, struct node*, struct node*, 
+                                   struct node*, double*, tree*, boolean, 
+                                   boolean, boolean, double*);
 void            buildsimpletree(tree*, long*);
-node*           generic_newrootfork(tree*);
-void            rooted_tree_re_move(tree*, node*, node**, boolean);
+struct node*    generic_newrootfork(tree*);
+void            rooted_tree_re_move(tree*, struct node*, 
+                                     struct node**, boolean);
 void            hsbut(tree*, tree*, tree*, boolean, boolean, long,
                        longer, boolean, double*);
 void            preparetree(tree*);  /* debug: need this here? */
@@ -715,18 +722,19 @@ void            arbitrary_resolve(tree*) ;
 void            writename(long, long, long*);
 void            print_progress(char*);
 void 		seetree(tree * curtree);
-void 		dumpnodelinks(node *p, pointarray nodep, long nonodes);/*debug*/
-/* GOT TOHERE */
+void 		dumpnodelinks(struct node *p, pointarray nodep, 
+                               long nonodes);  /* debug routine */
+/* debug GOT TO HERE */
 
 /* following not in phylip.c. best to demote them downwards unless shared
    by two branches of hierarchy that split below this */
 
-void            verify_nuview(node*);
-void            invalidate_nuview(node*);
-void            invalidate_traverse(node*);
+void            verify_nuview(struct node*);
+void            invalidate_nuview(struct node*);
+void            invalidate_traverse(struct node*);
 void            inittrav_all(tree*);
-void            initializetrav (tree*, node*);
-void            inittrav (tree*, node*);
+void            initializetrav (tree*, struct node*);
+void            inittrav (tree*, struct node*);
 void            EOF_error(void);
 void            crash_handler(int);
 void            scan_eoln(FILE*);
@@ -808,27 +816,27 @@ void            memerror(void);
 void            odd_malloc(long);
 MALLOCRETURN    *mymalloc(long);
 
-void            hookup(node*, node*);
-node*           precursor(node*);
-void            link_trees(long, long , long, pointarray);
+void            hookup(struct node*, struct node*);
+struct node*    precursor(struct node*);
+void            link_trees(long, long, long, pointarray);
 void            allocate_nodep(pointarray*, FILE*, long*);
 long            take_name_from_tree (Char*, Char*, FILE*);
-void            match_names_to_data (Char*, pointarray, node**, long);
-void            addelement(tree*, node**, node*, Char*, long*, FILE*,
-                            pointarray, boolean*, boolean*, long*, long*,
-                            boolean*, initptr, boolean, long);
-void            treeread (tree*, FILE*, node**, pointarray, boolean*, boolean*,
-                           long*, boolean*, initptr, boolean, long);
-void            addelement2(tree*, node*, Char*, long*, FILE*, boolean,
+void            match_names_to_data (Char*, pointarray, struct node**, long);
+void            addelement(tree*, struct node**, struct node*, Char*, 
+                            long*, FILE*, pointarray, boolean*, boolean*, 
+                            long*, long*, boolean*, initptr, boolean, long);
+void            treeread (tree*, FILE*, struct node**, pointarray, boolean*, 
+                           boolean*, long*, boolean*, initptr, boolean, long);
+void            addelement2(tree*, struct node*, Char*, long*, FILE*, boolean,
                              double*, boolean*, long*, long*, long,
                              boolean*, boolean, long);
-void            treeread2 (tree*, FILE*, node**, boolean, double*,
+void            treeread2 (tree*, FILE*, struct node**, boolean, double*,
                             boolean*, boolean*, long*, boolean, long);
 void            exxit (int);
 char            gettc(FILE*);
 void            unroot(tree*, long);
-void            unroot_here(tree*, node*, long);
-void            unroot_r(tree*, node*, long);
+void            unroot_here(tree*, struct node*, long);
+void            unroot_r(tree*, struct node*, long);
 void            release_all_forks(tree*);
 void            destruct_tree(tree*);
 void            rooted_tree_init(tree*, long, long);
@@ -836,18 +844,21 @@ void		generic_tree_setupfunctions(tree*);
 void            generic_tree_free(tree*);
 void            generic_tree_print(tree*);
 boolean         generic_tree_good(tree*);
-boolean         generic_fork_good(tree*, node*);
-boolean         generic_node_good(tree*, node*);
-boolean         oktoinsertthere(tree*, node*);
-boolean         oktorearrangethere(tree*, node*);
+boolean         generic_fork_good(tree*, struct node*);
+boolean         generic_node_good(tree*, struct node*);
+boolean         oktoinsertthere(tree*, struct node*);
+boolean         oktorearrangethere(tree*, struct node*);
 void            rooted_globrearrange(tree*, tree*, boolean, boolean, double*);
-void            generic_globrearrange(tree*,tree*,boolean,boolean,double*);
-boolean         oktoputthere(tree*, node*);
-boolean         generic_tree_addtraverse(tree*, node*, node*, traversetype,
-                   node*, double*, tree*, boolean, boolean, boolean, double*);
-boolean         generic_tree_addtraverse_1way(tree*, node*, node*,
-                  traversetype, node*, double*, tree*, boolean, boolean,
-                  boolean*, double*);
+void            generic_globrearrange(tree*, tree*, boolean, 
+                                       boolean, double*);
+boolean         oktoputthere(tree*, struct node*);
+boolean         generic_tree_addtraverse(tree*, struct node*, struct node*, 
+                                   traversetype, struct node*, double*, 
+                                   tree*, boolean, boolean, boolean, double*);
+boolean         generic_tree_addtraverse_1way(tree*, struct node*, struct 
+                                   node*, traversetype, struct node*, 
+                                   double*, tree*, boolean, 
+                                   boolean, boolean*, double*);
 #ifdef WIN32              /* if using screen attributes of a Windows system */
 void 		phySaveConsoleAttributes(void);
 void 		phySetConsoleAttributes(void);
@@ -856,40 +867,49 @@ void 		phyFillScreenColor(void);
 void 		phyClearScreen(void);
 #endif
 
-void            unrooted_tree_save_lr_nodes(tree*, node*, node*);
-void            unrooted_tree_restore_lr_nodes(tree*, node*, node*);
-void            generic_unrooted_locrearrange(tree*, node*, boolean, double*,
-                                              tree*, tree*, boolean, double*);
-boolean		unrooted_tree_locrearrange_recurs(tree*, node*, double*,
-                                    boolean, tree*, tree*, boolean, double*);
-void            generic_tree_save_traverses(tree*, node*, node*);
-void            generic_tree_restore_traverses(tree*, node*, node*);
-void    	rooted_tryrearr(tree*, node*, boolean*);
-void		rooted_repreorder(tree*, node*, boolean*);
-void            rooted_locrearrange(tree*, node*, boolean, double*,
+void            unrooted_tree_save_lr_nodes(tree*, 
+                                             struct node*, struct node*);
+void            unrooted_tree_restore_lr_nodes(tree*, 
+                                                struct node*, struct node*);
+void            generic_unrooted_locrearrange(tree*, struct node*, boolean, 
+                                     double*, tree*, tree*, boolean, double*);
+boolean		unrooted_tree_locrearrange_recurs(tree*, struct node*, 
+                            double*, boolean, tree*, tree*, boolean, double*);
+void            generic_tree_save_traverses(tree*, 
+                                             struct node*, struct node*);
+void            generic_tree_restore_traverses(tree*, 
+                                                  struct node*, struct node*);
+void    	rooted_tryrearr(tree*, struct node*, boolean*);
+void		rooted_repreorder(tree*, struct node*, boolean*);
+void            rooted_locrearrange(tree*, struct node*, boolean, double*,
                                      tree*, tree*, boolean, double*);
-void            generic_tree_save_lr_nodes(tree*, node*, node*);
-void            rooted_tree_restore_lr_nodes(tree*, node*, node*);
+void            generic_tree_save_lr_nodes(tree*, struct node*, struct node*);
+void            rooted_tree_restore_lr_nodes(tree*, 
+                                                  struct node*, struct node*);
 void*		pop(struct stack**);
 struct stack* 	push(struct stack*,void*);
-node*           generic_tree_get_fork(tree*, long);
-void            generic_tree_release_fork(tree*, node*);
+struct node*    generic_tree_get_fork(tree*, long);
+void            generic_tree_release_fork(tree*, struct node*);
 long		generic_tree_findemptyfork(tree*);
-void            generic_tree_nuview(tree*, node*);
-double          generic_tree_evaluate(tree*, node*, boolean);
-void            generic_tree_insert_(tree*, node*, node*, boolean);
-void            generic_do_branchl_on_insert(tree*, node*, node*);
-node*           generic_tree_get_forknode(tree*, long);
-void            generic_tree_re_move(tree*, node*, node**, boolean);
-void            generic_re_move(tree*, node*, node*, boolean);
-void            allocdiscnontip(node*, long );
-void            allocnode(node**, long);
-void            allocdiscnode(node**, long);
-void            gnudisctreenode(node**, node**, long, long);
-void            generic_tree_restore_lr_nodes(tree*, node*, node*);
-void            rooted_tree_save_lr_nodes(tree*, node*, node*);
-void            generic_tree_reinit_forknode(tree*, node*);
-void            generic_initialvtrav(node*);
+void            generic_tree_nuview(tree*, struct node*);
+double          generic_tree_evaluate(tree*, struct node*, boolean);
+void            generic_tree_insert_(tree*, struct node*, 
+                                      struct node*, boolean);
+void            generic_do_branchl_on_insert(tree*, 
+                                                  struct node*, struct node*);
+struct node*    generic_tree_get_forknode(tree*, long);
+void            generic_tree_re_move(tree*, struct node*, struct node**, 
+                                                                     boolean);
+void            generic_re_move(tree*, struct node*, struct node*, boolean);
+void            allocdiscnontip(struct node*, long );
+void            allocnode(struct node**, long);
+void            allocdiscnode(struct node**, long);
+void            gnudisctreenode(struct node**, struct node**, long, long);
+void            generic_tree_restore_lr_nodes(tree*, struct node*, 
+                                                                struct node*);
+void            rooted_tree_save_lr_nodes(tree*, struct node*, struct node*);
+void            generic_tree_reinit_forknode(tree*, struct node*);
+void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(tree*, boolean, boolean, boolean);
 #endif /* OLDC */
 
