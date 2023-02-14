@@ -18,6 +18,7 @@
 
 #ifndef _SEQ_H_
 #define _SEQ_H_
+#endif
 
 #define ebcdic          EBCDIC
 
@@ -38,26 +39,12 @@
 /* Number of columns per block in a matrix output */
 #define COLUMNS_PER_BLOCK 10
 
-typedef struct nuview_data {
-  /* A big 'ol collection of pointers used in nuview */
-  double *yy, *wwzz, *vvzz, *vzsumr, *vzsumy, *sum, *sumr, *sumy;
-  sitelike *xx;
-} nuview_data;
-
-typedef struct basefreq {
-  double        a, c, g, t, r, y;       /* Base frequencies */
-  double        ar, cy, gr, ty;         /* Base/class freq */
-  double        xi, xv;
-  double        fracchange;
-  double        ttratio;                /* Transition/transversion ratio */
-} basefreq;
-
 
 extern long endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
-extern node** lrsaves;
+extern bl_node** lrsaves;
 
 #ifndef OLDC
 /* function prototypes */
@@ -66,23 +53,17 @@ void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
 void setuptree2(tree);
-void alloctip(node *);
+void alloctip(ml_node *);
 void freetrans(transptr *, long, long );
-void print_basefreq(FILE *fp, basefreq *freq, boolean empirical);
 void ttratio_warning(double ttratio);
-void makebasefreq(basefreq *freq, double freqa, double freqc,
-                   double freqg, double freqt, double ttratio);
-void getbasefreqs(double, double, double, double, double *, double *,
-                   double *, double *, double *, double *, double *,
-                   double *, double *, double *, boolean, boolean);
 void sitesort(long, steptr);
 void sitecombine(long);
 void sitescrunch(long);
 void sitesort2(long, steptr);
 void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
-void drawline(long, double, node *);
-void treeout(node *, long, long *, node *);
+void drawline(long, double, bl_node *);
+void treeout(bl_node *, long, long *, bl_node *);
 void drawline2(long i, double scale, tree *curtree);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,
@@ -92,8 +73,5 @@ void inittrees(long, long);
 void resetlrsaves(long param1, long param2);
 /*function prototypes*/
 #endif
-
-#endif /* _SEQ_H_ */
-
 
 // End.

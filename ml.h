@@ -19,40 +19,28 @@
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
-struct allocx_t;
-struct freex_t;
-
-typedef void (*allocx_t)(struct node*, long, long);
-typedef void (*freex_t)(node*);
-
 typedef struct ml_tree {
   struct tree bl_tree;
 } ml_tree;
 
 typedef struct ml_node {                       /* subclass of generic node */
   struct node bl_node;                          /* Base object, must be first */
-  allocx_t allocx;
-  freex_t freex;    /* debug: stuff after here to be later moved to mldna.c ? */
   double* underflows;
   long endsite;
   long categs;
 } ml_node;
-
-typedef void (*makenewv_t)(tree *, node *);
-typedef void (*nuview_t)(tree *, node *);
-typedef void (*initialvtrav_t)(tree *, node *);
 
 long endsite;
 
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct tree **, long, long, long);
 void    ml_tree_init(struct tree *, long, long);
-void    ml_node_init(struct node*, node_type, long);
-node*   ml_node_new(node_type, long, long);
-void    ml_node_copy(node *, node *);
-void    ml_node_free(node **);
-void 	ml_node_reinit(node *);
-void    ml_node_print(node *);
+void    ml_node_init(struct ml_node*, node_type, long);
+struct ml_node*   ml_node_new(node_type, long, long);
+void    ml_node_copy(struct ml_node *, struct ml_node *);
+void    ml_node_free(struct ml_node **);
+void 	ml_node_reinit(struct ml_node *);
+void    ml_node_print(struct ml_node *);
 #endif
 
 /* End.*/
