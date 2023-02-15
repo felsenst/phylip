@@ -10,9 +10,7 @@
 #endif
 
 #include <assert.h>
-#include "phylip.h"
 #include "bl.h"
-#include "ml.h"
 
 #define DEBUG
 #define MAKENEWV_DEBUG
