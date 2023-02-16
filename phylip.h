@@ -570,7 +570,7 @@ typedef boolean (*node_good_t)(tree*, struct node*);   // check the individual n
 typedef struct tree_vtable tree_vtable;
 
 struct tree_vtable { /* this is a table of tree functions to reassign as
-                      * needed in sibclasses */
+                      * needed in subclasses */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
