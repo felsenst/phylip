@@ -153,10 +153,10 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 } /* dnaml_tree_init */
 
 
-struct node* dnaml_node_new(node_type type, long index, long nodesize)
+struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
-  struct node *n;
+  struct dnaml_node *n;
 
   nodesize = (long)sizeof(dnaml_node);
   n = mldna_node_new(type, index, nodesize);
@@ -165,7 +165,7 @@ struct node* dnaml_node_new(node_type type, long index, long nodesize)
 } /* dnaml_node_new */
 
 
-void dnaml_node_init(struct node* n, node_type type, long index)
+void dnaml_node_init(struct dnaml_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
   n->index = index;                      /* give it the proper index number */
@@ -192,7 +192,7 @@ void dnaml_tree_setup(long nonodes, long spp)
 void inittip(tree* t, long m)
 { /* initialize and hook up a new tip;  m is the index of the tip */
 /* debug:  not obvious that this is ever used */
-  node *tmp;
+  struct dnaml_node *tmp;
 
   tmp = t->nodep[m - 1];
 /* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
@@ -889,13 +889,13 @@ void inittable(void)
 }  /* inittable */
 
 
-double dnaml_tree_evaluate(struct tree* t, node *p, boolean saveit)
+double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
 { /* dnaml version of evaluation of likelihood */
   contribarr tterm;
   double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
           sumterm, lterm;
   long i, j, k, lai;
-  node *q;
+  struct dnaml_node *q;
   sitelike x1, x2;
 
   if (p->back == NULL)           /* to make sure branch has non-null ends */
@@ -1036,7 +1036,7 @@ void free_nvd (nuview_data *local_nvd)
 }  /* free_nvd */
 
 
-void dnaml_tree_nuview(tree* t, node *p)
+void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
 { 
   /* recursive computation of conditional likelihoods for a node based
    * on those of its descendants */
