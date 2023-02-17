@@ -32,7 +32,7 @@ typedef double contribarr[maxcategs];
 #ifndef OLDC
 /* function prototypes */
 void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
-void   dnaml_tree_init(struct dnaml_tree*, long, long);
+void   dnaml_tree_init(struct tree*, long, long);
 struct node* dnaml_node_new(node_type, long, long);
 void   dnaml_node_init(struct dnaml_node*, node_type, long);
 void   dnaml_tree_setup(long, long);
@@ -65,7 +65,7 @@ void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
 void   dnaml_treeout(FILE *, tree*, struct dnaml_node*);
-double dnaml_tree_evaluate(tree*, struct dnaml_node *, boolean);
+double dnaml_tree_evaluate(tree*, struct node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
 void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
@@ -136,15 +136,15 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
   /* set up variables and then set up identities of functions */
 
   bl_tree_new((struct tree**)treep, nonodes, spp, sizeof(dnaml_tree));
-  dnaml_tree_init((struct dnaml_tree*)*treep, nonodes, spp);
+  dnaml_tree_init((struct tree*)*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
 
-void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
+void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-  ((struct tree*)t)->evaluate = dnaml_tree_evaluate;
+  t->evaluate = dnaml_tree_evaluate;
   t->try_insert_ = bl_tree_try_insert_;
   t->nuview = dnaml_tree_nuview;
   t->makenewv = dnaml_tree_makenewv;
@@ -889,7 +889,7 @@ void inittable(void)
 }  /* inittable */
 
 
-double dnaml_tree_evaluate(tree* t, node *p, boolean saveit)
+double dnaml_tree_evaluate(struct tree* t, node *p, boolean saveit)
 { /* dnaml version of evaluation of likelihood */
   contribarr tterm;
   double sum, sum2, sumc, y, lz, y1, z1zz, z1yy, prod12, prod1, prod2, prod3,
