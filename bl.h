@@ -58,9 +58,8 @@ void 	bl_tree_smoothall(tree*, bl_node*);
 void 	bl_node_reinit(bl_node * n);
 void    bl_tree_insert_(struct tree*, struct node*, struct node*, boolean);
 void    bl_tree_re_move(tree*, bl_node*, bl_node**, boolean);
-boolean bl_tree_try_insert_(tree*, (node*)(bl_node*), (node*)(bl_node*),
-		(node*)(bl_node*), double*, tree*, boolean, boolean, boolean, 
-		double*);
+boolean bl_tree_try_insert_(tree*, bl_node*, bl_node*, bl_node*, double*, 
+                             tree*, boolean, boolean, boolean, double*);
 boolean bl_tree_try_insert_thorough(tree*, bl_node*, bl_node*, bl_node*, 
                           double*, tree*, boolean, boolean, boolean);
 void    bl_tree_do_branchl_on_insert(tree*, bl_node *, bl_node*);

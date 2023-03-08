@@ -145,18 +145,18 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   /* set up functions for a dnaml_tree */
 
   t->evaluate = dnaml_tree_evaluate;
-  t->try_insert_ = bl_tree_try_insert_;
-  t->nuview = dnaml_tree_nuview;
-  t->makenewv = dnaml_tree_makenewv;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
   t->get_fork = generic_tree_get_fork;
-  t->smoothall = bl_tree_smoothall;
+  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
-struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
+struct node* dnaml_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
-  struct dnaml_node *n;
+  struct mldna_node *n;
 
   nodesize = (long)sizeof(dnaml_node);
   n = mldna_node_new(type, index, nodesize);
@@ -165,7 +165,7 @@ struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 } /* dnaml_node_new */
 
 
-void dnaml_node_init(struct dnaml_node* n, node_type type, long index)
+void dnaml_node_init(struct mldna_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
   n->index = index;                      /* give it the proper index number */
