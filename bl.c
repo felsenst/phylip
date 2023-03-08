@@ -344,7 +344,10 @@ void bl_tree_re_move(tree *t, node *p, node **q, boolean do_newbl)
 } /* bl_tree_re_move */
 
 
-boolean bl_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein, double *bestyet, tree *bestree, boolean thorough, boolean storing, boolean atstart)
+boolean bl_tree_try_insert_thorough(tree *t, node *p, node *q, node *qwherein,
+                                     double *bestyet, tree *bestree, boolean 
+                                     thorough, boolean storing, 
+                                     boolean atstart)
 {
  /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
   * better than bestyet, updates bestyet and returns true.  If this is the
