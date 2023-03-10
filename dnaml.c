@@ -34,7 +34,7 @@ typedef double contribarr[maxcategs];
 void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
 void   dnaml_tree_init(struct tree*, long, long);
 struct node* dnaml_node_new(node_type, long, long);
-void   dnaml_node_init(struct dnaml_node*, node_type, long);
+void   dnaml_node_init(struct mldna_node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -153,19 +153,19 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 } /* dnaml_tree_init */
 
 
-struct node* dnaml_node_new(node_type type, long index, long nodesize)
+struct node* mldna_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
   struct mldna_node *n;
 
-  nodesize = (long)sizeof(dnaml_node);
+  nodesize = (long)sizeof(mldna_node);
   n = mldna_node_new(type, index, nodesize);
-  dnaml_node_init(n, type, index);
+  mldna_node_init(n, type, index);
   return n;
 } /* dnaml_node_new */
 
 
-void dnaml_node_init(struct mldna_node* n, node_type type, long index)
+void mldna_node_init(struct mldna_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
   n->index = index;                      /* give it the proper index number */
