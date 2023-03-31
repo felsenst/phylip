@@ -65,7 +65,7 @@ void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
 void   dnaml_treeout(FILE *, tree*, struct dnaml_node*);
-double dnaml_tree_evaluate(tree*, struct node *, boolean);
+double dnaml_tree_evaluate(struct tree*, struct dnaml_node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
 void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
@@ -153,7 +153,7 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 } /* dnaml_tree_init */
 
 
-struct node* mldna_node_new(node_type type, long index, long nodesize)
+struct mldna_node* mldna_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
   struct mldna_node *n;
@@ -168,7 +168,7 @@ struct node* mldna_node_new(node_type type, long index, long nodesize)
 void mldna_node_init(struct mldna_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  n->index = index;                      /* give it the proper index number */
+  ((struct node*)n)->index = index;      /* give it the proper index number */
 } /* dnaml_node_init */
 
 
@@ -192,7 +192,7 @@ void dnaml_tree_setup(long nonodes, long spp)
 void inittip(tree* t, long m)
 { /* initialize and hook up a new tip;  m is the index of the tip */
 /* debug:  not obvious that this is ever used */
-  struct dnaml_node *tmp;
+  struct node *tmp;
 
   tmp = t->nodep[m - 1];
 /* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
@@ -733,10 +733,12 @@ void getinput(void)
   }
   makeweights();
   dnaml_tree_setup(nonodes2, spp);
-  makevalues2(rcategs, curtree->nodep, endsite, spp, inputSequences, alias);
+  makevalues2(rcategs, ((struct tree*)curtree)->nodep, endsite, spp, 
+		         inputSequences, alias);
   if (freqsfrom)
   {
-    empiricalfreqs(&freqa, &freqc, &freqg, &freqt, aliasweight, curtree->nodep);
+    empiricalfreqs(&freqa, &freqc, &freqg, &freqt, aliasweight, 
+		    ((struct tree*)curtree)->nodep);
     getbasefreqs(freqa, freqc, freqg, freqt, &freqr, &freqy, &freqar, &freqcy,
            &freqgr, &freqty, &ttratio, &xi, &xv, &fracchange, freqsfrom, true);
   }
@@ -898,12 +900,12 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   struct dnaml_node *q;
   sitelike x1, x2;
 
-  if (p->back == NULL)           /* to make sure branch has non-null ends */
-    p = p->next;
-  generic_tree_evaluate(t, p, saveit);   /* do traversals to update views */
+  if (((struct node*)p)->back == NULL)   /* ensure branch has non-null ends */
+    (struct node*)p = ((struct node*)p)->next;
+  generic_tree_evaluate(t, (struct node*)p, saveit); /* views traversals */
   sum = 0.0;
-  q = p->back;
-  y = p->v;
+  q = ((struct node*)p)->back;
+  y = ((struct bl_node*)p)->v;
   lz = -y;
   for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)

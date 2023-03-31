@@ -40,7 +40,7 @@ void makebasefreq(basefreq *freq, double freqa, double freqc,
 void getbasefreqs(double, double, double, double, double *, double *,
                    double *, double *, double *, double *, double *,
                    double *, double *, double *, boolean, boolean);
-struct node*   mldna_node_new(node_type, long, long);
+struct mldna_node* mldna_node_new(node_type, long, long);
 void    mldna_node_init(struct mldna_node *, node_type, long);
 void    mldna_node_copy(mldna_node*, mldna_node*);
 void    fix_x(mldna_node*, long, double, long);
