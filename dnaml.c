@@ -47,11 +47,11 @@ void   inittable_for_usertree(FILE *);
 void   inittable(void);
 void   alloc_nvd (long, nuview_data *);
 void   free_nvd (nuview_data *);
-void   dnaml_tree_nuview(tree* , struct dnaml_node *);
+void   dnaml_tree_nuview(struct dnaml_tree* , struct dnaml_node *);
 void   slopecurv(struct dnaml_node *, double, double *, double *, double *);
-void   dnaml_tree_makenewv(tree*, struct dnaml_node *);
-void   initdnamlnode(tree *, struct dnaml_node **, long, long, long *, long *, 
-		      initops, pointarray, Char *, Char *, FILE *);
+void   dnaml_tree_makenewv(struct tree*, struct dnaml_node *);
+void   initdnamlnode(struct tree *, struct dnaml_node **, long, long, long *,
+                       long *, initops, pointarray, Char *, Char *, FILE *);
 void   dnaml_coordinates(struct dnaml_node *, double, long *, double *);
 void   dnaml_printree(void);
 void   sigma(struct dnaml_node *, double *, double *, double *);
@@ -144,7 +144,7 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-  t->evaluate = dnaml_tree_evaluate;
+  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
   t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
   t->nuview = (tree_nuview_t)dnaml_tree_nuview;
   t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
@@ -159,7 +159,7 @@ struct mldna_node* mldna_node_new(node_type type, long index, long nodesize)
   struct mldna_node *n;
 
   nodesize = (long)sizeof(mldna_node);
-  n = mldna_node_new(type, index, nodesize);
+  n = (mldna_node*)generic_node_new(type, index, nodesize);
   mldna_node_init(n, type, index);
   return n;
 } /* dnaml_node_new */
@@ -901,11 +901,11 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   sitelike x1, x2;
 
   if (((struct node*)p)->back == NULL)   /* ensure branch has non-null ends */
-    (struct node*)p = ((struct node*)p)->next;
+    p = (struct dnaml_node*)((struct node*)p)->next;
   generic_tree_evaluate(t, (struct node*)p, saveit); /* views traversals */
   sum = 0.0;
-  q = ((struct node*)p)->back;
-  y = ((struct bl_node*)p)->v;
+  q = (struct dnaml_node*)((struct node*)p)->back;
+  y = ((struct node*)p)->v;
   lz = -y;
   for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
@@ -1044,20 +1044,20 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
    * on those of its descendants */
   long i, j, k, l, num_sibs, sib_index;
   nuview_data *local_nvd;
-  node *sib_ptr, *sib_back_ptr;  /* for the two ends of a descendant branch */
+  struct node *sib_ptr, *sib_back_ptr; /* for the ends of descendant branch */
   sitelike p_xx;    /* vector of site conditional likelihoods for that node */
   double lw;
   double correction;                  /* correction to cope with underflows */
   double maxx;                        /* maximum of conditional likelihoods */
 
   /* Allocate the structure and blocks for variables used in this function. */
-  num_sibs = count_sibs(p);
+  num_sibs = count_sibs((struct node*)p);
   local_nvd = (nuview_data *) Malloc(sizeof (nuview_data));
   alloc_nvd (num_sibs, local_nvd);
 
   /* Loop 1: makes assignments to tbl based on some combination of
      what's already in tbl and the children's values of v */
-  sib_ptr = p;
+  sib_ptr = (struct node*)p;
   for (sib_index=0; sib_index < num_sibs; sib_index++)
   {   /* for each descendant lineage tabulate some part of transition prob */
     sib_ptr      = sib_ptr->next;
@@ -1086,7 +1086,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
     k = category[alias[i]-1] - 1; /* get user-defined category for the site */
     for (j = 0; j < rcategs; j++)       /* Loop 2.1: for each rate category */
     {
-      sib_ptr = p;
+      sib_ptr = (struct node*)p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {
         sib_ptr         = sib_ptr->next;
@@ -1104,7 +1104,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
         }
       }
 
-      sib_ptr = p;
+      sib_ptr = (struct node*)p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {                    /* Loop 2.2:  pieces for each descendant lineage */
         sib_ptr = sib_ptr->next;
@@ -1137,7 +1137,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
       p_xx[(long)G] = 1.0 ;
       p_xx[(long)T] = 1.0 ;
 
-      sib_ptr = p;
+      sib_ptr = (struct node*)p;
       for (sib_index = 0; sib_index < num_sibs; sib_index++)
       {    /* go over descendant lineages, multiplying pieces for each site */
         sib_ptr = sib_ptr->next;
@@ -1184,7 +1184,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
     ((ml_node*)p)->underflows[i] += correction;
   }                                               /* end of loop over sites */
 
-  p->initialized = true;          /* mark node as having its "view" updated */
+  ((struct node*)p)->initialized = true;  /* mark node as has view updated */
 
   free_nvd (local_nvd);
   free (local_nvd);
@@ -1192,7 +1192,8 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
 }  /* dnaml_tree_nuview */
 
 
-void slopecurv(node *p, double y, double *like, double *slope, double *curve)
+void slopecurv(struct dnaml_node *p, double y, double *like, 
+                 double *slope, double *curve)
 {
   /* compute log likelihood, slope and curvature at node p */
   long i, j, k, lai;
@@ -1201,10 +1202,10 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
           prod1, prod2, prod12, prod3;
   contribarr thelike, nulike, nuslope, nucurve,
           theslope, thecurve, clai, cslai, cclai;
-  node *q;
+  struct node *q;
   sitelike x1, x2;
 
-  q = p->back;
+  q = ((struct node*)p)->back;
   sum = 0.0;
   lz = -y;
   for (i = 0; i < rcategs; i++)
@@ -1350,16 +1351,16 @@ void slopecurv(node *p, double y, double *like, double *slope, double *curve)
 } /* slopecurv */
 
 
-void dnaml_tree_makenewv(tree* t, node *p)
+void dnaml_tree_makenewv(struct tree* t, struct dnaml_node *p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
   double y, yold=0, yorig, like, slope, curve, oldlike=0;
   boolean done, firsttime, better;
-  node *q;
+  struct node *q;
 
-  q = p->back;
-  y = p->v;
+  q = ((struct node*)p)->back;
+  y = ((struct node*)p)->v;
   yorig = y;
   done = false;
   firsttime = true;
@@ -1403,15 +1404,15 @@ void dnaml_tree_makenewv(tree* t, node *p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  p->v = yold;      /* the last one that had better likelihood */
+  ((struct node*)p)->v = yold;   /* the last one that had better likelihood */
   q->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
 
-void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
-                    long *parens, initops whichinit, pointarray nodep,
-                    Char *str, Char *ch, FILE *intree)
+void initdnamlnode(struct tree *treep, struct dnaml_node **p, long len,
+                    long nodei, long *ntips, long *parens, initops whichinit, 
+                    pointarray nodep, Char *str, Char *ch, FILE *intree)
 {
   /* initializes a node */
   boolean minusread;
@@ -1424,7 +1425,7 @@ void initdnamlnode(tree *treep, node **p, long len, long nodei, long *ntips,
   {
     case bottom:
       *p = treep->get_forknode(treep, nodei);
-      ((ml_node*)*p)->allocx((node*)*p, endsite, rcategs);
+      ((mldna_node*)p)->allocx((node*)*p, endsite, rcategs);
       assert((*p)->index > 0);
       nodep[(*p)->index - 1] = (*p);
       break;
@@ -2457,7 +2458,7 @@ void dnaml(
   argc = 1;
   argv[0] = "DnaML";
 
-  funcs.tree_new = dnaml_tree_new;
+  funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
   funcs.node_new = (node_new_t)dnaml_node_new;
   funcs.node_init = (node_init_t)dnaml_node_init;
