@@ -74,4 +74,4 @@ void resetlrsaves(long param1, long param2);
 /*function prototypes*/
 #endif
 
-// End.
+/* End. */

@@ -1424,14 +1424,14 @@ void initdnamlnode(struct tree *treep, struct dnaml_node **p, long len,
   switch (whichinit)
   {
     case bottom:
-      *p = treep->get_forknode(treep, nodei);
-      ((mldna_node*)p)->allocx((node*)*p, endsite, rcategs);
+      *p = (dnaml_node *)treep->get_forknode(treep, nodei);
+      ((bl_node*)p)->allocx((struct node*)*p, endsite, rcategs);
       assert((*p)->index > 0);
       nodep[(*p)->index - 1] = (*p);
       break;
     case nonbottom:
       *p = treep->get_forknode(treep, nodei);
-      ((ml_node*)*p)->allocx((node*)*p, endsite, rcategs);
+      ((ml_node*)*p)->allocx((struct node*)*p, endsite, rcategs);
       break;
     case tip:
       match_names_to_data (str, nodep, p, spp);
