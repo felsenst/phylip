@@ -1424,37 +1424,38 @@ void initdnamlnode(struct tree *treep, struct dnaml_node **p, long len,
   switch (whichinit)
   {
     case bottom:
-      *p = (dnaml_node *)treep->get_forknode(treep, nodei);
-      ((bl_node*)p)->allocx((struct node*)*p, endsite, rcategs);
-      assert((*p)->index > 0);
-      nodep[(*p)->index - 1] = (*p);
+      (struct node*)(*p) = (struct node *)(treep->get_forknode(treep, nodei));
+      ((struct mldna_node*)p)->
+	              mldna_node_allocx((struct node*)(*p), endsite, rcategs);
+      assert(((struct node*)(*p))->index > 0);
+      nodep[((struct node*)(*p))->index - 1] = (struct node*)(*p);
       break;
     case nonbottom:
-      *p = treep->get_forknode(treep, nodei);
-      ((ml_node*)*p)->allocx((struct node*)*p, endsite, rcategs);
+      (struct node*)(*p) = (struct node*)(treep->get_forknode(treep, nodei));
+      ((struct mldna_node*)(*p))->mldna_node_allocx(((struct node*)(*p)), endsite, rcategs);
       break;
     case tip:
-      match_names_to_data (str, nodep, p, spp);
+      match_names_to_data (str, nodep, (struct node**)p, spp);
       break;
     case iter:
-      (*p)->initialized = false;
-      (*p)->v = initialv;
-      (*p)->iter = true;
-      if ((*p)->back != NULL)
+      ((struct node*)(*p))->initialized = false;
+      ((struct node*)(*p))->v = initialv;
+      ((struct node*)(*p))->iter = true;
+      if (((struct node*)(*p))->back != NULL)
       {
-        (*p)->back->iter = true;
-        (*p)->back->v = initialv;
-        (*p)->back->initialized = false;
+        ((struct node*)(*p))->back->iter = true;
+        ((struct node*)(*p))->back->v = initialv;
+        ((struct node*)(*p))->back->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
-      (*p)->v = valyew / divisor / fracchange;
-      (*p)->iter = false;
-      if ((*p)->back != NULL)
+      ((struct node*)(*p))->v = valyew / divisor / fracchange;
+      ((struct node*)(*p))->iter = false;
+      if (((struct node*)(*p))->back != NULL)
       {
-        (*p)->back->v = (*p)->v;
-        (*p)->back->iter = false;
+        ((struct node*)(*p))->back->v = ((struct node*)(*p)->v;
+        ((struct node*)(*p))->back->iter = false;
       }
       break;
     case hsnolength:
