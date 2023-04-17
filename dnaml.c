@@ -50,7 +50,7 @@ void   free_nvd (nuview_data *);
 void   dnaml_tree_nuview(struct dnaml_tree* , struct dnaml_node *);
 void   slopecurv(struct dnaml_node *, double, double *, double *, double *);
 void   dnaml_tree_makenewv(struct tree*, struct dnaml_node *);
-void   initdnamlnode(struct tree *, struct dnaml_node **, long, long, long *,
+void   initdnamlnode(struct tree *, struct dnaml_node *, long, long, long *,
                        long *, initops, pointarray, Char *, Char *, FILE *);
 void   dnaml_coordinates(struct dnaml_node *, double, long *, double *);
 void   dnaml_printree(void);
@@ -1410,7 +1410,7 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node *p)
 }  /* dnaml_tree_makenewv */
 
 
-void initdnamlnode(struct tree *treep, struct dnaml_node **p, long len,
+void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
                     long nodei, long *ntips, long *parens, initops whichinit, 
                     pointarray nodep, Char *str, Char *ch, FILE *intree)
 {
@@ -1424,7 +1424,7 @@ void initdnamlnode(struct tree *treep, struct dnaml_node **p, long len,
   switch (whichinit)
   {
     case bottom:
-      (struct node*)(*p) = (struct node *)(treep->get_forknode(treep, nodei));
+      p = (struct dnaml_node *)(treep->get_forknode(treep, nodei));
       ((struct mldna_node*)p)->
 	              mldna_node_allocx((struct node*)(*p), endsite, rcategs);
       assert(((struct node*)(*p))->index > 0);
