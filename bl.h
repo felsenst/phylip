@@ -30,7 +30,7 @@ typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
 } bl_node;
 
-typedef void (*allocx_t)(struct bl_node*, long, long);
+typedef void (*allocx_t)(long, long, long, struct bl_node*);
 typedef void (*freex_t)(bl_node*);
 typedef void (*makenewv_t)(tree*, bl_node*);
 typedef void (*nuview_t)(tree*, bl_node*);
