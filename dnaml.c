@@ -105,8 +105,9 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          reusertree, ctgry, rctgry, auto_, hypstate, ttr, progress, mulsets,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
-dnaml_tree *curtree, *bestree, *bestree2, *priortree;
-dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
+struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
+struct tree *curtree, *bestree, *bestree2, *priortree,
+tree* curtreep, bestreep, bestree2p, priortreep;
 struct dnaml_node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -1425,37 +1426,36 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
   {
     case bottom:
       p = (struct dnaml_node *)(treep->get_forknode(treep, nodei));
-      ((struct mldna_node*)p)->
-	              mldna_node_allocx((struct node*)(*p), endsite, rcategs);
-      assert(((struct node*)(*p))->index > 0);
-      nodep[((struct node*)(*p))->index - 1] = (struct node*)(*p);
+      ((struct mldna_node*)p)->allocx((struct node*)p, endsite, rcategs);
+      assert(((struct node*)(p))->index > 0);
+      nodep[((struct node*)(p))->index - 1] = (struct node*)(p);
       break;
     case nonbottom:
-      (struct node*)(*p) = (struct node*)(treep->get_forknode(treep, nodei));
-      ((struct mldna_node*)(*p))->mldna_node_allocx(((struct node*)(*p)), endsite, rcategs);
+      ((struct node*)p) = (struct node*)(treep->get_forknode(treep, nodei));
+      ((struct mldna_node*)p)->mldna_node_allocx((struct node*)p, endsite, rcategs);
       break;
     case tip:
       match_names_to_data (str, nodep, (struct node**)p, spp);
       break;
     case iter:
-      ((struct node*)(*p))->initialized = false;
-      ((struct node*)(*p))->v = initialv;
-      ((struct node*)(*p))->iter = true;
-      if (((struct node*)(*p))->back != NULL)
+      ((struct node*)p)->initialized = false;
+      ((struct node*)p)->v = initialv;
+      ((struct node*)p)->iter = true;
+      if (((struct node*)p)->back != NULL)
       {
-        ((struct node*)(*p))->back->iter = true;
-        ((struct node*)(*p))->back->v = initialv;
-        ((struct node*)(*p))->back->initialized = false;
+        ((struct node*)p)->back->iter = true;
+        ((struct node*)p)->back->v = initialv;
+        ((struct node*)p)->back->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
-      ((struct node*)(*p))->v = valyew / divisor / fracchange;
-      ((struct node*)(*p))->iter = false;
-      if (((struct node*)(*p))->back != NULL)
+      ((struct node*)p)->v = valyew / divisor / fracchange;
+      ((struct node*)p)->iter = false;
+      if (((struct node*)p)->back != NULL)
       {
-        ((struct node*)(*p))->back->v = ((struct node*)(*p)->v;
-        ((struct node*)(*p))->back->iter = false;
+        ((struct node*)p)->back->v = ((struct node*)p)->v;
+        ((struct node*)p)->back->iter = false;
       }
       break;
     case hsnolength:
@@ -1467,24 +1467,26 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
 } /* initdnamlnode */
 
 
-void dnaml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
+void dnaml_coordinates(struct dnaml_node *p, double lengthsum, 
+		        long *tipy, double *tipmax)
 {
   /* establishes coordinates of nodes */
-  node *q, *qprev, *first, *last;
+  struct node *pp, *q, *qprev, *first, *last;
   double xx;
 
-  if (p->tip)
+  pp = (struct node *)p;
+  if (pp->tip)
   {
-    p->xcoord = (long)(over * lengthsum + 0.5);
-    p->ycoord = (*tipy);
-    p->ymin = (*tipy);
-    p->ymax = (*tipy);
+    pp->xcoord = (long)(over * lengthsum + 0.5);
+    pp->ycoord = (*tipy);
+    pp->ymin = (*tipy);
+    pp->ymax = (*tipy);
     (*tipy) += down;
     if (lengthsum > (*tipmax))
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;
+  q = pp->next;
   do {
     if (q->back != NULL) {
       xx = fracchange * q->v;
@@ -1493,26 +1495,27 @@ void dnaml_coordinates(node *p, double lengthsum, long *tipy, double *tipmax)
       dnaml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
-  } while ((p == curtree->root || p != q) && (p != curtree->root || p->next != q));
-  if (p->next->back == NULL)
-    first = p->next->next->back;
+  } while ((pp == curtree->root || (pp != q)) && (pp != curtree->root
+			                           || pp->next != q));
+  if (pp->next->back == NULL)
+    first = pp->next->next->back;
   else
-    first = p->next->back;
+    first = pp->next->back;
   q = p;
-  while (q->next != p) {
+  while (q->next != pp) {
     qprev = q;
     q = q->next;
   }
   if (q->back == NULL)
     q = qprev;
   last = q->back;
-  p->xcoord = (long)(over * lengthsum + 0.5);
-  if (p == curtree->root)
-    p->ycoord = p->next->next->back->ycoord;
+  pp->xcoord = (long)(over * lengthsum + 0.5);
+  if (pp == curtree->root)
+    pp->ycoord = pp->next->next->back->ycoord;
   else
-    p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
-  p->ymax = last->ymax;
+    pp->ycoord = (first->ycoord + last->ycoord) / 2;
+  pp->ymin = first->ymin;
+  pp->ymax = last->ymax;
 }  /* dnaml_coordinates */
 
 
