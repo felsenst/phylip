@@ -19,8 +19,8 @@
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
-struct allocx_t;   /* debug:   huh?  */
-struct freex_t;
+// struct allocx_t;   /* debug:   huh?  */
+// struct freex_t;
 
 typedef struct bl_tree {
   struct tree treepart;

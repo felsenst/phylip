@@ -64,7 +64,7 @@ void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_treeout(FILE *, tree*, struct dnaml_node*);
+void   dnaml_treeout(FILE *, tree*, struct bl_node*);
 double dnaml_tree_evaluate(struct tree*, struct dnaml_node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -1426,12 +1426,12 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
   {
     case bottom:
       p = (struct dnaml_node *)(treep->get_forknode(treep, nodei));
-      ((struct mldna_node*)p)->allocx((struct node*)p, endsite, rcategs);
+      ((struct bl_node*)p)->allocx((struct node*)p, endsite, rcategs);
       assert(((struct node*)(p))->index > 0);
       nodep[((struct node*)(p))->index - 1] = (struct node*)(p);
       break;
     case nonbottom:
-      p = (struct node*)(treep->get_forknode(treep, nodei));
+      p = (struct dnaml_node*)(treep->get_forknode(treep, nodei));
       ((struct mldna_node*)p)->mldna_node_allocx((struct node*)p, endsite, rcategs);
       break;
     case tip:
@@ -2018,12 +2018,12 @@ void dnaml_reroot(tree* t)
 } /* dnaml_reroot */
 
 
-void dnaml_treeout(FILE  *outtree, tree* t, node* p) {
+void dnaml_treeout(FILE  *outtree, tree* t, bl_node* p) {
 /* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
   bl_scale = fracchange;
-  bl_treeout(outtree, t, p, bl_scale);
+  bl_treeout(outtree, t, (bl_node*)p, bl_scale);
 } /* dnaml_treeout */
 
 
@@ -2033,7 +2033,7 @@ void maketree(void)
   boolean dummy_first, goteof;
   long nextnode, currentoutgrno;
   double bestyet;
-  node *q;
+  struct node *q;
 
   inittable();
 
@@ -2118,7 +2118,7 @@ void maketree(void)
       summarize();
 
       if (trout) {
-        dnaml_treeout(outtree, curtree, curtree->root);
+        dnaml_treeout(outtree, curtree, (ml_node *)curtree->root);
       }
       if(which < numtrees)
       {
@@ -2171,7 +2171,8 @@ void maketree(void)
       k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
       q = curtree->get_fork(curtree, k);
       curtree->nodep[k] = q;
-      bl_hookup(curtree->nodep[enterorder[nextsp-1]-1], q);   /* debug:  need ml_ ? */
+      bl_hookup((bl_node *)curtree->nodep[enterorder[nextsp-1]-1], 
+                 (bl_node *)q);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (outgrno == enterorder[nextsp-1]+1)
@@ -2179,14 +2180,15 @@ void maketree(void)
 /* debug:  here make sure add rootmost fork in right place */
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);
-      curtree->addtraverse(curtree, q, curtree->root, further, qwhere,
-                            &bestyet, bestree, thorough, false, true, &bestyet);
+      curtree->addtraverse(curtree, (struct node*)q, curtree->root, further,
+                             (struct node *)qwhere, &bestyet, bestree,
+                             thorough, false, true, &bestyet);
       if (smoothit)
         bestree->copy(bestree, curtree);
       else
       {
         smoothit = true;
-        curtree->insert_(curtree, q, qwhere, false);
+        curtree->insert_(curtree, q, (struct node *)qwhere, false);
 /* debug:         smoothit = false;  */
         bestyet = curtree->score;
       }
@@ -2246,7 +2248,7 @@ void maketree(void)
       dnaml_printree();
       summarize();
       if (trout) {
-        dnaml_treeout(outtree, curtree, curtree->root);
+        dnaml_treeout(outtree, curtree, (dnaml_node*)curtree->root);
       }
     }
   }
