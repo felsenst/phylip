@@ -1352,7 +1352,7 @@ void slopecurv(struct dnaml_node *p, double y, double *like,
 } /* slopecurv */
 
 
-void dnaml_tree_makenewv(struct tree* t, struct dnaml_node *p)
+void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
@@ -1492,7 +1492,7 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
       xx = fracchange * q->v;
       if (xx > 100.0)
         xx = 100.0;
-      dnaml_coordinates(q->back, lengthsum + xx, tipy, tipmax);
+      dnaml_coordinates((dnaml_node*)(q->back), lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
   } while ((pp == curtree->root || (pp != q)) && (pp != curtree->root
@@ -1501,7 +1501,7 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
     first = pp->next->next->back;
   else
     first = pp->next->back;
-  q = p;
+  q = pp;
   while (q->next != pp) {
     qprev = q;
     q = q->next;
@@ -1531,7 +1531,7 @@ void dnaml_printree(void)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  dnaml_coordinates(curtree->root, 0.0, &tipy, &tipmax);
+  dnaml_coordinates((dnaml_node *)(curtree->root), 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)
     drawline2(i, scale, curtree);
@@ -1539,23 +1539,25 @@ void dnaml_printree(void)
 }  /* dnaml_printree */
 
 
-void sigma(node *p, double *sumlr, double *s1, double *s2)
+void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
   double tt, aa, like, slope, curv;
+  struct node* pp;
 
-  slopecurv (p, p->v, &like, &slope, &curv);
-  tt = p->v;
-  p->v = epsilon;
-  p->back->v = epsilon;
-  aa = curtree->evaluate(curtree, p, false);
-  p->v = tt;
-  p->back->v = tt;
-  (*sumlr) = curtree->evaluate(curtree, p, false) - aa;
+  pp = (struct node*)p;
+  slopecurv (p, pp->v, &like, &slope, &curv);
+  tt = pp->v;
+  pp->v = epsilon;
+  pp->back->v = epsilon;
+  aa = curtree->evaluate(curtree, pp, false);
+  pp->v = tt;
+  pp->back->v = tt;
+  (*sumlr) = curtree->evaluate(curtree, pp, false) - aa;
   if (curv < -epsilon)
   {
-    (*s1) = p->v + (-slope - sqrt(slope * slope -  3.841 * curv)) / curv;
-    (*s2) = p->v + (-slope + sqrt(slope * slope -  3.841 * curv)) / curv;
+    (*s1) = pp->v + (-slope - sqrt(slope * slope -  3.841 * curv)) / curv;
+    (*s2) = pp->v + (-slope + sqrt(slope * slope -  3.841 * curv)) / curv;
   }
   else
   {
@@ -1565,21 +1567,22 @@ void sigma(node *p, double *sumlr, double *s1, double *s2)
 }  /* sigma */
 
 
-void describe(node *p)
+void describe(struct dnaml_node *p)
 {
   /* print out information for one branch */
   long i, num_sibs;
-  node *q, *sib_ptr;
+  struct node *pp, *q, *sib_ptr;
   double sumlr, sigma1, sigma2;
 
   if (p != NULL) {
-    if (!p->tip && !p->initialized)
+    pp = (struct node*)p;
+    if (!pp->tip && !pp->initialized)
       generic_tree_nuview(curtree, p);
-    if (!p->back->tip && !p->back->initialized)
-      generic_tree_nuview(curtree, p->back);
-    q = p->back;
+    if (!pp->back->tip && !pp->back->initialized)
+      generic_tree_nuview(curtree, pp->back);
+    q = pp->back;
 
-    assert(p->index > 0);                 // RSGdebug
+    assert(pp->index > 0);                // RSGdebug
     assert(q->index > 0);                 // RSGdebug
 
     if (q->tip)
@@ -1591,15 +1594,15 @@ void describe(node *p)
     }
     else
       fprintf(outfile, "  %4ld          ", q->index - spp);
-    if (p->tip)
+    if (pp->tip)
     {
       for (i = 0; i < nmlngth; i++)
-        putc(nayme[p->index-1][i], outfile);
+        putc(nayme[pp->index-1][i], outfile);
     }
     else
-      fprintf(outfile, "%4ld      ", p->index - spp);
+      fprintf(outfile, "%4ld      ", pp->index - spp);
     fprintf(outfile, "%15.5f", q->v * fracchange);
-    if (reusertree || !usertree || (usertree && !lngths) || p->iter )
+    if (reusertree || !usertree || (usertree && !lngths) || pp->iter )
     {
       sigma(q, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
@@ -1620,10 +1623,10 @@ void describe(node *p)
         putc('*', outfile);
     }
     putc('\n', outfile);
-    if (!p->tip)
+    if (!pp->tip)
     {
-      num_sibs = count_sibs (p);
-      sib_ptr  = p;
+      num_sibs = count_sibs (pp);
+      sib_ptr  = pp;
       for (i=0; i < num_sibs; i++)
       {
         sib_ptr = sib_ptr->next;
