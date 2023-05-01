@@ -1577,14 +1577,13 @@ void describe(struct dnaml_node *pp)
 
   p = (struct node*)pp;
   if (p != NULL) {
-    pp = (struct node*)p;
-    if (!pp->tip && !pp->initialized)
+    if (!p->tip && !p->initialized)
       generic_tree_nuview(curtree, p);
-    if (!pp->back->tip && !pp->back->initialized)
-      generic_tree_nuview(curtree, pp->back);
-    q = pp->back;
+    if (!p->back->tip && !p->back->initialized)
+      generic_tree_nuview(curtree, p->back);
+    q = p->back;
 
-    assert(pp->index > 0);                // RSGdebug
+    assert(p->index > 0);                 // RSGdebug
     assert(q->index > 0);                 // RSGdebug
 
     if (q->tip)
@@ -1596,15 +1595,15 @@ void describe(struct dnaml_node *pp)
     }
     else
       fprintf(outfile, "  %4ld          ", q->index - spp);
-    if (pp->tip)
+    if (p->tip)
     {
       for (i = 0; i < nmlngth; i++)
-        putc(nayme[pp->index-1][i], outfile);
+        putc(nayme[p->index-1][i], outfile);
     }
     else
-      fprintf(outfile, "%4ld      ", pp->index - spp);
+      fprintf(outfile, "%4ld      ", p->index - spp);
     fprintf(outfile, "%15.5f", q->v * fracchange);
-    if (reusertree || !usertree || (usertree && !lngths) || pp->iter )
+    if (reusertree || !usertree || (usertree && !lngths) || p->iter )
     {
       sigma((struct dnaml_node*)q, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
@@ -1625,7 +1624,7 @@ void describe(struct dnaml_node *pp)
         putc('*', outfile);
     }
     putc('\n', outfile);
-    if (!pp->tip)
+    if (!p->tip)
     {
       num_sibs = count_sibs(p);
       sib_ptr  = p;
