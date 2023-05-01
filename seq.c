@@ -16,7 +16,6 @@ long endsite=0, outgrno, which;
 boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 steptr weight, category, alias, location, ally;
 sequence inputSequences;
-node** lrsaves;
 
 
 void inputdata(long chars)
@@ -158,7 +157,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
 {
   /* initialize treenodes */
   long i;
-  node *p;
+  struct node *p;
 
   for (i = 1; i <= nonodes; i++)
   {
