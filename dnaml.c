@@ -1426,7 +1426,7 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
   {
     case bottom:
       p = (struct dnaml_node *)(treep->get_forknode(treep, nodei));
-      ((struct bl_node*)p)->allocx((struct node*)p, endsite, rcategs);
+      ((struct mldna_node*)p)->mldna_node_allocx((struct node*)p, endsite, rcategs);
       assert(((struct node*)(p))->index > 0);
       nodep[((struct node*)(p))->index - 1] = (struct node*)(p);
       break;
