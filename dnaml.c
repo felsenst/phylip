@@ -1492,7 +1492,8 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
       xx = fracchange * q->v;
       if (xx > 100.0)
         xx = 100.0;
-      dnaml_coordinates((dnaml_node*)(q->back), lengthsum + xx, tipy, tipmax);
+      dnaml_coordinates((dnaml_node *)(q->back), 
+		          lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
   } while ((pp == curtree->root || (pp != q)) && (pp != curtree->root
@@ -1531,7 +1532,7 @@ void dnaml_printree(void)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  dnaml_coordinates((dnaml_node *)(curtree->root), 0.0, &tipy, &tipmax);
+  dnaml_coordinates((dnaml_node*)(curtree->root), 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)
     drawline2(i, scale, curtree);
@@ -1543,7 +1544,7 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
   double tt, aa, like, slope, curv;
-  struct node* pp;
+  struct node *pp;
 
   pp = (struct node*)p;
   slopecurv (p, pp->v, &like, &slope, &curv);
@@ -1567,13 +1568,14 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 }  /* sigma */
 
 
-void describe(struct dnaml_node *p)
+void describe(struct dnaml_node *pp)
 {
   /* print out information for one branch */
   long i, num_sibs;
-  struct node *pp, *q, *sib_ptr;
+  struct node *p, *q, *sib_ptr;
   double sumlr, sigma1, sigma2;
 
+  p = (struct node*)pp;
   if (p != NULL) {
     pp = (struct node*)p;
     if (!pp->tip && !pp->initialized)
@@ -1604,7 +1606,7 @@ void describe(struct dnaml_node *p)
     fprintf(outfile, "%15.5f", q->v * fracchange);
     if (reusertree || !usertree || (usertree && !lngths) || pp->iter )
     {
-      sigma(q, &sumlr, &sigma1, &sigma2);
+      sigma((struct dnaml_node*)q, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
         fprintf(outfile, "     (     zero,    infinity)");
       else
@@ -1625,26 +1627,27 @@ void describe(struct dnaml_node *p)
     putc('\n', outfile);
     if (!pp->tip)
     {
-      num_sibs = count_sibs (pp);
-      sib_ptr  = pp;
+      num_sibs = count_sibs(p);
+      sib_ptr  = p;
       for (i=0; i < num_sibs; i++)
       {
         sib_ptr = sib_ptr->next;
         if (sib_ptr->back != NULL)
-          describe(sib_ptr->back);
+          describe((struct dnaml_node*)(sib_ptr->back));
       }
     }
   }
 }  /* describe */
 
 
-void reconstr(node *p, long n)
+void reconstr(struct dnaml_node *pp, long n)
 {
   /* reconstruct and print out base at site n+1 at node p */
   long i, j, k, m, first, second, num_sibs;
   double f, sum, xx[4];
-  node *q;
+  struct node *p, *q;
 
+  p = (struct node*)pp;
   j = location[ally[n]-1] - 1;
   for (i = 0; i < 4; i++)
   {
@@ -1692,11 +1695,13 @@ void reconstr(node *p, long n)
 } /* reconstr */
 
 
-void rectrav(node *p, long m, long n)
+void rectrav(struct dnaml_node *pp, long m, long n)
 {
   /* print out segment of reconstructed sequence for one branch */
   long i;
+  struct node *p;
 
+  p = (struct node*)pp;
   assert(p->index > 0);                 // RSGdebug
 
   putc(' ', outfile);
@@ -1716,13 +1721,13 @@ void rectrav(node *p, long m, long n)
     if (p->tip)
       putc(inputSequences[p->index-1][i], outfile);
     else
-      reconstr(p, i);
+      reconstr(pp, i);
   }
   putc('\n', outfile);
   if (!p->tip)
   {
-    rectrav(p->next->back, m, n);
-    rectrav(p->next->next->back, m, n);
+    rectrav((struct dnaml_node*)(p->next->back), m, n);
+    rectrav((struct dnaml_node*)(p->next->next->back), m, n);
   }
   mx1 = mx;
 }  /* rectrav */
@@ -1735,7 +1740,7 @@ void summarize(void)
   double mode, sum;
   double like[maxcategs], nulike[maxcategs];
   double **marginal;
-  node   *sib_ptr;
+  struct node   *sib_ptr;
   long mm = 0;   // RSGnote: Was formerly potentially used before being initialized.
 
   if (!treeprint)
@@ -1768,7 +1773,7 @@ void summarize(void)
     }
   }
 
-  describe(curtree->root->back);
+  describe((struct dnaml_node*)(curtree->root->back));
 
   /* So this works with arbitrary multifurcations */
   num_sibs = count_sibs (curtree->root);
@@ -1776,7 +1781,7 @@ void summarize(void)
   for (i=0; i < num_sibs; i++)
   {
     sib_ptr = sib_ptr->next;
-    describe(sib_ptr->back);
+    describe((struct dnaml_node*)(sib_ptr->back));
   }
 
   fprintf(outfile, "\n");
@@ -1972,8 +1977,8 @@ void summarize(void)
       k = i + 59;
       if (k >= sites)
         k = sites - 1;
-      rectrav(curtree->root, i, k);
-      rectrav(curtree->root->back, i, k);
+      rectrav((struct dnaml_node*)(curtree->root), i, k);
+      rectrav((struct dnaml_node*)(curtree->root->back), i, k);
       putc('\n', outfile);
     }
   }
@@ -1983,9 +1988,9 @@ void summarize(void)
 void dnaml_reroot(tree* t) 
 {
   /* move root of tree */
-  node *q;
+  struct node *q;
   double newl;
-  node *r = t->root;
+  struct node *r = t->root;
   long numsibs = count_sibs(r);
 
   if ( numsibs > 2)
@@ -2026,7 +2031,7 @@ void dnaml_treeout(FILE  *outtree, tree* t, bl_node* p) {
   double bl_scale;
 
   bl_scale = fracchange;
-  bl_treeout(outtree, t, (bl_node*)p, bl_scale);
+  bl_treeout(outtree, t, p, bl_scale);
 } /* dnaml_treeout */
 
 
@@ -2121,7 +2126,7 @@ void maketree(void)
       summarize();
 
       if (trout) {
-        dnaml_treeout(outtree, curtree, (ml_node *)curtree->root);
+        dnaml_treeout(outtree, curtree, (bl_node *)(curtree->root));
       }
       if(which < numtrees)
       {
@@ -2251,7 +2256,7 @@ void maketree(void)
       dnaml_printree();
       summarize();
       if (trout) {
-        dnaml_treeout(outtree, curtree, (dnaml_node*)curtree->root);
+        dnaml_treeout(outtree, curtree, (bl_node*)(curtree->root));
       }
     }
   }
