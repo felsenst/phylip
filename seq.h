@@ -5,12 +5,18 @@
 
 
 /*
-  seq.h:  included in dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnamove,
+  seq.h:  for dealing with molecular sequence data types
+          included in dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnamove,
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
 #ifndef PHYLIP_H
 #include "phylip.h"
+#endif
+
+#ifndef BL_H
+#include "bl.h"
+#define ML_H
 #endif
 
 /* move */
@@ -44,7 +50,7 @@ extern long endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
-extern bl_node** lrsaves;
+extern struct bl_node** lrsaves;
 
 #ifndef OLDC
 /* function prototypes */
@@ -62,8 +68,8 @@ void sitescrunch(long);
 void sitesort2(long, steptr);
 void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
-void drawline(long, double, bl_node *);
-void treeout(bl_node *, long, long *, bl_node *);
+void drawline(long, double, struct bl_node *);
+void treeout(struct bl_node *, long, long *, struct bl_node *);
 void drawline2(long i, double scale, tree *curtree);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,

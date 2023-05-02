@@ -1352,7 +1352,7 @@ void slopecurv(struct dnaml_node *p, double y, double *like,
 } /* slopecurv */
 
 
-void dnaml_tree_makenewv(struct tree* t, struct dnaml_node *p)
+void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
@@ -1426,13 +1426,13 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
   {
     case bottom:
       p = (struct dnaml_node *)(treep->get_forknode(treep, nodei));
-      ((struct bl_node*)p)->allocx((struct node*)p, endsite, rcategs);
+      mldna_node_allocx((mldna_node*)p, endsite, rcategs);
       assert(((struct node*)(p))->index > 0);
       nodep[((struct node*)(p))->index - 1] = (struct node*)(p);
       break;
     case nonbottom:
       p = (struct dnaml_node*)(treep->get_forknode(treep, nodei));
-      ((struct mldna_node*)p)->mldna_node_allocx((struct node*)p, endsite, rcategs);
+      mldna_node_allocx((mldna_node*)p, endsite, rcategs);
       break;
     case tip:
       match_names_to_data (str, nodep, (struct node**)p, spp);
