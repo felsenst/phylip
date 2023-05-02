@@ -15,6 +15,7 @@
 
 #ifndef BL_H
 #include "bl.h"
+#define BL_H
 #endif
 
 extern boolean inserting, smoothit, smoothed, polishing;

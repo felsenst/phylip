@@ -12,11 +12,12 @@
 
 #ifndef PHYLIP_H
 #include "phylip.h"
+#define PHYLIP_H
 #endif
 
 #ifndef BL_H
 #include "bl.h"
-#define ML_H
+#define BL_H
 #endif
 
 /* move */
@@ -59,7 +60,7 @@ void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
 void setuptree2(tree);
-void alloctip(ml_node *);
+void alloctip(bl_node *);
 void freetrans(transptr *, long, long );
 void ttratio_warning(double ttratio);
 void sitesort(long, steptr);

@@ -577,13 +577,14 @@ void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 }  /* sitescrunch2 */
 
 
-void drawline(long i, double scale, node *root)
+void drawline(long i, double scale, bl_node *rt)
 {
   /* draws one row of the tree diagram by moving up tree */
-  node *p, *q, *r, *first =NULL, *last =NULL;
+  struct node *root, *p, *q, *r, *first =NULL, *last =NULL;
   long n, j;
   boolean extra, done, noplus;
 
+  root = (struct node*)rt;
   p = root;
   q = root;
   assert(p->index > 0);                 // RSGdebug
@@ -754,10 +755,10 @@ void drawline2(long i, double scale, tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * used in dnaml, proml, & restml */
-  node *p, *q;
+  struct node *p, *q;
   long n, j;
   boolean extra;
-  node *r, *first =NULL, *last =NULL;
+  struct node *r, *first =NULL, *last =NULL;
   boolean done;
 
   p = curtree->root;
