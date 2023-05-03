@@ -33,22 +33,24 @@ typedef struct basefreq {
   double        ttratio;                /* Transition/transversion ratio */
 } basefreq;
 
+
 #ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
+struct mldna_node* mldna_node_new(node_type, long, long);
+void mldna_node_init(struct mldna_node *, node_type, long);
+void mldna_node_copy(mldna_node*, mldna_node*);
+void fix_x(mldna_node*, long, double, long);
+void mldna_node_freex(mldna_node*);
+void mldna_node_allocx(struct mldna_node*, long, long);
+void makevalues2(long, pointarray, long, long, sequence, steptr);
+void freex_notip(long, pointarray);
+void freex(long, pointarray);
 void print_basefreq(FILE *fp, basefreq *freq, boolean empirical);
 void makebasefreq(basefreq *freq, double freqa, double freqc,
                    double freqg, double freqt, double ttratio);
 void getbasefreqs(double, double, double, double, double *, double *,
                    double *, double *, double *, double *, double *,
                    double *, double *, double *, boolean, boolean);
-struct mldna_node* mldna_node_new(node_type, long, long);
-void    mldna_node_init(struct mldna_node *, node_type, long);
-void    mldna_node_copy(mldna_node*, mldna_node*);
-void    fix_x(mldna_node*, long, double, long);
-void    mldna_node_freex(mldna_node*);
-void    mldna_node_allocx(struct mldna_node*, long, long);
-void    makevalues2(long, pointarray, long, long, sequence, steptr);
-void    freex_notip(long, pointarray);
-void    freex(long, pointarray);
-void    empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
+void ttratio_warning(double ttratio);
+void empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
 #endif
 

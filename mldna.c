@@ -1,4 +1,4 @@
-/* Copyright, 2022 */
+/* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
 /* debug:  #include "phylip.h"   debug */
@@ -295,7 +295,9 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
 {
   /* Get empirical base frequencies from the data */
   /* used in dnaml & dnamlk */
-  /* this is kind of strange */
+  /* this is an EM algorithm valid for independently sampled
+   * sequences. These are of course not actually independently sampled because
+   * they are on a tree, but ... "abi gezint". */
   long i, j, k;
   double sum, suma, sumc, sumg, sumt, w;
 
@@ -304,35 +306,41 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
   *freqg = 0.25;
   *freqt = 0.25;
 
-  for (k = 1; k <= 8; k++)
+  for (k = 1; k <= 8; k++)                   /* do the EM iteration 8 times */
   {
     suma = 0.0;
     sumc = 0.0;
     sumg = 0.0;
     sumt = 0.0;
 
-    for (i = 0; i < spp; i++)
+    for (i = 0; i < spp; i++)                       /* for each species ... */
     {
-      for (j = 0; j < endsite; j++)
-      {
-        w = weight[j];
+      for (j = 0; j < endsite; j++)    /* for each aliased site pattern ... */
+      {    /* count of inferred numbers of counts given current frequencies */
+        w = weight[j];        /* ... taking into account the number aliased */
         sum = (*freqa) * ((mldna_node*)treenode[i])->x[j][0][0];
-        sum += (*freqc) * ((mldna_node*)treenode[i])->x[j][0][(long)C - (long)A];
-        sum += (*freqg) * ((mldna_node*)treenode[i])->x[j][0][(long)G - (long)A];
-        sum += (*freqt) * ((mldna_node*)treenode[i])->x[j][0][(long)T - (long)A];
+        sum += (*freqc) 
+                 * ((mldna_node*)treenode[i])->x[j][0][(long)C - (long)A];
+        sum += (*freqg) 
+                 * ((mldna_node*)treenode[i])->x[j][0][(long)G - (long)A];
+        sum += (*freqt) 
+                 * ((mldna_node*)treenode[i])->x[j][0][(long)T - (long)A];
         suma += w * (*freqa) * ((mldna_node*)treenode[i])->x[j][0][0] / sum;
-        sumc += w * (*freqc) * ((mldna_node*)treenode[i])->x[j][0][(long)C - (long)A] / sum;
-        sumg += w * (*freqg) * ((mldna_node*)treenode[i])->x[j][0][(long)G - (long)A] / sum;
-        sumt += w * (*freqt) * ((mldna_node*)treenode[i])->x[j][0][(long)T - (long)A] / sum;
+        sumc += w * (*freqc) 
+               * ((mldna_node*)treenode[i])->x[j][0][(long)C - (long)A] / sum;
+        sumg += w * (*freqg) 
+               * ((mldna_node*)treenode[i])->x[j][0][(long)G - (long)A] / sum;
+        sumt += w * (*freqt) 
+               * ((mldna_node*)treenode[i])->x[j][0][(long)T - (long)A] / sum;
       }
     }
-    sum = suma + sumc + sumg + sumt;
-    *freqa = suma / sum;
+    sum = suma + sumc + sumg + sumt;  /* the denominators for the fractions */
+    *freqa = suma / sum;        /* the inferred fractions in this iteration */
     *freqc = sumc / sum;
     *freqg = sumg / sum;
     *freqt = sumt / sum;
   }
-  if (*freqa <= 0.0)
+  if (*freqa <= 0.0)            /* this is done to prevent underflows later */
     *freqa = 0.000001;
   if (*freqc <= 0.0)
     *freqc = 0.000001;
@@ -342,4 +350,128 @@ void empiricalfreqs(double *freqa, double *freqc, double *freqg, double *freqt, 
     *freqt = 0.000001;
 }  /* empiricalfreqs */
 
+
+void makebasefreq(basefreq *freq, double freqa, double freqc,
+                   double freqg, double freqt, double ttratio)
+{
+  /* Takes base frequencies and fills out a basefreq struct. If ttratio is
+   * incompatible, a warning is printed and a reasonable value is returned in
+   * freq. */
+  /* (used by dnadist, dnaml, & dnamlk) */
+
+  double aa, bb;
+
+  assert(freq != NULL);
+
+  freq->a = freqa;
+  freq->c = freqc;
+  freq->g = freqg;
+  freq->t = freqt;
+
+  freq->r = freqa + freqg;
+  freq->y = freqc + freqt;
+
+  freq->ar = freq->a / freq->r;
+  freq->cy = freq->c / freq->y;
+  freq->gr = freq->g / freq->r;
+  freq->ty = freq->t / freq->y;
+
+  aa = ttratio * freq->r * freq->y - freqa * freqg - freqc * freqt;
+  bb = freqa * freq->gr + freqc * freq->ty;
+  freq->xi = aa / (aa + bb);
+  freq->xv = 1.0 - freq->xi;
+  if (freq->xi < 0.0)
+  {
+    freq->xi = 0.0;
+    freq->xv = 1.0;
+    ttratio = (freq->a*freq->g+freq->c*freq->t)/(freq->r*freq->y);
+    ttratio_warning(ttratio);
+  }
+  if (freqa <= 0.0)
+    freqa = 0.000001;
+  if (freqc <= 0.0)
+    freqc = 0.000001;
+  if (freqg <= 0.0)
+    freqg = 0.000001;
+  if (freqt <= 0.0)
+    freqt = 0.000001;
+
+  freq->fracchange = freq->xi * (2 * freqa * freq->gr + 2 * freqc * freq->ty) +
+    freq->xv *
+    (1.0 - freqa*freqa - freqc*freqc
+     - freqg*freqg - freqt*freqt );
+  freq->ttratio = ttratio;
+} /* makebasefreq */
+
+
+void print_basefreq(FILE *fp, basefreq *freq, boolean empirical)
+{
+  /* print out empirical base frequencies */
+
+  putc('\n', fp);
+  if (empirical)
+    fprintf(outfile, "Empirical ");
+  fprintf(fp, "Base Frequencies:\n\n");
+  fprintf(fp, "   A    %10.5f\n", freq->a);
+  fprintf(fp, "   C    %10.5f\n", freq->c);
+  fprintf(fp, "   G    %10.5f\n", freq->g);
+  fprintf(fp, "  T(U)  %10.5f\n", freq->t);
+} /* print_basefreq */
+
+
+void ttratio_warning(double ttratio)
+{
+  /* print warning that this ttratio is impossible */
+
+  printf("\n WARNING: This transition/transversion ratio\n"
+         "  is impossible with these base frequencies!\n"
+         "  Using a transition/transversion ratio of %.6f\n\n", ttratio);
+} /* ttratio_warning */
+
+
+void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
+                   double *freqr, double *freqy, double *freqar,
+                   double *freqcy, double *freqgr, double *freqty,
+                   double *ttratio, double *xi, double *xv,
+                   double *fracchange, boolean freqsfrom, boolean printdata)
+{
+  /* Inputs freq[acgt] and ttratio and calculates freq[ry], freq[acgt][ry],
+   * and fracchange.  If ttratio is impossible, a warning is printed and a more
+   * reasonable value is returned. If printdata is true, the base frequencies
+   * are printed to outfile. If freqsfrom is also true, the output is
+   * identified as "Empirical". */
+
+  /* Deprecated in favor of direct use of struct freq, makebasefreq(),
+   * and print_basefreq() */
+
+  /* used by dnadist, dnaml, & dnamlk */
+  basefreq freq;
+  boolean isempirical = freqsfrom;
+
+  freq.a = freqa;
+  freq.c = freqc;
+  freq.g = freqg;
+  freq.t = freqt;
+
+  if (printdata)
+  {
+    print_basefreq(outfile, &freq, isempirical);
+  }
+  makebasefreq(&freq, freq.a, freq.c, freq.g, freq.t, *ttratio);
+
+  *freqr = freq.r;
+  *freqy = freq.y;
+  *freqar = freq.ar;
+  *freqcy = freq.cy;
+  *freqgr = freq.gr;
+  *freqty = freq.ty;
+  *xi     = freq.xi;
+  *xv     = freq.xv;
+  *fracchange = freq.fracchange;
+  *ttratio    = freq.ttratio;
+
+}  /* getbasefreqs */
+
+
+/* End. */
 

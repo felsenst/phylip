@@ -62,7 +62,6 @@ void setuptree(pointarray, long, boolean);
 void setuptree2(tree);
 void alloctip(bl_node *);
 void freetrans(transptr *, long, long );
-void ttratio_warning(double ttratio);
 void sitesort(long, steptr);
 void sitecombine(long);
 void sitescrunch(long);
