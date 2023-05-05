@@ -570,11 +570,11 @@ void drawline(long i, double scale, bl_node *rt)
 }  /* drawline */
 
 
-void treeout(node *p, long nextree, long *col, node *root)
+void treeout(struct node *p, long nextree, long *col, struct node *root)
 {
   /* write out file with representation of final tree
    * used in dnacomp, dnamove, dnapars, & dnapenny */
-  node *q;
+  struct node *q;
   long i, n;
   Char c;
 

@@ -42,7 +42,7 @@ void bl_tree_init(struct tree* t, long nonodes, long spp)
 } /* bl_tree_init */
 
 
-struct node* bl_node_new(node_type type, long index, long nodesize) {
+struct bl_node* bl_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct node* nn;
 
@@ -56,7 +56,7 @@ void bl_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
-  bl_node* nn;
+  struct bl_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -71,8 +71,8 @@ void bl_node_init(struct node *n, node_type type, long index)
 
 void bl_node_copy(node* srcn, node* destn)
 { /* copy a bl_node */
-  bl_node *src = (bl_node *)srcn;
-  bl_node *dest = (bl_node *)destn;
+  struct bl_node *src = (struct bl_node *)srcn;
+  struct bl_node *dest = (struct bl_node *)destn;
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(srcn, destn);
@@ -80,15 +80,15 @@ void bl_node_copy(node* srcn, node* destn)
 } /* bl_node_copy */
 
 
-void bl_node_free(node **np)
+void bl_node_free(struct node **np)
 {
   /* free a node for bl trees */
-  bl_node *n = (bl_node*)*np;
+  struct bl_node *n = (struct bl_node*)*np;
   generic_node_free(np);
 } /* bl_node_free */
 
 
-void bl_hookup(node* p, node* q){
+void bl_hookup(struct node* p, struct node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
 
@@ -101,7 +101,7 @@ void bl_hookup(node* p, node* q){
 void bl_node_reinit(node * n)
 {
   /* reset things for an ml tree node */
-  bl_node * bln = (bl_node*)n;
+  struct bl_node * bln = (struct bl_node*)n;
 
   bln->node.tyme = 0;
   // debug:  BUG.970 -- does freex need refreshing ?
@@ -110,17 +110,17 @@ void bl_node_reinit(node * n)
 } /* bl_node_reinit */
 
 
-void bl_node_print(node * n)
+void bl_node_print(struct node * n)
 {
   /* for debugging */
   generic_node_print(n);
-  bl_node * bn = (bl_node*)n;
+  struct bl_node * bn = (struct bl_node*)n;
 
   printf(" bl(tyme:%lf)", bn->node.tyme);
 } /* bl_node_print */
 
 
-void bl_update(struct tree *t, node *p)
+void bl_update(struct tree *t, struct node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
@@ -426,11 +426,12 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
   newfork = t->nodep[newtip->back->index - 1];
   newtip = t->nodep[newtip->index-1];
   /* now for the tyme stuff */
-  if (((bl_node*)newtip)->node.tyme < ((bl_node*)below)->node.tyme)
+  if (((struct bl_node*)newtip)->node.tyme 
+         < ((struct bl_node*)below)->node.tyme)
     p = newtip;
   else p = below;
 
-  set_tyme(newfork, ((bl_node*)p)->node.tyme);
+  set_tyme(newfork, ((struct bl_node*)p)->node.tyme);
   if (newfork->back != NULL)
   {
     /* here we rescale the tree to fit the subtree being added      *
@@ -438,8 +439,9 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
      * the branches are only epsilon appart, allow the branch       *
      * lengths to be 1/2 epsilon, so that we interfere with the     *
      * tree minimally                                               */
-    if (((bl_node*)p)->node.tyme > ((bl_node*)newfork->back)->node.tyme)
-      set_tyme(newfork, (((bl_node*)p)->node.tyme +
+    if (((struct bl_node*)p)->node.tyme 
+           > ((struct bl_node*)newfork->back)->node.tyme)
+      set_tyme(newfork, (((struct bl_node*)p)->node.tyme +
                ((bl_node*)newfork->back)->node.tyme) / 2.0);
     else
       set_tyme(newfork, ((bl_node*)p)->node.tyme - (epsilon/2));
@@ -447,14 +449,14 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
       if (!done) {
-        done = (((bl_node*)t->nodep[p->back->index - 1])->node.tyme < 
-                 ((bl_node*)p)->node.tyme);
-        set_tyme(p->back, ((bl_node*)p)->node.tyme - epsilon/2);
+        done = (((struct bl_node*)t->nodep[p->back->index - 1])->node.tyme 
+                   < ((struct bl_node*)p)->node.tyme);
+        set_tyme(p->back, ((struct bl_node*)p)->node.tyme - epsilon/2);
       }
     } while (!done);
   }
   else
-    set_tyme(newfork, ((bl_node*)newfork)->node.tyme - initialv);
+    set_tyme(newfork, ((struct bl_node*)newfork)->node.tyme - initialv);
 
   if ( !smoothit ) {
     smooth(t, newfork);
@@ -473,7 +475,7 @@ void blk_tree_insert_(tree *t, node *newtip, node *below, boolean dummy, boolean
 
 double get_tyme(node *p)
 { /* return the tyme of a bl_node. p must point to struct bl_node. */
-  return ((bl_node *)p)->node.tyme;
+  return ((struct bl_node *)p)->node.tyme;
 } /* get_tyme */
 
 
