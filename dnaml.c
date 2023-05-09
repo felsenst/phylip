@@ -197,7 +197,7 @@ void inittip(tree* t, long m)
 
   tmp = t->nodep[m - 1];
 /* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
-  tmp->deltav = 0.0;
+  ((bl_node*)tmp)->deltav = 0.0;
 }  /* inittip */
 
 
@@ -906,7 +906,7 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   generic_tree_evaluate(t, (struct node*)p, saveit); /* views traversals */
   sum = 0.0;
   q = (struct dnaml_node*)((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   lz = -y;
   for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
@@ -1065,7 +1065,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
     sib_back_ptr = sib_ptr->back;
 
     if (sib_back_ptr != NULL)
-      lw = - (sib_back_ptr->v);
+      lw = - ((struct bl_node*)sib_back_ptr)->v;
     else
       lw = 0.0;
     for (i = 0; i < rcategs; i++) { /* table of terms for transition probs */
@@ -1361,7 +1361,7 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
   struct node *q;
 
   q = ((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   yorig = y;
   done = false;
   firsttime = true;
@@ -1405,8 +1405,8 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  ((struct node*)p)->v = yold;   /* the last one that had better likelihood */
-  q->v = yold;
+  ((struct bl_node*)p)->v = yold;   /* the last one that had better likelihood */
+  ((struct bl_node*)q)->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
@@ -1439,22 +1439,22 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       break;
     case iter:
       ((struct node*)p)->initialized = false;
-      ((struct node*)p)->v = initialv;
+      ((struct bl_node*)p)->v = initialv;
       ((struct node*)p)->iter = true;
       if (((struct node*)p)->back != NULL)
       {
         ((struct node*)p)->back->iter = true;
-        ((struct node*)p)->back->v = initialv;
+        ((struct bl_node*)(p->back))->v = initialv;
         ((struct node*)p)->back->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
-      ((struct node*)p)->v = valyew / divisor / fracchange;
+      ((struct bl_node*)p)->v = valyew / divisor / fracchange;
       ((struct node*)p)->iter = false;
       if (((struct node*)p)->back != NULL)
       {
-        ((struct node*)p)->back->v = ((struct node*)p)->v;
+        ((struct bl_node*)p)->back->v = ((struct node*)p)->v;
         ((struct node*)p)->back->iter = false;
       }
       break;
@@ -1489,7 +1489,7 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
   q = pp->next;
   do {
     if (q->back != NULL) {
-      xx = fracchange * q->v;
+      xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       dnaml_coordinates((dnaml_node *)(q->back), 
@@ -1546,7 +1546,7 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
   double tt, aa, like, slope, curv;
   struct node *pp;
 
-  pp = (struct node*)p;
+  pp = (struct bl_node*)p;
   slopecurv (p, pp->v, &like, &slope, &curv);
   tt = pp->v;
   pp->v = epsilon;

@@ -503,7 +503,6 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
   boolean do_newbl;                           /* new branch lengths needed? */
   boolean initialized;              /* initialized used in dnamlk & restml  */
-  double v, tyme, deltav, ssq;                 /* ssq used only in contrast */
   boolean deleted;                      /* true if node is deleted (retree) */
   boolean hasname;                       /* true if tip has a name (retree) */
   double beyond;       /* in retree: distance beyond it to most distant tip */

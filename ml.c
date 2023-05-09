@@ -112,7 +112,7 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
   bl_node_copy(srcn, destn);
   dest->categs = src->categs;
   dest->endsite = src->endsite;
-  set_tyme((node*)dest, src->bl_node.tyme);
+  set_tyme((bl_node*)dest, src->bl_node.tyme);
 
   if(dest->underflows)                  // RSGbugfix
     memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
