@@ -28,7 +28,7 @@ typedef struct bl_tree {
 
 typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
-  double v, tyme, deltav, ssq;                 /* ssq used only in contrast */
+  double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
 } bl_node;
 
 typedef void (*allocx_t)(long, long, long, struct bl_node*);

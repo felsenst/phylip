@@ -1444,7 +1444,7 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       if (((struct node*)p)->back != NULL)
       {
         ((struct node*)p)->back->iter = true;
-        ((struct bl_node*)(p->back))->v = initialv;
+        ((struct bl_node*)(((struct node*)p)->back))->v = initialv;
         ((struct node*)p)->back->initialized = false;
       }
       break;
@@ -1454,7 +1454,8 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       ((struct node*)p)->iter = false;
       if (((struct node*)p)->back != NULL)
       {
-        ((struct bl_node*)p)->back->v = ((struct node*)p)->v;
+        ((struct bl_node*)((struct node*)p)->back)->v 
+                              = ((struct bl_node*)p)->v;
         ((struct node*)p)->back->iter = false;
       }
       break;
@@ -1544,17 +1545,19 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
   double tt, aa, like, slope, curv;
-  struct node *pp;
+  struct bl_node *pp;
+  struct node *ppp;
 
   pp = (struct bl_node*)p;
+  ppp = (struct node*)p; 
   slopecurv (p, pp->v, &like, &slope, &curv);
   tt = pp->v;
   pp->v = epsilon;
-  pp->back->v = epsilon;
-  aa = curtree->evaluate(curtree, pp, false);
+  ((struct bl_node*)(ppp->back))->v = epsilon;
+  aa = curtree->evaluate(curtree, ppp, false);
   pp->v = tt;
-  pp->back->v = tt;
-  (*sumlr) = curtree->evaluate(curtree, pp, false) - aa;
+  ((struct bl_node*)(ppp->back))->v = tt;
+  (*sumlr) = curtree->evaluate(curtree, ppp, false) - aa;
   if (curv < -epsilon)
   {
     (*s1) = pp->v + (-slope - sqrt(slope * slope -  3.841 * curv)) / curv;
@@ -1568,20 +1571,22 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 }  /* sigma */
 
 
-void describe(struct dnaml_node *pp)
+void describe(struct dnaml_node *ppp)
 {
   /* print out information for one branch */
   long i, num_sibs;
   struct node *p, *q, *sib_ptr;
+  struct bl_node *qq;
   double sumlr, sigma1, sigma2;
 
-  p = (struct node*)pp;
+  p = (struct node*)ppp;
   if (p != NULL) {
     if (!p->tip && !p->initialized)
       generic_tree_nuview(curtree, p);
     if (!p->back->tip && !p->back->initialized)
       generic_tree_nuview(curtree, p->back);
     q = p->back;
+    qq = (struct bl_node*)(p->back);
 
     assert(p->index > 0);                 // RSGdebug
     assert(q->index > 0);                 // RSGdebug
@@ -1602,10 +1607,10 @@ void describe(struct dnaml_node *pp)
     }
     else
       fprintf(outfile, "%4ld      ", p->index - spp);
-    fprintf(outfile, "%15.5f", q->v * fracchange);
+    fprintf(outfile, "%15.5f", qq->v * fracchange);
     if (reusertree || !usertree || (usertree && !lngths) || p->iter )
     {
-      sigma((struct dnaml_node*)q, &sumlr, &sigma1, &sigma2);
+      sigma((struct dnaml_node*)qq, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
         fprintf(outfile, "     (     zero,    infinity)");
       else
@@ -1990,6 +1995,7 @@ void dnaml_reroot(tree* t)
   struct node *q;
   double newl;
   struct node *r = t->root;
+  struct bl_node *rn, *rnn, *rnb, *rnnb, *rnbb, *rnnbb;
   long numsibs = count_sibs(r);
 
   if ( numsibs > 2)
@@ -2006,13 +2012,18 @@ void dnaml_reroot(tree* t)
     assert(r->back == NULL); // RSGnote: This assumes the FORKRING being manipulated
                              //has the ROOT FORKNODE pointing to NULL.
 
-    newl = r->next->oldlen + r->next->next->oldlen;
-    r->next->back->oldlen = newl;
-    r->next->next->back->oldlen = newl;
 
-    newl = r->next->v + r->next->next->v;
-    r->next->back->v = newl;
-    r->next->next->back->v = newl;
+    rnb = ((struct bl_node*)(r->next->back));
+    rnnb = ((struct bl_node*)(r->next->next->back));
+    rnn = ((struct bl_node*)(r->next->next));
+
+    newl = rnb->oldlen + rnn->oldlen;
+    rnb->oldlen = newl;
+    rnnb->oldlen = newl;
+
+    newl = rn->v + rnn->v;
+    rnb->v = newl;
+    rnnb->v = newl;
 
     r->next->back->back = r->next->next->back;
     r->next->next->back->back = r->next->back;
