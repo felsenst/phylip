@@ -44,9 +44,11 @@ void bl_tree_init(struct tree* t, long nonodes, long spp)
 
 struct bl_node* bl_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
+  struct node* n;
+  struct bl_node* nn;
 
-  nn = generic_node_new(type, index, nodesize);
+  n = generic_node_new(type, index, nodesize);
+  nn = (struct bl_node*)n;
   bl_node_init(nn, type, index);
   return nn;
 } /* bl_node_new */
@@ -69,22 +71,23 @@ void bl_node_init(struct node *n, node_type type, long index)
 } /* bl_node_init */
 
 
-void bl_node_copy(node* srcn, node* destn)
+void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
 { /* copy a bl_node */
-  struct bl_node *src = (struct bl_node *)srcn;
-  struct bl_node *dest = (struct bl_node *)destn;
+/* debug: shouldn't length of node be involved? */
+  struct node *src = (struct node *)srcn;
+  struct node *dest = (struct node *)destn;
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(srcn, destn);
-  set_tyme((node*)dest, src->node.tyme);
+  generic_node_copy(src, dest);
+  set_tyme(dest, src->node.tyme);
 } /* bl_node_copy */
 
 
 void bl_node_free(struct node **np)
 {
   /* free a node for bl trees */
-  struct bl_node *n = (struct bl_node*)*np;
-  generic_node_free(np);
+  struct bl_node *n = (struct bl_node*)&np;
+  generic_node_free(&np);
 } /* bl_node_free */
 
 

@@ -43,7 +43,7 @@ long endsite;
 void    bl_tree_new(struct tree**, long, long, long);
 bl_node* bl_node_new(node_type, long, long);
 void    bl_node_copy(struct bl_node *, struct  bl_node *);
-void    bl_node_init(struct node*, node_type, long);
+void    bl_node_init(struct bl_node*, node_type, long);
 void    bl_node_free(bl_node **);
 void    bl_node_print(bl_node *);
 void    bl_hookup(bl_node*, bl_node*);
