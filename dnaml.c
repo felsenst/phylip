@@ -197,7 +197,7 @@ void inittip(tree* t, long m)
 
   tmp = t->nodep[m - 1];
 /* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
-  tmp->deltav = 0.0;
+  ((bl_node*)tmp)->deltav = 0.0;
 }  /* inittip */
 
 
@@ -906,7 +906,7 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   generic_tree_evaluate(t, (struct node*)p, saveit); /* views traversals */
   sum = 0.0;
   q = (struct dnaml_node*)((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   lz = -y;
   for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
@@ -1065,7 +1065,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
     sib_back_ptr = sib_ptr->back;
 
     if (sib_back_ptr != NULL)
-      lw = - (sib_back_ptr->v);
+      lw = - ((struct bl_node*)sib_back_ptr)->v;
     else
       lw = 0.0;
     for (i = 0; i < rcategs; i++) { /* table of terms for transition probs */
@@ -1361,7 +1361,7 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
   struct node *q;
 
   q = ((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   yorig = y;
   done = false;
   firsttime = true;
@@ -1405,8 +1405,8 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  ((struct node*)p)->v = yold;   /* the last one that had better likelihood */
-  q->v = yold;
+  ((struct bl_node*)p)->v = yold;   /* the last one that had better likelihood */
+  ((struct bl_node*)q)->v = yold;
   ((tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
@@ -1439,22 +1439,23 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       break;
     case iter:
       ((struct node*)p)->initialized = false;
-      ((struct node*)p)->v = initialv;
+      ((struct bl_node*)p)->v = initialv;
       ((struct node*)p)->iter = true;
       if (((struct node*)p)->back != NULL)
       {
         ((struct node*)p)->back->iter = true;
-        ((struct node*)p)->back->v = initialv;
+        ((struct bl_node*)(((struct node*)p)->back))->v = initialv;
         ((struct node*)p)->back->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
-      ((struct node*)p)->v = valyew / divisor / fracchange;
+      ((struct bl_node*)p)->v = valyew / divisor / fracchange;
       ((struct node*)p)->iter = false;
       if (((struct node*)p)->back != NULL)
       {
-        ((struct node*)p)->back->v = ((struct node*)p)->v;
+        ((struct bl_node*)((struct node*)p)->back)->v 
+                              = ((struct bl_node*)p)->v;
         ((struct node*)p)->back->iter = false;
       }
       break;
@@ -1489,7 +1490,7 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
   q = pp->next;
   do {
     if (q->back != NULL) {
-      xx = fracchange * q->v;
+      xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       dnaml_coordinates((dnaml_node *)(q->back), 
@@ -1544,17 +1545,19 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
   double tt, aa, like, slope, curv;
-  struct node *pp;
+  struct bl_node *pp;
+  struct node *ppp;
 
-  pp = (struct node*)p;
+  pp = (struct bl_node*)p;
+  ppp = (struct node*)p; 
   slopecurv (p, pp->v, &like, &slope, &curv);
   tt = pp->v;
   pp->v = epsilon;
-  pp->back->v = epsilon;
-  aa = curtree->evaluate(curtree, pp, false);
+  ((struct bl_node*)(ppp->back))->v = epsilon;
+  aa = curtree->evaluate(curtree, ppp, false);
   pp->v = tt;
-  pp->back->v = tt;
-  (*sumlr) = curtree->evaluate(curtree, pp, false) - aa;
+  ((struct bl_node*)(ppp->back))->v = tt;
+  (*sumlr) = curtree->evaluate(curtree, ppp, false) - aa;
   if (curv < -epsilon)
   {
     (*s1) = pp->v + (-slope - sqrt(slope * slope -  3.841 * curv)) / curv;
@@ -1568,20 +1571,22 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 }  /* sigma */
 
 
-void describe(struct dnaml_node *pp)
+void describe(struct dnaml_node *ppp)
 {
   /* print out information for one branch */
   long i, num_sibs;
   struct node *p, *q, *sib_ptr;
+  struct bl_node *qq;
   double sumlr, sigma1, sigma2;
 
-  p = (struct node*)pp;
+  p = (struct node*)ppp;
   if (p != NULL) {
     if (!p->tip && !p->initialized)
       generic_tree_nuview(curtree, p);
     if (!p->back->tip && !p->back->initialized)
       generic_tree_nuview(curtree, p->back);
     q = p->back;
+    qq = (struct bl_node*)(p->back);
 
     assert(p->index > 0);                 // RSGdebug
     assert(q->index > 0);                 // RSGdebug
@@ -1602,10 +1607,10 @@ void describe(struct dnaml_node *pp)
     }
     else
       fprintf(outfile, "%4ld      ", p->index - spp);
-    fprintf(outfile, "%15.5f", q->v * fracchange);
+    fprintf(outfile, "%15.5f", qq->v * fracchange);
     if (reusertree || !usertree || (usertree && !lngths) || p->iter )
     {
-      sigma((struct dnaml_node*)q, &sumlr, &sigma1, &sigma2);
+      sigma((struct dnaml_node*)qq, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
         fprintf(outfile, "     (     zero,    infinity)");
       else
@@ -1990,6 +1995,7 @@ void dnaml_reroot(tree* t)
   struct node *q;
   double newl;
   struct node *r = t->root;
+  struct bl_node *rn, *rnn, *rnb, *rnnb, *rnbb, *rnnbb;
   long numsibs = count_sibs(r);
 
   if ( numsibs > 2)
@@ -2006,13 +2012,18 @@ void dnaml_reroot(tree* t)
     assert(r->back == NULL); // RSGnote: This assumes the FORKRING being manipulated
                              //has the ROOT FORKNODE pointing to NULL.
 
-    newl = r->next->oldlen + r->next->next->oldlen;
-    r->next->back->oldlen = newl;
-    r->next->next->back->oldlen = newl;
 
-    newl = r->next->v + r->next->next->v;
-    r->next->back->v = newl;
-    r->next->next->back->v = newl;
+    rnb = ((struct bl_node*)(r->next->back));
+    rnnb = ((struct bl_node*)(r->next->next->back));
+    rnn = ((struct bl_node*)(r->next->next));
+
+    newl = rnb->oldlen + rnn->oldlen;
+    rnb->oldlen = newl;
+    rnnb->oldlen = newl;
+
+    newl = rn->v + rnn->v;
+    rnb->v = newl;
+    rnnb->v = newl;
 
     r->next->back->back = r->next->next->back;
     r->next->next->back->back = r->next->back;

@@ -28,6 +28,7 @@ typedef struct bl_tree {
 
 typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
+  double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
 } bl_node;
 
 typedef void (*allocx_t)(long, long, long, struct bl_node*);
@@ -49,15 +50,17 @@ void    bl_node_print(bl_node *);
 void    bl_hookup(bl_node*, bl_node*);
 void    allocx(long, long, long, bl_node**);
 void    makevalues2(long, pointarray, long, long, sequence, steptr);
+void    set_tyme(struct bl_node *, double);
 void    freex_notip(long, pointarray);
 void    freex(long, pointarray);
-void    bl_update(tree*, bl_node *);
-void    smooth(tree*, bl_node *);
+void    bl_update(tree*, struct bl_node *);
+void    smooth(tree*, struct bl_node *);
 void    smooth_traverse(tree*, bl_node *);
 void 	bl_tree_smoothall(tree*, bl_node*);
-void 	bl_node_reinit(bl_node * n);
-void    bl_tree_insert_(struct tree*, struct node*, struct node*, boolean);
-void    bl_tree_re_move(tree*, bl_node*, bl_node**, boolean);
+void 	bl_node_reinit(struct bl_node *);
+void    bl_tree_insert_(struct tree*, struct bl_node*, 
+                          struct bl_node*, boolean);
+void    bl_tree_re_move(tree*, struct bl_node*, struct bl_node**, boolean);
 boolean bl_tree_try_insert_(tree*, bl_node*, bl_node*, bl_node*, double*, 
                              tree*, boolean, boolean, boolean, double*);
 boolean bl_tree_try_insert_thorough(tree*, bl_node*, bl_node*, bl_node*, 
