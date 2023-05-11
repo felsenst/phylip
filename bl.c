@@ -65,7 +65,7 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
 
   generic_node_init((struct node*)n, type, index);                /* go up node hierarchy */
   nn = (bl_node*)n;
-  nn->node.tyme = 0;
+  nn->tyme = 0;
 } /* bl_node_init */
 
 
@@ -73,34 +73,36 @@ void set_tyme(struct bl_node* n, double tt)
 {
   /* set the tyme in a bl_node */
 
-   (struct bl_node*)n->tyme = tt;
+   n->tyme = tt;
 } /* set_tyme */
 
 
 void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
 { /* copy a bl_node */
-  struct bl_node *src = (struct bl_node *)srcn;
-  struct bl_node *dest = (struct bl_node *)destn;
+  struct node *src = (struct node *)srcn;
+  struct node *dest = (struct node *)destn;
+
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy((struct node*)srcn, (struct node*)destn);
-  set_tyme((struct bl_node*)dest, src->node.tyme);
+  generic_node_copy((struct node*)src, (struct node*)dest);
+  set_tyme(destn, srcn->tyme);
 } /* bl_node_copy */
 
 
 void bl_node_free(struct bl_node **np)
 {
   /* free a node for bl trees */
-  struct bl_node *n = (struct bl_node*)*np;
-  generic_node_free(np);
+  struct node *n = (struct node*)*np;
+
+  generic_node_free(&n);
 } /* bl_node_free */
 
 
-void bl_hookup(struct node* p, struct node* q){
+void bl_hookup(struct bl_node* p, struct bl_node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
 
-  hookup(p, q);
+  hookup((struct node*)p, (struct node*)q);
   p->v = initialv;
   q->v = initialv;
 } /* bl_hookup */
