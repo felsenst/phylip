@@ -79,15 +79,17 @@ void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(src, dest);
-  set_tyme(dest, src->node.tyme);
+  set_tyme(destn, srcn->tyme);
 } /* bl_node_copy */
 
 
 void bl_node_free(struct bl_node **np)
 {
   /* free a node for bl trees */
-  struct bl_node *n = (struct bl_node*)&np;
-  generic_node_free(&np);
+  struct node *n;
+	 
+  n = (struct node*)np;
+  generic_node_free(&n);
 } /* bl_node_free */
 
 
@@ -101,36 +103,39 @@ void bl_hookup(struct bl_node* p, struct bl_node* q){
 } /* bl_hookup */
 
 
-void bl_node_reinit(node * n)
+void bl_node_reinit(struct bl_node * bln)
 {
   /* reset things for an ml tree node */
-  struct bl_node * bln = (struct bl_node*)n;
+  struct node * n;
 
-  bln->node.tyme = 0;
-  // debug:  BUG.970 -- does freex need refreshing ?
-  //  debug: BUG.970 -- leave for dna_node and prot_node ?
+  n = (struct node*)bln;
+  bln->tyme = 0.0;
   generic_node_reinit(n);
 } /* bl_node_reinit */
 
 
-void bl_node_print(struct bl_node * n)
+void bl_node_print(struct bl_node * bln)
 {
-  /* for debugging */
-  generic_node_print(n);
-  struct bl_node * bn = (struct bl_node*)n;
+  /* for debugging only */
+  struct node * n;
+ 
+  n = (struct node*)bln;
 
-  printf(" bl(tyme:%lf)", bn->node.tyme);
+  generic_node_print(n);
+  printf(" bl(tyme:%lf)", bln->tyme);
 } /* bl_node_print */
 
 
-void bl_update(struct tree *t, struct bl_node *p)
+void bl_update(struct tree *t, struct bl_node *pp)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
 /* debug:   I think redundant with calls in phylip.c  */
+  struct node *p;
 
+  p = (struct node*)pp;
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
@@ -142,21 +147,24 @@ void bl_update(struct tree *t, struct bl_node *p)
 }  /* bl_update */
 
 
-void smooth_traverse(tree* t, bl_node *p)
+void smooth_traverse(tree* t, bl_node *pp)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
+  struct node *p;
 
-  smooth(t, p);
-  smooth(t, p->back);
+  p = (struct node*)pp;
+  smooth(t, pp);
+  smooth(t, ((struct bl_node*)(p->back)));
 } /* smooth_traverse */
 
 
-void smooth(tree* t, bl_node *p)
+void smooth(tree* t, bl_node *pp)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
- struct bl_node *sib_ptr;
+ struct node *p, *sib_ptr;
 
+  p = (struct node*)pp;
   if ( p == NULL )
     return;
 /* debug:    if ( p->back == NULL )
@@ -164,7 +172,7 @@ void smooth(tree* t, bl_node *p)
 debug */
   smoothed = false;
 
-  bl_update(t, p);      /* get views at both ends updated, maybe recursing  */
+  bl_update(t, pp);      /* get views at both ends updated, maybe recursing */
   t->makenewv (t, p);                         /* new value of branch length */
   inittrav (t, p);                 /* set inward-looking pointers false ... */
   inittrav (t, p->back);               /* ... from both ends of this branch */
@@ -175,18 +183,18 @@ debug */
     return;
 
   for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {      /* recursion out one end, the  p  end, to do this on all branches */
+  {       /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, sib_ptr->back);      /* go out branch leading from there */
+      smooth(t, (struct bl_node*)(sib_ptr->back));     /* go out from there */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  bl_update(t, p->back); /* get views at both ends updated, maybe recursing */
+  bl_update(t, ((struct bl_node*)(p->back)));          /* update ends views */
 }  /* smooth */
 
 
-void bl_tree_smoothall(tree* t, bl_node* p)
+void bl_tree_smoothall(tree* t, bl_node* pp)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -196,21 +204,22 @@ void bl_tree_smoothall(tree* t, bl_node* p)
  /* debug: in which file should this be defined? bl.c? ml.c? */
   boolean save;
   int i;
-  struct bl_node* q;
+  struct node* p, *q;
 
   save = smoothit;
   smoothit = true;
+  p = (struct node*)pp;
   if ( p->tip )
     p = p->back;
 
 /* debug:   editing mistake near here when removing debugging prints? */
   for ( i = 0 ; i < smoothings ; i++ )
   {
-    smooth(t, p->back);
+    smooth(t, ((struct bl_node*)(p->back)));
     if ( p->tip )
       return;
     for ( q = p->next ; q != p ; q = q->next)
-      smooth(t, q->back);
+      smooth(t, ((struct bl_node*)(q->back)));
   }
   smoothit = save;
 } /* bl_tree_smoothall */

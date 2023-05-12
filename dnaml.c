@@ -1995,7 +1995,7 @@ void dnaml_reroot(tree* t)
   struct node *q;
   double newl;
   struct node *r = t->root;
-  struct bl_node *rn, *rnn, *rnb, *rnnb, *rnbb, *rnnbb;
+  struct bl_node *rn, *rnn, *rnb, *rnnb;
   long numsibs = count_sibs(r);
 
   if ( numsibs > 2)
