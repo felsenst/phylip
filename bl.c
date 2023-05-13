@@ -226,45 +226,48 @@ void bl_tree_smoothall(tree* t, bl_node* pp)
 
 
 void bl_tree_do_branchl_on_insert(tree* t, struct bl_node* forknode, 
-                                    struct bl_node* q)
-{ /* split original  q->v  branch length evenly beween forknode->next and 
+                                    struct bl_node* qq)
+{ /* split original  qq->v  branch length evenly beween forknode->next and 
    * forknode->next->next.  forknode->back  must be subtree or tip.
    * This assumes interior node is a bifurcation.  Not able to cope if we 
    * insert at a rootmost branch one of whose ends is NULL
    * forknode should be where tip was hooked to.
    * that connection set to initial v for *both* directions.  */
   double newv;
+  struct node *forkn, *q;
 
-  if (forknode->back != NULL) {              /* condition should never fail */
+  forkn = (struct node*)forknode;
+  if (forkn->back != NULL) {              /* condition should never fail */
     forknode->v = initialv; 
-    forknode->back->v = initialv;
+    ((struct bl_node*)(forkn->back))->v = initialv;
   }
 
+  q = (struct node*)qq;
   if (q->back != NULL)
-    newv = q->v * 0.5;
+    newv = qq->v * 0.5;
   else
     newv = initialv;
 
-  if (forknode->next->back != NULL) { /* forknode->next for both directions */
-    forknode->next->v = newv ;
-    forknode->next->back->v = newv ;
+  if (forkn->next->back != NULL) { /* forknode->next for both directions */
+    ((struct bl_node*)(forkn->next))->v = newv ;
+    ((struct bl_node*)(forkn->next->back))->v = newv ;
   }
 
-  if (forknode->next->back != NULL) {     /* next->next for both directions */
-    forknode->next->next->v = newv;
-    forknode->next->next->back->v = newv;
+  if (forkn->next->back != NULL) {     /* next->next for both directions */
+    ((struct bl_node*)(forkn->next->next))->v = newv;
+    ((struct bl_node*)(forkn->next->next->back))->v = newv;
   }
 
   /* debug:  BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
-  inittrav(t, forknode);         /* some of this block of code unnexessary? */
-  inittrav(t, forknode->back);
-  inittrav(t, forknode->next);
-  if (forknode->next->back != NULL)
-    inittrav(t, forknode->next->back);
-  inittrav(t, forknode->next->next);
-  if (forknode-> next->next->back != NULL)
-    inittrav(t, forknode->next->next->back);
+  inittrav(t, forkn);         /* some of this block of code unnexessary? */
+  inittrav(t, forkn->back);
+  inittrav(t, forkn->next);
+  if (forkn->next->back != NULL)
+    inittrav(t, forkn->next->back);
+  inittrav(t, forkn->next->next);
+  if (forkn-> next->next->back != NULL)
+    inittrav(t, forkn->next->next->back);
 } /* bl_tree_do_branchl_on_insert */
 
 
