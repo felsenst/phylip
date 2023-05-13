@@ -271,7 +271,7 @@ void bl_tree_do_branchl_on_insert(tree* t, struct bl_node* forknode,
 } /* bl_tree_do_branchl_on_insert */
 
 
-void bl_tree_insert_(tree *t, struct bl_node *p, struct bl_node *q, 
+void bl_tree_insert_(tree *t, struct bl_node *pp, struct bl_node *qq, 
                        boolean multif)
 {
  /* 
@@ -281,7 +281,10 @@ void bl_tree_insert_(tree *t, struct bl_node *p, struct bl_node *q,
   * Insert p near q 
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
+  struct node *p, *q;
 
+  p = (struct node*)pp;
+  q = (struct node*)qq;
   generic_tree_insert_(t, p, q, multif);  /* debug:  maybe "multif"? */
 
   if ( !t->do_newbl )
@@ -293,25 +296,26 @@ void bl_tree_insert_(tree *t, struct bl_node *p, struct bl_node *q,
     p->next->initialized = false;  /* ... out from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
-    bl_update(t, p);               /* update the views outward */
-    bl_update(t, p->next);
-    bl_update(t, p->next->next);
+    bl_update(t, pp);               /* update the views outward */
+    bl_update(t, (struct bl_node*)(p->next));
+    bl_update(t, (struct bl_node*)(p->next->next));
     inserting = false;
   }
   else    /* this is the case where we recurse outwards, smoothing */
   {
     inittrav(t, p);        /* set inward-looking pointers false */
     inittrav(t, p->back);
-    bl_update(t, p);
+    bl_update(t, (struct bl_node*)p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth_traverse(t, p);   /* go around fork, out each other branch */
+      smooth_traverse(t, (struct bl_node*)p);        /* go around fork, out */
     }
   }
 } /* bl_tree_insert */
 
 
-void bl_tree_do_branchl_on_re_move(tree* t, struct bl_node* p, node* q)
+void bl_tree_do_branchl_on_re_move(tree* t, struct bl_node* pp,
+            	                              struct bl_node* qq)
 {
   /* sum up branch lengths on the two other neighbors of  p
    * that are connected to fork  q */
@@ -323,41 +327,46 @@ void bl_tree_do_branchl_on_re_move(tree* t, struct bl_node* p, node* q)
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
   double combinedEdgeWeight;
+  struct node *q;
 
-  combinedEdgeWeight = q->v;
+  q = (struct node*)qq;
+  combinedEdgeWeight = qq->v;
   if (q->back != NULL)
-    combinedEdgeWeight = q->v + q->back->v;
-  q->v = combinedEdgeWeight;
+    combinedEdgeWeight = qq->v + ((struct bl_node*)(q->back))->v;
+  qq->v = combinedEdgeWeight;
   if (q->back != NULL)
-    q->back->v = combinedEdgeWeight;
+    ((struct bl_node*)(q->back))->v = combinedEdgeWeight;
 } /* bl_tree_do_branchl_on_re_move */
 
 
-void bl_tree_re_move(tree *t, struct bl_node *p, struct bl_node **q, 
+void bl_tree_re_move(tree *t, struct bl_node *pp, struct bl_node **qq, 
                        boolean do_newbl)
 {
   /* remove  p  and record in  q  where it was
    * assumes bifurcations
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
+  struct node *p, *q;
 
-  generic_tree_re_move(t, p, q, do_newbl);
+  p = (struct node*)pp;
+  q = (struct node*)qq;
+  generic_tree_re_move(t, p, &q, do_newbl);
 
   if ( do_newbl )
   {
     for (i = 0 ; i < smoothings ; i++ )
     {
       if ( smoothit ) {
-        smooth_traverse(t, *q);
-        smooth_traverse(t, (*q)->back);
+        smooth_traverse(t, *qq);
+        smooth_traverse(t, (struct bl_node*)((*q)->back));
       }
     }
   }
   else {   /* update views at both ends of branch connected to q */
     if (!((*q)->tip))
-      bl_update(t, *q);
+      bl_update(t, ((struct bl_node*)(*q));
     if (!((*q)->back->tip))
-      bl_update(t, (*q)->back);
+      bl_update(t, ((struct bl_node*)((*q)->back));
   }
 } /* bl_tree_re_move */
 
