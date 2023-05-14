@@ -346,11 +346,11 @@ void bl_tree_re_move(tree *t, struct bl_node *pp, struct bl_node **qq,
    * assumes bifurcations
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
-  struct node *p, *q;
+  struct node *p, **q;
 
   p = (struct node*)pp;
-  q = (struct node*)qq;
-  generic_tree_re_move(t, p, &q, do_newbl);
+  q = (struct node**)qq;
+  generic_tree_re_move(t, p, q, do_newbl);
 
   if ( do_newbl )
   {
@@ -364,16 +364,16 @@ void bl_tree_re_move(tree *t, struct bl_node *pp, struct bl_node **qq,
   }
   else {   /* update views at both ends of branch connected to q */
     if (!((*q)->tip))
-      bl_update(t, ((struct bl_node*)(*q));
+      bl_update(t, ((struct bl_node*)(*q)));
     if (!((*q)->back->tip))
-      bl_update(t, ((struct bl_node*)((*q)->back));
+      bl_update(t, ((struct bl_node*)((*q)->back)));
   }
 } /* bl_tree_re_move */
 
 
-boolean bl_tree_try_insert_thorough(tree *t, struct bl_node *p, 
-                                     struct bl_node *q, 
-                                     struct bl_node *qwherein,
+boolean bl_tree_try_insert_thorough(tree *t, struct bl_node *pp, 
+                                     struct bl_node *qq, 
+                                     struct bl_node *qqwherein,
                                      double *bestyet, tree *bestree, boolean 
                                      thorough, boolean storing, 
                                      boolean atstart)
@@ -384,7 +384,8 @@ boolean bl_tree_try_insert_thorough(tree *t, struct bl_node *p,
   * qwhere  to the current place  q  */
   double like;
   boolean succeeded, bettertree;
-  struct bl_node* whereRemoved;
+  struct node* whereRemoved;
+  struct node *p, *q;
 
   succeeded = false;
   t->save_traverses(t, p, q);
@@ -406,7 +407,7 @@ if(bettertree) printf("found better tree, t->score = %14.8f\n", t->score); /* de
   if (bettertree) {                    /* set variables for return, and ...*/
     *bestyet = like;
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
-    qwherein = q;
+    qqwherein = qq;
     t->copy(t, bestree);              /* save the tree in bestree, and ... */
 printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
   }
@@ -422,7 +423,7 @@ printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
 } /* bl_tree_try_insert_thorough */
 
 
-boolean bl_tree_try_insert_(tree* t, struct bl_node* p, struct bl_node* q, 
+boolean bl_tree_try_insert_(tree* t, struct bl_node* pp, struct bl_node* qq, 
                           struct bl_node* qwherein, double* bestyet, 
                           tree* bestree, boolean thorough,
                           boolean storing, boolean atstart, double* bestfound)
@@ -431,9 +432,12 @@ boolean bl_tree_try_insert_(tree* t, struct bl_node* p, struct bl_node* q,
   * depending on the value of thorough. If multf is given, sets to
   * false.  */
   boolean succeeded = false;
+  struct node *p, *q;
 
+  p = (struct node*)pp;
+  q = (struct node*)qq;
   if ( thorough )
-    succeeded = bl_tree_try_insert_thorough(t, p, q, qwherein, bestyet,
+    succeeded = bl_tree_try_insert_thorough(t, pp, qq, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
@@ -442,13 +446,15 @@ boolean bl_tree_try_insert_(tree* t, struct bl_node* p, struct bl_node* q,
 } /* bl_tree_try_insert_ */
 
 
-void blk_tree_insert_(tree *t, struct bl_node *newtip, struct bl_node *below, 
+void blk_tree_insert_(tree *t, struct bl_node *nnewtip, 
+		        struct bl_node *bbelow, 
                         boolean dummy, boolean dummy2)
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
   boolean done;
-  node *p, *newfork;
+  struct node *p, *newfork;
+  /* debug GOT TO HERE */
 
   /* first stick it in the right place */
   rooted_tree_insert_(t, newtip, below, dummy);
