@@ -515,49 +515,57 @@ void blk_tree_insert_(tree *t, struct bl_node *nnewtip,
 }  /* blk_tree_insert_ */
 
 
-double get_tyme(node *p)
+double get_tyme(struct bl_node *p)
 { /* return the tyme of a bl_node. p must point to struct bl_node. */
-  return ((struct bl_node *)p)->node.tyme;
+  return (p->tyme);
 } /* get_tyme */
 
 
 void set_tyme (struct bl_node* p, double tyme)
 { /* Set the tyme of a node and its sibs. p must point to struct bl_node. */
   struct bl_node *sib_ptr;
+  struct node *pp, *ssib_ptr;
 
   sib_ptr = p;
-  if ( p->next )
+  pp = (struct node*)p;
+  ssib_ptr = pp;
+  if (pp->next)
     do {
-      ((bl_node*)sib_ptr)->node.tyme = tyme;
+      sib_ptr->tyme = tyme;
       /* added because changing tymes usually invalidates data likelihood.
        * This set seems to fix a failure to find the best tree in some
        * cases, but if the flags are being properly maintained it shouldn't...
        * apparent fix to bug#296, JY and MK 2015/05/18 */
-      ((bl_node*)sib_ptr)->node.initialized = false;
-      sib_ptr = sib_ptr->next;
-    } while (sib_ptr != p );
+      ssib_ptr->initialized = false;
+      ssib_ptr = ssib_ptr->next;
+      sib_ptr = (struct bl_node*)ssib_ptr;
+    } while (ssib_ptr != pp);
   else
-    ((bl_node*)p)->node.tyme = tyme;
+    p->tyme = tyme;
 } /* set_tyme */
 
 
 void blk_tree_re_move(tree* t, struct bl_node *item, struct bl_node** where, 
                         boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
-     The new descendant of where's ancestor is made to be where's second descendant (other than item).
-     Also returns pointers to the deleted nodes, item and where, and records where they were deleted from. */
+     The new descendant of where's ancestor is made to be where's second
+     descendant (other than item).  Also returns pointers to the deleted 
+     nodes, item and where, and records where they were deleted from. */
   long i;
-  struct bl_node* whereloc;
+  struct bl_node *whereloc;
+  struct node *wwhere, *wwhereloc;
 
-  rooted_tree_re_move(t, item, &whereloc, do_newbl);
-  if ( where )  *where = whereloc;
+  rooted_tree_re_move(t, (struct node*)item, wwhereloc, do_newbl);
+  whereloc = (struct bl_node*)wwhereloc;
+  if ( where )  where = whereloc;
 
   if ( do_newbl ) {
-    inittrav(t, whereloc);
-    inittrav(t, whereloc->back);
+    whereloc = (struct bl_node *)wwhereloc;
+    inittrav(t, wwhereloc);
+    inittrav(t, wwhereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
       smooth(t, whereloc);
-      smooth(t, whereloc->back);
+      smooth(t, wwhereloc->back);
     }
   }
   else smooth(t, whereloc->back);
@@ -816,26 +824,26 @@ void blk_tree_makenewv(tree* t, struct node *p) {
     return;
 
   s = t->nodep[p->index - 1];
-  oldx = ((bl_node*)s)->node.tyme;                        /* store old tyme */
+  oldx = ((bl_node*)s)->tyme;                             /* store old tyme */
   lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
   if (s == t->root)
     tlow = -10.0;                           /* default minimum tyme at root */
   else
-    tlow = ((bl_node*)(s->back))->node.tyme;    /* otherwise tyme >= parent */
+    tlow = ((bl_node*)(s->back))->tyme;         /* otherwise tyme >= parent */
 
   sib_ptr = s;                   /* set maximum tyme to smallest child tyme */
-  thigh = ((bl_node*)s->next->back)->node.tyme;
+  thigh = ((bl_node*)s->next->back)->tyme;
   for (sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next) {
     sib_back_ptr = sib_ptr->back;
-    if (((bl_node*)sib_back_ptr)->node.tyme < thigh)
-      thigh = ((bl_node*)sib_back_ptr)->node.tyme;
+    if (((bl_node*)sib_back_ptr)->tyme < thigh)
+      thigh = ((bl_node*)sib_back_ptr)->tyme;
   }
   if (thigh - tlow < 4.0*epsilon)   /* if thigh and tlow are close to equal */
     return;
   if (s != t->root)
     tdelta = (thigh - tlow) / 10.0;
   else {
-    tdelta = (thigh - ((bl_node*)s)->node.tyme) / 5.0;
+    tdelta = (thigh - ((bl_node*)s)->tyme) / 5.0;
     if (tdelta  < 2 * epsilon ) tdelta = 2 * epsilon;
   }
   getthree(t, s, thigh, tlow, tdelta, x, lnl);          /* get three points */
@@ -943,7 +951,7 @@ void getthree(tree* t, struct node *p, double thigh, double tlow,
 {
   /* compute scores at a new triple of points */
   int i;
-  double tt = ((bl_node*)p)->node.tyme;
+  double tt = ((bl_node*)p)->tyme;
   double td = fabs(tdelta);
 
   x[0] = tt - td;                        /* points are on either side of tt */
