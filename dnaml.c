@@ -2013,9 +2013,10 @@ void dnaml_reroot(tree* t)
                              //has the ROOT FORKNODE pointing to NULL.
 
 
-    rnb = ((struct bl_node*)(r->next->back));
-    rnnb = ((struct bl_node*)(r->next->next->back));
-    rnn = ((struct bl_node*)(r->next->next));
+    rn = (struct bl_node*)(r->next);
+    rnb = (struct bl_node*)(r->next->back);
+    rnnb = (struct bl_node*)(r->next->next->back);
+    rnn = (struct bl_node*)(r->next->next);
 
     newl = rnb->oldlen + rnn->oldlen;
     rnb->oldlen = newl;
