@@ -453,22 +453,26 @@ void blk_tree_insert_(tree *t, struct bl_node *nnewtip,
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
   boolean done;
-  struct node *p, *newfork;
+  struct node *p, *newfork, *newtip, *below;
+  struct bl_node* nnewfork;
   /* debug GOT TO HERE */
 
+  newtip = (struct node*)nnewtip;
+  below = (struct node*)bbelow;
   /* first stick it in the right place */
   rooted_tree_insert_(t, newtip, below, dummy);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];
+  nnewfork = (struct bl_node*)newfork;
   newtip = t->nodep[newtip->index-1];
   /* now for the tyme stuff */
-  if (((struct bl_node*)newtip)->node.tyme 
-         < ((struct bl_node*)below)->node.tyme)
+  if (((struct bl_node*)newtip)->tyme 
+         < ((struct bl_node*)below)->tyme)
     p = newtip;
   else p = below;
 
-  set_tyme(newfork, ((struct bl_node*)p)->node.tyme);
+  set_tyme(nnewfork, ((struct bl_node*)p)->tyme);
   if (newfork->back != NULL)
   {
     /* here we rescale the tree to fit the subtree being added      *
@@ -476,35 +480,36 @@ void blk_tree_insert_(tree *t, struct bl_node *nnewtip,
      * the branches are only epsilon appart, allow the branch       *
      * lengths to be 1/2 epsilon, so that we interfere with the     *
      * tree minimally                                               */
-    if (((struct bl_node*)p)->node.tyme 
-           > ((struct bl_node*)newfork->back)->node.tyme)
-      set_tyme(newfork, (((struct bl_node*)p)->node.tyme +
-               ((bl_node*)newfork->back)->node.tyme) / 2.0);
+    if (((struct bl_node*)p)->tyme 
+           > ((struct bl_node*)newfork->back)->tyme)
+      set_tyme(nnewfork, (((struct bl_node*)p)->tyme +
+               ((bl_node*)newfork->back)->tyme) / 2.0);
     else
-      set_tyme(newfork, ((bl_node*)p)->node.tyme - (epsilon/2));
+      set_tyme(nnewfork, ((bl_node*)p)->tyme - (epsilon/2));
     do {
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
       if (!done) {
-        done = (((struct bl_node*)t->nodep[p->back->index - 1])->node.tyme 
-                   < ((struct bl_node*)p)->node.tyme);
-        set_tyme(p->back, ((struct bl_node*)p)->node.tyme - epsilon/2);
+        done = (((struct bl_node*)t->nodep[p->back->index - 1])->tyme 
+                   < ((struct bl_node*)p)->tyme);
+        set_tyme((struct bl_node*)(p->back), 
+		  ((struct bl_node*)p)->tyme - epsilon/2);
       }
     } while (!done);
   }
   else
-    set_tyme(newfork, ((struct bl_node*)newfork)->node.tyme - initialv);
+    set_tyme(nnewfork, ((struct bl_node*)newfork)->tyme - initialv);
 
   if ( !smoothit ) {
-    smooth(t, newfork);
-    smooth(t, newfork->back);
+    smooth(t, nnewfork);
+    smooth(t, ((struct bl_node*)(newfork->back)));
   }
   else {
     inittrav(t, newtip);
     inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++) {
-      smooth(t, newfork);
-      smooth(t, newfork->back);
+      smooth(t, nnewfork);
+      smooth(t, ((struct bl_node*)(newfork->back)));
     }
   }
 }  /* blk_tree_insert_ */
