@@ -387,6 +387,8 @@ boolean bl_tree_try_insert_thorough(tree *t, struct bl_node *pp,
   struct node* whereRemoved;
   struct node *p, *q;
 
+  p = (struct node*)pp;
+  q = (struct node*)qq;
   succeeded = false;
   t->save_traverses(t, p, q);
   t->insert_(t, p, q, false);
@@ -553,11 +555,11 @@ void blk_tree_re_move(tree* t, struct bl_node *item, struct bl_node** where,
      nodes, item and where, and records where they were deleted from. */
   long i;
   struct bl_node *whereloc;
-  struct node *wwhere, *wwhereloc;
+  struct node *wwhereloc;
 
-  rooted_tree_re_move(t, (struct node*)item, wwhereloc, do_newbl);
+  rooted_tree_re_move(t, (struct node*)item, &wwhereloc, do_newbl);
   whereloc = (struct bl_node*)wwhereloc;
-  if ( where )  where = whereloc;
+  if ( where )  where = &whereloc;
 
   if ( do_newbl ) {
     whereloc = (struct bl_node *)wwhereloc;
@@ -565,10 +567,10 @@ void blk_tree_re_move(tree* t, struct bl_node *item, struct bl_node** where,
     inittrav(t, wwhereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
       smooth(t, whereloc);
-      smooth(t, wwhereloc->back);
+      smooth(t, (struct bl_node*)(wwhereloc->back));
     }
   }
-  else smooth(t, whereloc->back);
+  else smooth(t, (struct bl_node*)(wwhereloc->back));
 }  /* blk_tree_re_move */
 
 
@@ -817,14 +819,15 @@ void blk_tree_makenewv(tree* t, struct node *p) {
   double tt, tfactor, tlow, thigh, oldlike, oldx, ymin, ymax, s32, s21, yold;
   boolean done, already;
   struct node *s, *sib_ptr, *sib_back_ptr;
+  struct bl_node *pp, *sbl;
   double tdelta, curv, slope, lnlike;
   double  x[3], lnl[3];
 
   if ( p->tip )                                            /* don't do tips */
     return;
-
   s = t->nodep[p->index - 1];
-  oldx = ((bl_node*)s)->tyme;                             /* store old tyme */
+  sbl = (struct bl_node*)s;
+  oldx = sbl->tyme;                             /* store old tyme */
   lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
   if (s == t->root)
     tlow = -10.0;                           /* default minimum tyme at root */
@@ -832,7 +835,7 @@ void blk_tree_makenewv(tree* t, struct node *p) {
     tlow = ((bl_node*)(s->back))->tyme;         /* otherwise tyme >= parent */
 
   sib_ptr = s;                   /* set maximum tyme to smallest child tyme */
-  thigh = ((bl_node*)s->next->back)->tyme;
+  thigh = ((struct bl_node*)(s->next->back))->tyme;
   for (sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next) {
     sib_back_ptr = sib_ptr->back;
     if (((bl_node*)sib_back_ptr)->tyme < thigh)
@@ -843,12 +846,13 @@ void blk_tree_makenewv(tree* t, struct node *p) {
   if (s != t->root)
     tdelta = (thigh - tlow) / 10.0;
   else {
-    tdelta = (thigh - ((bl_node*)s)->tyme) / 5.0;
+    tdelta = (thigh - ((struct bl_node*)s)->tyme) / 5.0;
     if (tdelta  < 2 * epsilon ) tdelta = 2 * epsilon;
   }
   getthree(t, s, thigh, tlow, tdelta, x, lnl);          /* get three points */
   it = 0;
   tfactor = 1.0;
+  pp = (struct bl_node*)p;
   done = false;
   while (it < iterations && !done) {
     ymax = lnl[0];
@@ -893,7 +897,7 @@ void blk_tree_makenewv(tree* t, struct node *p) {
       tdelta = thigh - epsilon - tt;
     tt += tdelta;
     done = (fabs(yold - tt) < epsilon || fabs(tdelta) < epsilon);
-    set_tyme(s, tt);
+    set_tyme((struct bl_node*)s, tt);
     t->nuview(t, s);
     lnlike = t->evaluate(t, s, false);
     ymin = lnl[0];
@@ -911,7 +915,8 @@ void blk_tree_makenewv(tree* t, struct node *p) {
     }                                              /* interpolated point is */
     if (already || lnlike < oldlike) {
       tt = oldx;                    /* if either our interpolated point has */
-      set_tyme(s, oldx);            /* a lower score or is equivalent to    */
+      sbl = (struct bl_node*)s;
+      set_tyme(sbl, oldx);          /* a lower score or is equivalent to    */
       tfactor /= 2;                     /* our original, reinterpolate this */
       tdelta /= 2;                              /* time go only half as far */
       t->score = oldlike;
@@ -924,7 +929,7 @@ void blk_tree_makenewv(tree* t, struct node *p) {
     }
     if (!done)                          /* apply it to the sibs */
     {
-      set_tyme(p, tt);
+      set_tyme(pp, tt);
       t->nuview(t, p);
       for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next)
         t->nuview(t, sib_ptr);
@@ -966,7 +971,7 @@ void getthree(tree* t, struct node *p, double thigh, double tlow,
     x[1] = ( x[0] + x[2] ) / 2;
   }
   for ( i = 0 ; i < 3 ; i++ ) {                 /* get scores for all three */
-    set_tyme(p, x[i]);
+    set_tyme((struct bl_node*)p, x[i]);
     t->nuview(t, p);
     lnl[i] = t->evaluate(t, p, 0);  /* debug: make sure score of tree is not reset */
   }
@@ -1019,18 +1024,20 @@ void bl_initialvtrav(tree* t, struct bl_node *p)
    * a branch such as the root branch.  Is separate from the
    * task of setting initialized booleans for views to false   */
   struct bl_node* q;
+  struct node *pp, *qq;
 
-  if (p == NULL)                       /* if this is a NULL branch bail out */
+  pp = (struct node*)p;
+  if (pp == NULL)                      /* if this is a NULL branch bail out */
     return;
-  if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
+  if ((!lngths) || pp->iter) {    /* set length of this branch to  initialv */
     p->v = initialv;
-    p->back->v = initialv;
+    ((struct bl_node*)(pp->back))->v = initialv;
   }
-  if (!p->tip) {     /* go around circle, calling initialvtrav on all backs */
-    q = p->next;
-    while ( q != p ) {
-      bl_initialvtrav(t, q->back);
-      q = q->next;
+  if (!pp->tip) {     /* go around circle, calling initialvtrav on all backs */
+    qq = pp->next;
+    while ( qq != pp ) {
+      bl_initialvtrav(t, ((struct bl_node*)(qq->back)));
+      qq = qq->next;
     }
   }
 }  /* bl_initialvtrav */

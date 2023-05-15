@@ -72,6 +72,8 @@ double  parent_tyme(bl_node *);
 boolean valid_tyme(tree *, bl_node *, double);
 void    bl_treeoutrecurs(FILE*, tree*, bl_node*, double, int*);
 void    bl_treeout(FILE*, tree*, bl_node*, double);
+void    getthree(tree*, struct node*, double, 
+                   double, double, double*, double*);
 void    bl_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
 void    bl_initialvtrav(tree*, bl_node *);
