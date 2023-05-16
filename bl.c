@@ -779,7 +779,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
       tdelta *= retract_factor;
       uphill_step *= retract_factor;
       if (fabs(tdelta) < min_tdelta) {      /* if can't retract far enough ...
-                                         /* keep the current point and quit */
+                                            keep the current point and quit */
         new_likelihood = set_tyme_evaluate(t, s, current_tyme);
         done = true;
 #ifdef MAKENEWV_DEBUG
@@ -1023,7 +1023,6 @@ void bl_initialvtrav(tree* t, struct bl_node *p)
    * must be called twice the first time, at both ends of
    * a branch such as the root branch.  Is separate from the
    * task of setting initialized booleans for views to false   */
-  struct bl_node* q;
   struct node *pp, *qq;
 
   pp = (struct node*)p;
@@ -1043,7 +1042,7 @@ void bl_initialvtrav(tree* t, struct bl_node *p)
 }  /* bl_initialvtrav */
 
 
-void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* p, 
+void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* pp, 
                         double bl_scale, int* col)
 { 
   /* write out to output file a subtree, recursively.  This is the version 
@@ -1051,9 +1050,10 @@ void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* p,
   long i, n, w;
   Char c;
   double x;
-  struct bl_node *q, *qfirst;
+  struct node *p, *q, *qfirst; 
   boolean inloop;
 
+  p = (struct node*)pp;
   if (p->tip)
   {
     n = 0;
@@ -1088,7 +1088,8 @@ void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* p,
         }
       }
       if (q->back != NULL) {                /* just making sure is not null */
-        bl_treeoutrecurs(outtreefile, t, q->back, bl_scale, col); /* go out */
+        bl_treeoutrecurs(outtreefile, t, ((struct bl_node*)(q->back)), 
+			  bl_scale, col); /* go out the branch recursiovely */
         inloop = true;                  /* will need comma before next furc */
       }
       q = q->next;                                  /* continue around fork */
@@ -1096,7 +1097,7 @@ void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* p,
     putc(')', outtree);             /* then close the paren for this circle */
     (*col)++;
   }
-  x = p->v * bl_scale;                   /* now write out the branch length */
+  x = pp->v * bl_scale;                  /* now write out the branch length */
   if (x > 0.0)           /* widths in decimal places hence divide by ln(10) */
     w = (long)(0.43429448222 * log(x));
   else {
@@ -1116,21 +1117,24 @@ void bl_treeoutrecurs(FILE* outtreefile, tree* t, struct bl_node* p,
 } /* bl_treeoutrecurse */
 
 
-void bl_treeout(FILE* outtreefile, tree* t, struct bl_node* p, 
+void bl_treeout(FILE* outtreefile, tree* t, struct bl_node* pp, 
                   double bl_scale)
 {
   /* write out file with representation of final tree2 */
   int col;
   boolean found;
-  struct bl_node *q;
+  struct node *p, *q;
+  struct bl_node *blp;
 
+  p = (struct node*)pp;
   assert(p->index > 0);                 // RSGdebug
 
   q = findrootmostandroot(t, p, &found);
   if (found)
     p = q;
+  blp = (struct bl_node*)p;
   col = 0;
-  bl_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
+  bl_treeoutrecurs(outtreefile, t, blp, bl_scale, &col);
 }  /* bl_treeout */
 
 /* End. */
