@@ -31,8 +31,8 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
-void   dnaml_tree_new(struct tree**, long, long, long);
-void   dnaml_tree_init(struct tree*, long, long);
+void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
+void   dnaml_tree_init(struct dnaml_tree*, long, long);
 struct node* dnaml_node_new(node_type, long, long);
 void   dnaml_node_init(struct mldna_node*, node_type, long);
 void   dnaml_tree_setup(long, long);
@@ -107,7 +107,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          gama, invar;
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct tree *curtree, *bestree, *bestree2, *priortree;
-tree **curtreep, **bestreep, **bestree2p, **priortreep;
+struct tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -131,12 +131,14 @@ long col;
 vall *mp=NULL;
 
 
-void dnaml_tree_new(struct tree** treep, long nonodes, long spp, 
+void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp, 
 		     long treesize)
 {
   /* set up variables and then set up identities of functions */
+  struct bl_tree *bltp;
 
-  bl_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
+  bltp = (struct bl_tree *)treep;
+  bl_tree_new(&bltp, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 

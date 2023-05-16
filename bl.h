@@ -11,11 +11,8 @@
 
 #ifndef _BL_H_
 #define _BL_H_
-#endif
 
-#ifndef PHYLIP_H
 #include "phylip.h"
-#endif
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
@@ -41,7 +38,7 @@ typedef void (*initialvtrav_t)(tree*, bl_node*);
 long endsite;
 
 #ifndef OLDC /* prototypes */
-void    bl_tree_new(struct tree**, long, long, long);
+void    bl_tree_new(struct bl_tree**, long, long, long);
 bl_node* bl_node_new(node_type, long, long);
 void    bl_node_copy(struct bl_node *, struct  bl_node *);
 void    bl_node_init(struct bl_node*, node_type, long);
@@ -78,5 +75,10 @@ void    bl_treevaluate(tree*, boolean, boolean, boolean, boolean, tree*,
                         tree*, initialvtrav_t);
 void    bl_initialvtrav(tree*, bl_node *);
 #endif
+
+#endif
+
+/* the above if ... endif  prevents this header file from being
+   used more than once */
 
 /* End. */

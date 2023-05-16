@@ -11,18 +11,15 @@
 
 #ifndef _ML_H_
 #define _ML_H_
-#endif
 
-#ifndef BL_H
 #include "bl.h"
-#define BL_H
-#endif
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
 typedef struct ml_tree {
   struct tree bl_tree;
 } ml_tree;
+
 
 typedef struct ml_node {                       /* subclass of generic node */
   struct node bl_node;                          /* Base object, must be first */
@@ -34,8 +31,8 @@ typedef struct ml_node {                       /* subclass of generic node */
 long endsite;
 
 #ifndef OLDC /* prototypes */
-void    ml_tree_new(struct tree **, long, long, long);
-void    ml_tree_init(struct tree *, long, long);
+void    ml_tree_new(struct ml_tree **, long, long, long);
+void    ml_tree_init(struct ml_tree *, long, long);
 void    ml_node_init(struct ml_node*, node_type, long);
 struct  ml_node* ml_node_new(node_type, long, long);
 void    ml_node_copy(struct ml_node *, struct ml_node *);
@@ -43,5 +40,10 @@ void    ml_node_free(struct ml_node **);
 void 	ml_node_reinit(struct ml_node *);
 void    ml_node_print(struct ml_node *);
 #endif
+
+#endif
+
+/* the if ... endif pair which ends above prevents multiple
+   compilation of the  ml.h  header */
 
 /* End.*/

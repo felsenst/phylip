@@ -11,14 +11,8 @@
 
 #include <assert.h>
 
-#ifndef BL_H
 #include "bl.h"
-#endif
-
-#ifndef ML_H
 #include "ml.h"
-#endif
-#define ML_H
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -33,18 +27,20 @@ extern long nextree, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
-extern node** lrsaves;
+extern struct node** lrsaves;
 extern long rcategs;
 extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
+void ml_tree_new(struct ml_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new ml_tree.  Calls to generic_tree_new,
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
+  struct ml_tree *bltp;
 
-  bl_tree_new(tp, nonodes, spp, treesize);        /* next up tree hierarchy */
+  bl_tree_new(&bltp, nonodes, spp, treesize);     /* next up tree hierarchy */
+  ml_tree_init(&tp, nonodes, spp);
 } /* ml_tree_new */
 
 
