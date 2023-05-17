@@ -107,7 +107,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          gama, invar;
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct tree *curtree, *bestree, *bestree2, *priortree;
-struct tree **curtreep, **bestreep, **bestree2p, **priortreep;
+struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -143,11 +143,11 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 } /* dnaml_tree_new */
 
 
-void dnaml_tree_init(struct tree* t, long nonodes, long spp)
+void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+  ((struct tree*)t)->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
   t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
   t->nuview = (tree_nuview_t)dnaml_tree_nuview;
   t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
@@ -179,14 +179,14 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
-  curtreep = &curtree;
+  curtreep = (&(struct dnaml_tree*)curtree);
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
-    bestreep = &bestree;
+    bestreep = (&(struct dnaml_tree*)bestree);
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
-    bestree2p = &bestree2;
+    bestree2p = (&(struct dnaml_tree*)bestree2);
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
-    priortreep = &priortree;
+    priortreep = (&(struct dnaml_tree*)priortree);
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
