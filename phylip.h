@@ -725,7 +725,7 @@ void 		dumpnodelinks(struct node *p, pointarray nodep,
                                long nonodes);  /* debug routine */
 /* debug GOT TO HERE */
 
-/* following not in phylip.c. best to demote them downwards unless shared
+/* if following not in phylip.c. best to demote them downwards unless shared
    by two branches of hierarchy that split below this */
 
 void            verify_nuview(struct node*);

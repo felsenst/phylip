@@ -148,11 +148,11 @@ void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
   /* set up functions for a dnaml_tree */
 
   ((struct tree*)t)->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
-  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  t->nuview = (tree_nuview_t)dnaml_tree_nuview;
-  t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
-  t->get_fork = generic_tree_get_fork;
-  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  ((struct tree*)t)->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  ((struct tree*)t)->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  ((struct tree*)t)->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
+  ((struct tree*)t)->get_fork = generic_tree_get_fork;
+  ((struct tree*)t)->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
@@ -179,14 +179,14 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
-  curtreep = (&(struct dnaml_tree*)curtree);
+  *curtreep = (struct dnaml_tree*)curtree;
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
-    bestreep = (&(struct dnaml_tree*)bestree);
+    *bestreep = (struct dnaml_tree*)bestree;
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
-    bestree2p = (&(struct dnaml_tree*)bestree2);
+    *bestree2p = (struct dnaml_tree*)bestree2;
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
-    priortreep = (&(struct dnaml_tree*)priortree);
+    *priortreep = (struct dnaml_tree*)priortree;
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */

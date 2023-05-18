@@ -25,20 +25,20 @@ extern boolean lngths, smoothit, polishing;
 boolean inserting;
 
 
-void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
+void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new bl_tree.  Calls to generic_tree_new,
    * casting bl_tree** to tree** as we call it 
    * then call  bl_tree_init */
 
-  generic_tree_new(tp, nonodes, spp, treesize);   /* next up tree hierarchy */
+  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);  /* next up */
 } /* bl_tree_new */
 
 
-void bl_tree_init(struct tree* t, long nonodes, long spp)
+void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
 { /* 
    * attributes of the generic tree that need ml function versions */
 
-  generic_tree_init(t, nonodes, spp);              /* go up class hierarchy */
+  generic_tree_init((struct tree*)t, nonodes, spp);              /* go up class hierarchy */
 } /* bl_tree_init */
 
 
@@ -126,7 +126,7 @@ void bl_node_print(struct bl_node * bln)
 } /* bl_node_print */
 
 
-void bl_update(struct tree *t, struct bl_node *pp)
+void bl_update(struct bl_tree *blt, struct bl_node *pp)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
@@ -134,7 +134,9 @@ void bl_update(struct tree *t, struct bl_node *pp)
    * generic_tree_nuview  in phylip.c  */
 /* debug:   I think redundant with calls in phylip.c  */
   struct node *p;
+  struct tree *t;
 
+  t = (struct tree*)blt;
   p = (struct node*)pp;
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
@@ -147,7 +149,7 @@ void bl_update(struct tree *t, struct bl_node *pp)
 }  /* bl_update */
 
 
-void smooth_traverse(tree* t, bl_node *pp)
+void smooth_traverse(struct bl_tree* t, bl_node *pp)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
@@ -159,7 +161,7 @@ void smooth_traverse(tree* t, bl_node *pp)
 } /* smooth_traverse */
 
 
-void smooth(tree* t, bl_node *pp)
+void smooth(struct bl_tree* t, bl_node *pp)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
  struct node *p, *sib_ptr;
@@ -173,7 +175,7 @@ debug */
   smoothed = false;
 
   bl_update(t, pp);      /* get views at both ends updated, maybe recursing */
-  t->makenewv (t, p);                         /* new value of branch length */
+  t->makenewv (t, pp);                        /* new value of branch length */
   inittrav (t, p);                 /* set inward-looking pointers false ... */
   inittrav (t, p->back);               /* ... from both ends of this branch */
 
