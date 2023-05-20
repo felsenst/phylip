@@ -10,22 +10,14 @@
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
-#ifndef PHYLIP_H
-#include "phylip.h"
-#define PHYLIP_H
-#endif
+#ifndef _SEQ_H_
+#define _SEQ_H_
 
-#ifndef BL_H
+#include "phylip.h"
 #include "bl.h"
-#define BL_H
-#endif
 
 /* move */
 /* All the below moved here in the Great TreeRead Migration of '96 */
-
-#ifndef _SEQ_H_
-#define _SEQ_H_
-#endif
 
 #define ebcdic          EBCDIC
 
@@ -79,5 +71,8 @@ void inittrees(long, long);
 void resetlrsaves(long param1, long param2);
 /*function prototypes*/
 #endif
+
+#endif
+/* above ifndef ... endif  if this header has not been #included before */
 
 /* End. */
