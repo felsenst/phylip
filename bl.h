@@ -33,7 +33,7 @@ typedef void (*freex_t)(struct bl_tree*);
 typedef void (*makenewv_t)(struct bl_tree*, bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, bl_node*);
 
-typedef void (*initialvtrav_t)(tree*, bl_node*);
+typedef void (*initialvtrav_t)(struct tree*, bl_node*);
 
 long endsite;
 
@@ -43,10 +43,10 @@ void    bl_tree_init(struct bl_tree*, long, long);
 bl_node* bl_node_new(node_type, long, long);
 void    bl_node_copy(struct bl_node *, struct  bl_node *);
 void    bl_node_init(struct bl_node*, node_type, long);
-void    bl_node_free(bl_node **);
-void    bl_node_print(bl_node *);
-void    bl_hookup(bl_node*, bl_node*);
-void    allocx(long, long, long, bl_node**);
+void    bl_node_free(struct bl_node **);
+void    bl_node_print(struct bl_node *);
+void    bl_hookup(struct bl_node*, struct bl_node*);
+void    allocx(long, long, long, struct bl_node**);
 void    makevalues2(long, pointarray, long, long, sequence, steptr);
 void    set_tyme(struct bl_node *, double);
 void    freex_notip(long, pointarray);
@@ -61,21 +61,23 @@ void    bl_tree_insert_(struct tree*, struct bl_node*,
 void    bl_tree_re_move(struct bl_tree*, struct bl_node*, 
 		          struct bl_node**, boolean);
 boolean bl_tree_try_insert_(struct bl_tree*, bl_node*, bl_node*, bl_node*, 
-		              double*, tree*, boolean, boolean, boolean, 
-			      double*);
+		              double*, struct tree*, boolean, boolean, 
+                              boolean, double*);
 boolean bl_tree_try_insert_thorough(struct bl_tree*, bl_node*, bl_node*, 
-                         bl_node*, double*, tree*, boolean, boolean, boolean);
+                                      bl_node*, double*, struct tree*, 
+                                      boolean, boolean, boolean);
 void    bl_tree_do_branchl_on_insert(struct bl_tree*, bl_node *, bl_node*);
 void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
 double  min_child_tyme(struct bl_node *);
 double  parent_tyme(struct bl_node *);
 boolean valid_tyme(struct tree *, bl_node *, double);
 void    bl_treeoutrecurs(FILE*, struct tree*, bl_node*, double, int*);
-void    bl_treeout(FILE*, tree*, struct bl_node*, double);
+void    bl_treeout(FILE*, struct tree*, struct bl_node*, double);
 void    getthree(struct tree*, struct node*, double, 
                    double, double, double*, double*);
 void    bl_treevaluate(struct tree*, boolean, boolean, boolean, 
-		         boolean, tree*, tree*, initialvtrav_t);
+		         boolean, struct tree*, 
+                         struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
 #endif
 
