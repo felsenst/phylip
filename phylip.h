@@ -541,19 +541,20 @@ typedef struct node **pointarray; /* type is an array of pointers to nodes
                                   * and is the type of array nodep */
 typedef void (*tree_re_move_t)(struct tree*, struct node*, struct node**, boolean);
 typedef boolean (*tree_addtraverse_t)(struct tree*, struct node*, struct node*, 
-                           traversetype, struct node*, double*, tree*, 
+                           traversetype, struct node*, double*, struct tree*, 
                            boolean, boolean, boolean, double*);
 typedef boolean (*tree_addtraverse_1way_t)(struct tree*, struct node*, struct node*, 
-                   traversetype, struct node**, double*, tree*, boolean, 
+                   traversetype, struct node**, double*, struct tree*, boolean, 
                    boolean, boolean*, double*);
 typedef void (*tree_insert_t)(struct tree*, struct node*, struct node*, boolean);
 typedef boolean (*tree_try_insert_t)(struct tree*, struct node*, struct node*, 
-                   struct node*, double*, tree*, boolean, 
+                   struct node*, double*, struct tree*, boolean, 
 		   boolean, boolean, double*);
 typedef void (*tree_free_t)(struct tree*);
-typedef void (*tree_globrearrange_t)(struct tree*, tree*, boolean, boolean, double*);
+typedef void (*tree_globrearrange_t)(struct tree*, struct tree*, boolean, 
+                                       boolean, double*);
 typedef void (*tree_locrearrange_t)(struct tree*, struct node*, boolean, double*,
-                                     tree*, tree*, boolean, double*);
+                                    struct tree*,struct tree*, boolean, double*);
 typedef void (*tree_smoothall_t)(struct tree*, struct node*);
 typedef double (*tree_evaluate_t)(struct tree*, struct node*, boolean);
 typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*, struct node*);

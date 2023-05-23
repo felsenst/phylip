@@ -51,7 +51,7 @@ void inputdata(long);
 void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
-void setuptree2(tree);
+void setuptree2(struct tree);
 void alloctip(bl_node *);
 void freetrans(transptr *, long, long );
 void sitesort(long, steptr);
@@ -62,13 +62,13 @@ void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
 void drawline(long, double, struct bl_node *);
 void treeout(struct node *, long, long *, struct node *);
-void drawline2(long i, double scale, tree *curtree);
+void drawline2(long, double, struct tree *);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,
                double *, double **, steptr, longer);
 void freex2(long, pointarray);
 void inittrees(long, long);
-void resetlrsaves(long param1, long param2);
+void resetlrsaves(long, long);
 /*function prototypes*/
 #endif
 

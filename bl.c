@@ -175,7 +175,7 @@ debug */
   smoothed = false;
 
   bl_update(t, pp);      /* get views at both ends updated, maybe recursing */
-  t->makenewv (t, pp);                        /* new value of branch length */
+  ((bl_tree*)t)->makenewv (t, pp);            /* new value of branch length */
   inittrav (t, p);                 /* set inward-looking pointers false ... */
   inittrav (t, p->back);               /* ... from both ends of this branch */
 
@@ -196,7 +196,7 @@ debug */
 }  /* smooth */
 
 
-void bl_tree_smoothall(tree* t, bl_node* pp)
+void bl_tree_smoothall(struct tree* t, bl_node* pp)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -227,7 +227,7 @@ void bl_tree_smoothall(tree* t, bl_node* pp)
 } /* bl_tree_smoothall */
 
 
-void bl_tree_do_branchl_on_insert(tree* t, struct bl_node* forknode, 
+void bl_tree_do_branchl_on_insert(struct tree* t, struct bl_node* forknode, 
                                     struct bl_node* qq)
 { /* split original  qq->v  branch length evenly beween forknode->next and 
    * forknode->next->next.  forknode->back  must be subtree or tip.
@@ -549,8 +549,8 @@ void set_tyme (struct bl_node* p, double tyme)
 } /* set_tyme */
 
 
-void blk_tree_re_move(tree* t, struct bl_node *item, struct bl_node** where, 
-                        boolean do_newbl) {
+void blk_tree_re_move(struct tree* t, struct bl_node *item, 
+                        struct bl_node** where, boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
      The new descendant of where's ancestor is made to be where's second
      descendant (other than item).  Also returns pointers to the deleted 
@@ -605,7 +605,7 @@ double parent_tyme(node *p)
 } /* parent_tyme */
 
 
-boolean valid_tyme(tree *t, struct bl_node *p, double tyme) {
+boolean valid_tyme(struct tree *t, struct bl_node *p, double tyme) {
   /* Return true if tyme is a valid tyme to assign to node p. tyme must be
    * finite, not greater than any of p's children, and not less than p's
    * parent. Also, tip nodes can only be assigned 0. Otherwise false is
