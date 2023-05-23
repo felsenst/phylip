@@ -39,7 +39,7 @@ void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
-void   inittip(tree*, long);
+void   inittip(struct tree*, long);
 void   inputoptions(void);
 void   makeweights(void);
 void   getinput(void);
@@ -59,12 +59,12 @@ void   describe(struct dnaml_node *);
 void   reconstr(struct dnaml_node *, long);
 void   rectrav(struct dnaml_node *, long, long);
 void   summarize(void);
-void   treevaluate(tree*);
+void   treevaluate(struct tree*);
 void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
-void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_treeout(FILE *, tree*, struct bl_node*);
+void   dnaml_reroot(struct tree*);           // RSGbugfix: Name change.
+void   dnaml_treeout(FILE *, struct tree*, struct bl_node*);
 double dnaml_tree_evaluate(struct tree*, struct dnaml_node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -192,7 +192,7 @@ void dnaml_tree_setup(long nonodes, long spp)
 } /* dnaml_tree_setup */
 
 
-void inittip(tree* t, long m)
+void inittip(struct tree* t, long m)
 { /* initialize and hook up a new tip;  m is the index of the tip */
 /* debug:  not obvious that this is ever used */
   struct node *tmp;
@@ -990,7 +990,7 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   for (i = 0; i < rcategs; i++)
     sum2 += probcat[i] * like[i];
   sum += log(sum2);
-  ((tree*)t)->score = sum;                       /* putting into tree score */
+  ((struct tree*)t)->score = sum;                /* putting into tree score */
   if (!saveit || auto_ || !usertree || reusertree)
     return sum;
   if (which <= shimotrees)             /* saving log likelihood in SH table */
@@ -1409,7 +1409,7 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
   ((struct bl_node*)p)->v = yold;   /* the last one that had better likelihood */
   ((struct bl_node*)q)->v = yold;
-  ((tree*)t)->score = oldlike;
+  ((struct tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
 
@@ -1991,7 +1991,7 @@ void summarize(void)
 }  /* summarize */
 
 
-void dnaml_reroot(tree* t) 
+void dnaml_reroot(struct tree* t) 
 {
   /* move root of tree */
   struct node *q;
@@ -2039,7 +2039,7 @@ void dnaml_reroot(tree* t)
 } /* dnaml_reroot */
 
 
-void dnaml_treeout(FILE  *outtree, tree* t, bl_node* p) {
+void dnaml_treeout(FILE  *outtree, struct tree* t, bl_node* p) {
 /* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
