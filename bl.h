@@ -56,15 +56,16 @@ void    smooth(struct bl_tree*, struct bl_node *);
 void    smooth_traverse(struct bl_tree*, bl_node *);
 void 	bl_tree_smoothall(struct bl_tree*, bl_node*);
 void 	bl_node_reinit(struct bl_node *);
-void    bl_tree_insert_(struct tree*, struct bl_node*, 
+void    bl_tree_insert_(struct bl_tree*, struct bl_node*, 
                           struct bl_node*, boolean);
 void    bl_tree_re_move(struct bl_tree*, struct bl_node*, 
 		          struct bl_node**, boolean);
-boolean bl_tree_try_insert_(struct bl_tree*, bl_node*, bl_node*, bl_node*, 
-		              double*, struct tree*, boolean, boolean, 
-                              boolean, double*);
-boolean bl_tree_try_insert_thorough(struct bl_tree*, bl_node*, bl_node*, 
-                                      bl_node*, double*, struct tree*, 
+boolean bl_tree_try_insert_(struct bl_tree*, struct bl_node*, struct bl_node*,
+                              struct bl_node*, double*, struct bl_tree*, 
+                              boolean, boolean, boolean, double*);
+boolean bl_tree_try_insert_thorough(struct bl_tree*, struct bl_node*, 
+                                      struct bl_node*, struct bl_node*, 
+                                      double*, struct bl_tree*, 
                                       boolean, boolean, boolean);
 void    bl_tree_do_branchl_on_insert(struct bl_tree*, bl_node *, bl_node*);
 void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
