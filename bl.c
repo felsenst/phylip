@@ -414,8 +414,8 @@ if(bettertree) printf("found better tree, tt->score = %14.8f\n", tt->score); /* 
     *bestyet = like;
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
     qqwherein = qq;
-    tt->copy(tt, bestree);            /* save the tree in bestree, and ... */
-printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
+    tt->copy(tt, (struct tree*)bestree);  /* save tree in bestree, and ... */
+printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* debug */
   }
   tt->re_move(tt, p, &whereRemoved, false);  /* then remove inserted stuff */
 
@@ -429,21 +429,24 @@ printf("bestree->score is now  %14.8f\n", bestree->score);   /* debug */
 } /* bl_tree_try_insert_thorough */
 
 
-boolean bl_tree_try_insert_(struct bl_tree* t, struct bl_node* pp, 
+boolean bl_tree_try_insert_(struct bl_tree* tt, struct bl_node* pp, 
                           struct bl_node* qq, struct bl_node* qwherein, 
-                          double* bestyet, tree* bestree, boolean thorough,
-                          boolean storing, boolean atstart, double* bestfound)
+                          double* bestyet, struct bl_tree* bestree, 
+                          boolean thorough, boolean storing, boolean atstart, 
+                          double* bestfound)
 {
  /* Passes to bl_tree_try_insert_thorough or bl_tree_try_insert_notthorough
   * depending on the value of thorough. If multf is given, sets to
   * false.  */
   boolean succeeded = false;
   struct node *p, *q;
+  struct tree* t;
 
   p = (struct node*)pp;
   q = (struct node*)qq;
+  t = (struct tree*)tt;
   if ( thorough )
-    succeeded = bl_tree_try_insert_thorough(t, pp, qq, qwherein, bestyet,
+    succeeded = bl_tree_try_insert_thorough(tt, pp, qq, qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
@@ -452,7 +455,7 @@ boolean bl_tree_try_insert_(struct bl_tree* t, struct bl_node* pp,
 } /* bl_tree_try_insert_ */
 
 
-void blk_tree_insert_(tree *t, struct bl_node *nnewtip, 
+void blk_tree_insert_(struct bl_tree *tt, struct bl_node *nnewtip, 
 		        struct bl_node *bbelow, 
                         boolean dummy, boolean dummy2)
 {
@@ -461,7 +464,7 @@ void blk_tree_insert_(tree *t, struct bl_node *nnewtip,
   boolean done;
   struct node *p, *newfork, *newtip, *below;
   struct bl_node* nnewfork;
-  /* debug GOT TO HERE */
+  struct tree* t;
 
   newtip = (struct node*)nnewtip;
   below = (struct node*)bbelow;
@@ -507,15 +510,15 @@ void blk_tree_insert_(tree *t, struct bl_node *nnewtip,
     set_tyme(nnewfork, ((struct bl_node*)newfork)->tyme - initialv);
 
   if ( !smoothit ) {
-    smooth(t, nnewfork);
-    smooth(t, ((struct bl_node*)(newfork->back)));
+    smooth(tt, nnewfork);
+    smooth(tt, ((struct bl_node*)(newfork->back)));
   }
   else {
     inittrav(t, newtip);
     inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++) {
-      smooth(t, nnewfork);
-      smooth(t, ((struct bl_node*)(newfork->back)));
+      smooth(tt, nnewfork);
+      smooth(tt, ((struct bl_node*)(newfork->back)));
     }
   }
 }  /* blk_tree_insert_ */
@@ -551,7 +554,7 @@ void set_tyme (struct bl_node* p, double tyme)
 } /* set_tyme */
 
 
-void blk_tree_re_move(struct tree* t, struct bl_node *item, 
+void blk_tree_re_move(struct bl_tree* t, struct bl_node *item, 
                         struct bl_node** where, boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
      The new descendant of where's ancestor is made to be where's second
@@ -560,21 +563,22 @@ void blk_tree_re_move(struct tree* t, struct bl_node *item,
   long i;
   struct bl_node *whereloc;
   struct node *wwhereloc;
+  struct tree* tt;
 
-  rooted_tree_re_move(t, (struct node*)item, &wwhereloc, do_newbl);
+  rooted_tree_re_move(tt, (struct node*)item, &wwhereloc, do_newbl);
   whereloc = (struct bl_node*)wwhereloc;
   if ( where )  where = &whereloc;
 
   if ( do_newbl ) {
     whereloc = (struct bl_node *)wwhereloc;
-    inittrav(t, wwhereloc);
-    inittrav(t, wwhereloc->back);
+    inittrav(tt, wwhereloc);
+    inittrav(tt, wwhereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
-      smooth(t, whereloc);
-      smooth(t, (struct bl_node*)(wwhereloc->back));
+      smooth(tt, whereloc);
+      smooth(tt, (struct bl_node*)(wwhereloc->back));
     }
   }
-  else smooth(t, (struct bl_node*)(wwhereloc->back));
+  else smooth(tt, (struct bl_node*)(wwhereloc->back));
 }  /* blk_tree_re_move */
 
 
