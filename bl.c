@@ -582,17 +582,16 @@ void blk_tree_re_move(struct bl_tree* t, struct bl_node *item,
 }  /* blk_tree_re_move */
 
 
-#ifdef USE_NEW_MAKENEWV
+#ifdef USE_NEW_MAKENEWV     /* debug: why?? */
 
-/******* PROPAGATED FROM 3.6 ************/
-
-double min_child_tyme(node *p)
+double min_child_tyme(struct bl_node *pp)
 {
   /* Return the minimum tyme of all children. p must be a parent nodelet */
   double min;
-  struct bl_node *q;
+  struct node *q;
 
-  min = 1.0;                                /* Tymes are always nonpositive */
+  p = (struct node*)pp;
+  min = 1.0;                                /* tymes are always nonpositive */
   for ( q = p->next; q != p; q = q->next ) {
     if ( get_tyme(q->back) < min )
       min = get_tyme(q->back);
@@ -601,49 +600,56 @@ double min_child_tyme(node *p)
 } /* min_child_tyme */
 
 
-double parent_tyme(node *p)
+double parent_tyme(struct bl_node *pp)
 {
   /* Return the tyme of the parent of node p.  p must be a parent node. */
+  struct node* p;
+
+  p = (struct node*)pp;
   if (p->back)
     return get_tyme(p->back);
-  /* else */
-  return MIN_ROOT_TYME;
+  else
+    return MIN_ROOT_TYME;
 } /* parent_tyme */
 
 
-boolean valid_tyme(struct tree *t, struct bl_node *p, double tyme) {
+boolean valid_tyme(struct bl_tree *blt, struct bl_node *pp, double tyme) {
   /* Return true if tyme is a valid tyme to assign to node p. tyme must be
    * finite, not greater than any of p's children, and not less than p's
    * parent. Also, tip nodes can only be assigned 0. Otherwise false is
    * returned. */
+  struct tree* t;
+  struct node* p;
 
+  p = (struct node*)pp;
+  t = (struct tree*)blt;
   p = t->nodep[p->index - 1];
 
 #ifdef __USE_C99        /* debug: TODO Find a way to check without this. */
   if ( !isfinite(tyme) ) return false;
 #endif
   if ( p->tip == true && tyme != 0.0 ) return false;
-  if ( tyme > min_child_tyme(p) ) return false;
-  if ( tyme < parent_tyme(p) ) return false;
+  if ( tyme > min_child_tyme(pp) ) return false;
+  if ( tyme < parent_tyme(pp) ) return false;
   return true;
 } /* valid_tyme */
 
 
-double set_tyme_evaluate(tree *t, struct bl_node *p, double tyme)
+double set_tyme_evaluate(struct bl_tree *blt, struct bl_node *pp, double tyme)
 {
   /* Change tyme of node p and return likelihood
    * Views should be invalidated and regenerated before calling
    * evaluate() anywhere else in the tree. */
+  struct tree* t;
 
-  /* node *sib_ptr;
-     long num_sibs, i;  debug */
+  assert( valid_tyme(blt, p, tyme) );
+  t = (struct tree*)blt;
+  p = (struct node*)pp;
 
-  assert( valid_tyme(t, p, tyme) );
+  set_tyme(pp, tyme);
+  t->nuview(t, pp);
 
-  set_tyme(p, tyme);
-  t->nuview(t, p);
-
-  return t->evaluate(t, p, false);
+  return t->evaluate(blt, p, false);
 } /* set_tyme_evaluate */
 
 
@@ -959,7 +965,7 @@ void blk_tree_makenewv(struct tree* t, struct node *p) {
 #endif /* USE_NEW_MAKENEWV */
 
 
-void getthree(tree* t, struct node *p, double thigh, double tlow, 
+void getthree(struct tree* t, struct node *p, double thigh, double tlow, 
                double tdelta, double *x, double *lnl)
 {
   /* compute scores at a new triple of points */
@@ -986,9 +992,9 @@ void getthree(tree* t, struct node *p, double thigh, double tlow,
 }  /* getthree */
 
 
-void bl_treevaluate(tree* curtree, boolean improve, boolean reusertree,
-                    boolean global, boolean progress, tree* priortree,
-                    tree* bestree, initialvtrav_t initialvtrav)
+void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
+                    boolean global, boolean progress, struct tree* priortree,
+                    struct tree* bestree, initialvtrav_t initialvtrav)
 {
   /* evaluate a user tree */
   double bestyet;

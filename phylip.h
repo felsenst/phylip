@@ -442,7 +442,6 @@ enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
 /* prototypes of types of functions */
-/* debug:   ?? typedef struct tree tree; */
 typedef void (*tree_new_t)(struct tree**, long, long, long); /* tree_new fn */
 typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
 typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
