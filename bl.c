@@ -574,11 +574,11 @@ void blk_tree_re_move(struct bl_tree* t, struct bl_node *item,
     inittrav(tt, wwhereloc);
     inittrav(tt, wwhereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
-      smooth(tt, whereloc);
-      smooth(tt, (struct bl_node*)(wwhereloc->back));
+      smooth(t, whereloc);
+      smooth(t, (struct bl_node*)(wwhereloc->back));
     }
   }
-  else smooth(tt, (struct bl_node*)(wwhereloc->back));
+  else smooth(t, (struct bl_node*)(wwhereloc->back));
 }  /* blk_tree_re_move */
 
 
@@ -821,7 +821,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
 
 #else /* ifndef USE_NEW_MAKENEWV */
 
-void blk_tree_makenewv(tree* t, struct node *p) {
+void blk_tree_makenewv(struct tree* t, struct node *p) {
   /* improve a node time */
   long it, imin, imax, i;
   double tt, tfactor, tlow, thigh, oldlike, oldx, ymin, ymax, s32, s21, yold;
@@ -835,7 +835,7 @@ void blk_tree_makenewv(tree* t, struct node *p) {
     return;
   s = t->nodep[p->index - 1];
   sbl = (struct bl_node*)s;
-  oldx = sbl->tyme;                             /* store old tyme */
+  oldx = sbl->tyme;                                       /* store old tyme */
   lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
   if (s == t->root)
     tlow = -10.0;                           /* default minimum tyme at root */
