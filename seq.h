@@ -73,6 +73,7 @@ void resetlrsaves(long, long);
 #endif
 
 #endif
-/* above ifndef ... endif  if this header has not been #included before */
+
+/* end of #ifndef that conditions on this header file not already used */
 
 /* End. */

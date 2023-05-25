@@ -7,11 +7,10 @@
 #  include <config.h>
 #endif
 
+#ifndef MLDNA_H
 #include "mldna.h"
 
-#ifndef SEQ_H
 #include "seq.h"
-#endif
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
@@ -3005,5 +3004,9 @@ int main(int argc, Char *argv[])
   return 0;
 }  /* DNA Maximum Likelihood */
 
+
+#endif
+
+/* end of ifndef that conditions on this header file not already used. */
 
 /* End. */

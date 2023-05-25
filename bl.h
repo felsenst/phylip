@@ -1,4 +1,4 @@
-/* Version 4.0. (c) Copyright 1993-2022 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2023 by the University of Washington.
    Written by Michal Palczewski and Joe Felsenstein
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
@@ -27,13 +27,6 @@ typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
   double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
 } bl_node;
-
-typedef void (*allocx_t)(long, long, long, struct bl_node*);
-typedef void (*freex_t)(struct bl_tree*);
-typedef void (*makenewv_t)(struct bl_tree*, bl_node*);
-typedef void (*nuview_t)(struct bl_tree*, bl_node*);
-
-typedef void (*initialvtrav_t)(struct bl_tree*, bl_node*);
 
 long endsite;
 
@@ -82,9 +75,15 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
 void    bl_initialvtrav(struct tree*, bl_node *);
 #endif
 
+typedef void (*allocx_t)(long, long, long, struct bl_node*);
+typedef void (*freex_t)(struct bl_tree*);
+typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
+typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
+typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
+
 #endif
 
-/* the above if ... endif  prevents this header file from being
-   used more than once */
+/* end of  #ifndef  that conditions on this header file not already used */
 
 /* End. */
+

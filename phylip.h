@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #define true    1                             /* messing with truth itself! */
-#define false   0
+#define false   0                              /* and now nothing is false! */
 
 /* machine-specific stuff:
    based on a number of factors in the library stdlib.h, we will try
@@ -238,16 +238,16 @@
 
 
 #define FClose(file) if (file) fclose(file) ; file=NULL
-#define Malloc(x) mymalloc((long)x)    /* mymalloc is our wrapper for malloc */
+#define Malloc(x) mymalloc((long)x)   /* mymalloc is our wrapper for malloc */
 
 typedef void *Anyptr;
 
-#define Signed     signed
+#define Signed    signed
 #define Const     const
 #define Volatile  volatile
-#define Char        char      /* Characters (not bytes) */
-#define Static     static     /* Private global funcs and vars */
-#define Local      static     /* Nested functions */
+#define Char      char                            /* Characters (not bytes) */
+#define Static    static                   /* Private global funcs and vars */
+#define Local     static                                /* Nested functions */
 
 #ifndef WIN32
 typedef unsigned int boolean;
@@ -301,7 +301,6 @@ typedef struct stack {
   struct stack* next;
   void *data;
 } stack;
-
 
 typedef long *steptr;
 typedef long longer[6];
@@ -441,24 +440,6 @@ typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
-/* prototypes of types of functions */
-typedef void (*tree_new_t)(struct tree**, long, long, long); /* tree_new fn */
-typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
-typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
-typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
-typedef void (*tree_copy_t)(struct tree*, struct tree*);
-typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
-typedef void (*node_reinit_t)(struct node*);
-typedef void (*node_free_t)(struct node**);
-typedef void (*node_copy_t)(struct node*, struct node*);
-typedef void (*fork_print_t)(struct node*);
-typedef void (*node_print_t)(struct node*);
-typedef void (*do_branchl_on_insert_t)(struct tree*, struct node*, 
-                                         struct node*);
-typedef void (*do_branchl_on_re_move_t)(struct tree*, struct node*, 
-                                          struct node*);
-typedef boolean (*fork_good_t)(struct tree*, struct node*);   /* debug: needed for debugging */
-
 /* Macros for calling dynamic functions */
 /* Might be better as actual functions if performance hit is not severe */
 //#define node_init(n,b,l)        (((node*)(n))->init((node*)(n),(b),(l)))
@@ -481,15 +462,6 @@ typedef enum nodetype {                                /* what kind of data */
   NODE_T_PROT
 } nodetype;
 
-
-struct node_vtable {
-/* debug: needed here?    node_init_t node_init_f; */
-  node_free_t node_free_f;
-  node_copy_t node_copy_f;
-};
-
-
-extern struct node_vtable node_vtable;
 
 struct node {  /* a basic node: space for "everything but the kitchen sink" */
            /* debug: in future could use polymorphism to defer some of these
@@ -534,6 +506,14 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 
   struct node_vtable *vtable;                     /* Pointer to node vtable */  /* debug: what is it? */
 };                                /* end of the basic node type declaration */
+
+struct node_vtable {
+/* debug: needed here?    node_init_t node_init_f; */
+  node_free_t node_free_f;
+  node_copy_t node_copy_f;
+} vtable;
+
+/* debug:  extern struct node_vtable node_vtable;  */
 
 
 typedef struct node **pointarray; /* type is an array of pointers to nodes
@@ -679,6 +659,24 @@ typedef struct initdata {
 } initdata;
 
 initdata funcs;    /* declaration of the  funcs  function pointer structure */
+
+/* prototypes of types of functions */
+typedef void (*tree_new_t)(struct tree**, long, long, long); /* tree_new fn */
+typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
+typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
+typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
+typedef void (*tree_copy_t)(struct tree*, struct tree*);
+typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
+typedef void (*node_reinit_t)(struct node*);
+typedef void (*node_free_t)(struct node**);
+typedef void (*node_copy_t)(struct node*, struct node*);
+typedef void (*fork_print_t)(struct node*);
+typedef void (*node_print_t)(struct node*);
+typedef void (*do_branchl_on_insert_t)(struct tree*, struct node*, 
+                                         struct node*);
+typedef void (*do_branchl_on_re_move_t)(struct tree*, struct node*, 
+                                          struct node*);
+typedef boolean (*fork_good_t)(struct tree*, struct node*);   /* debug: needed for debugging */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 

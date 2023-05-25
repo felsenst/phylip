@@ -18,7 +18,7 @@ extern boolean inserting, smoothit, smoothed, polishing;
 
 typedef struct ml_tree {
   struct tree bl_tree;
-} ml_tree;
+};
 
 
 typedef struct ml_node {                       /* subclass of generic node */
@@ -26,7 +26,7 @@ typedef struct ml_node {                       /* subclass of generic node */
   double* underflows;
   long endsite;
   long categs;
-} ml_node;
+};
 
 long endsite;
 
