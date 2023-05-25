@@ -463,6 +463,9 @@ typedef enum nodetype {                                /* what kind of data */
   NODE_T_PROT
 } nodetype;
 
+typedef struct tree tree;                            /* forward declaration */
+typedef struct node node;                            /* forward declaration */
+
 /* prototypes of types of functions */
 typedef void (*tree_new_t)(tree**, long, long, long); /* tree_new fn */
 typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
@@ -524,7 +527,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   node_print_t node_print_f;
 
   struct node_vtable *vtable;                     /* Pointer to node vtable */  /* debug: what is it? */
-} node;                           /* end of the basic node type declaration */
+};                                /* end of the basic node type declaration */
 
 struct node_vtable {
 /* debug: needed here?    node_init_t node_init_f; */
@@ -571,7 +574,7 @@ typedef void (*tree_print_t)(struct tree*);
 typedef boolean (*tree_good_t)(struct tree*);
 typedef boolean (*node_good_t)(struct tree*, struct node*);   // check the individual node
 
-typedef struct tree_vtable tree_vtable;    /* debug: what is this anyway? */
+typedef struct tree_vtable tree_vtable;              /* forward declaration */
 
 struct tree_vtable { /* this is a table of tree functions to reassign as
                       * needed in subclasses */
@@ -663,7 +666,7 @@ struct tree {                                         /* the tree structure */
   fork_good_t   fork_good_f;
 
   tree_vtable *vtable;     /* debug:  is this needed?  used? */
-} tree;
+};
 
 typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
