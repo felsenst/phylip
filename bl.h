@@ -16,8 +16,8 @@
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
-// struct allocx_t;   /* debug:   huh?  */
-// struct freex_t;
+struct allocx_t;                                   /* forward declarations */
+struct freex_t;
 
 typedef struct bl_tree {
   struct tree treepart;
@@ -28,7 +28,14 @@ typedef struct bl_node {                       /* subclass of generic node */
   double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
 } bl_node;
 
+typedef void (*allocx_t)(long, long, long, struct bl_node*);
+typedef void (*freex_t)(struct bl_tree*);
+typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
+typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
+typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
+
 long endsite;
+
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);
@@ -74,12 +81,6 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
                          struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
 #endif
-
-typedef void (*allocx_t)(long, long, long, struct bl_node*);
-typedef void (*freex_t)(struct bl_tree*);
-typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
-typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
-typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
 
 #endif
 

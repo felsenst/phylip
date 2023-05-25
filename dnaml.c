@@ -2088,7 +2088,7 @@ void maketree(void)
 
     /* This taken out of treeread, used to be [spp-1], but referring to [0]
      * produces output identical to what pre-modified dnaml produced. */
-    for (which  = 1; which <= numtrees ; which++)   /* loop over user trees */
+    for (which = 1; which <= numtrees ; which++)    /* loop over user trees */
     {
       /* These initializations required each time through the loop since
        * multiple trees require re-initialization */
