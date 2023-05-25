@@ -372,6 +372,7 @@ typedef int  group_type;
 
 #define maxuser        10000        /* maximum number of user-defined trees */
      /* (mostly used to set up user-trees x sites arrays for KHT, SH tests) */
+
 typedef enum {  /* for local vs. not, how much further to go in addtraverse */
   nofurther,
   onestep,
@@ -462,6 +463,24 @@ typedef enum nodetype {                                /* what kind of data */
   NODE_T_PROT
 } nodetype;
 
+/* prototypes of types of functions */
+typedef void (*tree_new_t)(tree**, long, long, long); /* tree_new fn */
+typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
+typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
+typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
+typedef void (*tree_copy_t)(struct tree*, struct tree*);
+typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
+typedef void (*node_reinit_t)(struct node*);
+typedef void (*node_free_t)(struct node**);
+typedef void (*node_copy_t)(struct node*, struct node*);
+typedef void (*fork_print_t)(struct node*);
+typedef void (*node_print_t)(struct node*);
+typedef void (*do_branchl_on_insert_t)(struct tree*, struct node*, 
+                                         struct node*);
+typedef void (*do_branchl_on_re_move_t)(struct tree*, struct node*, 
+                                          struct node*);
+typedef boolean (*fork_good_t)(struct tree*, struct node*);   /* debug: needed for debugging */
+
 
 struct node {  /* a basic node: space for "everything but the kitchen sink" */
            /* debug: in future could use polymorphism to defer some of these
@@ -505,7 +524,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   node_print_t node_print_f;
 
   struct node_vtable *vtable;                     /* Pointer to node vtable */  /* debug: what is it? */
-};                                /* end of the basic node type declaration */
+} node;                           /* end of the basic node type declaration */
 
 struct node_vtable {
 /* debug: needed here?    node_init_t node_init_f; */
@@ -644,7 +663,7 @@ struct tree {                                         /* the tree structure */
   fork_good_t   fork_good_f;
 
   tree_vtable *vtable;     /* debug:  is this needed?  used? */
-};
+} tree;
 
 typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
@@ -659,24 +678,6 @@ typedef struct initdata {
 } initdata;
 
 initdata funcs;    /* declaration of the  funcs  function pointer structure */
-
-/* prototypes of types of functions */
-typedef void (*tree_new_t)(struct tree**, long, long, long); /* tree_new fn */
-typedef void (*tree_init_t)(struct tree*, long, long);      /* tree_init fn */
-typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
-typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
-typedef void (*tree_copy_t)(struct tree*, struct tree*);
-typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
-typedef void (*node_reinit_t)(struct node*);
-typedef void (*node_free_t)(struct node**);
-typedef void (*node_copy_t)(struct node*, struct node*);
-typedef void (*fork_print_t)(struct node*);
-typedef void (*node_print_t)(struct node*);
-typedef void (*do_branchl_on_insert_t)(struct tree*, struct node*, 
-                                         struct node*);
-typedef void (*do_branchl_on_re_move_t)(struct tree*, struct node*, 
-                                          struct node*);
-typedef boolean (*fork_good_t)(struct tree*, struct node*);   /* debug: needed for debugging */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 
