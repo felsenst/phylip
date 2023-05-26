@@ -7,11 +7,10 @@
 #  include <config.h>
 #endif
 
+#ifndef MLDNA_H
 #include "mldna.h"
 
-#ifndef SEQ_H
 #include "seq.h"
-#endif
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
@@ -31,15 +30,15 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
-void   dnaml_tree_new(struct tree**, long, long, long);
-void   dnaml_tree_init(struct tree*, long, long);
+void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
+void   dnaml_tree_init(struct dnaml_tree*, long, long);
 struct node* dnaml_node_new(node_type, long, long);
 void   dnaml_node_init(struct mldna_node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
-void   inittip(tree*, long);
+void   inittip(struct tree*, long);
 void   inputoptions(void);
 void   makeweights(void);
 void   getinput(void);
@@ -59,12 +58,12 @@ void   describe(struct dnaml_node *);
 void   reconstr(struct dnaml_node *, long);
 void   rectrav(struct dnaml_node *, long, long);
 void   summarize(void);
-void   treevaluate(tree*);
+void   treevaluate(struct tree*);
 void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
-void   dnaml_reroot(tree* t);           // RSGbugfix: Name change.
-void   dnaml_treeout(FILE *, tree*, struct bl_node*);
+void   dnaml_reroot(struct tree*);           // RSGbugfix: Name change.
+void   dnaml_treeout(FILE *, struct tree*, struct bl_node*);
 double dnaml_tree_evaluate(struct tree*, struct dnaml_node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
@@ -107,7 +106,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
          gama, invar;
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct tree *curtree, *bestree, *bestree2, *priortree;
-tree **curtreep, **bestreep, **bestree2p, **priortreep;
+struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -131,26 +130,28 @@ long col;
 vall *mp=NULL;
 
 
-void dnaml_tree_new(struct tree** treep, long nonodes, long spp, 
+void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp, 
 		     long treesize)
 {
   /* set up variables and then set up identities of functions */
+  struct bl_tree *bltp;
 
-  bl_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
+  bltp = (struct bl_tree *)treep;
+  bl_tree_new(&bltp, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
 
-void dnaml_tree_init(struct tree* t, long nonodes, long spp)
+void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
-  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  t->nuview = (tree_nuview_t)dnaml_tree_nuview;
-  t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
-  t->get_fork = generic_tree_get_fork;
-  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  ((struct tree*)t)->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+  ((struct tree*)t)->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  ((struct tree*)t)->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  ((struct tree*)t)->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
+  ((struct tree*)t)->get_fork = generic_tree_get_fork;
+  ((struct tree*)t)->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
@@ -177,27 +178,27 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
-  curtreep = &curtree;
+  *curtreep = (struct dnaml_tree*)curtree;
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
-    bestreep = &bestree;
+    *bestreep = (struct dnaml_tree*)bestree;
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
-    bestree2p = &bestree2;
+    *bestree2p = (struct dnaml_tree*)bestree2;
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
-    priortreep = &priortree;
+    *priortreep = (struct dnaml_tree*)priortree;
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
 
 
-void inittip(tree* t, long m)
+void inittip(struct tree* t, long m)
 { /* initialize and hook up a new tip;  m is the index of the tip */
 /* debug:  not obvious that this is ever used */
   struct node *tmp;
 
   tmp = t->nodep[m - 1];
 /* debug    memcpy(((mldna_node*)tmp)->x, x[m - 1], totalleles * sizeof(double));  */
-  tmp->deltav = 0.0;
+  ((bl_node*)tmp)->deltav = 0.0;
 }  /* inittip */
 
 
@@ -906,7 +907,7 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   generic_tree_evaluate(t, (struct node*)p, saveit); /* views traversals */
   sum = 0.0;
   q = (struct dnaml_node*)((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   lz = -y;
   for (i = 0; i < rcategs; i++)    /* get probabilities for different rates */
     for (j = 0; j < categs; j++)
@@ -988,7 +989,7 @@ double dnaml_tree_evaluate(struct tree* t, dnaml_node *p, boolean saveit)
   for (i = 0; i < rcategs; i++)
     sum2 += probcat[i] * like[i];
   sum += log(sum2);
-  ((tree*)t)->score = sum;                       /* putting into tree score */
+  ((struct tree*)t)->score = sum;                /* putting into tree score */
   if (!saveit || auto_ || !usertree || reusertree)
     return sum;
   if (which <= shimotrees)             /* saving log likelihood in SH table */
@@ -1065,7 +1066,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
     sib_back_ptr = sib_ptr->back;
 
     if (sib_back_ptr != NULL)
-      lw = - (sib_back_ptr->v);
+      lw = - ((struct bl_node*)sib_back_ptr)->v;
     else
       lw = 0.0;
     for (i = 0; i < rcategs; i++) { /* table of terms for transition probs */
@@ -1361,7 +1362,7 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
   struct node *q;
 
   q = ((struct node*)p)->back;
-  y = ((struct node*)p)->v;
+  y = ((struct bl_node*)p)->v;
   yorig = y;
   done = false;
   firsttime = true;
@@ -1405,9 +1406,9 @@ void dnaml_tree_makenewv(struct tree* t, struct dnaml_node* p)
     done = fabs(y-yold) < 0.1*epsilon;
   }
   smoothed = (fabs(yold-yorig) < epsilon) && (yorig > 1000.0*epsilon);
-  ((struct node*)p)->v = yold;   /* the last one that had better likelihood */
-  q->v = yold;
-  ((tree*)t)->score = oldlike;
+  ((struct bl_node*)p)->v = yold;   /* the last one that had better likelihood */
+  ((struct bl_node*)q)->v = yold;
+  ((struct tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
 
@@ -1439,22 +1440,23 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       break;
     case iter:
       ((struct node*)p)->initialized = false;
-      ((struct node*)p)->v = initialv;
+      ((struct bl_node*)p)->v = initialv;
       ((struct node*)p)->iter = true;
       if (((struct node*)p)->back != NULL)
       {
         ((struct node*)p)->back->iter = true;
-        ((struct node*)p)->back->v = initialv;
+        ((struct bl_node*)(((struct node*)p)->back))->v = initialv;
         ((struct node*)p)->back->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
-      ((struct node*)p)->v = valyew / divisor / fracchange;
+      ((struct bl_node*)p)->v = valyew / divisor / fracchange;
       ((struct node*)p)->iter = false;
       if (((struct node*)p)->back != NULL)
       {
-        ((struct node*)p)->back->v = ((struct node*)p)->v;
+        ((struct bl_node*)((struct node*)p)->back)->v 
+                              = ((struct bl_node*)p)->v;
         ((struct node*)p)->back->iter = false;
       }
       break;
@@ -1489,7 +1491,7 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
   q = pp->next;
   do {
     if (q->back != NULL) {
-      xx = fracchange * q->v;
+      xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       dnaml_coordinates((dnaml_node *)(q->back), 
@@ -1544,17 +1546,19 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
   double tt, aa, like, slope, curv;
-  struct node *pp;
+  struct bl_node *pp;
+  struct node *ppp;
 
-  pp = (struct node*)p;
+  pp = (struct bl_node*)p;
+  ppp = (struct node*)p; 
   slopecurv (p, pp->v, &like, &slope, &curv);
   tt = pp->v;
   pp->v = epsilon;
-  pp->back->v = epsilon;
-  aa = curtree->evaluate(curtree, pp, false);
+  ((struct bl_node*)(ppp->back))->v = epsilon;
+  aa = curtree->evaluate(curtree, ppp, false);
   pp->v = tt;
-  pp->back->v = tt;
-  (*sumlr) = curtree->evaluate(curtree, pp, false) - aa;
+  ((struct bl_node*)(ppp->back))->v = tt;
+  (*sumlr) = curtree->evaluate(curtree, ppp, false) - aa;
   if (curv < -epsilon)
   {
     (*s1) = pp->v + (-slope - sqrt(slope * slope -  3.841 * curv)) / curv;
@@ -1568,20 +1572,22 @@ void sigma(struct dnaml_node *p, double *sumlr, double *s1, double *s2)
 }  /* sigma */
 
 
-void describe(struct dnaml_node *pp)
+void describe(struct dnaml_node *ppp)
 {
   /* print out information for one branch */
   long i, num_sibs;
   struct node *p, *q, *sib_ptr;
+  struct bl_node *qq;
   double sumlr, sigma1, sigma2;
 
-  p = (struct node*)pp;
+  p = (struct node*)ppp;
   if (p != NULL) {
     if (!p->tip && !p->initialized)
       generic_tree_nuview(curtree, p);
     if (!p->back->tip && !p->back->initialized)
       generic_tree_nuview(curtree, p->back);
     q = p->back;
+    qq = (struct bl_node*)(p->back);
 
     assert(p->index > 0);                 // RSGdebug
     assert(q->index > 0);                 // RSGdebug
@@ -1602,10 +1608,10 @@ void describe(struct dnaml_node *pp)
     }
     else
       fprintf(outfile, "%4ld      ", p->index - spp);
-    fprintf(outfile, "%15.5f", q->v * fracchange);
+    fprintf(outfile, "%15.5f", qq->v * fracchange);
     if (reusertree || !usertree || (usertree && !lngths) || p->iter )
     {
-      sigma((struct dnaml_node*)q, &sumlr, &sigma1, &sigma2);
+      sigma((struct dnaml_node*)qq, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
         fprintf(outfile, "     (     zero,    infinity)");
       else
@@ -1984,12 +1990,13 @@ void summarize(void)
 }  /* summarize */
 
 
-void dnaml_reroot(tree* t) 
+void dnaml_reroot(struct tree* t) 
 {
   /* move root of tree */
   struct node *q;
   double newl;
   struct node *r = t->root;
+  struct bl_node *rn, *rnn, *rnb, *rnnb;
   long numsibs = count_sibs(r);
 
   if ( numsibs > 2)
@@ -2006,13 +2013,19 @@ void dnaml_reroot(tree* t)
     assert(r->back == NULL); // RSGnote: This assumes the FORKRING being manipulated
                              //has the ROOT FORKNODE pointing to NULL.
 
-    newl = r->next->oldlen + r->next->next->oldlen;
-    r->next->back->oldlen = newl;
-    r->next->next->back->oldlen = newl;
 
-    newl = r->next->v + r->next->next->v;
-    r->next->back->v = newl;
-    r->next->next->back->v = newl;
+    rn = (struct bl_node*)(r->next);
+    rnb = (struct bl_node*)(r->next->back);
+    rnnb = (struct bl_node*)(r->next->next->back);
+    rnn = (struct bl_node*)(r->next->next);
+
+    newl = rnb->oldlen + rnn->oldlen;
+    rnb->oldlen = newl;
+    rnnb->oldlen = newl;
+
+    newl = rn->v + rnn->v;
+    rnb->v = newl;
+    rnnb->v = newl;
 
     r->next->back->back = r->next->next->back;
     r->next->next->back->back = r->next->back;
@@ -2025,7 +2038,7 @@ void dnaml_reroot(tree* t)
 } /* dnaml_reroot */
 
 
-void dnaml_treeout(FILE  *outtree, tree* t, bl_node* p) {
+void dnaml_treeout(FILE  *outtree, struct tree* t, bl_node* p) {
 /* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
@@ -2075,7 +2088,7 @@ void maketree(void)
 
     /* This taken out of treeread, used to be [spp-1], but referring to [0]
      * produces output identical to what pre-modified dnaml produced. */
-    for (which  = 1; which <= numtrees ; which++)   /* loop over user trees */
+    for (which = 1; which <= numtrees ; which++)    /* loop over user trees */
     {
       /* These initializations required each time through the loop since
        * multiple trees require re-initialization */
@@ -2106,7 +2119,7 @@ void maketree(void)
 
       improve = !lngths;    /* re-estimate lengths of branches in user tree */
       bl_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, bl_initialvtrav);
+                      priortree, bestree, (initialvtrav_t)bl_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2251,7 +2264,7 @@ void maketree(void)
         }
       }
       bl_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, bl_initialvtrav );
+                      priortree, bestree, (initialvtrav_t)bl_initialvtrav );
       dnaml_printree();
       summarize();
       if (trout) {
@@ -2991,5 +3004,9 @@ int main(int argc, Char *argv[])
   return 0;
 }  /* DNA Maximum Likelihood */
 
+
+#endif
+
+/* end of ifndef that conditions on this header file not already used. */
 
 /* End. */

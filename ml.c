@@ -11,14 +11,8 @@
 
 #include <assert.h>
 
-#ifndef BL_H
 #include "bl.h"
-#endif
-
-#ifndef ML_H
 #include "ml.h"
-#endif
-#define ML_H
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -33,61 +27,60 @@ extern long nextree, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
-extern node** lrsaves;
+extern struct node** lrsaves;
 extern long rcategs;
 extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 
-void ml_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
+void ml_tree_new(struct ml_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new ml_tree.  Calls to generic_tree_new,
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
+  struct bl_tree **bltp;
 
-  bl_tree_new(tp, nonodes, spp, treesize);        /* next up tree hierarchy */
+  bltp = (struct bl_tree**)tp;
+  bl_tree_new(bltp, nonodes, spp, treesize);      /* next up tree hierarchy */
+  ml_tree_init(*tp, nonodes, spp);
 } /* ml_tree_new */
 
 
-void ml_tree_init(struct tree* t, long nonodes, long spp)
+void ml_tree_init(struct ml_tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
+  struct bl_tree *blt;
 
-  bl_tree_init(t, nonodes, spp);                   /* go up class hierarchy */
-  t->smoothall = bl_tree_smoothall;
-  t->insert_ = (tree_insert_t)bl_tree_insert_;
-  t->re_move = bl_tree_re_move;
-  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  t->do_branchl_on_insert_f = bl_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = bl_tree_do_branchl_on_re_move;
+  blt = (struct bl_tree*)t;
+  bl_tree_init(blt, nonodes, spp);                 /* go up class hierarchy */
 /* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */
 } /* ml_tree_init */
 
 
-struct node* ml_node_new(node_type type, long index, long nodesize) {
+struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
+  struct ml_node* n;
 
-  nn = generic_node_new(type, index, nodesize);
-  return nn;
+  n = (struct ml_node*)generic_node_new(type, index, nodesize);
+  return n;
 } /* ml_node_new */
 
 
-void ml_node_init(struct node *n, node_type type, long index)
+void ml_node_init(struct ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
-  ml_node* nn;
+  struct node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  generic_node_init(n, type, index);                /* go up node hierarchy */
-  n->node_print_f = bl_node_print;
-  nn = (ml_node*)n;
+  nn = (struct node*)n;
+  generic_node_init(nn, type, index);                /* go up node hierarchy */
+  nn->node_print_f = (node_print_t)bl_node_print;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->bl_node.tyme = 0;
 } /* ml_node_init */
@@ -112,7 +105,7 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
   bl_node_copy(srcn, destn);
   dest->categs = src->categs;
   dest->endsite = src->endsite;
-  set_tyme((node*)dest, src->bl_node.tyme);
+  set_tyme((bl_node*)dest, src->bl_node.tyme);
 
   if(dest->underflows)                  // RSGbugfix
     memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));

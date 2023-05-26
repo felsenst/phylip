@@ -203,129 +203,6 @@ void freetrans(transptr *trans, long nonodes, long sitelength)
 } /* freetrans */
 
 
-void print_basefreq(FILE *fp, basefreq *freq, boolean empirical)
-{
-  /* print out empirical base freequencies */
-
-  putc('\n', fp);
-  if (empirical)
-    fprintf(outfile, "Empirical ");
-  fprintf(fp, "Base Frequencies:\n\n");
-  fprintf(fp, "   A    %10.5f\n", freq->a);
-  fprintf(fp, "   C    %10.5f\n", freq->c);
-  fprintf(fp, "   G    %10.5f\n", freq->g);
-  fprintf(fp, "  T(U)  %10.5f\n", freq->t);
-} /* print_basefreq */
-
-
-void ttratio_warning(double ttratio)
-{
-  /* print wanring that this ttratio is impossible */
-
-  printf("\n WARNING: This transition/transversion ratio\n"
-         "  is impossible with these base frequencies!\n"
-         "  Using a transition/transversion ratio of %.6f\n\n", ttratio);
-} /* ttratio_warning */
-
-
-
-void makebasefreq(basefreq *freq, double freqa, double freqc,
-                   double freqg, double freqt, double ttratio)
-{
-  /* Takes base frequencies and fills out a basefreq struct. If ttratio is
-   * incompatible, a warning is printed and a reasonable value is returned in
-   * freq. */
-  /* (used by dnadist, dnaml, & dnamlk) */
-
-  double aa, bb;
-
-  assert(freq != NULL);
-
-  freq->a = freqa;
-  freq->c = freqc;
-  freq->g = freqg;
-  freq->t = freqt;
-
-  freq->r = freqa + freqg;
-  freq->y = freqc + freqt;
-
-  freq->ar = freq->a / freq->r;
-  freq->cy = freq->c / freq->y;
-  freq->gr = freq->g / freq->r;
-  freq->ty = freq->t / freq->y;
-
-  aa = ttratio * freq->r * freq->y - freqa * freqg - freqc * freqt;
-  bb = freqa * freq->gr + freqc * freq->ty;
-  freq->xi = aa / (aa + bb);
-  freq->xv = 1.0 - freq->xi;
-  if (freq->xi < 0.0)
-  {
-    freq->xi = 0.0;
-    freq->xv = 1.0;
-    ttratio = (freq->a*freq->g+freq->c*freq->t)/(freq->r*freq->y);
-    ttratio_warning(ttratio);
-  }
-  if (freqa <= 0.0)
-    freqa = 0.000001;
-  if (freqc <= 0.0)
-    freqc = 0.000001;
-  if (freqg <= 0.0)
-    freqg = 0.000001;
-  if (freqt <= 0.0)
-    freqt = 0.000001;
-
-  freq->fracchange = freq->xi * (2 * freqa * freq->gr + 2 * freqc * freq->ty) +
-    freq->xv *
-    (1.0 - freqa*freqa - freqc*freqc
-     - freqg*freqg - freqt*freqt );
-  freq->ttratio = ttratio;
-} /* makebasefreq */
-
-
-void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
-                   double *freqr, double *freqy, double *freqar,
-                   double *freqcy, double *freqgr, double *freqty,
-                   double *ttratio, double *xi, double *xv,
-                   double *fracchange, boolean freqsfrom, boolean printdata)
-{
-  /* Inputs freq[acgt] and ttratio and calculates freq[ry], freq[acgt][ry],
-   * and fracchange.  If ttratio is impossible, a warning is printed and a more
-   * reasonable value is returned. If printdata is true, the base frequencies
-   * are printed to outfile. If freqsfrom is also true, the output is
-   * identified as "Empirical". */
-
-  /* Deprecated in favor of direct use of struct freq, makebasefreq(),
-   * and print_basefreq() */
-
-  /* used by dnadist, dnaml, & dnamlk */
-  basefreq freq;
-  boolean isempirical = freqsfrom;
-
-  freq.a = freqa;
-  freq.c = freqc;
-  freq.g = freqg;
-  freq.t = freqt;
-
-  if (printdata)
-  {
-    print_basefreq(outfile, &freq, isempirical);
-  }
-  makebasefreq(&freq, freq.a, freq.c, freq.g, freq.t, *ttratio);
-
-  *freqr = freq.r;
-  *freqy = freq.y;
-  *freqar = freq.ar;
-  *freqcy = freq.cy;
-  *freqgr = freq.gr;
-  *freqty = freq.ty;
-  *xi     = freq.xi;
-  *xv     = freq.xv;
-  *fracchange = freq.fracchange;
-  *ttratio    = freq.ttratio;
-
-}  /* getbasefreqs */
-
-
 void sitesort(long chars, steptr weight)
 {
   /* Shell sort keeping sites, weights in same order */
@@ -577,13 +454,14 @@ void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 }  /* sitescrunch2 */
 
 
-void drawline(long i, double scale, node *root)
+void drawline(long i, double scale, bl_node *rt)
 {
   /* draws one row of the tree diagram by moving up tree */
-  node *p, *q, *r, *first =NULL, *last =NULL;
+  struct node *root, *p, *q, *r, *first =NULL, *last =NULL;
   long n, j;
   boolean extra, done, noplus;
 
+  root = (struct node*)rt;
   p = root;
   q = root;
   assert(p->index > 0);                 // RSGdebug
@@ -692,11 +570,11 @@ void drawline(long i, double scale, node *root)
 }  /* drawline */
 
 
-void treeout(node *p, long nextree, long *col, node *root)
+void treeout(struct node *p, long nextree, long *col, struct node *root)
 {
   /* write out file with representation of final tree
    * used in dnacomp, dnamove, dnapars, & dnapenny */
-  node *q;
+  struct node *q;
   long i, n;
   Char c;
 
@@ -750,14 +628,14 @@ void treeout(node *p, long nextree, long *col, node *root)
 }  /* treeout */
 
 
-void drawline2(long i, double scale, tree* curtree)
+void drawline2(long i, double scale, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * used in dnaml, proml, & restml */
-  node *p, *q;
+  struct node *p, *q;
   long n, j;
   boolean extra;
-  node *r, *first =NULL, *last =NULL;
+  struct node *r, *first =NULL, *last =NULL;
   boolean done;
 
   p = curtree->root;

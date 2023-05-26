@@ -10,21 +10,14 @@
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
-#ifndef PHYLIP_H
-#include "phylip.h"
-#endif
+#ifndef _SEQ_H_
+#define _SEQ_H_
 
-#ifndef BL_H
+#include "phylip.h"
 #include "bl.h"
-#define ML_H
-#endif
 
 /* move */
 /* All the below moved here in the Great TreeRead Migration of '96 */
-
-#ifndef _SEQ_H_
-#define _SEQ_H_
-#endif
 
 #define ebcdic          EBCDIC
 
@@ -58,10 +51,9 @@ void inputdata(long);
 void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
-void setuptree2(tree);
-void alloctip(ml_node *);
+void setuptree2(struct tree);
+void alloctip(bl_node *);
 void freetrans(transptr *, long, long );
-void ttratio_warning(double ttratio);
 void sitesort(long, steptr);
 void sitecombine(long);
 void sitescrunch(long);
@@ -69,15 +61,19 @@ void sitesort2(long, steptr);
 void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
 void drawline(long, double, struct bl_node *);
-void treeout(struct bl_node *, long, long *, struct bl_node *);
-void drawline2(long i, double scale, tree *curtree);
+void treeout(struct node *, long, long *, struct node *);
+void drawline2(long, double, struct tree *);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,
                double *, double **, steptr, longer);
 void freex2(long, pointarray);
 void inittrees(long, long);
-void resetlrsaves(long param1, long param2);
+void resetlrsaves(long, long);
 /*function prototypes*/
 #endif
+
+#endif
+
+/* end of #ifndef that conditions on this header file not already used */
 
 /* End. */
