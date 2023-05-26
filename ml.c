@@ -37,24 +37,31 @@ void ml_tree_new(struct ml_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new ml_tree.  Calls to generic_tree_new,
    * casting ml_tree** to tree** as we call it 
    * then call  ml_tree_init */
-  struct ml_tree *bltp;
+  struct bl_tree **bltp;
 
-  bl_tree_new(&bltp, nonodes, spp, treesize);     /* next up tree hierarchy */
-  ml_tree_init(&tp, nonodes, spp);
+  bltp = (struct bl_tree**)tp;
+  bl_tree_new(bltp, nonodes, spp, treesize);      /* next up tree hierarchy */
+  ml_tree_init(*tp, nonodes, spp);
 } /* ml_tree_new */
 
 
-void ml_tree_init(struct tree* t, long nonodes, long spp)
+void ml_tree_init(struct ml_tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
+  struct bl_tree *blt;
+  struct tree *tt;
 
-  bl_tree_init(t, nonodes, spp);                   /* go up class hierarchy */
-  t->smoothall = bl_tree_smoothall;
-  t->insert_ = (tree_insert_t)bl_tree_insert_;
-  t->re_move = bl_tree_re_move;
-  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  t->do_branchl_on_insert_f = bl_tree_do_branchl_on_insert;
-  t->do_branchl_on_re_move_f = bl_tree_do_branchl_on_re_move;
+  blt = (struct bl_tree*)t;
+  tt = (struct tree*)t;
+  bl_tree_init(blt, nonodes, spp);                 /* go up class hierarchy */
+  tt->smoothall = bl_tree_smoothall;
+  tt->insert_ = (tree_insert_t)bl_tree_insert_;
+  tt->re_move = (tree_re_move_t)bl_tree_re_move;
+  tt->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  tt->do_branchl_on_insert_f = 
+                    (tree_do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
+  tt->do_branchl_on_re_move_f = 
+                  (tree_do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
 /* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */

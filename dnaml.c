@@ -2119,7 +2119,7 @@ void maketree(void)
 
       improve = !lngths;    /* re-estimate lengths of branches in user tree */
       bl_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, bl_initialvtrav);
+                      priortree, bestree, (initialvtrav_t)bl_initialvtrav);
       if ( reusertree && ( which == 1 || curtree->score > bestree2->score ))
       {
         curtree->copy(curtree, bestree2);
@@ -2264,7 +2264,7 @@ void maketree(void)
         }
       }
       bl_treevaluate(curtree, improve, reusertree, global, progress,
-                      priortree, bestree, bl_initialvtrav );
+                      priortree, bestree, (initialvtrav_t)bl_initialvtrav );
       dnaml_printree();
       summarize();
       if (trout) {

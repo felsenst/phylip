@@ -289,7 +289,7 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
   q = (struct node*)qq;
   generic_tree_insert_((struct tree*)t, p, q, multif);  /* debug:  maybe "multif"? */
 
-  if ( !t->do_newbl )
+  if ( !(((tree*)t)->do_newbl) )
   {
     invalidate_traverse(p);           /* set initialized false on views ... */
     invalidate_traverse(p->next);       /* ... looking in towards this fork */
@@ -468,6 +468,7 @@ void blk_tree_insert_(struct bl_tree *tt, struct bl_node *nnewtip,
 
   newtip = (struct node*)nnewtip;
   below = (struct node*)bbelow;
+  t = (struct tree*)tt;
   /* first stick it in the right place */
   rooted_tree_insert_(t, newtip, below, dummy);
 
@@ -565,6 +566,7 @@ void blk_tree_re_move(struct bl_tree* t, struct bl_node *item,
   struct node *wwhereloc;
   struct tree* tt;
 
+  tt = (struct tree*)t;
   rooted_tree_re_move(tt, (struct node*)item, &wwhereloc, do_newbl);
   whereloc = (struct bl_node*)wwhereloc;
   if ( where )  where = &whereloc;
