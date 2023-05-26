@@ -49,48 +49,38 @@ void ml_tree_init(struct ml_tree* t, long nonodes, long spp)
 { /* set up function variables in ml_tree.  Currently these are actually
    * attributes of the generic tree that need ml function versions */
   struct bl_tree *blt;
-  struct tree *tt;
 
   blt = (struct bl_tree*)t;
-  tt = (struct tree*)t;
   bl_tree_init(blt, nonodes, spp);                 /* go up class hierarchy */
-  tt->smoothall = bl_tree_smoothall;
-  tt->insert_ = (tree_insert_t)bl_tree_insert_;
-  tt->re_move = (tree_re_move_t)bl_tree_re_move;
-  tt->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  tt->do_branchl_on_insert_f = 
-                    (tree_do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
-  tt->do_branchl_on_re_move_f = 
-                  (tree_do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
 /* debug: need here?   ((ml_tree*)t)->nuview = ml_tree_nuview;
   (t.tree)->makenewv_t = ml_tree->makenewv_t;
  * */
 } /* ml_tree_init */
 
 
-struct node* ml_node_new(node_type type, long index, long nodesize) {
+struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
+  struct ml_node* n;
 
-  nn = generic_node_new(type, index, nodesize);
-  return nn;
+  n = (struct ml_node*)generic_node_new(type, index, nodesize);
+  return n;
 } /* ml_node_new */
 
 
-void ml_node_init(struct node *n, node_type type, long index)
+void ml_node_init(struct ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
-  ml_node* nn;
+  struct node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  generic_node_init(n, type, index);                /* go up node hierarchy */
-  n->node_print_f = bl_node_print;
-  nn = (ml_node*)n;
+  nn = (struct node*)n;
+  generic_node_init(nn, type, index);                /* go up node hierarchy */
+  nn->node_print_f = (node_print_t)bl_node_print;
   nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
   nn->bl_node.tyme = 0;
 } /* ml_node_init */

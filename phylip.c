@@ -57,8 +57,15 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
-/* debug   if ( t->release_forknode == NULL )   */
   t->release_forknode = generic_tree_release_forknode;
+  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  t->insert_ = (tree_insert_t)bl_tree_insert_;
+  t->re_move = (tree_re_move_t)bl_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->do_branchl_on_insert_f = 
+                    (do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = 
+                  (do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
 
   t->spp = spp;
   t->nonodes = nonodes;
