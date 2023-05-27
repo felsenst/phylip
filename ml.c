@@ -62,7 +62,7 @@ struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct ml_node* n;
 
-  n = (struct ml_node*)generic_node_new(type, index, nodesize);
+  n = (struct ml_node*)bl_node_new(type, index, nodesize);
   return n;
 } /* ml_node_new */
 

@@ -104,7 +104,7 @@ struct node* generic_node_new (node_type type, long index, long nodesize)
     * the node that is created */
   struct node* m;
 
-  m  = (struct node*)Malloc(nodesize);           /* make big enough node */
+  m  = (struct node*)Malloc(nodesize);         /* make a big enough node */
   funcs.node_init(m, type, index);         /* init node, polymorphically */
   return m;
 } /* generic_node_new */
