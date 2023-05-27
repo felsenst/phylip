@@ -17,7 +17,6 @@
 extern boolean inserting, smoothit, smoothed, polishing;
 
 struct allocx_t;                                   /* forward declarations */
-struct freex_t;
 
 typedef struct bl_tree {
   struct tree treepart;
@@ -29,7 +28,6 @@ typedef struct bl_node {                       /* subclass of generic node */
 } bl_node;
 
 typedef void (*allocx_t)(long, long, long, struct bl_node*);
-typedef void (*freex_t)(struct bl_tree*);
 typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
@@ -49,8 +47,6 @@ void    bl_hookup(struct bl_node*, struct bl_node*);
 void    allocx(long, long, long, struct bl_node**);
 void    makevalues2(long, pointarray, long, long, sequence, steptr);
 void    set_tyme(struct bl_node *, double);
-void    freex_notip(long, pointarray);
-void    freex(long, pointarray);
 void    bl_update(struct bl_tree*, struct bl_node *);
 void    smooth(struct bl_tree*, struct bl_node *);
 void    smooth_traverse(struct bl_tree*, bl_node *);

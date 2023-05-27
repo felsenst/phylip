@@ -63,6 +63,7 @@ struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   struct ml_node* n;
 
   n = (struct ml_node*)bl_node_new(type, index, nodesize);
+  ml_node_init(n, type, index);
   return n;
 } /* ml_node_new */
 
@@ -81,28 +82,16 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
   nn = (struct node*)n;
   generic_node_init(nn, type, index);                /* go up node hierarchy */
   nn->node_print_f = (node_print_t)bl_node_print;
-  nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
+  nn->freex = NULL;          /* x is only defined for dna_node and prot_node */
   nn->bl_node.tyme = 0;
 } /* ml_node_init */
 
 
-struct node* ml_node_new(node_type type, long index, long nodesize) {
-  /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
-
-  nn = bl_node_new(type, index, nodesize);
-  ml_node_init(nn, type, index);
-  return nn;
-} /* ml_node_new */
-
-
-void ml_node_copy(node* srcn, node* destn) // RSGbugfix
-{ /* copy an ml_node */
-  ml_node *src = (ml_node *)srcn;
-  ml_node *dest = (ml_node *)destn;
-  assert(srcn);                         // RSGdebug
-  assert(destn);                        // RSGdebug
-  bl_node_copy(srcn, destn);
+void ml_node_copy(ml_node* src, ml_node* dest)
+{ /* copy contents of an ml_node but not its pointers */
+  ml_node *srcb = (bl_node *)src;
+  ml_node *destb = (bl_node *)dest;
+  bl_node_copy(srcb, destb);                              /* go up hierarchy */
   dest->categs = src->categs;
   dest->endsite = src->endsite;
   set_tyme((bl_node*)dest, src->bl_node.tyme);

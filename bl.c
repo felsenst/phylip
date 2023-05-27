@@ -1,4 +1,4 @@
-/* Version 4.0.  Copyright, 2022.
+/* Version 4.0.  Copyright, 2023.
    Written by Michal Palczewski and Joe Felsenstein */
 
 /* These are versions of functions, and support functions, for programs
@@ -30,15 +30,14 @@ void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
    * casting bl_tree** to tree** as we call it 
    * then call  bl_tree_init */
 
-  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);  /* next up */
+  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);   /* next up */
 } /* bl_tree_new */
 
 
 void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
-{ /* 
-   * attributes of the generic tree that need ml function versions */
+{ /* attributes of the generic tree that need ml function versions */
 
-  generic_tree_init((struct tree*)t, nonodes, spp);              /* go up class hierarchy */
+  generic_tree_init((struct tree*)t, nonodes, spp);      /* go up hierarchy */
 } /* bl_tree_init */
 
 
