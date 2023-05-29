@@ -20,6 +20,7 @@ struct allocx_t;                                   /* forward declarations */
 
 typedef struct bl_tree {
   struct tree treepart;
+  long endsite;
 } bl_tree;
 
 typedef struct bl_node {                       /* subclass of generic node */
@@ -31,8 +32,6 @@ typedef void (*allocx_t)(long, long, long, struct bl_node*);
 typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
-
-long endsite;
 
 
 #ifndef OLDC /* prototypes */
