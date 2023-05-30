@@ -104,7 +104,7 @@ struct node* generic_node_new (node_type type, long index, long nodesize)
     * the node that is created */
   struct node* m;
 
-  m  = (struct node*)Malloc(nodesize);           /* make big enough node */
+  m  = (struct node*)Malloc(nodesize);         /* make a big enough node */
   funcs.node_init(m, type, index);         /* init node, polymorphically */
   return m;
 } /* generic_node_new */
@@ -303,15 +303,10 @@ void generic_tree_copy (tree* src, tree* dst)
 } /* generic_tree_copy */
 
 
-void generic_node_copy (node* src, node* dst)
+void generic_node_copy (struct node* src, struct node* dst)
 {
-  /* Copy node data from src to dst.
-   *
-   * debug: how do we want this to work?  we probably don't want to copy
-   * next and back, but copy everything else
-   * some already needed things are here
-   * maybe make this function have a hierarchy too
-   */
+  /* Copy node data from src to dst, but not next and back pointers. */
+  /* debug: many of these will ultimately be deferred down hierarchy */
   dst->v = src->v;
   dst->xcoord = src->xcoord;
   dst->ycoord = src->ycoord;
@@ -321,7 +316,6 @@ void generic_node_copy (node* src, node* dst)
   dst->haslength = src->haslength;
   dst->initialized = src->initialized;
   dst->deltav = src->deltav;
-
 } /* generic_node_copy */
 
 

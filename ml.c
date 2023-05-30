@@ -62,7 +62,8 @@ struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct ml_node* n;
 
-  n = (struct ml_node*)generic_node_new(type, index, nodesize);
+  n = (struct ml_node*)bl_node_new(type, index, nodesize);
+  ml_node_init(n, type, index);
   return n;
 } /* ml_node_new */
 
@@ -72,40 +73,29 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
   struct node* nn;
+  struct bl_node* bn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
+  bn = (struct bl_node*)n;
   nn = (struct node*)n;
   generic_node_init(nn, type, index);                /* go up node hierarchy */
   nn->node_print_f = (node_print_t)bl_node_print;
-  nn->freex = NULL;         /* x is only defined for dna_node and prot_node */
-  nn->bl_node.tyme = 0;
+  bn->tyme = 0;
 } /* ml_node_init */
 
 
-struct node* ml_node_new(node_type type, long index, long nodesize) {
-  /* go up hierarchy creating a node, initializing it */
-  struct node* nn;
-
-  nn = bl_node_new(type, index, nodesize);
-  ml_node_init(nn, type, index);
-  return nn;
-} /* ml_node_new */
-
-
-void ml_node_copy(node* srcn, node* destn) // RSGbugfix
-{ /* copy an ml_node */
-  ml_node *src = (ml_node *)srcn;
-  ml_node *dest = (ml_node *)destn;
-  assert(srcn);                         // RSGdebug
-  assert(destn);                        // RSGdebug
-  bl_node_copy(srcn, destn);
+void ml_node_copy(ml_node* src, ml_node* dest)
+{ /* copy contents of an ml_node but not its pointers */
+  bl_node *srcb = (bl_node *)src;
+  bl_node *destb = (bl_node *)dest;
+  bl_node_copy(srcb, destb);                              /* go up hierarchy */
   dest->categs = src->categs;
   dest->endsite = src->endsite;
-  set_tyme((bl_node*)dest, src->bl_node.tyme);
+  set_tyme((bl_node*)dest, ((bl_node*)src)->tyme);
 
   if(dest->underflows)                  // RSGbugfix
     memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
@@ -114,33 +104,35 @@ void ml_node_copy(node* srcn, node* destn) // RSGbugfix
 } /* ml_node_copy */
 
 
-void ml_node_free(node **np)
+void ml_node_free(struct ml_node **np)
 {
   /* free a node for ml trees */
-  ml_node *n = (ml_node*)*np;
-  n->freex((node*)n);
-  generic_node_free(np);
+  struct ml_node *n = (ml_node*)*np;
+
+  ((struct bl_node*)n)->freex((bl_node*)n);
+  generic_node_free((struct node**)np);
 } /* ml_node_free */
 
 
-void ml_node_reinit(node * n)
+void ml_node_reinit(struct ml_node *n)
 {
   /* reset things for an ml tree node */
-  ml_node * mln = (ml_node*)n;
+  bl_node * bln = (bl_node*)n;
 
-  mln->bl_node.tyme = 0;
+  bln->tyme = 0;
   // BUG.970 -- does freex need refreshing ?
   // BUG.970 -- leave for dna_node and prot_node ?
-  bl_node_reinit(n);                                 /* go up the hierarchy */
+  bl_node_reinit(bln);                               /* go up the hierarchy */
 } /* ml_node_reinit */
 
 
-void ml_node_print(node * n)
+void ml_node_print(struct ml_node * n)
 {
   /* for debugging */
-  bl_node_print(n);
-  ml_node * mn = (ml_node*)n;
-  printf(" ml(endsite:%ld tyme:%lf)", mn->endsite, mn->bl_node.tyme);
+  struct bl_node * bn = (bl_node*)n;
+
+  bl_node_print(bn);
+  /* debug:  ?? printf(" ml(bn.endsite:%ld tyme:%lf)", ((struct bl_tree*)mn)->endsite, mn->bl_node.tyme); */
 } /* ml_node_print */
 
 /* End. */
