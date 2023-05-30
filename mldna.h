@@ -3,13 +3,8 @@
 
 /* specializing  ml_node  for DNA data type */
 
-#ifndef ML_H
 #include "ml.h"
-#endif
-
-#ifndef SEQ_H
 #include "seq.h"
-#endif
 
 long rcategs;                    /* number of rate categories, default is 1 */
 

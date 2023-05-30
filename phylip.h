@@ -1,4 +1,4 @@
-/* Version 4.0a.  Copyright 1993-2022.
+/* Version 4.0a.  Copyright 1993-2023.
    Written by Joe Felsenstein, Akiko Fuseki, Sean Lamont, Andrew Keeffe,
    Mike Palczewski, Doug Buxton, Dan Fineman and Bob Giansiracusa. */
 
@@ -673,6 +673,7 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          Char *, Char *, FILE *);
 
 /* some pointers to functions needed in the node and tree class hierarchies */
+
 typedef struct initdata {
   tree_new_t tree_new;                                  /* makes a new tree */
   tree_init_t tree_init;                     /* initiates stuff in the tree */
@@ -830,9 +831,9 @@ long            take_name_from_tree (Char*, Char*, FILE*);
 void            match_names_to_data (Char*, pointarray, struct node**, long);
 void            addelement(struct tree*, struct node**, struct node*, Char*, 
                             long*, FILE*, pointarray, boolean*, boolean*, 
-                            long*, long*, boolean*, initptr, boolean, long);
+                            long*, long*, boolean*, initops, boolean, long);
 void            treeread (struct tree*, FILE*, struct node**, pointarray, 
-                            boolean*, boolean*, long*, boolean*, initptr, 
+                            boolean*, boolean*, long*, boolean*, initops, 
                             boolean, long);
 void            addelement2(struct tree*, struct node*, Char*, long*, FILE*, 
                              boolean, double*, boolean*, long*, long*, long,
