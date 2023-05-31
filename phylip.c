@@ -131,7 +131,7 @@ void generic_node_init (struct node* n, node_type type, long index)
     }
 
   n->index = index;
-  n->v = initialv;
+  n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
 
@@ -145,7 +145,7 @@ void generic_node_init (struct node* n, node_type type, long index)
 
 
 void no_op (void)
-{ /* Do nothing. Used as a dummy pointer to a function that hust returns,
+{ /* Do nothing. Used as a dummy pointer to a function that just returns,
    * doesn't need to do anything (e.g. smooth for parsimony) */
 } /* no_op */
 

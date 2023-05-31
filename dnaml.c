@@ -32,8 +32,8 @@ typedef double contribarr[maxcategs];
 /* function prototypes */
 void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
 void   dnaml_tree_init(struct dnaml_tree*, long, long);
-struct node* dnaml_node_new(node_type, long, long);
-void   dnaml_node_init(struct mldna_node*, node_type, long);
+struct dnaml_node* dnaml_node_new(node_type, long, long);
+void   dnaml_node_init(struct dnaml_node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -108,6 +108,7 @@ struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct tree *curtree, *bestree, *bestree2, *priortree;
 struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
+initops whichinit;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
 long *enterorder, inseed, inseed0;
@@ -155,23 +156,23 @@ void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
 } /* dnaml_tree_init */
 
 
-struct mldna_node* mldna_node_new(node_type type, long index, long nodesize)
+struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
-  struct mldna_node *n;
+  struct dnaml_node *n;
 
-  nodesize = (long)sizeof(mldna_node);
-  n = (mldna_node*)generic_node_new(type, index, nodesize);
-  mldna_node_init(n, type, index);
+  nodesize = (long)sizeof(dnaml_node);
+  n = (dnaml_node*)ml_node_new(type, index, nodesize);
+  dnaml_node_init(n, type, index);
   return n;
 } /* dnaml_node_new */
 
 
-void mldna_node_init(struct mldna_node* n, node_type type, long index)
+void dnaml_node_init(struct dnaml_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  ((struct node*)n)->index = index;      /* give it the proper index number */
-} /* dnaml_node_init */
+/* debug: nothing yet */
+} /* mldna_node_init */
 
 
 void dnaml_tree_setup(long nonodes, long spp)
@@ -2088,6 +2089,7 @@ void maketree(void)
 
     /* This taken out of treeread, used to be [spp-1], but referring to [0]
      * produces output identical to what pre-modified dnaml produced. */
+    whichinit = bottom;
     for (which = 1; which <= numtrees ; which++)    /* loop over user trees */
     {
       /* These initializations required each time through the loop since
@@ -2098,7 +2100,7 @@ void maketree(void)
       goteof           = false;
 /* debug:        preparetree(curtree);   needed? */
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
-                &dummy_first, &nextnode, &haslengths, initdnamlnode,
+                &dummy_first, &nextnode, &haslengths, whichinit,
                 false, nonodes2);
 /* debug:       fixtree(curtree);    needed? */
 /* debug:      dnaml_reroot(curtree);   */                     // RSGbugfix: Name change.

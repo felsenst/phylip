@@ -35,7 +35,8 @@
    based on defines in stdio, and compiler-defined things as well.:
 
    Quite a bit of this is being paranoid about being on antique operating
-   systems or antique compilers */
+   systems or antique compilers, which may not even exist anymore. Please
+   be tolerant of my obsessiveness about this. */
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
@@ -82,7 +83,7 @@
 #define MIXFILE "mixture data"
 #define FACTFILE "factors data"
 
-#else               /* default file names for everything else */
+#else                             /* default file names for everything else */
 
 #define EBCDIC false
 #define INFILE "infile"
@@ -169,7 +170,7 @@
 
 /* default screen types */
 
-/*  if on a DOS but not a Windows system can use IBM PC screen controls */
+/* if on a DOS but not a Windows system can use IBM PC screen controls */
 #ifdef DOS
 #ifndef WIN32
 #define IBMCRT true
@@ -201,7 +202,6 @@
 #undef MALLOCRETURN
 #define MALLOCRETURN void
 #endif
-
 
 /* includes: */
 #ifdef UNIX
@@ -441,6 +441,8 @@ typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
 typedef enum node_type node_type;
 
+typedef struct node node;                            /* forward declaration */
+
 /* Macros for calling dynamic functions */
 /* Might be better as actual functions if performance hit is not severe */
 //#define node_init(n,b,l)        (((node*)(n))->init((node*)(n),(b),(l)))
@@ -464,7 +466,6 @@ typedef enum nodetype {                                /* what kind of data */
 } nodetype;
 
 typedef struct tree tree;                            /* forward declaration */
-typedef struct node node;                            /* forward declaration */
 
 /* prototypes of types of functions */
 typedef void (*tree_new_t)(tree**, long, long, long); /* tree_new fn */
@@ -668,7 +669,7 @@ struct tree {                                         /* the tree structure */
   tree_vtable *vtable;     /* debug:  is this needed?  used? */
 };
 
-typedef void (*initptr)(struct tree *, struct node **, long, long,
+typedef void (*initfuncptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
@@ -685,7 +686,7 @@ initdata funcs;    /* declaration of the  funcs  function pointer structure */
 
 boolean javarun;               /* boolean for when Java front-end is in use */
 
-#ifndef OLDC /* need if not the old original Kernighan & Rtichie C compiler */
+#ifndef OLDC /* need if not the old original Kernighan & Ritchie C compiler */
 /* function prototypes */
 void            generic_tree_new(struct tree**, long, long, long);
 void            generic_tree_init(struct tree*, long, long);
