@@ -1857,7 +1857,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first, long *nexttip,
                         long *nextnode, boolean *haslengths, boolean unifok)
 {
-/* modification of addelement method to just read file, count number of nodes */
+/* modification of addelement method to read file, count number of nodes */
   long i;
   boolean notlast;
   Char str[MAXNCH+1];
@@ -1867,16 +1867,17 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     (*nextnode)++;          /* get ready to use new interior node */
 
-    /* initnode call with "bottom" --> first forknode of the group, normally goes in to nodep
-     * we've already incremented nextnode, so that's all we need for this program */
+    /* initnode call with "bottom" --> first forknode of the group, normally 
+     * goes in to nodep.  We've already incremented nextnode, so that's 
+     * all we need for this program */
 
     notlast = true;
-    while (notlast) {          /* loop through immediate descendants */
+    while (notlast) {                 /* loop through immediate descendants */
       furcs++;
 
-      /* initnode call with "nonbottom" --> remaining forknodes hooked up */
+        /* initnode call with "nonbottom" --> remaining forknodes hooked up */
 
-      getch(ch, parens, treefile);      /* look for next character */
+      getch(ch, parens, treefile);               /* look for next character */
 
       /* handle blank names */
       if((*ch) == ',' || (*ch) == ':') {
@@ -1916,16 +1917,16 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
     }
 
   }
-  else if ((*ch) != ')')                /* if it's a species name */
+  else if ((*ch) != ')')                          /* if it's a species name */
   {
-    for (i = 0; i < MAXNCH+1; i++)      /* fill string with nulls */
+    for (i = 0; i < MAXNCH+1; i++)                /* fill string with nulls */
       str[i] = '\0';
 
     // len = take_name_from_tree (ch, str, treefile); /* get the name */  /* RSGdebug: unused */
-    (void)take_name_from_tree (ch, str, treefile); /* get the name */
+    (void)take_name_from_tree (ch, str, treefile);          /* get the name */
 
     if ((*ch) == ')')
-      (*parens)--;         /* decrement count of open parentheses */
+      (*parens)--;                   /* decrement count of open parentheses */
     /* initnode call with "tip" --> typically copies str info above,
      *  but we just increase  */
     (*nexttip)++;
@@ -1938,7 +1939,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
   if ((*ch) == ':')
   {
-    /* initnode call with "length" -> must read length using processlength */
+    /* initnode call with "length"  -> must read length using processlength */
     double valyew, divisor;
     boolean minusread;
     processlength(&valyew,&divisor,ch,&minusread,treefile,parens);
@@ -1951,8 +1952,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
        * have length, so do nothing here? */
     }
   }
-  if ((*ch) == '[')
-    /* process tree weight  */
+  if ((*ch) == '[')                                 /* process tree weight  */
   {
     /* initnode call with "treewt" --> can do something for cons.c things
      * -- need to read */
