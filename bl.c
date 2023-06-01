@@ -30,14 +30,14 @@ void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
    * tree** as we call it, then call  bl_tree_init */
 
   generic_tree_new((struct tree**)tp, nonodes, spp, treesize);   /* next up */
-  bl_tree_init(&(*tp), GOT  TO HERE)
+  bl_tree_init(*tp, nonodes, spp);      /* initialize tree at this level */
 } /* bl_tree_new */
 
 
 void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
-{ /* attributes of the generic tree that need ml function versions */
+{ /* attributes of the generic tree that need bl function versions */
 
-  generic_tree_init((struct tree*)t, nonodes, spp);      /* go up hierarchy */
+/* debug: if anything to initialize, do this here, but none right now */
 } /* bl_tree_init */
 
 
@@ -67,6 +67,7 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
   generic_node_init((struct node*)n, type, index);                /* go up node hierarchy */
   nn = (bl_node*)n;
   nn->tyme = 0;
+/* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 
 
@@ -75,10 +76,12 @@ void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
 /* debug: shouldn't length of node be involved? */
   struct node *src = (struct node *)srcn;
   struct node *dest = (struct node *)destn;
+
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(src, dest);
   set_tyme(destn, srcn->tyme);
+/* debug: initialize branch lengths here too? */
 } /* bl_node_copy */
 
 

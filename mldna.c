@@ -1,14 +1,18 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-/* debug:  #include "phylip.h"   debug */
-/* debug  #include "ml.h"   debug */
+#ifndef ML_H
+#include "ml.h"
+#endif
+
+#ifndef MLDNA_H
+#define MLDNA_H
 #include "mldna.h"
 
 
-node * mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
+mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct node* n;
+  struct mldna_node* n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -32,11 +36,10 @@ void mldna_node_init(node *node, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  ml_node_init(node, type, index);
-  n->ml_node.allocx = (allocx_t)mldna_node_allocx;
-  n->ml_node.bl_node.copy = mldna_node_copy;
-  n->ml_node.bl_node.node_init = mldna_node_init;
-  n->ml_node.freex = (freex_t)mldna_node_freex;
+  n->allocx = (allocx_t)mldna_node_allocx;
+  n->copy = mldna_node_copy;
+  n->node_init = mldna_node_init;
+  n->freex = (freex_t)mldna_node_freex;
   n->x = NULL;
 
   if ( endsite != 0 && rcategs != 0 )
@@ -472,6 +475,8 @@ void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
 
 }  /* getbasefreqs */
 
+#endif
+/* end of ifdef block if have not yet defined the mldna.h stuff */
 
 /* End. */
 
