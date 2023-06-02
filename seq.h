@@ -1,9 +1,7 @@
-/* Version 4.0. (c) Copyright 1993-2022
+/* Version 4.0. (c) Copyright 1993-2023
    Written by Joseph Felsenstein, Akiko Fuseki, Sean Lamont, and Andrew Keeffe.
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
-
-
 /*
   seq.h:  for dealing with molecular sequence data types
           included in dnacomp, dnadist, dnainvar, dnaml, dnamlk, dnamove,
@@ -38,7 +36,6 @@
 /* Number of columns per block in a matrix output */
 #define COLUMNS_PER_BLOCK 10
 
-
 extern long endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
@@ -46,7 +43,8 @@ extern sequence inputSequences;
 extern struct bl_node** lrsaves;
 
 #ifndef OLDC
-/* function prototypes */
+/* function prototypes.  Needed if not the old 
+   original Kernighan & Ritchie compiler */
 void inputdata(long);
 void read_sequences(long nchars);
 void output_sequences(long nchars);
