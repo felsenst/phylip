@@ -109,7 +109,7 @@ void ml_node_free(struct ml_node **np)
   /* free a node for ml trees */
   struct ml_node *n = (ml_node*)*np;
 
-  ((struct bl_node*)n)->freex((bl_node*)n);
+  n->freex((ml_node*)n);
   generic_node_free((struct node**)np);
 } /* ml_node_free */
 
