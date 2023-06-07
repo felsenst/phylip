@@ -34,7 +34,6 @@ struct mldna_node* mldna_node_new(node_type, long, long);
 void mldna_node_init(struct mldna_node *, node_type, long);
 void mldna_node_copy(mldna_node*, mldna_node*);
 void fix_x(mldna_node*, long, double, long);
-typedef void (*freex_t)(struct bl_tree*);
 void mldna_node_freex(mldna_node*);
 void mldna_node_allocx(struct mldna_node*, long, long);
 void makevalues2(long, pointarray, long, long, sequence, steptr);

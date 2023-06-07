@@ -14,9 +14,6 @@
 #include "phylip.h"
 #include "bl.h"
 
-/* move */
-/* All the below moved here in the Great TreeRead Migration of '96 */
-
 #define ebcdic          EBCDIC
 
 /* All of this came over from cons.h    -plc*/
@@ -41,6 +38,10 @@ extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 extern struct bl_node** lrsaves;
+
+freex_t *freex;                        /* forward: pointer to free function */
+
+typedef void (*freex_t)(pointarray, long);       /* pointer to free fn type */
 
 #ifndef OLDC
 /* function prototypes.  Needed if not the old 
