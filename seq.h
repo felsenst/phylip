@@ -39,9 +39,9 @@ extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 extern struct bl_node** lrsaves;
 
-freex_t *freex;                        /* forward: pointer to free function */
+typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
 
-typedef void (*freex_t)(pointarray, long);       /* pointer to free fn type */
+freex_t *freex_f;                      /* forward: pointer to free function */
 
 #ifndef OLDC
 /* function prototypes.  Needed if not the old 

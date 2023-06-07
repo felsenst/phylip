@@ -19,28 +19,28 @@ mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugf
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  n = ml_node_new(type, index, nodesize);
+  n = (mldna_node*)ml_node_new(type, index, nodesize);
   mldna_node_init(n, type, index);
   return n;
 } /* mldna_node_new */
 
 
-void mldna_node_init(node *node, node_type type, long index)
+void mldna_node_init(mldna_node *node, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
 
-  mldna_node *n = (mldna_node *)node;
+  mldna_node *n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  n->allocx = (allocx_t)mldna_node_allocx;
-  n->copy = mldna_node_copy;
-  n->node_init = mldna_node_init;
-  n->freex = (freex_t)mldna_node_freex;
-  n->x = NULL;
+  allocx_f = (allocx_t)mldna_node_allocx;
+  copy_f = mldna_node_copy;
+  node_init_f = mldna_node_init;
+  freex_f = (freex_t)mldna_node_freex;
+  x = NULL;
 
   if ( endsite != 0 && rcategs != 0 )
     n->ml_node.allocx((struct node*)n, endsite, rcategs);

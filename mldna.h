@@ -21,15 +21,18 @@ typedef struct nuview_data {
 } nuview_data;
 
 typedef struct basefreq {
-  double        a, c, g, t, r, y;       /* Base frequencies */
-  double        ar, cy, gr, ty;         /* Base/class freq */
-  double        xi, xv;
-  double        fracchange;
-  double        ttratio;                /* Transition/transversion ratio */
+  double        a, c, g, t, r, y;                       /* base frequencies */
+  double        ar, cy, gr, ty;   /* base per purine or base per pyrimidine */
+  double        xi, xv; /* rates: transition-like, transversion-like events */
+  double        fracchange;      /* fraction of events that change the base */
+  double        ttratio;                   /* transition/transversion ratio */
 } basefreq;
 
+allocx_t allocx_f;                            /* pointer to allocx function */
+copy_t copy_f;                                        /* copy node function */
+alloc_t alloc_f;                                         /* allocx function */
 
-#ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
+#ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
 struct mldna_node* mldna_node_new(node_type, long, long);
 void mldna_node_init(struct mldna_node *, node_type, long);
 void mldna_node_copy(mldna_node*, mldna_node*);
