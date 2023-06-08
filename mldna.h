@@ -30,7 +30,8 @@ typedef struct basefreq {
 
 allocx_t allocx_f;                            /* pointer to allocx function */
 copy_t copy_f;                                        /* copy node function */
-alloc_t alloc_f;                                         /* allocx function */
+
+allocx_t allocx_f;                                         /* allocx function */
 
 #ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
 struct mldna_node* mldna_node_new(node_type, long, long);
