@@ -28,21 +28,18 @@ mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugf
 void mldna_node_init(struct mldna_node *node, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
-  struct ml_node *mln;
 
-  mln = (struct ml_node*)node;
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
-  
 
   allocx_f = (allocx_t)mldna_node_allocx;
   ((struct node*)node)->copy = mldna_node_copy;
   freex_f = (freex_t*)mldna_node_freex;
 
   if ( endsite != 0 && rcategs != 0 )
-    mldna_node_allocx(mln, endsite, rcategs);
+    mldna_node_allocx(node, endsite, rcategs);
 } /* mldna_node_init */
 
 
@@ -58,12 +55,12 @@ void mldna_node_copy(node* srcn, node* destn)
 
   if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
   {
-    mldna_node_freex((struct node*)dest);
+    mldna_node_freex((struct mldna_node*)dest);
     ((struct ml_node*)dest)->endsite = 0;
   }
   if ( oldendsite == 0 )
-    mldna_node_allocx((struct node*)dest, ((ml_node*)src)->endsite, 
-                                            ((ml_node*)src)->categs);
+    mldna_node_allocx((struct mldna_node*)dest, ((ml_node*)src)->endsite, 
+                         ((ml_node*)src)->categs);
   for (i = 0; i < ((ml_node*)src)->endsite; i++)
     for (j = 0; j < ((ml_node*)src)->categs; j++)
       memcpy(((mldna_node*)dest)->x[i][j], ((mldna_node*)src)->x[i][j], sizeof(sitelike));
@@ -83,14 +80,14 @@ void fix_x(mldna_node* p, long site, double maxx, long rcategs)
 } /* fix_x */
 
 
-void mldna_node_freex(ml_node* n)
+void mldna_node_freex(mldna_node* n)
 {
   /* free a dna tree node */
   mldna_node *dn;
   long i;
 
   dn = (mldna_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
+  for ( i = 0 ; i < ((ml_node*)n)->endsite ; i++ )
   {
     free(dn->x[i]);
   }
@@ -102,7 +99,7 @@ void mldna_node_freex(ml_node* n)
 } /* mldna_node_freex */
 
 
-void mldna_node_allocx(struct node* n, long endsite, long rcategs)
+void mldna_node_allocx(struct mldna_node* n, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
   ml_node *mln = (ml_node *)n;      /* node considered as an ml_ node ... */

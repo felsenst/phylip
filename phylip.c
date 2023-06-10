@@ -14,8 +14,9 @@
 #include <windows.h>
 /* for console code (clear screen, text color settings) */
 CONSOLE_SCREEN_BUFFER_INFO      savecsbi;
-boolean    savecsbi_valid = false;
+boolean savecsbi_valid = false;
 HANDLE  hConsoleOutput;
+#endif
 
 #include "Slist.h"
 
