@@ -20,15 +20,20 @@ typedef struct ml_tree {
   struct tree bl_tree;
 } ml_tree;
 
+typedef struct ml_node {                        /* subclass of generic node */
+  struct node bl_node;                        /* Base object, must be first */
 
-typedef struct ml_node {                       /* subclass of generic node */
-  struct node bl_node;                          /* Base object, must be first */
   double* underflows;
   long endsite;
   long categs;
 } ml_node;
 
+typedef void (*allocx_t)(long, long, long, struct ml_node*);
+
+allocx_t allocx_f;
+
 long endsite;
+
 
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct ml_tree **, long, long, long);

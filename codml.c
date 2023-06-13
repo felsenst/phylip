@@ -1,9 +1,7 @@
-/* Version 4.0. (c) Copyright 2009-2013 by the University of Washington.
+/* Version 4.0. (c) Copyright 2009-2023.
    Written by Joseph Felsenstein, Lucas Mix, Elizabeth Walkup, Eric Rynes,
    Akiko Fuseki, Sean Lamont, Andrew Keeffe, Dan Fineman,
-   and Patrick Colacurcio.
-   Permission is granted to copy and use this program provided no fee is
-   charged for it and provided that this copyright notice is not removed. */
+   and Patrick Colacurcio. */
 
 
 #ifdef HAVE_CONFIG_H
@@ -17,6 +15,7 @@
 typedef long vall[maxcategs];
 typedef double contribarr[maxcategs];
 
+/* debug:  why the if 0 ?  */
 #if 0
 typedef double eigCalcT;
 eigCalcT QR_accuracy    = 1e-6;
@@ -50,8 +49,8 @@ void   codon_tree_init(tree*, long, long);
 node   codon_node_new(node_type, long, long);
 void   codon_node_init(struct node *, node_type, long);
 void   codon_node_allocx(node*, long, long);
-void   codon_node_copy(codon_node*, codon_node*);
-void   codon_node_freex(ml_node*);
+void   codon_node_copy(struct codon_node*, struct codon_node*);
+void   codon_node_freex(struct ml_node*);
 void   codon_freex_notip(long, pointarray);
 void   init_nucSubRates(double);
 void   fill_codon64_to(long, long, long, double);
@@ -90,25 +89,27 @@ void   qreigen(double **, long, long);
 void   maketables(void);
 void   getinput(void);
 void   codon_tree_calc_nuview(tree *, node *, cphenotype, double *);
-void   codon_tree_nuview(tree *, node *);
-void   codon_slopecurv(node *, double, double *, double *, double *);
-void   codon_tree_makenewv(tree *, node *);
-void   codml_restore_traverses(tree *t, node *p, node * q);
-boolean codml_node_good(tree *t, node *n);
-void   make_pmatrix(double **, double **, double **, long, double lz, double, double *, double **);
-double codon_tree_evaluate(tree*, node *, boolean);
-void   codmlcopy(tree *, tree *, long, long);
-void   codml_coordinates(node *, double, long *, double *);
+void   codon_tree_nuview(struct tree *, struct node *);
+void   codon_slopecurv(struct node *, double, double *, double *, double *);
+void   codon_tree_makenewv(struct tree *, struct node *);
+void   codml_restore_traverses(struct tree *t, struct node *p, node * q);
+boolean codml_node_good(struct tree *t, struct node *n);
+void   make_pmatrix(double **, double **, double **, long, double lz, double, 
+                      double *, double **);
+double codon_tree_evaluate(struct tree*, struct node *, boolean);
+void   codmlcopy(struct tree *, struct tree *, long, long);
+void   codml_coordinates(struct node *, double, long *, double *);
 void   codml_printree(void);
-void   sigma(node *, double *, double *, double *);
-void   describe(node *);
-void   codon_reconstr(node *, long);
-void   rectrav(node *, long, long);
+void   sigma(struct node *, double *, double *, double *);
+void   describe(struct node *);
+void   codon_reconstr(struct node *, long);
+void   rectrav(struct node *, long, long);
 void   summarize(void);
-void   dnaml_treeout(node *);
+void   dnaml_treeout(struct node *);
 void   free_all_codonx (long, pointarray);
-void   codml_reroot(tree *);            // RSGbugfix: Name change.
-void   initcodonmlnode(tree *, node **, long, long, long *, long *, initops, pointarray, Char *, Char *, FILE *);
+void   codml_reroot(struct tree *);            // RSGbugfix: Name change.
+void   initcodonmlnode(struct tree *, struct node **, long, long, long *, 
+                         long *, initops, pointarray, Char *, Char *, FILE *);
 void   maketree (void);
 void   clean_up(void);
 void   codmlrun(void);

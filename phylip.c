@@ -14,8 +14,9 @@
 #include <windows.h>
 /* for console code (clear screen, text color settings) */
 CONSOLE_SCREEN_BUFFER_INFO      savecsbi;
-boolean    savecsbi_valid = false;
+boolean savecsbi_valid = false;
 HANDLE  hConsoleOutput;
+#endif
 
 #include "Slist.h"
 
@@ -57,8 +58,15 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->release_fork = generic_tree_release_fork;
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
-/* debug   if ( t->release_forknode == NULL )   */
   t->release_forknode = generic_tree_release_forknode;
+  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  t->insert_ = (tree_insert_t)bl_tree_insert_;
+  t->re_move = (tree_re_move_t)bl_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->do_branchl_on_insert_f = 
+                    (do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = 
+                  (do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
 
   t->spp = spp;
   t->nonodes = nonodes;
@@ -97,7 +105,7 @@ struct node* generic_node_new (node_type type, long index, long nodesize)
     * the node that is created */
   struct node* m;
 
-  m  = (struct node*)Malloc(nodesize);           /* make big enough node */
+  m  = (struct node*)Malloc(nodesize);         /* make a big enough node */
   funcs.node_init(m, type, index);         /* init node, polymorphically */
   return m;
 } /* generic_node_new */
@@ -124,7 +132,7 @@ void generic_node_init (struct node* n, node_type type, long index)
     }
 
   n->index = index;
-  n->v = initialv;
+  n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
 
@@ -138,7 +146,7 @@ void generic_node_init (struct node* n, node_type type, long index)
 
 
 void no_op (void)
-{ /* Do nothing. Used as a dummy pointer to a function that hust returns,
+{ /* Do nothing. Used as a dummy pointer to a function that just returns,
    * doesn't need to do anything (e.g. smooth for parsimony) */
 } /* no_op */
 
@@ -296,15 +304,10 @@ void generic_tree_copy (tree* src, tree* dst)
 } /* generic_tree_copy */
 
 
-void generic_node_copy (node* src, node* dst)
+void generic_node_copy (struct node* src, struct node* dst)
 {
-  /* Copy node data from src to dst.
-   *
-   * debug: how do we want this to work?  we probably don't want to copy
-   * next and back, but copy everything else
-   * some already needed things are here
-   * maybe make this function have a hierarchy too
-   */
+  /* Copy node data from src to dst, but not next and back pointers. */
+  /* debug: many of these will ultimately be deferred down hierarchy */
   dst->v = src->v;
   dst->xcoord = src->xcoord;
   dst->ycoord = src->ycoord;
@@ -314,7 +317,6 @@ void generic_node_copy (node* src, node* dst)
   dst->haslength = src->haslength;
   dst->initialized = src->initialized;
   dst->deltav = src->deltav;
-
 } /* generic_node_copy */
 
 
@@ -1856,7 +1858,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first, long *nexttip,
                         long *nextnode, boolean *haslengths, boolean unifok)
 {
-/* modification of addelement method to just read file, count number of nodes */
+/* modification of addelement method to read file, count number of nodes */
   long i;
   boolean notlast;
   Char str[MAXNCH+1];
@@ -1866,16 +1868,17 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     (*nextnode)++;          /* get ready to use new interior node */
 
-    /* initnode call with "bottom" --> first forknode of the group, normally goes in to nodep
-     * we've already incremented nextnode, so that's all we need for this program */
+    /* initnode call with "bottom" --> first forknode of the group, normally 
+     * goes in to nodep.  We've already incremented nextnode, so that's 
+     * all we need for this program */
 
     notlast = true;
-    while (notlast) {          /* loop through immediate descendants */
+    while (notlast) {                 /* loop through immediate descendants */
       furcs++;
 
-      /* initnode call with "nonbottom" --> remaining forknodes hooked up */
+        /* initnode call with "nonbottom" --> remaining forknodes hooked up */
 
-      getch(ch, parens, treefile);      /* look for next character */
+      getch(ch, parens, treefile);               /* look for next character */
 
       /* handle blank names */
       if((*ch) == ',' || (*ch) == ':') {
@@ -1915,16 +1918,16 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
     }
 
   }
-  else if ((*ch) != ')')                /* if it's a species name */
+  else if ((*ch) != ')')                          /* if it's a species name */
   {
-    for (i = 0; i < MAXNCH+1; i++)      /* fill string with nulls */
+    for (i = 0; i < MAXNCH+1; i++)                /* fill string with nulls */
       str[i] = '\0';
 
     // len = take_name_from_tree (ch, str, treefile); /* get the name */  /* RSGdebug: unused */
-    (void)take_name_from_tree (ch, str, treefile); /* get the name */
+    (void)take_name_from_tree (ch, str, treefile);          /* get the name */
 
     if ((*ch) == ')')
-      (*parens)--;         /* decrement count of open parentheses */
+      (*parens)--;                   /* decrement count of open parentheses */
     /* initnode call with "tip" --> typically copies str info above,
      *  but we just increase  */
     (*nexttip)++;
@@ -1937,7 +1940,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
   if ((*ch) == ':')
   {
-    /* initnode call with "length" -> must read length using processlength */
+    /* initnode call with "length"  -> must read length using processlength */
     double valyew, divisor;
     boolean minusread;
     processlength(&valyew,&divisor,ch,&minusread,treefile,parens);
@@ -1950,8 +1953,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
        * have length, so do nothing here? */
     }
   }
-  if ((*ch) == '[')
-    /* process tree weight  */
+  if ((*ch) == '[')                                 /* process tree weight  */
   {
     /* initnode call with "treewt" --> can do something for cons.c things
      * -- need to read */

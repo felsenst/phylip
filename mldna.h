@@ -3,13 +3,8 @@
 
 /* specializing  ml_node  for DNA data type */
 
-#ifndef ML_H
 #include "ml.h"
-#endif
-
-#ifndef SEQ_H
 #include "seq.h"
-#endif
 
 long rcategs;                    /* number of rate categories, default is 1 */
 
@@ -26,20 +21,19 @@ typedef struct nuview_data {
 } nuview_data;
 
 typedef struct basefreq {
-  double        a, c, g, t, r, y;       /* Base frequencies */
-  double        ar, cy, gr, ty;         /* Base/class freq */
-  double        xi, xv;
-  double        fracchange;
-  double        ttratio;                /* Transition/transversion ratio */
+  double        a, c, g, t, r, y;                       /* base frequencies */
+  double        ar, cy, gr, ty;   /* base per purine or base per pyrimidine */
+  double        xi, xv; /* rates: transition-like, transversion-like events */
+  double        fracchange;      /* fraction of events that change the base */
+  double        ttratio;                   /* transition/transversion ratio */
 } basefreq;
 
-
-#ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
+#ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
 struct mldna_node* mldna_node_new(node_type, long, long);
 void mldna_node_init(struct mldna_node *, node_type, long);
-void mldna_node_copy(mldna_node*, mldna_node*);
-void fix_x(mldna_node*, long, double, long);
-void mldna_node_freex(mldna_node*);
+void mldna_node_copy(struct node *, struct node*);
+void fix_x(struct mldna_node*, long, double, long);
+void mldna_node_freex(struct mldna_node*);
 void mldna_node_allocx(struct mldna_node*, long, long);
 void makevalues2(long, pointarray, long, long, sequence, steptr);
 void freex_notip(long, pointarray);

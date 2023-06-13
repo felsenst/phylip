@@ -1,46 +1,45 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-/* debug:  #include "phylip.h"   debug */
-/* debug  #include "ml.h"   debug */
+#ifndef ML_H
+#include "ml.h"
+#endif
+
+#ifndef MLDNA_H
+#define MLDNA_H
 #include "mldna.h"
 
 
-node * mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
+mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct node* n;
+  struct mldna_node* n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  n = ml_node_new(type, index, nodesize);
+  n = (mldna_node*)ml_node_new(type, index, nodesize);
   mldna_node_init(n, type, index);
   return n;
 } /* mldna_node_new */
 
 
-void mldna_node_init(node *node, node_type type, long index)
+void mldna_node_init(struct mldna_node *node, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
-
-  mldna_node *n = (mldna_node *)node;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  ml_node_init(node, type, index);
-  n->ml_node.allocx = (allocx_t)mldna_node_allocx;
-  n->ml_node.bl_node.copy = mldna_node_copy;
-  n->ml_node.bl_node.node_init = mldna_node_init;
-  n->ml_node.freex = (freex_t)mldna_node_freex;
-  n->x = NULL;
+  allocx_f = (allocx_t)mldna_node_allocx;
+  ((struct node*)node)->copy = mldna_node_copy;
+  freex_f = (freex_t*)mldna_node_freex;
 
   if ( endsite != 0 && rcategs != 0 )
-    n->ml_node.allocx((struct node*)n, endsite, rcategs);
+    mldna_node_allocx(node, endsite, rcategs);
 } /* mldna_node_init */
 
 
@@ -52,15 +51,16 @@ void mldna_node_copy(node* srcn, node* destn)
   long i, j;
   long oldendsite = dest->ml_node.endsite;
 
-  ml_node_copy(srcn, destn);
+  ml_node_copy((ml_node *)src, (ml_node *)dest);
 
   if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
   {
-    dest->ml_node.freex((node*)dest);
-    dest->ml_node.endsite = 0;
+    mldna_node_freex((struct mldna_node*)dest);
+    ((struct ml_node*)dest)->endsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx((node*)dest, ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
+    mldna_node_allocx((struct mldna_node*)dest, ((ml_node*)src)->endsite, 
+                         ((ml_node*)src)->categs);
   for (i = 0; i < ((ml_node*)src)->endsite; i++)
     for (j = 0; j < ((ml_node*)src)->categs; j++)
       memcpy(((mldna_node*)dest)->x[i][j], ((mldna_node*)src)->x[i][j], sizeof(sitelike));
@@ -80,14 +80,14 @@ void fix_x(mldna_node* p, long site, double maxx, long rcategs)
 } /* fix_x */
 
 
-void mldna_node_freex(ml_node* n)
+void mldna_node_freex(mldna_node* n)
 {
   /* free a dna tree node */
   mldna_node *dn;
   long i;
 
   dn = (mldna_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
+  for ( i = 0 ; i < ((ml_node*)n)->endsite ; i++ )
   {
     free(dn->x[i]);
   }
@@ -99,7 +99,7 @@ void mldna_node_freex(ml_node* n)
 } /* mldna_node_freex */
 
 
-void mldna_node_allocx(node* n, long endsite, long rcategs)
+void mldna_node_allocx(struct mldna_node* n, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
   ml_node *mln = (ml_node *)n;      /* node considered as an ml_ node ... */
@@ -472,6 +472,8 @@ void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
 
 }  /* getbasefreqs */
 
+#endif
+/* end of ifdef block if have not yet defined the mldna.h stuff */
 
 /* End. */
 

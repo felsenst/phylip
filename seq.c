@@ -628,7 +628,7 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 }  /* treeout */
 
 
-void drawline2(long i, double scale, tree* curtree)
+void drawline2(long i, double scale, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * used in dnaml, proml, & restml */
