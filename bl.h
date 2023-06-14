@@ -16,8 +16,6 @@
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
-struct allocx_t;                                   /* forward declarations */
-
 typedef struct bl_tree {
   struct tree treepart;
   long endsite;
@@ -28,11 +26,9 @@ typedef struct bl_node {                       /* subclass of generic node */
   double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
 } bl_node;
 
-typedef void (*allocx_t)(long, long, long, struct bl_node*);
 typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
-
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);

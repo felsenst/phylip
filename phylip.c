@@ -59,6 +59,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   if ( t->get_fork == NULL )
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
   t->release_forknode = generic_tree_release_forknode;
+#if 0
   t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
   t->re_move = (tree_re_move_t)bl_tree_re_move;
@@ -67,6 +68,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
                     (do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
   t->do_branchl_on_re_move_f = 
                   (do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
+#endif
 
   t->spp = spp;
   t->nonodes = nonodes;
@@ -132,7 +134,6 @@ void generic_node_init (struct node* n, node_type type, long index)
     }
 
   n->index = index;
-  n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
 
@@ -308,7 +309,6 @@ void generic_node_copy (struct node* src, struct node* dst)
 {
   /* Copy node data from src to dst, but not next and back pointers. */
   /* debug: many of these will ultimately be deferred down hierarchy */
-  dst->v = src->v;
   dst->xcoord = src->xcoord;
   dst->ycoord = src->ycoord;
   dst->ymin = src->ymin;
@@ -316,7 +316,6 @@ void generic_node_copy (struct node* src, struct node* dst)
   dst->iter = src->iter;
   dst->haslength = src->haslength;
   dst->initialized = src->initialized;
-  dst->deltav = src->deltav;
 } /* generic_node_copy */
 
 
@@ -360,8 +359,6 @@ void generic_node_print (node *n)
     sprintf(progbuf, "    ");
     print_progress(progbuf);
   }
-  sprintf(progbuf, " p->v : %lf", n->v);
-  print_progress(progbuf);
   sprintf(progbuf, " p->iter : %d", n->iter);
   print_progress(progbuf);
   sprintf(progbuf, " init : %d", n->initialized);
@@ -382,7 +379,6 @@ void generic_node_reinit (node * n)
   /*  re-initialize node */
 /* debug: maybe make this hierarchical too? */
   n->back = NULL;
-  n->v = initialv;
   n->iter = true;
   n->initialized = false;
   /* may or may not want to change  n->index, depending

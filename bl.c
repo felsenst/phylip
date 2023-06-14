@@ -55,9 +55,8 @@ struct bl_node* bl_node_new(node_type type, long index, long nodesize) {
 
 void bl_node_init(struct bl_node *n, node_type type, long index)
 {
-  /* initialize a node for ml trees */
+  /* initialize a node for bl trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
-  struct bl_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -65,8 +64,8 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
   assert(index >= 0);
 
   generic_node_init((struct node*)n, type, index);                /* go up node hierarchy */
-  nn = (bl_node*)n;
-  nn->tyme = 0;
+  n->tyme = 0;
+  n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
 /* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 
@@ -81,6 +80,8 @@ void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
   assert(destn);                        // RSGdebug
   generic_node_copy(src, dest);
   set_tyme(destn, srcn->tyme);
+  destn->v = srcn->v;
+  destn->deltav = srcn->deltav;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_copy */
 
@@ -112,6 +113,7 @@ void bl_node_reinit(struct bl_node * bln)
 
   n = (struct node*)bln;
   bln->tyme = 0.0;
+  bln->v = initialv;
   generic_node_reinit(n);
 } /* bl_node_reinit */
 
