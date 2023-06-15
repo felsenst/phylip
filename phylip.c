@@ -1853,8 +1853,10 @@ void newline(FILE *filename, long i, long j, long k)
 void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
                         boolean *goteof, boolean *first, long *nexttip,
                         long *nextnode, boolean *haslengths, boolean unifok)
-{
-/* modification of addelement method to read file, count number of nodes */
+{  /* modification of addelement method to read file, count number of nodes,
+      in "addelement" the places where initnode is called are here 
+      replaced by not calling initnode, just doing what bookkeeping is
+      needed */
   long i;
   boolean notlast;
   Char str[MAXNCH+1];
@@ -1862,22 +1864,19 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
   if ((*ch) == '(')
   {
-    (*nextnode)++;          /* get ready to use new interior node */
+    (*nextnode)++;                    /* get ready to use new interior node */
 
-    /* initnode call with "bottom" --> first forknode of the group, normally 
-     * goes in to nodep.  We've already incremented nextnode, so that's 
-     * all we need for this program */
+     /* initnode call with "bottom" --> first forknode of the group, normally 
+      * goes in to nodep.  We've already incremented nextnode, so that's all 
+      * we need for this program */
 
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
       furcs++;
-
         /* initnode call with "nonbottom" --> remaining forknodes hooked up */
-
       getch(ch, parens, treefile);               /* look for next character */
 
-      /* handle blank names */
-      if((*ch) == ',' || (*ch) == ':') {
+      if((*ch) == ',' || (*ch) == ':') {              /* handle blank names */
         ungetc((*ch), treefile);
         *ch = 0;
       } else if((*ch)== ')') {
@@ -1888,9 +1887,8 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
       recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip,
                          nextnode, haslengths, unifok);
-
-      /* initnode call with "hslength" --> no need to do anything here,
-       * typically just hooks it up   */
+             /* initnode call with "hslength" --> no need to do anything here,
+              * typically just hooks it up   */
 
       if ((*ch) == ')') {
         notlast = false;
@@ -1929,11 +1927,9 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
     (*nexttip)++;
 
   } else
-    getch(ch, parens, treefile);
-
-  /* initnode call with "iter" --> sets iter/initialv/initialized code
-   *   -- nothing to do here */
-
+    getch(ch, parens, treefile); /* initnode call with "iter" --> sets 
+                                    iter/initialv/initialized code -- nothing 
+                                    to do here */
   if ((*ch) == ':')
   {
     /* initnode call with "length"  -> must read length using processlength */
@@ -2032,8 +2028,7 @@ void inputNumbersFromTreeFile(FILE * intree, long * spp_p, long * nonodes_p)
   (*spp_p) = 0;
   (*nonodes_p) = 0;
 
-  /* eat blank lines */
-  while (eoln(intree) && !eoff(intree))
+  while (eoln(intree) && !eoff(intree))                  /* eat blank lines */
     scan_eoln(intree);
 
   if (eoff(intree)) {
@@ -2043,21 +2038,18 @@ void inputNumbersFromTreeFile(FILE * intree, long * spp_p, long * nonodes_p)
 
   getch(&ch, &parens, intree);
 
-  while (ch != '(') {
-    /* Eat everything in the file (i.e. digits, tabs) until you
-       encounter an open-paren */
+  while (ch != '(') { /* Eat everything in the file (i.e. digits, tabs) until 
+                           you encounter an open-paren */
     getch(&ch, &parens, intree);
   }
   boolean haslengths = true;
 
-  recursiveTreeRead(&ch, &parens, intree,
-                    &goteof, &first, spp_p, &interiorNodes,
-                    &haslengths, unifok);
+  recursiveTreeRead(&ch, &parens, intree, &goteof, &first, spp_p, 
+                      &interiorNodes, &haslengths, unifok);
 
   (*nonodes_p) = *spp_p + interiorNodes;
 
-  /* Eat blank lines and end of current line*/
-  do {
+  do {                           /* Eat blank lines and end of current line */
     scan_eoln(intree);
   }
   while (eoln(intree) && !eoff(intree));
@@ -2069,9 +2061,9 @@ void inputNumbersFromTreeFile(FILE * intree, long * spp_p, long * nonodes_p)
     exxit(-1);
   }
 
-  /* Re-set to where it pointed when the function was called */
-  fseek (intree, orig_position, SEEK_SET);
-}
+  fseek (intree, orig_position, SEEK_SET); /* reset to where it pointed when 
+                                                the function was called */
+} /* inputNumbersFromTreeFile */
 
 
 /************* Sequence file routines **************/

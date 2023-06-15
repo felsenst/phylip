@@ -374,9 +374,9 @@ typedef int  group_type;
      /* (mostly used to set up user-trees x sites arrays for KHT, SH tests) */
 
 typedef enum {  /* for local vs. not, how much further to go in addtraverse */
-  nofurther,
-  onestep,
-  further
+  nofurther,                                 /* have gone as far as we need */
+  onestep,             /* go just one step further for local rearrangements */
+  further                                   /* keep going as far as you can */
 } traversetype;
 
 typedef Char** sequence;                        /* a set of arrays of bases */
@@ -392,15 +392,14 @@ typedef enum {                               /* the amino acids in proteins */
   serine, threonine, tryptophan, tyrosine, valine
 } acids;
 
-/* names of discrete character states for Pars */
-typedef enum {
+typedef enum {               /* names of discrete character states for Pars */
   zero = 0, one, two, three, four, five, six, seven
 } discbases;
 
-/* used by Protpars and Protdist */
+/* used by Protpars, Protdist and Proml */
 typedef enum {          /* the three-letter amino acid codes, extended */
-  ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, pro,
-  ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
+  ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, 
+  pro, ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
 } aas;
 
 /* arrays for likelihoods in Dnaml, Dnamlk, Dnadist ... */
@@ -430,8 +429,7 @@ typedef long discnucarray[(long)seven - (long)zero + 1];
 typedef enum { bottom, nonbottom, hslength, tip, iter, length,
                  hsnolength, treewt, unittrwt } initops ;
 
-
-typedef double **transmatrix;
+typedef double **transmatrix;     /* transition matrix for Restml, Restdist */
 typedef transmatrix *transptr;                   /* transptr used in Restml */
 
 typedef long sitearray[3];
