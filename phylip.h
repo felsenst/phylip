@@ -315,6 +315,18 @@ typedef struct bestelm {                                    /* stores trees */
   boolean collapse;
 } bestelm;
 
+typedef enum { bottom, nonbottom, hslength, tip, iter, length,
+                 hsnolength, treewt, unittrwt } initops ;
+
+typedef struct node **pointarray; /* type is an array of pointers to nodes
+                                  * and is the type of array nodep */
+
+typedef struct tree tree;                            /* forward declaration */
+
+typedef void (*initptr)(struct tree *, struct node **, long, long,
+                         long *, long *, initops, pointarray,
+                         Char *, Char *, FILE *);
+
 FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
@@ -426,9 +438,6 @@ typedef double *vector;                     /* used in distance programs    */
 typedef long nucarray[(long)O - (long)A + 1];
 typedef long discnucarray[(long)seven - (long)zero + 1];
 
-typedef enum { bottom, nonbottom, hslength, tip, iter, length,
-                 hsnolength, treewt, unittrwt } initops ;
-
 typedef double **transmatrix;     /* transition matrix for Restml, Restdist */
 typedef transmatrix *transptr;                   /* transptr used in Restml */
 
@@ -462,8 +471,6 @@ typedef enum nodetype {                                /* what kind of data */
   NODE_T_DNA,
   NODE_T_PROT
 } nodetype;
-
-typedef struct tree tree;                            /* forward declaration */
 
 /* prototypes of types of functions */
 typedef void (*tree_new_t)(tree**, long, long, long); /* tree_new fn */
@@ -537,8 +544,6 @@ struct node_vtable {
 /* debug:  extern struct node_vtable node_vtable;  */
 
 
-typedef struct node **pointarray; /* type is an array of pointers to nodes
-                                  * and is the type of array nodep */
 typedef void (*tree_re_move_t)(struct tree*, struct node*, struct node**, boolean);
 typedef boolean (*tree_addtraverse_t)(struct tree*, struct node*, struct node*, 
                            traversetype, struct node*, double*, struct tree*, 
