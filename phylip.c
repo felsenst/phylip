@@ -3131,7 +3131,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         *ch = 0;
       }
 
-      addelement(treep, &(*p)->next->back, (*p)->next, ch, parens, treefile,
+      addelement(treep, &((*p)->next->back), (*p)->next, ch, parens, treefile,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 
