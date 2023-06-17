@@ -3249,7 +3249,7 @@ void treeread (struct tree * treep, FILE *treefile, node **root,
 }  /* treeread */
 
 
-void addelement2(tree* t, struct node *q, Char *ch, long *parens,
+void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
                  FILE *treefile, boolean lngths, double *trweight,
                  boolean *goteof, long *nextnode, long *ntips, 
                  long no_species, boolean *haslengths, boolean unifok,
@@ -3257,7 +3257,8 @@ void addelement2(tree* t, struct node *q, Char *ch, long *parens,
 { /* recursive procedure adds nodes to user-defined tree
    * -- old-style bifurcating-only version used only by treeread2
    * which is used only in Contml, Fitch, Kitsch, and Restml.  */
-  node *pfirst = NULL, *p;
+  struct node *pfirst = NULL, *p;
+  struct bl_node *q;
   long i, len, current_loop_index;
   boolean notlast, minusread;
   Char str[MAXNCH];
@@ -3371,7 +3372,7 @@ void addelement2(tree* t, struct node *q, Char *ch, long *parens,
     (*haslengths) = (*haslengths) && (q == NULL);
 
   if (q != NULL)
-    hookup(q, pfirst);
+    hookup(qq, pfirst);
   /* debug:   if (q != NULL) {
     if (q->branchnum < pfirst->branchnum)
     pfirst->branchnum = q->branchnum;
@@ -3382,16 +3383,17 @@ void addelement2(tree* t, struct node *q, Char *ch, long *parens,
   if ((*ch) == ':') {                               /* read a branch length */
     processlength(&valyew, &divisor, ch,
                   &minusread, treefile, parens);
-    if (q != NULL) {
+    q = (struct bl_node*)qq;
+    if (qq != NULL) {
       if (!minusread)
         q->oldlen = valyew / divisor;
       else
         q->oldlen = initialv;
       if (lngths) {
         q->v = valyew / divisor;
-        q->back->v = q->v;
+        ((struct bl_node*)(qq->back))->v = q->v;
         q->iter = false;
-        q->back->iter = false;
+        ((struct bl_node*)(qq->back))->iter = false;
       }
     }
   }
