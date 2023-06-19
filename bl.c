@@ -1062,6 +1062,207 @@ void bl_initialvtrav(struct tree* t, struct bl_node *p)
 }  /* bl_initialvtrav */
 
 
+void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
+                 FILE *treefile, boolean lngths, double *trweight,
+                 boolean *goteof, long *nextnode, long *ntips, 
+                 long no_species, boolean *haslengths, boolean unifok,
+                 long maxnodes)
+{ /* recursive procedure adds nodes to user-defined tree
+   * -- old-style bifurcating-only version used only by treeread2
+   * which is used only in Contml, Fitch, Kitsch, and Restml.  */
+  struct node *pfirst = NULL, *p;
+  struct bl_node *q;
+  long i, len, current_loop_index;
+  boolean notlast, minusread;
+  Char str[MAXNCH];
+  double valyew, divisor;
+  long furcs = 0;
+
+  if ((*ch) == '(') {
+
+    current_loop_index = (*nextnode) + t->spp;
+    (*nextnode)++;
+
+    if ( (maxnodes != -1) && (current_loop_index > maxnodes)) {
+      sprintf(progbuf,
+            "ERROR in intree file: Attempting to allocate too many nodes.\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+                  "This is usually caused by a unifurcation.  To use this\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+                  "intree with this program, use Retree to read and write\n");
+      print_progress(progbuf);
+      sprintf(progbuf, "this tree.\n");
+      print_progress(progbuf);
+      exxit(-1);
+    }
+    /* This is an assignment of an interior node */
+    p = t->nodep[current_loop_index];
+    pfirst = p;
+    notlast = true;
+    while (notlast) {      /* This while loop goes through a circle (triad for
+                                         the case of bifurcations) of nodes */
+      furcs++;
+      p = p->next;
+      /* added to ensure that non base nodes in loops have indices */
+      p->index = current_loop_index + 1;
+
+      getch(ch, parens, treefile);
+
+      addelement2(t, p, ch, parens, treefile, lngths, trweight, goteof,
+                   nextnode, ntips, no_species, haslengths, unifok, maxnodes);
+      /* recursive call for subtrees */
+
+      if ((*ch) == ')') {
+        notlast = false;
+        do {
+          getch(ch, parens, treefile);
+        } while ((*ch) != ',' && (*ch) != ')' &&
+                 (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
+      }
+    }
+    if ( furcs <= 1 && !unifok ) {
+      sprintf(progbuf,
+               "ERROR in intree file: A Unifurcation was detected.\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+            "To use this intree with this program, use Retree to read and\n");
+      print_progress(progbuf);
+      sprintf(progbuf, " write this tree.\n");
+      print_progress(progbuf);
+      exxit(-1);
+    }
+
+  } else if ((*ch) != ')') {                       /* read the species name */
+    for (i = 0; i < MAXNCH; i++)
+      str[i] = '\0';
+    len = take_name_from_tree (ch, str, treefile);
+    match_names_to_data (str, t->nodep, &p, spp);
+    pfirst = p;
+    if ((*ch) == ')')
+      (*parens)--;
+    (*ntips)++;
+    strncpy (p->nayme, str, len);
+  } else
+    getch(ch, parens, treefile);
+
+  if ((*ch) == '[')          /* getting tree weight from last comment field */
+  {
+    if (!eoln(treefile))
+    {
+      if(fscanf(treefile, "%lf", trweight) < 1)
+      {
+        printf("\n\nERROR reading tree file./n/n");
+        exxit(-1);
+      }
+      getch(ch, parens, treefile);
+      if (*ch != ']')
+      {
+        sprintf(progbuf, "\n\nERROR:  Missing right square bracket.\n\n");
+        print_progress(progbuf);
+        exxit(-1);
+      }
+      else
+      {
+        getch(ch, parens, treefile);
+        if (*ch != ';') {
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          print_progress(progbuf);
+          exxit(-1);
+        }
+      }
+    }
+  }
+  else if ((*ch) == ';') {
+    (*trweight) = 1.0 ;
+    if (!eoln(treefile))
+      sprintf(progbuf, "WARNING:  Tree weight set to 1.0\n");
+    print_progress(progbuf);
+  }
+  else
+    (*haslengths) = (*haslengths) && (q == NULL);
+
+  if (q != NULL)
+    hookup(qq, pfirst);
+  /* debug:   if (q != NULL) {
+    if (q->branchnum < pfirst->branchnum)
+    pfirst->branchnum = q->branchnum;
+    else
+    q->branchnum = pfirst->branchnum;
+    }  FIXME check if we need this for restml */
+
+  if ((*ch) == ':') {                               /* read a branch length */
+    processlength(&valyew, &divisor, ch,
+                  &minusread, treefile, parens);
+    q = (struct bl_node*)qq;
+    if (qq != NULL) {
+      if (!minusread)
+        q->oldlen = valyew / divisor;
+      else
+        q->oldlen = initialv;
+      if (lngths) {
+        q->v = valyew / divisor;
+        ((struct bl_node*)(qq->back))->v = q->v;
+        q->iter = false;
+        ((struct bl_node*)(qq->back))->iter = false;
+      }
+    }
+  }
+}  /* addelement2 */
+
+
+void treeread2 (tree* t, FILE *treefile, node **root, boolean lngths,
+                 double *trweight, boolean *goteof, boolean *haslengths,
+                 long *no_species, boolean unifok, long maxnodes)
+{
+  /* read in user-defined tree and set it up
+     -- old-style bifurcating-only version used only in Fitch, Kitsch,
+     Contml, and Restml.  Needs to be replaced by generic treeread */
+  char  ch;
+  long parens = 0;
+  long ntips = 0;
+  long nextnode;
+
+  (*goteof) = false;
+  nextnode = 0;
+
+  /* Eats all blank lines at start of file */
+  while (eoln(treefile) && !eoff(treefile))
+    scan_eoln(treefile);
+
+  if (eoff(treefile)) {
+    (*goteof) = true;
+    return;
+  }
+
+  getch(&ch, &parens, treefile);
+
+  while (ch != '(') {
+    /* Eat everything in the file (i.e. digits, tabs) until you
+     * encounter an open-paren */
+    getch(&ch, &parens, treefile);
+  }
+
+  addelement2(t, NULL, &ch, &parens, treefile, lngths, trweight, goteof,
+              &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
+  (*root) = t->nodep[*no_species];
+
+  /*eat blank lines */
+  while (eoln(treefile) && !eoff(treefile))
+    scan_eoln(treefile);
+
+  (*root)->oldlen = 0.0;
+
+  if (parens != 0) {
+    sprintf(progbuf, "\n\nERROR in tree file:  unmatched parentheses.\n\n");
+    print_progress(progbuf);
+    exxit(-1);
+  }
+}  /* treeread2 */
+
+
 void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp, 
                         double bl_scale, int* col)
 { 
