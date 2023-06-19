@@ -24,6 +24,7 @@ typedef struct bl_tree {
 typedef struct bl_node {                       /* subclass of generic node */
   struct node node;                          /* Base object, must be first */
   double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
+  boolean iter;                       /* iter used in dnaml, fitch & restml */
 } bl_node;
 
 typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
@@ -63,6 +64,10 @@ void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
 double  min_child_tyme(struct bl_node *);
 double  parent_tyme(struct bl_node *);
 boolean valid_tyme(struct tree *, bl_node *, double);
+void    addelement2(struct tree*, struct node*, Char*, long*, FILE*, boolean, 
+	  double*, boolean*, long*, long*, long, boolean*, boolean, long);
+void    treeread2 (struct tree*, FILE*, struct node**, boolean, 
+          double*, boolean*, boolean*, long*, boolean, long);
 void    bl_treeoutrecurs(FILE*, struct tree*, bl_node*, double, int*);
 void    bl_treeout(FILE*, struct tree*, struct bl_node*, double);
 void    getthree(struct tree*, struct node*, double, 

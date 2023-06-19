@@ -504,7 +504,6 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   long ymin, ymax;                                      /*  "   "     "     */
   boolean haslength;               /* haslength used in dnamlk (and fitch?) */
   double length;                                          /* used in retree */
-  boolean iter;                       /* iter used in dnaml, fitch & restml */
   boolean do_newbl;                           /* new branch lengths needed? */
   boolean initialized;              /* initialized used in dnamlk & restml  */
   boolean deleted;                      /* true if node is deleted (retree) */
@@ -839,12 +838,6 @@ void            addelement(struct tree*, struct node**, struct node*, Char*,
 void            treeread (struct tree*, FILE*, struct node**, pointarray, 
                             boolean*, boolean*, long*, boolean*, initops, 
                             boolean, long);
-void            addelement2(struct tree*, struct node*, Char*, long*, FILE*, 
-                             boolean, double*, boolean*, long*, long*, long,
-                             boolean*, boolean, long);
-void            treeread2 (struct tree*, FILE*, struct node**, boolean, 
-                            double*, boolean*, boolean*, 
-                            long*, boolean, long);
 void            exxit (int);
 char            gettc(FILE*);
 void            unroot(struct tree*, long);

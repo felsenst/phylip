@@ -1420,10 +1420,10 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
   /* initializes a node */
   boolean minusread;
   double valyew, divisor;
+  struct bl_node *bln, *blnb;
 
   (void)len;                            // RSGnote: Parameter never used.
   (void)ntips;                          // RSGnote: Parameter never used.
-
   switch (whichinit)
   {
     case bottom:
@@ -1440,25 +1440,27 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       match_names_to_data (str, nodep, (struct node**)p, spp);
       break;
     case iter:
+      bln = (struct bl_node*)p;
       ((struct node*)p)->initialized = false;
-      ((struct bl_node*)p)->v = initialv;
-      ((struct node*)p)->iter = true;
-      if (((struct node*)p)->back != NULL)
+      bln->v = initialv;
+      bln->iter = true;
+      blnb = (struct bl_node*)(((struct node*)p)->back);
+      if (blnb != NULL)
       {
-        ((struct node*)p)->back->iter = true;
-        ((struct bl_node*)(((struct node*)p)->back))->v = initialv;
-        ((struct node*)p)->back->initialized = false;
+        blnb->iter = true;
+        blnb->v = initialv;
+        ((struct node*)p)->initialized = false;
       }
       break;
     case length:
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
       ((struct bl_node*)p)->v = valyew / divisor / fracchange;
-      ((struct node*)p)->iter = false;
+      ((struct bl_node*)p)->iter = false;
       if (((struct node*)p)->back != NULL)
       {
         ((struct bl_node*)((struct node*)p)->back)->v 
                               = ((struct bl_node*)p)->v;
-        ((struct node*)p)->back->iter = false;
+        blnb->iter = false;
       }
       break;
     case hsnolength:
@@ -1610,7 +1612,8 @@ void describe(struct dnaml_node *ppp)
     else
       fprintf(outfile, "%4ld      ", p->index - spp);
     fprintf(outfile, "%15.5f", qq->v * fracchange);
-    if (reusertree || !usertree || (usertree && !lngths) || p->iter )
+    if (reusertree || !usertree || (usertree && !lngths) || 
+		                        ((bl_node*)p)->iter )
     {
       sigma((struct dnaml_node*)qq, &sumlr, &sigma1, &sigma2);
       if (sigma1 <= sigma2)
