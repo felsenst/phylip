@@ -82,6 +82,7 @@ void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
   set_tyme(destn, srcn->tyme);
   destn->v = srcn->v;
   destn->deltav = srcn->deltav;
+  destn->iter = srcn->iter;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_copy */
 
@@ -114,6 +115,7 @@ void bl_node_reinit(struct bl_node * bln)
   n = (struct node*)bln;
   bln->tyme = 0.0;
   bln->v = initialv;
+  n->iter = true;   /* debug: do we know we need true? */
   generic_node_reinit(n);
 } /* bl_node_reinit */
 
@@ -1048,7 +1050,7 @@ void bl_initialvtrav(struct tree* t, struct bl_node *p)
   pp = (struct node*)p;
   if (pp == NULL)                      /* if this is a NULL branch bail out */
     return;
-  if ((!lngths) || pp->iter) {    /* set length of this branch to  initialv */
+  if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
     p->v = initialv;
     ((struct bl_node*)(pp->back))->v = initialv;
   }
@@ -1184,6 +1186,7 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
   else
     (*haslengths) = (*haslengths) && (q == NULL);
 
+  q = (struct node*)qq;
   if (q != NULL)
     hookup(qq, pfirst);
   /* debug:   if (q != NULL) {

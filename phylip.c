@@ -134,7 +134,7 @@ void generic_node_init (struct node* n, node_type type, long index)
     }
 
   n->index = index;
-  n->iter = true;      /* debug:  seems wrong.  iterate it in some, not all cases */
+/* debug:  n->iter = true;    seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
 
   /* Initialize virtual functions */
@@ -313,7 +313,6 @@ void generic_node_copy (struct node* src, struct node* dst)
   dst->ycoord = src->ycoord;
   dst->ymin = src->ymin;
   dst->ymax = src->ymax;
-  dst->iter = src->iter;
   dst->haslength = src->haslength;
   dst->initialized = src->initialized;
 } /* generic_node_copy */
@@ -359,7 +358,6 @@ void generic_node_print (node *n)
     sprintf(progbuf, "    ");
     print_progress(progbuf);
   }
-  sprintf(progbuf, " p->iter : %d", n->iter);
   print_progress(progbuf);
   sprintf(progbuf, " init : %d", n->initialized);
   print_progress(progbuf);
@@ -379,7 +377,6 @@ void generic_node_reinit (node * n)
   /*  re-initialize node */
 /* debug: maybe make this hierarchical too? */
   n->back = NULL;
-  n->iter = true;
   n->initialized = false;
   /* may or may not want to change  n->index, depending
    * on whether it is going onto the free forknode list */
@@ -3323,8 +3320,6 @@ void unroot_here(tree* t, node* p, long nonodes)
     }
     p->next->back = NULL;   /* null the orphan fork's back pointers and ... */
     p->next->next->back = NULL;
-    p->next->v = 0.0;       /* ... zero the branch lengths to neighbors ... */
-    p->next->next->v = 0.0;               /* ... (which may be unnecessary) */
   }
 } /* unroot_here */
 
@@ -3600,10 +3595,9 @@ boolean generic_fork_good(tree *t, node * n)
 } /* generic_fork_good */
 
 
-boolean generic_node_good(tree *t, node * n)
+boolean generic_node_good(struct tree *t, struct node * n)
 {
   /* check whether a node is good */
-  (void)t;                              // RSGdebug: Parameter never used.
 
   if ( n->back != NULL)
   {
@@ -3611,7 +3605,6 @@ boolean generic_node_good(tree *t, node * n)
     assert(edgesEqual);
     if ( !edgesEqual) return false;
   }
-
   return true;
 } /* generic_node_good */
 
@@ -4159,11 +4152,6 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
   inittrav(t, t->rnb);                        /* these are neighbors of  r  */
   inittrav(t, t->rnnb);
-#if 0
-inittrav(t, p->next);    /* debug  removed as unnecessary */
-  inittrav(t, p->next->next);
-#endif
-
 } /* unrooted_tree_restore */
 
 

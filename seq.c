@@ -165,7 +165,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
     {
       treenode[i-1]->back = NULL;
       treenode[i-1]->node_init(treenode[i-1], i<=spp, i);
-      treenode[i-1]->iter = true;
+/* debug:      treenode[i-1]->iter = true;    maybe initialize later? */
       treenode[i-1]->initialized = true;
     }
   }
@@ -178,7 +178,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
       {
         p->back = NULL;
         p->node_init(p, false, i);
-        p->iter = true;
+/* debug         p->iter = true;   maybe initialize later? */
         p->initialized = false;
         p = p->next;
       }
