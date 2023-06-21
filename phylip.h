@@ -575,7 +575,7 @@ typedef void (*tree_makenewv_t)(struct tree*, struct node*);
 typedef void (*tree_print_t)(struct tree*);
 
 typedef boolean (*tree_good_t)(struct tree*);
-typedef boolean (*node_good_t)(struct tree*, struct node*);   // check the individual node
+typedef boolean (*node_good_t)(struct tree*, struct node*);
 
 typedef struct tree_vtable tree_vtable;              /* forward declaration */
 

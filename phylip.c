@@ -3602,10 +3602,7 @@ boolean generic_node_good(struct tree *t, struct node * n)
 
   if ( n->back != NULL)
   {
-    boolean edgesEqual = (n->back->v == n->v);
-    assert(edgesEqual);
-    if ( !edgesEqual) return false;
-    boolea
+    node_good = true;
   }
   return true;
 } /* generic_node_good */

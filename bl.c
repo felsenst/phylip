@@ -70,6 +70,22 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
 } /* bl_node_init */
 
 
+boolean bl_node_good(struct tree *t, struct node *n)
+{ /* check whether node exists and has forward and back lengths equal */
+  boolean ok;
+  struct node *nb;
+  struct bl_node *bln, *blnb;
+
+  ok = node_good(t, n);                /* first check if back branch exists */
+  if ok {
+    bln = (struct bl_node *)n;
+    blnb = (struct bl_node *)(n->back);
+    ok = (blnb->v == bln->v);    /* is sensible to check equality of reals! */
+  }
+  return ok;
+} /* bl_node_good */
+
+
 void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
 { /* copy a bl_node */
 /* debug: shouldn't length of node be involved? */

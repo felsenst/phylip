@@ -34,7 +34,8 @@ typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);
 void    bl_tree_init(struct bl_tree*, long, long);
-struct bl_node* bl_node_new(node_type, long, long);
+struct  bl_node* bl_node_new(node_type, long, long);
+boolean bl_node_good(struct tree*, struct node*);
 void    bl_node_copy(struct bl_node *, struct  bl_node *);
 void    bl_node_init(struct bl_node*, node_type, long);
 void    bl_node_free(struct bl_node **);
