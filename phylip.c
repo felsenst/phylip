@@ -3598,12 +3598,14 @@ boolean generic_fork_good(tree *t, node * n)
 boolean generic_node_good(struct tree *t, struct node * n)
 {
   /* check whether a node is good */
+  boolean node_good = false;
 
   if ( n->back != NULL)
   {
     boolean edgesEqual = (n->back->v == n->v);
     assert(edgesEqual);
     if ( !edgesEqual) return false;
+    boolea
   }
   return true;
 } /* generic_node_good */
@@ -4155,9 +4157,10 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 } /* unrooted_tree_restore */
 
 
-void generic_unrooted_locrearrange(tree* t, node* start, boolean thorough,
-                              double* bestyet, tree* bestree, tree* priortree,
-                              boolean storing, double* bestfound)
+void generic_unrooted_locrearrange(struct tree* t, struct node* start, 
+		              boolean thorough, double* bestyet, struct 
+			      tree* bestree, struct tree* priortree, 
+			      boolean storing, double* bestfound)
 {
  /* generic wrapper for local rearrangement, do until does not succeed */
   boolean succeeded;
