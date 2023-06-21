@@ -1453,6 +1453,7 @@ void initdnamlnode(struct tree *treep, struct dnaml_node *p, long len,
       }
       break;
     case length:
+      blnb = (struct bl_node*)(((struct node*)p)->back);
       processlength(&valyew, &divisor, ch, &minusread, intree, parens);
       ((struct bl_node*)p)->v = valyew / divisor / fracchange;
       ((struct bl_node*)p)->iter = false;

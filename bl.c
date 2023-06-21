@@ -73,11 +73,10 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
 boolean bl_node_good(struct tree *t, struct node *n)
 { /* check whether node exists and has forward and back lengths equal */
   boolean ok;
-  struct node *nb;
   struct bl_node *bln, *blnb;
 
-  ok = node_good(t, n);                /* first check if back branch exists */
-  if ok {
+  ok = generic_node_good(t, n);        /* first check if back branch exists */
+  if (ok) {
     bln = (struct bl_node *)n;
     blnb = (struct bl_node *)(n->back);
     ok = (blnb->v == bln->v);    /* is sensible to check equality of reals! */
@@ -88,18 +87,16 @@ boolean bl_node_good(struct tree *t, struct node *n)
 
 void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
 { /* copy a bl_node */
-/* debug: shouldn't length of node be involved? */
   struct node *src = (struct node *)srcn;
   struct node *dest = (struct node *)destn;
 
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(src, dest);
+  generic_node_copy(src, dest);                  /* first call generic copy */
   set_tyme(destn, srcn->tyme);
   destn->v = srcn->v;
   destn->deltav = srcn->deltav;
   destn->iter = srcn->iter;
-/* debug: initialize branch lengths here too? */
 } /* bl_node_copy */
 
 
@@ -123,16 +120,16 @@ void bl_hookup(struct bl_node* p, struct bl_node* q){
 } /* bl_hookup */
 
 
-void bl_node_reinit(struct bl_node * bln)
+void bl_node_reinit(struct bl_node* bln)
 {
   /* reset things for an ml tree node */
-  struct node * n;
+  struct node *n;
 
   n = (struct node*)bln;
+  generic_node_reinit(n);
   bln->tyme = 0.0;
   bln->v = initialv;
-  n->iter = true;   /* debug: do we know we need true? */
-  generic_node_reinit(n);
+  bln->iter = true;   /* debug: do we know we need true? */
 } /* bl_node_reinit */
 
 
@@ -336,6 +333,43 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
     }
   }
 } /* bl_tree_insert */
+
+
+void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
+{
+  /* save views and branch lengths around fork that is removed. */
+
+  r->copy(r, t->lrsaves[0]);
+  r->next->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
+  p->next->copy(p->next, t->lrsaves[3]);
+  p->next->next->copy(p->next->next, t->lrsaves[4]);
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                                /* ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+} /* unrooted_tree_save */
+
+
+void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
+{
+    /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
+
+  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
+  t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
+  t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
+  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
+  t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
+
+  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
+  t->rnb->back->v = t->rnb->v;
+  t->rnnb->back->v = t->rnnb->v;
+  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
+  p->next->next->back->v = p->next->next->v;
+
+  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
+  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
+  inittrav(t, t->rnnb);
+} /* unrooted_tree_restore_lr_nodes */
 
 
 void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
@@ -1202,8 +1236,8 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
   else
     (*haslengths) = (*haslengths) && (q == NULL);
 
-  q = (struct node*)qq;
-  if (q != NULL)
+  q = (struct bl_node*)qq;
+  if (qq != NULL)
     hookup(qq, pfirst);
   /* debug:   if (q != NULL) {
     if (q->branchnum < pfirst->branchnum)
@@ -1213,9 +1247,7 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
     }  FIXME check if we need this for restml */
 
   if ((*ch) == ':') {                               /* read a branch length */
-    processlength(&valyew, &divisor, ch,
-                  &minusread, treefile, parens);
-    q = (struct bl_node*)qq;
+    processlength(&valyew, &divisor, ch, &minusread, treefile, parens);
     if (qq != NULL) {
       if (!minusread)
         q->oldlen = valyew / divisor;

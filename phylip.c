@@ -3604,7 +3604,7 @@ boolean generic_node_good(struct tree *t, struct node * n)
   {
     node_good = true;
   }
-  return true;
+  return node_good;
 } /* generic_node_good */
 
 
@@ -4115,43 +4115,6 @@ void phyClearScreen(void)
 } /* phyClearScreen */
 
 #endif /* WIN32 */
-
-
-void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
-{
-  /* save views and branch lengths around fork that is removed. */
-
-  r->copy(r, t->lrsaves[0]);
-  r->next->copy(r->next->back, t->lrsaves[1]);
-  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
-  p->next->copy(p->next, t->lrsaves[3]);
-  p->next->next->copy(p->next->next, t->lrsaves[4]);
-  t->rb = r;                       /* pointers to the nodes of the fork ... */
-  t->rnb = r->next;                                /* ... that contains  r  */
-  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
-} /* unrooted_tree_save */
-
-
-void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
-{
-    /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
-
-  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
-  t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
-  t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
-  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
-  t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
-
-  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
-  t->rnb->back->v = t->rnb->v;
-  t->rnnb->back->v = t->rnnb->v;
-  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
-  p->next->next->back->v = p->next->next->v;
-
-  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
-  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
-  inittrav(t, t->rnnb);
-} /* unrooted_tree_restore */
 
 
 void generic_unrooted_locrearrange(struct tree* t, struct node* start, 

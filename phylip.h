@@ -561,8 +561,6 @@ typedef void (*tree_locrearrange_t)(struct tree*, struct node*, boolean, double*
                                     struct tree*,struct tree*, boolean, double*);
 typedef void (*tree_smoothall_t)(struct tree*, struct node*);
 typedef double (*tree_evaluate_t)(struct tree*, struct node*, boolean);
-typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*, struct node*);
-typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*, struct node*);
 typedef void (*tree_save_traverses_t)(struct tree*, struct node*, struct node*);
 typedef void (*tree_restore_traverses_t)(struct tree*, struct node*, struct node*);
 typedef void (*tree_release_fork_t)(struct tree*, struct node*);
