@@ -591,8 +591,6 @@ struct tree_vtable { /* this is a table of tree functions to reassign as
   tree_smoothall_t smoothall;
   tree_evaluate_t evaluate;
   tree_locrearrange_t locrearrange;
-  tree_save_lr_nodes_t save_lr_nodes;
-  tree_restore_lr_nodes_t restore_lr_nodes;
   tree_save_traverses_t save_traverses;
   tree_restore_traverses_t restore_traverses;
   tree_release_fork_t release_fork;
@@ -646,8 +644,6 @@ struct tree {                                         /* the tree structure */
   tree_smoothall_t smoothall;
   tree_evaluate_t evaluate;
   tree_locrearrange_t locrearrange;
-  tree_save_lr_nodes_t save_lr_nodes;
-  tree_restore_lr_nodes_t restore_lr_nodes;
   tree_save_traverses_t save_traverses;
   tree_restore_traverses_t restore_traverses;
   tree_free_t free;

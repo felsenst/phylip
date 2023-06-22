@@ -16,9 +16,14 @@
 
 extern boolean inserting, smoothit, smoothed, polishing;
 
+typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
+typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
+
 typedef struct bl_tree {
   struct tree treepart;
   long endsite;
+  tree_save_lr_nodes_t save_lr_nodes;
+  tree_restore_lr_nodes_t restore_lr_nodes;
 } bl_tree;
 
 typedef struct bl_node {                       /* subclass of generic node */
@@ -30,6 +35,7 @@ typedef struct bl_node {                       /* subclass of generic node */
 typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
+
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);

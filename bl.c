@@ -360,7 +360,10 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
   t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
 
-  t->rb->back->v = t->rb->v;                   /* branch lengths around  r  */
+  trb = (bl_node*)(t->rb);
+  trnbb = (bl_node*)t->rnb->back;
+  trnnbb = (bl_node*)(t->rnnb->back);
+  trbb->v = t->rb->v;                   /* branch lengths around  r  */
   t->rnb->back->v = t->rnb->v;
   t->rnnb->back->v = t->rnnb->v;
   p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
