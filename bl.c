@@ -372,9 +372,9 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
   p->next->next->back->v = p->next->next->v;
 
-  inittrav(t, trb);            /*  to make sure initialized booleans are OK */
-  inittrav(t, trnb);                          /* these are neighbors of  r  */
-  inittrav(t, trnnb);
+  inittrav(t, r->back);        /*  to make sure initialized booleans are OK */
+  inittrav(t, r->next->back);                 /* these are neighbors of  r  */
+  inittrav(t, r->next->next->back);
 } /* unrooted_tree_restore_lr_nodes */
 
 
