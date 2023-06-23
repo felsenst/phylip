@@ -353,25 +353,28 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
     /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
+  struct bl_node *trb, *trnb, *trnnb, *trn, *trnn;
 
-  t->lrsaves[0]->copy(t->lrsaves[0], t->rb);         /* these restore views */
-  t->lrsaves[1]->copy(t->lrsaves[1], t->rnb->back);
-  t->lrsaves[2]->copy(t->lrsaves[2], t->rnnb->back);
-  t->lrsaves[3]->copy(t->lrsaves[3], p->next);      /* inward-looking views */
-  t->lrsaves[4]->copy(t->lrsaves[4], p->next->next);
+  trb = (struct bl_node*)(r->back);     /* point to three neighboring nodes */
+  trnb = (struct bl_node*)(r->next->back);
+  trnnb = (struct bl_node*)(r->next->next->back);
+  t->lrsaves[0]->copy(t->lrsaves[0], trb);           /* these restore views */
+  t->lrsaves[1]->copy(t->lrsaves[1], trnb);
+  t->lrsaves[2]->copy(t->lrsaves[2], trnnb);
+  trn = (struct bl_node*)(r->next);                 /* for view back in ... */
+  trnn = (struct bl_node*)(r->next->next);         /* ... and the other one */
+  t->lrsaves[3]->copy(t->lrsaves[3], trn);          /* inward-looking views */
+  t->lrsaves[4]->copy(t->lrsaves[4], trnn);
 
-  trb = (bl_node*)(t->rb);
-  trnbb = (bl_node*)t->rnb->back;
-  trnnbb = (bl_node*)(t->rnnb->back);
-  trbb->v = t->rb->v;                   /* branch lengths around  r  */
-  t->rnb->back->v = t->rnb->v;
-  t->rnnb->back->v = t->rnnb->v;
+  trbb->v = trb->v;                            /* branch lengths around  r  */
+  t->rnb->back->v = trnb->v;
+  t->rnnb->back->v = trnnb->v;
   p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
   p->next->next->back->v = p->next->next->v;
 
-  inittrav(t, t->rb);          /*  to make sure initialized booleans are OK */
-  inittrav(t, t->rnb);                        /* these are neighbors of  r  */
-  inittrav(t, t->rnnb);
+  inittrav(t, trb);            /*  to make sure initialized booleans are OK */
+  inittrav(t, trnb);                          /* these are neighbors of  r  */
+  inittrav(t, trnnb);
 } /* unrooted_tree_restore_lr_nodes */
 
 
