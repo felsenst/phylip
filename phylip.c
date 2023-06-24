@@ -4226,12 +4226,13 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
  /* Restores branch legths to p and q (args to re_move) from
   * temp_p and temp_q nodes in t
  */
+/* debug:  these are generic versions but need to have this function be hierarchical too */
 
-  t->temp_p->copy(t->temp_p,p);
-  t->temp_q->copy(t->temp_q,q);
+  t->temp_p->copy(t->temp_p, p);  /* debug: how differs from node copy (it does!) */
+  t->temp_q->copy(t->temp_q, q);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, q);                             /* ... booleans to  false ... */
-  if ( p->back )
+  if ( p->back )  /* debug: maybe put this in  bl.c  polymorphic version ? */
   {
     p->back->v = p->v;
     inittrav(t, p->back);      /* ... and similarly for other end if branch */

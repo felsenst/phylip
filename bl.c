@@ -353,27 +353,30 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 {
     /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
-  struct bl_node *trb, *trnb, *trnnb, *trn, *trnn;
+  struct bl_node *tr, *trb, *trnb, *trnnb, *trn, *trnn, *pnb, *pnnb;
 
-  trb = (struct bl_node*)(r->back);     /* point to three neighboring nodes */
-  trnb = (struct bl_node*)(r->next->back);
+  t->lrsaves[0]->copy(t->lrsaves[0], r->back);       /* these restore views */
+  t->lrsaves[1]->copy(t->lrsaves[1], r->next->back);
+  t->lrsaves[2]->copy(t->lrsaves[2], r->next->next->back);
+  t->lrsaves[3]->copy(t->lrsaves[3], r->next);      /* inward-looking views */
+  t->lrsaves[4]->copy(t->lrsaves[4], r->next->next);
+
+  tr = (struct bl_node*)r;                               /* r  as a bl_node */
+  trb = (struct bl_node*)(r->back);
+  trnb = (struct bl_node*)(r->next->back);   /* to two of neighboring nodes */
   trnnb = (struct bl_node*)(r->next->next->back);
-  t->lrsaves[0]->copy(t->lrsaves[0], trb);           /* these restore views */
-  t->lrsaves[1]->copy(t->lrsaves[1], trnb);
-  t->lrsaves[2]->copy(t->lrsaves[2], trnnb);
   trn = (struct bl_node*)(r->next);                 /* for view back in ... */
   trnn = (struct bl_node*)(r->next->next);         /* ... and the other one */
-  t->lrsaves[3]->copy(t->lrsaves[3], trn);          /* inward-looking views */
-  t->lrsaves[4]->copy(t->lrsaves[4], trnn);
+  trb->v = tr->v                         ;     /* branch lengths around  r  */
+  trn->v = trnb->v;
+  trnn->v = trnnb->v;
+  pnb = (struct bl_node*)(p->next->back);
+  pnnb = (struct bl_node*)(p->next->next->back);
+  pnb->v = ((struct bl_node*)(p->next))->v; /* ... and on branches beyond p */
+  pnnb->v = ((struct bl_node*)(p->next->next))->v;
 
-  trbb->v = trb->v;                            /* branch lengths around  r  */
-  t->rnb->back->v = trnb->v;
-  t->rnnb->back->v = trnnb->v;
-  p->next->back->v = p->next->v;        /* ... and on two branches beyond p */
-  p->next->next->back->v = p->next->next->v;
-
-  inittrav(t, r->back);        /*  to make sure initialized booleans are OK */
-  inittrav(t, r->next->back);                 /* these are neighbors of  r  */
+  inittrav(t, r->back);    /*  to make sure initialized booleans are OK ... */
+  inittrav(t, r->next->back);                /* ... in the neighbors of  r  */
   inittrav(t, r->next->next->back);
 } /* unrooted_tree_restore_lr_nodes */
 
