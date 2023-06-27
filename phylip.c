@@ -3472,10 +3472,10 @@ void generic_tree_setupfunctions(tree *t)
    * get overwritten in  ml.c, parsimony.c, dist.c  as needed */
   long i;
   
-  t->do_newbl = false;  /* for parsimony etc. Overwritten in ml_tree_init */
+  t->do_newbl = false;    /* for parsimony etc. Overwritten in ml_tree_init */
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ ) {
-    t->lrsaves[i] = funcs.node_new(false, 0, (long)sizeof(node));  /* debug: need better sizeof? */
+    t->lrsaves[i] = funcs.node_new(false, 0, (long)sizeof(node));  /* debug: need better sizeof?  maybe sizeof(struct node)?  maybe not! */
   }
   t->temp_p = funcs.node_new(false, 0, (long)sizeof(node));
   t->temp_q = funcs.node_new(false, 0, (long)sizeof(node));
@@ -3488,6 +3488,8 @@ void generic_tree_setupfunctions(tree *t)
   t->smoothall = (tree_smoothall_t)no_op;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
+  t->save_lr_nodes = generic_save_lr_nodes;
+  t->restore_lr_nodes = generic_restore_lr_nodes;
   t->save_traverses = generic_tree_save_traverses;
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;

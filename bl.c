@@ -38,8 +38,8 @@ void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
-  t->save_lr_nodes = rooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+  ((struct tree*)t)->save_lr_nodes = rooted_tree_save_lr_nodes;
+  ((struct tree*)t)->restore_lr_nodes = rooted_tree_restore_lr_nodes;
 } /* bl_tree_init */
 
 
@@ -337,6 +337,16 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
 } /* bl_tree_insert */
 
 
+void generic_tree_save_lr_nodes(tree* t, node* p, node* r) {
+  /* null operations if not replaced by polymorphic variant */
+} /* generic_tree_save_lr_nodes */
+
+
+void generic_tree_restore_lr_nodes(tree* t, node* p, node* r) {
+  /* null operations if not replaced by polymorphic variant */
+} /* generic_tree_restore_lr_nodes */
+
+
 void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
   /* save views and branch lengths around fork that is removed. */
@@ -349,7 +359,7 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
   t->rb = r;                       /* pointers to the nodes of the fork ... */
   t->rnb = r->next;                                /* ... that contains  r  */
   t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
-} /* unrooted_tree_save */
+} /* unrooted_tree_save_lr_nodes */
 
 
 void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
