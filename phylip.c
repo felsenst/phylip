@@ -3429,8 +3429,6 @@ void rooted_tree_init(tree* t, long nonodes, long spp)
   t->insert_ = (tree_insert_t)rooted_tree_insert_;
   t->re_move = rooted_tree_re_move;
   t->locrearrange = rooted_locrearrange;
-  t->save_lr_nodes = rooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
 } /* rooted_tree_init */
 
 
@@ -3490,8 +3488,6 @@ void generic_tree_setupfunctions(tree *t)
   t->smoothall = (tree_smoothall_t)no_op;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
-  t->save_lr_nodes = unrooted_tree_save_lr_nodes;
-  t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
   t->save_traverses = generic_tree_save_traverses;
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;

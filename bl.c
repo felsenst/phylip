@@ -38,6 +38,8 @@ void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
+  t->save_lr_nodes = rooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = rooted_tree_restore_lr_nodes;
 } /* bl_tree_init */
 
 
