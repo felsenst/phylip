@@ -900,9 +900,9 @@ void            rooted_locrearrange(struct tree*, struct node*, boolean,
                                       double*, struct tree*, struct tree*, 
                                       boolean, double*);
 void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
-                                             struct node*);
+                                                           struct node*);
 void            generic_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                             struct node*);
+                                                               struct node*);
 void            rooted_tree_save_lr_nodes(struct tree*, 
                                                   struct node*, struct node*);
 void            rooted_tree_restore_lr_nodes(struct tree*, 

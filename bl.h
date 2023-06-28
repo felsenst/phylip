@@ -68,6 +68,8 @@ boolean bl_tree_try_insert_thorough(struct bl_tree*, struct bl_node*,
                                       struct bl_node*, struct bl_node*, 
                                       double*, struct bl_tree*, 
                                       boolean, boolean, boolean);
+void    bl_tree_save_traverses(struct tree*, struct node*, struct node*);
+void    bl_tree_restore_traverses(struct tree*, struct node*, struct node*);
 void    bl_tree_do_branchl_on_insert(struct bl_tree*, bl_node *, bl_node*);
 void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
 double  min_child_tyme(struct bl_node *);

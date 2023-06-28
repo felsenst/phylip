@@ -3488,8 +3488,8 @@ void generic_tree_setupfunctions(tree *t)
   t->smoothall = (tree_smoothall_t)no_op;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
-  t->save_lr_nodes = generic_save_lr_nodes;
-  t->restore_lr_nodes = generic_restore_lr_nodes;
+  t->save_lr_nodes = generic_tree_save_lr_nodes;
+  t->restore_lr_nodes = generic_tree_restore_lr_nodes;
   t->save_traverses = generic_tree_save_traverses;
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;
@@ -4230,16 +4230,6 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
   t->temp_q->copy(t->temp_q, q);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, q);                             /* ... booleans to  false ... */
-  if ( p->back )  /* debug: maybe put this in  bl.c  polymorphic version ? */
-  {
-    p->back->v = p->v;
-    inittrav(t, p->back);      /* ... and similarly for other end if branch */
-  }
-  if ( q->back )
-  {
-    q->back->v = q->v;
-    inittrav(t, q->back);
-  }
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
   /* debug:  not sure it is affected by this */
   // debug:  printf("TREECHECK restoring %p and %p\n\t",p,q);

@@ -38,8 +38,10 @@ void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
-  ((struct tree*)t)->save_lr_nodes = rooted_tree_save_lr_nodes;
-  ((struct tree*)t)->restore_lr_nodes = rooted_tree_restore_lr_nodes;
+  ((struct tree*)t)->save_lr_nodes = unrooted_tree_save_lr_nodes;
+  ((struct tree*)t)->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
+  ((struct tree*)t)->save_traverses = bl_tree_save_traverses;
+  ((struct tree*)t)->restore_traverses = bl_tree_restore_traverses;
 } /* bl_tree_init */
 
 
@@ -448,6 +450,30 @@ void bl_tree_re_move(struct bl_tree *t, struct bl_node *pp,
       bl_update(t, ((struct bl_node*)((*q)->back)));
   }
 } /* bl_tree_re_move */
+
+
+void bl_tree_restore_traverses(struct tree *t, struct node *p, 
+		                                 struct node* q) {
+  /* restore branch lengths and mark views (un?)initialized */
+  struct bl_node *pp, *qq, *ppb, *qqb;
+
+  generic_tree_restore_traverses(struct tree *t, struct node *p, 
+		                                   struct node *q);
+  pp = (struct bl_node*)p;
+  ppb = (struct bl_node*)(p->back);
+  if ( p->back )
+  {
+    ppb->v = pp->v;
+    inittrav(t, p->back);      /* ... and similarly for other end if branch */
+  }
+  qq = (struct bl_node*)q;
+  qqb = (struct bl_node*)(q->back);
+  if ( q->back )
+  {
+    qqb->v = qq->v;
+    inittrav(t, q->back);
+  }
+} /* bl_tree_restore_traverses */
 
 
 boolean bl_tree_try_insert_thorough(struct bl_tree *t, struct bl_node *pp, 
