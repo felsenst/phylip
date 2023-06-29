@@ -108,7 +108,7 @@ struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct tree *curtree, *bestree, *bestree2, *priortree;
 struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
-initops whichinit;
+initptr whichinit;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
 long *enterorder, inseed, inseed0;

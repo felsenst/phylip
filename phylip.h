@@ -329,7 +329,9 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
 
 FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
-FILE *progfile;
+
+#endif
+ILE *progfile;
 
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
@@ -839,9 +841,9 @@ long            take_name_from_tree (Char*, Char*, FILE*);
 void            match_names_to_data (Char*, pointarray, struct node**, long);
 void            addelement(struct tree*, struct node**, struct node*, Char*, 
                             long*, FILE*, pointarray, boolean*, boolean*, 
-                            long*, long*, boolean*, initops, boolean, long);
+                            long*, long*, boolean*, initptr, boolean, long);
 void            treeread (struct tree*, FILE*, struct node**, pointarray, 
-                            boolean*, boolean*, long*, boolean*, initops, 
+                            boolean*, boolean*, long*, boolean*, initptr, 
                             boolean, long);
 void            exxit (int);
 char            gettc(FILE*);

@@ -4646,11 +4646,12 @@ void generic_root_insert(struct tree* t, struct node* p)
 /* debug: maybe in future call a generic root-insert function
  * to implement this, so it can share that with remove-and-insert 
  * (see also generic_root_insert) */
-  struct node* q;
+  struct node *q;
   long k;
+  boolean newbl;
     
   if (t->root != NULL) {   /* debug: note t->root must have back NULL */
-    q = remove_root(t->root);      /* pull off rootmost node if bifurcating */
+    generic_tree_re_move(t, t->root, &q, newbl);        /* remove root fork */
   } 
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
   q = t->get_fork(t, k);                    /* get a fork for root and node */

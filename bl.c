@@ -457,8 +457,7 @@ void bl_tree_restore_traverses(struct tree *t, struct node *p,
   /* restore branch lengths and mark views (un?)initialized */
   struct bl_node *pp, *qq, *ppb, *qqb;
 
-  generic_tree_restore_traverses(struct tree *t, struct node *p, 
-		                                   struct node *q);
+  generic_tree_restore_traverses(t, p, q);
   pp = (struct bl_node*)p;
   ppb = (struct bl_node*)(p->back);
   if ( p->back )
@@ -1281,8 +1280,7 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
     print_progress(progbuf);
   }
   else
-    (*haslengths) = (*haslengths) && (q == NULL);
-
+    (*haslengths) = (*haslengths) && (qq == NULL);
   q = (struct bl_node*)qq;
   if (qq != NULL)
     hookup(qq, pfirst);

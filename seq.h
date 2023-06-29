@@ -12,7 +12,7 @@
 #define _SEQ_H_
 
 #include "phylip.h"
-#include "bl.h"
+#include "bl.h"        /* debug:  need this in this header? */
 
 #define ebcdic          EBCDIC
 

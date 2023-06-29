@@ -7,7 +7,6 @@
 #  include <config.h>
 #endif
 
-#include "phylip.h"
 #include "seq.h"
 
 #define SAMPLES 1000
