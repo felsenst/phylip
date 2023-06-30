@@ -40,7 +40,6 @@
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
-
 #else                                    /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
 
@@ -329,9 +328,7 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
 
 FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
-
-#endif
-ILE *progfile;
+FILE *progfile;
 
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
@@ -744,7 +741,7 @@ void 		seetree(struct tree*);
 void 		dumpnodelinks(struct node *, pointarray, long nonodes);
 
 /* if following not in phylip.c. best to demote them downwards unless shared
-   by two branches of hierarchy that split below this */
+   by two branches of hierarchy that split immediately below this */
 
 void            verify_nuview(struct node*);
 void            invalidate_nuview(struct node*);

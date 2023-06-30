@@ -453,7 +453,7 @@ void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 }  /* sitescrunch2 */
 
 
-void drawline(long i, double scale, bl_node *rt)
+void drawline(long i, double scale, struct bl_node *rt)
 {
   /* draws one row of the tree diagram by moving up tree */
   struct node *root, *p, *q, *r, *first =NULL, *last =NULL;

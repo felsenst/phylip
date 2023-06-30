@@ -3420,7 +3420,7 @@ void destruct_tree(tree* t)
 } /* destruct_tree */
 
 
-void rooted_tree_init(tree* t, long nonodes, long spp)
+void rooted_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* a few extra things for a rooted tree*/
 
@@ -4648,7 +4648,7 @@ void generic_root_insert(struct tree* t, struct node* p)
  * (see also generic_root_insert) */
   struct node *q;
   long k;
-  boolean newbl;
+  boolean newbl=false;
     
   if (t->root != NULL) {   /* debug: note t->root must have back NULL */
     generic_tree_re_move(t, t->root, &q, newbl);        /* remove root fork */

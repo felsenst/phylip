@@ -8,9 +8,11 @@
 #endif
 
 #ifndef MLDNA_H
+#define MLDNA_H
 #include "mldna.h"
 
 #include "seq.h"
+#include "ml.h"
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
@@ -3013,6 +3015,6 @@ int main(int argc, Char *argv[])
 
 #endif
 
-/* end of ifndef that conditions on this header file not already used. */
+/* end of ifndef that conditions on this header file was not already used. */
 
 /* End. */

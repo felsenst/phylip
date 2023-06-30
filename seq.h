@@ -12,7 +12,6 @@
 #define _SEQ_H_
 
 #include "phylip.h"
-#include "bl.h"        /* debug:  need this in this header? */
 
 #define ebcdic          EBCDIC
 
@@ -37,6 +36,7 @@ extern long endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
+extern FILE *infile, *outfile, *intree, *intree2, *outtree;
 extern struct bl_node** lrsaves;
 
 typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
@@ -51,7 +51,7 @@ void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
 void setuptree2(struct tree);
-void alloctip(bl_node *);
+void alloctip(struct bl_node *);
 void freetrans(transptr *, long, long );
 void sitesort(long, steptr);
 void sitecombine(long);
