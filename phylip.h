@@ -879,10 +879,6 @@ void 		phyFillScreenColor(void);
 void 		phyClearScreen(void);
 #endif
 
-void            unrooted_tree_save_lr_nodes(struct tree*, 
-                                             struct node*, struct node*);
-void            unrooted_tree_restore_lr_nodes(struct tree*, 
-                                                struct node*, struct node*);
 void            generic_unrooted_locrearrange(struct tree*, struct node*, 
                                      boolean, double*, struct tree*, 
                                      struct tree*, boolean, double*);
@@ -918,22 +914,12 @@ void            generic_tree_insert_(struct tree*, struct node*,
 void            generic_do_branchl_on_insert(struct tree*, 
                                                   struct node*, struct node*);
 struct node*    generic_tree_get_forknode(struct tree*, long);
-void            generic_tree_re_move(struct tree*, struct node*, 
-                                       struct node**, boolean);
 void            generic_re_move(struct tree*, struct node*, 
                                   struct node*, boolean);
 void            allocdiscnontip(struct node*, long );
 void            allocnode(struct node**, long);
 void            allocdiscnode(struct node**, long);
 void            gnudisctreenode(struct node**, struct node**, long, long);
-void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
-                                            struct node*);
-void            generic_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                                                struct node*);
-void            rooted_tree_save_lr_nodes(struct tree*, struct node*, 
-                                            struct node*);
-void            rooted_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                                                struct node*);
 void            generic_tree_reinit_forknode(struct tree*, struct node*);
 void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(struct tree*, boolean, boolean, boolean);

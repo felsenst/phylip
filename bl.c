@@ -686,19 +686,19 @@ void blk_tree_re_move(struct bl_tree* t, struct bl_node *item,
 }  /* blk_tree_re_move */
 
 
-#ifdef USE_NEW_MAKENEWV     /* debug: why?? */
-
 double min_child_tyme(struct bl_node *pp)
 {
   /* Return the minimum tyme of all children. p must be a parent nodelet */
   double min;
-  struct node *q;
+  struct node *p, *q;
+  struct bl_node* blnqb;
 
   p = (struct node*)pp;
   min = 1.0;                                /* tymes are always nonpositive */
   for ( q = p->next; q != p; q = q->next ) {
-    if ( get_tyme(q->back) < min )
-      min = get_tyme(q->back);
+    blnqb = (struct bl_node*)(q->back);
+    if ( get_tyme(blnqb) < min )
+      min = get_tyme(blnqb);
   }
   return min;
 } /* min_child_tyme */
@@ -707,11 +707,11 @@ double min_child_tyme(struct bl_node *pp)
 double parent_tyme(struct bl_node *pp)
 {
   /* Return the tyme of the parent of node p.  p must be a parent node. */
-  struct node* p;
+  struct node *p;
 
   p = (struct node*)pp;
   if (p->back)
-    return get_tyme(p->back);
+    return get_tyme((struct bl_node*)(p->back));
   else
     return MIN_ROOT_TYME;
 } /* parent_tyme */
@@ -732,7 +732,7 @@ boolean valid_tyme(struct bl_tree *blt, struct bl_node *pp, double tyme) {
 #ifdef __USE_C99        /* debug: TODO Find a way to check without this. */
   if ( !isfinite(tyme) ) return false;
 #endif
-  if ( p->tip == true && tyme != 0.0 ) return false;
+  if ( (p->tip == true) && (tyme != 0.0) ) return false;
   if ( tyme > min_child_tyme(pp) ) return false;
   if ( tyme < parent_tyme(pp) ) return false;
   return true;
@@ -745,19 +745,20 @@ double set_tyme_evaluate(struct bl_tree *blt, struct bl_node *pp, double tyme)
    * Views should be invalidated and regenerated before calling
    * evaluate() anywhere else in the tree. */
   struct tree* t;
+  struct node* p;
 
-  assert( valid_tyme(blt, p, tyme) );
+  assert( valid_tyme(blt, pp, tyme) );
   t = (struct tree*)blt;
   p = (struct node*)pp;
 
   set_tyme(pp, tyme);
-  t->nuview(t, pp);
+  t->nuview(t, p);
 
-  return t->evaluate(blt, p, false);
+  return t->evaluate(t, p, false);
 } /* set_tyme_evaluate */
 
 
-void blk_tree_makenewv(tree* t, struct bl_node *p)
+void blk_tree_makenewv(struct tree* t, struct node *p)
 {
   /* Improve a node tyme using Newton-Raphson
    *
@@ -812,15 +813,19 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
   long iteration;
   boolean done;
   long num_sibs, i;
-  struct bl_node *sib_ptr;
+  struct node *s, *sib_ptr;
+  struct bl_tree *blt;
+  struct bl_node *bls;
 
   if ( p->tip )                                               /* skip tips. */
     return;
 
-  struct node *s = t->nodep[p->index - 1];
+  s = t->nodep[p->index - 1];
+  bls = (struct bl_node*)s;
+  blt = (struct bl_tree*)t;
 
 #ifdef MAKENEWV_DEBUG
-  double start_tyme = get_tyme(s);
+  double start_tyme = get_tyme(bls);
   double start_likelihood = t->score;
   long uphill_steps = 0;
 #endif /* MAKENEWV_DEBUG */
@@ -828,9 +833,9 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
   if (s == t->root)                  /* Tyme cannot be less than parent ... */
     min_tyme = MIN_ROOT_TYME;
   else
-    min_tyme = get_tyme(s) + MIN_BRANCH_LENGTH;
+    min_tyme = get_tyme(bls) + MIN_BRANCH_LENGTH;
 
-  max_tyme = min_child_tyme(s) - MIN_BRANCH_LENGTH;    /* or > any children */
+  max_tyme = min_child_tyme(bls) - MIN_BRANCH_LENGTH;  /* or > any children */
 
   /* Nothing to do if we can't move */
   if ( max_tyme < min_tyme + 2.0*min_tyme_delta ) {  /* done if can't move! */
@@ -838,7 +843,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
     return;
   }
 
-  current_tyme = get_tyme(s);
+  current_tyme = get_tyme(bls);
   current_likelihood = t->evaluate(t, s, false);
 
   uphill_step = (max_tyme - min_tyme) * uphill_step_factor;
@@ -853,9 +858,9 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
       x[2] = max_tyme;
     x[1] = (x[0] + x[2]) / 2.0;
 
-    lnl[0] = set_tyme_evaluate(t, s, x[0]);   /* scores of the three points */
-    lnl[1] = set_tyme_evaluate(t, s, x[1]);
-    lnl[2] = set_tyme_evaluate(t, s, x[2]);
+    lnl[0] = set_tyme_evaluate(blt, bls, x[0]);   /* scores of the three points */
+    lnl[1] = set_tyme_evaluate(blt, bls, x[1]);
+    lnl[2] = set_tyme_evaluate(blt, bls, x[2]);
 
     s21 = (lnl[2] - lnl[1]) / (x[2] - x[1]);              /* compute slopes */
     s10 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
@@ -888,7 +893,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
         new_tyme = max_tyme;
         tdelta = new_tyme - current_tyme;
       }
-    new_likelihood = set_tyme_evaluate(t, s, new_tyme);
+    new_likelihood = set_tyme_evaluate(blt, bls, new_tyme);
     while ( new_likelihood < current_likelihood ) {
             /* if our estimate is worse, retract until we find a better one */
 #ifdef MAKENEWV_DEBUG
@@ -898,7 +903,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
       uphill_step *= retract_factor;
       if (fabs(tdelta) < min_tdelta) {      /* if can't retract far enough ...
                                             keep the current point and quit */
-        new_likelihood = set_tyme_evaluate(t, s, current_tyme);
+        new_likelihood = set_tyme_evaluate(blt, bls, current_tyme);
         done = true;
 #ifdef MAKENEWV_DEBUG
         putchar('X');
@@ -906,7 +911,7 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
         break;
       }
       new_tyme = current_tyme + tdelta;
-      new_likelihood = set_tyme_evaluate(t, s, new_tyme);
+      new_likelihood = set_tyme_evaluate(blt, bls, new_tyme);
     }
     if ( new_likelihood - current_likelihood < likelihood_epsilon ) {
       done = true;
@@ -928,146 +933,6 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
 
 
 /******* END PROPAGATED FROM 3.6 ************/
-
-#else /* ifndef USE_NEW_MAKENEWV */
-
-void blk_tree_makenewv(struct tree* t, struct node *p) {
-  /* improve a node time */
-  long it, imin, imax, i;
-  double tt, tfactor, tlow, thigh, oldlike, oldx, ymin, ymax, s32, s21, yold;
-  boolean done, already;
-  struct node *s, *sib_ptr, *sib_back_ptr;
-  struct bl_node *pp, *sbl;
-  double tdelta, curv, slope, lnlike;
-  double  x[3], lnl[3];
-
-  if ( p->tip )                                            /* don't do tips */
-    return;
-  s = t->nodep[p->index - 1];
-  sbl = (struct bl_node*)s;
-  oldx = sbl->tyme;                                       /* store old tyme */
-  lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
-  if (s == t->root)
-    tlow = -10.0;                           /* default minimum tyme at root */
-  else
-    tlow = ((bl_node*)(s->back))->tyme;         /* otherwise tyme >= parent */
-
-  sib_ptr = s;                   /* set maximum tyme to smallest child tyme */
-  thigh = ((struct bl_node*)(s->next->back))->tyme;
-  for (sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next) {
-    sib_back_ptr = sib_ptr->back;
-    if (((bl_node*)sib_back_ptr)->tyme < thigh)
-      thigh = ((bl_node*)sib_back_ptr)->tyme;
-  }
-  if (thigh - tlow < 4.0*epsilon)   /* if thigh and tlow are close to equal */
-    return;
-  if (s != t->root)
-    tdelta = (thigh - tlow) / 10.0;
-  else {
-    tdelta = (thigh - ((struct bl_node*)s)->tyme) / 5.0;
-    if (tdelta  < 2 * epsilon ) tdelta = 2 * epsilon;
-  }
-  getthree(t, s, thigh, tlow, tdelta, x, lnl);          /* get three points */
-  it = 0;
-  tfactor = 1.0;
-  pp = (struct bl_node*)p;
-  done = false;
-  while (it < iterations && !done) {
-    ymax = lnl[0];
-    imax = 0;
-    for (i = 1; i <= 2; i++) {  /* figure out which point has largest score */
-      if (lnl[i] > ymax) {
-        ymax = lnl[i];
-        imax = i;
-      }
-    }
-    if (imax != 1) {             /* swap points so that x[1] scores highest */
-      /* debug: TODO Explain why we are doing this */
-      ymax = x[1];                                /* ymax is temporary only */
-      x[1] = x[imax];
-      x[imax] = ymax;
-      ymax = lnl[1];
-      lnl[1] = lnl[imax];
-      lnl[imax] = ymax;
-    }
-    tt = x[1];
-    yold = tt;
-    s32 = (lnl[2] - lnl[1]) / (x[2] - x[1]);               /* average slope */
-    /* avg slope near (x[1]+x[0])/2 */
-    s21 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
-    if (fabs(x[2] - x[0]) > epsilon)                   /* average curvature */
-      curv = (s32 - s21) / ((x[2] - x[0]) / 2);
-    else
-      curv = 0.0;
-    slope = (s32 + s21) / 2 - curv * (x[2] - 2 * x[1] + x[0]) / 4;
-                                               /* interpolate slope at x[1] */
-    if (curv >= 0.0) {
-      if (slope < 0)
-        tdelta = -fabs(tdelta);
-      else
-        tdelta = fabs(tdelta);
-    }
-    else
-      tdelta = -(tfactor * slope / curv);     /* approximate Newton-Raphson */
-    if (tt + tdelta <= tlow + epsilon)           /* don't let it go too far */
-      tdelta = tlow + epsilon - tt;
-    if (tt + tdelta >= thigh - epsilon)
-      tdelta = thigh - epsilon - tt;
-    tt += tdelta;
-    done = (fabs(yold - tt) < epsilon || fabs(tdelta) < epsilon);
-    set_tyme((struct bl_node*)s, tt);
-    t->nuview(t, s);
-    lnlike = t->evaluate(t, s, false);
-    ymin = lnl[0];
-    imin = 0;
-    for (i = 1; i <= 2; i++) {    /* figure out which of the three original */
-      if (lnl[i] < ymin) {                /* points has the lowest ln score */
-        ymin = lnl[i];
-        imin = i;
-      }
-    }
-    already = (tt == x[0]) || (tt == x[1]) || (tt == x[2]);
-    if (!already && ymin < lnlike) {  /* if the minimum point is lower than */
-      x[imin] = tt;                 /* our new interpolated point then take */
-      lnl[imin] = lnlike;                /* that point and put it where the */
-    }                                              /* interpolated point is */
-    if (already || lnlike < oldlike) {
-      tt = oldx;                    /* if either our interpolated point has */
-      sbl = (struct bl_node*)s;
-      set_tyme(sbl, oldx);          /* a lower score or is equivalent to    */
-      tfactor /= 2;                     /* our original, reinterpolate this */
-      tdelta /= 2;                              /* time go only half as far */
-      t->score = oldlike;
-      lnlike = oldlike;
-    }
-    else {
-      tfactor = 1.0;
-      oldlike = lnlike;
-      oldx = tt;
-    }
-    if (!done)                          /* apply it to the sibs */
-    {
-      set_tyme(pp, tt);
-      t->nuview(t, p);
-      for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next)
-        t->nuview(t, sib_ptr);
-    }
-    it++;
-  }
-  if ( smoothit )
-    inittrav(t, p);
-  p->initialized = false;
-  for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    sib_ptr->initialized = false;
-    if ( smoothit )
-      inittrav(t, sib_ptr);
-  }
-  t->score = lnlike;
-  smoothed = smoothed && done;
-}  /* blk_tree_makenewv */
-
-#endif /* USE_NEW_MAKENEWV */
-
 
 void getthree(struct tree* t, struct node *p, double thigh, double tlow, 
                double tdelta, double *x, double *lnl)

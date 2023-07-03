@@ -22,14 +22,12 @@ const double MIN_BRANCH_LENGTH = epsilon/4.0;
 const double MIN_ROOT_TYME = -10;
 
 /* TODO check to see which of these are needed here */
-long endsite;                           // RSGdebug: Check this.
 extern long nextree, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 extern struct node** lrsaves;
 extern long rcategs;
-extern boolean usertree, lngths, smoothit, smoothed, polishing;
 boolean inserting;
 
 

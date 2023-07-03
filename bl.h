@@ -14,9 +14,6 @@
 
 #include "phylip.h"
 
-extern boolean inserting, smoothit, smoothed, polishing;
-extern FILE *infile, *outfile, *intree, *intree2, *outtree;
-
 typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
 typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
 
@@ -37,6 +34,7 @@ typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
 
+extern boolean smoothed;
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);
@@ -49,8 +47,8 @@ void    bl_node_free(struct bl_node **);
 void    bl_node_print(struct bl_node *);
 void    bl_hookup(struct bl_node*, struct bl_node*);
 void    allocx(long, long, long, struct bl_node**);
-void    makevalues2(long, pointarray, long, long, sequence, steptr);
-void    set_tyme(struct bl_node *, double);
+double  get_tyme(struct bl_node *);
+void    set_tyme(struct bl_node*, double);
 void    bl_update(struct bl_tree*, struct bl_node *);
 void    smooth(struct bl_tree*, struct bl_node *);
 void    smooth_traverse(struct bl_tree*, bl_node *);
@@ -58,10 +56,16 @@ void 	bl_tree_smoothall(struct bl_tree*, bl_node*);
 void 	bl_node_reinit(struct bl_node *);
 void    bl_tree_insert_(struct bl_tree*, struct bl_node*, 
                           struct bl_node*, boolean);
-void    unrooted_tree_save_lr_nodes(struct tree*, node*, node*);
-void    unrooted_tree_restore_lr_nodes(struct tree*, node*, node*);
+void    unrooted_tree_save_lr_nodes(struct tree*, struct node*, struct node*);
+void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*, 
+		                         struct node*);
+void    blk_tree_makenewv(struct tree*, struct node*);
 void    bl_tree_re_move(struct bl_tree*, struct bl_node*, 
 		          struct bl_node**, boolean);
+void    blk_tree_insert_(struct bl_tree*, struct bl_node*, struct bl_node*, 
+                           boolean , boolean );
+void    blk_tree_re_move(struct bl_tree*, struct bl_node *, struct bl_node**,
+                           boolean);
 boolean bl_tree_try_insert_(struct bl_tree*, struct bl_node*, struct bl_node*,
                               struct bl_node*, double*, struct bl_tree*, 
                               boolean, boolean, boolean, double*);
@@ -75,7 +79,8 @@ void    bl_tree_do_branchl_on_insert(struct bl_tree*, bl_node *, bl_node*);
 void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
 double  min_child_tyme(struct bl_node *);
 double  parent_tyme(struct bl_node *);
-boolean valid_tyme(struct tree *, bl_node *, double);
+boolean valid_tyme(struct bl_tree *, struct bl_node *, double);
+double  set_tyme_evaluate(struct bl_tree*, struct bl_node*, double);
 void    addelement2(struct tree*, struct node*, Char*, long*, FILE*, boolean, 
 	  double*, boolean*, long*, long*, long, boolean*, boolean, long);
 void    treeread2 (struct tree*, FILE*, struct node**, boolean, 
