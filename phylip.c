@@ -20,10 +20,6 @@ HANDLE  hConsoleOutput;
 
 #include "Slist.h"
 
-#ifndef OLDC
-void           _fgetline_finalize(void);
-#endif /* OLDC */
-
 /* Global file objects */
 /* TODO Use locals and/or move to individual programs? */
 
