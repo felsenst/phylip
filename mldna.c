@@ -1,9 +1,7 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#ifndef ML_H
 #include "ml.h"
-#endif
 
 #ifndef MLDNA_H
 #define MLDNA_H

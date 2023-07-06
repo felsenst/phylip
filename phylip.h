@@ -328,7 +328,7 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
+FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
