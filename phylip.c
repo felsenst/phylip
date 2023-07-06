@@ -4367,6 +4367,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 } /* rooted_tree_restore_lr_nodes */
 
 
+#if 0
 void* pop(stack** oldstack)
 {  /* debug:  is this left over from previous list management and is now unused? */
   /* pop off of stack */
@@ -4379,8 +4380,10 @@ void* pop(stack** oldstack)
   *oldstack = newstack;
   return retval;
 } /* pop */
+#endif
 
 
+#if 0       /* debug:  I don't think ever used */
 stack* push(stack* oldstack, void* newdata)
 {  /* debug:  is this left over from previous list management and is now unused? */
  /* push onto stack */
@@ -4391,6 +4394,7 @@ stack* push(stack* oldstack, void* newdata)
   newstack->next = oldstack;
   return newstack;
 } /* push */
+#endif
 
 
 node* generic_tree_get_fork(tree* t, long k)

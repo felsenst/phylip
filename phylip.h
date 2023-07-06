@@ -213,7 +213,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Slist.h"  /* debug: why quotes and not angle-braces here? */
+#include "Slist.h"
 
 #ifdef MAC
 #ifdef DRAW
@@ -295,11 +295,13 @@ typedef unsigned int boolean;
  * for undefined bestyet value */
 #define UNDEFINED -99.99999
 
-/* a basic stack */
+/* a basic stack  debug:  is this ever used?? */
+#if 0
 typedef struct stack {
   struct stack* next;
   void *data;
 } stack;
+#endif
 
 typedef long *steptr;
 typedef long longer[6];
@@ -317,7 +319,7 @@ typedef struct bestelm {                                    /* stores trees */
 typedef enum { bottom, nonbottom, hslength, tip, iter, length,
                  hsnolength, treewt, unittrwt } initops ;
 
-typedef struct node **pointarray; /* type is an array of pointers to nodes
+typedef struct node** pointarray; /* type is an array of pointers to nodes
                                   * and is the type of array nodep */
 
 typedef struct tree tree;                            /* forward declaration */
@@ -638,7 +640,6 @@ struct tree {                                         /* the tree structure */
   boolean do_newbl;
 
   /* fork management bookeeping stacks */
-  Slist_ptr free_forks;   /* debug: I think this is no longer used */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
@@ -902,8 +903,12 @@ void            rooted_tree_save_lr_nodes(struct tree*,
                                                   struct node*, struct node*);
 void            rooted_tree_restore_lr_nodes(struct tree*, 
                                                   struct node*, struct node*);
+
+#if 0     /* debug:  leftover from old memory management for nodes */
 void*		pop(struct stack**);
 struct stack* 	push(struct stack*,void*);
+#endif
+
 struct node*    generic_tree_get_fork(struct tree*, long);
 void            generic_tree_release_fork(struct tree*, struct node*);
 long		generic_tree_findemptyfork(struct tree*);
