@@ -16,6 +16,8 @@
 #define MAKENEWV_DEBUG
 /* #define USE_NEW_MAKENEWV */
 
+extern FILE *outtree;
+
 const double MIN_BRANCH_LENGTH = epsilon/4.0;
 const double MIN_ROOT_TYME = -10;
 

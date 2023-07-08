@@ -1,12 +1,13 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#include "ml.h"
-
 #ifndef MLDNA_H
 #define MLDNA_H
+
 #include "mldna.h"
 
+extern FILE *outfile;
+extern long endsite;
 
 mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {

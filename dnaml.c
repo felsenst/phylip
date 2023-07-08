@@ -14,6 +14,14 @@
 #include "seq.h"
 #include "ml.h"
 
+extern FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
+extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
+extern FILE *progfile;
+extern long outgrno, endsite;
+extern sequence inputSequences;
+
+long which;
+
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
   double *ww, *zz, *wwzz, *vvzz;

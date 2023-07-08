@@ -328,16 +328,12 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
-FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
-FILE *progfile;
-
-long spp;                                      /* global: number of species */
-long chars;                        /* global: number of characters or sites */
-long words, bits;    /* binary words, bit length for binary sets of species */
-boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
-naym *nayme;                                   /* array of names of species */
-char progbuf[256];              /* string to display in the progress output */
+extern long spp;                               /* global: number of species */
+extern long chars;                 /* global: number of characters or sites */
+extern long words, bits;    /* binary words, bit length for sets of species */
+extern boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
+extern naym *nayme;                            /* array of names of species */
+extern char progbuf[256];       /* string to display in the progress output */
 
 #define ebcdic EBCDIC                     /* IBM character set pre-ANSI/ISO */
 
@@ -539,7 +535,9 @@ struct node_vtable {
 /* debug: needed here?    node_init_t node_init_f; */
   node_free_t node_free_f;
   node_copy_t node_copy_f;
-} vtable;
+};
+
+extern struct node_vtable vtable;
 
 /* debug:  extern struct node_vtable node_vtable;  */
 
@@ -689,9 +687,9 @@ typedef struct initdata {
   node_init_t node_init;                     /* initiates stuff in the node */
 } initdata;
 
-initdata funcs;    /* declaration of the  funcs  function pointer structure */
+extern initdata funcs;                 /* funcs  function pointer structure */
 
-boolean javarun;               /* boolean for when Java front-end is in use */
+extern boolean javarun;        /* boolean for when Java front-end is in use */
 
 #ifndef OLDC /* need if not the old original Kernighan & Ritchie C compiler */
 /* function prototypes */

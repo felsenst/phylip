@@ -7,14 +7,15 @@
 #  include <config.h>
 #endif
 
+#include "phylip.h"
 #include "seq.h"
 
 #define SAMPLES 1000
 
-long endsite=0, outgrno, which;
-boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
-steptr weight, category, alias, location, ally;
-sequence inputSequences;
+extern FILE *infile, *outfile, *outtree;
+
+extern long endsite, outgrno, which;
+extern sequence inputSequences;
 
 
 void inputdata(long chars)
