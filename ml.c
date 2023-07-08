@@ -18,8 +18,8 @@
 #define MAKENEWV_DEBUG
 /* #define USE_NEW_MAKENEWV */
 
-const double MIN_BRANCH_LENGTH = epsilon/4.0;
-const double MIN_ROOT_TYME = -10;
+extern const double MIN_BRANCH_LENGTH;
+extern const double MIN_ROOT_TYME;
 
 /* TODO check to see which of these are needed here */
 extern long nextree, which;
@@ -27,8 +27,10 @@ extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 extern struct node** lrsaves;
-extern long rcategs;
-boolean inserting;
+long rcategs;                    /* number of rate categories, default is 1 */
+
+
+allocx_t allocx_f;
 
 
 void ml_tree_new(struct ml_tree **tp, long nonodes, long spp, long treesize)

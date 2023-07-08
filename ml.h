@@ -29,8 +29,6 @@ typedef struct ml_node {                        /* subclass of generic node */
 
 typedef void (*allocx_t)(long, long, long, struct ml_node*);
 
-allocx_t allocx_f;
-
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct ml_tree **, long, long, long);
 void    ml_tree_init(struct ml_tree *, long, long);

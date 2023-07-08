@@ -1,13 +1,12 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#ifndef MLDNA_H
-#define MLDNA_H
-
 #include "mldna.h"
 
 extern FILE *outfile;
 extern long endsite;
+extern long rcategs;
+allocx_t allocx_f;
 
 mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
@@ -471,8 +470,6 @@ void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
 
 }  /* getbasefreqs */
 
-#endif
-/* end of ifdef block if have not yet defined the mldna.h stuff */
 
 /* End. */
 

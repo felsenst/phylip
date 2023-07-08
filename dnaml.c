@@ -7,8 +7,6 @@
 #  include <config.h>
 #endif
 
-#ifndef MLDNA_H
-#define MLDNA_H
 #include "mldna.h"
 
 #include "seq.h"
@@ -102,7 +100,7 @@ void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
 #endif
 
 double fracchange;
-long rcategs = 0;
+extern long rcategs;
 boolean haslengths;
 
 Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
@@ -110,7 +108,7 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], intreename[FNMLNGTH],
 double *rate, *rrate, *probcat;
 long nonodes2, sites, weightsum, categs, datasets, ith, njumble, jumb = 0;
 long parens;
-boolean freqsfrom, global, jumble, weights, trout, usertree, inserting=false,
+boolean freqsfrom, global, jumble, weights, trout, usertree, 
          reusertree, ctgry, rctgry, auto_, hypstate, ttr, progress, mulsets,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
@@ -3020,9 +3018,5 @@ int main(int argc, Char *argv[])
   return 0;
 }  /* DNA Maximum Likelihood */
 
-
-#endif
-
-/* end of ifndef that conditions on this header file was not already used. */
 
 /* End. */
