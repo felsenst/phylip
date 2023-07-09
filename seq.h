@@ -36,7 +36,9 @@ extern long endsite, outgrno, which;
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
+#if 0
 extern FILE *infile, *outfile, *intree, *intree2, *outtree;
+#endif
 extern struct bl_node** lrsaves;
 
 typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
