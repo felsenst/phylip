@@ -213,7 +213,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Slist.h"  /* debug: why quotes and not angle-braces here? */
+#include "Slist.h"
 
 #ifdef MAC
 #ifdef DRAW
@@ -295,11 +295,13 @@ typedef unsigned int boolean;
  * for undefined bestyet value */
 #define UNDEFINED -99.99999
 
-/* a basic stack */
+/* a basic stack  debug:  is this ever used?? */
+#if 0
 typedef struct stack {
   struct stack* next;
   void *data;
 } stack;
+#endif
 
 typedef long *steptr;
 typedef long longer[6];
@@ -317,7 +319,7 @@ typedef struct bestelm {                                    /* stores trees */
 typedef enum { bottom, nonbottom, hslength, tip, iter, length,
                  hsnolength, treewt, unittrwt } initops ;
 
-typedef struct node **pointarray; /* type is an array of pointers to nodes
+typedef struct node** pointarray; /* type is an array of pointers to nodes
                                   * and is the type of array nodep */
 
 typedef struct tree tree;                            /* forward declaration */
@@ -326,16 +328,12 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-FILE *infile, *outfile, *intree, *intree2, *outtree, *workingplot;
-FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
-FILE *progfile;
-
-long spp;                                      /* global: number of species */
-long chars;                        /* global: number of characters or sites */
-long words, bits;    /* binary words, bit length for binary sets of species */
-boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
-naym *nayme;                                   /* array of names of species */
-char progbuf[256];              /* string to display in the progress output */
+extern long spp;                               /* global: number of species */
+extern long chars;                 /* global: number of characters or sites */
+extern long words, bits;    /* binary words, bit length for sets of species */
+extern boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
+extern naym *nayme;                            /* array of names of species */
+extern char progbuf[256];       /* string to display in the progress output */
 
 #define ebcdic EBCDIC                     /* IBM character set pre-ANSI/ISO */
 
@@ -537,7 +535,9 @@ struct node_vtable {
 /* debug: needed here?    node_init_t node_init_f; */
   node_free_t node_free_f;
   node_copy_t node_copy_f;
-} vtable;
+};
+
+extern struct node_vtable vtable;
 
 /* debug:  extern struct node_vtable node_vtable;  */
 
@@ -638,7 +638,6 @@ struct tree {                                         /* the tree structure */
   boolean do_newbl;
 
   /* fork management bookeeping stacks */
-  Slist_ptr free_forks;   /* debug: I think this is no longer used */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
@@ -688,9 +687,9 @@ typedef struct initdata {
   node_init_t node_init;                     /* initiates stuff in the node */
 } initdata;
 
-initdata funcs;    /* declaration of the  funcs  function pointer structure */
+extern initdata funcs;                 /* funcs  function pointer structure */
 
-boolean javarun;               /* boolean for when Java front-end is in use */
+extern boolean javarun;        /* boolean for when Java front-end is in use */
 
 #ifndef OLDC /* need if not the old original Kernighan & Ritchie C compiler */
 /* function prototypes */
@@ -879,10 +878,6 @@ void 		phyFillScreenColor(void);
 void 		phyClearScreen(void);
 #endif
 
-void            unrooted_tree_save_lr_nodes(struct tree*, 
-                                             struct node*, struct node*);
-void            unrooted_tree_restore_lr_nodes(struct tree*, 
-                                                struct node*, struct node*);
 void            generic_unrooted_locrearrange(struct tree*, struct node*, 
                                      boolean, double*, struct tree*, 
                                      struct tree*, boolean, double*);
@@ -906,8 +901,12 @@ void            rooted_tree_save_lr_nodes(struct tree*,
                                                   struct node*, struct node*);
 void            rooted_tree_restore_lr_nodes(struct tree*, 
                                                   struct node*, struct node*);
+
+#if 0     /* debug:  leftover from old memory management for nodes */
 void*		pop(struct stack**);
 struct stack* 	push(struct stack*,void*);
+#endif
+
 struct node*    generic_tree_get_fork(struct tree*, long);
 void            generic_tree_release_fork(struct tree*, struct node*);
 long		generic_tree_findemptyfork(struct tree*);
@@ -918,22 +917,12 @@ void            generic_tree_insert_(struct tree*, struct node*,
 void            generic_do_branchl_on_insert(struct tree*, 
                                                   struct node*, struct node*);
 struct node*    generic_tree_get_forknode(struct tree*, long);
-void            generic_tree_re_move(struct tree*, struct node*, 
-                                       struct node**, boolean);
 void            generic_re_move(struct tree*, struct node*, 
                                   struct node*, boolean);
 void            allocdiscnontip(struct node*, long );
 void            allocnode(struct node**, long);
 void            allocdiscnode(struct node**, long);
 void            gnudisctreenode(struct node**, struct node**, long, long);
-void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
-                                            struct node*);
-void            generic_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                                                struct node*);
-void            rooted_tree_save_lr_nodes(struct tree*, struct node*, 
-                                            struct node*);
-void            rooted_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                                                struct node*);
 void            generic_tree_reinit_forknode(struct tree*, struct node*);
 void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(struct tree*, boolean, boolean, boolean);

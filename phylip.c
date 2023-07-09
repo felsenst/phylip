@@ -10,6 +10,27 @@
 #include <signal.h>
 #include "phylip.h"
 
+FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
+FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
+FILE *progfile;
+
+long spp;                                      /* global: number of species */
+long chars;                        /* global: number of characters or sites */
+long words, bits;    /* binary words, bit length for binary sets of species */
+long endsite;       /* number of site patterns, used in seq.c, bl.c so here */
+steptr weight, category, alias, location, ally;           /* aliasing stuff */
+boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
+naym *nayme;                                   /* array of names of species */
+char progbuf[256];              /* string to display in the progress output */
+long outgrno;                                            /* outgroup number */
+sequence inputSequences;                    /* array to store a sequence in */
+
+struct node_vtable vtable;
+
+initdata funcs;    /* declaration of the  funcs  function pointer structure */
+
+boolean javarun;               /* boolean for when Java front-end is in use */
+
 #ifdef WIN32
 #include <windows.h>
 /* for console code (clear screen, text color settings) */
@@ -19,10 +40,6 @@ HANDLE  hConsoleOutput;
 #endif
 
 #include "Slist.h"
-
-#ifndef OLDC
-void           _fgetline_finalize(void);
-#endif /* OLDC */
 
 /* Global file objects */
 /* TODO Use locals and/or move to individual programs? */
@@ -4371,6 +4388,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 } /* rooted_tree_restore_lr_nodes */
 
 
+#if 0
 void* pop(stack** oldstack)
 {  /* debug:  is this left over from previous list management and is now unused? */
   /* pop off of stack */
@@ -4383,8 +4401,10 @@ void* pop(stack** oldstack)
   *oldstack = newstack;
   return retval;
 } /* pop */
+#endif
 
 
+#if 0       /* debug:  I don't think ever used */
 stack* push(stack* oldstack, void* newdata)
 {  /* debug:  is this left over from previous list management and is now unused? */
  /* push onto stack */
@@ -4395,6 +4415,7 @@ stack* push(stack* oldstack, void* newdata)
   newstack->next = oldstack;
   return newstack;
 } /* push */
+#endif
 
 
 node* generic_tree_get_fork(tree* t, long k)
