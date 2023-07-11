@@ -100,6 +100,7 @@ void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
 #endif
 
 double fracchange;
+extern boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 extern long rcategs;
 boolean haslengths;
 

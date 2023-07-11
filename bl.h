@@ -22,6 +22,7 @@ typedef struct bl_tree {
   long endsite;
   tree_save_lr_nodes_t save_lr_nodes;
   tree_restore_lr_nodes_t restore_lr_nodes;
+  tree_save_traverses_t save_traverses;
 } bl_tree;
 
 typedef struct bl_node {                       /* subclass of generic node */

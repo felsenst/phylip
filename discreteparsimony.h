@@ -33,7 +33,6 @@ struct LOC_hyptrav {
 };
 
 extern long nonodes, endsite, outgrno, which;
-extern boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 extern sequence convtab;
