@@ -7,6 +7,8 @@ extern FILE *outfile;
 extern long endsite;
 extern long rcategs;
 allocx_t allocx_f;
+freex_t *freex_f;                      /* forward: pointer to free function */
+
 
 mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {

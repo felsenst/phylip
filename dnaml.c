@@ -188,8 +188,8 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
-  *curtreep = (struct dnaml_tree*)curtree;
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
+  *curtreep = (struct dnaml_tree*)curtree;
   if (!usertree) {
     *bestreep = (struct dnaml_tree*)bestree;
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
