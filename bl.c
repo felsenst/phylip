@@ -21,7 +21,7 @@ extern FILE *outtree;
 const double MIN_BRANCH_LENGTH = epsilon/4.0;
 const double MIN_ROOT_TYME = -10;
 
-long endsite;
+extern long endsite;
 extern sequence inputSequences;
 extern boolean lngths, smoothit, polishing;
 boolean inserting;
@@ -45,6 +45,12 @@ void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
   ((struct tree*)t)->save_traverses = bl_tree_save_traverses;
   ((struct tree*)t)->restore_traverses = bl_tree_restore_traverses;
 } /* bl_tree_init */
+
+
+void bl_tree_save_traverses(struct tree* t, struct node* p, struct node* q) {
+  /* bl_tree version ofn saving traverses */
+	/* debug: more stuff here! */
+} /* bl_tree_save_traverses */
 
 
 struct bl_node* bl_node_new(node_type type, long index, long nodesize) {

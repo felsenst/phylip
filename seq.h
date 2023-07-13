@@ -32,7 +32,7 @@
 /* Number of columns per block in a matrix output */
 #define COLUMNS_PER_BLOCK 10
 
-extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
+extern boolean transvp;
 extern steptr weight, category, alias, location, ally;
 <<<<<<< HEAD
 extern sequence inputSequences;

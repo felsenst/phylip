@@ -30,7 +30,7 @@ extern struct node** lrsaves;
 long rcategs;                    /* number of rate categories, default is 1 */
 
 
-allocx_t allocx_f;
+extern allocx_t allocx_f;
 
 
 void ml_tree_new(struct ml_tree **tp, long nonodes, long spp, long treesize)

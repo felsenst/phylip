@@ -16,6 +16,7 @@ extern FILE *infile, *outfile, *outtree;
 
 extern long endsite, outgrno, which;
 extern sequence inputSequences;
+boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 
 
 void inputdata(long chars)
