@@ -155,13 +155,15 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
+  struct tree* tt;
 
-  ((struct tree*)t)->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
-  ((struct tree*)t)->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  ((struct tree*)t)->nuview = (tree_nuview_t)dnaml_tree_nuview;
-  ((struct tree*)t)->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
-  ((struct tree*)t)->get_fork = generic_tree_get_fork;
-  ((struct tree*)t)->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  tt = (struct tree*)t;
+  tt->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+  tt->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  tt->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  tt->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
+  tt->get_fork = generic_tree_get_fork;
+  tt->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
@@ -1511,8 +1513,8 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
 		          lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
-  } while ((pp == curtree->root || (pp != q)) && (pp != curtree->root
-			                           || pp->next != q));
+  } while (((pp == curtree->root) || (pp != q)) && ((pp != curtree->root)
+			                           || (pp->next != q)));
   if (pp->next->back == NULL)
     first = pp->next->next->back;
   else
