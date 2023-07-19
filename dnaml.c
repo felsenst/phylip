@@ -144,10 +144,10 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 		     long treesize)
 {
   /* set up variables and then set up identities of functions */
-  struct bl_tree *bltp;
+  struct bl_tree **bltp;
 
-  bltp = (struct bl_tree *)treep;
-  bl_tree_new(&bltp, nonodes, spp, sizeof(dnaml_tree));
+  bltp = (struct bl_tree **)treep;
+  bl_tree_new(bltp, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
@@ -191,7 +191,6 @@ void dnaml_tree_setup(long nonodes, long spp)
   /* create and initialize the necessary trees */
 
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
-  *curtreep = (struct dnaml_tree*)curtree;
   if (!usertree) {
     *bestreep = (struct dnaml_tree*)bestree;
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));

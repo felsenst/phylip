@@ -30,8 +30,10 @@ boolean inserting;
 void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new bl_tree.  Calls to generic_tree_new, casting bl_tree** to 
    * tree** as we call it, then call  bl_tree_init */
+  struct tree **tt;
 
-  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);   /* next up */
+  tt = (struct tree**)tp;
+  generic_tree_new(tt, nonodes, spp, treesize);   /* next up */
   bl_tree_init(*tp, nonodes, spp);      /* initialize tree at this level */
 } /* bl_tree_new */
 
