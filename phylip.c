@@ -57,8 +57,10 @@ void generic_tree_new(struct tree** treep, long nonodes,
 {
   /* allocate a new tree and call generic_tree_init on it 
    * to initialize the setting up of its functions in the generic version */
+  struct tree *treeq;
 
-  *treep = Malloc(treesize);                    /* sets actual tree pointer */
+  treeq = Malloc(treesize);                    /* sets actual tree pointer */
+  treep = &treeq;
   generic_tree_init(*treep, nonodes, spp);    /* passes it to init function */
 } /* generic_tree_new */
 

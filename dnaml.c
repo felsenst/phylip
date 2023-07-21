@@ -145,9 +145,9 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 {
   /* set up variables and then set up identities of functions */
   struct bl_tree **bltp;
-
   bltp = (struct bl_tree **)treep;
   bl_tree_new(bltp, nonodes, spp, sizeof(dnaml_tree));
+
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
