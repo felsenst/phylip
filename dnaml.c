@@ -7,10 +7,14 @@
 #  include <config.h>
 #endif
 
+#include "phylip.h"
+
 #include "mldna.h"
 
 #include "seq.h"
 #include "ml.h"
+
+struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
 extern FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
@@ -114,7 +118,6 @@ boolean freqsfrom, global, jumble, weights, trout, usertree,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
-struct tree *curtree, *bestree, *bestree2, *priortree;
 struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
 initptr whichinit;
@@ -145,6 +148,7 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 {
   /* set up variables and then set up identities of functions */
   struct bl_tree **bltp;
+
   bltp = (struct bl_tree **)treep;
   bl_tree_new(bltp, nonodes, spp, sizeof(dnaml_tree));
 
