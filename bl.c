@@ -35,7 +35,7 @@ void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
 
   tt = (struct tree**)tp;
   generic_tree_new(tt, nonodes, spp, treesize);                  /* next up */
-  bltt = (struct bl_tree *)tt;
+  bltt = (struct bl_tree *)(*tt);
   bl_tree_init(bltt, nonodes, spp);         /* initialize tree at this level */
 } /* bl_tree_new */
 
