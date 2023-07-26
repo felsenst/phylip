@@ -63,7 +63,8 @@ void mldna_node_copy(node* srcn, node* destn)
                          ((ml_node*)src)->categs);
   for (i = 0; i < ((ml_node*)src)->endsite; i++)
     for (j = 0; j < ((ml_node*)src)->categs; j++)
-      memcpy(((mldna_node*)dest)->x[i][j], ((mldna_node*)src)->x[i][j], sizeof(sitelike));
+      memcpy(((struct mldna_node*)dest)->x[i][j], 
+               ((struct mldna_node*)src)->x[i][j], sizeof(sitelike));
 } /* mldna_node_copy */
 
 
