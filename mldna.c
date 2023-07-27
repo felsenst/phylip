@@ -34,9 +34,9 @@ void mldna_node_init(struct mldna_node *node, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  allocx_f = (allocx_t)mldna_node_allocx;
   ((struct node*)node)->copy = mldna_node_copy;
-  freex_f = (freex_t*)mldna_node_freex;
+  node->allocx_f = (allocx_t)mldna_node_allocx;
+  node->freex_f = (freex_t)mldna_node_freex;
 
   if ( endsite != 0 && rcategs != 0 )
     mldna_node_allocx(node, endsite, rcategs);

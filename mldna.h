@@ -14,6 +14,8 @@
 typedef struct mldna_node{                          /* subclass of ml_node */
   struct ml_node ml_node;                     /* Base object, must be first */
   double* underflows;
+  allocx_t allocx_f;
+  freex_t freex_f;
   phenotype x;
 } mldna_node;
 

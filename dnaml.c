@@ -120,7 +120,7 @@ boolean freqsfrom, global, jumble, weights, trout, usertree,
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
 struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
-initptr whichinit;
+initops whichinit;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
 long *enterorder, inseed, inseed0;
