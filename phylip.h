@@ -837,9 +837,9 @@ long            take_name_from_tree (Char*, Char*, FILE*);
 void            match_names_to_data (Char*, pointarray, struct node**, long);
 void            addelement(struct tree*, struct node**, struct node*, Char*, 
                             long*, FILE*, pointarray, boolean*, boolean*, 
-                            long*, long*, boolean*, initptr, boolean, long);
+                            long*, long*, boolean*, initops, boolean, long);
 void            treeread (struct tree*, FILE*, struct node**, pointarray, 
-                            boolean*, boolean*, long*, boolean*, initptr, 
+                            boolean*, boolean*, long*, boolean*, initops, 
                             boolean, long);
 void            exxit (int);
 char            gettc(FILE*);

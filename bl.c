@@ -30,9 +30,13 @@ boolean inserting;
 void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
 { /* make a new bl_tree.  Calls to generic_tree_new, casting bl_tree** to 
    * tree** as we call it, then call  bl_tree_init */
+  struct tree **tt;
+  struct bl_tree *bltt;
 
-  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);   /* next up */
-  bl_tree_init(*tp, nonodes, spp);      /* initialize tree at this level */
+  tt = (struct tree**)tp;
+  generic_tree_new(tt, nonodes, spp, treesize);                  /* next up */
+  bltt = (struct bl_tree *)(*tt);
+  bl_tree_init(bltt, nonodes, spp);         /* initialize tree at this level */
 } /* bl_tree_new */
 
 
@@ -835,7 +839,6 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
 #ifdef MAKENEWV_DEBUG
   double start_tyme = get_tyme(bls);
   double start_likelihood = t->score;
-  long uphill_steps = 0;
 #endif /* MAKENEWV_DEBUG */
 
   if (s == t->root)                  /* Tyme cannot be less than parent ... */
@@ -879,7 +882,6 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
                         * fraction of the current length */
       tdelta = copysign(uphill_step, slope);
 #ifdef MAKENEWV_DEBUG
-      uphill_steps++;
       if (tdelta > 0) putchar('/');
       else putchar('\\');
 #endif /* MAKENEWV_DEBUG */

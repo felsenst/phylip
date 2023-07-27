@@ -7,10 +7,14 @@
 #  include <config.h>
 #endif
 
+#include "phylip.h"
+
 #include "mldna.h"
 
 #include "seq.h"
 #include "ml.h"
+
+struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
 extern FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
@@ -114,10 +118,9 @@ boolean freqsfrom, global, jumble, weights, trout, usertree,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
 struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
-struct tree *curtree, *bestree, *bestree2, *priortree;
 struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
 struct dnaml_node *qwhere;
-initptr whichinit;
+initops whichinit;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
 long *enterorder, inseed, inseed0;
@@ -144,10 +147,11 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 		     long treesize)
 {
   /* set up variables and then set up identities of functions */
-  struct bl_tree *bltp;
+  struct bl_tree **bltp;
 
-  bltp = (struct bl_tree *)treep;
-  bl_tree_new(&bltp, nonodes, spp, sizeof(dnaml_tree));
+  bltp = (struct bl_tree **)treep;
+  bl_tree_new(bltp, nonodes, spp, sizeof(dnaml_tree));
+
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
@@ -155,13 +159,15 @@ void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp,
 void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
+  struct tree* tt;
 
-  ((struct tree*)t)->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
-  ((struct tree*)t)->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  ((struct tree*)t)->nuview = (tree_nuview_t)dnaml_tree_nuview;
-  ((struct tree*)t)->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
-  ((struct tree*)t)->get_fork = generic_tree_get_fork;
-  ((struct tree*)t)->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  tt = (struct tree*)t;
+  tt->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+  tt->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  tt->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  tt->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
+  tt->get_fork = generic_tree_get_fork;
+  tt->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
@@ -180,7 +186,7 @@ struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct dnaml_node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-/* debug: nothing yet */
+  mldna_node_init((struct mldna_node *)n, type, index);
 } /* mldna_node_init */
 
 
@@ -188,14 +194,14 @@ void dnaml_tree_setup(long nonodes, long spp)
 {
   /* create and initialize the necessary trees */
 
+  curtreep = (struct dnaml_tree **)(&curtree);
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
-  *curtreep = (struct dnaml_tree*)curtree;
   if (!usertree) {
-    *bestreep = (struct dnaml_tree*)bestree;
+    bestreep = (struct dnaml_tree **)(&bestree);
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
-    *bestree2p = (struct dnaml_tree*)bestree2;
+    bestree2p = (struct dnaml_tree **)(&bestree2);
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
-    *priortreep = (struct dnaml_tree*)priortree;
+    priortreep = (struct dnaml_tree **)(&priortree);
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
@@ -1511,8 +1517,8 @@ void dnaml_coordinates(struct dnaml_node *p, double lengthsum,
 		          lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
-  } while ((pp == curtree->root || (pp != q)) && (pp != curtree->root
-			                           || pp->next != q));
+  } while (((pp == curtree->root) || (pp != q)) && ((pp != curtree->root)
+			                           || (pp->next != q)));
   if (pp->next->back == NULL)
     first = pp->next->next->back;
   else
