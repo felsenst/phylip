@@ -1878,15 +1878,9 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   if ((*ch) == '(')
   {
     (*nextnode)++;                    /* get ready to use new interior node */
-
-     /* initnode call with "bottom" --> first forknode of the group, normally 
-      * goes in to nodep.  We've already incremented nextnode, so that's all 
-      * we need for this program */
-
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
-      furcs++;
-        /* initnode call with "nonbottom" --> remaining forknodes hooked up */
+      furcs++;                             /* remaining forknodes hooked up */
       getch(ch, parens, treefile);               /* look for next character */
 
       if((*ch) == ',' || (*ch) == ':') {              /* handle blank names */
@@ -1900,9 +1894,6 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
 
       recursiveTreeRead(ch, parens, treefile, goteof, first, nexttip,
                          nextnode, haslengths, unifok);
-             /* initnode call with "hslength" --> no need to do anything here,
-              * typically just hooks it up   */
-
       if ((*ch) == ')') {
         notlast = false;
         do {
@@ -1930,37 +1921,25 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
     for (i = 0; i < MAXNCH+1; i++)                /* fill string with nulls */
       str[i] = '\0';
 
-    // len = take_name_from_tree (ch, str, treefile); /* get the name */  /* RSGdebug: unused */
-    (void)take_name_from_tree (ch, str, treefile);          /* get the name */
+    take_name_from_tree (ch, str, treefile); /* get the name */
 
     if ((*ch) == ')')
       (*parens)--;                   /* decrement count of open parentheses */
-    /* initnode call with "tip" --> typically copies str info above,
-     *  but we just increase  */
     (*nexttip)++;
 
   } else
-    getch(ch, parens, treefile); /* initnode call with "iter" --> sets 
+    getch(ch, parens, treefile); /* debug: initnode call with "iter" --> sets 
                                     iter/initialv/initialized code -- nothing 
                                     to do here */
   if ((*ch) == ':')
   {
-    /* initnode call with "length"  -> must read length using processlength */
     double valyew, divisor;
     boolean minusread;
     processlength(&valyew,&divisor,ch,&minusread,treefile,parens);
-  }
-  else
-  {
-    if ((*ch) != ';' && (*ch) != '[')
-    {
-      /* initnode call with "hsnolength" --> sets flag that not all items
-       * have length, so do nothing here? */
-    }
-  }
+  };
   if ((*ch) == '[')                                 /* process tree weight  */
   {
-    /* initnode call with "treewt" --> can do something for cons.c things
+    /* debug: initnode call with "treewt" --> can do something for cons.c things
      * -- need to read */
     /* stolen directly from cons.c  */
     double trweight;
@@ -1995,7 +1974,7 @@ void recursiveTreeRead( Char *ch, long *parens, FILE *treefile,
   {
     if ((*ch) == ';')     /* ... and at end of tree */
     {
-      /* initnode call with "unittrwt" --> can do something for cons.c things
+      /* debug: initnode call with "unittrwt" --> can do something for cons.c things
        *  -- need to read  */
       /* stolen directly from cons.c  */
       /*  debug:  ??  double trweight = 1.0 ;  */
@@ -3013,7 +2992,7 @@ void allocate_nodep(pointarray *nodep, FILE *treefile, long  *precalc_tips)
 
 
 
-long take_name_from_tree (Char *ch, Char *str, FILE *treefile)
+void take_name_from_tree (Char *ch, Char *str, FILE *treefile)
 {
   /* This loop reads a name from treefile and stores it in *str.
      Returns the length of the name string. str must be at
@@ -3034,8 +3013,6 @@ long take_name_from_tree (Char *ch, Char *str, FILE *treefile)
     if (*ch == '\n')
       *ch = ' ';
   } while ( strchr(":,)[;", *ch) == NULL );
-
-  return name_length;
 }  /* take_name_from_tree */
 
 
@@ -3081,16 +3058,17 @@ void match_names_to_data (Char *str, pointarray treenode, node **p, long spp)
 void addelement(struct tree * treep, struct node **p, struct node *q,
                  Char *ch, long *parens, FILE *treefile, pointarray nodep,
                  boolean *goteof, boolean *first, long *nextnode,
-                 long *ntips, boolean *haslengths, initptr initnode,
+                 long *ntips, boolean *haslengths, initops initnode,
                  boolean unifok, long maxnodes)
 {
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
-/* debug.  Now using  generic_node_new, rest needs simplifying */
+/* debug:  Now using  generic_node_new, rest needs simplifying */
 
   struct node *pfirst;
   node_type type;
-  long i, len = 0, nodei = 0;
+  long i, nodei = 0;
+/* debug: needed only to call *initptr  long len;  */
   boolean notlast;
   Char str[MAXNCH+1];
   struct node *r;
@@ -3118,15 +3096,15 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     type = FORK_NODE;
     *p = funcs.node_new(type, nodei, 0);
     funcs.node_init(*p, type, nodei);
-    (*initnode)(treep, p, len, nodei, ntips, parens,
-                 bottom, nodep, str, ch, treefile);
+/* debug:    (*initptr)(treep, p, len, nodei, ntips, parens,
+                  bottom, nodep, str, ch, treefile);  */
     pfirst = (*p);
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
       furcs++;
       funcs.node_init(*p, type, nodei);
-      (*initnode)(treep, &(*p)->next, len, nodei,
-                   ntips, parens, nonbottom, nodep, str, ch, treefile);
+/* debug:      (*initptr)(treep, &(*p)->next, len, nodei,
+                   ntips, parens, nonbottom, nodep, str, ch, treefile);  */
       /* ... doing what is done before each */
       r = (*p)->next;
       getch(ch, parens, treefile);               /* look for next character */
@@ -3148,8 +3126,8 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 
-      (*initnode)(treep, &r, len, nodei, ntips, parens,
-                   hslength, nodep, str, ch, treefile);
+/* debug:      (*initfuncptr)(treep, &r, len, nodei, ntips, parens,
+                   hslength, nodep, str, ch, treefile);   */
       /* do what is done after each about length */
       *p = r;                                     /* make r point back to p */
 
@@ -3180,41 +3158,41 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     for (i = 0; i < MAXNCH+1; i++)            /* ... fill string with nulls */
       str[i] = '\0';
 
-    len = take_name_from_tree (ch, str, treefile);          /* get the name */
+    take_name_from_tree (ch, str, treefile);          /* get the name */
 
     if ((*ch) == ')')
       (*parens)--;                   /* decrement count of open parentheses */
-    (*initnode)(treep, p, len, nodei, ntips,
-                parens, tip, nodep, str, ch, treefile);
+/* debug:    (*initptr)(treep, p, len, nodei, ntips,
+                parens, tip, nodep, str, ch, treefile); */
     /* do what needs to be done at a tip */
   } else
     getch(ch, parens, treefile);
   if (q != NULL)
     hookup(q, (*p));                                         /* now hook up */
-  (*initnode)(treep, p, len, nodei, ntips,
-              parens, iter, nodep, str, ch, treefile);
+/* debug:   (*initptr)(treep, p, len, nodei, ntips,
+              parens, iter, nodep, str, ch, treefile);    */
           /* do what needs to be done to variable iter */
   if ((*ch) == ':')
-    (*initnode)(treep, p, len, nodei, ntips,
-                parens, length, nodep, str, ch, treefile);
-          /* do what needs to be done with length */
+/* debug:     (*initptr)(treep, p, len, nodei, ntips,
+                parens, length, nodep, str, ch, treefile); */
+          /* do what needs to be done with length */ {}
   else if ((*ch) != ';' && (*ch) != '[')
-    (*initnode)(treep, p, len, nodei, ntips,
-                parens, hsnolength, nodep, str, ch, treefile);
+/* debug:    (*initptr)(treep, p, len, nodei, ntips,
+                parens, hsnolength, nodep, str, ch, treefile); */ {}
           /* ... or what needs to be done when no length */
   if ((*ch) == '[')
-    (*initnode)(treep, p, len, nodei, ntips,
-                parens, treewt, nodep, str, ch, treefile);
+/* debug:    (*initptr)(treep, p, len, nodei, ntips,
+                parens, treewt, nodep, str, ch, treefile);  */ {}
           /* ... for processing a tree weight */
   else if ((*ch) == ';')                          /* ... and at end of tree */
-    (*initnode)(treep, p, len, nodei, ntips,
-                parens, unittrwt, nodep, str, ch, treefile);
+/* debug:     (*initptr)(treep, p, len, nodei, ntips,
+                parens, unittrwt, nodep, str, ch, treefile); */ {}
 }  /* addelement */
 
 
 void treeread (struct tree * treep, FILE *treefile, node **root,
                pointarray nodep, boolean *goteof, boolean *first,
-               long *nextnode, boolean *haslengths, initptr initnode,
+               long *nextnode, boolean *haslengths, initops initnode,
                boolean unifok, long maxnodes)
 {
   /* read in user-defined tree and set it up */
