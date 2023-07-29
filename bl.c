@@ -1045,7 +1045,7 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
    * which is used only in Contml, Fitch, Kitsch, and Restml.  */
   struct node *pfirst = NULL, *p;
   struct bl_node *q;
-  long i, len, current_loop_index;
+  long i, current_loop_index;
   boolean notlast, minusread;
   Char str[MAXNCH];
   double valyew, divisor;
@@ -1110,13 +1110,13 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
   } else if ((*ch) != ')') {                       /* read the species name */
     for (i = 0; i < MAXNCH; i++)
       str[i] = '\0';
-    len = take_name_from_tree (ch, str, treefile);
+    take_name_from_tree (ch, str, treefile);
     match_names_to_data (str, t->nodep, &p, spp);
     pfirst = p;
     if ((*ch) == ')')
       (*parens)--;
     (*ntips)++;
-    strncpy (p->nayme, str, len);
+    strncpy (p->nayme, str, MAXNCH);
   } else
     getch(ch, parens, treefile);
 
