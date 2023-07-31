@@ -4649,7 +4649,8 @@ void generic_root_insert(struct tree* t, struct node* p)
   boolean newbl=false;
     
   if (t->root != NULL) {   /* debug: note t->root must have back NULL */
-    generic_tree_re_move(t, t->root, &q, newbl);        /* remove root fork */
+    if (t->root->back == NULL)                  /* if is a bifurcating root */
+      generic_tree_re_move(t, t->root, &q, newbl);      /* remove root fork */
   } 
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
   q = t->get_fork(t, k);                    /* get a fork for root and node */
