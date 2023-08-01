@@ -13,7 +13,6 @@
 
 typedef struct mldna_node{                          /* subclass of ml_node */
   struct ml_node ml_node;                     /* Base object, must be first */
-  double* underflows;
   allocx_t allocx_f;
   freex_t freex_f;
   phenotype x;
@@ -36,7 +35,7 @@ typedef struct basefreq {
 #ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
 struct mldna_node* mldna_node_new(node_type, long, long);
 void mldna_node_init(struct mldna_node *, node_type, long);
-void mldna_node_copy(struct node *, struct node*);
+void mldna_node_copy(struct mldna_node *, struct mldna_node*);
 void fix_x(struct mldna_node*, long, double, long);
 void mldna_node_freex(struct mldna_node*);
 void mldna_node_allocx(struct mldna_node*, long, long);
