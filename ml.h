@@ -34,7 +34,7 @@ void    ml_tree_new(struct ml_tree **, long, long, long);
 void    ml_tree_init(struct ml_tree *, long, long);
 void    ml_node_init(struct ml_node*, node_type, long);
 struct  ml_node* ml_node_new(node_type, long, long);
-void    ml_node_copy(struct ml_node *, struct ml_node *);
+void    ml_node_copy(struct node *, struct node *);
 void    ml_node_free(struct ml_node **);
 void 	ml_node_reinit(struct ml_node *);
 void    ml_node_print(struct ml_node *);

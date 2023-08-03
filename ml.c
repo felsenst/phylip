@@ -88,19 +88,23 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
 } /* ml_node_init */
 
 
-void ml_node_copy(ml_node* src, ml_node* dest)
+void ml_node_copy(struct node* src, struct node* dest)
 { /* copy contents of an ml_node but not its pointers */
-  bl_node *srcb = (bl_node *)src;
-  bl_node *destb = (bl_node *)dest;
-  bl_node_copy(srcb, destb);                              /* go up hierarchy */
-  dest->categs = src->categs;
-  dest->endsite = src->endsite;
-  set_tyme((bl_node*)dest, ((bl_node*)src)->tyme);
+  bl_node *srcbln = (bl_node *)src;
+  bl_node *destbln = (bl_node *)dest;
+  ml_node *srcmln = (ml_node *)src;
+  ml_node *destmln = (ml_node *)dest;
 
-  if(dest->underflows)                  // RSGbugfix
-    memcpy(dest->underflows, src->underflows, src->endsite * sizeof(double));
+  bl_node_copy(src, dest);                              /* go up hierarchy */
+  destmln->categs = srcmln->categs;
+  destmln->endsite = srcmln->endsite;
+  set_tyme(destbln, srcbln->tyme);
+
+  if(destmln->underflows)                  // RSGbugfix
+    memcpy(destmln->underflows, srcmln->underflows, 
+	     srcmln->endsite * sizeof(double));
   else
-    assert(src->underflows == NULL);    // RSGdebug
+    assert(srcmln->underflows == NULL);    // RSGdebug
 } /* ml_node_copy */
 
 
