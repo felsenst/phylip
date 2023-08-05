@@ -46,13 +46,13 @@ void mldna_node_init(struct mldna_node *node, node_type type, long index)
 void mldna_node_copy(struct node* src, struct node* dest)
 {
   /* copy a node when DNA likelihoods are used */
-  long i, j;
-  long oldendsite = dest->endsite;
+  long i, j, oldendsite;
   struct ml_node *srcmln, *destmln;
   struct mldna_node *srcmldn, *destmldn;
 
   srcmln = (struct ml_node*)src;     /* src, dest considered as polymorphic */
   destmln = (struct ml_node*)dest;
+  oldendsite = destmln->endsite;
   srcmldn = (struct mldna_node*)src;
   destmldn = (struct mldna_node*)dest;
 
@@ -68,7 +68,7 @@ void mldna_node_copy(struct node* src, struct node* dest)
                          srcmln->categs);
   for (i = 0; i < srcmln->endsite; i++)
     for (j = 0; j < srcmln->categs; j++)
-      memcpy(destdn->x[i][j], srcmldn->x[i][j], sizeof(sitelike));
+      memcpy(destmldn->x[i][j], srcmldn->x[i][j], sizeof(sitelike));
 } /* mldna_node_copy */
 
 
