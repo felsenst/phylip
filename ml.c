@@ -82,7 +82,6 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
 
   bn = (struct bl_node*)n;
   nn = (struct node*)n;
-  generic_node_init(nn, type, index);                /* go up node hierarchy */
   nn->node_print_f = (node_print_t)bl_node_print;
   bn->tyme = 0;
 } /* ml_node_init */
@@ -101,7 +100,7 @@ void ml_node_copy(struct node* src, struct node* dest)
   set_tyme(destbln, srcbln->tyme);
 
   if(destmln->underflows)                  // RSGbugfix
-    memcpy(destmln->underflows, srcmln->underflows, 
+    memcpy(&(destmln->underflows), &(srcmln->underflows), 
 	     srcmln->endsite * sizeof(double));
   else
     assert(srcmln->underflows == NULL);    // RSGdebug

@@ -1076,7 +1076,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
   /* Loop 1: makes assignments to tbl based on some combination of
      what's already in tbl and the children's values of v */
   sib_ptr = (struct node*)p;
-  for (sib_index=0; sib_index < num_sibs; sib_index++)
+  for (sib_index = 0; sib_index < num_sibs; sib_index++)
   {   /* for each descendant lineage tabulate some part of transition prob */
     sib_ptr      = sib_ptr->next;
     sib_back_ptr = sib_ptr->back;
@@ -1112,7 +1112,7 @@ void dnaml_tree_nuview(dnaml_tree* t, dnaml_node *p)
 
         if (sib_back_ptr != NULL) {        /* otherwise no table to fill in */
           if ( j == 0 )
-            correction += ((ml_node*)sib_back_ptr)->underflows[i];
+            correction += ((struct ml_node*)sib_back_ptr)->underflows[i];
 
           local_nvd->wwzz[sib_index] = tbl[j][k]->wwzz[sib_index];
           local_nvd->vvzz[sib_index] = tbl[j][k]->vvzz[sib_index];
