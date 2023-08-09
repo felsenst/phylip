@@ -72,6 +72,7 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
+  long i;
   struct node* nn;
   struct bl_node* bn;
 
@@ -83,6 +84,8 @@ void ml_node_init(struct ml_node *n, node_type type, long index)
   bn = (struct bl_node*)n;
   nn = (struct node*)n;
   nn->node_print_f = (node_print_t)bl_node_print;
+  for (i = 0; i < n->endsite; i++)
+    n->underflows[i] = 0.0;
   bn->tyme = 0;
 } /* ml_node_init */
 
