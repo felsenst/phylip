@@ -21,7 +21,7 @@ typedef struct ml_tree {
 } ml_tree;
 
 typedef struct ml_node {                        /* subclass of generic node */
-  struct node bl_node;                        /* Base object, must be first */
+  struct bl_node bl_node;                     /* Base object, must be first */
   double* underflows;
   long endsite;
   long categs;
