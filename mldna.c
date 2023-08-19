@@ -43,27 +43,32 @@ void mldna_node_init(struct mldna_node *node, node_type type, long index)
 } /* mldna_node_init */
 
 
-void mldna_node_copy(mldna_node* srcdn, mldna_node* destdn)
+void mldna_node_copy(struct node* src, struct node* dest)
 {
   /* copy a node when DNA likelihoods are used */
-  ml_node * src  = (ml_node *)srcdn;
-  ml_node * dest = (ml_node *)destdn;
-  long i, j;
-  long oldendsite = dest->endsite;
+  long i, j, oldendsite;
+  struct ml_node *srcmln, *destmln;
+  struct mldna_node *srcmldn, *destmldn;
+
+  srcmln = (struct ml_node*)src;     /* src, dest considered as polymorphic */
+  destmln = (struct ml_node*)dest;
+  oldendsite = destmln->endsite;
+  srcmldn = (struct mldna_node*)src;
+  destmldn = (struct mldna_node*)dest;
 
   ml_node_copy(src, dest);
 
-  if ( oldendsite != 0 && oldendsite != src->endsite )
+  if ( oldendsite != 0 && oldendsite != srcmln->endsite )
   {
-    mldna_node_freex((struct mldna_node*)dest);
-    ((struct ml_node*)dest)->endsite = 0;
+    mldna_node_freex(destmldn);
+    destmln->endsite = 0;
   }
   if ( oldendsite == 0 )
-    mldna_node_allocx((struct mldna_node*)dest, ((ml_node*)src)->endsite, 
-                         ((ml_node*)src)->categs);
-  for (i = 0; i < ((ml_node*)src)->endsite; i++)
-    for (j = 0; j < ((struct ml_node*)src)->categs; j++)
-      memcpy(destdn->x[i][j], (srcdn)->x[i][j], sizeof(sitelike));
+    mldna_node_allocx(destmldn, srcmln->endsite, 
+                         srcmln->categs);
+  for (i = 0; i < srcmln->endsite; i++)
+    for (j = 0; j < srcmln->categs; j++)
+      memcpy(destmldn->x[i][j], srcmldn->x[i][j], sizeof(sitelike));
 } /* mldna_node_copy */
 
 

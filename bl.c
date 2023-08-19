@@ -101,18 +101,21 @@ boolean bl_node_good(struct tree *t, struct node *n)
 } /* bl_node_good */
 
 
-void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
+void bl_node_copy(struct node* srcn, struct node* destn)
 { /* copy a bl_node */
-  struct node *src = (struct node *)srcn;
-  struct node *dest = (struct node *)destn;
+  struct bl_node *srcbln;
+  struct bl_node *destbln;
+
+  srcbln = (struct bl_node *)srcn;
+  destbln = (struct bl_node *)destn;
 
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(src, dest);                  /* first call generic copy */
-  set_tyme(destn, srcn->tyme);
-  destn->v = srcn->v;
-  destn->deltav = srcn->deltav;
-  destn->iter = srcn->iter;
+  generic_node_copy(srcn, destn);                /* first call generic copy */
+  set_tyme(destbln, srcbln->tyme);
+  destbln->v = srcbln->v;
+  destbln->deltav = srcbln->deltav;
+  destbln->iter = srcbln->iter;
 } /* bl_node_copy */
 
 
