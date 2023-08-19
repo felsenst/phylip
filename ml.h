@@ -14,7 +14,7 @@
 
 #include "bl.h"
 
-extern boolean inserting, smoothit, polishing;
+/* debug: extern boolean inserting, smoothit, polishing; */
 
 typedef struct ml_tree {
   struct tree bl_tree;

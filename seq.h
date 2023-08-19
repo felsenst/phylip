@@ -34,9 +34,8 @@
 
 extern boolean transvp;
 extern steptr weight, category, alias, location, ally;
-<<<<<<< HEAD
 extern sequence inputSequences;
-extern FILE *infile, *outfile, *intree, *intree2, *outtree;
+/* debug:  extern FILE *infile, *outfile, *intree, *intree2, *outtree;  */
 extern struct bl_node** lrsaves;
 
 typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */

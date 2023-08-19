@@ -266,7 +266,7 @@ void generic_tree_copy (tree* src, tree* dst)
     q = NULL;
     while (src_num > dst_num) {
       doingacircle = true;
-      p = dst->get_forknode(dst, i);     /* from  dst  free_fork_nodes list */
+      p = dst->get_forknode(dst, i-1);   /* from  dst  free_fork_nodes list */
       p->next = NULL;   /* debug: insurance, but should not be needed */
       if (dst->nodep[i] == NULL) {
         if (src->nodep[i] != NULL) {

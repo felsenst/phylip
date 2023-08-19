@@ -3,7 +3,6 @@
 
 #include "mldna.h"
 
-extern FILE *outfile;
 extern long endsite;
 extern long rcategs;
 allocx_t allocx_f;
