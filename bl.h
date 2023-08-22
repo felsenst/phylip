@@ -14,6 +14,8 @@
 
 #include "phylip.h"
 
+extern boolean inserting, smoothit, polishing;  /* debug: smoothed, */
+extern FILE *infile, *outfile, *intree, *intree2, *outtree;
 typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
 typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
 

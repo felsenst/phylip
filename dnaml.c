@@ -16,11 +16,11 @@
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
-extern FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
+/* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
 extern long outgrno, endsite;
-extern sequence inputSequences;
+/* debug:  extern sequence inputSequences;  */
 
 long which;
 
