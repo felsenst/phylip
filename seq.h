@@ -38,8 +38,6 @@ extern struct bl_node** lrsaves;
 
 typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
 
-extern freex_t *freex_f;               /* forward: pointer to free function */
-
 #ifndef OLDC
 /* function prototypes.  Needed if not the old 
    original Kernighan & Ritchie compiler */
