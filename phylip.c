@@ -3379,8 +3379,6 @@ void release_all_forks(tree* t)
   for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
     if (t->nodep[j] != NULL) {                   /* make there is one there */
       p = t->nodep[j];
-      p->back = NULL;
-      p->initialized = false;
       for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
         q = p->next->next;
         t->release_forknode(t, p->next);
@@ -3388,6 +3386,8 @@ void release_all_forks(tree* t)
         p->initialized = false;
         p->back = NULL;
       }
+      p->back = NULL;
+      p->initialized = false;
       t->release_fork(t, p);          /* put it on the free_fork_nodes list */
     }
   }
@@ -3402,7 +3402,7 @@ void release_all_forks(tree* t)
 
 void destruct_tree(tree* t)
 { /* returns a tree such that there are no branches, and the free fork nodes
-     go on the stacks */
+     go on the stacks.  The tips are still there. */
   long j;
 
   for (j = 0; j < t->spp; j++) {  /* make tip nodes not connect to anything */
