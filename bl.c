@@ -77,7 +77,7 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  generic_node_init((struct node*)n, type, index);                /* go up node hierarchy */
+/* debug:   generic_node_init((struct node*)n, type, index);                go up node hierarchy */
   n->tyme = 0;
   n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
 /* debug: initialize branch lengths here too? */

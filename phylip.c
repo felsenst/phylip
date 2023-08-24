@@ -90,27 +90,30 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
   for ( i = 0 ; i < spp ; i++ ) {                          /* make new tips */
-    t->nodep[i] = funcs.node_new(true, i+1, defaultnodesize);
-/* debug     t->nodep[i]->tip = true;  : already made by previous call? */
+    t->nodep[i] = funcs.node_new(TIP_NODE, i+1, defaultnodesize);
+    t->nodep[i]->tip = true; 
   }
-  for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    t->nodep[i] = funcs.node_new(false, i+1, defaultnodesize);
-    t->nodep[i]->next = funcs.node_new(false, i+1, defaultnodesize);
-    t->nodep[i]->next->next = funcs.node_new(false, i+1, defaultnodesize);
+  for ( i = spp ; i <= nonodes ; i++) {         /* ... and to interior forks */
+    t->nodep[i] = funcs.node_new(FORK_NODE, i, defaultnodesize);
+    t->nodep[i]->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
+    t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
     t->nodep[i]->next->next->next = t->nodep[i]; /* finish connect'g circle */
-/* debug    t->nodep[i]->tip = false;   already made by previous call? */
-/* debug    t->nodep[i]->next->tip = false;   already made by previous call? */
-/* debug    t->nodep[i]->next->next->tip = false;   already made by previous call? */
+    t->nodep[i]->tip = false;
+    t->nodep[i]->next->tip = false;
+    t->nodep[i]->next->next->tip = false;
   } 
 
   /* Create garbage lists */
   t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
 
   /* Put all interior nodes on garbage lists by "releasing" them */
-  for ( i = nonodes - 1 ; i >= spp ; i-- ) {
+  for ( i = nonodes-1 ; i >= spp ; i-- ) {
     t->release_fork(t, t->nodep[i]);
   }
+#if 0
+  /* may not need these if tree is rooted by default */
   t->nodep[nonodes] = NULL;  /* might need if unrooted tree is later rooted */
+#endif
   t->root = t->nodep[0];   /* debug:  what if enterorder? outgroup or root? */
   generic_tree_setupfunctions(t);             /* set up some more functions */
 } /* generic_tree_init */
@@ -307,6 +310,7 @@ void generic_tree_copy (tree* src, tree* dst)
       for (j = 0; j < num_sibs; j++) {      /* go around  src, dst  circles */
         p->copy(p, q);               /* copy some stuff esp. function names */
         q->back = where_in_dest(src, dst, p->back);       /* find right one */
+	q->tip = false;
         p = p->next;                                   /* move to next ones */
         q = q->next;
       }
@@ -3469,10 +3473,10 @@ void generic_tree_setupfunctions(tree *t)
   t->do_newbl = false;    /* for parsimony etc. Overwritten in ml_tree_init */
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ ) {
-    t->lrsaves[i] = funcs.node_new(false, 0, (long)sizeof(node));  /* debug: need better sizeof?  maybe sizeof(struct node)?  maybe not! */
+    t->lrsaves[i] = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));  /* debug: need better sizeof?  maybe sizeof(struct node)?  maybe not! */
   }
-  t->temp_p = funcs.node_new(false, 0, (long)sizeof(node));
-  t->temp_q = funcs.node_new(false, 0, (long)sizeof(node));
+  t->temp_p = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));
+  t->temp_q = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));
 
   t->addtraverse = (tree_addtraverse_t)generic_tree_addtraverse;
   t->addtraverse_1way = (tree_addtraverse_1way_t)generic_tree_addtraverse_1way;
@@ -4568,7 +4572,7 @@ struct node* generic_tree_get_forknode(struct tree* t, long i)
   struct node *p = NULL;                          /* to keep compiler happy */
 
   if ( Slist_isempty(t->free_fork_nodes) ) {
-    p = funcs.node_new(false, i, ((long)sizeof(node))); /* debug: size? */
+    p = funcs.node_new(FORK_NODE, i, ((long)sizeof(node))); /* debug: size? */
   }
   else {
     p = Slist_pop(t->free_fork_nodes);

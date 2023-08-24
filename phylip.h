@@ -443,7 +443,15 @@ typedef sitearray *seqptr;                       /* seqptr used in Protpars */
 
 /* datastructure typedefs */
 enum node_type { FORK_NODE = 0, TIP_NODE, FREE_NODE };
-typedef enum node_type node_type;
+typedef enum node_type node_type;  /* debug:  maybe remove "enum"?  Needed at all? */
+
+typedef enum nodetype {                                /* what kind of data */
+  NODE_T_UNKNOWN,      /* debug:  maybe rename this type "nodedatatype"? */
+  NODE_T_GENERIC,
+  NODE_T_ML,
+  NODE_T_DNA,
+  NODE_T_PROT
+} nodetype;
 
 typedef struct node node;                            /* forward declaration */
 
@@ -460,14 +468,6 @@ typedef struct node node;                            /* forward declaration */
  * #define node_free(np)           (((node**)(np))->vtable->node_free_f((node*)(np)))
  * #define node_copy(src,dst)      (((node*)(src))->vtable->node_copy_f((node*)(src),(node*)(dst)))
  */
-
-typedef enum nodetype {                                /* what kind of data */
-  NODE_T_UNKNOWN,      /* debug:  maybe rename this type "nodedatatype"? */
-  NODE_T_GENERIC,
-  NODE_T_ML,
-  NODE_T_DNA,
-  NODE_T_PROT
-} nodetype;
 
 /* prototypes of types of functions */
 typedef void (*tree_new_t)(tree**, long, long, long); /* tree_new fn */

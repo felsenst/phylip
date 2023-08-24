@@ -2407,7 +2407,7 @@ void dnamlrun(void)
     printf("datasets: %li\n", datasets);
   */
   /* do the work  */
-  if (!usertree) nonodes2--;
+/* debug:  need?   if (!usertree) nonodes2--;  */
   for (ith = 1; ith <= datasets; ith++) {
     if (datasets > 1) {
       fprintf(outfile, "Data set # %ld:\n", ith);
