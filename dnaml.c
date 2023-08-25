@@ -2050,7 +2050,7 @@ void dnaml_reroot(struct tree* t)
     r->next->back->back = r->next->next->back;
     r->next->next->back->back = r->next->back;
 
-   t->release_fork(t, r);
+   t->release_fork(t, r->index-1);
   }
 
   t->root = t->nodep[0]->back;
@@ -2194,7 +2194,7 @@ void maketree(void)
 
     nextsp = 3;
     polishing = false;
-    release_all_forks(curtree);                   /* make sure starts empty */
+/* debug:    release_all_forks(curtree);                   make sure starts empty */
     buildsimpletree(curtree, enterorder);        /* make a fork with 3 tips */
     currentoutgrno = enterorder[0];
     if (enterorder[1] == outgrno)  /* set current outgroup to real outgroup */

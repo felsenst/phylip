@@ -571,7 +571,7 @@ typedef void (*tree_save_traverses_t)(struct tree*, struct node*,
 		                                      struct node*);
 typedef void (*tree_restore_traverses_t)(struct tree*, struct node*, 
 		                           struct node*);
-typedef void (*tree_release_fork_t)(struct tree*, struct node*);
+typedef void (*tree_release_fork_t)(struct tree*, long);
 typedef struct node* (*tree_get_fork_t)(struct tree*,  long);
 typedef struct node* (*tree_get_forknode_t)(struct tree*, long);
 typedef void (*tree_release_forknode_t)(struct tree*, struct node*);
@@ -908,7 +908,7 @@ struct stack* 	push(struct stack*,void*);
 #endif
 
 struct node*    generic_tree_get_fork(struct tree*, long);
-void            generic_tree_release_fork(struct tree*, struct node*);
+void            generic_tree_release_fork(struct tree*, long);
 long		generic_tree_findemptyfork(struct tree*);
 void            generic_tree_nuview(struct tree*, struct node*);
 double          generic_tree_evaluate(struct tree*, struct node*, boolean);

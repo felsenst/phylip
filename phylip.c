@@ -93,7 +93,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->nodep[i] = funcs.node_new(TIP_NODE, i+1, defaultnodesize);
     t->nodep[i]->tip = true; 
   }
-  for ( i = spp ; i <= nonodes ; i++) {         /* ... and to interior forks */
+  for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
     t->nodep[i] = funcs.node_new(FORK_NODE, i, defaultnodesize);
     t->nodep[i]->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
     t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
@@ -107,8 +107,8 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->free_fork_nodes = Slist_new();    /* where the fork nodes will be kept */
 
   /* Put all interior nodes on garbage lists by "releasing" them */
-  for ( i = nonodes-1 ; i >= spp ; i-- ) {
-    t->release_fork(t, t->nodep[i]);
+  for ( i = nonodes-1; i >= spp; i-- ) {
+    t->release_fork(t, i);
   }
 #if 0
   /* may not need these if tree is rooted by default */
@@ -3368,7 +3368,7 @@ void unroot(tree* t, long nonodes)
 #endif
     unroot_here(t, p, nonodes);      /* if root node was a two-node circle ...
                   unhook it from its neighbors and move to end of the forks */
-    generic_tree_release_fork(t, p);             /* toss that orphaned fork */
+    generic_tree_release_fork(t, p->index-1);    /* toss that orphaned fork */
   }
 } /* unroot */
 
@@ -3380,10 +3380,10 @@ void release_all_forks(tree* t)
   long j, nsibs;
   node *p, *q;
 
-  for ( j = t->spp; j <= t->nonodes ; j++ ) {  /* go through all fork nodes */
+  for ( j = t->spp; j < t->nonodes ; j++ )  {  /* go through all fork nodes */
     if (t->nodep[j] != NULL) {                   /* make there is one there */
       p = t->nodep[j];
-      for ( nsibs = count_sibs(p); nsibs > 2; nsibs-- ) {/* for all in fork */
+      for ( nsibs = count_sibs(p); nsibs > 0; nsibs-- ) {/* for all in fork */
         q = p->next->next;
         t->release_forknode(t, p->next);
         p->next = q;
@@ -3392,7 +3392,7 @@ void release_all_forks(tree* t)
       }
       p->back = NULL;
       p->initialized = false;
-      t->release_fork(t, p);          /* put it on the free_fork_nodes list */
+      t->release_forknode(t, p);      /* put it on the free_fork_nodes list */
     }
   }
   for ( j = 0; j < t->spp; j++) {/* set the "back" pointers of tips to NULL */
@@ -4424,27 +4424,29 @@ node* generic_tree_get_fork(tree* t, long k)
 } /* generic_tree_get_fork */
 
 
-void generic_tree_release_fork(tree* t, node* n)
-{ /* release the fork attached to a removed node,
-   * and put its nodes back on list */
-  node *p, *q;
+void generic_tree_release_fork(tree* t, long i)
+{ /* release the fork nodes in the ring at fork  i,
+   * and put all those nodes back on the free list */
+  node *p, *q ,*n;
   boolean done;
 
+  n = t->nodep[i];
   if (n != NULL) {
     p = n;
-    q = n;                                  /* keep at first node in circle */
+    q = n;                                   /* keep at that node in circle */
     done = false;
     do {                                            /* go around circle ... */
       p = n->next;
       if (p != NULL) {
-        n->next = n->next->next;                   /* cut  p  out of circle */
+        n->next = p->next;                         /* cut  p  out of circle */
         t->release_forknode(t, p);       /* put  p  on free_fork_nodes list */
+	done = (n->next == q);
       } else {
         done = true;
       }
     } while ((!done) && (p != q));
-    if (n->index > 0)
-      t->nodep[n->index-1] = NULL;  /* circle is released so nodep set NULL */
+    t->release_forknode(t, q); 
+    t->nodep[i] = NULL;             /* circle is released so nodep set NULL */
   }
 } /* generic_tree_release_fork */
 
@@ -4946,7 +4948,7 @@ void rooted_tree_re_move(tree* t, node* item, node** where, boolean do_newbl)
     if (q != NULL)
       q->back = p;
 
-    t->release_fork(t, fork);
+    t->release_fork(t, fork->index-1);
     item->back = NULL;
     if  ( do_newbl ) {
       inittrav(t, whereloc);
@@ -5041,11 +5043,11 @@ void fixtree(tree* t)
       t->nodep[i]->next = t->get_forknode(t, i+1);
       t->nodep[i]->next->next = t->get_forknode(t, i+1);
       t->nodep[i]->next->next->next = t->nodep[i];
-      t->release_fork(t, t->nodep[i]);
+      t->release_fork(t, i);
     }
     else
       if ( t->nodep[i]->back == NULL && t->nodep[i]->index != t->root->index )
-        t->release_fork(t, t->nodep[i]);
+        t->release_fork(t, i);
   }
 } /* fixtree */
 
