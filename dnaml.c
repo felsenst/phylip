@@ -2161,7 +2161,7 @@ void maketree(void)
       if (trout) {
         dnaml_treeout(outtree, curtree, (bl_node *)(curtree->root));
       }
-      if(which < numtrees)
+      if (which < numtrees)
       {
         freex_notip(nextnode, curtree->nodep);
       }
