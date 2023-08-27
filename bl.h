@@ -33,7 +33,7 @@ typedef struct bl_node {                       /* subclass of generic node */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
 } bl_node;
 
-typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);
+typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);  /* debug: should these three be just tree*, node* ? */
 typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
 typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
 
@@ -56,7 +56,7 @@ void    bl_update(struct bl_tree*, struct bl_node *);
 void    smooth(struct bl_tree*, struct bl_node *);
 void    smooth_traverse(struct bl_tree*, bl_node *);
 void 	bl_tree_smoothall(struct bl_tree*, bl_node*);
-void 	bl_node_reinit(struct bl_node *);
+void 	bl_node_reinit(struct node *);
 void    bl_tree_insert_(struct bl_tree*, struct bl_node*, 
                           struct bl_node*, boolean);
 void    unrooted_tree_save_lr_nodes(struct tree*, struct node*, struct node*);

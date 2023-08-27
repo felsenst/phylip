@@ -80,6 +80,7 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
 /* debug:   generic_node_init((struct node*)n, type, index);                go up node hierarchy */
   n->tyme = 0;
   n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
+  ((struct node*)n)->reinit = bl_node_reinit;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 
@@ -137,12 +138,12 @@ void bl_hookup(struct bl_node* p, struct bl_node* q){
 } /* bl_hookup */
 
 
-void bl_node_reinit(struct bl_node* bln)
+void bl_node_reinit(struct node* n)
 {
-  /* reset things for an ml tree node */
-  struct node *n;
+  /* reset things for a bl tree node */
+  struct bl_node *bln;
 
-  n = (struct node*)bln;
+  bln = (struct bl_node*)n;
   generic_node_reinit(n);
   bln->tyme = 0.0;
   bln->v = initialv;

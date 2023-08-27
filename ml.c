@@ -119,18 +119,6 @@ void ml_node_free(struct ml_node **np)
 } /* ml_node_free */
 
 
-void ml_node_reinit(struct ml_node *n)
-{
-  /* reset things for an ml tree node */
-  bl_node * bln = (bl_node*)n;
-
-  bln->tyme = 0;
-  // BUG.970 -- does freex need refreshing ?
-  // BUG.970 -- leave for dna_node and prot_node ?
-  bl_node_reinit(bln);                               /* go up the hierarchy */
-} /* ml_node_reinit */
-
-
 void ml_node_print(struct ml_node * n)
 {
   /* for debugging */
