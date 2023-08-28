@@ -60,7 +60,6 @@ struct node* bl_node_new(node_type type, long index, long nodesize) {
   struct node* n;
 
   n = generic_node_new(type, index, nodesize);
-  bl_node_init(n, type, index);
   return n;
 } /* bl_node_new */
 
@@ -81,9 +80,9 @@ void bl_node_init(struct node *n, node_type type, long index)
 
   generic_node_init(n, type, index);               /*  go up node hierarchy */
   bln = (struct bl_node*)n;
-  bln->tyme = 0;
+  bln->tyme = 0.0;
   bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
-  ((struct node*)n)->reinit = bl_node_reinit;
+  n->reinit = bl_node_reinit;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 

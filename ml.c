@@ -63,7 +63,6 @@ struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
   struct ml_node* n;
 
   n = (struct ml_node*)bl_node_new(type, index, nodesize);
-  ml_node_init(n, type, index);
   return n;
 } /* ml_node_new */
 
@@ -73,7 +72,6 @@ void ml_node_init(struct node *n, node_type type, long index)
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
   long i;
-  struct node* nn;
   struct ml_node* mln;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
@@ -86,7 +84,6 @@ void ml_node_init(struct node *n, node_type type, long index)
   n->node_print_f = (node_print_t)ml_node_print;
   for (i = 0; i < mln->endsite; i++)
     mln->underflows[i] = 0.0;
-  mln->tyme = 0;
 } /* ml_node_init */
 
 

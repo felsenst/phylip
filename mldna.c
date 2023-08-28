@@ -19,12 +19,11 @@ mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugf
   assert(index >= 0);
 
   n = (struct mldna_node*)ml_node_new(type, index, nodesize);
-  mldna_node_init(n, type, index);
   return n;
 } /* mldna_node_new */
 
 
-void mldna_node_init(struct node *n, node_type type, long index)
+void mldna_node_init(struct mldna_node* n, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
 
@@ -35,7 +34,7 @@ void mldna_node_init(struct node *n, node_type type, long index)
   assert(index >= 0);
 
   mldn = (struct mldna_node*)n;
-  ml_node_init(node, type, index);
+  ml_node_init((struct ml_node*)n, type, index);
   n->copy = mldna_node_copy;
   mldn->allocx_f = (allocx_t)mldna_node_allocx;
   mldn->freex_f = (freex_t)mldna_node_freex;
