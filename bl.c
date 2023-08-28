@@ -55,19 +55,17 @@ void bl_tree_save_traverses(struct tree* t, struct node* p, struct node* q) {
 } /* bl_tree_save_traverses */
 
 
-struct bl_node* bl_node_new(node_type type, long index, long nodesize) {
+struct node* bl_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct node* n;
-  struct bl_node* nn;
 
   n = generic_node_new(type, index, nodesize);
-  nn = (struct bl_node*)n;
-  bl_node_init(nn, type, index);
-  return (bl_node*)nn;
+  bl_node_init(n, type, index);
+  return n;
 } /* bl_node_new */
 
 
-void bl_node_init(struct bl_node *n, node_type type, long index)
+void bl_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for bl trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
@@ -75,11 +73,16 @@ void bl_node_init(struct bl_node *n, node_type type, long index)
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
+  struct bl_node* bln;
+
+
+
   assert(index >= 0);
 
-/* debug:   generic_node_init((struct node*)n, type, index);                go up node hierarchy */
-  n->tyme = 0;
-  n->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
+  generic_node_init(n, type, index);               /*  go up node hierarchy */
+  bln = (struct bl_node*)n;
+  bln->tyme = 0;
+  bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   ((struct node*)n)->reinit = bl_node_reinit;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_init */

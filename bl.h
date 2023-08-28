@@ -42,10 +42,10 @@ extern boolean smoothed;
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct bl_tree**, long, long, long);
 void    bl_tree_init(struct bl_tree*, long, long);
-struct  bl_node* bl_node_new(node_type, long, long);
+struct  node* bl_node_new(node_type, long, long);
 boolean bl_node_good(struct tree*, struct node*);
 void    bl_node_copy(struct node*, struct node*);
-void    bl_node_init(struct bl_node*, node_type, long);
+void    bl_node_init(struct node*, node_type, long);
 void    bl_node_free(struct bl_node **);
 void    bl_node_print(struct bl_node *);
 void    bl_hookup(struct bl_node*, struct bl_node*);

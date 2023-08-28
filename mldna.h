@@ -34,7 +34,7 @@ typedef struct basefreq {
 
 #ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
 struct mldna_node* mldna_node_new(node_type, long, long);
-void mldna_node_init(struct mldna_node*, node_type, long);
+void mldna_node_init(struct node*, node_type, long);
 void mldna_node_copy(struct node*, struct node*);
 void fix_x(struct mldna_node*, long, double, long);
 void mldna_node_freex(struct mldna_node*);
