@@ -185,7 +185,7 @@ struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  mldna_node_init(n, type, index);
+  mldna_node_init((struct mldna_node*)n, type, index);
 } /* mldna_node_init */
 
 

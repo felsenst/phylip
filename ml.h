@@ -32,7 +32,7 @@ typedef void (*allocx_t)(long, long, long, struct ml_node*);
 #ifndef OLDC /* prototypes */
 void    ml_tree_new(struct ml_tree **, long, long, long);
 void    ml_tree_init(struct ml_tree *, long, long);
-void    ml_node_init(struct node*, node_type, long);
+void    ml_node_init(struct ml_node*, node_type, long);
 struct  ml_node* ml_node_new(node_type, long, long);
 void    ml_node_copy(struct node *, struct node *);
 void    ml_node_free(struct ml_node **);

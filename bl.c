@@ -64,7 +64,7 @@ struct node* bl_node_new(node_type type, long index, long nodesize) {
 } /* bl_node_new */
 
 
-void bl_node_init(struct node *n, node_type type, long index)
+void bl_node_init(struct bl_node *bln, node_type type, long index)
 {
   /* initialize a node for bl trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
@@ -72,14 +72,14 @@ void bl_node_init(struct node *n, node_type type, long index)
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
-  struct bl_node* bln;
+  struct node* n;
 
 
 
   assert(index >= 0);
 
+  n = (struct node*)bln;
   generic_node_init(n, type, index);               /*  go up node hierarchy */
-  bln = (struct bl_node*)n;
   bln->tyme = 0.0;
   bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->reinit = bl_node_reinit;

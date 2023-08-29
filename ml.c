@@ -67,7 +67,7 @@ struct ml_node* ml_node_new(node_type type, long index, long nodesize) {
 } /* ml_node_new */
 
 
-void ml_node_init(struct node *n, node_type type, long index)
+void ml_node_init(struct ml_node *n, node_type type, long index)
 {
   /* initialize a node for ml trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
@@ -79,9 +79,9 @@ void ml_node_init(struct node *n, node_type type, long index)
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  bl_node_init(n, type, index);
+  bl_node_init((struct bl_node*)n, type, index);
   mln = (struct ml_node*)n;
-  n->node_print_f = (node_print_t)ml_node_print;
+  ((struct node*)n)->node_print_f = (node_print_t)ml_node_print;
   for (i = 0; i < mln->endsite; i++)
     mln->underflows[i] = 0.0;
 } /* ml_node_init */
