@@ -532,7 +532,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
 };                                /* end of the basic node type declaration */
 
 struct node_vtable {
-/* debug: needed here?    node_init_t node_init_f; */
+  node_init_t node_init_f;
   node_free_t node_free_f;
   node_copy_t node_copy_f;
 };

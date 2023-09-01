@@ -46,7 +46,7 @@ HANDLE  hConsoleOutput;
 
 /* Default vtable for generic nodes. */
 struct node_vtable node_vtable = {
-/*  generic_node_init,   debug: needed here? */
+  generic_node_init,
   generic_node_free,
   generic_node_copy
 };
@@ -151,7 +151,6 @@ void generic_node_init (struct node* n, node_type type, long index)
           * will be a tip... for now. */
       n->tip = true;
     }
-
   n->index = index;
 /* debug:  n->iter = true;    seems wrong.  iterate it in some, not all cases */
   n->initialized = false;
@@ -269,7 +268,7 @@ void generic_tree_copy (tree* src, tree* dst)
     q = NULL;
     while (src_num > dst_num) {
       doingacircle = true;
-      p = dst->get_forknode(dst, i-1);   /* from  dst  free_fork_nodes list */
+      p = dst->get_forknode(dst, i+1);   /* from  dst  free_fork_nodes list */
       p->next = NULL;   /* debug: insurance, but should not be needed */
       if (dst->nodep[i] == NULL) {
         if (src->nodep[i] != NULL) {
@@ -4578,8 +4577,8 @@ struct node* generic_tree_get_forknode(struct tree* t, long i)
   }
   else {
     p = Slist_pop(t->free_fork_nodes);
-    funcs.node_init(p, 0, i);
   }
+  funcs.node_init(p, 0, i);
   p->tip = (i <= spp);
   return p;
 } /* generic_tree_get_forknode */
@@ -4875,8 +4874,11 @@ void buildsimpletree(tree *t, long* enterorder)
   node *p, *q, *r, *newnode1;
 
   p = t->nodep[enterorder[0] - 1];
+  p->index = enterorder[0];
   q = t->nodep[enterorder[1] - 1];
+  q->index = enterorder[1];
   r = t->nodep[enterorder[2] - 1];
+  r->index = enterorder[2];
   hookup(q, r);                            /* connect 2 and 3 to each other */
   k = generic_tree_findemptyfork(t);   /* find interior node that is unused */
   newnode1 = t->get_fork(t, k);            /* get a fork for root and tip 1 */
