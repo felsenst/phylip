@@ -42,6 +42,7 @@ void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
+  ((struct tree*)t)->insert_ = bl_tree_insert_;
   ((struct tree*)t)->save_lr_nodes = unrooted_tree_save_lr_nodes;
   ((struct tree*)t)->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
   ((struct tree*)t)->save_traverses = bl_tree_save_traverses;
@@ -64,7 +65,7 @@ struct node* bl_node_new(node_type type, long index, long nodesize) {
 } /* bl_node_new */
 
 
-void bl_node_init(struct bl_node *bln, node_type type, long index)
+void bl_node_init(struct node *n, node_type type, long index)
 {
   /* initialize a node for bl trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
@@ -72,14 +73,12 @@ void bl_node_init(struct bl_node *bln, node_type type, long index)
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
-  struct node* n;
-
-
+  struct bl_node *bln;
 
   assert(index >= 0);
 
-  n = (struct node*)bln;
   generic_node_init(n, type, index);               /*  go up node hierarchy */
+  bln = (struct bl_node*)n;
   bln->tyme = 0.0;
   bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->reinit = bl_node_reinit;
@@ -130,13 +129,14 @@ void bl_node_free(struct bl_node **np)
 } /* bl_node_free */
 
 
-void bl_hookup(struct bl_node* p, struct bl_node* q){
+void bl_hookup(struct node* p, struct node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
+  struct bl_node *pp, *qq;
 
   hookup((struct node*)p, (struct node*)q);
-  p->v = initialv;
-  q->v = initialv;
+  pp->v = initialv;
+  qq->v = initialv;
 } /* bl_hookup */
 
 
@@ -165,18 +165,14 @@ void bl_node_print(struct bl_node * bln)
 } /* bl_node_print */
 
 
-void bl_update(struct bl_tree *blt, struct bl_node *pp)
+void bl_update(struct tree *t, struct node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
 /* debug:   I think redundant with calls in phylip.c  */
-  struct node *p;
-  struct tree *t;
 
-  t = (struct tree*)blt;
-  p = (struct node*)pp;
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
@@ -188,24 +184,21 @@ void bl_update(struct bl_tree *blt, struct bl_node *pp)
 }  /* bl_update */
 
 
-void smooth_traverse(struct bl_tree* t, bl_node *pp)
+void smooth_traverse(struct tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
-  struct node *p;
 
-  p = (struct node*)pp;
-  smooth(t, pp);
-  smooth(t, ((struct bl_node*)(p->back)));
+  smooth(t, p);
+  smooth(t, p->back);
 } /* smooth_traverse */
 
 
-void smooth(struct bl_tree* t, bl_node *pp)
+void smooth(struct tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
- struct node *p, *sib_ptr;
+ struct node *sib_ptr;
 
-  p = (struct node*)pp;
   if ( p == NULL )
     return;
 /* debug:    if ( p->back == NULL )
@@ -213,10 +206,10 @@ void smooth(struct bl_tree* t, bl_node *pp)
 debug */
   smoothed = false;
 
-  bl_update(t, pp);      /* get views at both ends updated, maybe recursing */
-  ((struct tree*)t)->makenewv ((struct tree *)t, p);   /* new branch length */
-  inittrav (((struct tree*)t), p); /* set inward-looking pointers false ... */
-  inittrav (((struct tree*)t), p->back);    /* ... from both ends of branch */
+  bl_update(t, p);       /* get views at both ends updated, maybe recursing */
+  t->makenewv (t, p);                                  /* new branch length */
+  inittrav (t, p);                 /* set inward-looking pointers false ... */
+  inittrav (t, p->back);                    /* ... from both ends of branch */
 
   if ( p->tip )
     return;
@@ -227,15 +220,15 @@ debug */
   {       /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, (struct bl_node*)(sib_ptr->back));     /* go out from there */
+      smooth(t, sib_ptr->back);                        /* go out from there */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  bl_update(t, ((struct bl_node*)(p->back)));          /* update ends views */
+  bl_update(t, p->back);          /* update ends views */
 }  /* smooth */
 
 
-void bl_tree_smoothall(struct bl_tree* t, bl_node* pp)
+void bl_tree_smoothall(struct tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -243,31 +236,30 @@ void bl_tree_smoothall(struct bl_tree* t, bl_node* pp)
    * branch near p may already be completely smoothed from an
    * insert, this insures we spread out in the tree */
  /* debug: in which file should this be defined? bl.c? ml.c? */
+  struct node *q;
   boolean save;
   int i;
-  struct node* p, *q;
 
   save = smoothit;
   smoothit = true;
-  p = (struct node*)pp;
   if ( p->tip )
     p = p->back;
 
 /* debug:   editing mistake near here when removing debugging prints? */
   for ( i = 0 ; i < smoothings ; i++ )
   {
-    smooth(t, ((struct bl_node*)(p->back)));
+    smooth(t, p->back);
     if ( p->tip )
       return;
     for ( q = p->next ; q != p ; q = q->next)
-      smooth(t, ((struct bl_node*)(q->back)));
+      smooth(t, q->back);
   }
   smoothit = save;
 } /* bl_tree_smoothall */
 
 
-void bl_tree_do_branchl_on_insert(struct bl_tree* t, struct bl_node* forknode,
-                                    struct bl_node* qq)
+void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,
+                                    struct node* q)
 { /* split original  qq->v  branch length evenly beween forknode->next and 
    * forknode->next->next.  forknode->back  must be subtree or tip.
    * This assumes interior node is a bifurcation.  Not able to cope if we 
@@ -275,45 +267,44 @@ void bl_tree_do_branchl_on_insert(struct bl_tree* t, struct bl_node* forknode,
    * forknode should be where tip was hooked to.
    * that connection set to initial v for *both* directions.  */
   double newv;
-  struct node *forkn, *q;
+  struct bl_node *qq;
 
-  forkn = (struct node*)forknode;
-  if (forkn->back != NULL) {              /* condition should never fail */
-    forknode->v = initialv; 
-    ((struct bl_node*)(forkn->back))->v = initialv;
+  if (forknode->back != NULL) {              /* condition should never fail */
+    ((struct bl_node*)forknode)->v = initialv; 
+    ((struct bl_node*)(forknode->back))->v = initialv;
   }
 
-  q = (struct node*)qq;
+  qq = (struct bl_node*)q;
   if (q->back != NULL)
     newv = qq->v * 0.5;
   else
     newv = initialv;
 
-  if (forkn->next->back != NULL) { /* forknode->next for both directions */
-    ((struct bl_node*)(forkn->next))->v = newv ;
-    ((struct bl_node*)(forkn->next->back))->v = newv ;
+  if (forknode->next->back != NULL) { /* forknode->next for both directions */
+    ((struct bl_node*)(forknode->next))->v = newv ;
+    ((struct bl_node*)(forknode->next->back))->v = newv ;
   }
 
-  if (forkn->next->back != NULL) {     /* next->next for both directions */
-    ((struct bl_node*)(forkn->next->next))->v = newv;
-    ((struct bl_node*)(forkn->next->next->back))->v = newv;
+  if (forknode->next->back != NULL) {     /* next->next for both directions */
+    ((struct bl_node*)(forknode->next->next))->v = newv;
+    ((struct bl_node*)(forknode->next->next->back))->v = newv;
   }
 
   /* debug:  BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
-  inittrav((struct tree*)t, forkn);    /* some of this code unnecessary? */
-  inittrav((struct tree*)t, forkn->back);
-  inittrav((struct tree*)t, forkn->next);
-  if (forkn->next->back != NULL)
-    inittrav((struct tree*)t, forkn->next->back);
-  inittrav((struct tree*)t, forkn->next->next);
-  if (forkn-> next->next->back != NULL)
-    inittrav((struct tree*)t, forkn->next->next->back);
+  inittrav(t, forknode);                  /* some of this code unnecessary? */
+  inittrav(t, forknode->back);
+  inittrav(t, forknode->next);
+  if (forknode->next->back != NULL)
+    inittrav(t, forknode->next->back);
+  inittrav(t, forknode->next->next);
+  if (forknode->next->next->back != NULL)
+    inittrav(t, forknode->next->next->back);
 } /* bl_tree_do_branchl_on_insert */
 
 
-void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp, 
-                       struct bl_node *qq, boolean multif)
+void bl_tree_insert_(struct tree *t, struct node *p, 
+                       struct node *q, boolean multif)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
@@ -322,10 +313,7 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
   * Insert p near q 
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
-  struct node *p, *q;
 
-  p = (struct node*)pp;
-  q = (struct node*)qq;
   generic_tree_insert_((struct tree*)t, p, q, multif);  /* debug:  maybe "multif"? */
 
   if ( !(((tree*)t)->do_newbl) )
@@ -337,19 +325,19 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
     p->next->initialized = false;         /* ... out from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
-    bl_update(t, pp);                           /* update the views outward */
-    bl_update(t, (struct bl_node*)(p->next));
-    bl_update(t, (struct bl_node*)(p->next->next));
+    bl_update(t, p);                            /* update the views outward */
+    bl_update(t, p->next);
+    bl_update(t, p->next->next);
     inserting = false;
   }
   else             /* this is the case where we recurse outwards, smoothing */
   {
-    inittrav((struct tree*)t, p);      /* set inward-looking pointers false */
-    inittrav((struct tree*)t, p->back);
-    bl_update(t, (struct bl_node*)p);
+    inittrav(t, p);                    /* set inward-looking pointers false */
+    inittrav(t, p->back);
+    bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth_traverse(t, (struct bl_node*)p);        /* go around fork, out */
+      smooth_traverse(t, p);             /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert */
@@ -411,8 +399,8 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
 } /* unrooted_tree_restore_lr_nodes */
 
 
-void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
-            	                              struct bl_node* qq)
+void bl_tree_do_branchl_on_re_move(struct tree* t, struct node* p,
+            	                              struct node* q)
 {
   /* sum up branch lengths on the two other neighbors of  p
    * that are connected to fork  q */
@@ -424,9 +412,9 @@ void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
   double combinedEdgeWeight;
-  struct node *q;
+  struct bl_node *qq;
 
-  q = (struct node*)qq;
+  qq = (struct bl_node*)q;
   combinedEdgeWeight = qq->v;
   if (q->back != NULL)
     combinedEdgeWeight = qq->v + ((struct bl_node*)(q->back))->v;

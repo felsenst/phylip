@@ -2211,8 +2211,8 @@ void maketree(void)
       k = generic_tree_findemptyfork(curtree);  /* connect next tip to fork */
       q = curtree->get_fork(curtree, k);
       curtree->nodep[k] = q;
-      bl_hookup((bl_node *)curtree->nodep[enterorder[nextsp-1]-1], 
-                 (bl_node *)q);
+      bl_hookup((struct node *)curtree->nodep[enterorder[nextsp-1]-1], 
+                 (struct node *)q);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
       if (outgrno == enterorder[nextsp-1]+1)

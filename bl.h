@@ -45,20 +45,20 @@ void    bl_tree_init(struct bl_tree*, long, long);
 struct  node* bl_node_new(node_type, long, long);
 boolean bl_node_good(struct tree*, struct node*);
 void    bl_node_copy(struct node*, struct node*);
-void    bl_node_init(struct bl_node*, node_type, long);
+void    bl_node_init(struct node*, node_type, long);
 void    bl_node_free(struct bl_node **);
 void    bl_node_print(struct bl_node *);
-void    bl_hookup(struct bl_node*, struct bl_node*);
+void    bl_hookup(struct node*, struct node*);
 void    allocx(long, long, long, struct bl_node**);
 double  get_tyme(struct bl_node *);
 void    set_tyme(struct bl_node*, double);
-void    bl_update(struct bl_tree*, struct bl_node *);
-void    smooth(struct bl_tree*, struct bl_node *);
-void    smooth_traverse(struct bl_tree*, bl_node *);
-void 	bl_tree_smoothall(struct bl_tree*, bl_node*);
+void    bl_update(struct tree*, struct node *);
+void    smooth(struct tree*, struct node *);
+void    smooth_traverse(struct tree*, node *);
+void 	bl_tree_smoothall(struct tree*, node*);
 void 	bl_node_reinit(struct node *);
-void    bl_tree_insert_(struct bl_tree*, struct bl_node*, 
-                          struct bl_node*, boolean);
+void    bl_tree_insert_(struct tree*, struct node*, 
+                          struct node*, boolean);
 void    unrooted_tree_save_lr_nodes(struct tree*, struct node*, struct node*);
 void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*, 
 		                         struct node*);
@@ -78,8 +78,8 @@ boolean bl_tree_try_insert_thorough(struct bl_tree*, struct bl_node*,
                                       boolean, boolean, boolean);
 void    bl_tree_save_traverses(struct tree*, struct node*, struct node*);
 void    bl_tree_restore_traverses(struct tree*, struct node*, struct node*);
-void    bl_tree_do_branchl_on_insert(struct bl_tree*, bl_node *, bl_node*);
-void    bl_tree_do_branchl_on_re_move(struct bl_tree*, bl_node*, bl_node*);
+void    bl_tree_do_branchl_on_insert(struct tree*, node *, node*);
+void    bl_tree_do_branchl_on_re_move(struct tree*, node*, node*);
 double  min_child_tyme(struct bl_node *);
 double  parent_tyme(struct bl_node *);
 boolean valid_tyme(struct bl_tree *, struct bl_node *, double);
