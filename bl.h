@@ -63,8 +63,7 @@ void    unrooted_tree_save_lr_nodes(struct tree*, struct node*, struct node*);
 void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*, 
 		                         struct node*);
 void    blk_tree_makenewv(struct tree*, struct node*);
-void    bl_tree_re_move(struct bl_tree*, struct bl_node*, 
-		          struct bl_node**, boolean);
+void    bl_tree_re_move(struct tree*, struct node*, struct node**, boolean);
 void    blk_tree_insert_(struct bl_tree*, struct bl_node*, struct bl_node*, 
                            boolean , boolean );
 void    blk_tree_re_move(struct bl_tree*, struct bl_node *, struct bl_node**,
