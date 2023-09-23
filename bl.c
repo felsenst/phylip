@@ -103,8 +103,7 @@ boolean bl_node_good(struct tree *t, struct node *n)
 
 void bl_node_copy(struct node* srcn, struct node* destn)
 { /* copy a bl_node */
-  struct bl_node *srcbln;
-  struct bl_node *destbln;
+  struct bl_node *srcbln, *destbln;
 
   srcbln = (struct bl_node *)srcn;
   destbln = (struct bl_node *)destn;
@@ -112,7 +111,7 @@ void bl_node_copy(struct node* srcn, struct node* destn)
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
   generic_node_copy(srcn, destn);                /* first call generic copy */
-  set_tyme(destbln, srcbln->tyme);
+  set_tyme(destn, srcbln->tyme);
   destbln->v = srcbln->v;
   destbln->deltav = srcbln->deltav;
   destbln->iter = srcbln->iter;
@@ -132,11 +131,10 @@ void bl_node_free(struct bl_node **np)
 void bl_hookup(struct node* p, struct node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
-  struct bl_node *pp, *qq;
 
   hookup((struct node*)p, (struct node*)q);
-  pp->v = initialv;
-  qq->v = initialv;
+  ((struct bl_node*)p)->v = initialv;
+  ((struct bl_node*)q)->v = initialv;
 } /* bl_hookup */
 
 
@@ -476,10 +474,10 @@ void bl_tree_restore_traverses(struct tree *t, struct node *p,
 } /* bl_tree_restore_traverses */
 
 
-boolean bl_tree_try_insert_thorough(struct bl_tree *t, struct bl_node *pp, 
-                                     struct bl_node *qq, 
-                                     struct bl_node *qqwherein,
-                                     double *bestyet, struct bl_tree *bestree,
+boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp, 
+                                     struct node *qq, 
+                                     struct node *qqwherein,
+                                     double *bestyet, struct tree *bestree,
                                      boolean thorough, boolean storing, 
                                      boolean atstart)
 {
@@ -532,9 +530,9 @@ printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* 
 } /* bl_tree_try_insert_thorough */
 
 
-boolean bl_tree_try_insert_(struct bl_tree* tt, struct bl_node* pp, 
-                          struct bl_node* qq, struct bl_node* qwherein, 
-                          double* bestyet, struct bl_tree* bestree, 
+boolean bl_tree_try_insert_(struct tree* tt, struct node* pp, 
+                          struct node* qq, struct node* qwherein, 
+                          double* bestyet, struct tree* bestree, 
                           boolean thorough, boolean storing, boolean atstart, 
                           double* bestfound)
 {
@@ -596,8 +594,8 @@ void blk_tree_insert_(struct tree *t, struct node *newtip,
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
       if (!done) {
-        done = ((struct bl_node*))(t->nodep[p->back->index - 1]))->tyme 
-                   < ((struct bl_node*)p)->tyme);
+        done = ((struct bl_node*)(t->nodep[p->back->index - 1]))->tyme 
+                   < ((struct bl_node*)p)->tyme;
         set_tyme(p->back,  ((struct bl_node*)p)->tyme - epsilon/2);
       }
     } while (!done);
@@ -620,131 +618,110 @@ void blk_tree_insert_(struct tree *t, struct node *newtip,
 }  /* blk_tree_insert_ */
 
 
-double get_tyme(struct bl_node *p)
+double get_tyme(struct node *p)
 { /* return the tyme of a bl_node. p must point to struct bl_node. */
-  return (p->tyme);
+  return (((struct bl_node*)p)->tyme);
 } /* get_tyme */
 
 
-void set_tyme (struct bl_node* p, double tyme)
-{ /* Set the tyme of a node and its sibs. p must point to struct bl_node. */
-  struct bl_node *sib_ptr;
-  struct node *pp, *ssib_ptr;
+void set_tyme (struct node* p, double tyme)
+{ /* Set the tyme of a node and its sibs. */
+  struct node *sib_ptr;
 
   sib_ptr = p;
-  pp = (struct node*)p;
-  ssib_ptr = pp;
-  if (pp->next)
+  if (p->next)
     do {
-      sib_ptr->tyme = tyme;
+      ((struct bl_node*)sib_ptr)->tyme = tyme;
       /* added because changing tymes usually invalidates data likelihood.
        * This set seems to fix a failure to find the best tree in some
        * cases, but if the flags are being properly maintained it shouldn't...
        * apparent fix to bug#296, JY and MK 2015/05/18 */
-      ssib_ptr->initialized = false;
-      ssib_ptr = ssib_ptr->next;
-      sib_ptr = (struct bl_node*)ssib_ptr;
-    } while (ssib_ptr != pp);
+      sib_ptr->initialized = false;
+      sib_ptr = sib_ptr->next;
+    } while (sib_ptr != p);
   else
-    p->tyme = tyme;
+    ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
 
 
-void blk_tree_re_move(struct bl_tree* t, struct bl_node *item, 
-                        struct bl_node** where, boolean do_newbl) {
+void blk_tree_re_move(struct tree* t, struct node *item, 
+                        struct node** where, boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
      The new descendant of where's ancestor is made to be where's second
      descendant (other than item).  Also returns pointers to the deleted 
      nodes, item and where, and records where they were deleted from. */
   long i;
-  struct bl_node *whereloc;
-  struct node *wwhereloc;
-  struct tree* tt;
+  struct node *whereloc;
 
-  tt = (struct tree*)t;
-  rooted_tree_re_move(tt, (struct node*)item, &wwhereloc, do_newbl);
-  whereloc = (struct bl_node*)wwhereloc;
+  rooted_tree_re_move(t, item, &whereloc, do_newbl);
   if ( where )  where = &whereloc;
 
   if ( do_newbl ) {
-    whereloc = (struct bl_node *)wwhereloc;
-    inittrav(tt, wwhereloc);
-    inittrav(tt, wwhereloc->back);
+    inittrav(t, whereloc);
+    inittrav(t, whereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
       smooth(t, whereloc);
-      smooth(t, (struct bl_node*)(wwhereloc->back));
+      smooth(t, whereloc->back);
     }
   }
-  else smooth(t, (struct bl_node*)(wwhereloc->back));
+  else smooth(t, whereloc->back);
 }  /* blk_tree_re_move */
 
 
-double min_child_tyme(struct bl_node *pp)
+double min_child_tyme(struct node *p)
 {
   /* Return the minimum tyme of all children. p must be a parent nodelet */
   double min;
-  struct node *p, *q;
-  struct bl_node* blnqb;
+  struct node *q, *qb;
 
-  p = (struct node*)pp;
   min = 1.0;                                /* tymes are always nonpositive */
   for ( q = p->next; q != p; q = q->next ) {
-    blnqb = (struct bl_node*)(q->back);
-    if ( get_tyme(blnqb) < min )
-      min = get_tyme(blnqb);
+    qb = q->back;
+    if ( get_tyme(qb) < min )
+      min = get_tyme(qb);
   }
   return min;
 } /* min_child_tyme */
 
 
-double parent_tyme(struct bl_node *pp)
+double parent_tyme(struct node *p)
 {
   /* Return the tyme of the parent of node p.  p must be a parent node. */
-  struct node *p;
 
-  p = (struct node*)pp;
   if (p->back)
-    return get_tyme((struct bl_node*)(p->back));
+    return get_tyme(p->back);
   else
     return MIN_ROOT_TYME;
 } /* parent_tyme */
 
 
-boolean valid_tyme(struct bl_tree *blt, struct bl_node *pp, double tyme) {
+boolean valid_tyme(struct tree *t, struct node *p, double tyme) {
   /* Return true if tyme is a valid tyme to assign to node p. tyme must be
    * finite, not greater than any of p's children, and not less than p's
    * parent. Also, tip nodes can only be assigned 0. Otherwise false is
    * returned. */
-  struct tree* t;
-  struct node* p;
 
-  p = (struct node*)pp;
-  t = (struct tree*)blt;
   p = t->nodep[p->index - 1];
 
 #ifdef __USE_C99        /* debug: TODO Find a way to check without this. */
   if ( !isfinite(tyme) ) return false;
 #endif
-  if ( (p->tip == true) && (tyme != 0.0) ) return false;
-  if ( tyme > min_child_tyme(pp) ) return false;
-  if ( tyme < parent_tyme(pp) ) return false;
+  if ((p->tip == true) && (tyme != 0.0) ) return false;
+  if ( tyme > min_child_tyme(p) ) return false;
+  if ( tyme < parent_tyme(p) ) return false;
   return true;
 } /* valid_tyme */
 
 
-double set_tyme_evaluate(struct bl_tree *blt, struct bl_node *pp, double tyme)
+double set_tyme_evaluate(struct tree *t, struct node *p, double tyme)
 {
   /* Change tyme of node p and return likelihood
    * Views should be invalidated and regenerated before calling
    * evaluate() anywhere else in the tree. */
-  struct tree* t;
-  struct node* p;
 
-  assert( valid_tyme(blt, pp, tyme) );
-  t = (struct tree*)blt;
-  p = (struct node*)pp;
+  assert( valid_tyme(t, p, tyme) );
 
-  set_tyme(pp, tyme);
+  set_tyme(p, tyme);
   t->nuview(t, p);
 
   return t->evaluate(t, p, false);
@@ -807,27 +784,23 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
   boolean done;
   long num_sibs, i;
   struct node *s, *sib_ptr;
-  struct bl_tree *blt;
-  struct bl_node *bls;
 
   if ( p->tip )                                               /* skip tips. */
     return;
 
   s = t->nodep[p->index - 1];
-  bls = (struct bl_node*)s;
-  blt = (struct bl_tree*)t;
 
 #ifdef MAKENEWV_DEBUG
-  double start_tyme = get_tyme(bls);
+  double start_tyme = get_tyme(s);
   double start_likelihood = t->score;
 #endif /* MAKENEWV_DEBUG */
 
   if (s == t->root)                  /* Tyme cannot be less than parent ... */
     min_tyme = MIN_ROOT_TYME;
   else
-    min_tyme = get_tyme(bls) + MIN_BRANCH_LENGTH;
+    min_tyme = get_tyme(s) + MIN_BRANCH_LENGTH;
 
-  max_tyme = min_child_tyme(bls) - MIN_BRANCH_LENGTH;  /* or > any children */
+  max_tyme = min_child_tyme(s) - MIN_BRANCH_LENGTH;    /* or > any children */
 
   /* Nothing to do if we can't move */
   if ( max_tyme < min_tyme + 2.0*min_tyme_delta ) {  /* done if can't move! */
@@ -835,7 +808,7 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
     return;
   }
 
-  current_tyme = get_tyme(bls);
+  current_tyme = get_tyme(s);
   current_likelihood = t->evaluate(t, s, false);
 
   uphill_step = (max_tyme - min_tyme) * uphill_step_factor;
@@ -850,9 +823,9 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
       x[2] = max_tyme;
     x[1] = (x[0] + x[2]) / 2.0;
 
-    lnl[0] = set_tyme_evaluate(blt, bls, x[0]);   /* scores of the three points */
-    lnl[1] = set_tyme_evaluate(blt, bls, x[1]);
-    lnl[2] = set_tyme_evaluate(blt, bls, x[2]);
+    lnl[0] = set_tyme_evaluate(t, s, x[0]);   /* scores of the three points */
+    lnl[1] = set_tyme_evaluate(t, s, x[1]);
+    lnl[2] = set_tyme_evaluate(t, s, x[2]);
 
     s21 = (lnl[2] - lnl[1]) / (x[2] - x[1]);              /* compute slopes */
     s10 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
@@ -884,7 +857,7 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
         new_tyme = max_tyme;
         tdelta = new_tyme - current_tyme;
       }
-    new_likelihood = set_tyme_evaluate(blt, bls, new_tyme);
+    new_likelihood = set_tyme_evaluate(t, s, new_tyme);
     while ( new_likelihood < current_likelihood ) {
             /* if our estimate is worse, retract until we find a better one */
 #ifdef MAKENEWV_DEBUG
@@ -894,7 +867,7 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
       uphill_step *= retract_factor;
       if (fabs(tdelta) < min_tdelta) {      /* if can't retract far enough ...
                                             keep the current point and quit */
-        new_likelihood = set_tyme_evaluate(blt, bls, current_tyme);
+        new_likelihood = set_tyme_evaluate(t, s, current_tyme);
         done = true;
 #ifdef MAKENEWV_DEBUG
         putchar('X');
@@ -902,7 +875,7 @@ void blk_tree_makenewv(struct tree* t, struct node *p)
         break;
       }
       new_tyme = current_tyme + tdelta;
-      new_likelihood = set_tyme_evaluate(blt, bls, new_tyme);
+      new_likelihood = set_tyme_evaluate(t, s, new_tyme);
     }
     if ( new_likelihood - current_likelihood < likelihood_epsilon ) {
       done = true;
@@ -945,7 +918,7 @@ void getthree(struct tree* t, struct node *p, double thigh, double tlow,
     x[1] = ( x[0] + x[2] ) / 2;
   }
   for ( i = 0 ; i < 3 ; i++ ) {                 /* get scores for all three */
-    set_tyme((struct bl_node*)p, x[i]);
+    set_tyme(p, x[i]);
     t->nuview(t, p);
     lnl[i] = t->evaluate(t, p, 0);  /* debug: make sure score of tree is not reset */
   }

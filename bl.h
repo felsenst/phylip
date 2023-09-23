@@ -40,18 +40,16 @@ typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
 extern boolean smoothed;
 
 #ifndef OLDC /* prototypes */
-void    bl_tree_new(struct bl_tree**, long, long, long);
-void    bl_tree_init(struct bl_tree*, long, long);
+void    bl_tree_new(struct tree**, long, long, long);
+void    bl_tree_init(struct tree*, long, long);
 struct  node* bl_node_new(node_type, long, long);
 boolean bl_node_good(struct tree*, struct node*);
 void    bl_node_copy(struct node*, struct node*);
 void    bl_node_init(struct node*, node_type, long);
-void    bl_node_free(struct bl_node **);
-void    bl_node_print(struct bl_node *);
+void    bl_node_free(struct node **);
+void    bl_node_print(struct node *);
 void    bl_hookup(struct node*, struct node*);
-void    allocx(long, long, long, struct bl_node**);
-double  get_tyme(struct bl_node *);
-void    set_tyme(struct bl_node*, double);
+void    allocx(long, long, long, struct node**);
 void    bl_update(struct tree*, struct node *);
 void    smooth(struct tree*, struct node *);
 void    smooth_traverse(struct tree*, node *);
@@ -64,31 +62,33 @@ void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*,
 		                         struct node*);
 void    blk_tree_makenewv(struct tree*, struct node*);
 void    bl_tree_re_move(struct tree*, struct node*, struct node**, boolean);
-void    blk_tree_insert_(struct bl_tree*, struct bl_node*, struct bl_node*, 
-                           boolean , boolean );
-void    blk_tree_re_move(struct bl_tree*, struct bl_node *, struct bl_node**,
+void    blk_tree_insert_(struct tree*, struct node*, struct node*, 
+                           boolean, boolean);
+void    blk_tree_re_move(struct tree*, struct node *, struct node**,
                            boolean);
-boolean bl_tree_try_insert_(struct bl_tree*, struct bl_node*, struct bl_node*,
-                              struct bl_node*, double*, struct bl_tree*, 
+boolean bl_tree_try_insert_(struct tree*, struct node*, struct node*,
+                              struct node*, double*, struct tree*, 
                               boolean, boolean, boolean, double*);
-boolean bl_tree_try_insert_thorough(struct bl_tree*, struct bl_node*, 
-                                      struct bl_node*, struct bl_node*, 
-                                      double*, struct bl_tree*, 
+boolean bl_tree_try_insert_thorough(struct tree*, struct node*, 
+                                      struct node*, struct node*, 
+                                      double*, struct tree*, 
                                       boolean, boolean, boolean);
 void    bl_tree_save_traverses(struct tree*, struct node*, struct node*);
 void    bl_tree_restore_traverses(struct tree*, struct node*, struct node*);
 void    bl_tree_do_branchl_on_insert(struct tree*, node *, node*);
 void    bl_tree_do_branchl_on_re_move(struct tree*, node*, node*);
-double  min_child_tyme(struct bl_node *);
-double  parent_tyme(struct bl_node *);
-boolean valid_tyme(struct bl_tree *, struct bl_node *, double);
-double  set_tyme_evaluate(struct bl_tree*, struct bl_node*, double);
+double  get_tyme(struct node *);
+void    set_tyme(struct node*, double);
+double  min_child_tyme(struct node *);
+double  parent_tyme(struct node *);
+boolean valid_tyme(struct tree *, struct node *, double);
+double  set_tyme_evaluate(struct tree*, struct node*, double);
 void    addelement2(struct tree*, struct node*, Char*, long*, FILE*, boolean, 
 	  double*, boolean*, long*, long*, long, boolean*, boolean, long);
 void    treeread2 (struct tree*, FILE*, struct node**, boolean, 
           double*, boolean*, boolean*, long*, boolean, long);
-void    bl_treeoutrecurs(FILE*, struct tree*, bl_node*, double, int*);
-void    bl_treeout(FILE*, struct tree*, struct bl_node*, double);
+void    bl_treeoutrecurs(FILE*, struct tree*, node*, double, int*);
+void    bl_treeout(FILE*, struct tree*, struct node*, double);
 void    getthree(struct tree*, struct node*, double, 
                    double, double, double*, double*);
 void    bl_treevaluate(struct tree*, boolean, boolean, boolean, 

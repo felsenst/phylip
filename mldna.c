@@ -107,17 +107,17 @@ void mldna_node_freex(mldna_node* dn)
 } /* mldna_node_freex */
 
 
-void mldna_node_allocx(struct mldna_node* dn, long endsite, long rcategs)
+void mldna_node_allocx(struct mldna_node* mldn, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
   long i;
   struct ml_node *mln;
 
-  mln = (struct ml_node*)dn;          /* node considered as an ml_ node ... */
+  mln = (struct ml_node*)mldn;        /* node considered as an ml_ node ... */
 
-  dn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
+  mldn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
   for ( i = 0 ; i < endsite ; i++ )
-    dn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
+    mldn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
 
   mln->categs = rcategs;
   mln->endsite = endsite;

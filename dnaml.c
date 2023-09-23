@@ -42,8 +42,8 @@ typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
-void   dnaml_tree_new(struct dnaml_tree**, long, long, long);
-void   dnaml_tree_init(struct dnaml_tree*, long, long);
+void   dnaml_tree_new(struct tree**, long, long, long);
+void   dnaml_tree_init(struct tree*, long, long);
 struct dnaml_node* dnaml_node_new(node_type, long, long);
 void   dnaml_node_init(struct node*, node_type, long);
 void   dnaml_tree_setup(long, long);
@@ -58,25 +58,25 @@ void   inittable_for_usertree(FILE *);
 void   inittable(void);
 void   alloc_nvd (long, nuview_data *);
 void   free_nvd (nuview_data *);
-void   dnaml_tree_nuview(struct dnaml_tree* , struct dnaml_node *);
-void   slopecurv(struct dnaml_node *, double, double *, double *, double *);
-void   dnaml_tree_makenewv(struct tree*, struct dnaml_node *);
-void   initdnamlnode(struct tree *, struct dnaml_node *, long, long, long *,
+void   dnaml_tree_nuview(struct tree* , struct node *);
+void   slopecurv(struct node *, double, double *, double *, double *);
+void   dnaml_tree_makenewv(struct tree*, struct node *);
+void   initdnamlnode(struct tree *, struct node *, long, long, long *,
                        long *, initops, pointarray, Char *, Char *, FILE *);
-void   dnaml_coordinates(struct dnaml_node *, double, long *, double *);
+void   dnaml_coordinates(struct node *, double, long *, double *);
 void   dnaml_printree(void);
-void   sigma(struct dnaml_node *, double *, double *, double *);
-void   describe(struct dnaml_node *);
-void   reconstr(struct dnaml_node *, long);
-void   rectrav(struct dnaml_node *, long, long);
+void   sigma(struct node *, double *, double *, double *);
+void   describe(struct node *);
+void   reconstr(struct node *, long);
+void   rectrav(struct node *, long, long);
 void   summarize(void);
 void   treevaluate(struct tree*);
 void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
 void   dnaml_reroot(struct tree*);           // RSGbugfix: Name change.
-void   dnaml_treeout(FILE *, struct tree*, struct bl_node*);
-double dnaml_tree_evaluate(struct tree*, struct dnaml_node *, boolean);
+void   dnaml_treeout(FILE *, struct tree*, struct node*);
+double dnaml_tree_evaluate(struct tree*, struct node *, boolean);
 void   freetable(void);
 void   dnamlrun(void);
 void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
@@ -117,9 +117,9 @@ boolean freqsfrom, global, jumble, weights, trout, usertree,
          reusertree, ctgry, rctgry, auto_, hypstate, ttr, progress, mulsets,
          justwts, firstset, improve, thorough, smoothit, polishing, lngths,
          gama, invar;
-struct dnaml_tree *curtreee, *bestreee, *bestreee2, *priortreee;
-struct dnaml_tree **curtreep, **bestreep, **bestree2p, **priortreep;
-struct dnaml_node *qwhere;
+struct tree *curtreee, *bestreee, *bestreee2, *priortreee;
+struct tree **curtreep, **bestreep, **bestree2p, **priortreep;
+struct node *qwhere;
 initops whichinit;
 double xi, xv, rho, ttratio, ttratio0, freqa, freqc, freqg, freqt, freqr, freqy,
         freqar, freqcy, freqgr, freqty, cv, alpha, lambda, invarfrac;
@@ -143,41 +143,36 @@ long col;
 vall *mp=NULL;
 
 
-void dnaml_tree_new(struct dnaml_tree** treep, long nonodes, long spp, 
+void dnaml_tree_new(struct tree** treep, long nonodes, long spp, 
 		     long treesize)
 {
   /* set up variables and then set up identities of functions */
-  struct bl_tree **bltp;
 
-  bltp = (struct bl_tree **)treep;
-  bl_tree_new(bltp, nonodes, spp, sizeof(dnaml_tree));
-
+  bl_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
 
 
-void dnaml_tree_init(struct dnaml_tree* t, long nonodes, long spp)
+void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
-  struct tree* tt;
 
-  tt = (struct tree*)t;
-  tt->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
-  tt->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
-  tt->nuview = (tree_nuview_t)dnaml_tree_nuview;
-  tt->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
-  tt->get_fork = generic_tree_get_fork;
-  tt->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->nuview = (tree_nuview_t)dnaml_tree_nuview;
+  t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
+  t->get_fork = generic_tree_get_fork;
+  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
 } /* dnaml_tree_init */
 
 
-struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
+struct node* dnaml_node_new(node_type type, long index, long nodesize)
 {
   /* make new dnaml_node */
-  struct dnaml_node *n;
+  struct node *n;
 
   nodesize = (long)sizeof(dnaml_node);
-  n = (dnaml_node*)mldna_node_new(type, index, nodesize);
+  n = mldna_node_new(type, index, nodesize);
   return n;
 } /* dnaml_node_new */
 
@@ -185,7 +180,7 @@ struct dnaml_node* dnaml_node_new(node_type type, long index, long nodesize)
 void dnaml_node_init(struct node* n, node_type type, long index)
 {
   /* assign functions for a new node */
-  mldna_node_init((struct mldna_node*)n, type, index);
+  mldna_node_init((struct node*)n, type, index);
 } /* mldna_node_init */
 
 
@@ -196,11 +191,11 @@ void dnaml_tree_setup(long nonodes, long spp)
   curtreep = (struct dnaml_tree **)(&curtree);
   dnaml_tree_new(curtreep, nonodes, spp, sizeof(dnaml_tree));
   if (!usertree) {
-    bestreep = (struct dnaml_tree **)(&bestree);
+    bestreep = (struct tree **)(&bestree);
     dnaml_tree_new(bestreep, nonodes, spp, sizeof(dnaml_tree));
-    bestree2p = (struct dnaml_tree **)(&bestree2);
+    bestree2p = (struct tree **)(&bestree2);
     dnaml_tree_new(bestree2p, nonodes, spp, sizeof(dnaml_tree));
-    priortreep = (struct dnaml_tree **)(&priortree);
+    priortreep = (struct tree **)(&priortree);
     dnaml_tree_new(priortreep, nonodes, spp, sizeof(dnaml_tree));
   }
 } /* dnaml_tree_setup */
