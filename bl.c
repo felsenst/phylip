@@ -25,28 +25,26 @@ extern boolean lngths;
 boolean inserting;
 
 
-void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
+void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
 { /* make a new bl_tree.  Calls to generic_tree_new, casting bl_tree** to 
    * tree** as we call it, then call  bl_tree_init */
-  struct tree **tt;
-  struct bl_tree *bltt;
+  struct tree *t;
 
-  tt = (struct tree**)tp;
-  generic_tree_new(tt, nonodes, spp, treesize);                  /* next up */
-  bltt = (struct bl_tree *)(*tt);
-  bl_tree_init(bltt, nonodes, spp);         /* initialize tree at this level */
+  generic_tree_new(tp, nonodes, spp, treesize);                  /* next up */
+  t = *tp;
+  bl_tree_init(t, nonodes, spp);         /* initialize tree at this level */
 } /* bl_tree_new */
 
 
-void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
+void bl_tree_init(struct tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
-  ((struct tree*)t)->insert_ = bl_tree_insert_;
-  ((struct tree*)t)->save_lr_nodes = unrooted_tree_save_lr_nodes;
-  ((struct tree*)t)->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
-  ((struct tree*)t)->save_traverses = bl_tree_save_traverses;
-  ((struct tree*)t)->restore_traverses = bl_tree_restore_traverses;
+  t->insert_ = bl_tree_insert_;
+  t->save_lr_nodes = unrooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
+  t->save_traverses = bl_tree_save_traverses;
+  t->restore_traverses = bl_tree_restore_traverses;
 } /* bl_tree_init */
 
 
@@ -118,12 +116,12 @@ void bl_node_copy(struct node* srcn, struct node* destn)
 } /* bl_node_copy */
 
 
-void bl_node_free(struct bl_node **np)
+void bl_node_free(struct node **p)
 {
   /* free a node for bl trees */
   struct node *n;
 	 
-  n = (struct node*)np;
+  n = *p;
   generic_node_free(&n);
 } /* bl_node_free */
 
@@ -151,15 +149,12 @@ void bl_node_reinit(struct node* n)
 } /* bl_node_reinit */
 
 
-void bl_node_print(struct bl_node * bln)
+void bl_node_print(struct node * n)
 {
   /* for debugging only */
-  struct node * n;
  
-  n = (struct node*)bln;
-
   generic_node_print(n);
-  printf(" bl(tyme:%lf)", bln->tyme);
+  printf(" bl(tyme:%lf)", ((struct bl_node *)n)->tyme);
 } /* bl_node_print */
 
 
@@ -1188,7 +1183,7 @@ void treeread2 (tree* t, FILE *treefile, node **root, boolean lngths,
 }  /* treeread2 */
 
 
-void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp, 
+void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p, 
                         double bl_scale, int* col)
 { 
   /* write out to output file a subtree, recursively.  This is the version 
@@ -1196,10 +1191,9 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
   long i, n, w;
   Char c;
   double x;
-  struct node *p, *q, *qfirst; 
+  struct node *q, *qfirst; 
   boolean inloop;
 
-  p = (struct node*)pp;
   if (p->tip)
   {
     n = 0;
@@ -1234,8 +1228,8 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
         }
       }
       if (q->back != NULL) {                /* just making sure is not null */
-        bl_treeoutrecurs(outtreefile, t, ((struct bl_node*)(q->back)), 
-			  bl_scale, col); /* go out the branch recursiovely */
+        bl_treeoutrecurs(outtreefile, t, q->back, 
+			  bl_scale, col);  /* go out the branch recursively */
         inloop = true;                  /* will need comma before next furc */
       }
       q = q->next;                                  /* continue around fork */
@@ -1243,7 +1237,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
     putc(')', outtree);             /* then close the paren for this circle */
     (*col)++;
   }
-  x = pp->v * bl_scale;                  /* now write out the branch length */
+  x = ((struct bl_node*)p)->v * bl_scale;    /* now write out branch length */
   if (x > 0.0)           /* widths in decimal places hence divide by ln(10) */
     w = (long)(0.43429448222 * log(x));
   else {
@@ -1263,24 +1257,21 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
 } /* bl_treeoutrecurse */
 
 
-void bl_treeout(FILE* outtreefile, struct tree* t, struct bl_node* pp, 
+void bl_treeout(FILE* outtreefile, struct tree* t, struct node* p, 
                   double bl_scale)
 {
   /* write out file with representation of final tree2 */
   int col;
   boolean found;
-  struct node *p, *q;
-  struct bl_node *blp;
+  struct node *q;
 
-  p = (struct node*)pp;
   assert(p->index > 0);                 // RSGdebug
 
   q = findrootmostandroot(t, p, &found);
   if (found)
     p = q;
-  blp = (struct bl_node*)p;
   col = 0;
-  bl_treeoutrecurs(outtreefile, t, blp, bl_scale, &col);
+  bl_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
 }  /* bl_treeout */
 
 /* End. */

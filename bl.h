@@ -33,9 +33,9 @@ typedef struct bl_node {                       /* subclass of generic node */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
 } bl_node;
 
-typedef void (*makenewv_t)(struct bl_tree*, struct bl_node*);  /* debug: should these three be just tree*, node* ? */
-typedef void (*nuview_t)(struct bl_tree*, struct bl_node*);
-typedef void (*initialvtrav_t)(struct bl_tree*, struct bl_node*);
+typedef void (*makenewv_t)(struct tree*, struct node*);  /* debug: should these three be just tree*, node* ? */
+typedef void (*nuview_t)(struct tree*, struct node*);
+typedef void (*initialvtrav_t)(struct tree*, struct node*);
 
 extern boolean smoothed;
 
