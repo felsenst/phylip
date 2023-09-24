@@ -9,16 +9,16 @@ allocx_t allocx_f;
 freex_t *freex_f;                      /* forward: pointer to free function */
 
 
-mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
+struct node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct mldna_node* n;
+  struct mldna_node* mldn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  n = (struct mldna_node*)ml_node_new(type, index, nodesize);
+  n = (struct node*)ml_node_new(type, index, nodesize);
   return n;
 } /* mldna_node_new */
 
@@ -107,13 +107,15 @@ void mldna_node_freex(mldna_node* dn)
 } /* mldna_node_freex */
 
 
-void mldna_node_allocx(struct mldna_node* mldn, long endsite, long rcategs)
+void mldna_node_allocx(struct node* n, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
   long i;
   struct ml_node *mln;
+  struct mldna_node *mldn;
 
-  mln = (struct ml_node*)mldn;        /* node considered as an ml_ node ... */
+  mln = (struct ml_node*)n;           /* node considered as an ml_ node ... */
+  mldn = (struct mldna_node*)mln;
 
   mldn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
   for ( i = 0 ; i < endsite ; i++ )

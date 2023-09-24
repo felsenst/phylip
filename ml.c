@@ -56,6 +56,7 @@ void ml_tree_init(struct tree* t, long nonodes, long spp)
 
 struct node* ml_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
+  struct node *n;
 
   n = bl_node_new(type, index, nodesize);
   return n;
@@ -75,22 +76,20 @@ void ml_node_init(struct node *n, node_type type, long index)
 
   bl_node_init(n, type, index);
   n->node_print_f = (node_print_t)ml_node_print;
-  for (i = 0; i < n->endsite; i++)
-    n->underflows[i] = 0.0;
+  for (i = 0; i < ((struct ml_node *)n)->endsite; i++)
+    ((struct ml_node*)n)->underflows[i] = 0.0;
 } /* ml_node_init */
 
 
 void ml_node_copy(struct node* src, struct node* dest)
 { /* copy contents of an ml_node but not its pointers */
-  bl_node *srcbln = (bl_node *)src;
-  bl_node *destbln = (bl_node *)dest;
   ml_node *srcmln = (ml_node *)src;
   ml_node *destmln = (ml_node *)dest;
 
   bl_node_copy(src, dest);                              /* go up hierarchy */
   destmln->categs = srcmln->categs;
   destmln->endsite = srcmln->endsite;
-  set_tyme(destbln, srcbln->tyme);
+  set_tyme(dest, ((struct bl_node*)src)->tyme);
 
   if(destmln->underflows)                  // RSGbugfix
     memcpy(&(destmln->underflows), &(srcmln->underflows), 
@@ -100,7 +99,7 @@ void ml_node_copy(struct node* src, struct node* dest)
 } /* ml_node_copy */
 
 
-void ml_node_free(struct ml_node **np)
+void ml_node_free(struct node **np)
 {
   /* free a node for ml trees */
 
@@ -109,12 +108,11 @@ void ml_node_free(struct ml_node **np)
 } /* ml_node_free */
 
 
-void ml_node_print(struct ml_node * n)
+void ml_node_print(struct node * n)
 {
   /* for debugging */
-  struct bl_node * bn = (bl_node*)n;
 
-  bl_node_print(bn);
+  bl_node_print(n);
   /* debug:  ?? printf(" ml(bn.endsite:%ld tyme:%lf)", ((struct bl_tree*)mn)->endsite, mn->bl_node.tyme); */
 } /* ml_node_print */
 
