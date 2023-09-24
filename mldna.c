@@ -11,7 +11,7 @@ freex_t *freex_f;                      /* forward: pointer to free function */
 
 struct node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct mldna_node* mldn;
+  struct node* n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -23,26 +23,24 @@ struct node* mldna_node_new(node_type type, long index, long nodesize) // RSGbug
 } /* mldna_node_new */
 
 
-void mldna_node_init(struct mldna_node* mldn, node_type type, long index)
+void mldna_node_init(struct node* n, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
-  struct node* n;
-  struct ml_node* mln;
+  struct mldna_node* mldn;
   assert(index >= 0);
 
-  mln = (struct ml_node*)mldn;
-  ml_node_init(mln, type, index);
-  n = (struct node*)mldn;
+  mldn = (struct mldna_node*)n;
+  ml_node_init(n, type, index);
   n->copy = mldna_node_copy;
   mldn->allocx_f = (allocx_t)mldna_node_allocx;
   mldn->freex_f = (freex_t)mldna_node_freex;
 
   if ( endsite != 0 && rcategs != 0 )
-    mldna_node_allocx(mldn, endsite, rcategs);
+    mldna_node_allocx(n, endsite, rcategs);
 } /* mldna_node_init */
 
 
@@ -63,11 +61,11 @@ void mldna_node_copy(struct node* src, struct node* dest)
 
   if ( oldendsite != 0 && oldendsite != srcmln->endsite )
   {
-    mldna_node_freex(destmldn);
+    mldna_node_freex(dest);
     destmln->endsite = 0;
   }
   if ( oldendsite == 0 )
-    mldna_node_allocx(destmldn, srcmln->endsite, 
+    mldna_node_allocx(dest, srcmln->endsite, 
                          srcmln->categs);
   for (i = 0; i < srcmln->endsite; i++)
     for (j = 0; j < srcmln->categs; j++)
@@ -88,13 +86,16 @@ void fix_x(mldna_node* p, long site, double maxx, long rcategs)
 } /* fix_x */
 
 
-void mldna_node_freex(mldna_node* dn)
+void mldna_node_freex(struct node* n)
 {
   /* free a dna tree node */
-  ml_node *mln;
+  struct ml_node *mln;
+  struct mldna_node *dn;
   long i;
 
-  mln = (ml_node *)dn;
+  mln = (struct ml_node *)n;
+  dn = (struct mldna_node *)n;
+  dn
   for ( i = 0 ; i < mln->endsite ; i++ )
   {
     free(dn->x[i]);
