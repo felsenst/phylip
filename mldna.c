@@ -95,7 +95,7 @@ void mldna_node_freex(struct node* n)
 
   mln = (struct ml_node *)n;
   dn = (struct mldna_node *)n;
-  dn
+
   for ( i = 0 ; i < mln->endsite ; i++ )
   {
     free(dn->x[i]);
