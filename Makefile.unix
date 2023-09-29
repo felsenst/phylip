@@ -345,7 +345,7 @@ phylip.o:     phylip.c Slist.h
 # debug.o:      debug.c debug.h phylip.h Slist.h
 #	$(CC) -c debug.c
 
-seq.o:        seq.c phylip.h seq.h
+seq.o:        ml.c bl.c seq.c phylip.h seq.h
 	$(CC) -c seq.c $(SHARED) -fPIC
 
 bl.o:         phylip.h bl.h
