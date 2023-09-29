@@ -100,7 +100,7 @@ UNAME := $(shell uname)
 #CFLAGS  = -g
 #
 # A basic one for debugging:
-CFLAGS  = -g -Wall
+#CFLAGS  = -g -Wall
 #
 # For MacOS using the clang compiler
 #CFLAGS = -g
@@ -125,7 +125,7 @@ CFLAGS  = -g -Wall
 #CFLAGS  = -O3 -fomit-frame-pointer
 #
 # For some serious debugging using Gnu gcc:
-#CFLAGS=-g -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Werror -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
+CFLAGS=-g -Wall -Wmain -Wmissing-prototypes -Wreturn-type -Wstrict-prototypes -Wunused -Werror -Wredundant-decls -Waggregate-return -Wcast-align -Wcomment
 #
 # These are for specific systems, in these cases fairly obsolete ones:
 #

@@ -1,72 +1,75 @@
 /* Copyright, 2023 */
 /* functions for ML analysis on DNA/RNA sequence data */
 
-#ifndef ML_H
-#include "ml.h"
-#endif
-
-#ifndef MLDNA_H
-#define MLDNA_H
 #include "mldna.h"
 
+extern long endsite;
+extern long rcategs;
+allocx_t allocx_f;
+freex_t *freex_f;                      /* forward: pointer to free function */
 
-mldna_node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
+
+struct node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct mldna_node* n;
+  struct node* n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
   assert(index >= 0);
 
-  n = ml_node_new(type, index, nodesize);
-  mldna_node_init(n, type, index);
+  n = (struct node*)ml_node_new(type, index, nodesize);
   return n;
 } /* mldna_node_new */
 
 
-void mldna_node_init(node *node, node_type type, long index)
+void mldna_node_init(struct node* n, node_type type, long index)
 {
   /* initialize a node for an ml dna tree */
-
-  mldna_node *n = (mldna_node *)node;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
+  struct mldna_node* mldn;
   assert(index >= 0);
 
-  n->allocx = (allocx_t)mldna_node_allocx;
+  mldn = (struct mldna_node*)n;
+  ml_node_init(n, type, index);
   n->copy = mldna_node_copy;
-  n->node_init = mldna_node_init;
-  n->freex = (freex_t)mldna_node_freex;
-  n->x = NULL;
+  mldn->allocx_f = (allocx_t)mldna_node_allocx;
+  mldn->freex_f = (freex_t)mldna_node_freex;
 
   if ( endsite != 0 && rcategs != 0 )
-    n->ml_node.allocx((struct node*)n, endsite, rcategs);
+    mldna_node_allocx(n, endsite, rcategs);
 } /* mldna_node_init */
 
 
-void mldna_node_copy(node* srcn, node* destn)
+void mldna_node_copy(struct node* src, struct node* dest)
 {
   /* copy a node when DNA likelihoods are used */
-  mldna_node * src  = (mldna_node *)srcn;
-  mldna_node * dest = (mldna_node *)destn;
-  long i, j;
-  long oldendsite = dest->ml_node.endsite;
+  long i, j, oldendsite;
+  struct ml_node *srcmln, *destmln;
+  struct mldna_node *srcmldn, *destmldn;
 
-  ml_node_copy(srcn, destn);
+  srcmln = (struct ml_node*)src;     /* src, dest considered as polymorphic */
+  destmln = (struct ml_node*)dest;
+  oldendsite = destmln->endsite;
+  srcmldn = (struct mldna_node*)src;
+  destmldn = (struct mldna_node*)dest;
 
-  if ( oldendsite != 0 && oldendsite != src->ml_node.endsite )
+  ml_node_copy(src, dest);
+
+  if ( oldendsite != 0 && oldendsite != srcmln->endsite )
   {
-    dest->ml_node.freex((node*)dest);
-    dest->ml_node.endsite = 0;
+    mldna_node_freex(dest);
+    destmln->endsite = 0;
   }
   if ( oldendsite == 0 )
-    ((ml_node*)dest)->allocx((node*)dest, ((ml_node*)src)->endsite, ((ml_node*)src)->categs);
-  for (i = 0; i < ((ml_node*)src)->endsite; i++)
-    for (j = 0; j < ((ml_node*)src)->categs; j++)
-      memcpy(((mldna_node*)dest)->x[i][j], ((mldna_node*)src)->x[i][j], sizeof(sitelike));
+    mldna_node_allocx(dest, srcmln->endsite, 
+                         srcmln->categs);
+  for (i = 0; i < srcmln->endsite; i++)
+    for (j = 0; j < srcmln->categs; j++)
+      memcpy(destmldn->x[i][j], srcmldn->x[i][j], sizeof(sitelike));
 } /* mldna_node_copy */
 
 
@@ -83,35 +86,41 @@ void fix_x(mldna_node* p, long site, double maxx, long rcategs)
 } /* fix_x */
 
 
-void mldna_node_freex(ml_node* n)
+void mldna_node_freex(struct node* n)
 {
   /* free a dna tree node */
-  mldna_node *dn;
+  struct ml_node *mln;
+  struct mldna_node *dn;
   long i;
 
-  dn = (mldna_node *)n;
-  for ( i = 0 ; i < n->endsite ; i++ )
+  mln = (struct ml_node *)n;
+  dn = (struct mldna_node *)n;
+
+  for ( i = 0 ; i < mln->endsite ; i++ )
   {
     free(dn->x[i]);
   }
 
   free(dn->x);
   dn->x = NULL;
-  free(n->underflows);
-  n->underflows = NULL;
+  free(mln->underflows);
+  mln->underflows = NULL;   /* debug:  legal? */
 } /* mldna_node_freex */
 
 
-void mldna_node_allocx(node* n, long endsite, long rcategs)
+void mldna_node_allocx(struct node* n, long endsite, long rcategs)
 {
   /* allocate space for sequences on a dna tree node */
-  ml_node *mln = (ml_node *)n;      /* node considered as an ml_ node ... */
-  mldna_node *dn = (mldna_node *)n; /* ... and same node as a  mldna_node */
   long i;
+  struct ml_node *mln;
+  struct mldna_node *mldn;
 
-  dn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
+  mln = (struct ml_node*)n;           /* node considered as an ml_ node ... */
+  mldn = (struct mldna_node*)mln;
+
+  mldn->x = (phenotype)Malloc(endsite * sizeof(ratelike));
   for ( i = 0 ; i < endsite ; i++ )
-    dn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
+    mldn->x[i] = (ratelike)Malloc(rcategs * sizeof(sitelike));
 
   mln->categs = rcategs;
   mln->endsite = endsite;
@@ -134,107 +143,107 @@ void makevalues2(long categs, pointarray nodep, long endsite, long spp, sequence
       for (l = 0; l < categs; l++)
       {
         for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-          ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 0.0;
+          ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 0.0;
 
         switch (y[i][j - 1])
         {
           case 'A':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
             break;
 
           case 'C':
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
             break;
 
           case 'G':
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
             break;
 
           case 'T':
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'U':
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'M':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
             break;
 
           case 'R':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
             break;
 
           case 'W':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'S':
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
             break;
 
           case 'Y':
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'K':
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'B':
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'D':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'H':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)T - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)T - (long)A] = 1.0;
             break;
 
           case 'V':
-            ((mldna_node*)nodep[i])->x[k][l][0] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)C - (long)A] = 1.0;
-            ((mldna_node*)nodep[i])->x[k][l][(long)G - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][0] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)C - (long)A] = 1.0;
+            ((struct mldna_node*)(nodep[i]))->x[k][l][(long)G - (long)A] = 1.0;
             break;
 
           case 'N':
             for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
+              ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 1.0;
             break;
 
           case 'X':
             for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
+              ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 1.0;
             break;
 
           case '?':
             for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
+              ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 1.0;
           break;
 
           case 'O':
             for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
+              ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 1.0;
             break;
 
           case '-':
             for (b = A; (long)b <= (long)T; b = (bases)((long)b + 1))
-              ((mldna_node*)nodep[i])->x[k][l][(long)b - (long)A] = 1.0;
+              ((struct mldna_node*)(nodep[i]))->x[k][l][(long)b - (long)A] = 1.0;
             break;
         }
       }
@@ -475,8 +484,6 @@ void getbasefreqs(double freqa, double freqc, double freqg, double freqt,
 
 }  /* getbasefreqs */
 
-#endif
-/* end of ifdef block if have not yet defined the mldna.h stuff */
 
 /* End. */
 

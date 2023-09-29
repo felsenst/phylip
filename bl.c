@@ -19,127 +19,153 @@
 const double MIN_BRANCH_LENGTH = epsilon/4.0;
 const double MIN_ROOT_TYME = -10;
 
-long endsite;
+extern long endsite;
 extern sequence inputSequences;
-extern boolean lngths, smoothit, polishing;
+extern boolean lngths;
 boolean inserting;
 
 
-void bl_tree_new(struct bl_tree **tp, long nonodes, long spp, long treesize)
+void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
 { /* make a new bl_tree.  Calls to generic_tree_new, casting bl_tree** to 
    * tree** as we call it, then call  bl_tree_init */
+  struct tree *t;
 
-  generic_tree_new((struct tree**)tp, nonodes, spp, treesize);   /* next up */
-  bl_tree_init(*tp, nonodes, spp);      /* initialize tree at this level */
+  generic_tree_new(tp, nonodes, spp, treesize);                  /* next up */
+  t = *tp;
+  bl_tree_init(t, nonodes, spp);         /* initialize tree at this level */
 } /* bl_tree_new */
 
 
-void bl_tree_init(struct bl_tree* t, long nonodes, long spp)
+void bl_tree_init(struct tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
 /* debug: if anything to initialize, do this here, but none right now */
+  t->insert_ = bl_tree_insert_;
+  t->save_lr_nodes = unrooted_tree_save_lr_nodes;
+  t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
+  t->save_traverses = bl_tree_save_traverses;
+  t->restore_traverses = bl_tree_restore_traverses;
 } /* bl_tree_init */
 
 
-struct bl_node* bl_node_new(node_type type, long index, long nodesize) {
+void bl_tree_save_traverses(struct tree* t, struct node* p, struct node* q) {
+  /* bl_tree version ofn saving traverses */
+	/* debug: more stuff here! */
+} /* bl_tree_save_traverses */
+
+
+struct node* bl_node_new(node_type type, long index, long nodesize) {
   /* go up hierarchy creating a node, initializing it */
   struct node* n;
-  struct bl_node* nn;
 
   n = generic_node_new(type, index, nodesize);
-  nn = (struct bl_node*)n;
-  bl_node_init(nn, type, index);
-  return (bl_node*)nn;
+  return n;
 } /* bl_node_new */
 
 
-void bl_node_init(struct bl_node *n, node_type type, long index)
+void bl_node_init(struct node *n, node_type type, long index)
 {
-  /* initialize a node for ml trees */
+  /* initialize a node for bl trees */
 /* debug: not needed for dist_node creation but needed for sequence types.  Needs nodesize argument? probably not */
-  struct bl_node* nn;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
   // Test here is for ">= 0", which allows both cases.
+  struct bl_node *bln;
+
   assert(index >= 0);
 
-  generic_node_init((struct node*)n, type, index);                /* go up node hierarchy */
-  nn = (bl_node*)n;
-  nn->tyme = 0;
+  generic_node_init(n, type, index);               /*  go up node hierarchy */
+  bln = (struct bl_node*)n;
+  bln->tyme = 0.0;
+  bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
+  n->reinit = bl_node_reinit;
 /* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 
 
-void bl_node_copy(struct bl_node* srcn, struct bl_node* destn)
+boolean bl_node_good(struct tree *t, struct node *n)
+{ /* check whether node exists and has forward and back lengths equal */
+  boolean ok;
+  struct bl_node *bln, *blnb;
+
+  ok = generic_node_good(t, n);        /* first check if back branch exists */
+  if (ok) {
+    bln = (struct bl_node *)n;
+    blnb = (struct bl_node *)(n->back);
+    ok = (blnb->v == bln->v);    /* is sensible to check equality of reals! */
+  }
+  return ok;
+} /* bl_node_good */
+
+
+void bl_node_copy(struct node* srcn, struct node* destn)
 { /* copy a bl_node */
-/* debug: shouldn't length of node be involved? */
-  struct node *src = (struct node *)srcn;
-  struct node *dest = (struct node *)destn;
+  struct bl_node *srcbln, *destbln;
+
+  srcbln = (struct bl_node *)srcn;
+  destbln = (struct bl_node *)destn;
 
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(src, dest);
-  set_tyme(destn, srcn->tyme);
-/* debug: initialize branch lengths here too? */
+  generic_node_copy(srcn, destn);                /* first call generic copy */
+  set_tyme(destn, srcbln->tyme);
+  destbln->v = srcbln->v;
+  destbln->deltav = srcbln->deltav;
+  destbln->iter = srcbln->iter;
 } /* bl_node_copy */
 
 
-void bl_node_free(struct bl_node **np)
+void bl_node_free(struct node **p)
 {
   /* free a node for bl trees */
   struct node *n;
 	 
-  n = (struct node*)np;
+  n = *p;
   generic_node_free(&n);
 } /* bl_node_free */
 
 
-void bl_hookup(struct bl_node* p, struct bl_node* q){
+void bl_hookup(struct node* p, struct node* q){
 /* hook up two nodes, set branch length to initial value
    (one of the nodes may be in a fork circle) */
 
   hookup((struct node*)p, (struct node*)q);
-  p->v = initialv;
-  q->v = initialv;
+  ((struct bl_node*)p)->v = initialv;
+  ((struct bl_node*)q)->v = initialv;
 } /* bl_hookup */
 
 
-void bl_node_reinit(struct bl_node * bln)
+void bl_node_reinit(struct node* n)
 {
-  /* reset things for an ml tree node */
-  struct node * n;
+  /* reset things for a bl tree node */
+  struct bl_node *bln;
 
-  n = (struct node*)bln;
-  bln->tyme = 0.0;
+  bln = (struct bl_node*)n;
   generic_node_reinit(n);
+  bln->tyme = 0.0;
+  bln->v = initialv;
+  bln->iter = true;   /* debug: do we know we need true? */
 } /* bl_node_reinit */
 
 
-void bl_node_print(struct bl_node * bln)
+void bl_node_print(struct node * n)
 {
   /* for debugging only */
-  struct node * n;
  
-  n = (struct node*)bln;
-
   generic_node_print(n);
-  printf(" bl(tyme:%lf)", bln->tyme);
+  printf(" bl(tyme:%lf)", ((struct bl_node *)n)->tyme);
 } /* bl_node_print */
 
 
-void bl_update(struct bl_tree *blt, struct bl_node *pp)
+void bl_update(struct tree *t, struct node *p)
 { /* calls nuview to make views at both ends of a branch.  Each is
    * made by recursive calls outward from there, as needed,
    * indicated by boolean initialized
    * the nuviews for the specific program are in turn called from
    * generic_tree_nuview  in phylip.c  */
 /* debug:   I think redundant with calls in phylip.c  */
-  struct node *p;
-  struct tree *t;
 
-  t = (struct tree*)blt;
-  p = (struct node*)pp;
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
@@ -151,24 +177,21 @@ void bl_update(struct bl_tree *blt, struct bl_node *pp)
 }  /* bl_update */
 
 
-void smooth_traverse(struct bl_tree* t, bl_node *pp)
+void smooth_traverse(struct tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
-  struct node *p;
 
-  p = (struct node*)pp;
-  smooth(t, pp);
-  smooth(t, ((struct bl_node*)(p->back)));
+  smooth(t, p);
+  smooth(t, p->back);
 } /* smooth_traverse */
 
 
-void smooth(struct bl_tree* t, bl_node *pp)
+void smooth(struct tree* t, node *p)
 {  /* repeatedly and recursively do one step of smoothing on a branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
- struct node *p, *sib_ptr;
+ struct node *sib_ptr;
 
-  p = (struct node*)pp;
   if ( p == NULL )
     return;
 /* debug:    if ( p->back == NULL )
@@ -176,10 +199,10 @@ void smooth(struct bl_tree* t, bl_node *pp)
 debug */
   smoothed = false;
 
-  bl_update(t, pp);      /* get views at both ends updated, maybe recursing */
-  ((struct tree*)t)->makenewv ((struct tree *)t, p);   /* new branch length */
-  inittrav (((struct tree*)t), p); /* set inward-looking pointers false ... */
-  inittrav (((struct tree*)t), p->back);    /* ... from both ends of branch */
+  bl_update(t, p);       /* get views at both ends updated, maybe recursing */
+  t->makenewv (t, p);                                  /* new branch length */
+  inittrav (t, p);                 /* set inward-looking pointers false ... */
+  inittrav (t, p->back);                    /* ... from both ends of branch */
 
   if ( p->tip )
     return;
@@ -190,15 +213,15 @@ debug */
   {       /* recursion out one end, the  p  end, to do this on all branches */
     if ( sib_ptr->back )
     {
-      smooth(t, (struct bl_node*)(sib_ptr->back));     /* go out from there */
+      smooth(t, sib_ptr->back);                        /* go out from there */
       sib_ptr->initialized = false;  /* inward-looking views need adjusting */
     }
   }
-  bl_update(t, ((struct bl_node*)(p->back)));          /* update ends views */
+  bl_update(t, p->back);          /* update ends views */
 }  /* smooth */
 
 
-void bl_tree_smoothall(struct bl_tree* t, bl_node* pp)
+void bl_tree_smoothall(struct tree* t, node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -206,31 +229,30 @@ void bl_tree_smoothall(struct bl_tree* t, bl_node* pp)
    * branch near p may already be completely smoothed from an
    * insert, this insures we spread out in the tree */
  /* debug: in which file should this be defined? bl.c? ml.c? */
+  struct node *q;
   boolean save;
   int i;
-  struct node* p, *q;
 
   save = smoothit;
   smoothit = true;
-  p = (struct node*)pp;
   if ( p->tip )
     p = p->back;
 
 /* debug:   editing mistake near here when removing debugging prints? */
   for ( i = 0 ; i < smoothings ; i++ )
   {
-    smooth(t, ((struct bl_node*)(p->back)));
+    smooth(t, p->back);
     if ( p->tip )
       return;
     for ( q = p->next ; q != p ; q = q->next)
-      smooth(t, ((struct bl_node*)(q->back)));
+      smooth(t, q->back);
   }
   smoothit = save;
 } /* bl_tree_smoothall */
 
 
-void bl_tree_do_branchl_on_insert(struct bl_tree* t, struct bl_node* forknode,
-                                    struct bl_node* qq)
+void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,
+                                    struct node* q)
 { /* split original  qq->v  branch length evenly beween forknode->next and 
    * forknode->next->next.  forknode->back  must be subtree or tip.
    * This assumes interior node is a bifurcation.  Not able to cope if we 
@@ -238,45 +260,44 @@ void bl_tree_do_branchl_on_insert(struct bl_tree* t, struct bl_node* forknode,
    * forknode should be where tip was hooked to.
    * that connection set to initial v for *both* directions.  */
   double newv;
-  struct node *forkn, *q;
+  struct bl_node *qq;
 
-  forkn = (struct node*)forknode;
-  if (forkn->back != NULL) {              /* condition should never fail */
-    forknode->v = initialv; 
-    ((struct bl_node*)(forkn->back))->v = initialv;
+  if (forknode->back != NULL) {              /* condition should never fail */
+    ((struct bl_node*)forknode)->v = initialv; 
+    ((struct bl_node*)(forknode->back))->v = initialv;
   }
 
-  q = (struct node*)qq;
+  qq = (struct bl_node*)q;
   if (q->back != NULL)
     newv = qq->v * 0.5;
   else
     newv = initialv;
 
-  if (forkn->next->back != NULL) { /* forknode->next for both directions */
-    ((struct bl_node*)(forkn->next))->v = newv ;
-    ((struct bl_node*)(forkn->next->back))->v = newv ;
+  if (forknode->next->back != NULL) { /* forknode->next for both directions */
+    ((struct bl_node*)(forknode->next))->v = newv ;
+    ((struct bl_node*)(forknode->next->back))->v = newv ;
   }
 
-  if (forkn->next->back != NULL) {     /* next->next for both directions */
-    ((struct bl_node*)(forkn->next->next))->v = newv;
-    ((struct bl_node*)(forkn->next->next->back))->v = newv;
+  if (forknode->next->back != NULL) {     /* next->next for both directions */
+    ((struct bl_node*)(forknode->next->next))->v = newv;
+    ((struct bl_node*)(forknode->next->next->back))->v = newv;
   }
 
   /* debug:  BUG.970 -- might consider invalidating views here or in generic */
   /* debug:  do values of ->v get set earlier anyway?  */
-  inittrav((struct tree*)t, forkn);    /* some of this code unnecessary? */
-  inittrav((struct tree*)t, forkn->back);
-  inittrav((struct tree*)t, forkn->next);
-  if (forkn->next->back != NULL)
-    inittrav((struct tree*)t, forkn->next->back);
-  inittrav((struct tree*)t, forkn->next->next);
-  if (forkn-> next->next->back != NULL)
-    inittrav((struct tree*)t, forkn->next->next->back);
+  inittrav(t, forknode);                  /* some of this code unnecessary? */
+  inittrav(t, forknode->back);
+  inittrav(t, forknode->next);
+  if (forknode->next->back != NULL)
+    inittrav(t, forknode->next->back);
+  inittrav(t, forknode->next->next);
+  if (forknode->next->next->back != NULL)
+    inittrav(t, forknode->next->next->back);
 } /* bl_tree_do_branchl_on_insert */
 
 
-void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp, 
-                       struct bl_node *qq, boolean multif)
+void bl_tree_insert_(struct tree *t, struct node *p, 
+                       struct node *q, boolean multif)
 {
  /* 
   * After inserting via generic_tree_insert, branch length gets initialv. If
@@ -285,10 +306,7 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
   * Insert p near q 
   * p is the interior fork connected to the inserted subtree or tip */
   long i;
-  struct node *p, *q;
 
-  p = (struct node*)pp;
-  q = (struct node*)qq;
   generic_tree_insert_((struct tree*)t, p, q, multif);  /* debug:  maybe "multif"? */
 
   if ( !(((tree*)t)->do_newbl) )
@@ -300,26 +318,82 @@ void bl_tree_insert_(struct bl_tree *t, struct bl_node *pp,
     p->next->initialized = false;         /* ... out from the interior node */
     p->next->next->initialized = false;  
     inserting = true;
-    bl_update(t, pp);                           /* update the views outward */
-    bl_update(t, (struct bl_node*)(p->next));
-    bl_update(t, (struct bl_node*)(p->next->next));
+    bl_update(t, p);                            /* update the views outward */
+    bl_update(t, p->next);
+    bl_update(t, p->next->next);
     inserting = false;
   }
   else             /* this is the case where we recurse outwards, smoothing */
   {
-    inittrav((struct tree*)t, p);      /* set inward-looking pointers false */
-    inittrav((struct tree*)t, p->back);
-    bl_update(t, (struct bl_node*)p);
+    inittrav(t, p);                    /* set inward-looking pointers false */
+    inittrav(t, p->back);
+    bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth_traverse(t, (struct bl_node*)p);        /* go around fork, out */
+      smooth_traverse(t, p);             /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert */
 
 
-void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
-            	                              struct bl_node* qq)
+void generic_tree_save_lr_nodes(tree* t, node* p, node* r) {
+  /* null operations if not replaced by polymorphic variant */
+} /* generic_tree_save_lr_nodes */
+
+
+void generic_tree_restore_lr_nodes(tree* t, node* p, node* r) {
+  /* null operations if not replaced by polymorphic variant */
+} /* generic_tree_restore_lr_nodes */
+
+
+void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
+{
+  /* save views and branch lengths around fork that is removed. */
+
+  r->copy(r, t->lrsaves[0]);
+  r->next->copy(r->next->back, t->lrsaves[1]);
+  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
+  p->next->copy(p->next, t->lrsaves[3]);
+  p->next->next->copy(p->next->next, t->lrsaves[4]);
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                                /* ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+} /* unrooted_tree_save_lr_nodes */
+
+
+void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
+{
+    /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
+  struct bl_node *tr, *trb, *trnb, *trnnb, *trn, *trnn, *pnb, *pnnb;
+
+  t->lrsaves[0]->copy(t->lrsaves[0], r->back);       /* these restore views */
+  t->lrsaves[1]->copy(t->lrsaves[1], r->next->back);
+  t->lrsaves[2]->copy(t->lrsaves[2], r->next->next->back);
+  t->lrsaves[3]->copy(t->lrsaves[3], r->next);      /* inward-looking views */
+  t->lrsaves[4]->copy(t->lrsaves[4], r->next->next);
+
+  tr = (struct bl_node*)r;                               /* r  as a bl_node */
+  trb = (struct bl_node*)(r->back);
+  trnb = (struct bl_node*)(r->next->back);   /* to two of neighboring nodes */
+  trnnb = (struct bl_node*)(r->next->next->back);
+  trn = (struct bl_node*)(r->next);                 /* for view back in ... */
+  trnn = (struct bl_node*)(r->next->next);         /* ... and the other one */
+  trb->v = tr->v                         ;     /* branch lengths around  r  */
+  trn->v = trnb->v;
+  trnn->v = trnnb->v;
+  pnb = (struct bl_node*)(p->next->back);
+  pnnb = (struct bl_node*)(p->next->next->back);
+  pnb->v = ((struct bl_node*)(p->next))->v; /* ... and on branches beyond p */
+  pnnb->v = ((struct bl_node*)(p->next->next))->v;
+
+  inittrav(t, r->back);    /*  to make sure initialized booleans are OK ... */
+  inittrav(t, r->next->back);                /* ... in the neighbors of  r  */
+  inittrav(t, r->next->next->back);
+} /* unrooted_tree_restore_lr_nodes */
+
+
+void bl_tree_do_branchl_on_re_move(struct tree* t, struct node* p,
+            	                              struct node* q)
 {
   /* sum up branch lengths on the two other neighbors of  p
    * that are connected to fork  q */
@@ -331,9 +405,9 @@ void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
    * also, should we call generic_do_branchl_on_re_move(t, p, q); ??
    */
   double combinedEdgeWeight;
-  struct node *q;
+  struct bl_node *qq;
 
-  q = (struct node*)qq;
+  qq = (struct bl_node*)q;
   combinedEdgeWeight = qq->v;
   if (q->back != NULL)
     combinedEdgeWeight = qq->v + ((struct bl_node*)(q->back))->v;
@@ -343,42 +417,62 @@ void bl_tree_do_branchl_on_re_move(struct bl_tree* t, struct bl_node* pp,
 } /* bl_tree_do_branchl_on_re_move */
 
 
-void bl_tree_re_move(struct bl_tree *t, struct bl_node *pp, 
-                       struct bl_node **qq, boolean do_newbl)
+void bl_tree_re_move(struct tree *t, struct node *p, 
+                       struct node **q, boolean do_newbl)
 {
   /* remove  p  and record in  q  where it was
    * assumes bifurcations
    * do_newbl is boolean which tells whether branch lengths get redone   */
   long i;
-  struct node *p, **q;
 
-  p = (struct node*)pp;
-  q = (struct node**)qq;
-  generic_tree_re_move((struct tree*)t, p, q, do_newbl);
+  generic_tree_re_move(t, p, q, do_newbl);
 
   if ( do_newbl )
   {
     for (i = 0 ; i < smoothings ; i++ )
     {
       if ( smoothit ) {
-        smooth_traverse(t, *qq);
-        smooth_traverse(t, (struct bl_node*)((*q)->back));
+        smooth_traverse(t, *q);
+        smooth_traverse(t, (*q)->back);
       }
     }
   }
   else {   /* update views at both ends of branch connected to q */
     if (!((*q)->tip))
-      bl_update(t, ((struct bl_node*)(*q)));
+      bl_update(t, *q);
     if (!((*q)->back->tip))
-      bl_update(t, ((struct bl_node*)((*q)->back)));
+      bl_update(t, (*q)->back);
   }
 } /* bl_tree_re_move */
 
 
-boolean bl_tree_try_insert_thorough(struct bl_tree *t, struct bl_node *pp, 
-                                     struct bl_node *qq, 
-                                     struct bl_node *qqwherein,
-                                     double *bestyet, struct bl_tree *bestree,
+void bl_tree_restore_traverses(struct tree *t, struct node *p, 
+		                                 struct node* q) {
+  /* restore branch lengths and mark views (un?)initialized */
+  struct bl_node *pp, *qq, *ppb, *qqb;
+
+  generic_tree_restore_traverses(t, p, q);
+  pp = (struct bl_node*)p;
+  ppb = (struct bl_node*)(p->back);
+  if ( p->back )
+  {
+    ppb->v = pp->v;
+    inittrav(t, p->back);      /* ... and similarly for other end if branch */
+  }
+  qq = (struct bl_node*)q;
+  qqb = (struct bl_node*)(q->back);
+  if ( q->back )
+  {
+    qqb->v = qq->v;
+    inittrav(t, q->back);
+  }
+} /* bl_tree_restore_traverses */
+
+
+boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp, 
+                                     struct node *qq, 
+                                     struct node *qqwherein,
+                                     double *bestyet, struct tree *bestree,
                                      boolean thorough, boolean storing, 
                                      boolean atstart)
 {
@@ -431,9 +525,9 @@ printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* 
 } /* bl_tree_try_insert_thorough */
 
 
-boolean bl_tree_try_insert_(struct bl_tree* tt, struct bl_node* pp, 
-                          struct bl_node* qq, struct bl_node* qwherein, 
-                          double* bestyet, struct bl_tree* bestree, 
+boolean bl_tree_try_insert_(struct tree* tt, struct node* pp, 
+                          struct node* qq, struct node* qwherein, 
+                          double* bestyet, struct tree* bestree, 
                           boolean thorough, boolean storing, boolean atstart, 
                           double* bestfound)
 {
@@ -457,26 +551,19 @@ boolean bl_tree_try_insert_(struct bl_tree* tt, struct bl_node* pp,
 } /* bl_tree_try_insert_ */
 
 
-void blk_tree_insert_(struct bl_tree *tt, struct bl_node *nnewtip, 
-		        struct bl_node *bbelow, 
-                        boolean dummy, boolean dummy2)
+void blk_tree_insert_(struct tree *t, struct node *newtip, 
+		        struct node *below, boolean dummy, boolean dummy2)
 {
   /* inserts the nodes newfork and its descendant, newtip, into the tree. */
   long i;
   boolean done;
-  struct node *p, *newfork, *newtip, *below;
-  struct bl_node* nnewfork;
-  struct tree* t;
+  struct node *p, *newfork;
 
-  newtip = (struct node*)nnewtip;
-  below = (struct node*)bbelow;
-  t = (struct tree*)tt;
   /* first stick it in the right place */
   rooted_tree_insert_(t, newtip, below, dummy);
 
   below = t->nodep[below->index - 1];
   newfork = t->nodep[newtip->back->index - 1];
-  nnewfork = (struct bl_node*)newfork;
   newtip = t->nodep[newtip->index-1];
   /* now for the tyme stuff */
   if (((struct bl_node*)newtip)->tyme 
@@ -484,7 +571,7 @@ void blk_tree_insert_(struct bl_tree *tt, struct bl_node *nnewtip,
     p = newtip;
   else p = below;
 
-  set_tyme(nnewfork, ((struct bl_node*)p)->tyme);
+  set_tyme(newfork, ((struct bl_node*)p)->tyme);
   if (newfork->back != NULL)
   {
     /* here we rescale the tree to fit the subtree being added      *
@@ -494,122 +581,108 @@ void blk_tree_insert_(struct bl_tree *tt, struct bl_node *nnewtip,
      * tree minimally                                               */
     if (((struct bl_node*)p)->tyme 
            > ((struct bl_node*)newfork->back)->tyme)
-      set_tyme(nnewfork, (((struct bl_node*)p)->tyme +
-               ((bl_node*)newfork->back)->tyme) / 2.0);
+      set_tyme(newfork, (((struct bl_node*)p)->tyme +
+               ((struct bl_node*)newfork->back)->tyme) / 2.0);
     else
-      set_tyme(nnewfork, ((bl_node*)p)->tyme - (epsilon/2));
+      set_tyme(newfork, ((bl_node*)p)->tyme - (epsilon/2));
     do {
       p = t->nodep[p->back->index - 1];
       done = (p == t->root);
       if (!done) {
-        done = (((struct bl_node*)t->nodep[p->back->index - 1])->tyme 
-                   < ((struct bl_node*)p)->tyme);
-        set_tyme((struct bl_node*)(p->back), 
-		  ((struct bl_node*)p)->tyme - epsilon/2);
+        done = ((struct bl_node*)(t->nodep[p->back->index - 1]))->tyme 
+                   < ((struct bl_node*)p)->tyme;
+        set_tyme(p->back,  ((struct bl_node*)p)->tyme - epsilon/2);
       }
     } while (!done);
   }
   else
-    set_tyme(nnewfork, ((struct bl_node*)newfork)->tyme - initialv);
+    set_tyme(newfork, ((struct bl_node*)newfork)->tyme - initialv);
 
   if ( !smoothit ) {
-    smooth(tt, nnewfork);
-    smooth(tt, ((struct bl_node*)(newfork->back)));
+    smooth(t, newfork);
+    smooth(t, newfork->back);
   }
   else {
     inittrav(t, newtip);
     inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++) {
-      smooth(tt, nnewfork);
-      smooth(tt, ((struct bl_node*)(newfork->back)));
+      smooth(t, newfork);
+      smooth(t, newfork->back);
     }
   }
 }  /* blk_tree_insert_ */
 
 
-double get_tyme(struct bl_node *p)
+double get_tyme(struct node *p)
 { /* return the tyme of a bl_node. p must point to struct bl_node. */
-  return (p->tyme);
+  return (((struct bl_node*)p)->tyme);
 } /* get_tyme */
 
 
-void set_tyme (struct bl_node* p, double tyme)
-{ /* Set the tyme of a node and its sibs. p must point to struct bl_node. */
-  struct bl_node *sib_ptr;
-  struct node *pp, *ssib_ptr;
+void set_tyme (struct node* p, double tyme)
+{ /* Set the tyme of a node and its sibs. */
+  struct node *sib_ptr;
 
   sib_ptr = p;
-  pp = (struct node*)p;
-  ssib_ptr = pp;
-  if (pp->next)
+  if (p->next)
     do {
-      sib_ptr->tyme = tyme;
+      ((struct bl_node*)sib_ptr)->tyme = tyme;
       /* added because changing tymes usually invalidates data likelihood.
        * This set seems to fix a failure to find the best tree in some
        * cases, but if the flags are being properly maintained it shouldn't...
        * apparent fix to bug#296, JY and MK 2015/05/18 */
-      ssib_ptr->initialized = false;
-      ssib_ptr = ssib_ptr->next;
-      sib_ptr = (struct bl_node*)ssib_ptr;
-    } while (ssib_ptr != pp);
+      sib_ptr->initialized = false;
+      sib_ptr = sib_ptr->next;
+    } while (sib_ptr != p);
   else
-    p->tyme = tyme;
+    ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
 
 
-void blk_tree_re_move(struct bl_tree* t, struct bl_node *item, 
-                        struct bl_node** where, boolean do_newbl) {
+void blk_tree_re_move(struct tree* t, struct node *item, 
+                        struct node** where, boolean do_newbl) {
   /* Removes nodes item and its ancestor, where, from the tree.
      The new descendant of where's ancestor is made to be where's second
      descendant (other than item).  Also returns pointers to the deleted 
      nodes, item and where, and records where they were deleted from. */
   long i;
-  struct bl_node *whereloc;
-  struct node *wwhereloc;
-  struct tree* tt;
+  struct node *whereloc;
 
-  tt = (struct tree*)t;
-  rooted_tree_re_move(tt, (struct node*)item, &wwhereloc, do_newbl);
-  whereloc = (struct bl_node*)wwhereloc;
+  rooted_tree_re_move(t, item, &whereloc, do_newbl);
   if ( where )  where = &whereloc;
 
   if ( do_newbl ) {
-    whereloc = (struct bl_node *)wwhereloc;
-    inittrav(tt, wwhereloc);
-    inittrav(tt, wwhereloc->back);
+    inittrav(t, whereloc);
+    inittrav(t, whereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
       smooth(t, whereloc);
-      smooth(t, (struct bl_node*)(wwhereloc->back));
+      smooth(t, whereloc->back);
     }
   }
-  else smooth(t, (struct bl_node*)(wwhereloc->back));
+  else smooth(t, whereloc->back);
 }  /* blk_tree_re_move */
 
 
-#ifdef USE_NEW_MAKENEWV     /* debug: why?? */
-
-double min_child_tyme(struct bl_node *pp)
+double min_child_tyme(struct node *p)
 {
   /* Return the minimum tyme of all children. p must be a parent nodelet */
   double min;
-  struct node *q;
+  struct node *q, *qb;
 
-  p = (struct node*)pp;
   min = 1.0;                                /* tymes are always nonpositive */
   for ( q = p->next; q != p; q = q->next ) {
-    if ( get_tyme(q->back) < min )
-      min = get_tyme(q->back);
+    qb = q->back;
+    if ( get_tyme(qb) < min )
+      min = get_tyme(qb);
   }
   return min;
 } /* min_child_tyme */
 
 
-double parent_tyme(struct bl_node *pp)
+double parent_tyme(struct node *p)
 {
   /* Return the tyme of the parent of node p.  p must be a parent node. */
-  struct node* p;
 
-  p = (struct node*)pp;
   if (p->back)
     return get_tyme(p->back);
   else
@@ -617,47 +690,40 @@ double parent_tyme(struct bl_node *pp)
 } /* parent_tyme */
 
 
-boolean valid_tyme(struct bl_tree *blt, struct bl_node *pp, double tyme) {
+boolean valid_tyme(struct tree *t, struct node *p, double tyme) {
   /* Return true if tyme is a valid tyme to assign to node p. tyme must be
    * finite, not greater than any of p's children, and not less than p's
    * parent. Also, tip nodes can only be assigned 0. Otherwise false is
    * returned. */
-  struct tree* t;
-  struct node* p;
 
-  p = (struct node*)pp;
-  t = (struct tree*)blt;
   p = t->nodep[p->index - 1];
 
 #ifdef __USE_C99        /* debug: TODO Find a way to check without this. */
   if ( !isfinite(tyme) ) return false;
 #endif
-  if ( p->tip == true && tyme != 0.0 ) return false;
-  if ( tyme > min_child_tyme(pp) ) return false;
-  if ( tyme < parent_tyme(pp) ) return false;
+  if ((p->tip == true) && (tyme != 0.0) ) return false;
+  if ( tyme > min_child_tyme(p) ) return false;
+  if ( tyme < parent_tyme(p) ) return false;
   return true;
 } /* valid_tyme */
 
 
-double set_tyme_evaluate(struct bl_tree *blt, struct bl_node *pp, double tyme)
+double set_tyme_evaluate(struct tree *t, struct node *p, double tyme)
 {
   /* Change tyme of node p and return likelihood
    * Views should be invalidated and regenerated before calling
    * evaluate() anywhere else in the tree. */
-  struct tree* t;
 
-  assert( valid_tyme(blt, p, tyme) );
-  t = (struct tree*)blt;
-  p = (struct node*)pp;
+  assert( valid_tyme(t, p, tyme) );
 
-  set_tyme(pp, tyme);
-  t->nuview(t, pp);
+  set_tyme(p, tyme);
+  t->nuview(t, p);
 
-  return t->evaluate(blt, p, false);
+  return t->evaluate(t, p, false);
 } /* set_tyme_evaluate */
 
 
-void blk_tree_makenewv(tree* t, struct bl_node *p)
+void blk_tree_makenewv(struct tree* t, struct node *p)
 {
   /* Improve a node tyme using Newton-Raphson
    *
@@ -712,17 +778,16 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
   long iteration;
   boolean done;
   long num_sibs, i;
-  struct bl_node *sib_ptr;
+  struct node *s, *sib_ptr;
 
   if ( p->tip )                                               /* skip tips. */
     return;
 
-  struct node *s = t->nodep[p->index - 1];
+  s = t->nodep[p->index - 1];
 
 #ifdef MAKENEWV_DEBUG
   double start_tyme = get_tyme(s);
   double start_likelihood = t->score;
-  long uphill_steps = 0;
 #endif /* MAKENEWV_DEBUG */
 
   if (s == t->root)                  /* Tyme cannot be less than parent ... */
@@ -766,7 +831,6 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
                         * fraction of the current length */
       tdelta = copysign(uphill_step, slope);
 #ifdef MAKENEWV_DEBUG
-      uphill_steps++;
       if (tdelta > 0) putchar('/');
       else putchar('\\');
 #endif /* MAKENEWV_DEBUG */
@@ -829,146 +893,6 @@ void blk_tree_makenewv(tree* t, struct bl_node *p)
 
 /******* END PROPAGATED FROM 3.6 ************/
 
-#else /* ifndef USE_NEW_MAKENEWV */
-
-void blk_tree_makenewv(struct tree* t, struct node *p) {
-  /* improve a node time */
-  long it, imin, imax, i;
-  double tt, tfactor, tlow, thigh, oldlike, oldx, ymin, ymax, s32, s21, yold;
-  boolean done, already;
-  struct node *s, *sib_ptr, *sib_back_ptr;
-  struct bl_node *pp, *sbl;
-  double tdelta, curv, slope, lnlike;
-  double  x[3], lnl[3];
-
-  if ( p->tip )                                            /* don't do tips */
-    return;
-  s = t->nodep[p->index - 1];
-  sbl = (struct bl_node*)s;
-  oldx = sbl->tyme;                                       /* store old tyme */
-  lnlike = oldlike = t->evaluate(t, p, 0);  /* evaluate and store old score */
-  if (s == t->root)
-    tlow = -10.0;                           /* default minimum tyme at root */
-  else
-    tlow = ((bl_node*)(s->back))->tyme;         /* otherwise tyme >= parent */
-
-  sib_ptr = s;                   /* set maximum tyme to smallest child tyme */
-  thigh = ((struct bl_node*)(s->next->back))->tyme;
-  for (sib_ptr = s->next ; sib_ptr != s ; sib_ptr = sib_ptr->next) {
-    sib_back_ptr = sib_ptr->back;
-    if (((bl_node*)sib_back_ptr)->tyme < thigh)
-      thigh = ((bl_node*)sib_back_ptr)->tyme;
-  }
-  if (thigh - tlow < 4.0*epsilon)   /* if thigh and tlow are close to equal */
-    return;
-  if (s != t->root)
-    tdelta = (thigh - tlow) / 10.0;
-  else {
-    tdelta = (thigh - ((struct bl_node*)s)->tyme) / 5.0;
-    if (tdelta  < 2 * epsilon ) tdelta = 2 * epsilon;
-  }
-  getthree(t, s, thigh, tlow, tdelta, x, lnl);          /* get three points */
-  it = 0;
-  tfactor = 1.0;
-  pp = (struct bl_node*)p;
-  done = false;
-  while (it < iterations && !done) {
-    ymax = lnl[0];
-    imax = 0;
-    for (i = 1; i <= 2; i++) {  /* figure out which point has largest score */
-      if (lnl[i] > ymax) {
-        ymax = lnl[i];
-        imax = i;
-      }
-    }
-    if (imax != 1) {             /* swap points so that x[1] scores highest */
-      /* debug: TODO Explain why we are doing this */
-      ymax = x[1];                                /* ymax is temporary only */
-      x[1] = x[imax];
-      x[imax] = ymax;
-      ymax = lnl[1];
-      lnl[1] = lnl[imax];
-      lnl[imax] = ymax;
-    }
-    tt = x[1];
-    yold = tt;
-    s32 = (lnl[2] - lnl[1]) / (x[2] - x[1]);               /* average slope */
-    /* avg slope near (x[1]+x[0])/2 */
-    s21 = (lnl[1] - lnl[0]) / (x[1] - x[0]);
-    if (fabs(x[2] - x[0]) > epsilon)                   /* average curvature */
-      curv = (s32 - s21) / ((x[2] - x[0]) / 2);
-    else
-      curv = 0.0;
-    slope = (s32 + s21) / 2 - curv * (x[2] - 2 * x[1] + x[0]) / 4;
-                                               /* interpolate slope at x[1] */
-    if (curv >= 0.0) {
-      if (slope < 0)
-        tdelta = -fabs(tdelta);
-      else
-        tdelta = fabs(tdelta);
-    }
-    else
-      tdelta = -(tfactor * slope / curv);     /* approximate Newton-Raphson */
-    if (tt + tdelta <= tlow + epsilon)           /* don't let it go too far */
-      tdelta = tlow + epsilon - tt;
-    if (tt + tdelta >= thigh - epsilon)
-      tdelta = thigh - epsilon - tt;
-    tt += tdelta;
-    done = (fabs(yold - tt) < epsilon || fabs(tdelta) < epsilon);
-    set_tyme((struct bl_node*)s, tt);
-    t->nuview(t, s);
-    lnlike = t->evaluate(t, s, false);
-    ymin = lnl[0];
-    imin = 0;
-    for (i = 1; i <= 2; i++) {    /* figure out which of the three original */
-      if (lnl[i] < ymin) {                /* points has the lowest ln score */
-        ymin = lnl[i];
-        imin = i;
-      }
-    }
-    already = (tt == x[0]) || (tt == x[1]) || (tt == x[2]);
-    if (!already && ymin < lnlike) {  /* if the minimum point is lower than */
-      x[imin] = tt;                 /* our new interpolated point then take */
-      lnl[imin] = lnlike;                /* that point and put it where the */
-    }                                              /* interpolated point is */
-    if (already || lnlike < oldlike) {
-      tt = oldx;                    /* if either our interpolated point has */
-      sbl = (struct bl_node*)s;
-      set_tyme(sbl, oldx);          /* a lower score or is equivalent to    */
-      tfactor /= 2;                     /* our original, reinterpolate this */
-      tdelta /= 2;                              /* time go only half as far */
-      t->score = oldlike;
-      lnlike = oldlike;
-    }
-    else {
-      tfactor = 1.0;
-      oldlike = lnlike;
-      oldx = tt;
-    }
-    if (!done)                          /* apply it to the sibs */
-    {
-      set_tyme(pp, tt);
-      t->nuview(t, p);
-      for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next)
-        t->nuview(t, sib_ptr);
-    }
-    it++;
-  }
-  if ( smoothit )
-    inittrav(t, p);
-  p->initialized = false;
-  for (sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next) {
-    sib_ptr->initialized = false;
-    if ( smoothit )
-      inittrav(t, sib_ptr);
-  }
-  t->score = lnlike;
-  smoothed = smoothed && done;
-}  /* blk_tree_makenewv */
-
-#endif /* USE_NEW_MAKENEWV */
-
-
 void getthree(struct tree* t, struct node *p, double thigh, double tlow, 
                double tdelta, double *x, double *lnl)
 {
@@ -989,7 +913,7 @@ void getthree(struct tree* t, struct node *p, double thigh, double tlow,
     x[1] = ( x[0] + x[2] ) / 2;
   }
   for ( i = 0 ; i < 3 ; i++ ) {                 /* get scores for all three */
-    set_tyme((struct bl_node*)p, x[i]);
+    set_tyme(p, x[i]);
     t->nuview(t, p);
     lnl[i] = t->evaluate(t, p, 0);  /* debug: make sure score of tree is not reset */
   }
@@ -1046,7 +970,7 @@ void bl_initialvtrav(struct tree* t, struct bl_node *p)
   pp = (struct node*)p;
   if (pp == NULL)                      /* if this is a NULL branch bail out */
     return;
-  if ((!lngths) || pp->iter) {    /* set length of this branch to  initialv */
+  if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
     p->v = initialv;
     ((struct bl_node*)(pp->back))->v = initialv;
   }
@@ -1060,7 +984,206 @@ void bl_initialvtrav(struct tree* t, struct bl_node *p)
 }  /* bl_initialvtrav */
 
 
-void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp, 
+void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
+                 FILE *treefile, boolean lngths, double *trweight,
+                 boolean *goteof, long *nextnode, long *ntips, 
+                 long no_species, boolean *haslengths, boolean unifok,
+                 long maxnodes)
+{ /* recursive procedure adds nodes to user-defined tree
+   * -- old-style bifurcating-only version used only by treeread2
+   * which is used only in Contml, Fitch, Kitsch, and Restml.  */
+  struct node *pfirst = NULL, *p;
+  struct bl_node *q;
+  long i, current_loop_index;
+  boolean notlast, minusread;
+  Char str[MAXNCH];
+  double valyew, divisor;
+  long furcs = 0;
+
+  if ((*ch) == '(') {
+
+    current_loop_index = (*nextnode) + t->spp;
+    (*nextnode)++;
+
+    if ( (maxnodes != -1) && (current_loop_index > maxnodes)) {
+      sprintf(progbuf,
+            "ERROR in intree file: Attempting to allocate too many nodes.\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+                  "This is usually caused by a unifurcation.  To use this\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+                  "intree with this program, use Retree to read and write\n");
+      print_progress(progbuf);
+      sprintf(progbuf, "this tree.\n");
+      print_progress(progbuf);
+      exxit(-1);
+    }
+    /* This is an assignment of an interior node */
+    p = t->nodep[current_loop_index];
+    pfirst = p;
+    notlast = true;
+    while (notlast) {      /* This while loop goes through a circle (triad for
+                                         the case of bifurcations) of nodes */
+      furcs++;
+      p = p->next;
+      /* added to ensure that non base nodes in loops have indices */
+      p->index = current_loop_index + 1;
+
+      getch(ch, parens, treefile);
+
+      addelement2(t, p, ch, parens, treefile, lngths, trweight, goteof,
+                   nextnode, ntips, no_species, haslengths, unifok, maxnodes);
+      /* recursive call for subtrees */
+
+      if ((*ch) == ')') {
+        notlast = false;
+        do {
+          getch(ch, parens, treefile);
+        } while ((*ch) != ',' && (*ch) != ')' &&
+                 (*ch) != '[' && (*ch) != ';' && (*ch) != ':');
+      }
+    }
+    if ( furcs <= 1 && !unifok ) {
+      sprintf(progbuf,
+               "ERROR in intree file: A Unifurcation was detected.\n");
+      print_progress(progbuf);
+      sprintf(progbuf,
+            "To use this intree with this program, use Retree to read and\n");
+      print_progress(progbuf);
+      sprintf(progbuf, " write this tree.\n");
+      print_progress(progbuf);
+      exxit(-1);
+    }
+
+  } else if ((*ch) != ')') {                       /* read the species name */
+    for (i = 0; i < MAXNCH; i++)
+      str[i] = '\0';
+    take_name_from_tree (ch, str, treefile);
+    match_names_to_data (str, t->nodep, &p, spp);
+    pfirst = p;
+    if ((*ch) == ')')
+      (*parens)--;
+    (*ntips)++;
+    strncpy (p->nayme, str, MAXNCH);
+  } else
+    getch(ch, parens, treefile);
+
+  if ((*ch) == '[')          /* getting tree weight from last comment field */
+  {
+    if (!eoln(treefile))
+    {
+      if(fscanf(treefile, "%lf", trweight) < 1)
+      {
+        printf("\n\nERROR reading tree file./n/n");
+        exxit(-1);
+      }
+      getch(ch, parens, treefile);
+      if (*ch != ']')
+      {
+        sprintf(progbuf, "\n\nERROR:  Missing right square bracket.\n\n");
+        print_progress(progbuf);
+        exxit(-1);
+      }
+      else
+      {
+        getch(ch, parens, treefile);
+        if (*ch != ';') {
+          sprintf(progbuf,
+                  "\n\nERROR:  Missing semicolon after square brackets.\n\n");
+          print_progress(progbuf);
+          exxit(-1);
+        }
+      }
+    }
+  }
+  else if ((*ch) == ';') {
+    (*trweight) = 1.0 ;
+    if (!eoln(treefile))
+      sprintf(progbuf, "WARNING:  Tree weight set to 1.0\n");
+    print_progress(progbuf);
+  }
+  else
+    (*haslengths) = (*haslengths) && (qq == NULL);
+  q = (struct bl_node*)qq;
+  if (qq != NULL)
+    hookup(qq, pfirst);
+  /* debug:   if (q != NULL) {
+    if (q->branchnum < pfirst->branchnum)
+    pfirst->branchnum = q->branchnum;
+    else
+    q->branchnum = pfirst->branchnum;
+    }  FIXME check if we need this for restml */
+
+  if ((*ch) == ':') {                               /* read a branch length */
+    processlength(&valyew, &divisor, ch, &minusread, treefile, parens);
+    if (qq != NULL) {
+      if (!minusread)
+        q->oldlen = valyew / divisor;
+      else
+        q->oldlen = initialv;
+      if (lngths) {
+        q->v = valyew / divisor;
+        ((struct bl_node*)(qq->back))->v = q->v;
+        q->iter = false;
+        ((struct bl_node*)(qq->back))->iter = false;
+      }
+    }
+  }
+}  /* addelement2 */
+
+
+void treeread2 (tree* t, FILE *treefile, node **root, boolean lngths,
+                 double *trweight, boolean *goteof, boolean *haslengths,
+                 long *no_species, boolean unifok, long maxnodes)
+{
+  /* read in user-defined tree and set it up
+     -- old-style bifurcating-only version used only in Fitch, Kitsch,
+     Contml, and Restml.  Needs to be replaced by generic treeread */
+  char  ch;
+  long parens = 0;
+  long ntips = 0;
+  long nextnode;
+
+  (*goteof) = false;
+  nextnode = 0;
+
+  /* Eats all blank lines at start of file */
+  while (eoln(treefile) && !eoff(treefile))
+    scan_eoln(treefile);
+
+  if (eoff(treefile)) {
+    (*goteof) = true;
+    return;
+  }
+
+  getch(&ch, &parens, treefile);
+
+  while (ch != '(') {
+    /* Eat everything in the file (i.e. digits, tabs) until you
+     * encounter an open-paren */
+    getch(&ch, &parens, treefile);
+  }
+
+  addelement2(t, NULL, &ch, &parens, treefile, lngths, trweight, goteof,
+              &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
+  (*root) = t->nodep[*no_species];
+
+  /*eat blank lines */
+  while (eoln(treefile) && !eoff(treefile))
+    scan_eoln(treefile);
+
+  (*root)->oldlen = 0.0;
+
+  if (parens != 0) {
+    sprintf(progbuf, "\n\nERROR in tree file:  unmatched parentheses.\n\n");
+    print_progress(progbuf);
+    exxit(-1);
+  }
+}  /* treeread2 */
+
+
+void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p, 
                         double bl_scale, int* col)
 { 
   /* write out to output file a subtree, recursively.  This is the version 
@@ -1068,10 +1191,9 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
   long i, n, w;
   Char c;
   double x;
-  struct node *p, *q, *qfirst; 
+  struct node *q, *qfirst; 
   boolean inloop;
 
-  p = (struct node*)pp;
   if (p->tip)
   {
     n = 0;
@@ -1106,8 +1228,8 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
         }
       }
       if (q->back != NULL) {                /* just making sure is not null */
-        bl_treeoutrecurs(outtreefile, t, ((struct bl_node*)(q->back)), 
-			  bl_scale, col); /* go out the branch recursiovely */
+        bl_treeoutrecurs(outtreefile, t, q->back, 
+			  bl_scale, col);  /* go out the branch recursively */
         inloop = true;                  /* will need comma before next furc */
       }
       q = q->next;                                  /* continue around fork */
@@ -1115,7 +1237,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
     putc(')', outtree);             /* then close the paren for this circle */
     (*col)++;
   }
-  x = pp->v * bl_scale;                  /* now write out the branch length */
+  x = ((struct bl_node*)p)->v * bl_scale;    /* now write out branch length */
   if (x > 0.0)           /* widths in decimal places hence divide by ln(10) */
     w = (long)(0.43429448222 * log(x));
   else {
@@ -1135,24 +1257,21 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct bl_node* pp,
 } /* bl_treeoutrecurse */
 
 
-void bl_treeout(FILE* outtreefile, struct tree* t, struct bl_node* pp, 
+void bl_treeout(FILE* outtreefile, struct tree* t, struct node* p, 
                   double bl_scale)
 {
   /* write out file with representation of final tree2 */
   int col;
   boolean found;
-  struct node *p, *q;
-  struct bl_node *blp;
+  struct node *q;
 
-  p = (struct node*)pp;
   assert(p->index > 0);                 // RSGdebug
 
   q = findrootmostandroot(t, p, &found);
   if (found)
     p = q;
-  blp = (struct bl_node*)p;
   col = 0;
-  bl_treeoutrecurs(outtreefile, t, blp, bl_scale, &col);
+  bl_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
 }  /* bl_treeout */
 
 /* End. */

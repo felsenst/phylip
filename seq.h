@@ -8,11 +8,10 @@
           dnapars, dnapenny, protdist, protpars, & restml
 */
 
-#ifndef _SEQ_H_
-#define _SEQ_H_
+#ifndef SEQ_H
+#define SEQ_H
 
 #include "phylip.h"
-#include "bl.h"
 
 #define ebcdic          EBCDIC
 
@@ -33,15 +32,13 @@
 /* Number of columns per block in a matrix output */
 #define COLUMNS_PER_BLOCK 10
 
-extern long endsite, outgrno, which;
-extern boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
+extern boolean transvp;
 extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
+/* debug:  extern FILE *infile, *outfile, *intree, *intree2, *outtree;  */
 extern struct bl_node** lrsaves;
 
-freex_t *freex;                        /* forward: pointer to free function */
-
-typedef void (*freex_t)(pointarray, long);       /* pointer to free fn type */
+typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
 
 #ifndef OLDC
 /* function prototypes.  Needed if not the old 
@@ -51,7 +48,7 @@ void read_sequences(long nchars);
 void output_sequences(long nchars);
 void setuptree(pointarray, long, boolean);
 void setuptree2(struct tree);
-void alloctip(bl_node *);
+void alloctip(struct bl_node *);
 void freetrans(transptr *, long, long );
 void sitesort(long, steptr);
 void sitecombine(long);

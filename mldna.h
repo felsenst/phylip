@@ -3,14 +3,18 @@
 
 /* specializing  ml_node  for DNA data type */
 
-#include "ml.h"
-#include "seq.h"
+#ifndef MLDNA_H
+#define MLDNA_H
 
-long rcategs;                    /* number of rate categories, default is 1 */
+/* end of ifdef block if have not yet defined the mldna.h stuff */
+#include "seq.h"
+#include "ml.h"
+
 
 typedef struct mldna_node{                          /* subclass of ml_node */
   struct ml_node ml_node;                     /* Base object, must be first */
-  double* underflows;
+  allocx_t allocx_f;
+  freex_t freex_f;
   phenotype x;
 } mldna_node;
 
@@ -21,21 +25,20 @@ typedef struct nuview_data {
 } nuview_data;
 
 typedef struct basefreq {
-  double        a, c, g, t, r, y;       /* Base frequencies */
-  double        ar, cy, gr, ty;         /* Base/class freq */
-  double        xi, xv;
-  double        fracchange;
-  double        ttratio;                /* Transition/transversion ratio */
+  double        a, c, g, t, r, y;                       /* base frequencies */
+  double        ar, cy, gr, ty;   /* base per purine or base per pyrimidine */
+  double        xi, xv; /* rates: transition-like, transversion-like events */
+  double        fracchange;      /* fraction of events that change the base */
+  double        ttratio;                   /* transition/transversion ratio */
 } basefreq;
 
-
-#ifndef OLDC  /* Prototypes, if not original Kernighan & Ritchie compiler */
-struct mldna_node* mldna_node_new(node_type, long, long);
-void mldna_node_init(struct mldna_node *, node_type, long);
-void mldna_node_copy(mldna_node*, mldna_node*);
-void fix_x(mldna_node*, long, double, long);
-void mldna_node_freex(mldna_node*);
-void mldna_node_allocx(struct mldna_node*, long, long);
+#ifndef OLDC    /* Prototypes, if not original Kernighan & Ritchie compiler */
+struct node* mldna_node_new(node_type, long, long);
+void mldna_node_init(struct node*, node_type, long);
+void mldna_node_copy(struct node*, struct node*);
+void fix_x(struct mldna_node*, long, double, long);
+void mldna_node_freex(struct node*);
+void mldna_node_allocx(struct node*, long, long);
 void makevalues2(long, pointarray, long, long, sequence, steptr);
 void freex_notip(long, pointarray);
 void freex(long, pointarray);
@@ -49,3 +52,4 @@ void ttratio_warning(double ttratio);
 void empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
 #endif
 
+#endif

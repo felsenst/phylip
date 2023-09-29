@@ -9,36 +9,34 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
-#ifndef _ML_H_
-#define _ML_H_
+#ifndef ML_H
+#define ML_H
 
 #include "bl.h"
 
-extern boolean inserting, smoothit, smoothed, polishing;
+/* debug: extern boolean inserting, smoothit, polishing; */
 
 typedef struct ml_tree {
   struct tree bl_tree;
 } ml_tree;
 
 typedef struct ml_node {                        /* subclass of generic node */
-  struct node bl_node;                        /* Base object, must be first */
-
+  struct bl_node bl_node;                     /* Base object, must be first */
   double* underflows;
   long endsite;
   long categs;
 } ml_node;
 
-long endsite;
+typedef void (*allocx_t)(long, long, long, struct ml_node*);
 
 #ifndef OLDC /* prototypes */
-void    ml_tree_new(struct ml_tree **, long, long, long);
-void    ml_tree_init(struct ml_tree *, long, long);
-void    ml_node_init(struct ml_node*, node_type, long);
-struct  ml_node* ml_node_new(node_type, long, long);
-void    ml_node_copy(struct ml_node *, struct ml_node *);
-void    ml_node_free(struct ml_node **);
-void 	ml_node_reinit(struct ml_node *);
-void    ml_node_print(struct ml_node *);
+void    ml_tree_new(struct tree **, long, long, long);
+void    ml_tree_init(struct tree *, long, long);
+void    ml_node_init(struct node*, node_type, long);
+struct  node* ml_node_new(node_type, long, long);
+void    ml_node_copy(struct node *, struct node *);
+void    ml_node_free(struct node **);
+void    ml_node_print(struct node *);
 #endif
 
 #endif

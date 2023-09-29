@@ -12,10 +12,10 @@
 
 #define SAMPLES 1000
 
-long endsite=0, outgrno, which;
-boolean interleaved, printdata, outgropt, treeprint, dotdiff, transvp;
-steptr weight, category, alias, location, ally;
-sequence inputSequences;
+extern FILE *infile, *outfile, *outtree;
+
+extern long endsite, outgrno, which;
+boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 
 
 void inputdata(long chars)
@@ -165,7 +165,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
     {
       treenode[i-1]->back = NULL;
       treenode[i-1]->node_init(treenode[i-1], i<=spp, i);
-      treenode[i-1]->iter = true;
+/* debug:      treenode[i-1]->iter = true;    maybe initialize later? */
       treenode[i-1]->initialized = true;
     }
   }
@@ -178,7 +178,7 @@ void setuptree(pointarray treenode, long nonodes, boolean usertree)
       {
         p->back = NULL;
         p->node_init(p, false, i);
-        p->iter = true;
+/* debug         p->iter = true;   maybe initialize later? */
         p->initialized = false;
         p = p->next;
       }
@@ -454,7 +454,7 @@ void sitescrunch2(long sites, long i, long j, steptr aliasweight)
 }  /* sitescrunch2 */
 
 
-void drawline(long i, double scale, bl_node *rt)
+void drawline(long i, double scale, struct bl_node *rt)
 {
   /* draws one row of the tree diagram by moving up tree */
   struct node *root, *p, *q, *r, *first =NULL, *last =NULL;

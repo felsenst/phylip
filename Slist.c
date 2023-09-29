@@ -19,41 +19,10 @@
 #include <stdlib.h>
 #include "Slist.h"
 
-typedef struct _Slist_iter* Slist_iter_ptr;
-typedef Slist_data_ptr (*Slist_data_copy_t)(Slist_data_ptr);
-typedef void (*Slist_data_delete_t)(Slist_data_ptr *);
-
-#ifndef OLDC
-static Slist_node_ptr Slist_node_new_(Slist_data_ptr data);
-static Slist_node_ptr Slist_node_new(Slist_data_ptr data);
-void Slist_node_delete(Slist_node_ptr ln);
-Slist_ptr Slist_new(void);
-void Slist_delete(Slist_ptr l);
-int _Slist_checklen(Slist_ptr l);
-int Slist_isempty(Slist_ptr l);
-void Slist_push(Slist_ptr l, Slist_data_ptr data);
-Slist_data_ptr Slist_pop(Slist_ptr l);
-void Slist_append(Slist_ptr l, Slist_data_ptr data);
-void Slist_delete_data(Slist_ptr l, Slist_data_delete_t delete_func);
-Slist_ptr Slist_new_fromarray(Slist_data_ptr obj[]);
-Slist_ptr Slist_copy(Slist_ptr l);
-Slist_ptr Slist_copy_deep(Slist_ptr l, Slist_data_copy_t copy_func);
-Slist_iter_ptr Slist_begin(Slist_ptr l);
-void * Si_next(Slist_iter_ptr iter);
-void nobj_delete(void **nobj_ptr);
-void *nobj_copy(void *nobj);
-int main(void);
-#endif
-
 /* Define this to include testing function main() */
 /* #define LIST_ADT_TEST */
 
-/* Private function prototypes */
-void Slist_node_delete(Slist_node_ptr ln);
-int  _Slist_checklen(Slist_ptr l);
-
-
-static Slist_node_ptr Slist_node_new_(Slist_data_ptr data)
+Slist_node_ptr Slist_node_new_(Slist_data_ptr data)
 { /* Slist_node constructor which can even accept NULL data,
    * called by Slist_node_new (note difference in names) */
   Slist_node_ptr      node;
@@ -68,7 +37,7 @@ static Slist_node_ptr Slist_node_new_(Slist_data_ptr data)
 } /* Slist_node_new */
 
 
-static Slist_node_ptr Slist_node_new(Slist_data_ptr data)
+Slist_node_ptr Slist_node_new(Slist_data_ptr data)
 { /* get a new node from the linked list */
   assert( data != NULL );
   return Slist_node_new_(data);
@@ -416,6 +385,5 @@ int main(void)
 }
 
 #endif  // LIST_ADT_TEST
-
 
 // End.

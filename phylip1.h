@@ -536,8 +536,6 @@ typedef void (*tree_globrearrange_t)(tree*,boolean,boolean);
 typedef void (*tree_locrearrange_t)(tree*,node*,boolean,tree*,tree*);
 typedef void (*tree_smoothall_t)(tree*,node* p);
 typedef double (*tree_evaluate_t)(tree*,node* p,boolean saveit);
-typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
-typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
 typedef void (*tree_save_traverses_t)(tree*,node*,node*);
 typedef void (*tree_restore_traverses_t)(tree*,node*,node*);
 typedef void (*tree_release_fork_t)(tree*,node*);
