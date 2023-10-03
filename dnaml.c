@@ -2188,8 +2188,7 @@ void maketree(void)
     if (enterorder[2] == outgrno)
       currentoutgrno = outgrno;
     curtree->root = curtree->nodep[currentoutgrno-1];
-    bl_tree_insert_(curtree, curtree->root, 
-		      curtree->nodep[outgrno-1]->back, false);
+    generic_root_insert(curtree, curtree->nodep[currentoutgrno-1]);
     smoothit = improve;
     thorough = true;
     nextsp = 4;
