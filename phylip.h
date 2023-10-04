@@ -293,7 +293,7 @@ typedef unsigned int boolean;
 
 /* Used in Proml, Promlk, Dnaml, Dnamlk and in the parsimony programs
  * for undefined bestyet value */
-#define UNDEFINED -99.99999
+#define UNDEFINED -999999.99999
 
 /* a basic stack  debug:  is this ever used?? */
 #if 0

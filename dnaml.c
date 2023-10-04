@@ -2192,6 +2192,7 @@ void maketree(void)
     generic_root_insert(curtree, curtree->nodep[currentoutgrno-1]);
     smoothit = improve;
     thorough = true;
+    bl_update(curtree, curtree->root);
     nextsp = 4;
     while (nextsp <= spp)
     {
