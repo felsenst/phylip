@@ -2193,6 +2193,7 @@ void maketree(void)
     smoothit = improve;
     thorough = true;
     bl_update(curtree, curtree->root);
+    smooth(curtree, curtree->root);
     nextsp = 4;
     while (nextsp <= spp)
     {
