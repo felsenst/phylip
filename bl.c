@@ -169,7 +169,7 @@ void bl_update(struct tree *t, struct node *p)
   if (p != NULL) {                                /* if not a NULL node ... */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
-    if ((p->back != NULL) && (!p->back->tip)) {
+    if (p->back != NULL) {
       if (!p->back->tip)
         generic_tree_nuview(t, p->back);          /* recurse from the other */
     }
@@ -200,24 +200,28 @@ debug */
   smoothed = false;
 
   bl_update(t, p);       /* get views at both ends updated, maybe recursing */
-  t->makenewv (t, p);                                  /* new branch length */
-  inittrav (t, p);                 /* set inward-looking pointers false ... */
-  inittrav (t, p->back);                    /* ... from both ends of branch */
+  if (p != NULL) {
+    if (p->back != NULL) {
+      t->makenewv (t, p);                              /* new branch length */
+      inittrav (t, p);             /* set inward-looking pointers false ... */
+      inittrav (t, p->back);                /* ... from both ends of branch */
 
-  if ( p->tip )
-    return;
-  if ( (smoothed && !polishing) || !smoothit )
-    return;
+      if ( p->tip )
+        return;
+      if ( (smoothed && !polishing) || !smoothit )
+        return;
 
-  for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-  {       /* recursion out one end, the  p  end, to do this on all branches */
-    if ( sib_ptr->back )
-    {
-      smooth(t, sib_ptr->back);                        /* go out from there */
-      sib_ptr->initialized = false;  /* inward-looking views need adjusting */
+      for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
+      {   /* recursion out one end, the  p  end, to do this on all branches */
+        if ( sib_ptr->back )
+        {
+          smooth(t, sib_ptr->back);                    /* go out from there */
+          sib_ptr->initialized = false;     /* adjust inward-looking views? */
+        }
+      }
+      bl_update(t, p->back);                           /* update ends views */
     }
   }
-  bl_update(t, p->back);          /* update ends views */
 }  /* smooth */
 
 
