@@ -194,9 +194,6 @@ void smooth(struct tree* t, node *p)
 
   if ( p == NULL )
     return;
-/* debug:    if ( p->back == NULL )
-    return;
-debug */
   smoothed = false;
 
   bl_update(t, p);       /* get views at both ends updated, maybe recursing */
@@ -210,18 +207,17 @@ debug */
         return;
       if ( (smoothed && !polishing) || !smoothit )
         return;
-
-      for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next )
-      {   /* recursion out one end, the  p  end, to do this on all branches */
-        if ( sib_ptr->back )
-        {
-          smooth(t, sib_ptr->back);                    /* go out from there */
-          sib_ptr->initialized = false;     /* adjust inward-looking views? */
-        }
       }
       bl_update(t, p->back);                           /* update ends views */
     }
-  }
+    for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
+          /* recursion out one end, the  p  end, to do this on all branches */
+      if ( sib_ptr->back )
+      {
+        smooth(t, sib_ptr->back);                    /* go out from there */
+        sib_ptr->initialized = false;     /* adjust inward-looking views? */
+      }
+    } 
 }  /* smooth */
 
 
