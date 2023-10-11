@@ -181,6 +181,7 @@ void smooth_traverse(struct tree* t, node *p)
 { /* start traversal, smoothing branch lengths, in both directions from
    * this branch */
  /* debug: in which file should this be defined? bl.c? ml.c? */
+ /* debug:  isn't this done in smooth() anyway? */
 
   smooth(t, p);
   smooth(t, p->back);
@@ -188,7 +189,9 @@ void smooth_traverse(struct tree* t, node *p)
 
 
 void smooth(struct tree* t, node *p)
-{  /* repeatedly and recursively do one step of smoothing on a branch */
+{  /* recursively do one step of smoothing on a branch, where
+      smoothing includes getting views at both ends and using the 
+      appropriate function to get a new branch length */
  /* debug: in which file should this be defined? bl.c? ml.c? */
  struct node *sib_ptr;
 
@@ -199,8 +202,8 @@ void smooth(struct tree* t, node *p)
   bl_update(t, p);       /* get views at both ends updated, maybe recursing */
   if (p != NULL) {
     if (p->back != NULL) {
-      t->makenewv (t, p);                              /* new branch length */
-      inittrav (t, p);             /* set inward-looking pointers false ... */
+      t->makenewv (t, p);   /* new branch length using appropriate function */
+      inittrav (t, p);    /* and thus set inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
 
       if ( p->tip )
@@ -214,8 +217,8 @@ void smooth(struct tree* t, node *p)
           /* recursion out one end, the  p  end, to do this on all branches */
       if ( sib_ptr->back )
       {
-        smooth(t, sib_ptr->back);                    /* go out from there */
-        sib_ptr->initialized = false;     /* adjust inward-looking views? */
+        smooth(t, sib_ptr->back);                      /* go out from there */
+        sib_ptr->initialized = false;    /* adjust its inward-looking views */
       }
     } 
 }  /* smooth */
