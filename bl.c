@@ -177,17 +177,6 @@ void bl_update(struct tree *t, struct node *p)
 }  /* bl_update */
 
 
-void smooth_traverse(struct tree* t, node *p)
-{ /* start traversal, smoothing branch lengths, in both directions from
-   * this branch */
- /* debug: in which file should this be defined? bl.c? ml.c? */
- /* debug:  isn't this done in smooth() anyway? */
-
-  smooth(t, p);
-  smooth(t, p->back);
-} /* smooth_traverse */
-
-
 void smooth(struct tree* t, node *p)
 {  /* recursively do one step of smoothing on a branch, where
       smoothing includes getting views at both ends and using the 
@@ -238,10 +227,16 @@ void bl_tree_smoothall(struct tree* t, node* p)
 
   save = smoothit;
   smoothit = true;
+  if (p == NULL) {        /* set outward-looking views uninitialized */
+    inittrav(t, p);
+    inittrav(t, p->back);
+  }
+
+
+
   if ( p->tip )
     p = p->back;
 
-/* debug:   editing mistake near here when removing debugging prints? */
   for ( i = 0 ; i < smoothings ; i++ )
   {
     smooth(t, p->back);
