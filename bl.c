@@ -331,7 +331,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
       smooth_traverse(t, p);             /* go around fork, out each branch */
     }
   }
-} /* bl_tree_insert */
+} /* bl_tree_insert_ */
 
 
 void generic_tree_save_lr_nodes(tree* t, node* p, node* r) {
