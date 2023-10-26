@@ -98,6 +98,7 @@ UNAME := $(shell uname)
 #
 # A minimal one:
 #CFLAGS  = -g
+CFLAGS = -Wl -zmuldefs
 #
 # A basic one for debugging:
 #CFLAGS  = -g -Wall
