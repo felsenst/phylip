@@ -1382,7 +1382,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   while ((it < iterations) && (ite < 20) && (!done))
   {
     slopecurv (p, y, &like, &slope, &curve);
-/* debug: printf(" %ld:%ld v1,v2,like,  %10.6f %10.6f %12.6f\n", p->index, q->index, p->v, yold, like);  debug */
+printf(" %ld:%ld v1,v2,like,  %10.6f %10.6f %12.6f\n", p->index, q->index, ((struct bl_node*)p)->v, yold, like); /* debug */
     better = false;
     if (firsttime)    /* if no older value of y to compare with */
     {
@@ -2067,8 +2067,8 @@ void maketree(void)
   if (usertree)       /* case in which we are reading in user-defined trees */
   {
     if (!javarun)
-    {  /* Open in binary: ftell() broken for UNIX line-endings under WIN32 */
-      openfile(&intree, INTREE, "input tree file", "rb", progname, intreename);
+    {   /* Open in binary: ftell() broken for UNIX line-endings under WIN32 */
+      openfile(&intree, INTREE, "input tree file", "rb",progname, intreename);
     }
     //printf("calling inittable_for_usertree\n");
     inittable_for_usertree (intree);

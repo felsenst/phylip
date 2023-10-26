@@ -350,6 +350,7 @@ seq.o:        ml.c bl.c seq.c phylip.h seq.h
 	$(CC) -c seq.c $(SHARED) -fPIC
 
 bl.o:         phylip.h bl.h
+	$(CC) -c bl.c $(SHARED) -fPIC 
 
 ml.o:         bl.c ml.c phylip.h bl.h ml.h
 	$(CC) -c ml.c $(SHARED) -fPIC 
