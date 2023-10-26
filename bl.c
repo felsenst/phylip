@@ -328,7 +328,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth_traverse(t, p);             /* go around fork, out each branch */
+      smooth(t, p);                      /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */
@@ -430,8 +430,8 @@ void bl_tree_re_move(struct tree *t, struct node *p,
     for (i = 0 ; i < smoothings ; i++ )
     {
       if ( smoothit ) {
-        smooth_traverse(t, *q);
-        smooth_traverse(t, (*q)->back);
+        smooth(t, *q);
+        smooth(t, (*q)->back);
       }
     }
   }
@@ -631,7 +631,7 @@ void set_tyme (struct node* p, double tyme)
        * apparent fix to bug#296, JY and MK 2015/05/18 */
       sib_ptr->initialized = false;
       sib_ptr = sib_ptr->next;
-    } while (sib_ptr != p);
+    } while (sib_ptr != p->back);
   else
     ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
