@@ -619,9 +619,11 @@ double get_tyme(struct node *p)
 
 void set_tyme (struct node* p, double tyme)
 { /* Set the tyme of a node and its sibs. */
+  struct node* q;
   struct node *sib_ptr;
 
   sib_ptr = p;
+  q = p;
   if (p->next)
     do {
       ((struct bl_node*)sib_ptr)->tyme = tyme;
@@ -631,7 +633,7 @@ void set_tyme (struct node* p, double tyme)
        * apparent fix to bug#296, JY and MK 2015/05/18 */
       sib_ptr->initialized = false;
       sib_ptr = sib_ptr->next;
-    } while (sib_ptr != p);
+    } while (sib_ptr != q);
   else
     ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
