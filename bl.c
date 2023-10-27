@@ -631,7 +631,7 @@ void set_tyme (struct node* p, double tyme)
        * apparent fix to bug#296, JY and MK 2015/05/18 */
       sib_ptr->initialized = false;
       sib_ptr = sib_ptr->next;
-    } while (sib_ptr != p->back);
+    } while (sib_ptr != p);
   else
     ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
