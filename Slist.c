@@ -96,8 +96,11 @@ int _Slist_checklen(Slist_ptr l)
 
 int Slist_isempty(Slist_ptr l)
 {  /* check whether the Slist is empty */
-/* debug:  why this assert, can't it be true?   assert( l != NULL );   */
-  return l->length == 0;
+/* debug: could rhis function return a boolean? */
+  if (l == NULL)                      /* case where pointer to list is NULL */
+    return 0;
+  else
+    return l->length == 0;
 } /* Slist_isempty */
 
 
