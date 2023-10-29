@@ -619,8 +619,7 @@ double get_tyme(struct node *p)
 
 void set_tyme (struct node* p, double tyme)
 { /* Set the tyme of a node and its sibs. */
-  struct node* q;
-  struct node *sib_ptr;
+  struct node *q, *sib_ptr;;
 
   sib_ptr = p;
   q = p;
