@@ -641,7 +641,7 @@ struct tree {                                         /* the tree structure */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
-  tree_copy_t copy_tree;
+  tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
   tree_addtraverse_1way_t addtraverse_1way;
