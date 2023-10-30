@@ -521,7 +521,7 @@ struct node {  /* a basic node: space for "everything but the kitchen sink" */
   double lowestfossilabove;        /* used in Contrast for fossil machinery */
 
 /* debug: these function variables should be in vtable? */
-  node_copy_t copy;                      /* functions defined for this node */
+  node_copy_t node_copy;                 /* functions defined for this node */
   node_free_t free;
   node_init_t node_init;    /* debug: use this or one in node_vtable? */
   node_reinit_t reinit;
@@ -641,7 +641,7 @@ struct tree {                                         /* the tree structure */
   Slist_ptr free_fork_nodes;
 
   tree_setupfunctions_t setupfunctions;     /* sets up functions */
-  tree_copy_t copy;
+  tree_copy_t copy_tree;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
   tree_addtraverse_1way_t addtraverse_1way;

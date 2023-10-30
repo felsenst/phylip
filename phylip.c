@@ -157,7 +157,7 @@ void generic_node_init (struct node* n, node_type type, long index)
 
   /* Initialize virtual functions */
   n->free = generic_node_free;
-  n->copy = generic_node_copy;
+  n->node_copy = generic_node_copy;
   n->reinit = generic_node_reinit;
   n->fork_print_f = generic_fork_print;
   n->node_print_f = generic_node_print;
@@ -277,7 +277,7 @@ void generic_tree_copy (tree* src, tree* dst)
       num_sibs = count_sibs(p);
       num_sibs++;
       for (j = 0; j < num_sibs; j++) {      /* go around  src, dst  circles */
-        p->copy(p, q);               /* copy some stuff esp. function names */
+        p->node_copy(p, q);          /* copy some stuff esp. function names */
         q->back = where_in_dest(src, dst, p->back);       /* find right one */
 	q->tip = false;
         p = p->next;                                   /* move to next ones */
@@ -4177,8 +4177,8 @@ void generic_tree_save_traverses(tree* t, node * p, node* q)
  * the original tree.
  */
 
-  p->copy(p,t->temp_p);
-  q->copy(q,t->temp_q);
+  p->node_copy(p,t->temp_p);
+  q->node_copy(q,t->temp_q);
 } /* generic_tree_save_traverses */
 
 
@@ -4189,8 +4189,8 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
  */
 /* debug:  these are generic versions but need to have this function be hierarchical too */
 
-  t->temp_p->copy(t->temp_p, p);  /* debug: how differs from node copy (it does!) */
-  t->temp_q->copy(t->temp_q, q);
+  t->temp_p->node_copy(t->temp_p, p);  /* debug: how differs from node copy (it does!) */
+  t->temp_q->node_copy(t->temp_q, q);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, q);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
@@ -4283,8 +4283,8 @@ void rooted_tree_save_lr_nodes(tree* t, node* p, node* whereto)
 {
   node* forknode = t->nodep[p->back->index - 1];
 
-  p->back->copy(p->back, t->lrsaves[0]);
-  whereto->copy(whereto, t->lrsaves[1]);
+  p->back->node_copy(p->back, t->lrsaves[0]);
+  whereto->node_copy(whereto, t->lrsaves[1]);
 
   t->rnb = forknode->back;
   if ( p == forknode->next->back ) {
@@ -4329,8 +4329,8 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
     hookup(forknode->next->next, t->rnnb);
   }
 
-  t->lrsaves[0]->copy(t->lrsaves[0], p->back);
-  t->lrsaves[1]->copy(t->lrsaves[1], whereto);
+  t->lrsaves[0]->node_copy(t->lrsaves[0], p->back);
+  t->lrsaves[1]->node_copy(t->lrsaves[1], whereto);
 } /* rooted_tree_restore_lr_nodes */
 
 

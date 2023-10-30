@@ -35,7 +35,7 @@ void mldna_node_init(struct node* n, node_type type, long index)
 
   mldn = (struct mldna_node*)n;
   ml_node_init(n, type, index);
-  n->copy = mldna_node_copy;
+  n->node_copy = mldna_node_copy;
   mldn->allocx_f = (allocx_t)mldna_node_allocx;
   mldn->freex_f = (freex_t)mldna_node_freex;
 
@@ -51,20 +51,19 @@ void mldna_node_copy(struct node* src, struct node* dest)
   struct ml_node *srcmln, *destmln;
   struct mldna_node *srcmldn, *destmldn;
 
+  ml_node_copy(src, dest);                               /* go up hierarchy */
   srcmln = (struct ml_node*)src;     /* src, dest considered as polymorphic */
   destmln = (struct ml_node*)dest;
   oldendsite = destmln->endsite;
   srcmldn = (struct mldna_node*)src;
   destmldn = (struct mldna_node*)dest;
 
-  ml_node_copy(src, dest);
-
   if ( oldendsite != 0 && oldendsite != srcmln->endsite )
   {
     mldna_node_freex(dest);
     destmln->endsite = 0;
   }
-  if ( oldendsite == 0 )
+  if ( oldendsite == 0 )    /* debug: why would endsites ever be different? */
     mldna_node_allocx(dest, srcmln->endsite, 
                          srcmln->categs);
   for (i = 0; i < srcmln->endsite; i++)

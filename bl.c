@@ -108,7 +108,7 @@ void bl_node_copy(struct node* srcn, struct node* destn)
 
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(srcn, destn);                /* first call generic copy */
+  generic_node_copy(srcn, destn);                        /* go up hierarchy */
   set_tyme(destn, srcbln->tyme);
   destbln->v = srcbln->v;
   destbln->deltav = srcbln->deltav;
