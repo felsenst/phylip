@@ -108,7 +108,7 @@ void bl_node_copy(struct node* srcn, struct node* destn)
 
   assert(srcn);                         // RSGdebug
   assert(destn);                        // RSGdebug
-  generic_node_copy(srcn, destn);                /* first call generic copy */
+  generic_node_copy(srcn, destn);                        /* go up hierarchy */
   set_tyme(destn, srcbln->tyme);
   destbln->v = srcbln->v;
   destbln->deltav = srcbln->deltav;
@@ -348,11 +348,11 @@ void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
 {
   /* save views and branch lengths around fork that is removed. */
 
-  r->copy(r, t->lrsaves[0]);
-  r->next->copy(r->next->back, t->lrsaves[1]);
-  r->next->next->copy(r->next->next->back, t->lrsaves[2]);
-  p->next->copy(p->next, t->lrsaves[3]);
-  p->next->next->copy(p->next->next, t->lrsaves[4]);
+  r->node_copy(r, t->lrsaves[0]);
+  r->next->node_copy(r->next->back, t->lrsaves[1]);
+  r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);
+  p->next->node_copy(p->next, t->lrsaves[3]);
+  p->next->next->node_copy(p->next->next, t->lrsaves[4]);
   t->rb = r;                       /* pointers to the nodes of the fork ... */
   t->rnb = r->next;                                /* ... that contains  r  */
   t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
@@ -364,11 +364,11 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
     /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
   struct bl_node *tr, *trb, *trnb, *trnnb, *trn, *trnn, *pnb, *pnnb;
 
-  t->lrsaves[0]->copy(t->lrsaves[0], r->back);       /* these restore views */
-  t->lrsaves[1]->copy(t->lrsaves[1], r->next->back);
-  t->lrsaves[2]->copy(t->lrsaves[2], r->next->next->back);
-  t->lrsaves[3]->copy(t->lrsaves[3], r->next);      /* inward-looking views */
-  t->lrsaves[4]->copy(t->lrsaves[4], r->next->next);
+  t->lrsaves[0]->node_copy(t->lrsaves[0], r->back);       /* these restore views */
+  t->lrsaves[1]->node_copy(t->lrsaves[1], r->next->back);
+  t->lrsaves[2]->node_copy(t->lrsaves[2], r->next->next->back);
+  t->lrsaves[3]->node_copy(t->lrsaves[3], r->next);      /* inward-looking views */
+  t->lrsaves[4]->node_copy(t->lrsaves[4], r->next->next);
 
   tr = (struct bl_node*)r;                               /* r  as a bl_node */
   trb = (struct bl_node*)(r->back);
@@ -619,9 +619,10 @@ double get_tyme(struct node *p)
 
 void set_tyme (struct node* p, double tyme)
 { /* Set the tyme of a node and its sibs. */
-  struct node *sib_ptr;
+  struct node *q, *sib_ptr;;
 
   sib_ptr = p;
+  q = p;
   if (p->next)
     do {
       ((struct bl_node*)sib_ptr)->tyme = tyme;
@@ -631,7 +632,7 @@ void set_tyme (struct node* p, double tyme)
        * apparent fix to bug#296, JY and MK 2015/05/18 */
       sib_ptr->initialized = false;
       sib_ptr = sib_ptr->next;
-    } while (sib_ptr != p->back);
+    } while (sib_ptr != q);
   else
     ((struct bl_node*)p)->tyme = tyme;
 } /* set_tyme */
