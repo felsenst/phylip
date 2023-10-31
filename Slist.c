@@ -106,21 +106,18 @@ int Slist_isempty(Slist_ptr l)
 
 void Slist_push(Slist_ptr l, Slist_data_ptr data)
 {
-  /* make a new list-node and put it on "last" */
+  /* make a new list-node and put it in as the first node of the list */
   Slist_node_ptr node;
 
   assert( data != NULL );
   node = Slist_node_new(data); /* make new list-node which points to "data" */
-
   if ( l->first == NULL )                  /* if there's nobody on the list */
   {
     assert(l->last == NULL);
     l->last = node;          /* then have "last" point to the new list-node */
   }
-
-  node->next = l->first;    /* have new list-node point to previous "first" */
-  l->first = node;          /* ... and have "first" point to it */
-
+  node->next = l->first; /* have new list-node precede the previous "first" */
+  l->first = node;                      /* ... and have "first" point to it */
   l->length++;
 } /* Slist_push */
 
