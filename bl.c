@@ -80,7 +80,6 @@ void bl_node_init(struct node *n, node_type type, long index)
   bln->tyme = 0.0;
   bln->v = initialv;     /* debug: should be demoted to bl.h/bl.c ? */
   n->reinit = bl_node_reinit;
-/* debug: initialize branch lengths here too? */
 } /* bl_node_init */
 
 
