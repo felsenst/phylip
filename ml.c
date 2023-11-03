@@ -91,7 +91,7 @@ void ml_node_copy(struct node* src, struct node* dest)
   destmln->endsite = srcmln->endsite;
   if(destmln->underflows)                  // RSGbugfix
     memcpy(&(destmln->underflows), &(srcmln->underflows), 
-	     srcmln->endsite * sizeof(double));
+		     sizeof(srcmln->underflows));
   else
     assert(srcmln->underflows == NULL);    // RSGdebug
 } /* ml_node_copy */
