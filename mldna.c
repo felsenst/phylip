@@ -64,8 +64,7 @@ void mldna_node_copy(struct node* src, struct node* dest)
     destmln->endsite = 0;
   }
   if ( oldendsite == 0 )    /* debug: why would endsites ever be different? */
-    mldna_node_allocx(dest, srcmln->endsite, 
-                         srcmln->categs);
+    mldna_node_allocx(dest, srcmln->endsite,  srcmln->categs);
   for (i = 0; i < srcmln->endsite; i++)
     for (j = 0; j < srcmln->categs; j++)
       memcpy(destmldn->x[i][j], srcmldn->x[i][j], sizeof(sitelike));
