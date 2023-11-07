@@ -89,11 +89,11 @@ void ml_node_copy(struct node* src, struct node* dest)
   bl_node_copy(src, dest);                              /* go up hierarchy */
   destmln->categs = srcmln->categs;
   destmln->endsite = srcmln->endsite;
-  if(destmln->underflows)                  // RSGbugfix
+  if(srcmln->underflows)                  // RSGbugfix
     memcpy(&(destmln->underflows), &(srcmln->underflows), 
 	     srcmln->endsite * sizeof(double));
   else
-    assert(srcmln->underflows == NULL);    // RSGdebug
+    assert(destmln->underflows == NULL);    // RSGdebug
 } /* ml_node_copy */
 
 
