@@ -259,8 +259,9 @@ void generic_tree_copy (tree* src, tree* dst)
     }
   for (i = 0; i < spp; i++) {  /* copy tip nodes, link to proper dst forks */
     if (src->nodep[i] != NULL) {
+      p = src->nodep[i];
       if (dst->nodep[i] != NULL) {
-        generic_node_copy(src->nodep[i], dst->nodep[i]); /* debug: make polymorphic? */
+        p->node_copy(src->nodep[i], dst->nodep[i]);
       }
       if (src->nodep[i]->back != NULL) {         /* set the "back" pointer */
         dst->nodep[i]->back = where_in_dest(src, dst, src->nodep[i]->back);
