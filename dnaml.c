@@ -1372,54 +1372,59 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   boolean done, firsttime, better;
   struct node *q;
 
-  q = p->back;
-  y = ((struct bl_node*)p)->v;
-  yorig = y;
-  done = false;
-  firsttime = true;
-  it = 1;
-  ite = 0;
-  while ((it < iterations) && (ite < 20) && (!done))
-  {
-    slopecurv (p, y, &like, &slope, &curve);
+  if ((p->index == outgrno) || (p->back->index == outgrno)) {
+    ((struct bl_node*)p)->v = 0.0;
+    ((struct bl_node*)(p->back))->v = 0.0;
+  } else {
+    q = p->back;
+    y = ((struct bl_node*)p)->v;
+    yorig = y;
+    done = false;
+    firsttime = true;
+    it = 1;
+    ite = 0;
+    while ((it < iterations) && (ite < 20) && (!done))
+    {
+      slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f\n", p->index, q->index, yold, like); /* debug */
-    better = false;
-    if (firsttime)    /* if no older value of y to compare with */
-    {
-      yold = y;
-      oldlike = like;
-      firsttime = false;
-      better = true;
-    }
-    else
-    {
-      if (like > oldlike)       /* update the value of yold if it was better */
+      better = false;
+      if (firsttime)               /* if no older value of y to compare with */
       {
         yold = y;
         oldlike = like;
+        firsttime = false;
         better = true;
       }
-      it++;
+      else
+      {
+        if (like > oldlike)     /* update the value of yold if it was better */
+        {
+          yold = y;
+          oldlike = like;
+          better = true;
+        }
+        it++;
+      }
+      if (better)
+      {
+        y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
+        if (y < epsilon)
+          y = epsilon;                        /* don't get too close to zero */
+      }
+      else
+      {
+        if (fabs(y - yold) < epsilon)          /* if change is too small ... */
+          ite = 20;                      /* then don't do any more iterating */
+        y = (y + 19*yold) / 20.0;                 /* retract 95% of way back */
+      }
+      ite++;
+      done = fabs(y-yold) < 0.1*epsilon;
     }
-    if (better)
-    {
-      y = y + slope/fabs(curve);      /* Newton-Raphson, forced uphill-wards */
-      if (y < epsilon)
-        y = epsilon;                          /* don't get too close to zero */
-    }
-    else
-    {
-      if (fabs(y - yold) < epsilon)            /* if change is too small ... */
-        ite = 20;                        /* then don't do any more iterating */
-      y = (y + 19*yold) / 20.0;                   /* retract 95% of way back */
-    }
-    ite++;
-    done = fabs(y-yold) < 0.1*epsilon;
+    smoothed = (fabs(y-yold) < epsilon) && (yorig > 1000.0*epsilon);
+    ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
+    ((struct bl_node*)(p->back))->v = yold;
+    ((struct tree*)t)->score = oldlike;
   }
-  smoothed = (fabs(y-yold) < epsilon) && (yorig > 1000.0*epsilon);
-  ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
-  ((struct bl_node*)(p->back))->v = yold;
-  ((struct tree*)t)->score = oldlike;
 }  /* dnaml_tree_makenewv */
 
 
