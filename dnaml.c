@@ -1386,7 +1386,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
-printf(" %ld:%ld v, like,  %10.6f %12.6f\n", p->index, q->index, yold, like); /* debug */
+printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, yold, like, slope, curve); /* debug */
       better = false;
       if (firsttime)               /* if no older value of y to compare with */
       {
@@ -1420,7 +1420,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f\n", p->index, q->index, yold, like); /*
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
     }
-    smoothed = (fabs(y-yold) < epsilon) && (yorig > 1000.0*epsilon);
+    smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;
