@@ -98,8 +98,7 @@ void ml_node_copy(struct node* src, struct node* dest)
 
 
 void ml_node_free(struct node **np)
-{
-  /* free a node for ml trees */
+{ /* free a node for ml trees */
 
 /* debug:  something to free the data goes here */
   generic_node_free((struct node**)np);
