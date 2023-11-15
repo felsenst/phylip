@@ -3457,7 +3457,7 @@ void generic_tree_setupfunctions(tree *t)
   t->save_traverses = generic_tree_save_traverses;
   t->restore_traverses = generic_tree_restore_traverses;
   t->nuview = generic_tree_nuview;
-  t->evaluate = generic_tree_evaluate;
+  t->evaluate = generic_tree_evaluate;                  /* at first, null function */
   t->insert_ = (tree_insert_t)generic_tree_insert_;
   t->get_forknode = generic_tree_get_forknode;
   t->re_move = generic_tree_re_move;
@@ -4441,7 +4441,7 @@ void generic_tree_nuview(struct tree* t, struct node* p)
 } /* generic_tree_nuview */
 
 
-double generic_tree_evaluate(tree *t, node* p, boolean dummy)
+void generic_update(struct tree *t, node* p)
 { /* 
    * Updates views for p and p->back in preparation for evaluation specific
    * to each program.
@@ -4454,10 +4454,15 @@ double generic_tree_evaluate(tree *t, node* p, boolean dummy)
   if (p->back != NULL) {
     if ( (p->back->initialized == false) && (p->back->tip == false) )
     {
-      generic_tree_nuview((tree*)t, p->back);
+      generic_tree_nuview((struct tree*)t, p->back);
     }
   }
-  return 0;
+} /* generic_update */
+
+
+double generic_tree_evaluate(struct tree *t, struct node *p, boolean dummy)
+{ /* for now, a dummy function that just is a place-holder, never called */
+  return 0.0;   /* dummy argument assignment, not ever used */
 } /* generic_tree_evaluate */
 
 

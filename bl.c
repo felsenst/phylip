@@ -516,7 +516,7 @@ printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* 
 /* debug:  probably redundant: */   tt->restore_traverses(tt, p, q); /*  debug */
 
   /* Update t->score of tree on which placements are being tested */
-  tt->update(tt, q, 0);                    /* update views on restored tree */
+  generic_update(tt, q);                             /* update views on restored tree */
 
   return succeeded;
 } /* bl_tree_try_insert_thorough */

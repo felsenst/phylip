@@ -359,7 +359,7 @@ typedef Char plotstring[MAXNCH];
    group arrays.  We can't use #elif for Metrowerks C, so we use
    cascaded if statements */
 #if INT_MAX == MAX_32BITS                  /* If ints are 4 bytes, use them */
-typedef int  group_type;
+typedef int group_type;
 #else
   #if INT_MAX == MAX_32BITS_PLUS
   typedef int group_type;
@@ -405,7 +405,7 @@ typedef enum {               /* names of discrete character states for Pars */
   zero = 0, one, two, three, four, five, six, seven
 } discbases;
 
-/* used by Protpars, Protdist and Proml */
+/* used by Protpars, Protdist, Proml and Promlk */
 typedef enum {          /* the three-letter amino acid codes, extended */
   ala = 0, arg, asn, asp, cys, gln, glu, gly, his, ileu, leu, lys, met, phe, 
   pro, ser1, ser2, thr, trp, tyr, val, del, stop, asx, glx, ser, unk, quest
@@ -427,7 +427,7 @@ typedef csitelike *cratelike;
 typedef cratelike *cphenotype;
 
 typedef long *baseptr;        /* baseptr used in Dnapars, Dnacomp, Dnapenny */
-typedef unsigned char *discbaseptr;     /* discbaseptr used in Pars         */
+typedef unsigned char *discbaseptr;             /* discbaseptr used in Pars */
 typedef double *phenotype3;                 /* for continuous char programs */
 
 typedef double *vector;                     /* used in distance programs    */
@@ -562,7 +562,7 @@ typedef void (*tree_locrearrange_t)(struct tree*, struct node*, boolean,
 		                      double*, struct tree*,struct tree*, 
 				      boolean, double*);
 typedef void (*tree_smoothall_t)(struct tree*, struct node*);
-typedef double (*tree_evaluate_t)(struct tree*, struct node*, boolean);
+typedef double (*tree_evaluate_t)(struct tree*, struct node*, boolean); /* debug: needed? */
 typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*, 
 		                                     struct node*);
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*, 
@@ -587,6 +587,7 @@ typedef struct tree_vtable tree_vtable;              /* forward declaration */
 
 struct tree_vtable { /* this is a table of tree functions to reassign as
                       * needed in subclasses */
+/* debug: is it needed at all?  duplicate declarations issue. */
   tree_copy_t copy;
   tree_re_move_t re_move;
   tree_addtraverse_t addtraverse;
@@ -721,6 +722,7 @@ void            rooted_tree_insert_(struct tree*, struct node*,
 void            generic_do_branchl_on_re_move(struct tree*, struct node*, 
                                                struct node*);
 void            generic_tree_release_forknode(struct tree*, struct node*);
+void            generic_update(struct tree*, struct node*);
 boolean         generic_tree_try_insert_(struct tree*, struct node*, 
                                   struct node*, struct node*, double*, 
                                   struct tree*, boolean, boolean, boolean, 

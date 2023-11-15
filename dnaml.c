@@ -157,7 +157,7 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
+/* debug: needed?   t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate; */
   t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
   t->nuview = (tree_nuview_t)dnaml_tree_nuview;
   t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
@@ -913,9 +913,9 @@ double dnaml_tree_evaluate(struct tree* t, struct node *p, boolean saveit)
   struct node *q;
   sitelike x1, x2;
 
-  if (p->back == NULL)   /* ensure branch has non-null ends */
+  if (p->back == NULL)                   /* ensure branch has non-null ends */
     p = p->next;
-  generic_tree_evaluate(t, p, saveit);                  /* views traversals */
+  generic_update(t, p);                                 /* views traversals */
   sum = 0.0;
   q = p->back;
   y = ((struct bl_node*)p)->v;
