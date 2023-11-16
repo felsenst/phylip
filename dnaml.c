@@ -157,7 +157,7 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
 {
   /* set up functions for a dnaml_tree */
 
-/* debug: needed?   t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate; */
+  t->evaluate = (tree_evaluate_t)dnaml_tree_evaluate;
   t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
   t->nuview = (tree_nuview_t)dnaml_tree_nuview;
   t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
