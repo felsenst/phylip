@@ -191,6 +191,7 @@ void smooth(struct tree* t, node *p)
   if (p != NULL) {
     if (p->back != NULL) {
 /* debug */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
+/* debug */ printf("((struct mldna_node*)p)->x[%d][0] = %12.6f\n", p->index-1, ((struct mldna_node*)p)->x[p->index-1][0]);
       t->makenewv (t, p);   /* new branch length using appropriate function */
       inittrav (t, p);    /* and thus set inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
