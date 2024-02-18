@@ -3818,13 +3818,14 @@ boolean oktoinsertthere(tree* t, node* p) {
   node *q, *qq;
 
   ok = !(p == NULL);                                 /* p  is not empty ... */
-  if (ok)
-    ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
+/* debug   if (ok)
+    ok = !(p->back == NULL); debug */             /* ... and  p->back  isn't either */
   if (ok) {
-    ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
+    ok = ((p->index != (t->outgrno)+1)) && 
+          (p->back->index != ((t->outgrno)+1));
     if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
       q = p;
-      if (p->back->index == t->outgrno)
+      if (p->back->index == ((t->outgrno)+1))
         q = p->back;                            /* the fork connected to it */
       /* now check that this fork has no more than two non-null branches --
          if so, it is not ok */
