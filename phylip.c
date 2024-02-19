@@ -3818,8 +3818,8 @@ boolean oktoinsertthere(tree* t, node* p) {
   node *q, *qq;
 
   ok = !(p == NULL);                                 /* p  is not empty ... */
-/* debug   if (ok)
-    ok = !(p->back == NULL); debug */             /* ... and  p->back  isn't either */
+  if (ok)
+    ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
     ok = ((p->index != (t->outgrno)+1)) && 
           (p->back->index != ((t->outgrno)+1));
