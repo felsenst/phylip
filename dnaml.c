@@ -1095,7 +1095,7 @@ void dnaml_tree_nuview(struct tree* t, struct node *p)
   for (i = 0; i < endsite; i++)                                 /* Loop 2: */
   {
     correction = 0;
-    maxx = 0;
+    maxx = 0.0;
     k = category[alias[i]-1] - 1; /* get user-defined category for the site */
     for (j = 0; j < rcategs; j++)       /* Loop 2.1: for each rate category */
     {
