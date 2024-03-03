@@ -275,7 +275,7 @@ void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,
     ((struct bl_node*)(forknode->next->back))->v = newv ;
   }
 
-  if (forknode->next->back != NULL) {     /* next->next for both directions */
+  if (forknode->next->next->back != NULL) {   /* next->next both directions */
     ((struct bl_node*)(forknode->next->next))->v = newv;
     ((struct bl_node*)(forknode->next->next->back))->v = newv;
   }
