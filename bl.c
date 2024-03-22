@@ -468,7 +468,7 @@ void bl_tree_restore_traverses(struct tree *t, struct node *p,
 
 boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp, 
                                      struct node *qq, 
-                                     struct node *qqwherein,
+                                     struct node **qqwherein,
                                      double *bestyet, struct tree *bestree,
                                      boolean thorough, boolean storing, 
                                      boolean atstart)
@@ -479,7 +479,7 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   * qwhere  to the current place  q  */
   double like;
   boolean succeeded, bettertree;
-  struct node* whereRemoved;
+/* debug:   struct node** whereRemoved;   debug */
   struct node *p, *q;
   struct tree *tt;
 
@@ -506,11 +506,11 @@ if(bettertree) printf("found better tree, tt->score = %14.8f\n", tt->score); /* 
   if (bettertree) {                    /* set variables for return, and ...*/
     *bestyet = like;
 printf("set *bestyet to  %14.8f\n", like);   /* debug */
-    qqwherein = qq;
+    qqwherein = &qq;
     tt->copy(tt, (struct tree*)bestree);  /* save tree in bestree, and ... */
 printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* debug */
   }
-  tt->re_move(tt, p, &whereRemoved, false);  /* then remove inserted stuff */
+  tt->re_move(tt, p, qqwherein, false);  /* then remove inserted stuff */
 
 /* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
 /* debug:  probably redundant: */   tt->restore_traverses(tt, p, q); /*  debug */
@@ -539,7 +539,7 @@ boolean bl_tree_try_insert_(struct tree* tt, struct node* pp,
   q = (struct node*)qq;
   t = (struct tree*)tt;
   if ( thorough )
-    succeeded = bl_tree_try_insert_thorough(tt, pp, qq, qwherein, bestyet,
+    succeeded = bl_tree_try_insert_thorough(tt, pp, qq, &qwherein, bestyet,
                                            bestree, thorough, false, atstart);
   else  /* debug:  need to have a _notthorough function here instead? */
     generic_tree_insert_(t, p, q, false);
