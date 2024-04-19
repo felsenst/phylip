@@ -1095,7 +1095,7 @@ void dnaml_tree_nuview(struct tree* t, struct node *p)
   for (i = 0; i < endsite; i++)                                 /* Loop 2: */
   {
     correction = 0;
-    maxx = 0;
+    maxx = 0.0;
     k = category[alias[i]-1] - 1; /* get user-defined category for the site */
     for (j = 0; j < rcategs; j++)       /* Loop 2.1: for each rate category */
     {
@@ -1372,6 +1372,9 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   boolean done, firsttime, better;
   struct node *q;
 
+/* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
+/* debug printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]); */ 
+/* debug printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]); */ 
   if ((p->index == outgrno) || (p->back->index == outgrno)) {
     ((struct bl_node*)p)->v = 0.0;
     ((struct bl_node*)(p->back))->v = 0.0;

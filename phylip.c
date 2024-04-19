@@ -3821,10 +3821,11 @@ boolean oktoinsertthere(tree* t, node* p) {
   if (ok)
     ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
-    ok = ((p->index != t->outgrno) && (p->back->index != t->outgrno));
+    ok = ((p->index != (t->outgrno)+1)) && 
+          (p->back->index != ((t->outgrno)+1));
     if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
       q = p;
-      if (p->back->index == t->outgrno)
+      if (p->back->index == ((t->outgrno)+1))
         q = p->back;                            /* the fork connected to it */
       /* now check that this fork has no more than two non-null branches --
          if so, it is not ok */
@@ -3880,7 +3881,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
   atstart = true;
   wasok = oktoinsertthere(t, q);
   if (wasok) {
-/* debug: printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); debug */
+/* debug:  debug */ printf(" addtraverse: seeing whether better to put %ld in between %ld:%ld\n", p->index, q->index, q->back->index);
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, atstart, bestfound);
     atstart = false;
@@ -3945,7 +3946,7 @@ boolean generic_tree_addtraverse_1way(tree* t, node* p, node* q,
   /* debug: for testing */ double temp;
 
   if (oktoinsertthere(t, q)) {
-/* debug printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index); */
+/* debug  */ printf(" addtraverse1way: seeing whether can put %ld in between %ld:%ld\n", p->index, q->index, q->back->index);
 /* debug: */    temp = *bestyet;
     succeeded = t->try_insert_(t, p, q, qwherein, bestyet, bestree,
                                 thorough, storing, *atstart, bestfound);
