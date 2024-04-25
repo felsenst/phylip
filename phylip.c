@@ -934,7 +934,7 @@ const char* get_command_name (const char *vektor)
     /* If not, return the vector */
     return vektor;
 
-}  /*get_command_name*/
+}  /* get_command_name */
 
 /****************** User input ************/
 
@@ -3892,9 +3892,9 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
         if ( sib_ptr != NULL )
-/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr);
           if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
-/* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
+/*  debug */ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
                             thorough, storing, &atstart, bestfound) || succeeded;
@@ -4172,19 +4172,22 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
 } /* unrooted_tree_locrearrange_recurs */
 
 
-void generic_tree_save_traverses(tree* t, node * p, node* q)
+void generic_tree_save_traverses(struct tree* t, struct node* q)
 {
- /* Saves the branch lengths for p and q (args to insert_) in t
- * This way, we can insert a fork above q and still recover
- * the original tree.
+ /* Saves the branch lengths for q (arg to insert_) and q->back in t
+ * This way, we can insert a fork in this branch and still recover 
+ * (close to) the original tree.
  */
+  struct node* qb;
 
-  p->node_copy(p,t->temp_p);
-  q->node_copy(q,t->temp_q);
+  q->node_copy(q, t->temp_q);
+  if (qb != NULL)
+    qb->node_copy(qb ,t->temp_qb);
 } /* generic_tree_save_traverses */
 
 
-void generic_tree_restore_traverses(tree* t, node *p, node* q)
+void generic_tree_restore_traverses(struct tree* t, struct node *p, 
+		                                      struct node* pb)
 {
  /* Restores branch legths to p and q (args to re_move) from
   * temp_p and temp_q nodes in t
@@ -4192,9 +4195,9 @@ void generic_tree_restore_traverses(tree* t, node *p, node* q)
 /* debug:  these are generic versions but need to have this function be hierarchical too */
 
   t->temp_p->node_copy(t->temp_p, p);  /* debug: how differs from node copy (it does!) */
-  t->temp_q->node_copy(t->temp_q, q);
+  t->temp_q->node_copy(t->temp_pb, pb);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
-  inittrav(t, q);                             /* ... booleans to  false ... */
+  inittrav(t, pb);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
   /* debug:  not sure it is affected by this */
   // debug:  printf("TREECHECK restoring %p and %p\n\t",p,q);
@@ -5215,7 +5218,6 @@ void seetree(tree *t)
   printf(" free_fork_nodes: ");    /* print the entire free_fork_nodes list */
   if (Slist_isempty(t->free_fork_nodes))
     printf("empty");
-  q = t->free_fork_nodes->first;
   while (q != NULL) {
     printf("%p ",q->data);
     q = q->next;

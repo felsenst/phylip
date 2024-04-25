@@ -567,10 +567,8 @@ typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*,
 		                                     struct node*);
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*, 
 		                                        struct node*);
-typedef void (*tree_save_traverses_t)(struct tree*, struct node*, 
-		                                      struct node*);
-typedef void (*tree_restore_traverses_t)(struct tree*, struct node*, 
-		                           struct node*);
+typedef void (*tree_save_traverses_t)(struct tree*, struct node*);
+typedef void (*tree_restore_traverses_t)(struct tree*, struct node*);
 typedef void (*tree_release_fork_t)(struct tree*, long);
 typedef struct node* (*tree_get_fork_t)(struct tree*,  long);
 typedef struct node* (*tree_get_forknode_t)(struct tree*, long);
