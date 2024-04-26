@@ -4186,16 +4186,17 @@ void generic_tree_save_traverses(struct tree* t, struct node* q)
 } /* generic_tree_save_traverses */
 
 
-void generic_tree_restore_traverses(struct tree* t, struct node *p, 
-		                                      struct node* pb)
+void generic_tree_restore_traverses(struct tree* t, struct node *p); 
 {
  /* Restores branch legths to p and q (args to re_move) from
   * temp_p and temp_q nodes in t
  */
 /* debug:  these are generic versions but need to have this function be hierarchical too */
 
-  t->temp_p->node_copy(t->temp_p, p);  /* debug: how differs from node copy (it does!) */
-  t->temp_q->node_copy(t->temp_pb, pb);
+  t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
+  pb = )struct node*)(p->back);
+  if (pb != NULL)
+    t->temp_q->node_copy(t->temp_qb, pb);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, pb);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */

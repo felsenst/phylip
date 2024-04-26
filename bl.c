@@ -48,8 +48,8 @@ void bl_tree_init(struct tree* t, long nonodes, long spp)
 } /* bl_tree_init */
 
 
-void bl_tree_save_traverses(struct tree* t, struct node* p, struct node* q) {
-  /* bl_tree version ofn saving traverses */
+void bl_tree_save_traverses(struct tree* t, struct node* p) {
+  /* bl_tree version of saving traverses */
 	/* debug: more stuff here! */
 } /* bl_tree_save_traverses */
 
@@ -333,48 +333,49 @@ void bl_tree_insert_(struct tree *t, struct node *p,
 } /* bl_tree_insert_ */
 
 
-void generic_tree_save_lr_nodes(tree* t, node* p, node* r) {
+void generic_tree_save_lr_nodes(tree* t, node* p) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_save_lr_nodes */
 
 
-void generic_tree_restore_lr_nodes(tree* t, node* p, node* r) {
+void generic_tree_restore_lr_nodes(tree* t, node* p) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_restore_lr_nodes */
 
 
-void unrooted_tree_save_lr_nodes(tree* t, node* p, node* r)
+void unrooted_tree_save_lr_nodes(tree* t, node* p)
 {
   /* save views and branch lengths around fork that is removed. */
+	/* debug: need to figure out how this is supposed to work */
 
-  r->node_copy(r, t->lrsaves[0]);
-  r->next->node_copy(r->next->back, t->lrsaves[1]);
-  r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);
+/* debug   r->node_copy(r, t->lrsaves[0]);
+ r->next->node_copy(r->next->back, t->lrsaves[1]);
+ r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);  debug */
   p->next->node_copy(p->next, t->lrsaves[3]);
   p->next->next->node_copy(p->next->next, t->lrsaves[4]);
-  t->rb = r;                       /* pointers to the nodes of the fork ... */
-  t->rnb = r->next;                                /* ... that contains  r  */
-  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+/* debug   t->rb = r;                          pointers to the nodes of the fork ... */
+/* debug  t->rnb = r->next;                                ... that contains  r  */
+/* debug  t->rnnb = r->next->next;          (the "b" in their names is in error) */
 } /* unrooted_tree_save_lr_nodes */
 
 
-void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
+void unrooted_tree_restore_lr_nodes(tree* t, node* p)
 {
     /* restore  r  fork nodes and inward views at  p  in unrooted tree case */
   struct bl_node *tr, *trb, *trnb, *trnnb, *trn, *trnn, *pnb, *pnnb;
 
-  t->lrsaves[0]->node_copy(t->lrsaves[0], r->back);       /* these restore views */
-  t->lrsaves[1]->node_copy(t->lrsaves[1], r->next->back);
-  t->lrsaves[2]->node_copy(t->lrsaves[2], r->next->next->back);
-  t->lrsaves[3]->node_copy(t->lrsaves[3], r->next);      /* inward-looking views */
-  t->lrsaves[4]->node_copy(t->lrsaves[4], r->next->next);
+  t->lrsaves[0]->node_copy(t->lrsaves[0], p->back);       /* these restore views */
+  t->lrsaves[1]->node_copy(t->lrsaves[1], p->next->back);
+  t->lrsaves[2]->node_copy(t->lrsaves[2], p->next->next->back);
+  t->lrsaves[3]->node_copy(t->lrsaves[3], p->next);      /* inward-looking views */
+  t->lrsaves[4]->node_copy(t->lrsaves[4], p->next->next);
 
-  tr = (struct bl_node*)r;                               /* r  as a bl_node */
-  trb = (struct bl_node*)(r->back);
-  trnb = (struct bl_node*)(r->next->back);   /* to two of neighboring nodes */
-  trnnb = (struct bl_node*)(r->next->next->back);
-  trn = (struct bl_node*)(r->next);                 /* for view back in ... */
-  trnn = (struct bl_node*)(r->next->next);         /* ... and the other one */
+  tr = (struct bl_node*)p;                               /* r  as a bl_node */
+  trb = (struct bl_node*)(p->back);
+  trnb = (struct bl_node*)(p->next->back);   /* to two of neighboring nodes */
+  trnnb = (struct bl_node*)(p->next->next->back);
+  trn = (struct bl_node*)(p->next);                 /* for view back in ... */
+  trnn = (struct bl_node*)(p->next->next);         /* ... and the other one */
   trb->v = tr->v                         ;     /* branch lengths around  r  */
   trn->v = trnb->v;
   trnn->v = trnnb->v;
@@ -383,9 +384,9 @@ void unrooted_tree_restore_lr_nodes(tree* t, node* p, node* r)
   pnb->v = ((struct bl_node*)(p->next))->v; /* ... and on branches beyond p */
   pnnb->v = ((struct bl_node*)(p->next->next))->v;
 
-  inittrav(t, r->back);    /*  to make sure initialized booleans are OK ... */
-  inittrav(t, r->next->back);                /* ... in the neighbors of  r  */
-  inittrav(t, r->next->next->back);
+  inittrav(t, p->back);    /*  to make sure initialized booleans are OK ... */
+  inittrav(t, p->next->back);                /* ... in the neighbors of  r  */
+  inittrav(t, p->next->next->back);
 } /* unrooted_tree_restore_lr_nodes */
 
 
@@ -443,12 +444,11 @@ void bl_tree_re_move(struct tree *t, struct node *p,
 } /* bl_tree_re_move */
 
 
-void bl_tree_restore_traverses(struct tree *t, struct node *p, 
-		                                 struct node* q) {
+void bl_tree_restore_traverses(struct tree *t, struct node *p) {
   /* restore branch lengths and mark views (un?)initialized */
   struct bl_node *pp, *qq, *ppb, *qqb;
 
-  generic_tree_restore_traverses(t, p, q);
+  generic_tree_restore_traverses(t, p);
   pp = (struct bl_node*)p;
   ppb = (struct bl_node*)(p->back);
   if ( p->back )
@@ -456,12 +456,11 @@ void bl_tree_restore_traverses(struct tree *t, struct node *p,
     ppb->v = pp->v;
     inittrav(t, p->back);      /* ... and similarly for other end if branch */
   }
-  qq = (struct bl_node*)q;
-  qqb = (struct bl_node*)(q->back);
-  if ( q->back )
+  qqb = (struct bl_node*)(p->back);
+  if ( p->back )
   {
     qqb->v = qq->v;
-    inittrav(t, q->back);
+    inittrav(t, p->back);
   }
 } /* bl_tree_restore_traverses */
 
@@ -487,7 +486,7 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   q = (struct node*)qq;
   tt = (struct tree*)t;
   succeeded = false;
-  tt->save_traverses(tt, p, q);
+  tt->save_traverses(tt, p);
   tt->insert_(tt, p, q, false);
   tt->smoothall(tt, tt->root);
   like = tt->evaluate(tt, p, false);                  /* get score for tree */
@@ -513,7 +512,7 @@ printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* 
   tt->re_move(tt, p, qqwherein, false);  /* then remove inserted stuff */
 
 /* debug: not sure what whereRemoved is doing for us:  assert(whereRemoved == q);  */
-/* debug:  probably redundant: */   tt->restore_traverses(tt, p, q); /*  debug */
+/* debug:  probably redundant: */   tt->restore_traverses(tt, p); /*  debug */
 
   /* Update t->score of tree on which placements are being tested */
   generic_update(tt, q);                             /* update views on restored tree */
