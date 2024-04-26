@@ -333,29 +333,32 @@ void bl_tree_insert_(struct tree *t, struct node *p,
 } /* bl_tree_insert_ */
 
 
-void generic_tree_save_lr_nodes(tree* t, node* p) {
+void generic_tree_save_lr_nodes(struct tree* t, struct node* p, 
+		                                 struct node* q) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_save_lr_nodes */
 
 
-void generic_tree_restore_lr_nodes(tree* t, node* p) {
+void generic_tree_restore_lr_nodes(struct tree* t, struct node* p),
+		                                    struct node* q) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_restore_lr_nodes */
 
 
-void unrooted_tree_save_lr_nodes(tree* t, node* p)
+void unrooted_tree_save_lr_nodes(struct tree* t, struct node* p,
+		                                  struct node* r)
 {
   /* save views and branch lengths around fork that is removed. */
 	/* debug: need to figure out how this is supposed to work */
 
-/* debug   r->node_copy(r, t->lrsaves[0]);
- r->next->node_copy(r->next->back, t->lrsaves[1]);
- r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);  debug */
+  r->node_copy(r, t->lrsaves[0]);
+  r->next->node_copy(r->next->back, t->lrsaves[1]);
+ .r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);
   p->next->node_copy(p->next, t->lrsaves[3]);
   p->next->next->node_copy(p->next->next, t->lrsaves[4]);
-/* debug   t->rb = r;                          pointers to the nodes of the fork ... */
-/* debug  t->rnb = r->next;                                ... that contains  r  */
-/* debug  t->rnnb = r->next->next;          (the "b" in their names is in error) */
+  t->rb = r;                       /* pointers to the nodes of the fork ... */
+  t->rnb = r->next;                               /*  ... that contains  r  */
+  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
 } /* unrooted_tree_save_lr_nodes */
 
 
@@ -446,7 +449,7 @@ void bl_tree_re_move(struct tree *t, struct node *p,
 
 void bl_tree_restore_traverses(struct tree *t, struct node *p) {
   /* restore branch lengths and mark views (un?)initialized */
-  struct bl_node *pp, *qq, *ppb, *qqb;
+  struct bl_node *pp, *ppb;
 
   generic_tree_restore_traverses(t, p);
   pp = (struct bl_node*)p;
@@ -456,10 +459,10 @@ void bl_tree_restore_traverses(struct tree *t, struct node *p) {
     ppb->v = pp->v;
     inittrav(t, p->back);      /* ... and similarly for other end if branch */
   }
-  qqb = (struct bl_node*)(p->back);
+/* debug   qqb = (struct bl_node*)(p->back); */
   if ( p->back )
   {
-    qqb->v = qq->v;
+/* debug    qqb->v = qq->v; */
     inittrav(t, p->back);
   }
 } /* bl_tree_restore_traverses */

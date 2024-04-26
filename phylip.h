@@ -882,18 +882,21 @@ void            generic_unrooted_locrearrange(struct tree*, struct node*,
 boolean		unrooted_tree_locrearrange_recurs(struct tree*, struct node*, 
                                               double*, boolean, struct tree*, 
                                               struct tree*, boolean, double*);
-void            generic_tree_save_traverses(struct tree*, 
-                                             struct node*, struct node*);
+void            generic_tree_save_traverses(struct tree*, struct node*);
 void            generic_tree_restore_traverses(struct tree*, struct node*);
 void    	rooted_tryrearr(struct tree*, struct node*, boolean*);
 void		rooted_repreorder(struct tree*, struct node*, boolean*);
 void            rooted_locrearrange(struct tree*, struct node*, boolean, 
                                       double*, struct tree*, struct tree*, 
                                       boolean, double*);
-void            generic_tree_save_lr_nodes(struct tree*, struct node*);
-void            generic_tree_restore_lr_nodes(struct tree*, struct node*);
-void            rooted_tree_save_lr_nodes(struct tree*, struct node*);
-void            rooted_tree_restore_lr_nodes(struct tree*, struct node*);
+void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
+		                                          struct node*);
+void            generic_tree_restore_lr_nodes(struct tree*, struct node*,
+		                                             struct node*);
+void            rooted_tree_save_lr_nodes(struct tree*, struct node*, 
+		                                         struct node*);
+void            rooted_tree_restore_lr_nodes(struct tree*, struct node*, 
+		                                            struct node*);
 
 #if 0     /* debug:  leftover from old memory management for nodes */
 void*		pop(struct stack**);
