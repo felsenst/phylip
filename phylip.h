@@ -563,14 +563,10 @@ typedef void (*tree_locrearrange_t)(struct tree*, struct node*, boolean,
 				      boolean, double*);
 typedef void (*tree_smoothall_t)(struct tree*, struct node*);
 typedef double (*tree_evaluate_t)(struct tree*, struct node*, boolean); /* debug: needed? */
-typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*, 
-		                                     struct node*);
-typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*, 
-		                                        struct node*);
-typedef void (*tree_save_traverses_t)(struct tree*, struct node*, 
-		                                      struct node*);
-typedef void (*tree_restore_traverses_t)(struct tree*, struct node*, 
-		                           struct node*);
+typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*);
+typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*); 
+typedef void (*tree_save_traverses_t)(struct tree*, struct node*);
+typedef void (*tree_restore_traverses_t)(struct tree*, struct node*);
 typedef void (*tree_release_fork_t)(struct tree*, long);
 typedef struct node* (*tree_get_fork_t)(struct tree*,  long);
 typedef struct node* (*tree_get_forknode_t)(struct tree*, long);
@@ -886,23 +882,21 @@ void            generic_unrooted_locrearrange(struct tree*, struct node*,
 boolean		unrooted_tree_locrearrange_recurs(struct tree*, struct node*, 
                                               double*, boolean, struct tree*, 
                                               struct tree*, boolean, double*);
-void            generic_tree_save_traverses(struct tree*, 
-                                             struct node*, struct node*);
-void            generic_tree_restore_traverses(struct tree*, 
-                                                  struct node*, struct node*);
+void            generic_tree_save_traverses(struct tree*, struct node*);
+void            generic_tree_restore_traverses(struct tree*, struct node*);
 void    	rooted_tryrearr(struct tree*, struct node*, boolean*);
 void		rooted_repreorder(struct tree*, struct node*, boolean*);
 void            rooted_locrearrange(struct tree*, struct node*, boolean, 
                                       double*, struct tree*, struct tree*, 
                                       boolean, double*);
 void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
-                                                           struct node*);
-void            generic_tree_restore_lr_nodes(struct tree*, struct node*, 
-                                                               struct node*);
-void            rooted_tree_save_lr_nodes(struct tree*, 
-                                                  struct node*, struct node*);
-void            rooted_tree_restore_lr_nodes(struct tree*, 
-                                                  struct node*, struct node*);
+		                                          struct node*);
+void            generic_tree_restore_lr_nodes(struct tree*, struct node*,
+		                                             struct node*);
+void            rooted_tree_save_lr_nodes(struct tree*, struct node*, 
+		                                         struct node*);
+void            rooted_tree_restore_lr_nodes(struct tree*, struct node*, 
+		                                            struct node*);
 
 #if 0     /* debug:  leftover from old memory management for nodes */
 void*		pop(struct stack**);

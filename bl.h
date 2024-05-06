@@ -16,8 +16,8 @@
 
 extern boolean inserting, smoothit, polishing;  /* debug: smoothed, */
 extern FILE *infile, *outfile, *intree, *intree2, *outtree;
-typedef void (*tree_save_lr_nodes_t)(tree*,node*,node*);
-typedef void (*tree_restore_lr_nodes_t)(tree*,node*,node*);
+typedef void (*tree_save_lr_nodes_t)(struct tree*, struct node*);
+typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
 
 typedef struct bl_tree {
   struct tree treepart;
@@ -56,9 +56,10 @@ void 	bl_tree_smoothall(struct tree*, node*);
 void 	bl_node_reinit(struct node *);
 void    bl_tree_insert_(struct tree*, struct node*, 
                           struct node*, boolean);
-void    unrooted_tree_save_lr_nodes(struct tree*, struct node*, struct node*);
-void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*, 
-		                         struct node*);
+void    unrooted_tree_save_lr_nodes(struct tree*, struct node*,
+		                                   struct node*);
+void    unrooted_tree_restore_lr_nodes(struct tree*, struct node*,
+		                                      struct node*);
 void    blk_tree_makenewv(struct tree*, struct node*);
 void    bl_tree_re_move(struct tree*, struct node*, struct node**, boolean);
 void    blk_tree_insert_(struct tree*, struct node*, struct node*, 
@@ -72,8 +73,8 @@ boolean bl_tree_try_insert_thorough(struct tree*, struct node*,
                                       struct node*, struct node**, 
                                       double*, struct tree*, 
                                       boolean, boolean, boolean);
-void    bl_tree_save_traverses(struct tree*, struct node*, struct node*);
-void    bl_tree_restore_traverses(struct tree*, struct node*, struct node*);
+void    bl_tree_save_traverses(struct tree*, struct node*);
+void    bl_tree_restore_traverses(struct tree*, struct node*);
 void    bl_tree_do_branchl_on_insert(struct tree*, node *, node*);
 void    bl_tree_do_branchl_on_re_move(struct tree*, node*, node*);
 double  get_tyme(struct node *);
