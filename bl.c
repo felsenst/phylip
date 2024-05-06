@@ -339,26 +339,23 @@ void generic_tree_save_lr_nodes(struct tree* t, struct node* p,
 } /* generic_tree_save_lr_nodes */
 
 
-void generic_tree_restore_lr_nodes(struct tree* t, struct node* p),
-		                                    struct node* q) {
+void generic_tree_restore_lr_nodes(struct tree* t, struct node* p) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_restore_lr_nodes */
 
 
-void unrooted_tree_save_lr_nodes(struct tree* t, struct node* p,
-		                                  struct node* r)
+void unrooted_tree_save_lr_nodes(struct tree* t, struct node* p)
 {
   /* save views and branch lengths around fork that is removed. */
-	/* debug: need to figure out how this is supposed to work */
 
-  r->node_copy(r, t->lrsaves[0]);
-  r->next->node_copy(r->next->back, t->lrsaves[1]);
- .r->next->next->node_copy(r->next->next->back, t->lrsaves[2]);
+  p->back->node_copy(p, t->lrsaves[0]);
+  p->next->back->node_copy(p->next->back, t->lrsaves[1]);
+  p->next->next->back->node_copy(p->next->next->back, t->lrsaves[2]);
   p->next->node_copy(p->next, t->lrsaves[3]);
   p->next->next->node_copy(p->next->next, t->lrsaves[4]);
-  t->rb = r;                       /* pointers to the nodes of the fork ... */
-  t->rnb = r->next;                               /*  ... that contains  r  */
-  t->rnnb = r->next->next;          /* (the "b" in their names is in error) */
+  t->rb = p;                       /* pointers to the nodes of the fork ... */
+  t->rnb = p->next;                               /*  ... that contains  r  */
+  t->rnnb = p->next->next;          /* (the "b" in their names is in error) */
 } /* unrooted_tree_save_lr_nodes */
 
 

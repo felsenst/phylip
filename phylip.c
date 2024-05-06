@@ -4186,7 +4186,7 @@ void generic_tree_save_traverses(struct tree* t, struct node* q)
 } /* generic_tree_save_traverses */
 
 
-void generic_tree_restore_traverses(struct tree* t, struct node *p); 
+void generic_tree_restore_traverses(struct tree* t, struct node *p)
 {
  /* Restores branch legths to p and q (args to re_move) from
   * temp_p and temp_q nodes in t
