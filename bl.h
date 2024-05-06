@@ -69,7 +69,7 @@ boolean bl_tree_try_insert_(struct tree*, struct node*, struct node*,
                               struct node*, double*, struct tree*, 
                               boolean, boolean, boolean, double*);
 boolean bl_tree_try_insert_thorough(struct tree*, struct node*, 
-                                      struct node*, struct node*, 
+                                      struct node*, struct node**, 
                                       double*, struct tree*, 
                                       boolean, boolean, boolean);
 void    bl_tree_save_traverses(struct tree*, struct node*, struct node*);
