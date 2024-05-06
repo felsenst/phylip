@@ -4571,8 +4571,8 @@ void generic_tree_insert_(struct tree* t, struct node* p, struct node* q,
 
     if (q->back != NULL) {      /* unless  q  is the root and nothing below */
       r = q->back;
-      hookup(p->next->next, q);   /* trying to hook up exactly the same way */
-      hookup(p->next, r);
+      hookup(p->next, q);   /* trying to hook up exactly the same way */
+      hookup(p->next->next, r);  /* debug: is this the right way? */
       t->do_branchl_on_insert_f(t, p, q);
       }
     else {                                         /* if q is the root fork */
