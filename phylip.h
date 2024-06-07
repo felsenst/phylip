@@ -625,7 +625,7 @@ struct tree {                                         /* the tree structure */
   long nonodes;     /* the number of nodes needed for tips and fork circles */
   long spp;                                  /* the number of tip "species" */
 
-  struct node *temp_p, * temp_q;   /* generic temporary nodes, used to save */
+  struct node *temp_p, *temp_q;    /* generic temporary nodes, used to save */
 
   /* for local rearrangement */
   struct node **lrsaves;
@@ -889,11 +889,9 @@ void		rooted_repreorder(struct tree*, struct node*, boolean*);
 void            rooted_locrearrange(struct tree*, struct node*, boolean, 
                                       double*, struct tree*, struct tree*, 
                                       boolean, double*);
-void            generic_tree_save_lr_nodes(struct tree*, struct node*, 
-		                                          struct node*);
+void            generic_tree_save_lr_nodes(struct tree*, struct node*);
 void            generic_tree_restore_lr_nodes(struct tree*, struct node*);
-void            rooted_tree_save_lr_nodes(struct tree*, struct node*, 
-		                                         struct node*);
+void            rooted_tree_save_lr_nodes(struct tree*, struct node*);
 void            rooted_tree_restore_lr_nodes(struct tree*, struct node*, 
 		                                            struct node*);
 

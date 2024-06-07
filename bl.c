@@ -333,8 +333,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
 } /* bl_tree_insert_ */
 
 
-void generic_tree_save_lr_nodes(struct tree* t, struct node* p, 
-		                                 struct node* q) {
+void generic_tree_save_lr_nodes(struct tree* t, struct node* p) {
   /* null operations if not replaced by polymorphic variant */
 } /* generic_tree_save_lr_nodes */
 

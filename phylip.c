@@ -4125,7 +4125,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     r = p->back;        /* these are the two connected and might be removed */
     rr = r->next;                   /* pointer to fork node used in removal */
     if (thorough)      /* debug:  why is this here, never true? */
-      t->save_lr_nodes(t, p, rr);             /* save the views at the fork */
+      t->save_lr_nodes(t, p);                 /* save the views at the fork */
 /* debug: seetree(t); */ 
 /* debug */ printf("locrearrrecurs: remove: %ld:%ld\n", rr->index, rr->back->index);
     t->re_move(t, rr, &q, false);    /* remove r with subtree to back of it */
@@ -4140,7 +4140,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
     t->insert_(t, rr, qwhere, false);            /* put it in best location */
     if ((qwhere == q) || (qwhere == q->back) ) { /* debug: what is going on here? */
       t->insert_(t, rr, qwhere, false);          /* put it in best location */
-      t->restore_lr_nodes(t, p, r);
+      t->restore_lr_nodes(t, p);
       t->score = *bestyet;
       succeeded = false;
     }
@@ -4181,8 +4181,9 @@ void generic_tree_save_traverses(struct tree* t, struct node* q)
   struct node* qb;
 
   q->node_copy(q, t->temp_q);
+  qb = q->back;
   if (qb != NULL)
-    qb->node_copy(qb ,t->temp_qb);
+    qb->node_copy(qb ,t->temp_q);
 } /* generic_tree_save_traverses */
 
 
@@ -4192,11 +4193,12 @@ void generic_tree_restore_traverses(struct tree* t, struct node *p)
   * temp_p and temp_q nodes in t
  */
 /* debug:  these are generic versions but need to have this function be hierarchical too */
+  struct node* pb;
 
   t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
-  pb = )struct node*)(p->back);
+  pb = (struct node*)(p->back);
   if (pb != NULL)
-    t->temp_q->node_copy(t->temp_qb, pb);
+    t->temp_q->node_copy(t->temp_q, pb);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, pb);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
@@ -4231,13 +4233,13 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
   oldlike = t->score;
 
   whereto = t->nodep[forknode->back->index - 1];
-  t->save_lr_nodes(t, p, whereto);
+  t->save_lr_nodes(t, p);
   t->re_move(t, p, &where, false);
   t->insert_(t, p, whereto, false);
   like = t->evaluate(t, p, false);
   t->score = like;
   if (like - oldlike < LIKE_EPSILON) {
-    t->restore_lr_nodes(t, p, whereto);
+    t->restore_lr_nodes(t, p);
     t->score = oldlike;
   } else {
     (*success) = true;
@@ -4285,12 +4287,13 @@ void rooted_locrearrange(tree* t, node* start, boolean thorough,
 }  /* rooted_locrearrange */
 
 
-void rooted_tree_save_lr_nodes(tree* t, node* p, node* whereto)
+void rooted_tree_save_lr_nodes(tree* t, node* p)
+  /* save views at nearby nodes */
 {
   node* forknode = t->nodep[p->back->index - 1];
 
   p->back->node_copy(p->back, t->lrsaves[0]);
-  whereto->node_copy(whereto, t->lrsaves[1]);
+  p->next->back->node_copy(p->next->back, t->lrsaves[1]);
 
   t->rnb = forknode->back;
   if ( p == forknode->next->back ) {
@@ -4300,7 +4303,7 @@ void rooted_tree_save_lr_nodes(tree* t, node* p, node* whereto)
     t->onleft = true;
     t->rnnb = forknode->next->back;
   }
-  whereto->initialized = false;
+  p->next->back->initialized = false;
   p->back->initialized = false;
 } /* rooted_tree_save_lr_nodes */
 
@@ -4312,7 +4315,7 @@ void rooted_tree_restore_lr_nodes(tree* t, node* p, node* whereto)
 
   if ( p == forknode->next->back ) {
     if (forknode->back != NULL)
-      hookup( forknode->back, forknode->next->next->back);
+      hookup(forknode->back, forknode->next->next->back);
     else {
       forknode->next->next->back->back = NULL;
       t->root = forknode->next->next->back;
@@ -5151,7 +5154,7 @@ void seetree(tree *t)
   Slist_node_ptr q;
 
   printf(" number of nodes = %ld\n", nonodes);
-  for (i = 0; i < nonodes; ++i)                       /* for each node ...  */
+  for (i = 0; i < t->nonodes; ++i)                    /* for each node ...  */
   {
     qq = t->nodep[i];
     if (qq == NULL) {
