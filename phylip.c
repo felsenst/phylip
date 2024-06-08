@@ -4116,7 +4116,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
    * has at either end the rootmost fork.
    * debug:  (this function doesn't yet handle multifurcations)
    */
-  node *q, *r, *rr, *qwhere;
+  struct node *q, *r, *rr, *qwhere;
   boolean succeeded;
 
   qwhere = NULL;
@@ -5151,7 +5151,7 @@ void seetree(tree *t)
   long int i, n;
   long int nonodes = t->nonodes;
   boolean malformed;
-  Slist_node_ptr q;
+  Slist_node_ptr q = NULL;
 
   printf(" number of nodes = %ld\n", nonodes);
   for (i = 0; i < t->nonodes; ++i)                    /* for each node ...  */

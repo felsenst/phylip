@@ -231,8 +231,6 @@ void bl_tree_smoothall(struct tree* t, node* p)
     inittrav(t, p->back);
   }
 
-
-
   if ( p->tip )
     p = p->back;
 
