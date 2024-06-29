@@ -3909,10 +3909,10 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
           for ( sib_ptr = q->back->next; sib_ptr != q->back;
                                            sib_ptr = sib_ptr->next)
           {
-/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
             if ( !(sib_ptr->back == NULL)) { /* not go out nil root pointer */
-/* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
-/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug */printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
+/* debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
                                  storing, &atstart, bestfound) || succeeded;
@@ -4819,9 +4819,9 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   boolean succeeded, bettertree;
 
   succeeded = false;
-/* debug: printf("try_insert: starts with tree:\n"); seetree(t); */
+/* debug: */ printf("try_insert: starts with tree:\n"); seetree(t); /* debug */
    t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
-/* debug: printf("try_insert: then gets tree:\n"); seetree(t); */ 
+/* debug: */ printf("try_insert: then gets tree:\n"); seetree(t); /* debug */ 
   inittrav(t, t->root);
   inittrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
