@@ -3893,7 +3893,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
         if ( sib_ptr != NULL )
-/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr);
+/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p, %ld\n", sib_ptr, sib_ptr->index);
           if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
 /*  debug */ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
@@ -4196,10 +4196,13 @@ void generic_tree_restore_traverses(struct tree* t, struct node *p)
 /* debug:  these are generic versions but need to have this function be hierarchical too */
   struct node* pb;
 
-  t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
+  /* debug:  some copying over tips here? */
+  if (!p->tip)
+    t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
   pb = (struct node*)(p->back);
   if (pb != NULL)
-    t->temp_q->node_copy(t->temp_q, pb);
+    if (!pb->tip)
+      t->temp_q->node_copy(t->temp_q, pb);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, pb);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
