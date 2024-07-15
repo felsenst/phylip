@@ -76,6 +76,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
     t->get_fork = (tree_get_fork_t)generic_tree_get_fork;
   t->release_forknode = generic_tree_release_forknode;
 #if 0
+  /* debug:  do we want these commented out? */
   t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
   t->re_move = (tree_re_move_t)bl_tree_re_move;
@@ -3892,7 +3893,7 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
         if ( sib_ptr != NULL )
-/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr);
+/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p, %ld\n", sib_ptr, sib_ptr->index);
           if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
 /*  debug */ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
@@ -3909,10 +3910,10 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
           for ( sib_ptr = q->back->next; sib_ptr != q->back;
                                            sib_ptr = sib_ptr->next)
           {
-/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
             if ( !(sib_ptr->back == NULL)) { /* not go out nil root pointer */
-/* printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); debug */
-/* printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug */printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back); /* debug */
+/* debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); /* debug */
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
                                  storing, &atstart, bestfound) || succeeded;
@@ -4195,10 +4196,13 @@ void generic_tree_restore_traverses(struct tree* t, struct node *p)
 /* debug:  these are generic versions but need to have this function be hierarchical too */
   struct node* pb;
 
-  t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
+  /* debug:  some copying over tips here? */
+  if (!p->tip)
+    t->temp_q->node_copy(t->temp_q, p);  /* debug: how differs from node copy (it does!) */
   pb = (struct node*)(p->back);
   if (pb != NULL)
-    t->temp_q->node_copy(t->temp_q, pb);
+    if (!pb->tip)
+      t->temp_q->node_copy(t->temp_q, pb);
   inittrav(t, p);    /* inittrav calls set inward-looking "initialized" ... */
   inittrav(t, pb);                             /* ... booleans to  false ... */
   /* BUG.970 -- might be more correct to do all inittravs after ->v updates */
@@ -4433,6 +4437,8 @@ void generic_tree_nuview(struct tree* t, struct node* p)
   struct node *sib_ptr;
 
   if (!p->tip) {                       /* is this end of the branch a fork? */
+    if (p->back != NULL)
+      printf("nuview %ld, looking from %ld\n", p->index, p->back->index); /* debug */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
         if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
@@ -4819,9 +4825,9 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
   boolean succeeded, bettertree;
 
   succeeded = false;
-/* debug: printf("try_insert: starts with tree:\n"); seetree(t); */
+/* debug: */ printf("try_insert: starts with tree:\n"); seetree(t); /* debug */
    t->insert_(t, p, q, false);                 /* try inserting  p  near  q */
-/* debug: printf("try_insert: then gets tree:\n"); seetree(t); */ 
+/* debug: */ printf("try_insert: then gets tree:\n"); seetree(t); /* debug */ 
   inittrav(t, t->root);
   inittrav(t, t->root->back);
   like = t->evaluate(t, t->root, false);
