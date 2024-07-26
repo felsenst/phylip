@@ -1412,13 +1412,17 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       {
         y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
         if (y < epsilon)
-          y = epsilon;                        /* don't get too close to zero */
+          y = epsilon;             /* don't get too close to, or below, zero */
       }
       else
       {
-        if (fabs(y - yold) < epsilon)          /* if change is too small ... */
-          ite = 20;                      /* then don't do any more iterating */
-        y = (y + 19*yold) / 20.0;                 /* retract 95% of way back */
+        if (y < 0.0)
+          y = epsilon;
+        else {
+          y = (y + 19*yold) / 20.0;               /* retract 95% of way back */
+          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
+            ite = 20;                    /* then don't do any more iterating */
+          }
       }
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
