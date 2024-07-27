@@ -1534,7 +1534,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);
   if (p == curtree->root)
-    p->ycoord = p->next->next->back->ycoord;
+    p->ycoord = p->next->back->ycoord;
   else
     p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;
