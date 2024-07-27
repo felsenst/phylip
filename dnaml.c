@@ -1376,8 +1376,8 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 /* debug  */ printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);
 /* debug */ printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]);
   if ((p->index == outgrno) || (p->back->index == outgrno)) {
-    ((struct bl_node*)p)->v = initialv;
-    ((struct bl_node*)(p->back))->v = initialv;
+    ((struct bl_node*)p)->v = epsilon;
+    ((struct bl_node*)(p->back))->v = epsilon;
   } else {
     q = p->back;
     y = ((struct bl_node*)p)->v;
@@ -1389,7 +1389,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
-printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, yold, like, slope, curve); /* debug */
+printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
       better = false;
       if (firsttime)               /* if no older value of y to compare with */
       {
@@ -1412,16 +1412,21 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       {
         y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
         if (y < epsilon)
-          y = epsilon;                        /* don't get too close to zero */
+          y = epsilon;             /* don't get too close to, or below, zero */
       }
       else
       {
-        if (fabs(y - yold) < epsilon)          /* if change is too small ... */
-          ite = 20;                      /* then don't do any more iterating */
-        y = (y + 19*yold) / 20.0;                 /* retract 95% of way back */
+        if (y < 0.0)
+          y = epsilon;
+        else {
+          y = (y + 19*yold) / 20.0;               /* retract 95% of way back */
+          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
+            ite = 20;                    /* then don't do any more iterating */
+          }
       }
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
+/* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
@@ -1554,7 +1559,7 @@ void dnaml_printree(void)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  dnaml_coordinates(curtree->root, 0.0, &tipy, &tipmax);
+  dnaml_coordinates(curtree->root->next->next, 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)
     drawline2(i, scale, curtree);
