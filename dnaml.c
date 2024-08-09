@@ -1359,7 +1359,7 @@ void slopecurv(struct node *p, double y, double *like,
   (*like) = sum;
   (*slope) = slope2 / sum2;
 
-  /* Expressed in terms of *slope to prevent overflow */
+  /* compute curvature of log L to avoid overflow */
   (*curve) = curve2 / sum2 - *slope * *slope;
 } /* slopecurv */
 
@@ -1410,7 +1410,10 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       }
       if (better)
       {
-        y = y + slope/fabs(curve);    /* Newton-Raphson, forced uphill-wards */
+        if (curve < 0.0)
+          y = y - slope/curve;                      /* Newton-Raphson method */
+        else if (curve > 0.0)
+          y = y - 2.0*slope/curve;  /* adjust NR method to overshoot minimum */
         if (y < epsilon)
           y = epsilon;             /* don't get too close to, or below, zero */
       }
