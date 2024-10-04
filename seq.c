@@ -643,7 +643,7 @@ void drawline2(long i, double scale, struct tree* curtree)
   assert(p->index > 0);                 // RSGdebug
 
   extra = false;
-  if (i == (long)p->ycoord && p == curtree->root)
+  if ((i == (long)p->ycoord) && (p == curtree->root))
   {
     if (p->index - spp >= 10)
       fprintf(outfile, " %2ld", p->index - spp);
