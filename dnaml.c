@@ -2221,8 +2221,14 @@ void maketree(void)
                  (struct node *)q);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (outgrno == enterorder[nextsp-1]+1)
+      if (outgrno == (enterorder[nextsp-1]+1))        /* connect root here? */
         curtree->root = curtree->nodep[outgrno-1];
+      else {         /* ... or at least connect root to lowest-numbered tip */
+        if (currentoutgrno > enterorder[nextsp-1]) {
+          currentoutgrno = enterorder[nextsp-1];
+          curtree->root = curtree->nodep[currentoutgrno-1];
+        }
+      }
 /* debug:  here make sure add rootmost fork in right place */
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);
