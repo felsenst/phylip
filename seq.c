@@ -634,9 +634,8 @@ void drawline2(long i, double scale, struct tree* curtree)
    * used in dnaml, proml, & restml */
   struct node *p, *q;
   long n, j;
-  boolean extra;
+  boolean extra, done;
   struct node *r, *first =NULL, *last =NULL;
-  boolean done;
 
   p = curtree->root;
   q = curtree->root;
@@ -672,7 +671,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       if (p->next->back != NULL) {
         first = p->next->back;
       } else {
-        first = p->next->next->back;
+        first = p->back;
       }
       r = p;
       while (r->next != p) {
