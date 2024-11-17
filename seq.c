@@ -509,7 +509,7 @@ void drawline(long i, double scale, struct bl_node *rt)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i && !done)
+    if (((long)q->ycoord == i) && !done)
     {
       if (noplus)
       {
@@ -538,7 +538,8 @@ void drawline(long i, double scale, struct bl_node *rt)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i && i != (long)p->ycoord)
+      if (((long)last->ycoord > i) && ((long)first->ycoord < i) 
+          && (i != (long)p->ycoord))
       {
         putc('!', outfile);
         for (j = 1; j < n; j++)
@@ -560,7 +561,7 @@ void drawline(long i, double scale, struct bl_node *rt)
     if (p != q)
       p = q;
   } while (!done);
-  if ((long)p->ycoord == i && p->tip)
+  if (((long)p->ycoord == i) && p->tip)
   {
     assert(p->index > 0);               // RSGdebug
     for (j = 0; j < nmlngth; j++)
