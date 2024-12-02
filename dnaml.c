@@ -1413,7 +1413,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         if (curve < 0.0)
           y = y - slope/curve;                      /* Newton-Raphson method */
         else if (curve > 0.0)
-          y = y - 2.0*slope/curve;  /* adjust NR method to overshoot minimum */
+          y = y - 0.5*slope/curve; /* adjust NR method to undershoot minimum */
         if (y < epsilon)
           y = 10.0*epsilon;        /* don't get too close to, or below, zero */
       }
