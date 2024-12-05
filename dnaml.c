@@ -1368,7 +1368,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0;
+  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
   boolean done, firsttime, better;
   struct node *q;
 
@@ -1386,6 +1386,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     firsttime = true;
     it = 1;
     ite = 0;
+    delta = y;
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
@@ -1410,15 +1411,20 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       }
       if (better)
       {
-        if (curve < 0.0)
-          y = y - slope/curve;                      /* Newton-Raphson method */
-        else if (curve > 0.0)
-          y = y - 0.5*slope/curve; /* adjust NR method to undershoot minimum */
-        if (y < epsilon)
+        if (curve < 0)          /* if relevant stationary point is a maximum */
+          y = y - slope/curve;          /* ... use the Newton-Raphson method */
+        if (y < epsilon)           /* adjust NR method to undershoot minimum */
           y = 10.0*epsilon;        /* don't get too close to, or below, zero */
+	if (curve > 0) {
+	  delta = delta / 2.0;
+	  if (slope > 0)
+            y = y + delta;
+	  else
+            y = y - delta;
+          }
       }
-      else
-      {
+#if 0
+      else {    /* debug: not sure what this part is :-)  */
         if (y < 0.0)
           y = 10.0*epsilon;
         else {
@@ -1427,6 +1433,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             ite = 20;                    /* then don't do any more iterating */
           }
       }
+#endif
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
