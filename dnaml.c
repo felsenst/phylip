@@ -1406,6 +1406,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           yold = y;
           oldlike = like;
           better = true;
+          firsttime = false;
+          better = false;
         }
         it++;
       }
@@ -1413,10 +1415,13 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       {
         if (curve < 0)          /* if relevant stationary point is a maximum */
           y = y - slope/curve;          /* ... use the Newton-Raphson method */
-        if (y < epsilon)           /* adjust NR method to undershoot minimum */
+        if (y < epsilon) {           /* adjust NR method to undershoot minimum */
           y = 10.0*epsilon;        /* don't get too close to, or below, zero */
+          slopecurv (p, y, &like, &slope, &curve);
+printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
+        }
 	if (curve > 0) {
-	  delta = delta / 2.0;
+	  delta = delta * 2.0;
 	  if (slope > 0)
             y = y + delta;
 	  else
