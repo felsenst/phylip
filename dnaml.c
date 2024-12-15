@@ -1368,7 +1368,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
+  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
   boolean done, firsttime, better;
   struct node *q;
 
@@ -1385,16 +1385,15 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     done = false;
     firsttime = true;
     it = 1;
-    ite = 0;
-    delta = y;
+    ite = 0;  /* debug:  why separate it and ite? */
+    delta = y;                    /* step size for non-Newton-Raphson steps */
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
       better = false;
-      if (firsttime)               /* if no older value of y to compare with */
+      if (firsttime)              /* if no older value of y to compare with */
       {
-        yold = y;
         oldlike = like;
         firsttime = false;
         better = true;
@@ -1407,23 +1406,19 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           oldlike = like;
           better = true;
           firsttime = false;
-          better = false;
         }
-        it++;
       }
       if (better)
       {
-        if (curve < 0) {        /* if relevant stationary point is a maximum */
+        if (curve < 0.0) {      /* if relevant stationary point is a maximum */
           y = y - slope/curve;          /* ... use the Newton-Raphson method */
           if (y < epsilon)         /* adjust NR method to undershoot minimum */
             y = 10.0*epsilon;      /* don't get too close to, or below, zero */
 	}
-	if (curve > 0) {
+	if (curve > 0.0) {
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-        }
-	if (curve > 0) {
 	  delta = delta * 2.0;
-	  if (slope > 0)
+	  if (slope > 0.0)
             y = y + delta;
 	  else {
 	    delta = delta / 2.0;
@@ -1431,17 +1426,12 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  }
         }
       }
-#if 0
-      else {    /* debug: not sure what this part is :-)  */
-        if (y < 0.0)
-          y = 10.0*epsilon;
-        else {
-          y = (y + 19*yold) / 20.0;               /* retract 95% of way back */
+      else {                           /* when the newer likelihood is worse */
+	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
             ite = 20;                    /* then don't do any more iterating */
           }
       }
-#endif
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
