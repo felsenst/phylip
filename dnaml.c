@@ -1369,7 +1369,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
   double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
-  boolean done, firsttime, better;
+  boolean done, firsttime, better, wasnr;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1397,7 +1397,37 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         oldlike = like;
         firsttime = false;
         better = true;
+	if curve < 0.0 {
+          y = y - slope / curve;                /* Newton-Raphson iteration */   
+	  if y < 0.0 {
+	    y = epsilon;                     /* do not allow to go negative */
+	  }	  
+	  wasnr = true;
+	} else {                            /* when can't do Newton-Raphson */
+	  if (slope > 0.0)
+            y = y + delta;
+	  else
+            y = y - delta;
+	  wasnr = false;
+	}
       }
+      else {                                       /* if not the first time */
+	if curve < 0.0 {
+          y = y - slope / curve;                /* Newton-Raphson iteration */   
+	  if y < 0.0 {
+	    y = epsilon;                     /* do not allow to go negative */
+	  }	  
+	  wasnr = true;
+	} else {                            /* when can't do Newton-Raphson */
+	  delta = y/2.0;
+	  if (slope > 0.0)
+            y = y + delta;
+	  else
+            y = y - delta;
+	  wasnr = false;
+	}
+
+      }  /* debug: obsolete? */
       else
       {
         if (like > oldlike)     /* update the value of yold if it was better */
@@ -1406,24 +1436,6 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           oldlike = like;
           better = true;
           firsttime = false;
-        }
-      }
-      if (better)
-      {
-        if (curve < 0.0) {      /* if relevant stationary point is a maximum */
-          y = y - slope/curve;          /* ... use the Newton-Raphson method */
-          if (y < epsilon)         /* adjust NR method to undershoot minimum */
-            y = 10.0*epsilon;      /* don't get too close to, or below, zero */
-	}
-	if (curve > 0.0) {
-printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-	  delta = delta * 2.0;
-	  if (slope > 0.0)
-            y = y + delta;
-	  else {
-	    delta = delta / 2.0;
-            y = y - delta;
-	  }
         }
       }
       else {                           /* when the newer likelihood is worse */
