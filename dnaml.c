@@ -1386,7 +1386,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     firsttime = true;
     it = 1;
     ite = 0;  /* debug:  why separate it and ite? */
-    delta = y;                    /* step size for non-Newton-Raphson steps */
+    delta = y/2.0;                    /* step size for non-Newton-Raphson steps */
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
@@ -1412,14 +1412,20 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	}
       }
       else {                                       /* if not the first time */
+	if (like > oldlike) {
+	  better = true;
+	  oldlike = like;
+	  yold = y;
+	} else {
+          better = false;
+	}
 	if curve < 0.0 {
           y = y - slope / curve;                /* Newton-Raphson iteration */   
 	  if y < 0.0 {
-	    y = epsilon;                     /* do not allow to go negative */
+	    y = 10.0*epsilon;                /* do not allow to go negative */
 	  }	  
 	  wasnr = true;
 	} else {                            /* when can't do Newton-Raphson */
-	  delta = y/2.0;
 	  if (slope > 0.0)
             y = y + delta;
 	  else
