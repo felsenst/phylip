@@ -1412,28 +1412,28 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	}
       }
       else {                                       /* if not the first time */
-	if (like > oldlike) {
+	if (like > oldlike) {                 /* if likelihood has improved */
 	  better = true;
-	  oldlike = like;
-	  yold = y;
+	  delta = fabs(y - yold);                           /* step we made */
+	  oldlike = like;                          /* update likelihood ... */
+	  yold = y;                                /* ... and branch length */
 	} else {
           better = false;
 	}
-	if curve < 0.0 {
-          y = y - slope / curve;                /* Newton-Raphson iteration */   
-	  if y < 0.0 {
-	    y = 10.0*epsilon;                /* do not allow to go negative */
-	  }	  
-	  wasnr = true;
-	} else {                            /* when can't do Newton-Raphson */
-	  if (slope > 0.0)
-            y = y + delta;
-	  else
-            y = y - delta;
-	  wasnr = false;
-	}
+	if (better) {
+	  if curve < 0.0 {
+            delta = - slope/curve;                /* Newton-Raphson iteration */
+	    wasnr = true;
+	    }	  
+	  } else {                            /* when can't do Newton-Raphson */
+	    if (slope > 0.0)
+              y = y + delta;
+	    else
+              y = y - delta;
+	    wasnr = false;
+	  }
 
-      }  /* debug: obsolete? */
+      }  /* debug: obsolete after that? */
       else
       {
         if (like > oldlike)     /* update the value of yold if it was better */
@@ -1455,9 +1455,9 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
-    ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
+    ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
-    ((struct tree*)t)->score = oldlike;
+    ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
   }
 }  /* dnaml_tree_makenewv */
 
