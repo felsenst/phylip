@@ -538,7 +538,8 @@ void drawline(long i, double scale, struct bl_node *rt)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i && i != (long)p->ycoord)
+      if ((long)last->ycoord > i && (long)first->ycoord < i)
+/* debug && i != (long)p->ycoord)    debug */
       {
         putc('!', outfile);
         for (j = 1; j < n; j++)
@@ -718,8 +719,9 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i
-            && (i != (long)p->ycoord || p == curtree->root))
+      if ((((long)last->ycoord > i) && ((long)first->ycoord < i))
+          && ((i != (long)p->ycoord) ||
+              (p->back->index == curtree->outgrno)))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
