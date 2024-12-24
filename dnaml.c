@@ -1368,13 +1368,13 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0;
-  boolean done, firsttime, better;
+  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
+  boolean done, firsttime, better, wasnr;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
 /* debug  */ printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);
-/* debug  */ printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]);
+/* debug */ printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]);
   if ((p->index == outgrno) || (p->back->index == outgrno)) {
     ((struct bl_node*)p)->v = epsilon;
     ((struct bl_node*)(p->back))->v = epsilon;
@@ -1385,19 +1385,55 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     done = false;
     firsttime = true;
     it = 1;
-    ite = 0;
+    ite = 0;  /* debug:  why separate it and ite? */
+    delta = y/2.0;                    /* step size for non-Newton-Raphson steps */
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
       better = false;
-      if (firsttime)               /* if no older value of y to compare with */
+      if (firsttime)              /* if no older value of y to compare with */
       {
-        yold = y;
         oldlike = like;
         firsttime = false;
         better = true;
+	if curve < 0.0 {
+          y = y - slope / curve;                /* Newton-Raphson iteration */   
+	  if y < 0.0 {
+	    y = epsilon;                     /* do not allow to go negative */
+	  }	  
+	  wasnr = true;
+	} else {                            /* when can't do Newton-Raphson */
+	  if (slope > 0.0)
+            y = y + delta;
+	  else
+            y = y - delta;
+	  wasnr = false;
+	}
       }
+      else {                                       /* if not the first time */
+	if (like > oldlike) {
+	  better = true;
+	  oldlike = like;
+	  yold = y;
+	} else {
+          better = false;
+	}
+	if curve < 0.0 {
+          y = y - slope / curve;                /* Newton-Raphson iteration */   
+	  if y < 0.0 {
+	    y = 10.0*epsilon;                /* do not allow to go negative */
+	  }	  
+	  wasnr = true;
+	} else {                            /* when can't do Newton-Raphson */
+	  if (slope > 0.0)
+            y = y + delta;
+	  else
+            y = y - delta;
+	  wasnr = false;
+	}
+
+      }  /* debug: obsolete? */
       else
       {
         if (like > oldlike)     /* update the value of yold if it was better */
@@ -1405,24 +1441,11 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           yold = y;
           oldlike = like;
           better = true;
+          firsttime = false;
         }
-        it++;
       }
-      if (better)
-      {
-        if (curve < 0.0)
-          y = y - slope/curve;                      /* Newton-Raphson method */
-        else if (curve > 0.0)
-          y = y - 2.0*slope/curve;  /* adjust NR method to overshoot minimum */
-        if (y < epsilon)
-          y = epsilon;             /* don't get too close to, or below, zero */
-      }
-      else
-      {
-        if (y < 0.0)
-          y = epsilon;
-        else {
-          y = (y + 19*yold) / 20.0;               /* retract 95% of way back */
+      else {                           /* when the newer likelihood is worse */
+	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
             ite = 20;                    /* then don't do any more iterating */
           }
@@ -1542,7 +1565,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);
   if (p == curtree->root)
-    p->ycoord = p->next->next->back->ycoord;
+    p->ycoord = p->next->back->ycoord;
   else
     p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;
@@ -2221,8 +2244,14 @@ void maketree(void)
                  (struct node *)q);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
-      if (outgrno == enterorder[nextsp-1]+1)
+      if (outgrno == (enterorder[nextsp-1]+1))        /* connect root here? */
         curtree->root = curtree->nodep[outgrno-1];
+      else {         /* ... or at least connect root to lowest-numbered tip */
+        if (currentoutgrno > enterorder[nextsp-1]) {
+          currentoutgrno = enterorder[nextsp-1];
+          curtree->root = curtree->nodep[currentoutgrno-1];
+        }
+      }
 /* debug:  here make sure add rootmost fork in right place */
       if (smoothit)  /* debug: necessary? */
         curtree->copy(curtree, priortree);

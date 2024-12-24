@@ -509,7 +509,7 @@ void drawline(long i, double scale, struct bl_node *rt)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i && !done)
+    if (((long)q->ycoord == i) && !done)
     {
       if (noplus)
       {
@@ -538,8 +538,8 @@ void drawline(long i, double scale, struct bl_node *rt)
     }
     else if (!p->tip)
     {
-      if ((long)last->ycoord > i && (long)first->ycoord < i)
-/* debug && i != (long)p->ycoord)    debug */
+      if (((long)last->ycoord > i) && ((long)first->ycoord < i) 
+          && (i != (long)p->ycoord))
       {
         putc('!', outfile);
         for (j = 1; j < n; j++)
@@ -561,7 +561,7 @@ void drawline(long i, double scale, struct bl_node *rt)
     if (p != q)
       p = q;
   } while (!done);
-  if ((long)p->ycoord == i && p->tip)
+  if (((long)p->ycoord == i) && p->tip)
   {
     assert(p->index > 0);               // RSGdebug
     for (j = 0; j < nmlngth; j++)
@@ -635,16 +635,15 @@ void drawline2(long i, double scale, struct tree* curtree)
    * used in dnaml, proml, & restml */
   struct node *p, *q;
   long n, j;
-  boolean extra;
+  boolean extra, done;
   struct node *r, *first =NULL, *last =NULL;
-  boolean done;
 
   p = curtree->root;
   q = curtree->root;
   assert(p->index > 0);                 // RSGdebug
 
   extra = false;
-  if (i == (long)p->ycoord && p == curtree->root)
+  if ((i == (long)p->ycoord) && (p == curtree->root))
   {
     if (p->index - spp >= 10)
       fprintf(outfile, " %2ld", p->index - spp);
@@ -673,7 +672,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       if (p->next->back != NULL) {
         first = p->next->back;
       } else {
-        first = p->next->next->back;
+        first = p->back;
       }
       r = p;
       while (r->next != p) {
@@ -719,16 +718,14 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else if (!p->tip)
     {
-      if ((((long)last->ycoord > i) && ((long)first->ycoord < i))
-          && ((i != (long)p->ycoord) ||
-              (p->back->index == curtree->outgrno)))
+      if (((long)last->ycoord > i) && ((long)first->ycoord < i)
+            && ((i != (long)p->ycoord) || (p == curtree->root)))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
           putc(' ', outfile);
       }
-      else
-      {
+      else {
         for (j = 1; j <= n; j++)
           putc(' ', outfile);
       }
