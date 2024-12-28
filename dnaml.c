@@ -1366,7 +1366,7 @@ void slopecurv(struct node *p, double y, double *like,
 
 void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
-  /* Newton-Raphson algorithm improvement of a branch length */
+ /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
   double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
   boolean done, firsttime, better, wasnr;
@@ -1386,7 +1386,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     firsttime = true;
     it = 1;
     ite = 0;  /* debug:  why separate it and ite? */
-    delta = y/2.0;                    /* step size for non-Newton-Raphson steps */
+    delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
@@ -1414,17 +1414,32 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       else {                                       /* if not the first time */
 	if (like > oldlike) {                 /* if likelihood has improved */
 	  better = true;
-	  delta = fabs(y - yold);                           /* step we made */
+          if (y < yold) {                         /* if headed towards zero */           
+	    if (curve < 0.0) {                       /* curvature allows NR */
+              delta = - slope/curve;            /* Newton-Raphson iteration */
+	      wasnr = true;
+	    } else {                      /* if curvature does not allow NR */
+              if (y < 0.0) {
+                y = y/2.0;                       /* only go halfway to zero */
+                delta = y/2.0;
+              } else {
+            }
+HEADED ABOVE y
+          }
+        }
+GET RIGHT HERE, REMOVE BELOW
+        else {                        /* if  y > yold so headed above y ... */          
 	  oldlike = like;                          /* update likelihood ... */
-	  yold = y;                                /* ... and branch length */
-	} else {
-          better = false;
-	}
+          delta = 2.0*(y - yold);            /* set delta to half last step */ 
+	  yold = y;                                 /* update branch length */
+        }
+      } else {                                   /* if likelihood worse ... */
+        better = false;
+        delta = fabs(y-yold)/2.0;                          /* smaller delta */
+        y = (y + yold)/2.0;                       /* try halfway in between */
+      }
+CURVE < 0? REMOVE: ?
 	if (better) {
-	  if curve < 0.0 {
-            delta = - slope/curve;                /* Newton-Raphson iteration */
-	    wasnr = true;
-	    }	  
 	  } else {                            /* when can't do Newton-Raphson */
 	    if (slope > 0.0)
               y = y + delta;
