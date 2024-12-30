@@ -1370,7 +1370,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   long it, ite;
   double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
   boolean done, firsttime, better;
-  struct node *q;
+  struct node* q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
 /* debug  */ printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);
@@ -1407,7 +1407,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           oldlike = like;
           better = true;
           firsttime = false;
-          better = false;
+          better = true;
         }
         it++;
       }
