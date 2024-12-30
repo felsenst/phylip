@@ -1366,11 +1366,11 @@ void slopecurv(struct node *p, double y, double *like,
 
 void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
-  /* Newton-Raphson algorithm improvement of a branch length */
+ /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
-  boolean done, firsttime, better;
-  struct node* q;
+  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
+  boolean done, firsttime, better, wasnr;
+  struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
 /* debug  */ printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);
@@ -1385,20 +1385,70 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     done = false;
     firsttime = true;
     it = 1;
-    ite = 0;
-    delta = y;
+    ite = 0;  /* debug:  why separate it and ite? */
+    delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
       better = false;
-      if (firsttime)               /* if no older value of y to compare with */
+      if (firsttime)              /* if no older value of y to compare with */
       {
-        yold = y;
         oldlike = like;
         firsttime = false;
         better = true;
+	if curve < 0.0 {
+          y = y - slope / curve;                /* Newton-Raphson iteration */   
+	  if y < 0.0 {
+	    y = epsilon;                     /* do not allow to go negative */
+	  }	  
+	  wasnr = true;
+	} else {                            /* when can't do Newton-Raphson */
+	  if (slope > 0.0)
+            y = y + delta;
+	  else
+            y = y - delta;
+	  wasnr = false;
+	}
       }
+      else {                                       /* if not the first time */
+	if (like > oldlike) {                 /* if likelihood has improved */
+	  better = true;
+          if (y < yold) {                         /* if headed towards zero */           
+	    if (curve < 0.0) {                       /* curvature allows NR */
+              delta = - slope/curve;            /* Newton-Raphson iteration */
+	      wasnr = true;
+	    } else {                      /* if curvature does not allow NR */
+              if (y < 0.0) {
+                y = y/2.0;                       /* only go halfway to zero */
+                delta = y/2.0;
+              } else {
+            }
+HEADED ABOVE y
+          }
+        }
+GET RIGHT HERE, REMOVE BELOW
+        else {                        /* if  y > yold so headed above y ... */          
+	  oldlike = like;                          /* update likelihood ... */
+          delta = 2.0*(y - yold);            /* set delta to half last step */ 
+	  yold = y;                                 /* update branch length */
+        }
+      } else {                                   /* if likelihood worse ... */
+        better = false;
+        delta = fabs(y-yold)/2.0;                          /* smaller delta */
+        y = (y + yold)/2.0;                       /* try halfway in between */
+      }
+CURVE < 0? REMOVE: ?
+	if (better) {
+	  } else {                            /* when can't do Newton-Raphson */
+	    if (slope > 0.0)
+              y = y + delta;
+	    else
+              y = y - delta;
+	    wasnr = false;
+	  }
+
+      }  /* debug: obsolete after that? */
       else
       {
         if (like > oldlike)     /* update the value of yold if it was better */
@@ -1409,44 +1459,21 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           firsttime = false;
           better = true;
         }
-        it++;
       }
-      if (better)
-      {
-        if (curve < 0)          /* if relevant stationary point is a maximum */
-          y = y - slope/curve;          /* ... use the Newton-Raphson method */
-        if (y < epsilon) {           /* adjust NR method to undershoot minimum */
-          y = 10.0*epsilon;        /* don't get too close to, or below, zero */
-          slopecurv (p, y, &like, &slope, &curve);
-printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-        }
-	if (curve > 0) {
-	  delta = delta * 2.0;
-	  if (slope > 0)
-            y = y + delta;
-	  else
-            y = y - delta;
-          }
-      }
-#if 0
-      else {    /* debug: not sure what this part is :-)  */
-        if (y < 0.0)
-          y = 10.0*epsilon;
-        else {
-          y = (y + 19*yold) / 20.0;               /* retract 95% of way back */
+      else {                           /* when the newer likelihood is worse */
+	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
             ite = 20;                    /* then don't do any more iterating */
           }
       }
-#endif
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
-    ((struct bl_node*)p)->v = yold; /* the last one that had better likelihood */
+    ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
-    ((struct tree*)t)->score = oldlike;
+    ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
   }
 }  /* dnaml_tree_makenewv */
 
