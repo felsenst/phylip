@@ -1387,11 +1387,11 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     it = 1;
     ite = 0;  /* debug:  why separate it and ite? */
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
+    better = false;
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-      better = false;
       if (firsttime)              /* if no older value of y to compare with */
       {
         oldlike = like;
@@ -1414,52 +1414,35 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       else {                                       /* if not the first time */
 	if (like > oldlike) {                 /* if likelihood has improved */
 	  better = true;
-          if (y < yold) {                         /* if headed towards zero */           
-	    if (curve < 0.0) {                       /* curvature allows NR */
-              delta = - slope/curve;            /* Newton-Raphson iteration */
-	      wasnr = true;
-	    } else {                      /* if curvature does not allow NR */
-              if (y < 0.0) {
-                y = y/2.0;                       /* only go halfway to zero */
-                delta = y/2.0;
-              } else {
+          if (curv < 0.0) {
+            delta = - slope/curve;              /* Newton-Raphson iteration */
+	    wasnr = true;
+            if (y + delta <= 0.0)      /* if goes past zero, truncate there */
+              y = 10.0*epsilon;
+	  } else {                        /* if curvature does not allow NR */
+              delta = -y/2.0;
+            } else {                     /* if goes past old value of y ... */
+              if ((yorig > y) && (y + delta > yorig))
+                delta = (yorig - y)/2.0;    /* ... only go halfway to yorig */
+              if ((yorig < y) && (y + delta < yorig))
+                delta = (y - yorig)/2.0;    /* ... only go halfway to yorig */
+              if (((y < yorig) && (slope < 0.0)) ||
+                  ((y > yorig) && (slope > 0.0)))
+                delta = 2.0*delta;
+              else
+                delta = 0.5*delta;
             }
-HEADED ABOVE y
+                
+      
+
+
+
+              y = y + delta;                                /* try a new  y */
+              }
+            }
           }
         }
-GET RIGHT HERE, REMOVE BELOW
-        else {                        /* if  y > yold so headed above y ... */          
-	  oldlike = like;                          /* update likelihood ... */
-          delta = 2.0*(y - yold);            /* set delta to half last step */ 
-	  yold = y;                                 /* update branch length */
-        }
-      } else {                                   /* if likelihood worse ... */
-        better = false;
-        delta = fabs(y-yold)/2.0;                          /* smaller delta */
-        y = (y + yold)/2.0;                       /* try halfway in between */
-      }
-CURVE < 0? REMOVE: ?
-	if (better) {
-	  } else {                            /* when can't do Newton-Raphson */
-	    if (slope > 0.0)
-              y = y + delta;
-	    else
-              y = y - delta;
-	    wasnr = false;
-	  }
-
       }  /* debug: obsolete after that? */
-      else
-      {
-        if (like > oldlike)     /* update the value of yold if it was better */
-        {
-          yold = y;
-          oldlike = like;
-          better = true;
-          firsttime = false;
-          better = true;
-        }
-      }
       else {                           /* when the newer likelihood is worse */
 	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
