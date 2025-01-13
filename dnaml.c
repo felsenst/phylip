@@ -134,7 +134,7 @@ char basechar[16]="acmgrsvtwyhkdbn";
 /* Local variables for maketree, propagated globally for C version: */
 long k, nextsp, numtrees, maxwhich, mx, mx0, mx1, shimotrees;
 double dummy, maxlogl;
-boolean succeeded, smoothed;
+boolean succeeded;
 double **l0gf;
 double *l0gl;
 valrec ***tbl;
@@ -1368,8 +1368,8 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
-  boolean done, firsttime, better, wasnr;
+  double y=epsilon, yold=0, yorig, like, slope, curve, oldlike=0, delta;
+  boolean done, firsttime, better=false;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1397,31 +1397,26 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         oldlike = like;
         firsttime = false;
         better = true;
-	if curve < 0.0 {
+	if (curve < 0.0) {
           y = y - slope / curve;                /* Newton-Raphson iteration */   
-	  if y < 0.0 {
+	  if (y < 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
 	  }	  
-	  wasnr = true;
 	} else {                            /* when can't do Newton-Raphson */
 	  if (slope > 0.0)
             y = y + delta;
 	  else
             y = y - delta;
-	  wasnr = false;
 	}
       }
       else {                                       /* if not the first time */
 	if (like > oldlike) {                 /* if likelihood has improved */
 	  better = true;
-          if (curv < 0.0) {
+          if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-	    wasnr = true;
             if (y + delta <= 0.0)      /* if goes past zero, truncate there */
               y = 10.0*epsilon;
 	  } else {                        /* if curvature does not allow NR */
-              delta = -y/2.0;
-            } else {                     /* if goes past old value of y ... */
               if ((yorig > y) && (y + delta > yorig))
                 delta = (yorig - y)/2.0;    /* ... only go halfway to yorig */
               if ((yorig < y) && (y + delta < yorig))
@@ -1430,19 +1425,18 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
                   ((y > yorig) && (slope > 0.0)))
                 delta = 2.0*delta;
               else
-                delta = 0.5*delta;
-            }
-                
-      
-
-
-
+                delta = -0.4*delta;
+              yold = y;
+              oldlike = like;
               y = y + delta;                                /* try a new  y */
               }
             }
           }
         }
       }  /* debug: obsolete after that? */
+      if (better) {
+       ite++;
+      }
       else {                           /* when the newer likelihood is worse */
 	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
