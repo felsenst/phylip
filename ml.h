@@ -12,7 +12,9 @@
 #ifndef ML_H
 #define ML_H
 
+#ifdef BL_H
 #include "bl.h"
+#endif
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 

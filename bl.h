@@ -14,9 +14,10 @@
 
 #include "phylip.h"
 
-extern boolean inserting, smoothit, polishing, smoothed;
+extern boolean inserting, smoothit, polishing;
 extern FILE *infile, *outfile, *intree, *intree2, *outtree;
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
+boolean smoothed;
 
 typedef struct bl_tree {
   struct tree treepart;
@@ -34,8 +35,6 @@ typedef struct bl_node {                       /* subclass of generic node */
 typedef void (*makenewv_t)(struct tree*, struct node*);  /* debug: should these three be just tree*, node* ? */
 typedef void (*nuview_t)(struct tree*, struct node*);
 typedef void (*initialvtrav_t)(struct tree*, struct node*);
-
-extern boolean smoothed;
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct tree**, long, long, long);
