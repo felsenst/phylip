@@ -8,6 +8,7 @@
 
 /* end of ifdef block if have not yet defined the mldna.h stuff */
 #include "seq.h"
+#include "bl.h"
 #include "ml.h"
 
 

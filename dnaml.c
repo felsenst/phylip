@@ -9,10 +9,15 @@
 
 #include "phylip.h"
 
-#include "mldna.h"
-
-#include "seq.h"
+#ifndef ML_H
 #include "ml.h"
+#endif
+
+#ifndef SEQ_H
+#include "seq.h"
+#endif
+
+#include "mldna.h"
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
