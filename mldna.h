@@ -6,10 +6,19 @@
 #ifndef MLDNA_H
 #define MLDNA_H
 
-/* end of ifdef block if have not yet defined the mldna.h stuff */
+/* end of ifdef block if have not previously defined the mldna.h stuff */
+
+#ifndef SEQ_H
 #include "seq.h"
+#endif
+
+#ifndef BL_H
 #include "bl.h"
+#endif
+
+#ifndef ML_H
 #include "ml.h"
+#endif
 
 
 typedef struct mldna_node{                          /* subclass of ml_node */
