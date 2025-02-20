@@ -5,6 +5,7 @@
 
 #ifndef MLDNA_H
 #define MLDNA_H
+#endif
 
 /* end of ifdef block if have not previously defined the mldna.h stuff */
 

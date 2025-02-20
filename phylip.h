@@ -8,6 +8,7 @@
 
 #ifndef PHYLIP_H
 #define PHYLIP_H
+#endif
 
 #ifndef VERSION
 #define VERSION "4.0a"
@@ -920,8 +921,5 @@ void            generic_tree_reinit_forknode(struct tree*, struct node*);
 void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(struct tree*, boolean, boolean, boolean);
 #endif /* OLDC */
-
-#endif
-/* end commenting out of whole header because it's been used before */
 
 /* End. */

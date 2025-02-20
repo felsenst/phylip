@@ -9,12 +9,17 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
+#ifndef ML_H
+#define ML_H
+#endif
+
+#ifndef PHYLIP_H
+#include "phylip.h"
+#endif
+
 #ifndef BL_H
 #include "bl.h"
 #endif
-
-#ifndef ML_H
-#define ML_H
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 
