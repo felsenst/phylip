@@ -10,7 +10,11 @@
 #endif
 
 #include <assert.h>
+
+#ifndef BL_H
 #include "bl.h"
+#define BL_H
+#endif
 
 #define DEBUG
 #define MAKENEWV_DEBUG
