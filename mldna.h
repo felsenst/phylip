@@ -61,6 +61,5 @@ void getbasefreqs(double, double, double, double, double *, double *,
                    double *, double *, double *, boolean, boolean);
 void ttratio_warning(double ttratio);
 void empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
-#endif
 
 #endif

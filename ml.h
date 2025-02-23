@@ -46,9 +46,4 @@ void    ml_node_free(struct node **);
 void    ml_node_print(struct node *);
 #endif
 
-#endif
-
-/* the if ... endif pair which ends above prevents multiple
-   compilation of the  ml.h  header */
-
 /* End.*/
