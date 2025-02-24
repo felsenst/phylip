@@ -11,7 +11,6 @@
 
 #ifndef BL_H
 #define BL_H
-#endif
 
 #ifndef PHYLIP_H
 #include "phylip.h"
@@ -95,6 +94,10 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
                          struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
 #endif
+
+#endif
+
+/* end of conditional compilation if BL_H initially undefined */
 
 /* End. */
 

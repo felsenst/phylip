@@ -9,12 +9,12 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
+#ifndef ML_H
+#define ML_H
+
 #ifndef BL_H
 #include "bl.h"
 #endif
-
-#ifndef ML_H
-#define ML_H
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 
@@ -40,5 +40,9 @@ void    ml_node_copy(struct node *, struct node *);
 void    ml_node_free(struct node **);
 void    ml_node_print(struct node *);
 #endif
+
+#endif
+
+/* end of conditional compilation if ML_H undefined */
 
 /* End.*/

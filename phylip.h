@@ -8,7 +8,6 @@
 
 #ifndef PHYLIP_H
 #define PHYLIP_H
-#endif
 
 #ifndef VERSION
 #define VERSION "4.0a"
@@ -37,7 +36,7 @@
 
    Quite a bit of this is being paranoid about being on antique operating
    systems or antique compilers, which may not even exist anymore. Please
-   be tolerant of my obsessiveness about this. */
+   be tolerant of our obsessiveness about this. */
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
 #include <windows.h>
@@ -921,5 +920,9 @@ void            generic_tree_reinit_forknode(struct tree*, struct node*);
 void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(struct tree*, boolean, boolean, boolean);
 #endif /* OLDC */
+
+#endif
+
+/* end of conditional compilation of phylip.h, to avoid compiling twice */
 
 /* End. */

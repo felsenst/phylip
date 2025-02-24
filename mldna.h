@@ -5,7 +5,6 @@
 
 #ifndef MLDNA_H
 #define MLDNA_H
-#endif
 
 /* end of ifdef block if have not previously defined the mldna.h stuff */
 
@@ -63,3 +62,9 @@ void ttratio_warning(double ttratio);
 void empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
 
 #endif
+
+#endif
+
+/* end of conditional compilation if ML_H initially not defined */
+
+
