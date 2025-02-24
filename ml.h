@@ -1,4 +1,4 @@
-/* Version 4.0. (c) Copyright 1993-2022 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2025.
    Written by Michal Palczewski and Joe Felsenstein
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
@@ -9,12 +9,12 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
-#ifndef ML_H
-#define ML_H
-
 #ifdef BL_H
 #include "bl.h"
 #endif
+
+#ifndef ML_H
+#define ML_H
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 
@@ -22,8 +22,8 @@ typedef struct ml_tree {
   struct tree bl_tree;
 } ml_tree;
 
-typedef struct ml_node {                        /* subclass of generic node */
-  struct bl_node bl_node;                     /* Base object, must be first */
+typedef struct ml_node {                      /* subclass of generic bl_node */
+  struct bl_node node;                         /* base object, must be first */
   double* underflows;
   long endsite;
   long categs;
