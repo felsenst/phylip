@@ -7,12 +7,21 @@
 #  include <config.h>
 #endif
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
+#ifndef MLDNA_H
 #include "mldna.h"
+#endif
 
-#include "seq.h"
+#ifndef ML_H
 #include "ml.h"
+#endif
+
+#ifndef SEQ_H
+#include "seq.h"
+#endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
@@ -1448,7 +1457,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
-    ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
+    (struct bl_node*)p->v = yold;      /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
   }

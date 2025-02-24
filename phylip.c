@@ -8,7 +8,10 @@
 
 #include <stdio.h>
 #include <signal.h>
+
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
 FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;

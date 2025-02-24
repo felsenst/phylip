@@ -5,10 +5,21 @@
 
 #ifndef MLDNA_H
 #define MLDNA_H
+#endif
 
-/* end of ifdef block if have not yet defined the mldna.h stuff */
+/* end of ifdef block if have not previously defined the mldna.h stuff */
+
+#ifndef SEQ_H
 #include "seq.h"
+#endif
+
+#ifndef ML_H
 #include "ml.h"
+#endif
+
+#ifndef BL_H
+#include "bl.h"
+#endif
 
 
 typedef struct mldna_node{                          /* subclass of ml_node */
@@ -50,6 +61,5 @@ void getbasefreqs(double, double, double, double, double *, double *,
                    double *, double *, double *, boolean, boolean);
 void ttratio_warning(double ttratio);
 void empiricalfreqs(double*, double*, double*, double*, steptr, pointarray);
-#endif
 
 #endif

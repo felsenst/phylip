@@ -5,14 +5,21 @@
  * computing likelihoods. Functions that infer branch lengths on the tree
  * but are not specific to likelihood inference are instead in bl.c */
 
-#ifdef HAVE_CONFIG_H
+#ifndef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 
 #include <assert.h>
 
+#ifndef BL_H
 #include "bl.h"
+#define BL_H
+#endif
+
+#ifndef ML_H
 #include "ml.h"
+#define ML_H
+#endif
 
 #define DEBUG
 #define MAKENEWV_DEBUG

@@ -9,7 +9,7 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
-#ifdef BL_H
+#ifndef BL_H
 #include "bl.h"
 #endif
 
@@ -40,10 +40,5 @@ void    ml_node_copy(struct node *, struct node *);
 void    ml_node_free(struct node **);
 void    ml_node_print(struct node *);
 #endif
-
-#endif
-
-/* the if ... endif pair which ends above prevents multiple
-   compilation of the  ml.h  header */
 
 /* End.*/

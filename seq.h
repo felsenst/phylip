@@ -10,8 +10,12 @@
 
 #ifndef SEQ_H
 #define SEQ_H
+#endif
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#define PHYLIP_H
+#endif
 
 #define ebcdic          EBCDIC
 
@@ -67,9 +71,5 @@ void inittrees(long, long);
 void resetlrsaves(long, long);
 /*function prototypes*/
 #endif
-
-#endif
-
-/* end of #ifndef that conditions on this header file not already used */
 
 /* End. */

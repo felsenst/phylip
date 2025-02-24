@@ -9,10 +9,13 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
-#ifndef _BL_H_
-#define _BL_H_
+#ifndef BL_H
+#define BL_H
+#endif
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
 extern boolean inserting, smoothit, polishing;
 extern FILE *infile, *outfile, *intree, *intree2, *outtree;
@@ -92,10 +95,6 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
                          struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
 #endif
-
-#endif
-
-/* end of  #ifndef  that conditions on this header file not already used */
 
 /* End. */
 
