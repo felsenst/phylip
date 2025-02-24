@@ -26,9 +26,9 @@ typedef struct bl_tree {
   tree_save_traverses_t save_traverses;
 } bl_tree;
 
-typedef struct bl_node {                       /* subclass of generic node */
-  struct node node;                          /* Base object, must be first */
-  double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
+typedef struct bl_node {                        /* subclass of generic node */
+  struct node node;                           /* base object, must be first */
+  double v, tyme, deltav, oldlen, ssq;         /* ssq used only in contrast */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
 } bl_node;
 
