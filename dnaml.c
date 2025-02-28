@@ -15,8 +15,6 @@
 #include "mldna.h"
 #endif
 
-boolean smoothed;   /* testing! */
-
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
 /* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */

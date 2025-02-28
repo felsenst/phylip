@@ -8,6 +8,10 @@
 
 /* end of ifdef block if have not previously defined the mldna.h stuff */
 
+#ifndef PHYLIP_H
+#include "phylip.h"
+#endif
+
 #ifndef SEQ_H
 #include "seq.h"
 #endif

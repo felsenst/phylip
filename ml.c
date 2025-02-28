@@ -5,8 +5,8 @@
  * computing likelihoods. Functions that infer branch lengths on the tree
  * but are not specific to likelihood inference are instead in bl.c */
 
-#ifndef HAVE_CONFIG_H
-#  include <config.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
 #endif
 
 #include <assert.h>
