@@ -688,6 +688,8 @@ extern initdata funcs;                 /* funcs  function pointer structure */
 
 extern boolean javarun;        /* boolean for when Java front-end is in use */
 
+boolean smoothed;  /* debug: why can't it be defined in bl.h ? */
+
 #ifndef OLDC /* need if not the old original Kernighan & Ritchie C compiler */
 /* function prototypes */
 void            generic_tree_new(struct tree**, long, long, long);
