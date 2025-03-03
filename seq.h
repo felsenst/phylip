@@ -10,7 +10,6 @@
 
 #ifndef SEQ_H
 #define SEQ_H
-#endif
 
 #ifndef PHYLIP_H
 #include "phylip.h"
@@ -71,5 +70,9 @@ void inittrees(long, long);
 void resetlrsaves(long, long);
 /*function prototypes*/
 #endif
+
+#endif
+
+/* end of conditional compilation if SEQ_H not initially defined */
 
 /* End. */

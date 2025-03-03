@@ -16,12 +16,12 @@
 #include "seq.h"
 #endif
 
-#ifndef ML_H
-#include "ml.h"
-#endif
-
 #ifndef BL_H
 #include "bl.h"
+#endif
+
+#ifndef ML_H
+#include "ml.h"
 #endif
 
 
