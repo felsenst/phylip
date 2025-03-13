@@ -170,6 +170,7 @@ void bl_update(struct tree *t, struct node *p)
 /* debug:   I think redundant with calls in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
+printf("update branch at node %ld:%ldy\n, p->index);
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
     if (p->back != NULL) {

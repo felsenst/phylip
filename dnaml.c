@@ -1417,6 +1417,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             delta = - slope/curve;              /* Newton-Raphson iteration */
             if (y + delta <= 0.0)      /* if goes past zero, truncate there */
               y = 10.0*epsilon;
+            else
+              y = y + delta;         /* otherwise take a Newton-Raphson step */
 	  } else {                        /* if curvature does not allow NR */
               if ((yorig > y) && (y + delta > yorig))
                 delta = (yorig - y)/2.0;    /* ... only go halfway to yorig */
