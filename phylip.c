@@ -17,6 +17,7 @@ FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
 FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 FILE *progfile;
 
+#if 0
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
 long words, bits;    /* binary words, bit length for binary sets of species */
@@ -26,6 +27,8 @@ boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
 long outgrno;                                            /* outgroup number */
+#endif
+
 sequence inputSequences;                    /* array to store a sequence in */
 
 struct node_vtable vtable;

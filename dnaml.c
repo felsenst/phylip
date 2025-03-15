@@ -8,11 +8,23 @@
 #endif
 
 #ifndef PHYLIP_H
-#include "phylip.h"
+#define PHYLIP_H
+#include phylip.h
 #endif
 
-#ifndef MLDNA_H
-#include "mldna.h"
+#ifndef SEQ_H
+#define SEQ_H
+#include seq.h
+#endif
+
+#ifndef BL_H
+#define BL_H 
+#include bl.h
+#endif
+
+#ifndef ML_H
+#define ML_H 
+#include ml.h
 #endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
@@ -3052,6 +3064,5 @@ int main(int argc, Char *argv[])
   phyRestoreConsoleAttributes();
   return 0;
 }  /* DNA Maximum Likelihood */
-
 
 /* End. */

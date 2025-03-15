@@ -6,14 +6,6 @@
  * used throughout the PHYLIP package instead of having version strings
  * that have to be kept up-to-date in other places */
 
-#ifndef PHYLIP_H
-#define PHYLIP_H
-
-#ifndef VERSION
-#define VERSION "4.0a"
-#endif
-
-
 /* this is only for configure/make compiles, which we do not use these days */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -21,6 +13,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifndef PHYLIP_H
+#define PHYLIP_H
+
+#ifndef VERSION
+#define VERSION "4.0a"
+#endif
 
 #define true    1                             /* messing with truth itself! */
 #define false   0                              /* and now nothing is false! */
@@ -328,12 +327,12 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-extern long spp;                               /* global: number of species */
-extern long chars;                 /* global: number of characters or sites */
-extern long words, bits;    /* binary words, bit length for sets of species */
-extern boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
-extern naym *nayme;                            /* array of names of species */
-extern char progbuf[256];       /* string to display in the progress output */
+long spp;                               /* global: number of species */
+long chars;                 /* global: number of characters or sites */
+long words, bits;    /* binary words, bit length for sets of species */
+boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
+naym *nayme;                            /* array of names of species */
+char progbuf[256];       /* string to display in the progress output */
 
 #define ebcdic EBCDIC                     /* IBM character set pre-ANSI/ISO */
 
@@ -687,8 +686,6 @@ typedef struct initdata {
 extern initdata funcs;                 /* funcs  function pointer structure */
 
 extern boolean javarun;        /* boolean for when Java front-end is in use */
-
-boolean smoothed;  /* debug: why can't it be defined in bl.h ? */
 
 #ifndef OLDC /* need if not the old original Kernighan & Ritchie C compiler */
 /* function prototypes */
