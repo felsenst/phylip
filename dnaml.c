@@ -9,22 +9,27 @@
 
 #ifndef PHYLIP_H
 #define PHYLIP_H
-#include phylip.h
+#include "phylip.h"
 #endif
 
 #ifndef SEQ_H
 #define SEQ_H
-#include seq.h
+#include "seq.h"
 #endif
 
 #ifndef BL_H
 #define BL_H 
-#include bl.h
+#include "bl.h"
 #endif
 
 #ifndef ML_H
 #define ML_H 
-#include ml.h
+#include "ml.h"
+#endif
+
+#ifndef MLDNA_H
+#define MLDNA_H 
+#include "mldna.h"
 #endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
@@ -32,7 +37,7 @@ struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 /* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
-extern long outgrno, endsite;
+/* debug:  extern long outgrno, endsite;  */
 /* debug:  extern sequence inputSequences;  */
 
 long which;
@@ -46,9 +51,9 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
-typedef struct dnaml_node {
+typedef struct mldna_node {
   struct mldna_node mldna_node;
-} dnaml_node;
+} mldna_node;
 
 typedef long vall[maxcategs];
 typedef double contribarr[maxcategs];
