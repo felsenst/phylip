@@ -51,20 +51,16 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
-typedef struct mldna_node {
-  struct mldna_node mldna_node;
-} mldna_node;
-
-typedef long vall[maxcategs];
+typedef long[maxcategs] vall;
 typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
 void   dnaml_tree_new(struct tree**, long, long, long);
 void   dnaml_tree_init(struct tree*, long, long);
-struct node* dnaml_node_new(node_type, long, long);
-void   dnaml_node_init(struct node*, node_type, long);
-void   dnaml_tree_setup(long, long);
+struct mldna_node* mldna_node_new(node_type, long, long);
+void   mldna_node_init(struct node*, node_type, long);
+void   mldna_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
