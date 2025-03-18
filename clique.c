@@ -75,6 +75,7 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], outtreename[FNMLNGTH], ancfile
 long ActualChars, Cliqmin, outgrno, col, ith, msets, setsz, nonodes;
 boolean ancvar, Clmin, Factors, outgropt, trout, weights, noroot, justwts, printcomp, progress, treeprint, mulsets, firstset;
 long nodes;
+long nodesize = sizeof(clique_node);
 
 aPtr ancone;
 Char *Factor;

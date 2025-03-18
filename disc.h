@@ -51,9 +51,11 @@ typedef struct htrav_vars2 {
 extern long chars, nonodes,  nextree, which;
 /*  nonodes = number of nodes in tree                                        *
  *  chars = number of binary characters                                      */
-extern steptr weight, extras;
-extern boolean printdata;
 #endif
+
+extern steptr weight, extras;
+
+extern boolean printdata;
 
 #ifndef OLDC
 /*function prototypes*/
