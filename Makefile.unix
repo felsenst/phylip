@@ -555,7 +555,7 @@ dnadist:      dnadist.o pmatrix.o matrixd.o seq.o $(LIBS)
 dnainvar:     dnainvar.o seq.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
-dnaml:        dnaml.o seq.o bl.o ml.o mldna.o $(LIBS)
+dnaml:        dnaml.o seq.o bl.o ml.o mldna.o phylip.o $(LIBS)
 	$(CC) $^ $(LDADD) -o $@
 
 dnamlk:       dnamlk.o seq.o bl.o ml.o mldna.o $(LIBS)

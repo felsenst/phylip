@@ -9,22 +9,27 @@
 
 #ifndef PHYLIP_H
 #define PHYLIP_H
-#include phylip.h
+#include "phylip.h"
 #endif
 
 #ifndef SEQ_H
 #define SEQ_H
-#include seq.h
+#include "seq.h"
 #endif
 
 #ifndef BL_H
 #define BL_H 
-#include bl.h
+#include "bl.h"
 #endif
 
 #ifndef ML_H
 #define ML_H 
-#include ml.h
+#include "ml.h"
+#endif
+
+#ifndef MLDNA_H
+#define MLDNA_H 
+#include "mldna.h"
 #endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
@@ -32,7 +37,7 @@ struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 /* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
-extern long outgrno, endsite;
+/* debug:  extern long outgrno, endsite;  */
 /* debug:  extern sequence inputSequences;  */
 
 long which;
@@ -46,20 +51,16 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
-typedef struct dnaml_node {
-  struct mldna_node mldna_node;
-} dnaml_node;
-
-typedef long vall[maxcategs];
+typedef long[maxcategs] vall;
 typedef double contribarr[maxcategs];
 
 #ifndef OLDC
 /* function prototypes */
 void   dnaml_tree_new(struct tree**, long, long, long);
 void   dnaml_tree_init(struct tree*, long, long);
-struct node* dnaml_node_new(node_type, long, long);
-void   dnaml_node_init(struct node*, node_type, long);
-void   dnaml_tree_setup(long, long);
+struct mldna_node* mldna_node_new(node_type, long, long);
+void   mldna_node_init(struct node*, node_type, long);
+void   mldna_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);

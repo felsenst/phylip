@@ -11,15 +11,10 @@
 
 #include <assert.h>
 
-#ifndef BL_H
-#include "bl.h"
-#define BL_H
-#endif
-
 #ifndef ML_H
 #include "ml.h"
 #define ML_H
-#endif
+
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -120,5 +115,8 @@ void ml_node_print(struct node * n)
   /* debug:  ?? printf(" ml(bn.endsite:%ld tyme:%lf)", ((struct bl_tree*)mn)->endsite, mn->bl_node.tyme); */
 } /* ml_node_print */
 
+#endif
+
+/* end conditional compilation if first time encounter ml.h */
 /* End. */
 
