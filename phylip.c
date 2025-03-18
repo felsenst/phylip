@@ -13,21 +13,8 @@
 #include "phylip.h"
 #endif
 
-FILE *infile, *outfile, *intree, *outtree; /* debug *intree2, *workingplot;  */
-FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
+FILE *weightfile, *catfile, *mixfile, *factfile;
 FILE *progfile;
-
-#if 0
-long spp;                                      /* global: number of species */
-long chars;                        /* global: number of characters or sites */
-long words, bits;    /* binary words, bit length for binary sets of species */
-long endsite;       /* number of site patterns, used in seq.c, bl.c so here */
-steptr weight, category, alias, location, ally;           /* aliasing stuff */
-boolean ibmpc, ansi, tranvsp;       /* screen types, transversion parsimony */
-naym *nayme;                                   /* array of names of species */
-char progbuf[256];              /* string to display in the progress output */
-long outgrno;                                            /* outgroup number */
-#endif
 
 sequence inputSequences;                    /* array to store a sequence in */
 

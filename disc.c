@@ -13,7 +13,7 @@
 
 #define SAMPLES 1000
 
-long chars, nonodes, nextree, which;
+long nonodes, nextree, which;
 /*  nonodes = number of nodes in tree                                        *
  *  chars = number of binary characters                                      *
  *  words = number of words needed to represent characters of one organism   */
