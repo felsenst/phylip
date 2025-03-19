@@ -57,6 +57,8 @@ extern steptr weight, extras;
 
 extern boolean printdata;
 
+extern FILE progfile, factfile, weightfile;
+
 #ifndef OLDC
 /*function prototypes*/
 void inputdata(pointptr, boolean, boolean, FILE *);
