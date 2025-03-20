@@ -8,8 +8,8 @@
 #endif
 
 #ifndef PHYLIP_H
-#define PHYLIP_H
 #include "phylip.h"
+#define PHYLIP_H
 #endif
 
 #ifndef SEQ_H
