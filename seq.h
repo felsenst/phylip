@@ -13,7 +13,6 @@
 
 #ifndef PHYLIP_H
 #include "phylip.h"
-#define PHYLIP_H
 #endif
 
 #define ebcdic          EBCDIC

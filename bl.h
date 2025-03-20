@@ -13,12 +13,10 @@
 #define BL_H
 
 #ifndef PHYLIP_H
-#define PHYLIP_H
 #include "phylip.h"
 #endif
 
 extern boolean inserting, smoothit, polishing;
-extern FILE *infile, *outfile, *intree, *intree2, *outtree;
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
 /* debug:   declare here? where?  extern boolean smoothed;   debug */
 
