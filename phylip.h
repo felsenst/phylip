@@ -487,6 +487,7 @@ typedef void (*do_branchl_on_re_move_t)(struct tree*, struct node*,
 typedef boolean (*fork_good_t)(struct tree*, struct node*);   /* debug: needed for debugging */
 
 FILE *infile, *outfile, *intree, *outtree, *ancfile; /* debug *intree2, *workingplot;  */
+FILE *weightfile, *catfile, *mixfile, *factfile;
 
 struct node {  /* a basic node: space for "everything but the kitchen sink" */
            /* debug: in future could use polymorphism to defer some of these

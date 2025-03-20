@@ -13,7 +13,6 @@
 #include "phylip.h"
 #endif
 
-FILE *weightfile, *catfile, *mixfile, *factfile;
 FILE *progfile;
 
 sequence inputSequences;                    /* array to store a sequence in */

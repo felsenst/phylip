@@ -35,12 +35,13 @@
 #define COLUMNS_PER_BLOCK 10
 
 extern boolean transvp;
-extern steptr weight, category, alias, location, ally;
 extern sequence inputSequences;
 /* debug:  extern FILE *infile, *outfile, *intree, *intree2, *outtree;  */
 extern struct bl_node** lrsaves;
 
 typedef void (*freex_t)(long, pointarray);       /* pointer to free fn type */
+
+steptr weight, category, alias, location, ally;
 
 #ifndef OLDC
 /* function prototypes.  Needed if not the old 
