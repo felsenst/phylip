@@ -10,6 +10,7 @@
 #include <signal.h>
 
 #ifndef PHYLIP_H
+#define PHYLIP_H
 #include "phylip.h"
 #endif
 

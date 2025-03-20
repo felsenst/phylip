@@ -13,17 +13,18 @@
 #define ML_H
 
 #ifndef BL_H
+#define BL_H
 #include "bl.h"
 #endif
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 
 typedef struct ml_tree {
-  struct tree bl_tree;
+  struct bl_tree bl_tree;
 } ml_tree;
 
 typedef struct ml_node {                      /* subclass of generic bl_node */
-  struct bl_node node;                         /* base object, must be first */
+  struct bl_node bl_node;                         /* base object, must be first */
   double* underflows;
   long endsite;
   long categs;

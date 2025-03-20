@@ -51,7 +51,7 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
-typedef long[maxcategs] vall;
+typedef long vall[maxcategs];
 typedef double contribarr[maxcategs];
 
 #ifndef OLDC
