@@ -13,33 +13,29 @@
 #endif
 
 #ifndef SEQ_H
-#define SEQ_H
 #include "seq.h"
 #endif
 
 #ifndef BL_H
-#define BL_H 
 #include "bl.h"
 #endif
 
 #ifndef ML_H
-#define ML_H 
 #include "ml.h"
 #endif
 
 #ifndef MLDNA_H
-#define MLDNA_H 
 #include "mldna.h"
 #endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
 /* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
-extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
+/* extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile; */
 extern FILE *progfile;
-/* debug:  extern long outgrno, endsite;  */
 /* debug:  extern sequence inputSequences;  */
 
+long outgrno, endsite;
 long which;
 
 typedef struct valrec {
@@ -58,9 +54,7 @@ typedef double contribarr[maxcategs];
 /* function prototypes */
 void   dnaml_tree_new(struct tree**, long, long, long);
 void   dnaml_tree_init(struct tree*, long, long);
-struct mldna_node* mldna_node_new(node_type, long, long);
-void   mldna_node_init(struct node*, node_type, long);
-void   mldna_tree_setup(long, long);
+void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
 void   doinit(void);
@@ -179,24 +173,6 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
 } /* dnaml_tree_init */
-
-
-struct node* dnaml_node_new(node_type type, long index, long nodesize)
-{
-  /* make new dnaml_node */
-  struct node *n;
-
-  nodesize = (long)sizeof(dnaml_node);
-  n = mldna_node_new(type, index, nodesize);
-  return n;
-} /* dnaml_node_new */
-
-
-void dnaml_node_init(struct node* n, node_type type, long index)
-{
-  /* assign functions for a new node */
-  mldna_node_init((struct node*)n, type, index);
-} /* mldna_node_init */
 
 
 void dnaml_tree_setup(long nonodes, long spp)
@@ -2548,8 +2524,8 @@ void dnaml(
 
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  funcs.node_new = (node_new_t)dnaml_node_new;
-  funcs.node_init = (node_init_t)dnaml_node_init;
+  funcs.node_new = (node_new_t)mldna_node_new;
+  funcs.node_init = (node_init_t)mldna_node_init;
   progname = argv[0];
 
   phylipinit(argc, argv, &funcs, true);
@@ -3037,8 +3013,8 @@ int main(int argc, Char *argv[])
 #endif
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  funcs.node_new = (node_new_t)dnaml_node_new;
-  funcs.node_init = (node_init_t)dnaml_node_init;
+  funcs.node_new = (node_new_t)mldna_node_new;
+  funcs.node_init = (node_init_t)mldna_node_init;
   phylipinit(argc, argv, &funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
