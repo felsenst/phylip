@@ -1397,9 +1397,9 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         oldlike = like;
         firsttime = false;
         better = true;
-	if curve < 0.0 {
+	if (curve < 0.0) {
           y = y - slope / curve;                /* Newton-Raphson iteration */   
-	  if y < 0.0 {
+	  if (y < 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
 	  }	  
 	  wasnr = true;
@@ -1421,7 +1421,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           better = false;
 	}
 	if (better) {
-	  if curve < 0.0 {
+	  if (curve < 0.0) {
             delta = - slope/curve;                /* Newton-Raphson iteration */
 	    wasnr = true;
 	    }	  
@@ -1432,26 +1432,15 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
               y = y - delta;
 	    wasnr = false;
 	  }
-
+       }
       }  /* debug: obsolete after that? */
-      else
-      {
-        if (like > oldlike)     /* update the value of yold if it was better */
-        {
-          yold = y;
-          oldlike = like;
-          better = true;
-          firsttime = false;
+      if (slope > 0.0) {
+        if (fabs(y - yold) < epsilon)        /* if change is too small ... */
+          ite = 20;                    /* then don't do any more iterating */
         }
-      }
-      else {                           /* when the newer likelihood is worse */
-	if (slope > 0.0) {
-          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
-            ite = 20;                    /* then don't do any more iterating */
-          }
-      }
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
+      }
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
