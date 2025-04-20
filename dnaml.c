@@ -1368,8 +1368,8 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
   /* Newton-Raphson algorithm improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta, newdelta;
-  boolean done, firsttime, better, wasnr;
+  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
+  boolean done, firsttime, better;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1402,13 +1402,11 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  if (y < 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
 	  }	  
-	  wasnr = true;
 	} else {                            /* when can't do Newton-Raphson */
 	  if (slope > 0.0)
             y = y + delta;
 	  else
             y = y - delta;
-	  wasnr = false;
 	}
       }
       else {                                       /* if not the first time */
@@ -1423,17 +1421,13 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	if (better) {
 	  if (curve < 0.0) {
             delta = - slope/curve;                /* Newton-Raphson iteration */
-	    wasnr = true;
 	    }	  
 	  } else {                            /* when can't do Newton-Raphson */
 	    if (slope > 0.0)
               y = y + delta;
 	    else
               y = y - delta;
-	    wasnr = false;
 	  }
-       }
-      }  /* debug: obsolete after that? */
       if (slope > 0.0) {
         if (fabs(y - yold) < epsilon)        /* if change is too small ... */
           ite = 20;                    /* then don't do any more iterating */
