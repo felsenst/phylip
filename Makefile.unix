@@ -98,10 +98,10 @@ UNAME := $(shell uname)
 #
 # A minimal one:
 #CFLAGS  = -g
-CFLAGS = -Wl -zmuldefs
+#CFLAGS = -Wl -zmuldefs
 #
 # A basic one for debugging:
-#CFLAGS  = -g -Wall
+CFLAGS  = -g -Wall
 #
 # For MacOS using the clang compiler
 #CFLAGS = -g
