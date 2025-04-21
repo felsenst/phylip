@@ -6,13 +6,15 @@
  * but are not specific to likelihood inference are instead in bl.c */
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #include <assert.h>
 
-#include "bl.h"
+#ifndef ML_H
 #include "ml.h"
+#define ML_H
+
 
 #define DEBUG
 #define MAKENEWV_DEBUG
@@ -113,5 +115,8 @@ void ml_node_print(struct node * n)
   /* debug:  ?? printf(" ml(bn.endsite:%ld tyme:%lf)", ((struct bl_tree*)mn)->endsite, mn->bl_node.tyme); */
 } /* ml_node_print */
 
+#endif
+
+/* end conditional compilation if first time encounter ml.h */
 /* End. */
 

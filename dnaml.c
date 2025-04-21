@@ -4,24 +4,38 @@
 
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#define PHYLIP_H
+#endif
 
-#include "mldna.h"
-
+#ifndef SEQ_H
 #include "seq.h"
+#endif
+
+#ifndef BL_H
+#include "bl.h"
+#endif
+
+#ifndef ML_H
 #include "ml.h"
+#endif
+
+#ifndef MLDNA_H
+#include "mldna.h"
+#endif
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
 /* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
-extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
+/* extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile; */
 extern FILE *progfile;
-extern long outgrno, endsite;
 /* debug:  extern sequence inputSequences;  */
 
+long outgrno, endsite;
 long which;
 
 typedef struct valrec {
@@ -33,10 +47,6 @@ typedef struct dnaml_tree {
   struct ml_tree ml_tree;
 } dnaml_tree;
 
-typedef struct dnaml_node {
-  struct mldna_node mldna_node;
-} dnaml_node;
-
 typedef long vall[maxcategs];
 typedef double contribarr[maxcategs];
 
@@ -44,8 +54,6 @@ typedef double contribarr[maxcategs];
 /* function prototypes */
 void   dnaml_tree_new(struct tree**, long, long, long);
 void   dnaml_tree_init(struct tree*, long, long);
-struct node* dnaml_node_new(node_type, long, long);
-void   dnaml_node_init(struct node*, node_type, long);
 void   dnaml_tree_setup(long, long);
 void   getoptions(void);
 void   allocrest(void);
@@ -134,7 +142,7 @@ char basechar[16]="acmgrsvtwyhkdbn";
 /* Local variables for maketree, propagated globally for C version: */
 long k, nextsp, numtrees, maxwhich, mx, mx0, mx1, shimotrees;
 double dummy, maxlogl;
-boolean succeeded, smoothed;
+boolean succeeded;
 double **l0gf;
 double *l0gl;
 valrec ***tbl;
@@ -165,24 +173,6 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
 } /* dnaml_tree_init */
-
-
-struct node* dnaml_node_new(node_type type, long index, long nodesize)
-{
-  /* make new dnaml_node */
-  struct node *n;
-
-  nodesize = (long)sizeof(dnaml_node);
-  n = mldna_node_new(type, index, nodesize);
-  return n;
-} /* dnaml_node_new */
-
-
-void dnaml_node_init(struct node* n, node_type type, long index)
-{
-  /* assign functions for a new node */
-  mldna_node_init((struct node*)n, type, index);
-} /* mldna_node_init */
 
 
 void dnaml_tree_setup(long nonodes, long spp)
@@ -1366,7 +1356,7 @@ void slopecurv(struct node *p, double y, double *like,
 
 void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
-  /* Newton-Raphson algorithm improvement of a branch length */
+ /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
   double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
   boolean done, firsttime, better;
@@ -1386,12 +1376,12 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     firsttime = true;
     it = 1;
     ite = 0;  /* debug:  why separate it and ite? */
-    delta = y/2.0;                    /* step size for non-Newton-Raphson steps */
+    delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
+    better = false;
     while ((it < iterations) && (ite < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-      better = false;
       if (firsttime)              /* if no older value of y to compare with */
       {
         oldlike = like;
@@ -1432,6 +1422,37 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         if (fabs(y - yold) < epsilon)        /* if change is too small ... */
           ite = 20;                    /* then don't do any more iterating */
         }
+          if (curve < 0.0) {
+            delta = - slope/curve;              /* Newton-Raphson iteration */
+            if (y + delta <= 0.0)      /* if goes past zero, truncate there */
+              y = 10.0*epsilon;
+            else
+              y = y + delta;         /* otherwise take a Newton-Raphson step */
+	  } else {                        /* if curvature does not allow NR */
+              if ((yorig > y) && (y + delta > yorig))
+                delta = (yorig - y)/2.0;    /* ... only go halfway to yorig */
+              if ((yorig < y) && (y + delta < yorig))
+                delta = (y - yorig)/2.0;    /* ... only go halfway to yorig */
+              if (((y < yorig) && (slope < 0.0)) ||
+                  ((y > yorig) && (slope > 0.0)))
+                delta = 2.0*delta;
+              else
+                delta = -0.4*delta;
+              yold = y;
+              oldlike = like;
+              y = y + delta;                                /* try a new  y */
+            }
+          }
+        }
+      if (better) {
+       ite++;
+      }
+      else {                           /* when the newer likelihood is worse */
+	if (slope > 0.0) {
+          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
+            ite = 20;                    /* then don't do any more iterating */
+          }
+      }
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
       }
@@ -2524,8 +2545,8 @@ void dnaml(
 
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  funcs.node_new = (node_new_t)dnaml_node_new;
-  funcs.node_init = (node_init_t)dnaml_node_init;
+  funcs.node_new = (node_new_t)mldna_node_new;
+  funcs.node_init = (node_init_t)mldna_node_init;
   progname = argv[0];
 
   phylipinit(argc, argv, &funcs, true);
@@ -3013,8 +3034,8 @@ int main(int argc, Char *argv[])
 #endif
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  funcs.node_new = (node_new_t)dnaml_node_new;
-  funcs.node_init = (node_init_t)dnaml_node_init;
+  funcs.node_new = (node_new_t)mldna_node_new;
+  funcs.node_init = (node_init_t)mldna_node_init;
   phylipinit(argc, argv, &funcs, false);
   progname = argv[0];
   openfile(&infile, INFILE, "input file", "r", argv[0], infilename);
@@ -3041,6 +3062,5 @@ int main(int argc, Char *argv[])
   phyRestoreConsoleAttributes();
   return 0;
 }  /* DNA Maximum Likelihood */
-
 
 /* End. */

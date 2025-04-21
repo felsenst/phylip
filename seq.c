@@ -7,12 +7,13 @@
 #  include <config.h>
 #endif
 
+#if 0
 #include "phylip.h"
+#endif
+
 #include "seq.h"
 
 #define SAMPLES 1000
-
-extern FILE *infile, *outfile, *outtree;
 
 extern long endsite, outgrno, which;
 boolean interleaved, printdata, outgropt, treeprint, dotdiff;

@@ -1,4 +1,4 @@
-/* Version 4.0. (c) Copyright 1993-2022 by the University of Washington.
+/* Version 4.0. (c) Copyright 1993-2025.
    Written by Michal Palczewski and Joe Felsenstein
    Permission is granted to copy and use this program provided no fee is
    charged for it and provided that this copyright notice is not removed. */
@@ -12,16 +12,18 @@
 #ifndef ML_H
 #define ML_H
 
+#ifndef BL_H
 #include "bl.h"
+#endif
 
 /* debug: extern boolean inserting, smoothit, polishing; */
 
 typedef struct ml_tree {
-  struct tree bl_tree;
+  struct bl_tree bl_tree;
 } ml_tree;
 
-typedef struct ml_node {                        /* subclass of generic node */
-  struct bl_node bl_node;                     /* Base object, must be first */
+typedef struct ml_node {                      /* subclass of generic bl_node */
+  struct bl_node bl_node;                         /* base object, must be first */
   double* underflows;
   long endsite;
   long categs;
@@ -41,7 +43,6 @@ void    ml_node_print(struct node *);
 
 #endif
 
-/* the if ... endif pair which ends above prevents multiple
-   compilation of the  ml.h  header */
+/* end of conditional compilation if ML_H undefined */
 
 /* End.*/

@@ -75,6 +75,7 @@ Char infilename[FNMLNGTH], outfilename[FNMLNGTH], outtreename[FNMLNGTH], ancfile
 long ActualChars, Cliqmin, outgrno, col, ith, msets, setsz, nonodes;
 boolean ancvar, Clmin, Factors, outgropt, trout, weights, noroot, justwts, printcomp, progress, treeprint, mulsets, firstset;
 long nodes;
+long nodesize = sizeof(clique_node);
 
 aPtr ancone;
 Char *Factor;
@@ -316,7 +317,7 @@ void clique_setuptree(void)
       free(treenode[i]);
     //printf("functions.node_new false: %i i: %li\n", false, i+1);// JRMdebug
     //treenode[i] = functions.node_new(FORK_NODE, i+1);// JRMdebug
-    treenode[i] = funcs.node_new(FORK_NODE, i+1);
+    treenode[i] = funcs.node_new(FORK_NODE, i+1, nodesize);
     treenode[i]->next = NULL;
     treenode[i]->back = NULL;
   }

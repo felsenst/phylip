@@ -9,14 +9,16 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
-#ifndef _BL_H_
-#define _BL_H_
+#ifndef BL_H
+#define BL_H
 
+#ifndef PHYLIP_H
 #include "phylip.h"
+#endif
 
-extern boolean inserting, smoothit, polishing;  /* debug: smoothed, */
-extern FILE *infile, *outfile, *intree, *intree2, *outtree;
+extern boolean inserting, smoothit, polishing;
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
+extern boolean smoothed;
 
 typedef struct bl_tree {
   struct tree treepart;
@@ -25,17 +27,15 @@ typedef struct bl_tree {
   tree_save_traverses_t save_traverses;
 } bl_tree;
 
-typedef struct bl_node {                       /* subclass of generic node */
-  struct node node;                          /* Base object, must be first */
-  double v, tyme, deltav, oldlen, ssq;        /* ssq used only in contrast */
+typedef struct bl_node {                        /* subclass of generic node */
+  struct node node;                           /* base object, must be first */
+  double v, tyme, deltav, oldlen, ssq;         /* ssq used only in contrast */
   boolean iter;                       /* iter used in dnaml, fitch & restml */
 } bl_node;
 
 typedef void (*makenewv_t)(struct tree*, struct node*);  /* debug: should these three be just tree*, node* ? */
 typedef void (*nuview_t)(struct tree*, struct node*);
 typedef void (*initialvtrav_t)(struct tree*, struct node*);
-
-extern boolean smoothed;
 
 #ifndef OLDC /* prototypes */
 void    bl_tree_new(struct tree**, long, long, long);
@@ -96,7 +96,7 @@ void    bl_initialvtrav(struct tree*, bl_node *);
 
 #endif
 
-/* end of  #ifndef  that conditions on this header file not already used */
+/* end of conditional compilation if BL_H initially undefined */
 
 /* End. */
 
