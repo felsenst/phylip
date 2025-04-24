@@ -15,10 +15,13 @@
 #define phyRestoreConsoleAttributes()   NULL_EXPR
 #define phyFillScreenColor()            NULL_EXPR
 #define phyClearScreen()                NULL_EXPR
+
 #define DJGPP
+
 #define DOS
+
 #define MAC
-#define MAC
+
 #define CMS
 #define EBCDIC true
 #define INFILE "infile data"
@@ -33,6 +36,7 @@
 #define ANCFILE "ancestors data"
 #define MIXFILE "mixture data"
 #define FACTFILE "factors data"
+
 #define EBCDIC false
 #define INFILE "infile"
 #define OUTFILE "outfile"
@@ -46,7 +50,7 @@
 #define ANCFILE "ancestors"
 #define MIXFILE "mixture"
 #define FACTFILE "factors"
-#define SYSTEM_FIVE
+
 #define SYSTEM_FIVE                      /* (which went extinct about 2002) */
 #define UNIX
 #define MACHINE_TYPE "BSD Unix C"

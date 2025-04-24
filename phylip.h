@@ -17,6 +17,8 @@
 #ifndef PHYLIP_H
 #define PHYLIP_H
 
+#include "phyliptypesdefines.h"
+
 #ifndef VERSION
 #define VERSION "4.0a"
 #endif
@@ -38,6 +40,7 @@
    be tolerant of our obsessiveness about this. */
 
 #ifdef WIN32                               /* if we're in Microsoft Windows */
+                                           /* ? is there a WIN64 ? */
 #include <windows.h>
 #else                                    /* If not, use null macros instead */
 #define NULL_EXPR                       ((void)(0))
@@ -476,7 +479,7 @@ typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
 typedef void (*tree_copy_t)(struct tree*, struct tree*);
 typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
 typedef void (*node_reinit_t)(struct node*);
-typedef void (*node_free_t)(struct node**);
+typedef void (*node_free_t)(stuct node**);
 typedef void (*node_copy_t)(struct node*, struct node*);
 typedef void (*fork_print_t)(struct node*);
 typedef void (*node_print_t)(struct node*);
