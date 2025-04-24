@@ -30,8 +30,8 @@
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
-/* debug: extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;  */
-/* extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile; */
+extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;
+extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
 /* debug:  extern sequence inputSequences;  */
 
