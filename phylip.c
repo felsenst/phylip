@@ -15,13 +15,14 @@
 
 FILE *progfile;
 
+long spp;
 sequence inputSequences;                    /* array to store a sequence in */
+boolean javarun;               /* boolean for when Java front-end is in use */
+
 
 struct node_vtable vtable;
 
 initdata funcs;    /* declaration of the  funcs  function pointer structure */
-
-boolean javarun;               /* boolean for when Java front-end is in use */
 
 #ifdef WIN32
 #include <windows.h>

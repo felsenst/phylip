@@ -17,8 +17,6 @@
 #ifndef PHYLIP_H
 #define PHYLIP_H
 
-#include "phyliptypesdefines.h"
-
 #ifndef VERSION
 #define VERSION "4.0a"
 #endif
@@ -330,12 +328,12 @@ typedef void (*initptr)(struct tree *, struct node **, long, long,
                          long *, long *, initops, pointarray,
                          Char *, Char *, FILE *);
 
-long spp;                               /* global: number of species */
-long chars;                 /* global: number of characters or sites */
-long words, bits;    /* binary words, bit length for sets of species */
-boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
-naym *nayme;                            /* array of names of species */
-char progbuf[256];       /* string to display in the progress output */
+extern long spp;                               /* global: number of species */
+extern long chars;                 /* global: number of characters or sites */
+extern long words, bits;    /* binary words, bit length for sets of species */
+extern boolean ibmpc, ansi, tranvsp;     /* screens, transversion parsimony */
+extern naym *nayme;                            /* array of names of species */
+extern char progbuf[256];       /* string to display in the progress output */
 
 #define ebcdic EBCDIC                     /* IBM character set pre-ANSI/ISO */
 
@@ -479,7 +477,7 @@ typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
 typedef void (*tree_copy_t)(struct tree*, struct tree*);
 typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
 typedef void (*node_reinit_t)(struct node*);
-typedef void (*node_free_t)(stuct node**);
+typedef void (*node_free_t)(struct node**);
 typedef void (*node_copy_t)(struct node*, struct node*);
 typedef void (*fork_print_t)(struct node*);
 typedef void (*node_print_t)(struct node*);
