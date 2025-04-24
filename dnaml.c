@@ -1455,14 +1455,12 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       }
       ite++;
       done = fabs(y-yold) < 0.1*epsilon;
-      }
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
-  }
 }  /* dnaml_tree_makenewv */
 
 
