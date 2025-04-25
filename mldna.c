@@ -5,6 +5,7 @@
 
 extern long endsite;
 extern long rcategs;
+extern FILE *outfile;
 allocx_t allocx_f;
 freex_t *freex_f;                      /* forward: pointer to free function */
 

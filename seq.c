@@ -16,6 +16,9 @@
 #define SAMPLES 1000
 
 extern long endsite, outgrno, which;
+extern FILE *infile, *outfile, *outtree;
+
+steptr weight, category, alias, location, ally;
 boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 
 

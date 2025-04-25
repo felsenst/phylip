@@ -15,7 +15,16 @@
 
 FILE *progfile;
 
-long spp;
+long spp;                                      /* global: number of species */
+long chars;                        /* global: number of characters or sites */
+long words, bits;           /* binary words, bit length for sets of species */
+boolean ibmpc, ansi, tranvsp;            /* screens, transversion parsimony */
+naym *nayme;                                   /* array of names of species */
+char progbuf[256];              /* string to display in the progress output */
+
+FILE *infile, *outfile, *intree, *outtree, *ancfile; /* debug *intree2, *workingplot;  */
+FILE *weightfile, *catfile, *mixfile, *factfile;
+
 sequence inputSequences;                    /* array to store a sequence in */
 boolean javarun;               /* boolean for when Java front-end is in use */
 

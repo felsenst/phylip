@@ -30,13 +30,16 @@
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
-extern FILE *outfile, *infile, *intree, *outtree *intree2, *workingplot;
+extern FILE *outfile, *infile, *intree, *outtree, *intree2, *workingplot;
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
+extern steptr weight, category, alias, location, ally;
+
 /* debug:  extern sequence inputSequences;  */
 
 long outgrno, endsite;
 long which;
+boolean smoothed;
 
 typedef struct valrec {
   double rat, ratxi, ratxv, orig_zz, z1, y1, z1zz, z1yy, xiz1, xiy1xv;
