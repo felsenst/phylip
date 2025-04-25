@@ -26,6 +26,7 @@ const double MIN_ROOT_TYME = -10;
 extern long endsite;
 extern sequence inputSequences;
 extern boolean lngths;
+extern FILE *outtree;
 boolean inserting;
 
 
