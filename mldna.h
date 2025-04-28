@@ -24,8 +24,7 @@
 #include "ml.h"
 #endif
 
-
-typedef struct mldna_node{                          /* subclass of ml_node */
+typedef struct mldna_node{                           /* subclass of ml_node */
   struct ml_node ml_node;                     /* Base object, must be first */
   allocx_t allocx_f;
   freex_t freex_f;
