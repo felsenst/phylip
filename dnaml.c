@@ -30,7 +30,7 @@
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
-long nodesize;
+extern long nodesize;
 extern FILE *outfile, *infile, *intree, *outtree, *intree2, *workingplot;
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;

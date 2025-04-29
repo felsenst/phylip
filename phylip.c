@@ -18,7 +18,7 @@ FILE *progfile;
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
 long words, bits;           /* binary words, bit length for sets of species */
-extern long nodesize;        /* to alloc nodes.  Set by funcs.node_new call */
+long nodesize;               /* to alloc nodes.  Set by funcs.node_new call */
 boolean ibmpc, ansi, tranvsp;            /* screens, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
