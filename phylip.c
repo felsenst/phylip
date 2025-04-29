@@ -18,6 +18,7 @@ FILE *progfile;
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
 long words, bits;           /* binary words, bit length for sets of species */
+extern long nodesize;        /* to alloc nodes.  Set by funcs.node_new call */
 boolean ibmpc, ansi, tranvsp;            /* screens, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
@@ -69,7 +70,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
-  long i, defaultnodesize=0;
+  long i, nodesize;
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -93,13 +94,13 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   t->nonodes = nonodes;
   t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to node */
   for ( i = 0 ; i < spp ; i++ ) {                          /* make new tips */
-    t->nodep[i] = funcs.node_new(TIP_NODE, i+1, defaultnodesize);
+    t->nodep[i] = funcs.node_new(TIP_NODE, i+1, nodesize);
     t->nodep[i]->tip = true; 
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    t->nodep[i] = funcs.node_new(FORK_NODE, i, defaultnodesize);
-    t->nodep[i]->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
-    t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
+    t->nodep[i] = funcs.node_new(FORK_NODE, i, nodesize);
+    t->nodep[i]->next = funcs.node_new(FORK_NODE, i, nodesize);
+    t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, nodesize);
     t->nodep[i]->next->next->next = t->nodep[i]; /* finish connect'g circle */
     t->nodep[i]->tip = false;
     t->nodep[i]->next->tip = false;
