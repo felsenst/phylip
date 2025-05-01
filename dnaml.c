@@ -34,6 +34,7 @@ extern FILE *outfile, *infile, *intree, *outtree, *intree2, *workingplot;
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
 extern steptr weight, category, alias, location, ally;
+long nodesize;
 
 /* debug:  extern sequence inputSequences;  */
 
@@ -159,6 +160,7 @@ void dnaml_tree_new(struct tree** treep, long nonodes, long spp,
 {
   /* set up variables and then set up identities of functions */
 
+  nodesize = sizeof(mldna_node);
   bl_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
