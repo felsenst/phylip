@@ -2549,7 +2549,6 @@ void dnaml(
 
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  nodesize = sizeof(mldna_node);
   funcs.node_new = (node_new_t)mldna_node_new;
   funcs.node_init = (node_init_t)mldna_node_init;
   progname = argv[0];
@@ -3039,7 +3038,6 @@ int main(int argc, Char *argv[])
 #endif
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
-  nodesize = sizeof(mldna_node);
   funcs.node_new = (node_new_t)mldna_node_new;
   funcs.node_init = (node_init_t)mldna_node_init;
   phylipinit(argc, argv, &funcs, false);
