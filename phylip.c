@@ -18,6 +18,7 @@ FILE *progfile;
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
 long words, bits;           /* binary words, bit length for sets of species */
+long nodesize=0;             /* to alloc nodes.  Set by funcs.node_new call */
 boolean ibmpc, ansi, tranvsp;            /* screens, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
@@ -69,7 +70,7 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
   /* initialize nodes and forks on a tree, generic version
    * leaves nodes at tips but makes enough nodes for forks
    * and then puts them on the fork_node garbage list  */
-  long i, defaultnodesize=0;
+  long i;
 
   /* these functions may later be customized for each program */
   if ( t->release_fork == NULL )    /* note, if not null does not change it */
@@ -91,15 +92,15 @@ void generic_tree_init(struct tree* t, long nonodes, long spp)
 
   t->spp = spp;
   t->nonodes = nonodes;
-  t->nodep = Malloc(nonodes * sizeof(node *));  /* array of pointers to ... */
+  t->nodep = Malloc(nonodes * sizeof(node *)); /* array of pointers to node */
   for ( i = 0 ; i < spp ; i++ ) {                          /* make new tips */
-    t->nodep[i] = funcs.node_new(TIP_NODE, i+1, defaultnodesize);
+    t->nodep[i] = funcs.node_new(TIP_NODE, i+1, nodesize);
     t->nodep[i]->tip = true; 
   }
   for ( i = spp ; i < nonodes ; i++) {         /* ... and to interior forks */
-    t->nodep[i] = funcs.node_new(FORK_NODE, i, defaultnodesize);
-    t->nodep[i]->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
-    t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, defaultnodesize);
+    t->nodep[i] = funcs.node_new(FORK_NODE, i, nodesize);
+    t->nodep[i]->next = funcs.node_new(FORK_NODE, i, nodesize);
+    t->nodep[i]->next->next = funcs.node_new(FORK_NODE, i, nodesize);
     t->nodep[i]->next->next->next = t->nodep[i]; /* finish connect'g circle */
     t->nodep[i]->tip = false;
     t->nodep[i]->next->tip = false;
@@ -1101,19 +1102,19 @@ double randum(longer seed)
    *   x(t+1) = 1664525 * x(t) mod 2^32,  one that passes the
    * Coveyou-Macpherson and Lehmer tests, see Knuth "The Art of Computer
    * Programming", vol. 2.  We here implement it representing each integer
-   * in base-64 notation -- i.e. as an array of 6 six-bit chunks         */
+   * in base-64 notation -- i.e. as an array of 6 six-bit chunks            */
 
   long i, j, k, sum;
   longer mult, newseed;  /* arrays of longs */
   double x;
 
-  mult[0] = 13;   /* these four statements set the multiplier */
-  mult[1] = 24;   /* -- they are its "digits" in a base-64    */
-  mult[2] = 22;   /*    notation: 1664525 = 6*64^3+22*64^2    */
-  mult[3] = 6;    /*                         +24*64+13        */
+  mult[0] = 13;                 /* these four statements set the multiplier */
+  mult[1] = 24;                 /* -- they are its "digits" in a base-64    */
+  mult[2] = 22;                 /*    notation: 1664525 = 6*64^3+22*64^2    */
+  mult[3] = 6;                  /*                         +24*64+13        */
   for (i = 0; i <= 5; i++)
     newseed[i] = 0;
-  for (i = 0; i <= 5; i++) {  /* do the multiplication piecewise */
+  for (i = 0; i <= 5; i++) {             /* do the multiplication piecewise */
     sum = newseed[i];
     k = i;
     if (i > 3)
@@ -1177,7 +1178,7 @@ void initseed(long *inseed, long *inseed0, longer seed)
       if(scanf("%ld%*[^\n]", inseed)) {}    /* read number and scan to EOL. */
       (void)getchar();
       countup(&loopcount, 10);
-    } while (((*inseed) < 0) || ((*inseed) & 1) == 0);
+    } while (((*inseed) < 0) || ((*inseed) & 1) == 0); /* until odd, and >0 */
   }
   *inseed0 = *inseed;
 
@@ -1219,7 +1220,7 @@ void initoutgroup(long *outgrno, long spp)
     fflush(stdout);
     if(scanf("%ld%*[^\n]", outgrno)) {}     /* read number and scan to EOL. */
     (void)getchar();
-    done = (*outgrno >= 1 && *outgrno <= spp);
+    done = ((*outgrno >= 1) && (*outgrno <= spp));
     if (!done) {
       printf("BAD OUTGROUP NUMBER: %ld.\n", *outgrno);
       printf("  Must be in range 1 - %ld.\n", spp);
@@ -1342,7 +1343,8 @@ void initprobcat(long categs, double *probsum, double *probcat)
 void lgr(long m, double b, raterootarray lgroot)
 { /* For use by initgammacat.  Get roots of m-th Generalized Laguerre
      polynomial, given roots of (m-1)-th, these are to be
-     stored in lgroot[m][].  Written by Lindsey Dubb. */
+     stored in lgroot[m][]. */
+  /* Thanks to Lindsey Dubb for writing these Laguerre polynomial routines */
   long i;
   double upper, lower, x, y;
   boolean dwn;                   /* is function declining in this interval? */
@@ -1390,7 +1392,8 @@ void lgr(long m, double b, raterootarray lgroot)
 
 double logfac (long n)
 { /* log(n!) values were calculated with Mathematica
-     with a precision of 30 digits.  Written by Lindsey Dubb. */
+     with a precision of 30 digits.  */
+  /* Thanks to Lindsey Dubb for writing these Laguerre polynomial routines */
   long i;
   double x;
 
@@ -1433,7 +1436,8 @@ double logfac (long n)
 
 double glaguerre(long m, double b, double x)
 { /* Generalized Laguerre polynomial computed recursively.
-     For use by initgammacat.  Many thanks to Lindsey Dubb */
+     For use by initgammacat.  */
+  /* Thanks to Lindsey Dubb for writing these Laguerre polynomial routines */
   long i;
   double gln, glnm1, glnp1; /* L_n, L_(n-1), L_(n+1) */
 
@@ -1460,6 +1464,7 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
 { /* calculate rates and probabilities to approximate Gamma distribution
      of rates with "categs" categories and shape parameter "alpha" using
      rates and weights from Generalized Laguerre quadrature */
+  /* Thanks to Lindsey Dubb for writing these Laguerre polynomial routines */
   long i;
   raterootarray lgroot;       /* roots of Generalized Laguerre polynomials */
   double f, x, xi, y;
@@ -1487,7 +1492,7 @@ void initlaguerrecat(long categs, double alpha, double *rate, double *probcat)
 double hermite(long n, double x)
 { /* calculates hermite polynomial with degree n and parameter x */
   /* seems to be unprecise for n>13 -> root finder does not converge */
-  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
+  /* Thanks to Lindsey Dubb for writing these Hermite polynomial routines */
   double h1 = 1.;
   double h2 = 2. * x;
   double xx = 2. * x;
@@ -1504,7 +1509,7 @@ double hermite(long n, double x)
 
 void root_hermite(long n, double *hroot)
 { /* find roots of Hermite polynmials */
-  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
+  /* Thanks to Lindsey Dubb for writing these Hermite polynomial routines */
   long z;
   long ii;
   long start;
@@ -1532,7 +1537,7 @@ double halfroot(double (*func)(long m, double x), long n,
      other-bound=startx+delta)
      delta should be small.
      (*func) is a function with two arguments  */
-  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
+  /* Thanks to Lindsey Dubb for writing these Hermite polynomial routines */
   double xl;            /* lower x value */
   double xu;            /* upper x value */
   double xm = 0.0;
@@ -1594,7 +1599,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 {
   /* calculate the weights for the hermite polynomial at the roots
      using formula from Abramowitz and Stegun chapter 25.4.46 p.890 */
-  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
+  /* Thanks to Lindsey Dubb for writing these Hermite polynomial routines */
   long i;
   double hr2;
   double numerator;
@@ -1609,7 +1614,7 @@ void hermite_weight(long n, double * hroot, double * weights)
 
 void inithermitcat(long categs, double alpha, double *rate, double *probcat)
 { /* calculates rates and probabilities */
-  /* Thanks to Lindsey Dubb for writing the Hermite polynomial routines */
+  /* Thanks to Lindsey Dubb for writing these Hermite polynomial routines */
   long i;
   double *hroot;
   double std;
