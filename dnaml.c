@@ -1362,7 +1362,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
-  double y, yold=0, yorig, like, slope, curve, oldlike=0, delta;
+  double y=0.0, yold=0, yorig, like, slope, curve, oldlike=0, delta;
   boolean done, firsttime, better;
   struct node *q;
 
