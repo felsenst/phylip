@@ -30,12 +30,11 @@
 
 struct tree *curtree, *bestree, *bestree2, *priortree;      /* global trees */
 
-extern long nodesize;
 extern FILE *outfile, *infile, *intree, *outtree, *intree2, *workingplot;
 extern FILE *weightfile, *catfile, *ancfile, *mixfile, *factfile;
 extern FILE *progfile;
 extern steptr weight, category, alias, location, ally;
-long nodesize;
+extern long nodesize;
 
 /* debug:  extern sequence inputSequences;  */
 
@@ -161,7 +160,6 @@ void dnaml_tree_new(struct tree** treep, long nonodes, long spp,
 {
   /* set up variables and then set up identities of functions */
 
-  nodesize = sizeof(mldna_node);
   bl_tree_new(treep, nonodes, spp, sizeof(dnaml_tree));
   dnaml_tree_init(*treep, nonodes, spp);
 } /* dnaml_tree_new */
@@ -2549,6 +2547,7 @@ void dnaml(
 
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
+  nodesize = (long)sizeof(mldna_node);
   funcs.node_new = (node_new_t)mldna_node_new;
   funcs.node_init = (node_init_t)mldna_node_init;
   progname = argv[0];
@@ -3038,6 +3037,7 @@ int main(int argc, Char *argv[])
 #endif
   funcs.tree_new = (tree_new_t)dnaml_tree_new;
   funcs.tree_init = (tree_init_t)dnaml_tree_init;
+  nodesize = (long)sizeof(mldna_node);
   funcs.node_new = (node_new_t)mldna_node_new;
   funcs.node_init = (node_init_t)mldna_node_init;
   phylipinit(argc, argv, &funcs, false);

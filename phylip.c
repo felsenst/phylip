@@ -18,10 +18,10 @@ FILE *progfile;
 long spp;                                      /* global: number of species */
 long chars;                        /* global: number of characters or sites */
 long words, bits;           /* binary words, bit length for sets of species */
-long nodesize=0;             /* to alloc nodes.  Set by funcs.node_new call */
 boolean ibmpc, ansi, tranvsp;            /* screens, transversion parsimony */
 naym *nayme;                                   /* array of names of species */
 char progbuf[256];              /* string to display in the progress output */
+long nodesize=0;             /* to alloc nodes.  Set by funcs.node_new call */
 
 FILE *infile, *outfile, *intree, *outtree, *ancfile; /* debug *intree2, *workingplot;  */
 FILE *weightfile, *catfile, *mixfile, *factfile;
@@ -3447,7 +3447,7 @@ void generic_tree_setupfunctions(tree *t)
   t->do_newbl = false;    /* for parsimony etc. Overwritten in ml_tree_init */
   t->lrsaves = Malloc(NLRSAVES * sizeof(node*));
   for ( i = 0 ; i < NLRSAVES ; i++ ) {
-    t->lrsaves[i] = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));  /* debug: need better sizeof?  maybe sizeof(struct node)?  maybe not! */
+    t->lrsaves[i] = funcs.node_new(FORK_NODE, 0, nodesize);  /* debug: need better sizeof?  maybe not! */
   }
   t->temp_p = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));
   t->temp_q = funcs.node_new(FORK_NODE, 0, (long)sizeof(node));
