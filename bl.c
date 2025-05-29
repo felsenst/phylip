@@ -967,12 +967,13 @@ void bl_initialvtrav(struct tree* t, struct bl_node *p)
   struct node *pp, *qq;
 
   pp = (struct node*)p;
-  if (pp == NULL)                      /* if this is a NULL branch bail out */
+  if (pp == NULL)                        /* if this is a NULL branch bail out */
     return;
-  if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
-    p->v = initialv;
-    ((struct bl_node*)(pp->back))->v = initialv;
-  }
+  if (pp->back != NULL)                  /* if this is a NULL branch bail out */
+    if ((!lngths) || p->iter) {     /* set length of this branch to  initialv */
+      ((struct bl_node*)pp)->v = initialv;
+      ((struct bl_node*)(pp->back))->v = initialv;
+    }
   if (!pp->tip) {     /* go around circle, calling initialvtrav on all backs */
     qq = pp->next;
     while ( qq != pp ) {

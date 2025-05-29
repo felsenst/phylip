@@ -916,7 +916,6 @@ void            allocnode(struct node**, long);
 void            allocdiscnode(struct node**, long);
 void            gnudisctreenode(struct node**, struct node**, long, long);
 void            generic_tree_reinit_forknode(struct tree*, struct node*);
-void            generic_initialvtrav(struct node*);
 void            generic_treevaluate(struct tree*, boolean, boolean, boolean);
 #endif /* OLDC */
 

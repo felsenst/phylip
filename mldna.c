@@ -11,9 +11,9 @@ allocx_t allocx_f;
 freex_t *freex_f;                      /* forward: pointer to free function */
 
 
-struct mldna_node_new(type, long index, long nodesize) // RSGbugfix
+struct node* mldna_node_new(node_type type, long index, long nodesize) // RSGbugfix
 {
-  struct mldna_node* n;
+  struct node* n;
 
   // RSGdebug: "index" should be > 0 if used for array access.  Can be 0 only
   // for initialization where it will be changed to > 0 before used for access.
@@ -21,7 +21,7 @@ struct mldna_node_new(type, long index, long nodesize) // RSGbugfix
   assert(index >= 0);
 
   nodesize = sizeof(mldna_node);
-  n = (struct mldna_node*)ml_node_new(type, index, nodesize);
+  n = (struct node*)ml_node_new(type, index, nodesize);
   return n;
 } /* mldna_node_new */
 
