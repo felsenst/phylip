@@ -2236,6 +2236,7 @@ void maketree(void)
     curtree->root = curtree->nodep[currentoutgrno-1];
     generic_root_insert(curtree, curtree->nodep[currentoutgrno-1]);
     smoothit = improve;
+    bl_initialvtrav(curtree, (struct bl_node*)(curtree->root));
     thorough = true;
     bl_update(curtree, curtree->root);
     smooth(curtree, curtree->root);
