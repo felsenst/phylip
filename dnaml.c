@@ -1425,7 +1425,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       if (slope > 0.0) {
         if (fabs(y - yold) < epsilon)        /* if change is too small ... */
           ite = 20;                    /* then don't do any more iterating */
-        }
+        } else {
           if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
             if (y + delta <= 0.0)      /* if goes past zero, truncate there */
@@ -1465,6 +1465,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
+  }
 }  /* dnaml_tree_makenewv */
 
 
