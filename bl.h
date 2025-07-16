@@ -17,8 +17,8 @@
 #endif
 
 extern boolean inserting, smoothit, polishing;
-typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
 extern boolean smoothed;
+typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
 
 typedef struct bl_tree {
   struct tree treepart;
