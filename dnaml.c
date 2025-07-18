@@ -1414,37 +1414,31 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	}
 	if (better) {
 	  if (curve < 0.0) {
-            delta = - slope/curve;                /* Newton-Raphson iteration */
+            delta = - slope/curve;              /* Newton-Raphson iteration */
 	    }	  
-	  } else {                            /* when can't do Newton-Raphson */
+	  } else {                          /* when can't do Newton-Raphson */
 	    if (slope > 0.0)
               y = y + delta;
 	    else
               y = y - delta;
 	  }
-      if (slope > 0.0) {
-        if (fabs(y - yold) < epsilon)        /* if change is too small ... */
-          ite = 20;                    /* then don't do any more iterating */
-        } else {
-          if (curve < 0.0) {
-            delta = - slope/curve;              /* Newton-Raphson iteration */
-            if (y + delta <= 0.0)      /* if goes past zero, truncate there */
-              y = 10.0*epsilon;
+          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
+            ite = 20;                    /* then don't do any more iterating */
+          if (y <= 0.0)                 /* if goes past zero, truncate there */
+            y = 10.0*epsilon;
+          else {
+            if ((yorig > y) && (y + 2.0*delta > yorig))
+              delta = (yorig - y)/2.0;       /* ... only go halfway to yorig */
+            if ((yorig < y) && (y + 2.0*delta < yorig))
+              delta = (y - yorig)/2.0;       /* ... only go halfway to yorig */
+            if (((y < yorig) && (slope < 0.0)) ||
+                ((y > yorig) && (slope > 0.0)))
+              delta = 2.0*delta;
             else
-              y = y + delta;         /* otherwise take a Newton-Raphson step */
-	  } else {                        /* if curvature does not allow NR */
-              if ((yorig > y) && (y + delta > yorig))
-                delta = (yorig - y)/2.0;    /* ... only go halfway to yorig */
-              if ((yorig < y) && (y + delta < yorig))
-                delta = (y - yorig)/2.0;    /* ... only go halfway to yorig */
-              if (((y < yorig) && (slope < 0.0)) ||
-                  ((y > yorig) && (slope > 0.0)))
-                delta = 2.0*delta;
-              else
-                delta = -0.4*delta;
-              yold = y;
-              oldlike = like;
-              y = y + delta;                                /* try a new  y */
+              delta = -0.4*delta;
+            y = y + delta;                 /* otherwise take a step of delta */
+            yold = y;
+            oldlike = like;
             }
           }
         }
@@ -1457,7 +1451,6 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             ite = 20;                    /* then don't do any more iterating */
           }
       }
-      ite++;
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
