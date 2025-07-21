@@ -1363,7 +1363,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
   double y=0.0, yold=0, like, slope, curve, oldlike=0, delta;
-  boolean done, firsttime, better;
+  boolean done, firsttime, newtoned=false, better;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1395,6 +1395,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           y = y - slope / curve;                /* Newton-Raphson iteration */   
 	  if (y < 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
+          newtoned = true;
 	  }	  
 	} else {                            /* when can't do Newton-Raphson */
 	  if (slope > 0.0)
@@ -1415,16 +1416,19 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	if (better) {
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-	    }	  
+            newtoned = true;
+if (newtoned)   /* debug: fake statement to look like newtoned is used */
+   newtoned = true;
 	  } else {                          /* when can't do Newton-Raphson */
 	    if (slope > 0.0)
               y = y + delta;
 	    else
               y = y - delta;
+            newtoned = false;
 	  }
           if (y <= 0.0)                 /* if goes past zero, truncate there */
             y = 10.0*epsilon;
-          else {
+          } else {
 #if 0
             if ((yold > y) && (y + 2.0*delta > yold))
               delta = (yold - y)/2.0;         /* ... only go halfway to yold */
@@ -1436,9 +1440,11 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
               delta = 2.0*delta;
             else
               delta = -0.4*delta;
-            }
+            printf("Not better. delta now %10.8f\n", delta);
+            better = false;
           }
         }
+      }
       if (better) {
        ite++;
        if (fabs(y - yold) < epsilon)           /* if change is too small ... */
