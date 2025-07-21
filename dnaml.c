@@ -1362,7 +1362,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
-  double y=0.0, yold=0, yorig, like, slope, curve, oldlike=0, delta;
+  double y=0.0, yold=0, like, slope, curve, oldlike=0, delta;
   boolean done, firsttime, better;
   struct node *q;
 
@@ -1375,11 +1375,11 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   } else {
     q = p->back;
     y = ((struct bl_node*)p)->v;
-    yorig = y;
+    yold = y;
     done = false;
     firsttime = true;
     it = 1;
-    ite = 0;  /* debug:  why separate it and ite? */
+    ite = 0;  /* debug:  why separate  it  and  ite? */
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
     better = false;
     while ((it < iterations) && (ite < 20) && (!done))
@@ -1422,28 +1422,27 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	    else
               y = y - delta;
 	  }
-          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
-            ite = 20;                    /* then don't do any more iterating */
           if (y <= 0.0)                 /* if goes past zero, truncate there */
             y = 10.0*epsilon;
           else {
-            if ((yorig > y) && (y + 2.0*delta > yorig))
-              delta = (yorig - y)/2.0;       /* ... only go halfway to yorig */
-            if ((yorig < y) && (y + 2.0*delta < yorig))
-              delta = (y - yorig)/2.0;       /* ... only go halfway to yorig */
-            if (((y < yorig) && (slope < 0.0)) ||
-                ((y > yorig) && (slope > 0.0)))
+#if 0
+            if ((yold > y) && (y + 2.0*delta > yold))
+              delta = (yold - y)/2.0;         /* ... only go halfway to yold */
+            if ((yold < y) && (y + 2.0*delta < yold))
+              delta = (y - yold)/2.0;         /* ... only go halfway to yold */
+#endif
+            if (((y < yold) && (slope < 0.0)) ||
+                ((y > yold) && (slope > 0.0)))
               delta = 2.0*delta;
             else
               delta = -0.4*delta;
-            y = y + delta;                 /* otherwise take a step of delta */
-            yold = y;
-            oldlike = like;
             }
           }
         }
       if (better) {
        ite++;
+       if (fabs(y - yold) < epsilon)           /* if change is too small ... */
+         ite = 20;                       /* then don't do any more iterating */
       }
       else {                           /* when the newer likelihood is worse */
 	if (slope > 0.0) {
@@ -1454,11 +1453,10 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
-    smoothed = (fabs(y-yold) < epsilon) && (yorig > 10.0*epsilon);
+    smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
-  }
 }  /* dnaml_tree_makenewv */
 
 
@@ -1801,11 +1799,11 @@ void summarize(void)
     fprintf(outfile, "(although rooted by outgroup) ");
   fprintf(outfile, "this is an unrooted tree!\n\n");
   fprintf(outfile, "Ln Likelihood = %11.5f\n", curtree->score);
-  fprintf(outfile, "\n Between        And            Length");
+  fprintf(outfile, "\n Between        And             Length");
   if (!(!reusertree && usertree && lngths && haslengths))
     fprintf(outfile, "      Approx. Confidence Limits");
   fprintf(outfile, "\n");
-  fprintf(outfile, " -------        ---            ------");
+  fprintf(outfile, " -------        ---             ------");
   if (!(!reusertree && usertree && lngths && haslengths))
     fprintf(outfile, "      ------- ---------- ------");
   fprintf(outfile, "\n\n");
