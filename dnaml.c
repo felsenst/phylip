@@ -1432,22 +1432,17 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           if (((y < yold) && (slope < 0.0)) ||
               ((y > yold) && (slope > 0.0)))
             delta = 2.0*delta;
-          else
+          else {
             delta = -0.4*delta;
+          }
           printf("Not better. delta now %10.8f\n", delta);
           better = false;
         }
       }
-      if (better) {
+      if (fabs(y - yold) < epsilon)           /* if change is too small ... */
+        ite = 20;                       /* then don't do any more iterating */
+      if (better) {        /* otherwise just increment number of iterations */
         ite++;
-        if (fabs(y - yold) < epsilon)          /* if change is too small ... */
-          ite = 20;                      /* then don't do any more iterating */
-      }
-      else {                           /* when the newer likelihood is worse */
-	if (slope > 0.0) {
-          if (fabs(y - yold) < epsilon)        /* if change is too small ... */
-            ite = 20;                    /* then don't do any more iterating */
-          }
         }
       }
       done = fabs(y-yold) < 0.1*epsilon;
