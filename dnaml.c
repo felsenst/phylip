@@ -1363,7 +1363,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
   double y=0.0, yold=0, like, slope, curve, oldlike=0, delta;
-  boolean done, firsttime, newtoned=false, better;
+  boolean done, firsttime, better;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1395,66 +1395,60 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           y = y - slope / curve;                /* Newton-Raphson iteration */   
 	  if (y < 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
-          newtoned = true;
 	  }	  
-	} else {                            /* when can't do Newton-Raphson */
+        } else {                            /* when can't do Newton-Raphson */
+          delta = yold/2.0;
 	  if (slope > 0.0)
             y = y + delta;
 	  else
             y = y - delta;
 	}
       }
-      else {                                       /* if not the first time */
+      else {                               /* if not the first time and ... */
 	if (like > oldlike) {                 /* if likelihood has improved */
 	  better = true;
 	  delta = fabs(y - yold);                           /* step we made */
 	  oldlike = like;                          /* update likelihood ... */
 	  yold = y;                                /* ... and branch length */
-	} else {
-          better = false;
-	}
-	if (better) {
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-            newtoned = true;
-if (newtoned)   /* debug: fake statement to look like newtoned is used */
-   newtoned = true;
+            y = y + delta;
 	  } else {                          /* when can't do Newton-Raphson */
 	    if (slope > 0.0)
               y = y + delta;
 	    else
               y = y - delta;
-            newtoned = false;
 	  }
-          if (y <= 0.0)                 /* if goes past zero, truncate there */
+          if (y <= 0.0)                /* if goes past zero, truncate there */
             y = 10.0*epsilon;
-          } else {
 #if 0
             if ((yold > y) && (y + 2.0*delta > yold))
-              delta = (yold - y)/2.0;         /* ... only go halfway to yold */
+              delta = (yold - y)/2.0;        /* ... only go halfway to yold */
             if ((yold < y) && (y + 2.0*delta < yold))
-              delta = (y - yold)/2.0;         /* ... only go halfway to yold */
+              delta = (y - yold)/2.0;        /* ... only go halfway to yold */
 #endif
-            if (((y < yold) && (slope < 0.0)) ||
-                ((y > yold) && (slope > 0.0)))
-              delta = 2.0*delta;
-            else
-              delta = -0.4*delta;
-            printf("Not better. delta now %10.8f\n", delta);
-            better = false;
-          }
+	} else {                          /* if likelihood has not improved */
+          better = false;
+          if (((y < yold) && (slope < 0.0)) ||
+              ((y > yold) && (slope > 0.0)))
+            delta = 2.0*delta;
+          else
+            delta = -0.4*delta;
+          printf("Not better. delta now %10.8f\n", delta);
+          better = false;
         }
       }
       if (better) {
-       ite++;
-       if (fabs(y - yold) < epsilon)           /* if change is too small ... */
-         ite = 20;                       /* then don't do any more iterating */
+        ite++;
+        if (fabs(y - yold) < epsilon)          /* if change is too small ... */
+          ite = 20;                      /* then don't do any more iterating */
       }
       else {                           /* when the newer likelihood is worse */
 	if (slope > 0.0) {
           if (fabs(y - yold) < epsilon)        /* if change is too small ... */
             ite = 20;                    /* then don't do any more iterating */
           }
+        }
       }
       done = fabs(y-yold) < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
