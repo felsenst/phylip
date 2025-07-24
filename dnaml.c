@@ -1414,38 +1414,30 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             delta = - slope/curve;              /* Newton-Raphson iteration */
             y = y + delta;
 	  } else {                          /* when can't do Newton-Raphson */
+            if (fabs(delta) < epsilon)
+              delta = epsilon;
+            else delta = 2.0*delta;
 	    if (slope > 0.0)
-              y = y + delta;
+              y = yold + delta;
 	    else
-              y = y - delta;
+              y = yold - delta;
 	  }
           if (y <= 0.0)                /* if goes past zero, truncate there */
             y = 10.0*epsilon;
-#if 0
-            if ((yold > y) && (y + 2.0*delta > yold))
-              delta = (yold - y)/2.0;        /* ... only go halfway to yold */
-            if ((yold < y) && (y + 2.0*delta < yold))
-              delta = (y - yold)/2.0;        /* ... only go halfway to yold */
-#endif
+          printf("Better! delta now %10.8f\n", delta);
 	} else {                          /* if likelihood has not improved */
           better = false;
-          if (((y < yold) && (slope < 0.0)) ||
-              ((y > yold) && (slope > 0.0)))
-            delta = 2.0*delta;
-          else {
-            delta = -0.4*delta;
-          }
+          delta = 0.4*delta;
           printf("Not better. delta now %10.8f\n", delta);
-          better = false;
+        }
         }
       }
-      if (fabs(y - yold) < epsilon)           /* if change is too small ... */
+      if (fabs(delta) < epsilon)              /* if change is too small ... */
         ite = 20;                       /* then don't do any more iterating */
       if (better) {        /* otherwise just increment number of iterations */
         ite++;
         }
-      }
-      done = fabs(y-yold) < 0.1*epsilon;
+      done = delta < 0.1*epsilon;
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
