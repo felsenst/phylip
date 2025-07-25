@@ -1415,12 +1415,14 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             y = y + delta;
 	  } else {                          /* when can't do Newton-Raphson */
             if (fabs(delta) < epsilon)
-              delta = epsilon;
+              if (delta > 0)
+                delta = epsilon;
+              else delta = -epsilon;
             else delta = 2.0*delta;
 	    if (slope > 0.0)
-              y = yold + delta;
+              y = y + delta;
 	    else
-              y = yold - delta;
+              y = y - delta;
 	  }
           if (y <= 0.0)                /* if goes past zero, truncate there */
             y = 10.0*epsilon;
@@ -1431,13 +1433,13 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           printf("Not better. delta now %10.8f\n", delta);
         }
         }
-      }
       if (fabs(delta) < epsilon)              /* if change is too small ... */
         ite = 20;                       /* then don't do any more iterating */
       if (better) {        /* otherwise just increment number of iterations */
         ite++;
         }
       done = delta < 0.1*epsilon;
+      }
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
