@@ -1407,30 +1407,29 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       else {                               /* if not the first time and ... */
         better = like > oldlike;
 	if (better) {                         /* if likelihood has improved */
-	  delta = fabs(y - yold);                           /* step we made */
+	  delta = y - yold;                                 /* step we made */
 	  oldlike = like;                          /* update likelihood ... */
 	  yold = y;                                /* ... and branch length */
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
           }
         } else {                            /* when can't do Newton-Raphson */
-          
           if (fabs(delta) < epsilon) {
             if (delta > 0.0)
               delta = epsilon;
             else delta = -epsilon;
           }
-          else delta = 2.0*delta;
 	  if (slope > 0.0)
-            y = y + delta;
+            y = yold + delta;
 	  else
-            y = y - delta;
+            y = yold - delta;
 	}
-          if (y <= 0.0)                /* if goes past zero, truncate there */
-            y = 10.0*epsilon;
+        if (y <= 0.0)                  /* if goes past zero, truncate there */
+          y = 10.0*epsilon;
+        if (better) {
+          delta = 2.0*delta;
           printf("Better! delta now %10.8f\n", delta);
 	} else {                          /* if likelihood has not improved */
-          better = false;
           delta = 0.4*delta;
           printf("Not better. delta now %10.8f\n", delta);
         }
