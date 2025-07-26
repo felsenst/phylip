@@ -1414,6 +1414,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             delta = - slope/curve;              /* Newton-Raphson iteration */
           }
         } else {                            /* when can't do Newton-Raphson */
+          
           if (fabs(delta) < epsilon) {
             if (delta > 0.0)
               delta = epsilon;
