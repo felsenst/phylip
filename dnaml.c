@@ -1412,27 +1412,26 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  yold = y;                                /* ... and branch length */
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-          }
-        } else {                            /* when can't do Newton-Raphson */
-          if (fabs(delta) < epsilon) {
-            if (delta > 0.0)
-              delta = epsilon;
-            else delta = -epsilon;
-          }
-	  if (slope > 0.0)
-            y = yold + delta;
-	  else
-            y = yold - delta;
-	}
-        if (y <= 0.0)                  /* if goes past zero, truncate there */
-          y = 10.0*epsilon;
-        if (better) {
-          delta = 2.0*delta;
+            }
+          else {                            /* when can't do Newton-Raphson */
+              delta = 2.0*delta;
           printf("Better! delta now %10.8f\n", delta);
-	} else {                          /* if likelihood has not improved */
-          delta = 0.4*delta;
+	    if (slope > 0.0)
+              y = yold + delta;
+	    else
+              y = yold - delta;
+	    }
+          } else {
+              delta = 0.4*delta;
           printf("Not better. delta now %10.8f\n", delta);
-        }
+              if (fabs(delta) < epsilon) {
+                if (delta > 0.0)
+                  delta = epsilon;
+                else delta = -epsilon;
+              }
+            if (y <= 0.0)              /* if goes past zero, truncate there */
+              y = 10.0*epsilon;
+          }
       }
       if (fabs(delta) < epsilon)              /* if change is too small ... */
         ite = 20;                       /* then don't do any more iterating */
