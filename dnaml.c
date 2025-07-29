@@ -1407,28 +1407,34 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       else {                               /* if not the first time and ... */
         better = like > oldlike;
 	if (better) {                         /* if likelihood has improved */
-	  delta = y - yold;                                 /* step we made */
+	  delta = y - yold;                             /* the step we made */
 	  oldlike = like;                          /* update likelihood ... */
 	  yold = y;                                /* ... and branch length */
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
+            if (delta < -(yold-epsilon))    /* if about to jump too far ... */
+              delta = -(yold+epsilon);      /* ... prepare to jump less far */
             }
           else {                            /* when can't do Newton-Raphson */
-              delta = 2.0*delta;
+/* debug: put here setting jump from yold, not y.  slopeold? */
+            if (fabs(delta) < epsilon) {    /* if change is to be too small */
+              if (delta < 0.0)
+                delta = epsilon;
+              else
+                delta = -epsilon;
+            }
+            delta = 2.0*delta;
           printf("Better! delta now %10.8f\n", delta);
-	    if (slope > 0.0)
-              y = yold + delta;
-	    else
-              y = yold - delta;
-	    }
-          } else {
-              delta = 0.4*delta;
+	  }
+          y = yold + delta;
+        } else {
+          delta = 0.4*delta;
           printf("Not better. delta now %10.8f\n", delta);
-              if (fabs(delta) < epsilon) {
-                if (delta > 0.0)
-                  delta = epsilon;
-                else delta = -epsilon;
-              }
+          if (fabs(delta) < epsilon) {
+             if (delta > 0.0)
+               delta = epsilon;
+             else delta = -epsilon;
+            }
             if (y <= 0.0)              /* if goes past zero, truncate there */
               y = 10.0*epsilon;
           }
@@ -1788,11 +1794,11 @@ void summarize(void)
   fprintf(outfile, "Ln Likelihood = %11.5f\n", curtree->score);
   fprintf(outfile, "\n Between        And             Length");
   if (!(!reusertree && usertree && lngths && haslengths))
-    fprintf(outfile, "      Approx. Confidence Limits");
+    fprintf(outfile, "       Approx. Confidence Limits");
   fprintf(outfile, "\n");
   fprintf(outfile, " -------        ---             ------");
   if (!(!reusertree && usertree && lngths && haslengths))
-    fprintf(outfile, "      ------- ---------- ------");
+    fprintf(outfile, "       ------- ---------- ------");
   fprintf(outfile, "\n\n");
   for (i = spp; i < nonodes2; i++)
   {
