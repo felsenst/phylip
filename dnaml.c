@@ -1429,7 +1429,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           y = yold + delta;
         } else {
           delta = 0.4*delta;
-          printf("Not better. delta now %10.8f\n", delta);
+          printf("Not better. y, yold, delta now %10.8f, %10.8f, %10.8f\n", y, yold, delta);
           if (fabs(delta) < epsilon) {
              if (delta > 0.0)
                delta = epsilon;
