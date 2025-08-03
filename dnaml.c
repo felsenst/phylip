@@ -1421,11 +1421,10 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 /* debug: put here setting jump from yold, not y.  slopeold? */
             if (fabs(delta) < epsilon) {    /* if change is to be too small */
               if (delta < 0.0)
-                delta = -epsilon;
+                delta = -0.5*epsilon;
               else
-                delta = epsilon;
+                delta = 0.5*epsilon;
             }
-            delta = 2.0*delta;
           printf("Better! delta now %10.8f\n", delta);
 	  }
           y = yold + delta;
@@ -1433,9 +1432,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           delta = 0.4*delta;
           printf("Not better. y, yold, delta now %10.8f, %10.8f, %10.8f\n", y, yold, delta);
           if (fabs(delta) < epsilon) {
-             if (delta > 0.0)
-               delta = epsilon;
-             else delta = -epsilon;
+/* debug: do what here? */
             }
             if (y <= 0.0)              /* if goes past zero, truncate there */
               y = 10.0*epsilon;
