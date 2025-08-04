@@ -1362,7 +1362,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it, ite;
-  double y=0.0, yold=0, like, slope, curve, oldlike=0, delta;
+  double y=0.0, yold=0, like, slope, curve, oldlike, delta;
   boolean done, firsttime, better;
   struct node *q;
 
@@ -1409,47 +1409,33 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
         delta = y - yold;                               /* the step we made */
 	if (better) {                         /* if likelihood has improved */
 	  oldlike = like;                          /* update likelihood ... */
-	  yold = y;                                /* ... and branch length */
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-            if (delta < -(yold-epsilon))    /* if about to jump too far ... */
-              delta = -(yold+epsilon);      /* ... prepare to jump less far */
-            if (fabs(delta) < epsilon)
-              ite = 20;                    /* if jump too small, finish N/R */
-            }
-          else {                            /* when can't do Newton-Raphson */
-/* debug: put here setting jump from yold, not y.  slopeold? */
-            if (fabs(delta) < epsilon) {    /* if change is to be too small */
-              if (delta < 0.0)
-                delta = -0.5*epsilon;
-              else
-                delta = 0.5*epsilon;
-            }
-          printf("Better! delta now %10.8f\n", delta);
-	  }
-          y = yold + delta;
-        } else {
-          delta = 0.4*delta;
-          printf("Not better. y, yold, delta now %10.8f, %10.8f, %10.8f\n", y, yold, delta);
-          if (fabs(delta) < epsilon) {
-/* debug: do what here? */
-            }
-            if (y <= 0.0)              /* if goes past zero, truncate there */
-              y = 10.0*epsilon;
+            if (delta < -(y-epsilon))       /* if about to jump too far ... */
+              delta = -(y-epsilon);         /* ... prepare to jump less far */
           }
+          else
+            delta = 2.0*delta;               /* step twice as far next time */
+	  yold = y;                                 /* update branch length */
+          printf("Better! next delta now %10.8f\n", delta);
+        } else {                                       /* if not better ... */
+          printf("Not better. y, yold now %10.8f, %10.8f\n", y, yold);
+          delta = (y - yold)/2.0;              /* next time, a smaller step */
+        }
       }
+      y = yold + delta;                               /* take the next jump */
       if (fabs(delta) < epsilon)              /* if change is too small ... */
         ite = 20;                       /* then don't do any more iterating */
       ite++;
       done = delta < 0.1*epsilon;
-      }
-/* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, yold);
     }
+/* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, ((struct bl_node*)p)->v);
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
     ((struct tree*)t)->score = oldlike;       /* score is the best likelihood */
-}  /* dnaml_tree_makenewv */
+  }
+} /* dnaml_tree_makenewv */
 
 
 void initdnamlnode(struct tree *treep, struct node *p, long len,
