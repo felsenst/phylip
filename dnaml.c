@@ -1361,9 +1361,9 @@ void slopecurv(struct node *p, double y, double *like,
 void dnaml_tree_makenewv(struct tree* t, struct node* p)
 {
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
-  long it, ite;
+  long it;
   double y=0.0, yold=0, like, slope, curve, oldlike, delta;
-  boolean done, firsttime, better;
+  boolean done, firsttime, better, posslope;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1378,22 +1378,22 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     yold = y;
     done = false;
     firsttime = true;
-    it = 1;
-    ite = 0;  /* debug:  why separate  it  and  ite? */
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
     better = false;
-    while ((it < iterations) && (ite < 20) && (!done))
+    while ((it < iterations) && (it < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
       if (firsttime)              /* if no older value of y to compare with */
       {
+        posslope = slope >= 0.0;
         oldlike = like;
         firsttime = false;
         better = true;
 	if (curve < 0.0) {
-          y = y - slope / curve;                /* Newton-Raphson iteration */   
-	  if (y < 0.0) {
+          delta = - slope / curve;
+          y = y + delta;                        /* Newton-Raphson iteration */   
+	  if (y <= 0.0) {
 	    y = epsilon;                     /* do not allow to go negative */
 	  }	  
         } else {                            /* when can't do Newton-Raphson */
@@ -1414,20 +1414,25 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             if (delta < -(y-epsilon))       /* if about to jump too far ... */
               delta = -(y-epsilon);         /* ... prepare to jump less far */
           }
-          else
-            delta = 2.0*delta;               /* step twice as far next time */
+          else {
+            if (((delta > 0.0) && posslope) || ((delta <= 0.0) && !posslope))
+              delta = 2.0*delta;             /* step twice as far next time */
+            else
+              delta = - delta;          /* turn around and go the other way */
+          }
 	  yold = y;                                 /* update branch length */
+          posslope = slope >= 0.0;
           printf("Better! next delta now %10.8f\n", delta);
         } else {                                       /* if not better ... */
-          printf("Not better. y, yold now %10.8f, %10.8f\n", y, yold);
+          printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
           delta = (y - yold)/2.0;              /* next time, a smaller step */
         }
       }
       y = yold + delta;                               /* take the next jump */
       if (fabs(delta) < epsilon)              /* if change is too small ... */
-        ite = 20;                       /* then don't do any more iterating */
-      ite++;
-      done = delta < 0.1*epsilon;
+        it = 20;                        /* then don't do any more iterating */
+      it++;
+      done = fabs(delta) < 0.1*epsilon;  /* debug:  ? < epsilon ? */
     }
 /* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, ((struct bl_node*)p)->v);
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
