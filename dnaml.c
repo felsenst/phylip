@@ -1393,8 +1393,6 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	if (curve < 0.0) {
           delta = - slope / curve;
           y = y + delta;                        /* Newton-Raphson iteration */   
-	  if (y <= 0.0) {
-	    y = epsilon;                     /* do not allow to go negative */
 	  }	  
         } else {                            /* when can't do Newton-Raphson */
           delta = yold/2.0;
@@ -1403,6 +1401,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  else
             y = y - delta;
 	}
+        if (y <= 0.0) {
+	  y = epsilon;                       /* do not allow to go negative */
       }
       else {                               /* if not the first time and ... */
         better = like > oldlike;
@@ -1428,6 +1428,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           delta = (y - yold)/2.0;              /* next time, a smaller step */
         }
       }
+      if (((delta < 0.0) && posslope) || ((delta >= 0.0) && !posslope))
+        delta = - delta;
       y = yold + delta;                               /* take the next jump */
       if (fabs(delta) < epsilon)              /* if change is too small ... */
         it = 20;                        /* then don't do any more iterating */
