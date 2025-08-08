@@ -1363,7 +1363,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
  /* Newton-Raphson algorithm / simple search improvement of a branch length */
   long it;
   double y=0.0, yold=0, like, slope, curve, oldlike, delta;
-  boolean done, firsttime, better, posslope;
+  boolean done, better, posslope;
   struct node *q;
 
 /* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
@@ -1376,58 +1376,54 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     q = p->back;
     y = ((struct bl_node*)p)->v;
     yold = y;
-    done = false;
-    firsttime = true;
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
-    better = false;
+    slopecurv (p, y, &like, &slope, &curve);
+printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
+    posslope = slope >= 0.0;
+    oldlike = like;
+    better = true;
+    if (curve < 0.0) {
+      delta = - slope / curve;
+      y = y + delta;                            /* Newton-Raphson iteration */   
+      }	  
+    else {                                  /* when can't do Newton-Raphson */
+      delta = yold/2.0;
+      if (slope > 0.0)
+        y = y + delta;
+      else
+        y = y - delta;
+      }
+    if (y <= epsilon) {
+      y = epsilon;                          /* do not allow to go negative */
+    }
+    done = false;
     while ((it < iterations) && (it < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
 printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
-      if (firsttime)              /* if no older value of y to compare with */
-      {
-        posslope = slope >= 0.0;
-        oldlike = like;
-        firsttime = false;
-        better = true;
-	if (curve < 0.0) {
-          delta = - slope / curve;
-          y = y + delta;                        /* Newton-Raphson iteration */   
-	  }	  
-        } else {                            /* when can't do Newton-Raphson */
-          delta = yold/2.0;
-	  if (slope > 0.0)
-            y = y + delta;
-	  else
-            y = y - delta;
-	}
-        if (y <= epsilon) {
-	  y = epsilon;                       /* do not allow to go negative */
-      }
-      else {                               /* if not the first time and ... */
-        better = like > oldlike;
+      better = like > oldlike;
+      if (better) {                           /* if likelihood has improved */
+        posslope = slope > 0.0;
         delta = y - yold;                               /* the step we made */
-	if (better) {                         /* if likelihood has improved */
-	  oldlike = like;                          /* update likelihood ... */
-	  if (curve < 0.0) {
-            delta = - slope/curve;              /* Newton-Raphson iteration */
+	oldlike = like;                            /* update likelihood ... */
+	if (curve < 0.0) {
+          delta = - slope/curve;                /* Newton-Raphson iteration */
           }
-          else {
-            if (((delta > 0.0) && posslope) || ((delta <= 0.0) && !posslope))
-              delta = 2.0*delta;             /* step twice as far next time */
-            else
-              delta = - delta;          /* turn around and go the other way */
-          }
-          if (delta < -(y-epsilon))         /* if about to jump too far ... */
-            delta = -(y-epsilon);           /* ... prepare to jump less far */
-	  yold = y;                                 /* update branch length */
-          posslope = slope >= 0.0;
-          printf("Better! next delta now %10.8f\n", delta);
-        } else {                                       /* if not better ... */
-          delta = (y - yold)/2.0;              /* next time, a smaller step */
-          printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
+        else {
+          if (((delta > 0.0) && posslope) || ((delta <= 0.0) && !posslope))
+            delta = 2.0*delta;               /* step twice as far next time */
+          else
+            delta = - delta;            /* turn around and go the other way */
         }
-      }
+        if (delta < -(y-epsilon))           /* if about to jump too far ... */
+          delta = -(y-epsilon);             /* ... prepare to jump less far */
+	yold = y;                                   /* update branch length */
+        posslope = slope >= 0.0;
+        printf("Better! next delta now %10.8f\n", delta);
+      } else {                                       /* if not better ... */
+        delta = (y - yold)/2.0;                /* next time, a smaller step */
+        printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
+        }
       if (((delta < 0.0) && posslope) || ((delta >= 0.0) && !posslope))
         delta = - delta;
       y = yold + delta;                               /* take the next jump */
