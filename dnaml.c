@@ -1401,7 +1401,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  else
             y = y - delta;
 	}
-        if (y <= 0.0) {
+        if (y <= epsilon) {
 	  y = epsilon;                       /* do not allow to go negative */
       }
       else {                               /* if not the first time and ... */
@@ -1411,8 +1411,6 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
 	  oldlike = like;                          /* update likelihood ... */
 	  if (curve < 0.0) {
             delta = - slope/curve;              /* Newton-Raphson iteration */
-            if (delta < -(y-epsilon))       /* if about to jump too far ... */
-              delta = -(y-epsilon);         /* ... prepare to jump less far */
           }
           else {
             if (((delta > 0.0) && posslope) || ((delta <= 0.0) && !posslope))
@@ -1420,6 +1418,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
             else
               delta = - delta;          /* turn around and go the other way */
           }
+          if (delta < -(y-epsilon))         /* if about to jump too far ... */
+            delta = -(y-epsilon);           /* ... prepare to jump less far */
 	  yold = y;                                 /* update branch length */
           posslope = slope >= 0.0;
           printf("Better! next delta now %10.8f\n", delta);
