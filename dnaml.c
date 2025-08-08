@@ -1424,8 +1424,8 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           posslope = slope >= 0.0;
           printf("Better! next delta now %10.8f\n", delta);
         } else {                                       /* if not better ... */
-          printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
           delta = (y - yold)/2.0;              /* next time, a smaller step */
+          printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
         }
       }
       if (((delta < 0.0) && posslope) || ((delta >= 0.0) && !posslope))
