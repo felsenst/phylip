@@ -723,7 +723,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     else if (!p->tip)
     {
       if (((long)last->ycoord > i) && ((long)first->ycoord < i)
-            && ((i != (long)p->ycoord) || (p == curtree->root)))
+            && ((i != (long)p->ycoord)))
+/* debug || (p == curtree->root)))    */ 
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
