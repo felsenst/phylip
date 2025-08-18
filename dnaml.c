@@ -2234,10 +2234,6 @@ void maketree(void)
         }
       }
 /* debug:  here make sure add rootmost fork in right place */
-#if 0
-      if (smoothit)  /* debug: necessary? */
-        curtree->copy(curtree, priortree);
-#endif
       curtree->addtraverse(curtree, (struct node*)q, curtree->root, further,
                              (struct node *)qwhere, &bestyet, bestree,
                              thorough, false, true, &bestyet);
@@ -2268,7 +2264,9 @@ void maketree(void)
 
       nextsp++;
     }
+#if 0
     curtree->copy(curtree, bestree);
+#endif
     if (global && progress)
     {
       sprintf(progbuf, "\n");
