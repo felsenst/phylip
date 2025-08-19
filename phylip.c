@@ -3829,11 +3829,11 @@ boolean oktoinsertthere(tree* t, node* p) {
   if (ok)
     ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
-    ok = ((p->index != (t->outgrno)+1)) && 
-          (p->back->index != ((t->outgrno)+1));
+    ok = ((p->index != (t->outgrno))) && 
+          (p->back->index != (t->outgrno));
     if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
       q = p;
-      if (p->back->index == ((t->outgrno)+1))
+      if (p->back->index == (t->outgrno))
         q = p->back;                            /* the fork connected to it */
       /* now check that this fork has no more than two non-null branches --
          if so, it is not ok */
