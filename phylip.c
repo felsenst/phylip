@@ -3836,9 +3836,9 @@ boolean oktoinsertthere(tree* t, node* p) {
       if (p->back->index == (t->outgrno))
         q = p->back;                            /* the fork connected to it */
       /* now check that this fork has no more than two non-null branches --
-         if so, it is not ok */
+         if two, it is not ok */
       neighbors = 1;           /* count nonempty neighbors of rootmost fork */
-      for (qq = q->next; qq == q; q = q->next)
+      for (qq = q->next; qq == q; qq = qq->next)
         if (q->back != NULL)
           neighbors++;
       if (neighbors > 2)                   /* has enough neighbors to be ok */
