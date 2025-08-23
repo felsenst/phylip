@@ -2225,31 +2225,21 @@ void maketree(void)
                  (struct node *)q);
       bestree->score = UNDEFINED;
       bestyet = UNDEFINED;
+/* debug:  here make sure add rootmost fork in right place */
+      curtree->addtraverse(curtree, (struct node*)q, curtree->root, further,
+                             (struct node *)qwhere, &bestyet, bestree,
+                             thorough, false, true, &bestyet);
+      bestree->copy(bestree, curtree);
       if (currentoutgrno > enterorder[nextsp-1]) {
         currentoutgrno = enterorder[nextsp-1];
         curtree->root = curtree->nodep[currentoutgrno-1];
       }
       curtree->outgrno = currentoutgrno;
-/* debug:  here make sure add rootmost fork in right place */
-      curtree->addtraverse(curtree, (struct node*)q, curtree->root, further,
-                             (struct node *)qwhere, &bestyet, bestree,
-                             thorough, false, true, &bestyet);
-      if (smoothit) {
-        curtree->insert_(curtree, q, (struct node *)qwhere, false);
-        bestree->copy(bestree, curtree);
-      }
-      else
-      {
-        smoothit = true;
-        curtree->insert_(curtree, q, (struct node *)qwhere, false);
-        bestyet = curtree->score;
-      }
       if (progress)
       {
         writename(nextsp - 1, 1, enterorder);
         phyFillScreenColor();
       }
-
       if (global && nextsp == spp)
       {
         curtree->globrearrange(curtree, bestree, progress,
