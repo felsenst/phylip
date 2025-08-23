@@ -3641,7 +3641,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
         further, qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
       if ( thorough )
       {
-        if ( where != qwhere && bestyet > globtree->score)
+        if ( (where != qwhere) && (bestyet > globtree->score))
         {
           bestree->copy(bestree, globtree);
           success = true;
