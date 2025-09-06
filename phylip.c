@@ -3820,7 +3820,7 @@ debug:   */
 
 boolean oktoinsertthere(tree* t, node* p) {
   /* Check whether this branch is not NULL at either end and is not between
-   * the outgroup and a binary fork to which it is attached */
+   * the root tip and a binary fork to which the root is attached */
   long neighbors;
   boolean ok;
   node *q, *qq;
