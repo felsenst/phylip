@@ -1450,7 +1450,6 @@ void initdnamlnode(struct tree *treep, struct node *p, long len,
   boolean minusread;
   double valyew, divisor;
   struct bl_node *bln, *blnb;
-
   (void)len;                            // RSGnote: Parameter never used.
   (void)ntips;                          // RSGnote: Parameter never used.
   switch (whichinit)
@@ -2213,7 +2212,7 @@ void maketree(void)
     bl_initialvtrav(curtree, (struct bl_node*)(curtree->root));
     thorough = true;
     bl_update(curtree, curtree->root);
-    smooth(curtree, curtree->root);
+    curtree->smoothall(curtree, curtree->root);
     nextsp = 4;
     while (nextsp <= spp)
     {
