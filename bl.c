@@ -249,7 +249,7 @@ void bl_tree_smoothall(struct tree* t, node* p)
   for ( i = 0 ; i < smoothings ; i++ )
   {
     t->smooth(t, p->back);
-    if ( !p->tip )                 /* go out into subtrees at a fork */
+    if ( !p->tip )              /* go out into subtrees if at a fork */
       for ( q = p->next ; q != p ; q = q->next)
         t->smooth(t, q->back);
   }
