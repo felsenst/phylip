@@ -228,29 +228,30 @@ void bl_tree_smoothall(struct tree* t, node* p)
    * using makenewv, with "initialized" reset and views updated
    * as needed.  It may seem like we are doing too many smooths, but sometimes
    * branch near p may already be completely smoothed from an
-   * insert, this insures we spread out in the tree */
+   * insert, this insures we spread the effects out in the tree */
  /* debug: in which file should this be defined? bl.c? ml.c? */
   struct node *q;
   boolean save;
   int i;
 
-  save = smoothit;
   smoothit = true;
-  if (p == NULL) {        /* set outward-looking views uninitialized */
+  save = smoothit;
+  if (p != NULL) {        /* set outward-looking views uninitialized */
     inittrav(t, p);
+  }
+  if (p->back != NULL) {
     inittrav(t, p->back);
   }
 
-  if ( p->tip )
+  if ( p->tip )                              /* smooth interior fork */
     p = p->back;
 
   for ( i = 0 ; i < smoothings ; i++ )
   {
-    smooth(t, p->back);
-    if ( p->tip )
-      return;
-    for ( q = p->next ; q != p ; q = q->next)
-      smooth(t, q->back);
+    t->smooth(t, p->back);
+    if ( !p->tip )                 /* go out into subtrees at a fork */
+      for ( q = p->next ; q != p ; q = q->next)
+        t->smooth(t, q->back);
   }
   smoothit = save;
 } /* bl_tree_smoothall */
