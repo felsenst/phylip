@@ -184,12 +184,15 @@ printf("update branch at node %ld\n", p->index);
 
 void smooth(struct tree* t, node *p)
 {  /* recursively do one step of smoothing on a branch, where
-      smoothing includes getting views at both ends and using the 
-      appropriate function to get a new branch length */
- /* debug: in which file should this be defined? bl.c? ml.c? */
+    * smoothing includes getting views at both ends and using the 
+    * appropriate function to get a new branch length 
+    * defined here since want to get new views for both distance
+    * matrix and likelihood programs */
  struct node *sib_ptr;
 
   if ( p == NULL )
+    return;
+  if (p->back == NULL)
     return;
   smoothed = false;
 
@@ -197,7 +200,8 @@ void smooth(struct tree* t, node *p)
   if (p != NULL) {
     if (p->back != NULL) {
       t->makenewv (t, p);   /* new branch length using appropriate function */
-      inittrav (t, p);    /* and thus set inward-looking pointers false ... */
+/* debug */ printf("makenewv for branch  %ld:%ld\n", p->index, p->back->index);
+      inittrav (t, p);    /* then set all inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
 
       if ( p->tip )
@@ -331,7 +335,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p);                      /* go around fork, out each branch */
+      t->smooth(t, p);                   /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */

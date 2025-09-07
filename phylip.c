@@ -596,7 +596,7 @@ void inittrav (struct tree* t, struct node *p)
    * and then only ones connected to this end of the branch.  It
    * traverses from one end of the branch but not from the other,
    * so usually needs to be called twice, once on each end of the
-   * branch, */
+   * branch. */
   struct node *sib_ptr;
 
   if (p == NULL)
@@ -1102,7 +1102,8 @@ double randum(longer seed)
    *   x(t+1) = 1664525 * x(t) mod 2^32,  one that passes the
    * Coveyou-Macpherson and Lehmer tests, see Knuth "The Art of Computer
    * Programming", vol. 2.  We here implement it representing each integer
-   * in base-64 notation -- i.e. as an array of 6 six-bit chunks            */
+   * in base-64 notation -- i.e. as an array of 6 six-bit chunks.
+   * This is done to allow it to run no matter what the word length is. */
 
   long i, j, k, sum;
   longer mult, newseed;  /* arrays of longs */
@@ -3829,9 +3830,9 @@ boolean oktoinsertthere(tree* t, node* p) {
   if (ok)
     ok = !(p->back == NULL);              /* ... and  p->back  isn't either */
   if (ok) {
-    ok = ((p->index != (t->outgrno))) && 
-          (p->back->index != (t->outgrno));
-    if (!ok) {            /* but if  p  or  p->back is the outgroup tip ... */
+    ok = ((p->index != (t->root->index))) && 
+          (p->back->index != (t->root->index));
+    if (!ok) {                /* but if  p  or  p->back is the root tip ... */
       q = p;
       if (p->back->index == (t->outgrno))
         q = p->back;                            /* the fork connected to it */
