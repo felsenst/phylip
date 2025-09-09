@@ -44,12 +44,18 @@ void bl_tree_new(struct tree **tp, long nonodes, long spp, long treesize)
 void bl_tree_init(struct tree* t, long nonodes, long spp)
 { /* attributes of the generic tree that need bl function versions */
 
-/* debug: if anything to initialize, do this here, but none right now */
-  t->insert_ = bl_tree_insert_;
   t->save_lr_nodes = unrooted_tree_save_lr_nodes;
   t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
   t->save_traverses = bl_tree_save_traverses;
   t->restore_traverses = bl_tree_restore_traverses;
+  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
+  t->insert_ = (tree_insert_t)bl_tree_insert_;
+  t->re_move = (tree_re_move_t)bl_tree_re_move;
+  t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
+  t->do_branchl_on_insert_f = 
+                    (do_branchl_on_insert_t)bl_tree_do_branchl_on_insert;
+  t->do_branchl_on_re_move_f = 
+                  (do_branchl_on_re_move_t)bl_tree_do_branchl_on_re_move;
 } /* bl_tree_init */
 
 
