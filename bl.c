@@ -177,7 +177,7 @@ void bl_update(struct tree *t, struct node *p)
 /* debug:   I think redundant with calls in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
-printf("update branch at node %ld\n", p->index);
+/* debug  printf("update branch at node %ld\n", p->index); */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
     if (p->back != NULL) {
@@ -254,10 +254,10 @@ void bl_tree_smoothall(struct tree* t, node* p)
 
   for ( i = 0 ; i < smoothings ; i++ )
   {
-    t->smooth(t, p->back);
+    smooth(t, p->back);
     if ( !p->tip )              /* go out into subtrees if at a fork */
       for ( q = p->next ; q != p ; q = q->next)
-        t->smooth(t, q->back);
+        smooth(t, q->back);
   }
   smoothit = save;
 } /* bl_tree_smoothall */
@@ -342,7 +342,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      t->smooth(t, p);                   /* go around fork, out each branch */
+      smooth(t, p);                   /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */
@@ -953,13 +953,13 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
     polishing = false;
   }
   else {
-    if (!lngths) {                  /* put initial lengths on all branches */
+    if (!lngths) {                   /* put initial lengths on all branches */
       inittrav(curtree, curtree->root);
       inittrav(curtree, curtree->root->back);
     }
     polishing = true;
     smoothit = true;
-    curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
+    curtree->evaluate(curtree, curtree->root, 0);      /* get current value */
     if (!lngths)
       curtree->smoothall(curtree, curtree->root); /* improve branch lengths */
     smoothit = improve;

@@ -4434,7 +4434,7 @@ void generic_tree_nuview(struct tree* t, struct node* p)
 
   if (!p->tip) {                       /* is this end of the branch a fork? */
     if (p->back != NULL)
-      printf("nuview %ld, looking from %ld\n", p->index, p->back->index); /* debug */
+      /* printf("nuview %ld, looking from %ld\n", p->index, p->back->index); debug */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
         if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
