@@ -177,6 +177,7 @@ void bl_update(struct tree *t, struct node *p)
 /* debug:   I think redundant with calls in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
+/* debug  printf("update branch at node %ld\n", p->index); */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
     if (p->back != NULL) {
@@ -188,7 +189,7 @@ void bl_update(struct tree *t, struct node *p)
 
 
 void smooth(struct tree* t, node *p)
-{  /* recursively do one step of smoothing on a branch, where
+{  /* do one step of smoothing on a branch, where
     * smoothing includes getting views at both ends and using the 
     * appropriate function to get a new branch length 
     * defined here since want to get new views for both distance
@@ -202,6 +203,7 @@ void smooth(struct tree* t, node *p)
   smoothed = false;
 
   bl_update(t, p);       /* get views at both ends updated, maybe recursing */
+  bl_update(t, p->back);                               /* update ends views */
   if (p != NULL) {
     if (p->back != NULL) {
       t->makenewv (t, p);   /* new branch length using appropriate function */
@@ -209,27 +211,14 @@ void smooth(struct tree* t, node *p)
       inittrav (t, p);    /* then set all inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
 
-      if ( p->tip )
-        return;
-      if ( (smoothed && !polishing) || !smoothit )
-        return;
-      }
-      bl_update(t, p->back);                           /* update ends views */
     }
-    for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
-          /* recursion out one end, the  p  end, to do this on all branches */
-      if ( sib_ptr->back )
-      {
-        smooth(t, sib_ptr->back);                      /* go out from there */
-        sib_ptr->initialized = false;    /* adjust its inward-looking views */
-      }
-    } 
+  }
 }  /* smooth */
 
 
 void bl_tree_smooth_traverse(struct tree* t, struct node* p)
 {
-  /* go through the tree multiple times re-estimating branch lengths
+  /* go through the tree one time, re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
    * as needed.  It may seem like we are doing too many smooths, but sometimes
    * branch near p may already be completely smoothed from an
@@ -237,29 +226,42 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
  /* debug: in which file should this be defined? bl.c? ml.c? */
   struct node *q;
   boolean save;
-  int i;
 
   smoothit = true;
   save = smoothit;
-  if (p != NULL) {        /* set outward-looking views uninitialized */
+/* debug:  is this necessary or has already been done by insert? */
+  if (p != NULL) {                 /* set inward-looking views uninitialized */
     inittrav(t, p);
   }
   if (p->back != NULL) {
-    inittrav(t, p->back);
+    inittrav(t, p->back);      /* do the same at the other end of the branch */
   }
 
+/* debug: probably wrong to turn around the other way right away */
+#if 0
   if ( p->tip )                              /* smooth interior fork */
     p = p->back;
+#endif
 
-  for ( i = 0 ; i < smoothings ; i++ )
-  {
-    t->smooth(t, p->back);
-    if ( !p->tip )              /* go out into subtrees if at a fork */
-      for ( q = p->next ; q != p ; q = q->next)
-        t->smooth(t, q->back);
-  }
+  smooth(t, p);                     /* preorder tree traversal of smoothings */
+  if ( !p->tip )                        /* go out into subtrees if at a fork */
+    for ( q = p->next ; q != p ; q = q->next)
+      smoothall(t, q->back);
   smoothit = save;
 } /* bl_tree_smooth_traverse */
+
+
+void bl_tree_smoothing(struct tree* t, struct node* p)
+{
+  /* do recursive smoothing of tree a number (smoothings)
+   * of times. Each time go out both ends of branch */
+  int i;
+
+  for (i=1; i<=smoothings; i++) {
+     bl_tree_smoothall(t, p);
+     bl_tree_smoothall(t, p->back);
+  }
+} /* smoothing */
 
 
 void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,
@@ -341,7 +343,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      t->smooth(t, p);                   /* go around fork, out each branch */
+      smooth(t, p);                   /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */
@@ -952,13 +954,13 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
     polishing = false;
   }
   else {
-    if (!lngths) {                  /* put initial lengths on all branches */
+    if (!lngths) {                   /* put initial lengths on all branches */
       inittrav(curtree, curtree->root);
       inittrav(curtree, curtree->root->back);
     }
     polishing = true;
     smoothit = true;
-    curtree->evaluate(curtree, curtree->root, 0);     /* get current value */
+    curtree->evaluate(curtree, curtree->root, 0);      /* get current value */
     if (!lngths)
       curtree->smoothall(curtree, curtree->root); /* improve branch lengths */
     smoothit = improve;

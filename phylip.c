@@ -3446,7 +3446,7 @@ void generic_tree_setupfunctions(tree *t)
   t->globrearrange = generic_globrearrange;
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
-  t->smooth_traverse = (tree_smooth_traverse_t)no_op;
+  t->smoothall = (tree_smoothall_t)no_op;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
   t->save_lr_nodes = generic_tree_save_lr_nodes;
@@ -3638,7 +3638,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
       } else {
         if ( succeeded && (where != qwhere)) {
           curtree->insert_(curtree, sib_ptr, qwhere, true);
-          curtree->smooth_traverse(curtree, where);
+          curtree->smoothall(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
         }
@@ -3704,7 +3704,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
   while ( succeeded ) {    /* keep doing SPR rearrangements until no change */
     succeeded = false;
-    curtree->smooth_traverse(curtree, curtree->root);        /* smooth tree */
+    curtree->smoothall(curtree, curtree->root);        /* smooth tree */
     bestyet = oldbestyet = curtree->score;                /* save its score */
 
     if (progress) {          /* indent enough to have dits be under the bar */
@@ -4434,7 +4434,7 @@ void generic_tree_nuview(struct tree* t, struct node* p)
 
   if (!p->tip) {                       /* is this end of the branch a fork? */
     if (p->back != NULL)
-      printf("nuview %ld, looking from %ld\n", p->index, p->back->index); /* debug */
+      /* printf("nuview %ld, looking from %ld\n", p->index, p->back->index); debug */
     for ( sib_ptr = p->next ; sib_ptr != p ; sib_ptr = sib_ptr->next ) {
       if (sib_ptr->back ) {                          /* don't do it if NULL */
         if ((!sib_ptr->back->tip) && (!sib_ptr->back->initialized)) {
