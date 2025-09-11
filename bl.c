@@ -177,7 +177,6 @@ void bl_update(struct tree *t, struct node *p)
 /* debug:   I think redundant with calls in phylip.c  */
 
   if (p != NULL) {                                /* if not a NULL node ... */
-printf("update branch at node %ld\n", p->index);
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
     if (p->back != NULL) {
@@ -228,7 +227,7 @@ void smooth(struct tree* t, node *p)
 }  /* smooth */
 
 
-void bl_tree_smoothall(struct tree* t, node* p)
+void bl_tree_smooth_traverse(struct tree* t, struct node* p)
 {
   /* go through the tree multiple times re-estimating branch lengths
    * using makenewv, with "initialized" reset and views updated
@@ -260,7 +259,7 @@ void bl_tree_smoothall(struct tree* t, node* p)
         t->smooth(t, q->back);
   }
   smoothit = save;
-} /* bl_tree_smoothall */
+} /* bl_tree_smooth_traverse */
 
 
 void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,

@@ -50,8 +50,8 @@ void    bl_hookup(struct node*, struct node*);
 void    allocx(long, long, long, struct node**);
 void    bl_update(struct tree*, struct node *);
 void    smooth(struct tree*, struct node *);
-void    smooth_traverse(struct tree*, node *);
-void 	bl_tree_smoothall(struct tree*, node*);
+void    smooth_traverse(struct tree*, struct node *);
+void 	bl_tree_smoothing(struct tree*, struct node*);
 void 	bl_node_reinit(struct node *);
 void    bl_tree_insert_(struct tree*, struct node*, 
                           struct node*, boolean);
