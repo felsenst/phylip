@@ -3446,7 +3446,6 @@ void generic_tree_setupfunctions(tree *t)
   t->globrearrange = generic_globrearrange;
   t->free = generic_tree_free;
   t->copy = generic_tree_copy;
-  t->smoothall = (tree_smoothall_t)no_op;
   t->score = UNDEFINED;
   t->locrearrange = generic_unrooted_locrearrange;
   t->save_lr_nodes = generic_tree_save_lr_nodes;
@@ -3638,7 +3637,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
       } else {
         if ( succeeded && (where != qwhere)) {
           curtree->insert_(curtree, sib_ptr, qwhere, true);
-          curtree->smoothall(curtree, where);
+          smoothing(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
         }
@@ -3704,7 +3703,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
   while ( succeeded ) {    /* keep doing SPR rearrangements until no change */
     succeeded = false;
-    curtree->smoothall(curtree, curtree->root);        /* smooth tree */
+    smoothing(curtree, curtree->root);             /* smooth multiple times */
     bestyet = oldbestyet = curtree->score;                /* save its score */
 
     if (progress) {          /* indent enough to have dits be under the bar */
@@ -3741,7 +3740,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
         removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
-        curtree->smooth_traverse(curtree, where);
+        smoothing(curtree, where);
         curtree->copy(curtree, priortree);
         qwhere = where;
 
@@ -3767,7 +3766,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
                && (bestyet > oldbestyet))
           {
             curtree->insert_(curtree, removed, qwhere, true);
-            curtree->smooth_traverse(curtree, where);
+            smoothing(curtree, where);
             success = true;
             curtree->copy(curtree, globtree);
           }
@@ -4142,7 +4141,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       succeeded = false;
     }
     else {
-      t->smooth_traverse(t, r->back);
+      smoothing(t, r->back);
       *bestyet = t->evaluate(t, p, 0);
       succeeded = true;
       }
@@ -4243,7 +4242,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
     t->score = oldlike;
   } else {
     (*success) = true;
-    t->smooth_traverse(t, t->root);
+    smoothing(t, t->root);
   }
 }  /* rooted_tryrearr */
 

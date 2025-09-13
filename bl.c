@@ -48,7 +48,6 @@ void bl_tree_init(struct tree* t, long nonodes, long spp)
   t->restore_lr_nodes = unrooted_tree_restore_lr_nodes;
   t->save_traverses = bl_tree_save_traverses;
   t->restore_traverses = bl_tree_restore_traverses;
-  t->smoothall = (tree_smoothall_t)bl_tree_smoothall;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
   t->re_move = (tree_re_move_t)bl_tree_re_move;
   t->try_insert_ = (tree_try_insert_t)bl_tree_try_insert_;
@@ -194,7 +193,6 @@ void smooth(struct tree* t, node *p)
     * appropriate function to get a new branch length 
     * defined here since want to get new views for both distance
     * matrix and likelihood programs */
- struct node *sib_ptr;
 
   if ( p == NULL )
     return;
@@ -230,12 +228,14 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
   smoothit = true;
   save = smoothit;
 /* debug:  is this necessary or has already been done by insert? */
+#if 0
   if (p != NULL) {                 /* set inward-looking views uninitialized */
     inittrav(t, p);
   }
   if (p->back != NULL) {
     inittrav(t, p->back);      /* do the same at the other end of the branch */
   }
+#endif
 
 /* debug: probably wrong to turn around the other way right away */
 #if 0
@@ -246,7 +246,7 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
   smooth(t, p);                     /* preorder tree traversal of smoothings */
   if ( !p->tip )                        /* go out into subtrees if at a fork */
     for ( q = p->next ; q != p ; q = q->next)
-      smoothall(t, q->back);
+      bl_tree_smooth_traverse(t, q->back);
   smoothit = save;
 } /* bl_tree_smooth_traverse */
 
@@ -258,10 +258,10 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
   int i;
 
   for (i=1; i<=smoothings; i++) {
-     bl_tree_smoothall(t, p);
-     bl_tree_smoothall(t, p->back);
+     bl_tree_smooth_traverse(t, p);
+     bl_tree_smooth_traverse(t, p->back);
   }
-} /* smoothing */
+} /* bl_tree_smoothing */
 
 
 void bl_tree_do_branchl_on_insert(struct tree* t, struct node* forknode,
@@ -503,7 +503,7 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   succeeded = false;
   tt->save_traverses(tt, p);
   tt->insert_(tt, p, q, false);
-  tt->smoothall(tt, tt->root);
+  bl_tree_smooth_traverse(tt, tt->root);
   like = tt->evaluate(tt, p, false);                  /* get score for tree */
 printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", tt->score, *bestyet, like);   /* debug */
 
@@ -942,7 +942,7 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
   if (reusertree)                             /* if rearrange on user trees */
   {
     arbitrary_resolve(curtree);              /* put in zero-length branches */
-    curtree->smoothall(curtree, curtree->root);
+    bl_tree_smooth_traverse(curtree, curtree->root);
     if (global)
       curtree->globrearrange(curtree, bestree, progress, smoothit, &bestyet);
     else
@@ -950,7 +950,7 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
                              bestree, priortree, false, &bestyet);
     polishing = true;
     smoothit = true;
-    curtree->smoothall(curtree, curtree->root);
+    bl_tree_smooth_traverse(curtree, curtree->root);
     polishing = false;
   }
   else {
@@ -962,7 +962,7 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
     smoothit = true;
     curtree->evaluate(curtree, curtree->root, 0);      /* get current value */
     if (!lngths)
-      curtree->smoothall(curtree, curtree->root); /* improve branch lengths */
+      bl_tree_smooth_traverse(curtree, curtree->root);    /* smooth lengths */
     smoothit = improve;
     polishing = false;
   }

@@ -174,7 +174,6 @@ void dnaml_tree_init(struct tree* t, long nonodes, long spp)
   t->nuview = (tree_nuview_t)dnaml_tree_nuview;
   t->makenewv = (tree_makenewv_t)dnaml_tree_makenewv;
   t->get_fork = generic_tree_get_fork;
-  t->smoothing = (tree_smoothing_t)bl_tree_smoothing;
   t->insert_ = (tree_insert_t)bl_tree_insert_;
 } /* dnaml_tree_init */
 
@@ -2212,7 +2211,7 @@ void maketree(void)
     bl_initialvtrav(curtree, (struct bl_node*)(curtree->root));
     thorough = true;
     bl_update(curtree, curtree->root);
-    curtree->smoothing(curtree, curtree->root);
+    bl_tree_smoothing(curtree, curtree->root);
     nextsp = 4;
     while (nextsp <= spp)
     {
@@ -2249,7 +2248,6 @@ void maketree(void)
         curtree->locrearrange(curtree, curtree->nodep[enterorder[0]-1],
                      smoothit, &bestyet, bestree, priortree, false, &bestyet);
       }
-
       nextsp++;
     }
     curtree->copy(curtree, bestree);

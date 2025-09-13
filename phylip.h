@@ -643,8 +643,8 @@ struct tree {                                         /* the tree structure */
   tree_addtraverse_1way_t addtraverse_1way;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
+  tree_smoothing_t smoothing;
   tree_globrearrange_t globrearrange;
-  tree_smoothall_t smoothall;
   tree_evaluate_t evaluate;
   tree_locrearrange_t locrearrange;
   tree_save_lr_nodes_t save_lr_nodes;
