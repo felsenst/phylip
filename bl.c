@@ -187,7 +187,7 @@ void bl_update(struct tree *t, struct node *p)
 }  /* bl_update */
 
 
-void smooth(struct tree* t, node *p)
+void smooth(struct tree* t, struct node *p)
 {  /* do one step of smoothing on a branch, where
     * smoothing includes getting views at both ends and using the 
     * appropriate function to get a new branch length 
@@ -343,7 +343,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p);                   /* go around fork, out each branch */
+      smooth(t, p);                      /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */
