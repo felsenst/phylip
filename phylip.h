@@ -695,6 +695,7 @@ void            generic_tree_init(struct tree*, long, long);
 struct node*    generic_node_new(node_type, long, long);
 void            generic_node_init(struct node*, node_type, long);
 void            no_op(void);
+void            no_smoothing(struct tree*, struct node*);
 void            smoothing(struct tree*, struct node*);
 void            phylipinit(int, char**, initdata*, boolean);
 struct node*    where_in_dest (struct tree*, struct tree*, struct node*);
