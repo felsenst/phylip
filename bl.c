@@ -263,7 +263,7 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
   for (i=1; i<=smoothings; i++) {
     if (p != 0) {
       bl_tree_smooth_traverse(t, p);
-      if (p->back != 0
+      if (p->back != 0)
         bl_tree_smooth_traverse(t, p->back);
     }
   }

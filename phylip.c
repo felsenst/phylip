@@ -4143,11 +4143,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       succeeded = false;
     }
     else {
-<<<<<<< HEAD
-/* debug: needed?      smoothing(t, r->back);   */
-=======
       t->smoothing(t, r->back);
->>>>>>> 3ed266235c3a83ff03b9d672d846afb2be460da9
       *bestyet = t->evaluate(t, p, 0);
       succeeded = true;
       }
@@ -4248,11 +4244,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
     t->score = oldlike;
   } else {
     (*success) = true;
-<<<<<<< HEAD
-/* debug: needed?    smoothing(t, t->root);  */
-=======
     t->smoothing(t, t->root);
->>>>>>> 3ed266235c3a83ff03b9d672d846afb2be460da9
   }
 }  /* rooted_tryrearr */
 

@@ -697,7 +697,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i && !done)
+    if (((long)q->ycoord == i) && !done)
     {
       if ((long)p->ycoord != (long)q->ycoord)
         putc('+', outfile);
@@ -724,7 +724,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     {
       if ((((long)last->ycoord > i) && ((long)first->ycoord < i)
             && (i != (long)p->ycoord))
-/* debug */  || ((p == curtree->root) && ((long)last->ycoord > i)))
+             || ((p == curtree->root) && ((long)last->ycoord > i)))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
