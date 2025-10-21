@@ -246,7 +246,8 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
   smooth(t, p);                     /* preorder tree traversal of smoothings */
   if ( !p->tip )                        /* go out into subtrees if at a fork */
     for ( q = p->next ; q != p ; q = q->next)
-      bl_tree_smooth_traverse(t, q->back);
+      if (q->back != NULL)
+        bl_tree_smooth_traverse(t, q->back);
   smoothit = save;
 } /* bl_tree_smooth_traverse */
 

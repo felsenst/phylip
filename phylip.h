@@ -643,7 +643,7 @@ struct tree {                                         /* the tree structure */
   tree_addtraverse_1way_t addtraverse_1way;
   tree_insert_t insert_;
   tree_try_insert_t try_insert_;
-  tree_smoothing_t smoothing;
+/* debug   tree_smoothing_t smoothing; */
   tree_globrearrange_t globrearrange;
   tree_evaluate_t evaluate;
   tree_locrearrange_t locrearrange;

@@ -3579,11 +3579,6 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
   boolean succeeded;
   double bestyet;
 
-  /* FIXME should do the "Doing global rearrangements" printf here instead of
-   * outside of this function in every program */
-  //       sprintf(progbuf, "Doing global rearrangements\n");
-  //       print_progress(progbuf);
-
   globtreep = &globtree;
   funcs.tree_new(globtreep, curtree->nonodes, curtree->spp, (long)sizeof(*curtree));
   priortreep = &priortree;
@@ -3607,7 +3602,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
       bestyet = curtree->score;
       sib_ptr  = curtree->nodep[i];
 
-      if (progress)
+      if (progress)                                    /* print row of dots */
       {
         if ((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 )
         {
@@ -3618,10 +3613,10 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
       if (sib_ptr->index == curtree->root->index)
         continue;
-      if ( sib_ptr->back == NULL )   /* this implies unused node */
-        continue; /* probably because of multifurcation */
+      if ( sib_ptr->back == NULL )               /* this implies unused node */
+        continue;                      /* probably because of multifurcation */
 
-      curtree->re_move(curtree, sib_ptr, &where, true);
+      curtree->re_move(curtree, sib_ptr, &where, true);    /* remove subtree */
       curtree->copy(curtree, priortree);
       qwhere = where;
 
@@ -3629,7 +3624,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
         further, qwhere, &bestyet, bestree, thorough, false, false, bestfound);  /* debug: storing? */
       if ( thorough )
       {
-        if ( (where != qwhere) && (bestyet > globtree->score))
+        if ( (where != qwhere) && (bestyet > globtree->score))     /* debug: check ogic here */
         {
           bestree->copy(bestree, globtree);
           success = true;
@@ -3637,7 +3632,6 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
       } else {
         if ( succeeded && (where != qwhere)) {
           curtree->insert_(curtree, sib_ptr, qwhere, true);
-          smoothing(curtree, where);
           success = true;
           curtree->copy(curtree, globtree);
         }
@@ -3650,7 +3644,7 @@ void rooted_globrearrange(tree* curtree, tree* bestree, boolean progress,
     succeeded = success && globtree->score > oldbestyet;
 
     if (progress)
-    {
+    {                                               /* end the progress bar */
       sprintf(progbuf, "\n");
       print_progress(progbuf);
     }
@@ -3703,10 +3697,10 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
   while ( succeeded ) {    /* keep doing SPR rearrangements until no change */
     succeeded = false;
-    smoothing(curtree, curtree->root);             /* smooth multiple times */
+/* debug: needed?    smoothing(curtree, curtree->root);    */         /* smooth multiple times */
     bestyet = oldbestyet = curtree->score;                /* save its score */
 
-    if (progress) {          /* indent enough to have dits be under the bar */
+    if (progress) {          /* indent enough to have dots be under the bar */
       sprintf(progbuf, "   ");
       print_progress(progbuf);
     }
@@ -3722,7 +3716,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         num_sibs = count_sibs(sib_ptr);
 
       if (progress)
-      {
+      {                                    /* add a dot to the progress bar */
         if((i - spp) % (( curtree->nonodes / 72 ) + 1 ) == 0 )
         {
           sprintf(progbuf, ".");
@@ -3740,7 +3734,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
 
         removed = sib_ptr;      /* pull off a subtree with an interior fork */
         curtree->re_move(curtree, removed, &where, true);
-        smoothing(curtree, where);
+/* debug:        smoothing(curtree, where);     is smoothing already done when re_move? */
         curtree->copy(curtree, priortree);
         qwhere = where;
 
@@ -3766,7 +3760,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
                && (bestyet > oldbestyet))
           {
             curtree->insert_(curtree, removed, qwhere, true);
-            smoothing(curtree, where);
+/* debug:  needed?            smoothing(curtree, where);     */
             success = true;
             curtree->copy(curtree, globtree);
           }
@@ -4141,7 +4135,7 @@ boolean unrooted_tree_locrearrange_recurs(tree* t, node *p, double* bestyet,
       succeeded = false;
     }
     else {
-      smoothing(t, r->back);
+/* debug: needed?      smoothing(t, r->back);   */
       *bestyet = t->evaluate(t, p, 0);
       succeeded = true;
       }
@@ -4242,7 +4236,7 @@ void rooted_tryrearr(tree *t, node *p, boolean *success)
     t->score = oldlike;
   } else {
     (*success) = true;
-    smoothing(t, t->root);
+/* debug: needed?    smoothing(t, t->root);  */
   }
 }  /* rooted_tryrearr */
 
