@@ -49,7 +49,7 @@ void    bl_node_print(struct node *);
 void    bl_hookup(struct node*, struct node*);
 void    allocx(long, long, long, struct node**);
 void    bl_update(struct tree*, struct node *);
-void    smooth(struct tree*, struct node *);
+void    bl_smooth(struct tree*, struct node *);
 void 	bl_tree_smooth_traverse(struct tree*, struct node*);
 void 	bl_tree_smoothing(struct tree*, struct node*);
 void 	bl_node_reinit(struct node *);

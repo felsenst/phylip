@@ -187,7 +187,7 @@ void bl_update(struct tree *t, struct node *p)
 }  /* bl_update */
 
 
-void smooth(struct tree* t, node *p)
+void bl_smooth(struct tree* t, node *p)
 {  /* do one step of smoothing on a branch, where
     * smoothing includes getting views at both ends and using the 
     * appropriate function to get a new branch length 
@@ -211,7 +211,7 @@ void smooth(struct tree* t, node *p)
 
     }
   }
-}  /* smooth */
+}  /* bl_smooth */
 
 
 void bl_tree_smooth_traverse(struct tree* t, struct node* p)
@@ -243,11 +243,13 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
     p = p->back;
 #endif
 
-  smooth(t, p);                     /* preorder tree traversal of smoothings */
-  if ( !p->tip )                        /* go out into subtrees if at a fork */
-    for ( q = p->next ; q != p ; q = q->next)
-      if (q->back != NULL)
-        bl_tree_smooth_traverse(t, q->back);
+  bl_smooth(t, p);                  /* preorder tree traversal of smoothings */
+  if (p != 0) {
+    if ( !p->tip )                      /* go out into subtrees if at a fork */
+      for ( q = p->next ; q != p ; q = q->next)
+        if (q->back != 0)
+          bl_tree_smooth_traverse(t, q->back);
+  }
   smoothit = save;
 } /* bl_tree_smooth_traverse */
 
@@ -259,8 +261,11 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
   int i;
 
   for (i=1; i<=smoothings; i++) {
-     bl_tree_smooth_traverse(t, p);
-     bl_tree_smooth_traverse(t, p->back);
+    if (p != 0) {
+      bl_tree_smooth_traverse(t, p);
+      if (p->back != 0
+        bl_tree_smooth_traverse(t, p->back);
+    }
   }
 } /* bl_tree_smoothing */
 
@@ -344,7 +349,7 @@ void bl_tree_insert_(struct tree *t, struct node *p,
     bl_update(t, p);
     for ( i = 0 ; i < smoothings ; i++)
     {
-      smooth(t, p);                   /* go around fork, out each branch */
+      bl_smooth(t, p);                   /* go around fork, out each branch */
     }
   }
 } /* bl_tree_insert_ */
@@ -446,8 +451,8 @@ void bl_tree_re_move(struct tree *t, struct node *p,
     for (i = 0 ; i < smoothings ; i++ )
     {
       if ( smoothit ) {
-        smooth(t, *q);
-        smooth(t, (*q)->back);
+        bl_smooth(t, *q);
+        bl_smooth(t, (*q)->back);
       }
     }
   }
@@ -611,15 +616,15 @@ void blk_tree_insert_(struct tree *t, struct node *newtip,
     set_tyme(newfork, ((struct bl_node*)newfork)->tyme - initialv);
 
   if ( !smoothit ) {
-    smooth(t, newfork);
-    smooth(t, newfork->back);
+    bl_smooth(t, newfork);
+    bl_smooth(t, newfork->back);
   }
   else {
     inittrav(t, newtip);
     inittrav(t, newtip->back);
     for (i = 0 ; i < smoothings ; i++) {
-      smooth(t, newfork);
-      smooth(t, newfork->back);
+      bl_smooth(t, newfork);
+      bl_smooth(t, newfork->back);
     }
   }
 }  /* blk_tree_insert_ */
@@ -667,11 +672,11 @@ void blk_tree_re_move(struct tree* t, struct node *item,
     inittrav(t, whereloc);
     inittrav(t, whereloc->back);
     for ( i = 0 ;  i < smoothings ; i++) {
-      smooth(t, whereloc);
-      smooth(t, whereloc->back);
+      bl_smooth(t, whereloc);
+      bl_smooth(t, whereloc->back);
     }
   }
-  else smooth(t, whereloc->back);
+  else bl_smooth(t, whereloc->back);
 }  /* blk_tree_re_move */
 
 

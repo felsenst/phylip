@@ -476,6 +476,7 @@ typedef struct node* (*node_new_t)(node_type, long, long); /* node_new type */
 typedef void (*node_init_t)(struct node*, node_type, long);  /* n_init type */
 typedef void (*tree_copy_t)(struct tree*, struct tree*);
 typedef void (*tree_setupfunctions_t)(struct tree*);   /* sets up functions */
+typedef void (*tree_smoothing_t)(struct tree*, struct node*);
 typedef void (*node_reinit_t)(struct node*);
 typedef void (*node_free_t)(struct node**);
 typedef void (*node_copy_t)(struct node*, struct node*);
@@ -694,6 +695,8 @@ void            generic_tree_init(struct tree*, long, long);
 struct node*    generic_node_new(node_type, long, long);
 void            generic_node_init(struct node*, node_type, long);
 void            no_op(void);
+void            no_smoothing(struct tree*, struct node*);
+void            smoothing(struct tree*, struct node*);
 void            phylipinit(int, char**, initdata*, boolean);
 struct node*    where_in_dest (struct tree*, struct tree*, struct node*);
 void            generic_tree_copy(struct tree*, struct tree*);
