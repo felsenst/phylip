@@ -175,11 +175,11 @@ void bl_update(struct tree *t, struct node *p)
    * generic_tree_nuview  in phylip.c  */
 /* debug:   I think redundant with calls in phylip.c  */
 
-  if (p != NULL) {                                /* if not a NULL node ... */
+  if (p != 0) {                                   /* if not a NULL node ... */
 /* debug  printf("update branch at node %ld\n", p->index); */
     if (!p->tip)
       generic_tree_nuview(t, p);                    /* recurse from one end */
-    if (p->back != NULL) {
+    if (p->back != 0) {
       if (!p->back->tip)
         generic_tree_nuview(t, p->back);          /* recurse from the other */
     }
@@ -194,16 +194,16 @@ void bl_smooth(struct tree* t, node *p)
     * defined here since want to get new views for both distance
     * matrix and likelihood programs */
 
-  if ( p == NULL )
+  if ( p == 0)
     return;
-  if (p->back == NULL)
+  if (p->back == 0)
     return;
   smoothed = false;
 
   bl_update(t, p);       /* get views at both ends updated, maybe recursing */
   bl_update(t, p->back);                               /* update ends views */
-  if (p != NULL) {
-    if (p->back != NULL) {
+  if (p != 0) {
+    if (p->back != 0) {
       t->makenewv (t, p);   /* new branch length using appropriate function */
 /* debug */ printf("makenewv for branch  %ld:%ld\n", p->index, p->back->index);
       inittrav (t, p);    /* then set all inward-looking pointers false ... */
@@ -227,26 +227,10 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
 
   smoothit = true;
   save = smoothit;
-/* debug:  is this necessary or has already been done by insert? */
-#if 0
-  if (p != NULL) {                 /* set inward-looking views uninitialized */
-    inittrav(t, p);
-  }
-  if (p->back != NULL) {
-    inittrav(t, p->back);      /* do the same at the other end of the branch */
-  }
-#endif
-
-/* debug: probably wrong to turn around the other way right away */
-#if 0
-  if ( p->tip )                              /* smooth interior fork */
-    p = p->back;
-#endif
-
-  bl_smooth(t, p);                  /* preorder tree traversal of smoothings */
   if (p != 0) {
+    bl_smooth(t, p);   /* as this is a preorder tree traversal of smoothings */
     if ( !p->tip )                      /* go out into subtrees if at a fork */
-      for ( q = p->next ; q != p ; q = q->next)
+      for ( q = p ; q != p ; q = q->next)
         if (q->back != 0)
           bl_tree_smooth_traverse(t, q->back);
   }
@@ -262,9 +246,10 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
 
   for (i=1; i<=smoothings; i++) {
     if (p != 0) {
-      bl_tree_smooth_traverse(t, p);
-      if (p->back != 0)
+      if (p->back != 0) {
+        bl_tree_smooth_traverse(t, p);
         bl_tree_smooth_traverse(t, p->back);
+      }
     }
   }
 } /* bl_tree_smoothing */
