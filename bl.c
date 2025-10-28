@@ -192,7 +192,8 @@ void bl_smooth(struct tree* t, node *p)
     * smoothing includes getting views at both ends and using the 
     * appropriate function to get a new branch length 
     * defined here since want to get new views for both distance
-    * matrix and likelihood programs */
+    * matrix and likelihood programs. Then set inward-looking
+    * views uninitialized. */
 
   if ( p == 0)
     return;
@@ -230,7 +231,7 @@ void bl_tree_smooth_traverse(struct tree* t, struct node* p)
   if (p != 0) {
     bl_smooth(t, p);   /* as this is a preorder tree traversal of smoothings */
     if ( !p->tip )                      /* go out into subtrees if at a fork */
-      for ( q = p ; q != p ; q = q->next)
+      for ( q = p->next ; q != p ; q = q->next)
         if (q->back != 0)
           bl_tree_smooth_traverse(t, q->back);
   }
@@ -246,10 +247,10 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
 
   for (i=1; i<=smoothings; i++) {
     if (p != 0) {
-      if (p->back != 0) {
-        bl_tree_smooth_traverse(t, p);
-        bl_tree_smooth_traverse(t, p->back);
-      }
+      bl_tree_smooth_traverse(t, p);
+    }
+    if (p->back != 0) {
+      bl_tree_smooth_traverse(t, p->back);
     }
   }
 } /* bl_tree_smoothing */
