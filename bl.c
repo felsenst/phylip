@@ -206,7 +206,7 @@ void bl_smooth(struct tree* t, node *p)
   if (p != 0) {
     if (p->back != 0) {
       t->makenewv (t, p);   /* new branch length using appropriate function */
-/* debug */ printf("makenewv for branch  %ld:%ld\n", p->index, p->back->index);
+/* debug printf("makenewv for branch  %ld:%ld\n", p->index, p->back->index); */
       inittrav (t, p);    /* then set all inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
 
@@ -497,24 +497,24 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   tt->insert_(tt, p, q, false);
   bl_tree_smooth_traverse(tt, tt->root);
   like = tt->evaluate(tt, p, false);                  /* get score for tree */
-printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", tt->score, *bestyet, like);   /* debug */
+/* printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", tt->score, *bestyet, like);   debug */
 
   if (atstart) {          /* save the tree if it is the first one or better */
     bettertree = true;
     *bestyet = like;
-printf("set *bestyet to  %14.8f\n", like);   /* debug */
+/* printf("set *bestyet to  %14.8f\n", like);   debug */
   } else {
     bettertree = (like > *bestyet);
-printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   /* debug */
-if(bettertree) printf("found better tree, tt->score = %14.8f\n", tt->score); /* debug */
+/* printf("*bestyet, like are %14.8f, %14.8f\n", *bestyet, like);   debug */
+/* debug: if(bettertree) printf("found better tree, tt->score = %14.8f\n", tt->score); debug */
     succeeded = bettertree;
     }
   if (bettertree) {                    /* set variables for return, and ...*/
     *bestyet = like;
-printf("set *bestyet to  %14.8f\n", like);   /* debug */
+/* printf("set *bestyet to  %14.8f\n", like);   debug */
     qqwherein = &qq;
     tt->copy(tt, (struct tree*)bestree);  /* save tree in bestree, and ... */
-printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   /* debug */
+/* printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   debug */
   }
   tt->re_move(tt, p, qqwherein, false);  /* then remove inserted stuff */
 

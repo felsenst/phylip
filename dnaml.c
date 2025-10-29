@@ -1365,9 +1365,9 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   boolean done, better, posslope;
   struct node *q;
 
-/* debug  */ printf("smooth branch %ld:%ld \n", p->index, p->back->index);
-/* debug  */ printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);
-/* debug */ printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]);
+/* debug  printf("smooth branch %ld:%ld \n", p->index, p->back->index);*/ 
+/* debug  printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);*/ 
+/* debug printf("((struct mldna_node*)(p->back))->x[0][0][A] = %ld,%12.6f\n", p->back->index, ((struct mldna_node*)(p->back))->x[0][0][0]);*/ 
   if ((p->index == outgrno) || (p->back->index == outgrno)) {
     ((struct bl_node*)p)->v = epsilon;
     ((struct bl_node*)(p->back))->v = epsilon;
@@ -1377,7 +1377,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     yold = y;
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
     slopecurv (p, y, &like, &slope, &curve);
-printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
+/* printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); debug */
     posslope = slope >= 0.0;
     oldlike = like;
     better = true;
@@ -1400,7 +1400,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
     while ((it < iterations) && (it < 20) && (!done))
     {
       slopecurv (p, y, &like, &slope, &curve);
-printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); /* debug */
+/* printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y, like, slope, curve); debug */
       better = like > oldlike;
       if (better) {                           /* if likelihood has improved */
         posslope = slope > 0.0;
@@ -1419,10 +1419,10 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
           delta = -(y-epsilon);             /* ... prepare to jump less far */
 	yold = y;                                   /* update branch length */
         posslope = slope >= 0.0;
-        printf("Better! next delta now %10.8f\n", delta);
+/* debug        printf("Better! next delta now %10.8f\n", delta); */
       } else {                                       /* if not better ... */
         delta = (y - yold)/2.0;                /* next time, a smaller step */
-        printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta);
+/* debug:  printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta); */
         }
       if (((delta < 0.0) && posslope) || ((delta >= 0.0) && !posslope))
         delta = - delta;
@@ -1432,7 +1432,7 @@ printf(" %ld:%ld v, like,  %10.6f %12.6f %12.6f %12.6f\n", p->index, q->index, y
       it++;
       done = fabs(delta) < 0.1*epsilon;  /* debug:  ? < epsilon ? */
     }
-/* debug */ printf("dnaml_makenewv: now: %13.7f, was: %13.7f\n", y, ((struct bl_node*)p)->v);
+/* debug */ printf("dnaml_makenewv: %ld:%ld, now: %13.7f, was: %13.7f, like = %12.6f\n", p->index, q->index, y, ((struct bl_node*)p)->v, like);
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
