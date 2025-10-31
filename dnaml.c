@@ -1190,6 +1190,7 @@ void dnaml_tree_nuview(struct tree* t, struct node *p)
     ((ml_node*)p)->underflows[i] += correction;
   }                                               /* end of loop over sites */
 
+  /* debug */ if (p->back != 0) printf("nuview of %ld from %ld\n", p->index, p->back->index); else printf("nuvuiew of %ld from empty root\n", p->index);
   ((struct node*)p)->initialized = true;  /* mark node as has view updated */
 
   free_nvd (local_nvd);
