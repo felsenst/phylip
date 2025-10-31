@@ -947,8 +947,8 @@ void bl_treevaluate(struct tree* curtree, boolean improve, boolean reusertree,
   }
   else {
     if (!lngths) {                   /* put initial lengths on all branches */
-      inittrav(curtree, curtree->root);
-      inittrav(curtree, curtree->root->back);
+      initialvtrav(curtree, curtree->root);
+      initialvtrav(curtree, curtree->root->back);
     }
     polishing = true;
     smoothit = true;
