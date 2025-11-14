@@ -499,6 +499,7 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   bl_tree_smoothing(tt, p);
 /* debug  bl_tree_smooth_traverse(tt, tt->root); */
   like = tt->evaluate(tt, p, false);                  /* get score for tree */
+  tt->score = like;
 /* printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", tt->score, *bestyet, like);   debug */
 
   if (atstart) {          /* save the tree if it is the first one or better */
@@ -513,7 +514,7 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
     }
   if (bettertree) {                    /* set variables for return, and ...*/
     *bestyet = like;
-/* printf("set *bestyet to  %14.8f\n", like);   debug */
+ printf("set *bestyet to  %14.8f\n", like);  /* debug */
     qqwherein = &qq;
     tt->copy(tt, (struct tree*)bestree);  /* save tree in bestree, and ... */
 /* printf("bestree->score is now  %14.8f\n", ((struct tree*)bestree)->score);   debug */

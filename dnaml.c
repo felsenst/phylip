@@ -1564,6 +1564,8 @@ void dnaml_printree(void)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
+  if (curtree->root->tip)
+    curtree->root = curtree->root->back;
   dnaml_coordinates(curtree->root->next->next, 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
   for (i = 1; i <= (tipy - down); i++)
@@ -2269,6 +2271,8 @@ void maketree(void)
     {
       if (njumble > 1)
         bestree2->copy(bestree2, curtree);
+      else
+	bestree->copy(bestree, curtree);
       curtree->root = curtree->nodep[outgrno - 1]->back;
       for (i = 0; i < nonodes2; i++)
       {
@@ -2285,6 +2289,7 @@ void maketree(void)
       }
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
+      bestree->copy(bestree, curtree);
       dnaml_printree();
       summarize();
       if (trout) {
