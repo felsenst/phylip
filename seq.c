@@ -663,7 +663,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       r = p->next;
       done = false;
       do {
-        if (r->back != NULL) {
+        if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {
             q = r->back;
@@ -673,7 +673,7 @@ void drawline2(long i, double scale, struct tree* curtree)
         r = r->next;
       } while (!(done || (p != curtree->root && r == p)
                  || (p == curtree->root && r == p->next)));
-      if (p->next->back != NULL) {
+      if (p->next->back != 0) {
         first = p->next->back;
       } else {
         first = p->back;
@@ -681,13 +681,14 @@ void drawline2(long i, double scale, struct tree* curtree)
       r = p;
       while (r->next != p) {
         r = r->next;
-        if (r->back != NULL)
+        if (r->back != 0)
           last = r->back;
       }
       if (p == curtree->root)
-        if (p->back != NULL)
+        if (p->back != 0)
           last = p->back;
     }
+    /* debug */ printf("first: %ld, last: %ld\n", first->index, last->index);
     done = (p->tip || p == q);
     n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);
     if (n < 3 && !q->tip)
