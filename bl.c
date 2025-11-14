@@ -496,7 +496,8 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
   succeeded = false;
   tt->save_traverses(tt, p);
   tt->insert_(tt, p, q, false);
-  bl_tree_smooth_traverse(tt, tt->root);
+  bl_tree_smoothing(tt, p);
+/* debug  bl_tree_smooth_traverse(tt, tt->root); */
   like = tt->evaluate(tt, p, false);                  /* get score for tree */
 /* printf("t->score, bestyet, like are now  %14.8f, %14.8f, %14.8f\n", tt->score, *bestyet, like);   debug */
 
