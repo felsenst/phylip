@@ -4835,7 +4835,7 @@ boolean generic_tree_try_insert_(tree *t, node *p, node *q, node* qwherein,
     bettertree = (t->score > *bestyet);           /* note: bigger is better */
     succeeded = bettertree;
     }
-  if (bettertree) {        /* set best score yet, where, copy tpo best tree */
+  if (bettertree) {         /* set best score yet, where, copy to best tree */
     *bestyet = like;
     qwherein = q;
 /* printf(" try_insert copies tree  t  to bestree\n"); debug */
