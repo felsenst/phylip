@@ -644,10 +644,11 @@ void drawline2(long i, double scale, struct tree* curtree)
 
   p = curtree->root;
   q = curtree->root;
-  assert(p->index > 0);                 // RSGdebug
 
+  if (p->tip)
+    p = p->back;
   extra = false;
-  if ((i == (long)p->ycoord) && (p == curtree->root))
+  if (i == (long)p->ycoord)
   {
     if (p->index - spp >= 10)
       fprintf(outfile, " %2ld", p->index - spp);
@@ -673,10 +674,10 @@ void drawline2(long i, double scale, struct tree* curtree)
         r = r->next;
       } while (!(done || (p != curtree->root && r == p)
                  || (p == curtree->root && r == p->next)));
-      if (p->next->back != 0) {
-        first = p->next->back;
-      } else {
+      if (p->back != 0) {
         first = p->back;
+      } else {
+        first = p->next->back;
       }
       r = p;
       while (r->next != p) {
@@ -684,9 +685,6 @@ void drawline2(long i, double scale, struct tree* curtree)
         if (r->back != 0)
           last = r->back;
       }
-      if (p == curtree->root)
-        if (p->back != 0)
-          last = p->back;
     }
     /* debug */ printf("first: %ld, last: %ld\n", first->index, last->index);
     done = (p->tip || p == q);
