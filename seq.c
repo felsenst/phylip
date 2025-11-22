@@ -668,14 +668,15 @@ void drawline2(long i, double scale, struct tree* curtree)
       do {
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
-          {                           /* if this row intersects that branch */
+          {                            /* if this row intersects that clade */
             q = r->back;                   /* ... then move out that branch */
             done = true;
           }
         }
         r = r->next;
-      } while (!(done || (p != curtree->root && r == p)
-                 || (p == curtree->root && r == p->next)));
+      } while (!done );
+ /* debug      || (p != curtree->root && r == p)
+                 || (p == curtree->root && r == p->next))); debug */
       if (p->back != 0) {
         first = p->back;
       } else {
