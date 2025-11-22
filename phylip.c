@@ -4620,7 +4620,7 @@ void generic_insertroot(struct tree* t, struct node* p, struct node* f)
 
   t->insert_(t, f, p, false);                            /* insert the fork */
   t->root = f;                                /* set the root pointer to it */
-} /* insertroot */
+} /* generic_insertroot */
 
 
 void generic_root_insert(struct tree* t, struct node* p)
@@ -4643,7 +4643,7 @@ void generic_root_insert(struct tree* t, struct node* p)
   k = generic_tree_findemptyfork(t);     /* find an empty slot for the fork */
   q = t->get_fork(t, k);                    /* get a fork for root and node */
   t->nodep[k] = q;                                   /* put it in that slot */
-  generic_insertroot(t, p, q);                 /* insert the circle near  p */
+  generic_insertroot(t, p->back, q);           /* insert the circle near  p */
   q->back = NULL;             /* make sure the rootmost node has empty back */
 } /* generic_root_insert */
 

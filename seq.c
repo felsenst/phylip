@@ -636,6 +636,8 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 void drawline2(long i, double scale, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
+   * the argument  i  is the vertical number of the row we draw,
+   * numbered from top (1) to bottom
    * used in dnaml, proml, & restml */
   struct node *p, *q;
   long n, j;
@@ -645,29 +647,29 @@ void drawline2(long i, double scale, struct tree* curtree)
   p = curtree->root;
   q = curtree->root;
 
-  if (p->tip)
+  if (p->tip)           /* start at interior node connected to outgroup tip */
     p = p->back;
   extra = false;
-  if (i == (long)p->ycoord)
+  if (i == (long)p->ycoord)               /* if  i  is the tip's coordinate */
   {
-    if (p->index - spp >= 10)
+    if (p->index - spp >= 10) /* this works up to 99 but easily generalized */
       fprintf(outfile, " %2ld", p->index - spp);
     else
       fprintf(outfile, "  %ld", p->index - spp);
     extra = true;
   }
   else
-    fprintf(outfile, "  ");
+    fprintf(outfile, "  ");                /* start by indenting two spaces */
   do {
     if (!p->tip)
     {
-      r = p->next;
+      r = p->next;                                 /* go around fork circle */
       done = false;
       do {
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
-          {
-            q = r->back;
+          {                           /* if this row intersects that branch */
+            q = r->back;                   /* ... then move out that branch */
             done = true;
           }
         }

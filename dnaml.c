@@ -1519,7 +1519,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
       (*tipmax) = lengthsum;
     return;
   }
-  q = p->next;
+  q = p;
   do {
     if (q->back != NULL) {
       xx = fracchange * ((struct bl_node*)q)->v;
@@ -1530,10 +1530,10 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     q = q->next;
   } while (((p == curtree->root) || (p != q)) && ((p != curtree->root)
 			                           || (p->next != q)));
-  if (p->next->back == NULL)
-    first = p->next->next->back;
-  else
+  if (p->back == NULL)
     first = p->next->back;
+  else
+    first = p->back;
   q = p;
   while (q->next != p) {
     qprev = q;
@@ -2209,7 +2209,7 @@ void maketree(void)
     if (enterorder[2] == outgrno)
       currentoutgrno = outgrno;
     curtree->root = curtree->nodep[currentoutgrno-1];
-    generic_root_insert(curtree, curtree->nodep[currentoutgrno-1]);
+    generic_root_insert(curtree, curtree->nodep[currentoutgrno-1]->back);
     smoothit = improve;
     bl_initialvtrav(curtree, (struct bl_node*)(curtree->root));
     thorough = true;
