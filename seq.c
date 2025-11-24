@@ -645,17 +645,20 @@ void drawline2(long i, double scale, struct tree* curtree)
   struct node *r, *first =NULL, *last =NULL;
 
   p = curtree->root;
-  q = curtree->root;
-
   if (p->tip)           /* start at interior node connected to outgroup tip */
     p = p->back;
+  q = p;
   extra = false;
   if (i == (long)p->ycoord)               /* if  i  is the tip's coordinate */
   {
-    if (p->index - spp >= 10) /* this works up to 99 but easily generalized */
-      fprintf(outfile, " %2ld", p->index - spp);
-    else
-      fprintf(outfile, "  %ld", p->index - spp);
+    if (p->index - spp >= 100)
+      fprintf(outfile, "%3ld", p->index - spp);
+    else {
+      if (p->index - spp >= 10)
+        fprintf(outfile, " %2ld", p->index - spp);
+      else
+        fprintf(outfile, "  %ld", p->index - spp);
+    }
     extra = true;
   }
   else
@@ -663,9 +666,12 @@ void drawline2(long i, double scale, struct tree* curtree)
   do {
     if (!p->tip)
     {
-      r = p->next;                                 /* go around fork circle */
+      if (p->back != 0)
+        r = p;
+      else
+        r = p->next;
       done = false;
-      do {
+      do {                                         /* go around fork circle */
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
@@ -674,9 +680,9 @@ void drawline2(long i, double scale, struct tree* curtree)
           }
         }
         r = r->next;
-      } while (!done );
- /* debug      || (p != curtree->root && r == p)
-                 || (p == curtree->root && r == p->next))); debug */
+      } while ((!done )
+               || ((p != q) && (r == p))
+                 || ((p == q) && (r == p->next)));
       if (p->back != 0) {
         first = p->back;
       } else {
