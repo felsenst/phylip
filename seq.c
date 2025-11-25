@@ -639,10 +639,9 @@ void drawline2(long i, double scale, struct tree* curtree)
    * the argument  i  is the vertical number of the row we draw,
    * numbered from top (1) to bottom
    * used in dnaml, proml, & restml */
-  struct node *p, *q;
+  struct node *p, *q, *r;
   long n, j;
-  boolean extra, done;
-  struct node *r, *first =NULL, *last =NULL;
+  boolean extra, done, done2;
 
   p = curtree->root;
   if (p->tip)           /* start at interior node connected to outgroup tip */
@@ -663,76 +662,67 @@ void drawline2(long i, double scale, struct tree* curtree)
   }
   else
     fprintf(outfile, "  ");                /* start by indenting two spaces */
-  do {
+  do {                                   /* working our way up the tree ... */
     if (!p->tip)
     {
-      if (p->back != 0)
+      if (p->back != 0)               /* start with first descendant branch */
         r = p;
       else
         r = p->next;
-      done = false;
+      done2 = false;
       do {                                         /* go around fork circle */
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
             q = r->back;                   /* ... then move out that branch */
-            done = true;
+            done2 = true;
           }
         }
         r = r->next;
-      } while ((!done )
-               || ((p != q) && (r == p))
-                 || ((p == q) && (r == p->next)));
-      if (p->back != 0) {
-        first = p->back;
-      } else {
-        first = p->next->back;
-      }
-      r = p;
-      while (r->next != p) {
-        r = r->next;
-        if (r->back != 0)
-          last = r->back;
-      }
+      } while (!done2);
+      p = q;
     }
-    /* debug */ printf("first: %ld, last: %ld\n", first->index, last->index);
-    done = (p->tip || p == q);
-    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);
-    if (n < 3 && !q->tip)
+    /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
+    done = (p->tip || p == q);        /* done if at a tip or not moved node */
+    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);      /* to next node */
+    if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
       n = 3;
     if (extra)
     {
       n--;
       extra = false;
     }
-    if (((long)q->ycoord == i) && !done)
+    if (((long)q->ycoord == i) && !done)          /* if on row of next node */  
     {
       if ((long)p->ycoord != (long)q->ycoord)
         putc('+', outfile);
       else
         putc('-', outfile);
-      if (!q->tip)
+      if (!q->tip)                                           /* if at a tip */
       {
         for (j = 1; j <= n - 2; j++)
           putc('-', outfile);
         assert(q->index > 0);           // RSGdebug
-        if (q->index - spp >= 10)
-          fprintf(outfile, "%2ld", q->index - spp);
-        else
-          fprintf(outfile, "-%ld", q->index - spp);
+        if (q->index - spp >= 100)                 /* print out name at tip */
+          fprintf(outfile, "%3ld", q->index - spp);
+	else {  
+          if (q->index - spp >= 10)
+            fprintf(outfile, "%2ld", q->index - spp);
+          else
+            fprintf(outfile, "-%ld", q->index - spp);
+	}
         extra = true;
       }
       else
-      {
+      {                                       /* print out dashes as branch */
         for (j = 1; j < n; j++)
           putc('-', outfile);
       }
     }
     else if (!p->tip)
     {
-      if ((((long)last->ycoord > i) && ((long)first->ycoord < i)
-            && (i != (long)p->ycoord))
-             || ((p == curtree->root) && ((long)last->ycoord > i)))
+      if (((p->ymin > i) && (p->ymax < i)
+            && (i != (long)p->ycoord)))
       {
         putc('|', outfile);
         for (j = 1; j < n; j++)
@@ -751,9 +741,9 @@ void drawline2(long i, double scale, struct tree* curtree)
     if (q != p)
       p = q;
   } while (!done);
-  if ((long)p->ycoord == i && p->tip)
+  if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
   {
-    for (j = 0; j < nmlngth; j++)
+    for (j = 0; j < nmlngth; j++)                     /* ... write the name */
       putc(nayme[p->index-1][j], outfile);
   }
   putc('\n', outfile);
