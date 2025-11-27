@@ -1521,7 +1521,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   }
   q = p;
   do {
-    if (q->back != NULL) {
+    if (q->back != 0) {
       xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
