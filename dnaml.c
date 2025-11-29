@@ -1507,7 +1507,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   /* establishes coordinates of nodes */
   struct node *q0, *q, *qprev, *first, *last;
   double xx;
-  boolean atroot, dontdo;
+  boolean atroot, dodo;
 
   if (p->tip)
   {
@@ -1524,15 +1524,15 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   q0 = p;
   q = q0;
   do {
-    dontdo = (q->back == 0) || (!atroot && (q != q0));
-    if (dontdo) {
+    dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
+    if (dodo) {
       xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       dnaml_coordinates(q->back,  lengthsum + xx, tipy, tipmax);
     }
     q = q->next;
-  } while (dontdo);
+  } while (dodo);
   if (p->back == 0)
     first = p->next->back;
   else
