@@ -1509,7 +1509,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   double xx;
   boolean atroot, dodo;
 
-  if (p->tip)
+  if (p->tip)                             /* for tips, set ycoord, min, max */
   {
     p->xcoord = (long)(over * lengthsum + 0.5);
     p->ycoord = (*tipy);
@@ -1518,12 +1518,12 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     (*tipy) += down;
     if (lengthsum > (*tipmax))
       (*tipmax) = lengthsum;
-    return;
+    return;                            /* then bail if tip coordinates call */
   }
-  atroot = (p == curtree->root);
-  q0 = p;
-  q = q0;
-  do {
+  atroot = (p == curtree->root);                       /* for interior node */
+  q0 = p;                                        /* q0 starts at the node p */
+  q = q0;                                             /* starts at that too */
+  do {                /* go around ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {
       xx = fracchange * ((struct bl_node*)q)->v;
@@ -1533,7 +1533,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     }
     q = q->next;
   } while (dodo);
-  if (p->back == 0)
+  if (p->back == 0)              /* set first, last pointers to descendants */
     first = p->next->back;
   else
     first = p->back;
