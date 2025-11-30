@@ -1518,6 +1518,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     (*tipy) += down;
     if (lengthsum > (*tipmax))
       (*tipmax) = lengthsum;
+  /* debug */ printf(" %ld: (x, y): (%10.4f, %10.4f), ymin, ymax   %ld, %ld\n", p->index, p->xcoord, p->ycoord, p->ymin, p->ymax );
     return;                            /* then bail if tip coordinates call */
   }
   atroot = (p == curtree->root);                       /* for interior node */
@@ -1533,10 +1534,10 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     }
     q = q->next;
   } while (dodo);
-  if (p->back == 0)              /* set first, last pointers to descendants */
-    first = p->next->back;
-  else
+  if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
     first = p->back;
+  else
+    first = p->next->back;
   q = p;
   while (q->next != p) {
     qprev = q;
@@ -1552,6 +1553,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;
   p->ymax = last->ymax;
+  /* debug */ printf(" %ld: (x, y): (%10.4f, %10.4f), ymin, ymax   %ld, %ld,  first, last: %ld %ld\n", p->index, p->xcoord, p->ycoord, p->ymin, p->ymax, first->index, last->index);
 }  /* dnaml_coordinates */
 
 
