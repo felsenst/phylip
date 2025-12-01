@@ -1523,7 +1523,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   }
   atroot = (p == curtree->root);                       /* for interior node */
   q0 = p;                                        /* q0 starts at the node p */
-  q = q0->next;                             /* starts at next one in circle */
+  q = q0;                                   /* starts at next one in circle */
   do {                /* go around ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {
