@@ -1525,6 +1525,7 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   q0 = p;                                        /* q0 starts at the node p */
   q = q0;                                   /* starts at next one in circle */
   do {                /* go around ring, recursing into descendant subtrees */
+    q = q->next;
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {
       xx = fracchange * ((struct bl_node*)q)->v;
@@ -1532,7 +1533,6 @@ void dnaml_coordinates(struct node *p, double lengthsum,
         xx = 100.0;
       dnaml_coordinates(q->back,  lengthsum + xx, tipy, tipmax);
     }
-    q = q->next;
   } while (dodo);
   if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
     first = p->back;
