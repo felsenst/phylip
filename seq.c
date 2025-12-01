@@ -643,12 +643,12 @@ void drawline2(long i, double scale, struct tree* curtree)
   long n, j;
   boolean extra, done, done2;
 
-  p = curtree->root;
-  if (p->tip)           /* start at interior node connected to outgroup tip */
-    p = p->back;
+  p = curtree->root;    /* start at interior node connected to outgroup tip */
+  if (p->tip)
+    p = p->back;          /* (make damned sure  p  is at the interior node) */
   q = p;
   extra = false;
-  if (i == (long)p->ycoord)               /* if  i  is the tip's coordinate */
+  if (i == (long)p->ycoord)                 /* if  i  is a tip's coordinate */
   {
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
       fprintf(outfile, "%3ld", p->index - spp);
@@ -665,7 +665,7 @@ void drawline2(long i, double scale, struct tree* curtree)
   do {                                   /* working our way up the tree ... */
     if (!p->tip)
     {
-      if (p->back != 0)               /* start with first descendant branch */
+      if (p->back != 0)      /* start with first nonempty descendant branch */
         r = p;
       else
         r = p->next;
@@ -675,16 +675,16 @@ void drawline2(long i, double scale, struct tree* curtree)
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
             q = r->back;                   /* ... then move out that branch */
-            done2 = true;
+            done2 = true;                    /* ... otherwise keep circling */
           }
         }
         r = r->next;
       } while (!done2);
-      p = q;
+      p = q;                        /* ... and set to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
     done = (p->tip || p == q);        /* done if at a tip or not moved node */
-    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);      /* to next node */
+    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);    /* how far is it? */
     if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
       n = 3;
     if (extra)
@@ -713,24 +713,24 @@ void drawline2(long i, double scale, struct tree* curtree)
 	}
         extra = true;
       }
-      else
-      {                                       /* print out dashes as branch */
+      else                                               /* if at a tip ... */
+      {                                   /* ... print out dashes as branch */
         for (j = 1; j < n; j++)
           putc('-', outfile);
       }
     }
-    else if (!p->tip)
+    else if (!p->tip)                                /* if not yet at a tip */
     {
       if (((p->ymin > i) && (p->ymax < i)
             && (i != (long)p->ycoord)))
-      {
+      {       /* if row  i  intersects clade but does not hit its root node */
         if (((i < (long)q->ycoord) && ((long)p->ycoord < i))
             || ((i > (long)q->ycoord) && ((long)p->ycoord > i))) {
-          putc('|', outfile);
+          putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
 	}
-        else {
+        else {                    /* otherwise print blanks for this branch */
           for (j = 1; j <= n; j++)
             putc(' ', outfile);
 	}
@@ -746,10 +746,10 @@ void drawline2(long i, double scale, struct tree* curtree)
   } while (!done);
   if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
   {
-    for (j = 0; j < nmlngth; j++)                     /* ... write the name */
+    for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
       putc(nayme[p->index-1][j], outfile);
   }
-  putc('\n', outfile);
+  putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
 
 

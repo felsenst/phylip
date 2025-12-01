@@ -1523,36 +1523,39 @@ void dnaml_coordinates(struct node *p, double lengthsum,
   }
   atroot = (p == curtree->root);                       /* for interior node */
   q0 = p;                                        /* q0 starts at the node p */
-  q = q0;                                   /* starts at next one in circle */
+  if (!atroot)
+    q = q0->next;      /* unless at root node, starts at next one in circle */
+  else
+    q = q0;
   do {                /* go around ring, recursing into descendant subtrees */
-    q = q->next;
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
-    if (dodo) {
+    if (dodo) {                     /* dodo is "do if not at end of circle" */
       xx = fracchange * ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
-      dnaml_coordinates(q->back,  lengthsum + xx, tipy, tipmax);
+      dnaml_coordinates(q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
     }
+    q = q->next;
   } while (dodo);
   if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
     first = p->back;
   else
     first = p->next->back;
-  q = p;
-  while (q->next != p) {
+  q = p;                    /* find last immediate descendant and set "last"*/
+  while (q->next != p) {      /* if we're all way around this interior node */
     qprev = q;
     q = q->next;
   }
-  if (q->back == 0)
+  if (q->back == 0)                /* if we're at a node with an empty back */
     q = qprev;
   last = q->back;
-  p->xcoord = (long)(over * lengthsum + 0.5);
-  if (p == curtree->root)
+  p->xcoord = (long)(over * lengthsum + 0.5);      /* how far our from root */
+  if (p == curtree->root)     /* debug:  why this? */
     p->ycoord = p->next->back->ycoord;
   else
     p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;
-  p->ymax = last->ymax;
+  p->ymin = first->ymin;              /* get leftmost descendant value of y */
+  p->ymax = last->ymax;                        /* ... and rightmost one too */
   /* debug */ printf(" %ld: (x, y): (%10.4f, %10.4f), ymin, ymax   %ld, %ld,  first, last: %ld %ld\n", p->index, p->xcoord, p->ycoord, p->ymin, p->ymax, first->index, last->index);
 }  /* dnaml_coordinates */
 
