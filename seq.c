@@ -636,20 +636,20 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 void drawline2(long i, double scale, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
-   * the argument  i  is the vertical number of the row we draw,
+   * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in dnaml, proml, & restml */
-  struct node *p, *q, *r;
+  struct node *p, *pprev, *q, *r;
   long n, j;
   boolean extra, done, done2;
 
   p = curtree->root;    /* start at interior node connected to outgroup tip */
   if (p->tip)
     p = p->back;          /* (make damned sure  p  is at the interior node) */
-  q = p;
+  q = p;                                               /* ... and so is  q  */
   extra = false;
   if (i == (long)p->ycoord)                 /* if  i  is a tip's coordinate */
-  {
+  {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
       fprintf(outfile, "%3ld", p->index - spp);
     else {
@@ -674,18 +674,20 @@ void drawline2(long i, double scale, struct tree* curtree)
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
-            q = r->back;                   /* ... then move out that branch */
-            done2 = true;                    /* ... otherwise keep circling */
+            q = r->back;      /* ... then move to next node out that branch */
+            done2 = true;      /* ... and note that done circling that fork */
           }
         }
-        r = r->next;
+        r = r->next;                         /* ... otherwise keep circling */
+	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
       } while (!done2);
-      p = q;                        /* ... and set to next step up the tree */
+      pprev = p;                                           /* where  p  was */
+      p = q;                    /* ... and set  p  to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
-    done = (p->tip || p == q);        /* done if at a tip or not moved node */
-    n = (long)(scale * (q->xcoord - p->xcoord) + 0.5);    /* how far is it? */
-    if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
+    done = (p->tip || q == pprev);    /* done if at a tip, or not moved node */
+    n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* how far is it? */
+    if ((n < 3) && !q->tip)     /* if interior branch, at least 3 chars long */
       n = 3;
     if (extra)
     {
