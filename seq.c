@@ -648,7 +648,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     p = p->back;          /* (make damned sure  p  is at the interior node) */
   q = p;                                               /* ... and so is  q  */
   extra = false;
-  if (i == (long)p->ycoord)                 /* if  i  is a tip's coordinate */
+  if (i == (long)p->ycoord)                /* if  i  is a node's coordinate */
   {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
       fprintf(outfile, "%3ld", p->index - spp);
@@ -661,7 +661,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     extra = true;
   }
   else
-    fprintf(outfile, "  ");                /* start by indenting two spaces */
+    fprintf(outfile, "   ");             /* start by indenting three spaces */
   do {                                   /* working our way up the tree ... */
     if (!p->tip)
     {
@@ -697,7 +697,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     if ((long)q->ycoord == i)                      /* if on row of next node */  
     {
       if ((long)p->ycoord != (long)q->ycoord) {
-        if (i < p->ycoord)
+        if (i < q->ycoord)
           putc(',', outfile);
         else
           putc('\'', outfile);
@@ -726,10 +726,10 @@ void drawline2(long i, double scale, struct tree* curtree)
       }
     }
     else {
-      if (i != (long)p->ycoord)
+      if ((i != (long)pprev->ycoord) && (i != (long)q->ycoord))
       {                       /* if row  i  crosses branch from   p  to  q  */
-        if (((i < (long)q->ycoord) && ((long)p->ycoord < i))
-            || ((i > (long)q->ycoord) && ((long)p->ycoord > i))) {
+        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
+            || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
