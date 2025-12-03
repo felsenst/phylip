@@ -694,38 +694,40 @@ void drawline2(long i, double scale, struct tree* curtree)
       n--;
       extra = false;
     }
-    if (((long)q->ycoord == i) && !done)          /* if on row of next node */  
+    if ((long)q->ycoord == i)                      /* if on row of next node */  
     {
-      if ((long)p->ycoord != (long)q->ycoord)
-        putc('+', outfile);
+      if ((long)p->ycoord != (long)q->ycoord) {
+        if (i < p->ycoord)
+          putc(',', outfile);
+        else
+          putc('\'', outfile);
+      }
       else
         putc('-', outfile);
       if (!q->tip)                                /* if at an interior node */
       {
-        for (j = 1; j <= n - 2; j++)       /* print line of "-" out to node */
+        for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
           putc('-', outfile);
         assert(q->index > 0);           // RSGdebug
         if (q->index - spp >= 100)       /* print out a number for the node */
           fprintf(outfile, "%3ld", q->index - spp);
 	else {  
           if (q->index - spp >= 10)
-            fprintf(outfile, "%2ld", q->index - spp);
+            fprintf(outfile, "-%2ld", q->index - spp);
           else
-            fprintf(outfile, "-%ld", q->index - spp);
+            fprintf(outfile, "--%ld", q->index - spp);
 	}
         extra = true;
       }
       else                                               /* if at a tip ... */
       {                                   /* ... print out dashes as branch */
-        for (j = 1; j < n; j++)
+        for (j = 1; j < n-1; j++)
           putc('-', outfile);
       }
     }
-    else if (!p->tip)                                /* if not yet at a tip */
-    {
-      if (((p->ymin > i) && (p->ymax < i)
-            && (i != (long)p->ycoord)))
-      {       /* if row  i  intersects clade but does not hit its root node */
+    else {
+      if (i != (long)p->ycoord)
+      {                       /* if row  i  crosses branch from   p  to  q  */
         if (((i < (long)q->ycoord) && ((long)p->ycoord < i))
             || ((i > (long)q->ycoord) && ((long)p->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
@@ -737,11 +739,6 @@ void drawline2(long i, double scale, struct tree* curtree)
             putc(' ', outfile);
 	}
       }
-    }
-    else
-    {
-      for (j = 1; j <= n; j++)
-        putc(' ', outfile);
     }
     if (q != p)
       p = q;
