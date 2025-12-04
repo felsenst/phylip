@@ -696,14 +696,10 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     if ((long)q->ycoord == i)                      /* if on row of next node */  
     {
-      if ((long)p->ycoord != (long)q->ycoord) {
-        if (i < q->ycoord)
-          putc(',', outfile);
-        else
-          putc('\'', outfile);
-      }
+      if (i < pprev->ycoord)
+        putc(',', outfile);
       else
-        putc('-', outfile);
+        putc('\'', outfile);
       if (!q->tip)                                /* if at an interior node */
       {
         for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
@@ -727,7 +723,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       if ((i != (long)pprev->ycoord) && (i != (long)q->ycoord))
-      {                       /* if row  i  crosses branch from   p  to  q  */
+      {                   /* if row  i  crosses branch from   pprev  to  q  */
         if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
             || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
