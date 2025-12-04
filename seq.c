@@ -696,10 +696,12 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     if ((long)q->ycoord == i)                      /* if on row of next node */  
     {
-      if (i < pprev->ycoord)
+      if (i < (long)pprev->ycoord)
         putc(',', outfile);
-      else
-        putc('\'', outfile);
+      else {
+        if (i > (long)(pprev)->ycoord)
+          putc('\'', outfile);
+      }
       if (!q->tip)                                /* if at an interior node */
       {
         for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
