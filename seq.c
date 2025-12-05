@@ -648,20 +648,20 @@ void drawline2(long i, double scale, struct tree* curtree)
     p = p->back;          /* (make damned sure  p  is at the interior node) */
   q = p;                                               /* ... and so is  q  */
   extra = false;
-  if (i == (long)p->ycoord)                /* if  i  is a node's coordinate */
+  if (i == (long)p->ycoord)         /* if  i  is rootmost node's coordinate */
   {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
-      fprintf(outfile, "%3ld", p->index - spp);
+      fprintf(outfile, " %3ld", p->index - spp);
     else {
       if (p->index - spp >= 10)
-        fprintf(outfile, " %2ld", p->index - spp);
+        fprintf(outfile, "  %2ld", p->index - spp);
       else
-        fprintf(outfile, "  %ld", p->index - spp);
+        fprintf(outfile, "   %ld", p->index - spp);
     }
     extra = true;
   }
   else
-    fprintf(outfile, "   ");             /* start by indenting three spaces */
+    fprintf(outfile, "  ");                /* start by indenting two spaces */
   do {                                   /* working our way up the tree ... */
     if (!p->tip)
     {
@@ -717,7 +717,7 @@ void drawline2(long i, double scale, struct tree* curtree)
 	}
         extra = true;
       }
-      else                                               /* if at a tip ... */
+      else                                             /*   if at a tip ... */
       {                                   /* ... print out dashes as branch */
         for (j = 1; j < n-1; j++)
           putc('-', outfile);
@@ -736,6 +736,14 @@ void drawline2(long i, double scale, struct tree* curtree)
           for (j = 1; j <= n; j++)
             putc(' ', outfile);
 	}
+      }
+      else {
+        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
+            || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
+          putc('|', outfile);                 /* if branch crosses this row */
+        }
+        for (j = 1; j <= n; j++)
+          putc(' ', outfile);
       }
     }
     if (q != p)
