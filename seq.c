@@ -7,10 +7,6 @@
 #  include <config.h>
 #endif
 
-#if 0
-#include "phylip.h"
-#endif
-
 #include "seq.h"
 
 #define SAMPLES 1000
@@ -719,44 +715,26 @@ void drawline2(long i, double scale, struct tree* curtree)
       }
       else                                             /*   if at a tip ... */
       {                                   /* ... print out dashes as branch */
+        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
+          || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
+        putc('|', outfile);                 /* if branch crosses this row */
         for (j = 1; j < n; j++)
-          putc('-', outfile);
+          putc(' ', outfile);
+        }
       }
     }
     else {
-#if 0
-      if ((i != (long)pprev->ycoord) && (i != (long)q->ycoord))
-      {                   /* if row  i  crosses branch from   pprev  to  q  */
-#endif
-        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
-            || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
-          putc('|', outfile);                 /* if branch crosses this row */
-          for (j = 1; j < n; j++)
-            putc(' ', outfile);
-	}
-        else {                    /* otherwise print blanks for this branch */
-          for (j = 1; j <= n; j++)
-            putc(' ', outfile);
-	}
-      }
-#if 0
-      else {
-        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
-            || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
-          putc('|', outfile);                 /* if branch crosses this row */
-        }
-        for (j = 1; j <= n; j++)
-          putc(' ', outfile);
+      for (j = 1; j <= n; j++)
+        putc('-', outfile);
       }
     }
-#endif
     if (q != p)
       p = q;
   } while (!done);
-  if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
+  if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
   {
     for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
-      putc(nayme[p->index-1][j], outfile);
+      putc(nayme[q->index-1][j], outfile);
   }
   putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
