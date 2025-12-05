@@ -698,19 +698,20 @@ void drawline2(long i, double scale, struct tree* curtree)
         if (i > (long)(pprev)->ycoord)
           putc('\'', outfile);
       }
-        for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
-          putc('-', outfile);
-        assert(q->index > 0);           // RSGdebug
-        if (q->index - spp >= 100)       /* print out a number for the node */
+      for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
+        putc('-', outfile);
+      assert(q->index > 0);           // RSGdebug
+      if (!q->tip) {                                  /*   if at a tip ... */
+        if (q->index - spp >= 100)      /* print out a number for the node */
           fprintf(outfile, "%3ld", q->index - spp);
 	else {  
           if (q->index - spp >= 10)
             fprintf(outfile, "-%2ld", q->index - spp);
           else
             fprintf(outfile, "--%ld", q->index - spp);
+      }
 	}
         extra = true;
-      if (q->tip)                                      /*   if at a tip ... */
       {                                   /* ... print out dashes as branch */
         if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
           || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
@@ -722,9 +723,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       for (j = 1; j <= n; j++)
-        putc('-', outfile);
+        putc(' ', outfile);
       }
-    }
     if (q != p)
       p = q;
   } while (!done);
