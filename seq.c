@@ -651,12 +651,12 @@ void drawline2(long i, double scale, struct tree* curtree)
   if (i == (long)p->ycoord)         /* if  i  is rootmost node's coordinate */
   {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
-      fprintf(outfile, " %3ld", p->index - spp);
+      fprintf(outfile, "%3ld", p->index - spp);
     else {
       if (p->index - spp >= 10)
-        fprintf(outfile, "  %2ld", p->index - spp);
+        fprintf(outfile, " %2ld", p->index - spp);
       else
-        fprintf(outfile, "   %ld", p->index - spp);
+        fprintf(outfile, "  %ld", p->index - spp);
     }
     extra = true;
   }
@@ -704,7 +704,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       }
       if (!q->tip)                                /* if at an interior node */
       {
-        for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
+        for (j = 1; j <= n - 2; j++)       /* print line of "-" out to node */
           putc('-', outfile);
         assert(q->index > 0);           // RSGdebug
         if (q->index - spp >= 100)       /* print out a number for the node */
@@ -719,13 +719,15 @@ void drawline2(long i, double scale, struct tree* curtree)
       }
       else                                             /*   if at a tip ... */
       {                                   /* ... print out dashes as branch */
-        for (j = 1; j < n-1; j++)
+        for (j = 1; j < n; j++)
           putc('-', outfile);
       }
     }
     else {
+#if 0
       if ((i != (long)pprev->ycoord) && (i != (long)q->ycoord))
       {                   /* if row  i  crosses branch from   pprev  to  q  */
+#endif
         if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
             || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
@@ -737,6 +739,7 @@ void drawline2(long i, double scale, struct tree* curtree)
             putc(' ', outfile);
 	}
       }
+#if 0
       else {
         if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
             || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
@@ -746,6 +749,7 @@ void drawline2(long i, double scale, struct tree* curtree)
           putc(' ', outfile);
       }
     }
+#endif
     if (q != p)
       p = q;
   } while (!done);
