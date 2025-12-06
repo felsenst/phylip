@@ -679,33 +679,33 @@ void drawline2(long i, double scale, struct tree* curtree)
         }
         r = rnext;                           /* ... otherwise keep circling */
 	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
-      } while (!done2);
+      } while (!done2);                /* finished going around fork circle */
       pprev = p;                                           /* where  p  was */
       p = q;                    /* ... and set  p  to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
-    done = p->tip;                  /* done if at a tip, or not moved node */
-    n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* how far is it? */
-    if ((n < 3) && !q->tip)     /* if interior branch, at least 3 chars long */
+    done = p->tip;                   /* done if at a tip, or not moved node */
+    n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* it's how far? */
+    if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
       n = 3;
     if (extra)
     {
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i)                      /* if on row of next node */  
+    if ((long)q->ycoord == i)                     /* if on row of next node */  
     {
-      if (i < (long)pprev->ycoord)
+      if (i < (long)pprev->ycoord)      /* print the corner turn characters */
         putc(',', outfile);
       else {
         if (i > (long)(pprev)->ycoord)
           putc('\'', outfile);
       }
-      for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
+      for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
         putc('-', outfile);
       assert(q->index > 0);           // RSGdebug
-      if (!q->tip) {                                  /*   if at a tip ... */
-        if (q->index - spp >= 100)      /* print out a number for the node */
+      if (!q->tip) {                               /*   if not at a tip ... */
+        if (q->index - spp >= 100)       /* print out a number for the node */
           fprintf(outfile, "%3ld", q->index - spp);
 	else {  
           if (q->index - spp >= 10)
@@ -717,8 +717,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       extra = true;
-      if (((i < (long)q->back->ycoord) && ((long)pprev->back->ycoord < i))
-        || ((i > (long)q->back->ycoord) && ((long)pprev->back->ycoord > i))) {
+      if (((i < (long)rnext->back->ycoord) && ((long)r->back->ycoord < i))
+        || ((i > (long)rnext->back->ycoord) && ((long)r->back->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
