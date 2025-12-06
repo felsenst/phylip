@@ -671,7 +671,7 @@ void drawline2(long i, double scale, struct tree* curtree)
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
             q = r->back;      /* ... then move to next node out that branch */
-            done2 = true;      /* ... and note that done circling that fork */
+            done2 = true;  /* ... and note that are done circling that fork */
           }
         }
         r = r->next;                         /* ... otherwise keep circling */
@@ -681,7 +681,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       p = q;                    /* ... and set  p  to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
-    done = (p->tip || q == pprev);    /* done if at a tip, or not moved node */
+    done = p->tip;                  /* done if at a tip, or not moved node */
     n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* how far is it? */
     if ((n < 3) && !q->tip)     /* if interior branch, at least 3 chars long */
       n = 3;
@@ -709,21 +709,21 @@ void drawline2(long i, double scale, struct tree* curtree)
             fprintf(outfile, "-%2ld", q->index - spp);
           else
             fprintf(outfile, "--%ld", q->index - spp);
-      }
-	}
-        extra = true;
-      {                                   /* ... print out dashes as branch */
-        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
-          || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
-        putc('|', outfile);                 /* if branch crosses this row */
-        for (j = 1; j < n; j++)
-          putc(' ', outfile);
         }
       }
     }
     else {
-      for (j = 1; j <= n; j++)
-        putc(' ', outfile);
+      extra = true;
+      if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
+        || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
+          putc('|', outfile);                 /* if branch crosses this row */
+          for (j = 1; j < n; j++)
+            putc(' ', outfile);
+        }
+      else {
+        for (j = 1; j <= n; j++)
+          putc(' ', outfile);
+      }
     }
     if (q != p)
       p = q;
