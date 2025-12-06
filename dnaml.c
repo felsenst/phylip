@@ -1190,7 +1190,6 @@ void dnaml_tree_nuview(struct tree* t, struct node *p)
     ((ml_node*)p)->underflows[i] += correction;
   }                                               /* end of loop over sites */
 
-  /* debug */ if (p->back != 0) printf("nuview of %ld from %ld\n", p->index, p->back->index); else printf("nuvuiew of %ld from empty root\n", p->index);
   ((struct node*)p)->initialized = true;  /* mark node as has view updated */
 
   free_nvd (local_nvd);
@@ -1364,7 +1363,6 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
   long it;
   double y=0.0, yold=0, like, slope, curve, oldlike, delta;
   boolean done, better, posslope;
-  struct node *q;
 
 /* debug  printf("smooth branch %ld:%ld \n", p->index, p->back->index);*/ 
 /* debug  printf("((struct mldna_node*)p)->x[0][0][A] = %ld, %12.6f\n", p->index, ((struct mldna_node*)p)->x[0][0][0]);*/ 
@@ -1373,7 +1371,6 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
     ((struct bl_node*)p)->v = epsilon;
     ((struct bl_node*)(p->back))->v = epsilon;
   } else {
-    q = p->back;
     y = ((struct bl_node*)p)->v;
     yold = y;
     delta = y/2.0;        /* initial step size for non-Newton-Raphson steps */
@@ -1433,7 +1430,6 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
       it++;
       done = fabs(delta) < 0.1*epsilon;  /* debug:  ? < epsilon ? */
     }
-/* debug */ printf("dnaml_makenewv: %ld:%ld, now: %13.7f, was: %13.7f, like = %12.6f\n", p->index, q->index, y, ((struct bl_node*)p)->v, like);
     smoothed = (fabs(y-yold) < epsilon) && (yold > 10.0*epsilon);
     ((struct bl_node*)p)->v = yold;    /* the last one with better likelihood */
     ((struct bl_node*)(p->back))->v = yold;
@@ -1518,7 +1514,6 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     (*tipy) += down;
     if (lengthsum > (*tipmax))
       (*tipmax) = lengthsum;
-  /* debug */ printf(" %ld: (x, y): (%10.4f, %10.4f), ymin, ymax   %ld, %ld\n", p->index, p->xcoord, p->ycoord, p->ymin, p->ymax );
     return;                            /* then bail if tip coordinates call */
   }
   atroot = (p == curtree->root);                       /* for interior node */
@@ -1556,7 +1551,6 @@ void dnaml_coordinates(struct node *p, double lengthsum,
     p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;              /* get leftmost descendant value of y */
   p->ymax = last->ymax;                        /* ... and rightmost one too */
-  /* debug */ printf(" %ld: (x, y): (%10.4f, %10.4f), ymin, ymax   %ld, %ld,  first, last: %ld %ld\n", p->index, p->xcoord, p->ycoord, p->ymin, p->ymax, first->index, last->index);
 }  /* dnaml_coordinates */
 
 

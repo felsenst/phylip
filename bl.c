@@ -206,7 +206,6 @@ void bl_smooth(struct tree* t, node *p)
   if (p != 0) {
     if (p->back != 0) {
       t->makenewv (t, p);   /* new branch length using appropriate function */
-/* debug */ printf("makenewv for branch  %ld:%ld %12.5f\n", p->index, p->back->index, ((struct bl_node*)p)->v);
       inittrav (t, p);    /* then set all inward-looking pointers false ... */
       inittrav (t, p->back);                /* ... from both ends of branch */
 
@@ -246,7 +245,6 @@ void bl_tree_smoothing(struct tree* t, struct node* p)
   long i;
 
   for (i=1; i<=smoothings; i++) {
-/* debug */  printf("smoothtraverses #%ld from node %ld\n", i, p->index);
     if (p != 0) {
       bl_tree_smooth_traverse(t, p);
     }
