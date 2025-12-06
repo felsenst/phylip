@@ -634,7 +634,7 @@ void drawline2(long i, double scale, struct tree* curtree)
   /* draws one row of the tree diagram by moving up tree
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
-   * used in dnaml, proml, & restml */
+   * used in Dnaml, Proml, & Restml */
   struct node *p, *pprev, *q, *r, *rnext;
   long n, j;
   boolean extra, done, done2;
@@ -673,14 +673,14 @@ void drawline2(long i, double scale, struct tree* curtree)
             q = r->back;      /* ... then move to next node out that branch */
             done2 = true;  /* ... and note that are done circling that fork */
           }
-	  rnext = r->next;
+	  rnext = r->next;                           /* next in fork circle */
           if ((i > r->back->ymax) && (i < rnext->back->ymin))
-            done2 = true;         /* if in gap between consecutive subtrees */
+            done2 = true;     /* if in the gap between consecutive subtrees */
         }
         r = rnext;                           /* ... otherwise keep circling */
 	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
       } while (!done2);                /* finished going around fork circle */
-      pprev = p;                                           /* where  p  was */
+      pprev = p;                                /* pointer to where  p  was */
       p = q;                    /* ... and set  p  to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
@@ -695,7 +695,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     if ((long)q->ycoord == i)                     /* if on row of next node */  
     {
-      if (i < (long)pprev->ycoord)      /* print the corner turn characters */
+      if (i < (long)pprev->ycoord)      /* print any turn-corner characters */
         putc(',', outfile);
       else {
         if (i > (long)(pprev)->ycoord)
@@ -717,8 +717,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       extra = true;
-      if (((i < (long)rnext->back->ycoord) && ((long)r->back->ycoord < i))
-        || ((i > (long)rnext->back->ycoord) && ((long)r->back->ycoord > i))) {
+      if (((i < (long)pprev->back->ycoord) && ((long)q->back->ycoord < i))
+        || ((i > (long)pprev->back->ycoord) && ((long)q->back->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
