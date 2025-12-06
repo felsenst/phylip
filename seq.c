@@ -635,7 +635,7 @@ void drawline2(long i, double scale, struct tree* curtree)
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in dnaml, proml, & restml */
-  struct node *p, *pprev, *q, *r;
+  struct node *p, *pprev, *q, *r, *rnext;
   long n, j;
   boolean extra, done, done2;
 
@@ -673,8 +673,11 @@ void drawline2(long i, double scale, struct tree* curtree)
             q = r->back;      /* ... then move to next node out that branch */
             done2 = true;  /* ... and note that are done circling that fork */
           }
+	  rnext = r->next;
+          if ((i > r->back->ymax) && (i < rnext->back->ymin))
+            done2 = true;         /* if in gap between consecutive subtrees */
         }
-        r = r->next;                         /* ... otherwise keep circling */
+        r = rnext;                           /* ... otherwise keep circling */
 	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
       } while (!done2);
       pprev = p;                                           /* where  p  was */
@@ -714,8 +717,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       extra = true;
-      if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
-        || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
+      if (((i < (long)q->back->ycoord) && ((long)pprev->back->ycoord < i))
+        || ((i > (long)q->back->ycoord) && ((long)pprev->back->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
