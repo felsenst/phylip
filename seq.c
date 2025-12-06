@@ -724,7 +724,7 @@ void drawline2(long i, double scale, struct tree* curtree)
     else {
       for (j = 1; j <= n; j++)
         putc(' ', outfile);
-      }
+    }
     if (q != p)
       p = q;
   } while (!done);
