@@ -718,8 +718,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       extra = true;
-      if (((i < (long)q->back->ycoord) && ((long)r->back->ycoord < i))
-        || ((i > (long)q->back->ycoord) && ((long)r->back->ycoord > i))) {
+      if (((i < (long)q->ycoord) && ((long)pprev->back->ycoord < i))
+        || ((i > (long)q->ycoord) && ((long)pprev->back->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
