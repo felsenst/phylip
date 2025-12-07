@@ -647,12 +647,12 @@ void drawline2(long i, double scale, struct tree* curtree)
   if (i == (long)p->ycoord)         /* if  i  is rootmost node's coordinate */
   {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
-      fprintf(outfile, "  %3ld", p->index - spp);
+      fprintf(outfile, " %3ld", p->index - spp);
     else {
       if (p->index - spp >= 10)
-        fprintf(outfile, "   %2ld", p->index - spp);
+        fprintf(outfile, "  %2ld", p->index - spp);
       else
-        fprintf(outfile, "    %ld", p->index - spp);
+        fprintf(outfile, "   %ld", p->index - spp);
     }
     extra = true;
   }
@@ -685,7 +685,7 @@ void drawline2(long i, double scale, struct tree* curtree)
       p = q;                    /* ... and set  p  to next step up the tree */
     }
     /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
-    done = p->tip;                   /* done if at a tip, or not moved node */
+    done = (p->tip) || (pprev == q); /* done if at a tip, or not moved node */
     n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* it's how far? */
     if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
       n = 3;
@@ -718,8 +718,8 @@ void drawline2(long i, double scale, struct tree* curtree)
     }
     else {
       extra = true;
-      if (((i < (long)pprev->back->ycoord) && ((long)r->back->ycoord < i))
-        || ((i > (long)pprev->back->ycoord) && ((long)r->back->ycoord > i))) {
+      if (((i < (long)q->back->ycoord) && ((long)r->back->ycoord < i))
+        || ((i > (long)q->back->ycoord) && ((long)r->back->ycoord > i))) {
           putc('|', outfile);                 /* if branch crosses this row */
           for (j = 1; j < n; j++)
             putc(' ', outfile);
@@ -729,8 +729,6 @@ void drawline2(long i, double scale, struct tree* curtree)
           putc(' ', outfile);
       }
     }
-    if (q != p)
-      p = q;
   } while (!done);
   if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
   {
