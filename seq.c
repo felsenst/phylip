@@ -674,8 +674,9 @@ void drawline2(long i, double scale, struct tree* curtree)
             done2 = true;  /* ... and note that are done circling that fork */
           }
 	  rnext = r->next;                           /* next in fork circle */
-          if ((i > r->back->ymax) && (i < rnext->back->ymin))
+          if ((i > r->back->ymax) && (i < rnext->back->ymin)) {
             done2 = true;     /* if in the gap between consecutive subtrees */
+	  }
         }
         if (!done2)
           r = rnext;                         /* ... otherwise keep circling */
@@ -716,19 +717,17 @@ void drawline2(long i, double scale, struct tree* curtree)
         }
       }
     }
-    else {
-      extra = true;
-      if (((i < (long)q->ycoord) && ((long)pprev->back->ycoord < i))
-        || ((i > (long)q->ycoord) && ((long)pprev->back->ycoord > i))) {
-          putc('|', outfile);                 /* if branch crosses this row */
-          for (j = 1; j < n; j++)
-            putc(' ', outfile);
-        }
-      else {
-        for (j = 1; j <= n; j++)
-          putc(' ', outfile);
-      }
+    if ((i > (long)q->ycoord) && ((long)pprev->ycoord > i)) {
+      putc('|', outfile);                   /* if branch crosses this row */
     }
+    if ((i < (long)q->ycoord) && ((long)pprev->ycoord < i)) {
+      putc('|', outfile);                   /* if branch crosses this row */
+    }		     
+    if (!q->tip) {
+      for (j = 1; j < n; j++)
+        putc(' ', outfile);
+    }
+    extra = true;
   } while (!done);
   if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
   {
