@@ -635,7 +635,7 @@ void drawline2(long i, double scale, struct tree* curtree)
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
-  struct node *p, *pprev, *q, *qrecent, *r, *rprev, *rnext;
+  struct node *p, *pprev, *q, *r, *rnext;
   long n, j;
   boolean extra, done, done2;
 
@@ -665,14 +665,12 @@ void drawline2(long i, double scale, struct tree* curtree)
         r = p;
       else
         r = p->next;
-      rprev = r;
       done2 = false;
       do {                                         /* go around fork circle */
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
-            qrecent = rprev->back;
-            q = r->back;      /* ... then move to next node out that branch */
+            q = r->back;    /* ... then move to next node out that branch */
             done2 = true;  /* ... and note that are done circling that fork */
           }
 	  rnext = r->next;                           /* next in fork circle */
@@ -719,12 +717,12 @@ void drawline2(long i, double scale, struct tree* curtree)
         }
       }
     }
-    if ((i > (long)qrecent->ycoord) && ((long)pprev->ycoord > i)) {
+    if ((i > (long)r->back->ycoord) && ((long)pprev->ycoord > i)) {
       putc('|', outfile);                   /* if branch crosses this row */
     }
-    if ((i < (long)qrecent->ycoord) && ((long)pprev->ycoord < i)) {
+    if ((i < (long)r->back->ycoord) && ((long)pprev->ycoord < i)) {
       putc('|', outfile);                   /* if branch crosses this row */
-    }		     
+    }
     if (!q->tip) {
       for (j = 1; j < n; j++)
         putc(' ', outfile);
