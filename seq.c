@@ -629,19 +629,16 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 }  /* treeout */
 
 
-void drawline2(long i, double scale, struct tree* curtree)
+void drawline2(long i, double scale, struct node* p, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
-  struct node *p, *pprev, *q, *r, *rnext;
+  struct node* p,  pprev,  q,  r,  rnext;
   long n, j;
   boolean extra, done, done2;
 
-  p = curtree->root;    /* start at interior node connected to outgroup tip */
-  if (p->tip)
-    p = p->back;          /* (make damned sure  p  is at the interior node) */
   q = p;                                               /* ... and so is  q  */
   extra = false;
   if (i == (long)p->ycoord)         /* if  i  is rootmost node's coordinate */
@@ -670,6 +667,7 @@ void drawline2(long i, double scale, struct tree* curtree)
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
+            drawline2(i, scale, q, curtree);
             q = r->back;    /* ... then move to next node out that branch */
             done2 = true;  /* ... and note that are done circling that fork */
           }
@@ -685,7 +683,6 @@ void drawline2(long i, double scale, struct tree* curtree)
       pprev = p;                                /* pointer to where  p  was */
       p = q;                    /* ... and set  p  to next step up the tree */
     }
-    /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
     done = (p->tip) || (pprev == q); /* done if at a tip, or not moved node */
     n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* it's how far? */
     if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
