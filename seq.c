@@ -639,24 +639,26 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
 /* debug: *** could perhaps be better as in spacing-and-bar first, then branches *** debug */
   struct node* p,  q,  r,  rnext;
   long n, j;
-  boolean itoleft, iequal, itoright, insubtree, iatitsroot, itorightofit;
+  boolean itoleft, iequal, itoright, insubtree, iatitsroot, itorightofit,
+	   itoleftofit;
   boolean extra, done, done2;
 
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
   itoright = i > (long)p->ycoord;
-  if (p == curtree->root) {
-    if (!iequal) {
-      if (q->index - spp >= 100)       /* print out a number for the node */
-        fprintf(outfile, "%3ld", q->index - spp);
-      else {  
-        if (q->index - spp >= 10)
-          fprintf(outfile, "-%2ld", q->index - spp);
-        else
-          fprintf(outfile, "--%ld", q->index - spp);
-      }
-    else 
+  if (!iequal) {
+    if (q->index - spp >= 100)         /* print out a number for the node */
+      fprintf(outfile, "%3ld", q->index - spp);
+    else {  
+      if (q->index - spp >= 10)
+        fprintf(outfile, "-%2ld", q->index - spp);
+      else
+        fprintf(outfile, "--%ld", q->index - spp);
+    }
+    }
+    else {
       fprintf(outfile, "   ");             /* start by indenting two spaces */
+    }
   }
   if (p->back != 0)          /* start with first nonempty descendant branch */
      r = p;
@@ -667,6 +669,8 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
     iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
     iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
     itorightofit = i > r->back->max;
+    itoleftofit = (!iatitsroot) && (!itorightofit);
+
     n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
     if ((n < 3) && !r->back->tip) /* if interior branch, and > 3 chars long */
       n = 3;
@@ -680,11 +684,16 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
       for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
         putc('-', outfile);
     }
+    if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
+      putc('|', outfile);                     /* if branch crosses this row */
+    }
+    if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
+      putc('|', outfile);                     /* if branch crosses this row */
+    }
     else if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
     }
-
 
 
   extra = false;
@@ -706,7 +715,6 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
           r = rnext;                         /* ... otherwise keep circling */
 	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
       } while (!done2);                /* finished going around fork circle */
-      pprev = p;                                /* pointer to where  p  was */
       p = q;                    /* ... and set  p  to next step up the tree */
     }
     done = (p->tip) || (pprev == q); /* done if at a tip, or not moved node */
@@ -715,42 +723,13 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i)                     /* if on row of next node */  
-    {
-      assert(q->index > 0);           // RSGdebug
-      if (!q->tip) {                               /*   if not at a tip ... */
-        if (q->index - spp >= 100)       /* print out a number for the node */
-          fprintf(outfile, "%3ld", q->index - spp);
-	else {  
-          if (q->index - spp >= 10)
-            fprintf(outfile, "-%2ld", q->index - spp);
-          else
-            fprintf(outfile, "--%ld", q->index - spp);
-        }
-      else if (i == (long)p->ycoord)          /* if  i  is tip's coordinate */
-        {                               /* write out the number of the node */
-          if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
-            fprintf(outfile, " %3ld", p->index - spp);
-          else {
-            if (p->index - spp >= 10)
-              fprintf(outfile, "  %2ld", p->index - spp);
-            else
-              fprintf(outfile, "   %ld", p->index - spp);
-          }
+
+
     extra = true;
   }
       }
     }
-    if ((i > (long)r->back->ycoord) && ((long)pprev->ycoord > i)) {
-      putc('|', outfile);                   /* if branch crosses this row */
-    }
-    if ((i < (long)r->back->ycoord) && ((long)pprev->ycoord < i)) {
-      putc('|', outfile);                   /* if branch crosses this row */
-    }
-    if (!q->tip) {
-      for (j = 1; j < n; j++)
-        putc(' ', outfile);
-    }
+
     extra = true;
   } while (!done);
   if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
@@ -762,6 +741,7 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
 }  /* drawline2 */
 
 
+/* the previous version */
 void drawline3(long i, double scale, struct node* p, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
