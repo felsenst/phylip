@@ -629,7 +629,7 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 }  /* treeout */
 
 
-void drawline2(long i, double scale, struct node* p, struct tree* curtree)
+void drawline2(long i, double scale, struct node *p, struct tree* curtree)
 {
 	/* debug:  the newer version, older one follows */
   /* draws one row of the tree diagram by moving up tree
@@ -637,48 +637,41 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 /* debug: *** could perhaps be better as in spacing-and-bar first, then branches *** debug */
-  struct node* p,  q,  r,  rnext;
+  struct node *r;
   long n, j;
-  boolean itoleft, iequal, itoright, insubtree, iatitsroot, itorightofit,
-	   itoleftofit;
-  boolean extra, done, done2;
+  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean done;
 
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
-  itoright = i > (long)p->ycoord;
-  if (!iequal) {
-    if (q->index - spp >= 100)         /* print out a number for the node */
-      fprintf(outfile, "%3ld", q->index - spp);
+  if (iequal) {
+    if (p->index - spp >= 100)         /* print out a number for the node */
+      fprintf(outfile, "%3ld", p->index - spp);
     else {  
-      if (q->index - spp >= 10)
-        fprintf(outfile, "-%2ld", q->index - spp);
+      if (p->index - spp >= 10)
+        fprintf(outfile, "-%2ld", p->index - spp);
       else
-        fprintf(outfile, "--%ld", q->index - spp);
+        fprintf(outfile, "--%ld", p->index - spp);
     }
-    }
-    else {
-      fprintf(outfile, "   ");             /* start by indenting two spaces */
-    }
+  }
+  else {
+    fprintf(outfile, "   ");             /* start by indenting two spaces */
   }
   if (p->back != 0)          /* start with first nonempty descendant branch */
      r = p;
   else
      r = p->next;
-  q = p;                                               /* ... and so is  q  */
   do { /* now need to check for each of  p's  descendants if in subtree ... */
     iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
     iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
-    itorightofit = i > r->back->max;
-    itoleftofit = (!iatitsroot) && (!itorightofit);
-
     n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
-    if ((n < 3) && !r->back->tip) /* if interior branch, and > 3 chars long */
+    if ((n < 3) && !r->back->tip)    /* if interior branch, >= 3 chars long */
       n = 3;
     if (iatitsroot) {
       if (itoleft)                      /* print any turn-corner characters */
         putc(',', outfile);
       else {
-        if (i > (long)(pprev)->ycoord)
+        if (i > (long)p->ycoord)
           putc('\'', outfile);
       }
       for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
@@ -693,62 +686,31 @@ void drawline2(long i, double scale, struct node* p, struct tree* curtree)
     else if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
-    }
-
-
-  extra = false;
-  else
-  do {                                   /* working our way up the tree ... */
-    if (!p->tip)
-    {
-      done2 = false;
-      do {                                         /* go around fork circle */
-        if (r->back != 0) {
-            drawline2(i, scale, q, curtree);
-            q = r->back;    /* ... then move to next node out that branch */
-            done2 = true;  /* ... and note that are done circling that fork */
-          }
-	  rnext = r->next;                           /* next in fork circle */
-	  }
-        }
-        if (!done2)
-          r = rnext;                         /* ... otherwise keep circling */
-	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
-      } while (!done2);                /* finished going around fork circle */
-      p = q;                    /* ... and set  p  to next step up the tree */
-    }
-    done = (p->tip) || (pprev == q); /* done if at a tip, or not moved node */
-    if (extra)
-    {
-      n--;
-      extra = false;
-    }
-
-
-    extra = true;
-  }
+      if (r->back != 0) {
+        p = r->back;          /* ... then move to next node out that branch */
+        drawline2(i, scale, p, curtree);
+        done = true;       /* ... and note that are done circling that fork */
       }
     }
-
-    extra = true;
+    done = p->tip;                   /* done if at a tip, or not moved node */
   } while (!done);
-  if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
+  if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
   {
     for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
-      putc(nayme[q->index-1][j], outfile);
+      putc(nayme[p->index-1][j], outfile);
   }
   putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
 
 
 /* the previous version */
-void drawline3(long i, double scale, struct node* p, struct tree* curtree)
+void drawline3(long i, double scale, struct node *p, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
-  struct node* p,  pprev,  q,  r,  rnext;
+  struct node *pprev,  *q,  *r,  *rnext;
   long n, j;
   boolean extra, done, done2;
 
@@ -780,7 +742,7 @@ void drawline3(long i, double scale, struct node* p, struct tree* curtree)
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
-            drawline2(i, scale, q, curtree);
+            drawline3(i, scale, q, curtree);
             q = r->back;    /* ... then move to next node out that branch */
             done2 = true;  /* ... and note that are done circling that fork */
           }
