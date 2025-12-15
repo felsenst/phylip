@@ -59,7 +59,8 @@ void sitecombine2(long, steptr);
 void sitescrunch2(long, long, long, steptr);
 void drawline(long, double, struct bl_node *);
 void treeout(struct node *, long, long *, struct node *);
-void drawline2(long, double, struct tree *);
+void drawline2(long, double, struct node *, struct tree *);
+void drawline3(long, double, struct node *, struct tree *);
 void standev(long, long, long, double, double *, long **, longer);
 void standev2(long, long, long, long, double,
                double *, double **, steptr, longer);
