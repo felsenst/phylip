@@ -629,30 +629,102 @@ void treeout(struct node *p, long nextree, long *col, struct node *root)
 }  /* treeout */
 
 
-void drawline2(long i, double scale, struct tree* curtree)
+void drawline2(long i, double scale, struct node *p, struct tree* curtree)
+{
+	/* debug:  the newer version, older one follows */
+  /* draws one row of the tree diagram by moving up tree
+   * the argument  i  is the vertical number (y) of the row we draw,
+   * numbered from top (1) to bottom
+   * used in Dnaml, Proml, & Restml */
+/* debug: *** could perhaps be better as in spacing-and-bar first, then branches *** debug */
+  struct node *r;
+  long n, j;
+  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean done;
+
+  itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
+  iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
+  if (iequal) {
+    if (p->index - spp >= 100)         /* print out a number for the node */
+      fprintf(outfile, "%3ld", p->index - spp);
+    else {  
+      if (p->index - spp >= 10)
+        fprintf(outfile, "-%2ld", p->index - spp);
+      else
+        fprintf(outfile, "--%ld", p->index - spp);
+    }
+  }
+  else {
+    fprintf(outfile, "   ");             /* start by indenting two spaces */
+  }
+  if (p->back != 0)          /* start with first nonempty descendant branch */
+     r = p;
+  else
+     r = p->next;
+  do { /* now need to check for each of  p's  descendants if in subtree ... */
+    iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
+    iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
+    n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
+    if ((n < 3) && !r->back->tip)    /* if interior branch, >= 3 chars long */
+      n = 3;
+    if (iatitsroot) {
+      if (itoleft)                      /* print any turn-corner characters */
+        putc(',', outfile);
+      else {
+        if (i > (long)p->ycoord)
+          putc('\'', outfile);
+      }
+      for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
+        putc('-', outfile);
+    }
+    if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
+      putc('|', outfile);                     /* if branch crosses this row */
+    }
+    if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
+      putc('|', outfile);                     /* if branch crosses this row */
+    }
+    else if (iinsubtree) {
+      for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
+        putc(' ', outfile);
+      if (r->back != 0) {
+        p = r->back;          /* ... then move to next node out that branch */
+        drawline2(i, scale, p, curtree);
+        done = true;       /* ... and note that are done circling that fork */
+      }
+    }
+    done = p->tip;                   /* done if at a tip, or not moved node */
+  } while (!done);
+  if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
+  {
+    for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
+      putc(nayme[p->index-1][j], outfile);
+  }
+  putc('\n', outfile);                               /* ... and end the row */
+}  /* drawline2 */
+
+
+/* the previous version */
+void drawline3(long i, double scale, struct node *p, struct tree* curtree)
 {
   /* draws one row of the tree diagram by moving up tree
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
-   * used in dnaml, proml, & restml */
-  struct node *p, *pprev, *q, *r;
+   * used in Dnaml, Proml, & Restml */
+  struct node *pprev,  *q,  *r,  *rnext;
   long n, j;
   boolean extra, done, done2;
 
-  p = curtree->root;    /* start at interior node connected to outgroup tip */
-  if (p->tip)
-    p = p->back;          /* (make damned sure  p  is at the interior node) */
   q = p;                                               /* ... and so is  q  */
   extra = false;
   if (i == (long)p->ycoord)         /* if  i  is rootmost node's coordinate */
   {                                     /* write out the number of the node */
     if (p->index - spp >= 100)   /* can be changed to go beyond 999 species */
-      fprintf(outfile, "  %3ld", p->index - spp);
+      fprintf(outfile, " %3ld", p->index - spp);
     else {
       if (p->index - spp >= 10)
-        fprintf(outfile, "   %2ld", p->index - spp);
+        fprintf(outfile, "  %2ld", p->index - spp);
       else
-        fprintf(outfile, "    %ld", p->index - spp);
+        fprintf(outfile, "   %ld", p->index - spp);
     }
     extra = true;
   }
@@ -670,63 +742,64 @@ void drawline2(long i, double scale, struct tree* curtree)
         if (r->back != 0) {
           if ((i >= r->back->ymin) && (i <= r->back->ymax))
           {                            /* if this row intersects that clade */
-            q = r->back;      /* ... then move to next node out that branch */
-            done2 = true;      /* ... and note that done circling that fork */
+            drawline3(i, scale, q, curtree);
+            q = r->back;    /* ... then move to next node out that branch */
+            done2 = true;  /* ... and note that are done circling that fork */
           }
+	  rnext = r->next;                           /* next in fork circle */
+          if ((i > r->back->ymax) && (i < rnext->back->ymin)) {
+            done2 = true;     /* if in the gap between consecutive subtrees */
+	  }
         }
-        r = r->next;                         /* ... otherwise keep circling */
+        if (!done2)
+          r = rnext;                         /* ... otherwise keep circling */
 	done2 = done2 || (r == p) || (r->back == 0);  /* till where started */
-      } while (!done2);
-      pprev = p;                                           /* where  p  was */
+      } while (!done2);                /* finished going around fork circle */
+      pprev = p;                                /* pointer to where  p  was */
       p = q;                    /* ... and set  p  to next step up the tree */
     }
-    /* debug fprintf("first: %ld, last: %ld\n", first->index, last->index);  */
-    done = (p->tip || q == pprev);    /* done if at a tip, or not moved node */
-    n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* how far is it? */
-    if ((n < 3) && !q->tip)     /* if interior branch, at least 3 chars long */
+    done = (p->tip) || (pprev == q); /* done if at a tip, or not moved node */
+    n = (long)(scale * (q->xcoord - pprev->xcoord) + 0.5); /* it's how far? */
+    if ((n < 3) && !q->tip)    /* if interior branch, at least 3 chars long */
       n = 3;
     if (extra)
     {
       n--;
       extra = false;
     }
-    if ((long)q->ycoord == i)                      /* if on row of next node */  
+    if ((long)q->ycoord == i)                     /* if on row of next node */  
     {
-      if (i < (long)pprev->ycoord)
+      if (i < (long)pprev->ycoord)      /* print any turn-corner characters */
         putc(',', outfile);
       else {
         if (i > (long)(pprev)->ycoord)
           putc('\'', outfile);
       }
-      for (j = 1; j <= n - 3; j++)       /* print line of "-" out to node */
+      for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
         putc('-', outfile);
       assert(q->index > 0);           // RSGdebug
-      if (!q->tip) {                                  /*   if at a tip ... */
-        if (q->index - spp >= 100)      /* print out a number for the node */
+      if (!q->tip) {                               /*   if not at a tip ... */
+        if (q->index - spp >= 100)       /* print out a number for the node */
           fprintf(outfile, "%3ld", q->index - spp);
 	else {  
           if (q->index - spp >= 10)
             fprintf(outfile, "-%2ld", q->index - spp);
           else
             fprintf(outfile, "--%ld", q->index - spp);
-      }
-	}
-        extra = true;
-      {                                   /* ... print out dashes as branch */
-        if (((i < (long)q->ycoord) && ((long)pprev->ycoord < i))
-          || ((i > (long)q->ycoord) && ((long)pprev->ycoord > i))) {
-        putc('|', outfile);                 /* if branch crosses this row */
-        for (j = 1; j < n; j++)
-          putc(' ', outfile);
         }
       }
     }
-    else {
-      for (j = 1; j <= n; j++)
+    if ((i > (long)r->back->ycoord) && ((long)pprev->ycoord > i)) {
+      putc('|', outfile);                   /* if branch crosses this row */
+    }
+    if ((i < (long)r->back->ycoord) && ((long)pprev->ycoord < i)) {
+      putc('|', outfile);                   /* if branch crosses this row */
+    }
+    if (!q->tip) {
+      for (j = 1; j < n; j++)
         putc(' ', outfile);
-      }
-    if (q != p)
-      p = q;
+    }
+    extra = true;
   } while (!done);
   if (((long)q->ycoord == i) && q->tip)             /* if now at a tip, ... */
   {
