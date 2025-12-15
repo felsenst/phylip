@@ -644,8 +644,14 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
 
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
-  if (iequal) {
-    if (p->index - spp >= 100)         /* print out a number for the node */
+  if (iequal && p->tip) {                           /* if now at a tip, ... */
+    for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
+      putc(nayme[p->index-1][j], outfile);
+    fprintf(outfile, "\n");
+    return;             /* exit: we're all done after printing species name */
+  }
+  if (iequal) {                           /* if at an interior node instead */
+    if (p->index - spp >= 100)           /* print out a number for the node */
       fprintf(outfile, "%3ld", p->index - spp);
     else {  
       if (p->index - spp >= 10)
@@ -655,17 +661,18 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     }
   }
   else {
-    fprintf(outfile, "   ");             /* start by indenting two spaces */
+    fprintf(outfile, "  ");                /* start by indenting two spaces */
   }
   if (p->back != 0)          /* start with first nonempty descendant branch */
      r = p;
   else
      r = p->next;
-  do { /* now need to check for each of  p's  descendants if in subtree ... */
+  done = false;
+  do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
     iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
     iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
     n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
-    if ((n < 3) && !r->back->tip)    /* if interior branch, >= 3 chars long */
+    if ((n < 3) && !r->back->tip)    /* if interior branch, =< 3 chars long */
       n = 3;
     if (iatitsroot) {
       if (itoleft)                      /* print any turn-corner characters */
@@ -678,10 +685,10 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         putc('-', outfile);
     }
     if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
-      putc('|', outfile);                     /* if branch crosses this row */
+      putc('|', outfile);             /* if branch to left crosses this row */
     }
     if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
-      putc('|', outfile);                     /* if branch crosses this row */
+      putc('|', outfile);            /* if branch to right crosses this row */
     }
     else if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
@@ -692,13 +699,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         done = true;       /* ... and note that are done circling that fork */
       }
     }
-    done = p->tip;                   /* done if at a tip, or not moved node */
   } while (!done);
-  if (((long)p->ycoord == i) && p->tip)             /* if now at a tip, ... */
-  {
-    for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
-      putc(nayme[p->index-1][j], outfile);
-  }
   putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
 
