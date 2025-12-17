@@ -636,7 +636,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
    * the argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
-/* debug: *** could perhaps be better as in spacing-and-bar first, then branches *** debug */
+
   struct node *r;
   long n, j;
   boolean itoleft, iequal, iinsubtree, iatitsroot;
@@ -690,7 +690,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
       putc('|', outfile);            /* if branch to right crosses this row */
     }
-    else if (iinsubtree) {
+    if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
       if (r->back != 0) {
@@ -699,6 +699,11 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         done = true;       /* ... and note that are done circling that fork */
       }
     }
+    else {
+      done = true;
+    }
+    if (done)
+      r = r->next;
   } while (!done);
   putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
