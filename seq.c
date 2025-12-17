@@ -695,6 +695,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         putc(' ', outfile);
       if (r->back != 0) {
         p = r->back;          /* ... then move to next node out that branch */
+	r = r->next;
         drawline2(i, scale, p, curtree);
         done = true;       /* ... and note that are done circling that fork */
       }
