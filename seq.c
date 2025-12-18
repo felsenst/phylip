@@ -647,7 +647,6 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   if (iequal && p->tip) {                           /* if now at a tip, ... */
     for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
       putc(nayme[p->index-1][j], outfile);
-    fprintf(outfile, "\n");
     return;             /* exit: we're all done after printing species name */
   }
   if (iequal) {                           /* if at an interior node instead */
@@ -693,17 +692,23 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
-      if (r->back != 0) {
-        p = r->back;          /* ... then move to next node out that branch */
-	r = r->next;
-        drawline2(i, scale, p, curtree);
-        done = true;       /* ... and note that are done circling that fork */
+      if (r->back != 0) {                     /* if branch is not empty ... */
+        drawline2(i, scale, r->back, curtree);          /* ... start out it */
       }
     }
     else {
-      done = true;
+      if (r->next->back == 0) {
+        done = true;
+      } else {
+        if (r->next == p)
+          done = true;
+        else {
+          if (r->next->back->ymin > i)
+            done = true;
+	    }
+        }
     }
-    if (done)
+    if (!done)
       r = r->next;
   } while (!done);
   putc('\n', outfile);                               /* ... and end the row */
