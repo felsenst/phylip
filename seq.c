@@ -662,7 +662,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   else {
     fprintf(outfile, "  ");                /* start by indenting two spaces */
   }
-  if (p->back != 0)          /* start with first nonempty descendant branch */
+  if ((p->back != 0) && (p == curtree->root))        /* nonempty descendant */
      r = p;
   else
      r = p->next;
