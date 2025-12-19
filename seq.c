@@ -637,7 +637,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 
-  struct node *r;
+  struct node *r, *q;
   long n, j;
   boolean itoleft, iequal, iinsubtree, iatitsroot;
   boolean done;
@@ -662,7 +662,10 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   else {
     fprintf(outfile, "  ");                /* start by indenting two spaces */
   }
-  if ((p->back != 0) && (p == curtree->root))        /* nonempty descendant */
+  q = curtree->root;
+  if (q->tip)
+    q = curtree->root->back;
+  if ((p->back != 0) && (p == q))                    /* nonempty descendant */
      r = p;
   else
      r = p->next;
@@ -689,6 +692,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
       putc('|', outfile);            /* if branch to right crosses this row */
     }
+    /* debug: have to move  r  to next here? */
     if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
@@ -705,11 +709,11 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         else {
           if (r->next->back->ymin > i)
             done = true;
-	    }
-        }
+	  else
+            r = r->next;
+	}
+      }
     }
-    if (!done)
-      r = r->next;
   } while (!done);
   putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
