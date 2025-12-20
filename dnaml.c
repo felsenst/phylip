@@ -1570,7 +1570,7 @@ void dnaml_printree(void)
     curtree->root = curtree->root->back;
   dnaml_coordinates(curtree->root, 0.0, &tipy, &tipmax);
   scale = 1.0 / (long)(tipmax + 1.000);
-  for (i = 1; i <= (tipy - down); i++)
+  for (i = 1; i <= (tipy - down); i++) 
     drawline2(i, scale, curtree->root, curtree);
   putc('\n', outfile);
 }  /* dnaml_printree */
