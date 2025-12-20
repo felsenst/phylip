@@ -639,15 +639,19 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
 
   struct node *r, *q;
   long n, j;
-  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean itoleft, iequal, iinsubtree, iatitsroot, endline;
   boolean done;
 
+  endline = false;
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
   if (iequal && p->tip) {                           /* if now at a tip, ... */
     for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
       putc(nayme[p->index-1][j], outfile);
+    putc('\n', outfile);
+    endline = true;
     return;             /* exit: we're all done after printing species name */
+    /* debug: but how do we end other enclosing drawline calls ? */
   }
   if (iequal) {                           /* if at an interior node instead */
     if (p->index - spp >= 100)           /* print out a number for the node */
@@ -711,6 +715,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
           done = true;
         else {
           if (r->next->back->ymin > i)
+            fputc(outfile, '\n');      /* debug: need here? */
             done = true;
 	  else
             r = r->next;
@@ -718,7 +723,6 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       }
     }
   } while (!done);
-  putc('\n', outfile);                               /* ... and end the row */
 }  /* drawline2 */
 
 
