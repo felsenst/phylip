@@ -665,9 +665,9 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   q = curtree->root;
   if (q->tip)
     q = curtree->root->back;
-  if ((p->back != 0) && (p == q))                    /* nonempty descendant */
+  if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
      r = p;
-  else
+  else                                /* otherwise move to first descendant */
      r = p->next;
   done = false;
   do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
@@ -692,7 +692,6 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
       putc('|', outfile);            /* if branch to right crosses this row */
     }
-    /* debug: have to move  r  to next here? */
     if (iinsubtree) {
       for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
         putc(' ', outfile);
@@ -704,16 +703,14 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         done = true;
     }
     if (!done) {
-      if (r->next->back == 0) {
+      if (r->back == 0) {
         done = true;
       } else {
-        if (r->next == p)
+        if (r == p)
           done = true;
         else {
-          if (r->next->back->ymin > i)
+          if (r->back->ymin > i)
             done = true;
-	  else
-            r = r->next;
 	}
       }
     }
