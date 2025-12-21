@@ -680,8 +680,9 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       if (itoleft)                      /* print any turn-corner characters */
         putc(',', outfile);
       else {
-        if (i > (long)p->ycoord)
+        if ((!iequal) && (!itoleft)) {
           putc('\'', outfile);
+        }
       }
       for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
         putc('-', outfile);
@@ -693,15 +694,17 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       putc('|', outfile);            /* if branch to right crosses this row */
     }
     if (iinsubtree) {
-      for (j = 1; j <= n - 3; j++)           /* print spaces out to subtree */
-        putc(' ', outfile);
+      if (!iatitsroot) {           /* if not printing a line of dashes, ... */
+        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
+          putc(' ', outfile);
+      }	
       if (r->back != 0) {                     /* if branch is not empty ... */
         drawline2(i, scale, r->back, curtree);          /* ... start out it */
-	r = r->next;
       }
       else
         done = true;
     }
+    r = r->next;                         /* move to next descendant, if any */
     if (!done) {
       if (r->back == 0) {
         done = true;
