@@ -660,7 +660,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     }
   }
   else {
-    fprintf(outfile, "  ");                /* start by indenting two spaces */
+    fprintf(outfile, "  ");               /* start by indenting two spaces */
   }
   q = curtree->root;
   if (q->tip)
@@ -690,8 +690,14 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
       putc('|', outfile);             /* if branch to left crosses this row */
     }
-    if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
-      putc('|', outfile);            /* if branch to right crosses this row */
+    else {
+      if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
+        putc('|', outfile);            /* if branch to right crosses this row */
+      }
+      else {
+        if (!iatitsroot)
+          putc(' ', outfile);
+      }
     }
     if (iinsubtree) {
       if (!iatitsroot) {           /* if not printing a line of dashes, ... */
