@@ -683,6 +683,15 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
         putc('|', outfile);            /* if branch to right crosses this row */
       }
+      else {
+        if ((!iequal) && (!(i == (long)r->back->ycoord)) && (!(i == 
+              (long)r->back->ycoord)))
+          putc(' ', outfile);
+        else {
+          if (!iequal && !iatitsroot)
+            putc('-', outfile);
+        }
+      }
     }
     if (iatitsroot) {
       if (itoleft)                      /* print any turn-corner characters */
