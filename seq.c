@@ -712,8 +712,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         if (r->back != 0) {                   /* if branch is not empty ... */
           drawline2(i, scale, r->back, curtree);        /* ... start out it */
         }
-        else
-          done = true;
+        done = true;
       }
     }
     r = r->next;                         /* move to next descendant, if any */
