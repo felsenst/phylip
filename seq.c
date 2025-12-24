@@ -671,49 +671,50 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
      r = p->next;
   done = false;
   do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
-    iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
-    iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
-    n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
-    if ((n < 3) && !r->back->tip)    /* if interior branch, =< 3 chars long */
-      n = 3;
-    if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
-      putc('|', outfile);             /* if branch to left crosses this row */
-    }
-    else {
-      if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
-        putc('|', outfile);            /* if branch to right crosses this row */
+    if (i <= (long)r->back->ymax)
+    {
+      if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
+        putc('|', outfile);             /* if branch to left crosses this row */
       }
       else {
-        if ((!iequal) && (!(i == (long)r->back->ycoord)) && (!(i == 
-              (long)r->back->ycoord)))
-          putc(' ', outfile);
+        if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
+          putc('|', outfile);            /* if branch to right crosses this row */
+        }
         else {
-          if (!iequal && !iatitsroot)
-            putc('-', outfile);
+          if ((!iequal) && (!(i == (long)r->back->ycoord)) && (!(i == 
+                (long)r->back->ycoord)))
+            putc(' ', outfile);
+          else {
+            if (!iequal && !iatitsroot)
+              putc('-', outfile);
+          }
         }
       }
-    }
-    if (iatitsroot) {
-      if (itoleft)                      /* print any turn-corner characters */
-        putc(',', outfile);
-      else {
-        if ((!iequal) && (!itoleft)) {
-          putc('\'', outfile);
+      iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
+      iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
+      n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
+      if (iatitsroot) {
+        if (itoleft)                   /* print any turn-corner characters */
+          putc(',', outfile);
+        else {
+          if ((!iequal) && (!itoleft)) {
+            putc('\'', outfile);
+          }
         }
+        for (j = 1; j <= n - 3; j++)   /* ...  print spaces out to subtree */
+          putc('-', outfile);
       }
-      for (j = 1; j <= n - 3; j++)         /* print line of "-" out to node */
-        putc('-', outfile);
-    }
-    if (iinsubtree) {
-      if (!iatitsroot) {           /* if not printing a line of dashes, ... */
-        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
-          putc(' ', outfile);
-      }	
-      if (r->back != 0) {                     /* if branch is not empty ... */
-        drawline2(i, scale, r->back, curtree);          /* ... start out it */
+      if (iinsubtree) {
+        if (!iatitsroot) {         /* if not printing a line of dashes, ... */
+          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
+            putc(' ', outfile);
+        }	
+        if (r->back != 0) {                   /* if branch is not empty ... */
+          drawline2(i, scale, r->back, curtree);        /* ... start out it */
+        }
+        else
+          done = true;
       }
-      else
-        done = true;
     }
     r = r->next;                         /* move to next descendant, if any */
     if (!done) {
