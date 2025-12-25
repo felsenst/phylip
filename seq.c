@@ -676,12 +676,13 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     if (i <= (long)p->ymax)
     {
       if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
-        putc('|', outfile);             /* if branch to left crosses this row */
+        putc('|', outfile);           /* if branch to left crosses this row */
       }
       else {
         if ((i < (long)r->back->ycoord) && ((long)p->ycoord < i)) {
-          putc('|', outfile);            /* if branch to right crosses this row */
+          putc('|', outfile);        /* if branch to right crosses this row */
         }
+#if 0
         else {
           if ((!iequal) && (!(i == (long)r->back->ycoord)))
             putc(' ', outfile);
@@ -690,6 +691,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
               putc('-', outfile);
           }
         }
+#endif
       }
       n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
       if (iatitsroot) {
@@ -716,13 +718,13 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     }
     r = r->next;                         /* move to next descendant, if any */
     if (!done) {
-      if (r->back == 0) {
+      if (r->back == 0) {              /* making sure not at bottom of tree */
         done = true;
       } else {
-        if (r == p)
+        if (r == p)    /* making sure not done with all descendant branches */
           done = true;
         else {
-          if (r->back->ymin > i)
+          if (r->back->ymin > i)    /* don't consider branches further down */
             done = true;
 	}
       }
