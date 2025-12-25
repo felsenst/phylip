@@ -671,7 +671,9 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
      r = p->next;
   done = false;
   do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
-    if (i <= (long)r->back->ymax)
+    iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
+    iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
+    if (i <= (long)p->ymax)
     {
       if ((i > (long)r->back->ycoord) && ((long)p->ycoord > i)) {
         putc('|', outfile);             /* if branch to left crosses this row */
@@ -681,8 +683,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
           putc('|', outfile);            /* if branch to right crosses this row */
         }
         else {
-          if ((!iequal) && (!(i == (long)r->back->ycoord)) && (!(i == 
-                (long)r->back->ycoord)))
+          if ((!iequal) && (!(i == (long)r->back->ycoord)))
             putc(' ', outfile);
           else {
             if (!iequal && !iatitsroot)
@@ -690,14 +691,12 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
           }
         }
       }
-      iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
-      iatitsroot = iinsubtree && (i == (long)r->back->ycoord);
       n = (long)(scale * (r->back->xcoord - (long)p->xcoord) + 0.5);
       if (iatitsroot) {
         if (itoleft)                   /* print any turn-corner characters */
           putc(',', outfile);
         else {
-          if ((!iequal) && (!itoleft)) {
+          if ((!iequal) && (!itoleft)) {  /* i.e., "itoright", so to speak */
             putc('\'', outfile);
           }
         }
