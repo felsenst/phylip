@@ -688,20 +688,16 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       } 
     }
     if (!iatitsroot) {             /* if not printing a line of dashes, ... */
-      if (i < (long)p->ycoord) {
-        if (i > (long)r->back->ycoord) {
+      if ((i < (long)p->ycoord) && (i > (long)r->back->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         }
-        else
-          putc(' ', outfile);              /* space instead of vertical bar */
-      }
-      if (i > (long)p->ycoord) {
-        if (i < (long)r->back->ycoord) {
-          putc('|', outfile);        /* if branch to right crosses this row */
+        else {
+          if ((i > (long)p->ycoord) && (i < (long)r->back->ycoord)) {
+            putc('|', outfile);      /* if branch to right crosses this row */
+	  }
+          else
+            putc(' ', outfile);              /* space instead of vertical bar */
         }
-      else
-        putc(' ', outfile);                /* space instead of vertical bar */
-      }
       if (iinsubtree) {
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
           putc(' ', outfile);
