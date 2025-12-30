@@ -644,6 +644,9 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
 
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
+  q = curtree->root;
+  if (q->tip)
+    q = curtree->root->back;
   if (iequal && p->tip) {                           /* if now at a tip, ... */
     for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
       putc(nayme[p->index-1][j], outfile);
@@ -660,11 +663,8 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     }
   }
   else {
-    fprintf(outfile, "  ");               /* start by indenting two spaces */
+      fprintf(outfile, "  ");              /* start by indenting two spaces */
   }
-  q = curtree->root;
-  if (q->tip)
-    q = curtree->root->back;
   if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
      r = p;
   else                                /* otherwise move to first descendant */
@@ -683,7 +683,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
             putc('\'', outfile);
           }
         }
-        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
+        for (j = 1; j <= n - 3; j++)    /* ...  print dashes out to subtree */
           putc('-', outfile);
       } 
     }
