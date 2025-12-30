@@ -702,8 +702,10 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       else
         putc(' ', outfile);                /* space instead of vertical bar */
       }
-      for (j = 1; j <= n - 3; j++)      /* ...  print spaces out to subtree */
-        putc(' ', outfile);
+      if (iinsubtree) {
+        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
+          putc(' ', outfile);
+      }
     }	
     if (iinsubtree) {
       if (r->back != 0) {                     /* if branch is not empty ... */
@@ -717,12 +719,8 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       } else {
         if (r == p)    /* making sure not done with all descendant branches */
           done = true;
-        else {
-          if (r->back->ymin > i)    /* don't consider branches further down */
-            done = true;
 	}
       }
-    }
   } while (!done);
 }  /* drawline2 */
 
