@@ -686,7 +686,6 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         for (j = 1; j <= n - 3; j++)    /* ...  print dashes out to subtree */
           putc('-', outfile);
       } 
-    }
     if (!iatitsroot) {             /* if not printing a line of dashes, ... */
       if ((i < (long)p->ycoord) && (i > (long)r->back->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
@@ -702,6 +701,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
           putc(' ', outfile);
       }
+    } 
     }	
     if (iinsubtree) {
       if (r->back != 0) {                     /* if branch is not empty ... */
