@@ -682,7 +682,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
           putc('\'', outfile);
         }
       }
-      for (j = 1; j <= n - 3; j++)      /* ...  print dashes out to subtree */
+      for (j = 1; j <= n - 2; j++)      /* ...  print dashes out to subtree */
         putc('-', outfile);
     } 
     if (!iatitsroot) {             /* if not printing a line of dashes, ... */
@@ -702,7 +702,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       }
       if (iinsubtree) {
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
-            putc(' ', outfile);
+          putc(' ', outfile);
       }
     } 
     if (iinsubtree) {
