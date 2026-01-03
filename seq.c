@@ -698,7 +698,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
             putc(' ', outfile);            /* space instead of vertical bar */
       }
       if (iinsubtree) {
-        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
+        for (j = 1; j <= n - 4; j++)    /* ...  print spaces out to subtree */
             putc(' ', outfile);
       }
     } 
