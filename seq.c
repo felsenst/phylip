@@ -692,15 +692,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       else {
         if ((i > (long)p->ycoord) && (i < (long)r->back->ycoord)) {
           putc('|', outfile);        /* if branch to right crosses this row */
-        }
-        else
-          if (iinsubtree) {
-            putc(' ', outfile);            /* space instead of vertical bar */
-#if 0
-	    if ((i > (long)p->ycoord) && (i > (long)r->back->ycoord))
-              putc(' ', outfile);                         /* one more space */
-#endif
-	  }
+	}
       }
       if (iinsubtree) {
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
