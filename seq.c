@@ -640,7 +640,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   struct node *r, *q;
   long n, j;
   boolean itoleft, iequal, iinsubtree, iatitsroot;
-  boolean done;
+  boolean printedbar, done;
 
   itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
@@ -670,37 +670,38 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   else                                /* otherwise move to first descendant */
      r = p->next;
   done = false;
+  printedbar = false;         /* not (yet) printed a vertical bar character */
   do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
     n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
     iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
-    iatitsroot = (i == (long)r->back->ycoord);
-    if (iatitsroot) {
-      if (itoleft)                      /* print any turn-corner characters */
-        putc(',', outfile);
-      else {
-        if (!iequal) {                     /* i.e., "itoright", so to speak */
-          putc('\'', outfile);
+    if (iinsubtree) {
+      iatitsroot = (i == (long)r->back->ycoord);
+      if (iatitsroot) {
+        if (itoleft)                    /* print any turn-corner characters */
+          putc(',', outfile);
+        else {
+          if (!iequal) {                   /* i.e., "itoright", so to speak */
+            putc('\'', outfile);           /* "quoting" a single apostrophe */
+          }
         }
+        for (j = 1; j <= n - 3; j++)    /* ...  print dashes out to subtree */
+          putc('-', outfile);
       }
-      for (j = 1; j <= n - 3; j++)      /* ...  print dashes out to subtree */
-        putc('-', outfile);
-    } 
-    if (!iatitsroot) {             /* if not printing a line of dashes, ... */
-      if ((i < (long)p->ycoord) && (i > (long)r->back->ycoord)) {
-        putc('|', outfile);           /* if branch to left crosses this row */
-      }
-      else {
-        if ((i > (long)p->ycoord) && (i < (long)r->back->ycoord)) {
-          putc('|', outfile);        /* if branch to right crosses this row */
-	}
-	else {
-          putc(' ', outfile);
-	}
-      }
-      if (iinsubtree) {
+      else {                           /* if in subtree but not at its root */
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
           putc(' ', outfile);
+      } 
+    }
+    if (itoleft && (i > (long)r->back->ycoord)) {
+        putc('|', outfile);           /* if branch to left crosses this row */
+	printedbar = true;
+    } else {
+      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+        putc('|', outfile);          /* if branch to right crosses this row */
+        printedbar = true;
       }
+      if ((!printedbar) && (!iatitsroot))
+        putc(' ', outfile);
     } 
     if (iinsubtree) {
       if (r->back != 0) {                     /* if branch is not empty ... */
