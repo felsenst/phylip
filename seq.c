@@ -699,9 +699,10 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
       if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
         putc('|', outfile);          /* if branch to right crosses this row */
         printedbar = true;
-      }
-      if ((!printedbar) && (!iequal))
+      } else {
+      if ((!iatitsroot) && (!printedbar) && (!iequal))
         putc(' ', outfile);
+      }
     } 
     if (iinsubtree) {
       if (r->back != 0) {                     /* if branch is not empty ... */
