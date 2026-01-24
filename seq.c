@@ -663,7 +663,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
     }
   }
   else {
-      fprintf(outfile, "  ");              /* start by indenting two spaces */
+      fprintf(outfile, "  "); /* if not at a nontip node, indent two spaces */
   }
   if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
      r = p;
@@ -699,6 +699,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
           printedbar = false;
         }
       }
+    }
     if (r->back != 0) {                       /* if branch is not empty ... */
       drawline2(i, scale, r->back, curtree);            /* ... start out it */
     } 
