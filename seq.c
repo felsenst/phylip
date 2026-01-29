@@ -647,10 +647,12 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   q = curtree->root;
   if (q->tip)
     q = curtree->root->back;
-  if (iequal && p->tip) {                           /* if now at a tip, ... */
-    for (j = 0; j < nmlngth; j++)                 /* ... write the name ... */
-      putc(nayme[p->index-1][j], outfile);
-    return;             /* exit: we're all done after printing species name */
+  if (p->tip || itoleft)         {           /* if now at a tip, or to left */
+    if (iequal) {
+      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
+        putc(nayme[p->index-1][j], outfile);
+    }
+    return;     /* exit: all done if to left or after printing species name */
   }
   if (iequal) {                           /* if at an interior node instead */
     if (p->index - spp >= 100)           /* print out a number for the node */
