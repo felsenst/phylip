@@ -642,7 +642,7 @@ void drawline2(long i, double scale, struct node *p, struct tree* curtree)
   boolean itoleft, iequal, iinsubtree, iatitsroot;
   boolean printedbar, done;
 
-  itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
+  Itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
   iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
   q = curtree->root;
   if (q->tip)
