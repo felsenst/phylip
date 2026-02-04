@@ -2029,7 +2029,7 @@ void dnaml_reroot(struct tree* t)
   struct bl_node *rn, *rnn, *rnb, *rnnb;
   long numsibs = count_sibs(r);
 
-  if ( numsibs > 2)
+  if (numsibs > 2)
   {
     q = r;
     while ( q->next != r )
@@ -2040,9 +2040,8 @@ void dnaml_reroot(struct tree* t)
   }
   else
   {
-    assert(r->back == NULL); // RSGnote: This assumes the FORKRING being manipulated
-                             //has the ROOT FORKNODE pointing to NULL.
-
+    while (r->back != NULL) /* if bifurcating, set root pointer to bottom */
+      r = r->next;
 
     rn = (struct bl_node*)(r->next);
     rnb = (struct bl_node*)(r->next->back);
@@ -2064,7 +2063,7 @@ void dnaml_reroot(struct tree* t)
   }
 
   t->root = t->nodep[0]->back;
-                // Reset ROOT; moved from line after DNAML_REROOT call.
+                // Reset root; moved from line after dnaml_reroot call.
 } /* dnaml_reroot */
 
 
@@ -2236,7 +2235,6 @@ void maketree(void)
       bestree->copy(bestree, curtree);
       if (currentoutgrno > enterorder[nextsp-1]) {
         currentoutgrno = enterorder[nextsp-1];
-        curtree->root = curtree->nodep[currentoutgrno-1];
       }
       curtree->outgrno = currentoutgrno;
       if (progress)
@@ -2290,6 +2288,7 @@ void maketree(void)
           }
         }
       }
+      dnaml_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
       bestree->copy(bestree, curtree);
