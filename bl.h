@@ -73,6 +73,7 @@ void    bl_tree_save_traverses(struct tree*, struct node*);
 void    bl_tree_restore_traverses(struct tree*, struct node*);
 void    bl_tree_do_branchl_on_insert(struct tree*, node *, node*);
 void    bl_tree_do_branchl_on_re_move(struct tree*, node*, node*);
+void    bl_reroot(struct tree*);
 double  get_tyme(struct node *);
 void    set_tyme(struct node*, double);
 double  min_child_tyme(struct node *);

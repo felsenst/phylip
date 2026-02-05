@@ -421,6 +421,53 @@ void bl_tree_do_branchl_on_re_move(struct tree* t, struct node* p,
 } /* bl_tree_do_branchl_on_re_move */
 
 
+void bl_reroot(struct tree* t) 
+{
+  /* move root of tree to branch connecting to outgroup species */
+  struct node *q;
+  double newl;
+  struct node *r = t->root;
+  struct bl_node *rn, *rnn, *rnb, *rnnb;
+  long numsibs = count_sibs(r);
+
+  if (numsibs > 2)
+  {
+    q = r;
+    while ( q->next != r )
+      q = q->next;
+    q->next = r->next;
+    t->release_forknode(t, r);
+    t->nodep[spp] = q;
+  }
+  else
+  {
+    while (r->back != NULL) /* if bifurcating, set root pointer to bottom */
+      r = r->next;
+
+    rn = (struct bl_node*)(r->next);
+    rnb = (struct bl_node*)(r->next->back);
+    rnnb = (struct bl_node*)(r->next->next->back);
+    rnn = (struct bl_node*)(r->next->next);
+
+    newl = rnb->oldlen + rnn->oldlen;
+    rnb->oldlen = newl;
+    rnnb->oldlen = newl;
+
+    newl = rn->v + rnn->v;
+    rnb->v = newl;
+    rnnb->v = newl;
+
+    r->next->back->back = r->next->next->back;
+    r->next->next->back->back = r->next->back;
+
+   t->release_fork(t, r->index-1);
+  }
+
+  t->root = t->nodep[0]->back;
+                // Reset root; moved from line after dnaml_reroot call.
+} /* bl_reroot */
+
+
 void bl_tree_re_move(struct tree *t, struct node *p, 
                        struct node **q, boolean do_newbl)
 {

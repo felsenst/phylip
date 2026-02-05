@@ -86,7 +86,6 @@ void   treevaluate(struct tree*);
 void   maketree(void);
 void   clean_up(void);
 void   reallocsites(void);
-void   dnaml_reroot(struct tree*);           // RSGbugfix: Name change.
 void   dnaml_treeout(FILE *, struct tree*, struct node*);
 double dnaml_tree_evaluate(struct tree*, struct node *, boolean);
 void   freetable(void);
@@ -2020,53 +2019,6 @@ void summarize(void)
 }  /* summarize */
 
 
-void dnaml_reroot(struct tree* t) 
-{
-  /* move root of tree */
-  struct node *q;
-  double newl;
-  struct node *r = t->root;
-  struct bl_node *rn, *rnn, *rnb, *rnnb;
-  long numsibs = count_sibs(r);
-
-  if (numsibs > 2)
-  {
-    q = r;
-    while ( q->next != r )
-      q = q->next;
-    q->next = r->next;
-    t->release_forknode(t, r);
-    t->nodep[spp] = q;
-  }
-  else
-  {
-    while (r->back != NULL) /* if bifurcating, set root pointer to bottom */
-      r = r->next;
-
-    rn = (struct bl_node*)(r->next);
-    rnb = (struct bl_node*)(r->next->back);
-    rnnb = (struct bl_node*)(r->next->next->back);
-    rnn = (struct bl_node*)(r->next->next);
-
-    newl = rnb->oldlen + rnn->oldlen;
-    rnb->oldlen = newl;
-    rnnb->oldlen = newl;
-
-    newl = rn->v + rnn->v;
-    rnb->v = newl;
-    rnnb->v = newl;
-
-    r->next->back->back = r->next->next->back;
-    r->next->next->back->back = r->next->back;
-
-   t->release_fork(t, r->index-1);
-  }
-
-  t->root = t->nodep[0]->back;
-                // Reset root; moved from line after dnaml_reroot call.
-} /* dnaml_reroot */
-
-
 void dnaml_treeout(FILE  *outtree, struct tree* t, struct node* p) {
 /* call bl_treeout to write tree out to tree output file */
   double bl_scale;
@@ -2288,7 +2240,7 @@ void maketree(void)
           }
         }
       }
-      dnaml_reroot(curtree);
+      bl_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
       bestree->copy(bestree, curtree);
