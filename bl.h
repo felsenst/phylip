@@ -92,6 +92,9 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
 		         boolean, struct tree*, 
                          struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
+void    bl_coordinates(tree *t, struct node *, double, long *, double *);
+void    bl_drawline2(long, double, struct node *, struct tree *);
+void    bl_printree(struct tree *);
 #endif
 
 #endif
