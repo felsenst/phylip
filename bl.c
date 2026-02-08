@@ -1260,7 +1260,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p,
         c = '_';
       putc(c, outtree);
     }
-    (*col) += n;                  /* ... and update where on is in the line */
+    (*col) += n;                 /* ... and update where one is in the line */
   }
   else {                                           /* if this is a fork ... */
     qfirst = p;                       /* save node where you entered circle */
@@ -1313,7 +1313,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p,
 void bl_treeout(FILE* outtreefile, struct tree* t, struct node* p, 
                   double bl_scale)
 {
-  /* write out file with representation of final tree2 */
+  /* write out file with Newick representation of final tree */
   int col;
   boolean found;
   struct node *q;
@@ -1353,10 +1353,11 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     q = q0->next;      /* unless at root node, starts at next one in circle */
   else
     q = q0;
-  do {                /* go around ring, recursing into descendant subtrees */
+  do {  /* go around internal node ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {                     /* dodo is "do if not at end of circle" */
-      xx = fracchange * ((struct bl_node*)q)->v;
+/* debug:       xx = fracchange * ((struct bl_node*)q)->v;   debug: maybe use instead? */
+      xx = ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       bl_coordinates(t, q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
@@ -1382,10 +1383,10 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;              /* get leftmost descendant value of y */
   p->ymax = last->ymax;                        /* ... and rightmost one too */
-}  /* dnaml_coordinates */
+}  /* bl_coordinates */
 
 
-void bl_drawline2(long i, double scale, struct node *p, struct tree* t)
+void bl_drawline(long i, double scale, struct node *p, struct tree* t)
 {
   /* draws one row of the tree diagram by moving up tree
    * the argument  i  is the vertical number (y) of the row we draw,
@@ -1467,7 +1468,7 @@ void bl_drawline2(long i, double scale, struct node *p, struct tree* t)
           putc(' ', outfile);
       }
       if (r->back != 0) {                     /* if branch is not empty ... */
-        bl_drawline2(i, scale, r->back, t);             /* ... start out it */
+        bl_drawline(i, scale, r->back, t);              /* ... start out it */
       }
     }
     r = r->next;                         /* move to next descendant, if any */
@@ -1480,12 +1481,12 @@ void bl_drawline2(long i, double scale, struct node *p, struct tree* t)
 	}
     }
   } while (!done);
-}  /* bl_drawline2 */
+}  /* bl_drawline */
 
 
 void bl_printree(tree *t)
 {
-  /* prints out diagram of the tree2 */
+  /* prints out diagram of the tree using characters */
   long tipy;
   double scale, tipmax;
   long i;
@@ -1493,13 +1494,13 @@ void bl_printree(tree *t)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  if (t->root->tip)
+  if (t->root->tip)   /* make sure root pointer is to nearest interal node */
     t->root = t->root->back;
-  bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
+  bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
+  scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
-    bl_drawline2(i, scale, t->root, t);
-    putc('\n', outfile);
+    bl_drawline(i, scale, t->root, t); /* draw one horizontal printed line */
+    putc('\n', outfile);                           /* then go to next line */
   }
 }  /* bl_printree */
 
