@@ -4454,7 +4454,7 @@ void generic_update(struct tree *t, node* p)
 { /* 
    * Updates views for p and p->back in preparation for evaluation specific
    * to each program.  The nuview calls are recursive so go out as far as 
-   * possible. */
+   * needed. */
 
   if ( (p->initialized == false) && (p->tip == false) )
   {
