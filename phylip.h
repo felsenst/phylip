@@ -273,7 +273,7 @@ typedef unsigned int boolean;
 /* debug: should these go into  bl.h ? */
 
 #define smoothings      8   /* number of passes through smoothing algorithm */
-#define iterations      8             /* number of iterates for each branch */
+#define iterations      8           /* number of iterations for each branch */
 #define epsilon         0.0001             /* small number used in makenewv */
 #define EPSILON         0.00001 /* small number used in Hermite rootfinding */
 #define initialv        0.1      /* starting branch length unless otherwise */
@@ -284,12 +284,11 @@ typedef unsigned int boolean;
 /* Math constants */
 
 #define SQRTPI 1.7724538509055160273       /* square root of Pi, for Normal */
-#define SQRT2  1.4142135623730950488                   /* square root of 2. */
+#define SQRT2  1.4142135623730950488                    /* square root of 2 */
 #define purset ((1 << (long)A) + (1 << (long)G))        /* the purine bases */
 #define pyrset ((1 << (long)C) + (1 << (long)T))         /* the pyrimidines */
 /* debug: should these go into something like  dna.h ? */
-#define NLRSAVES 5    /* number of views that need to be saved during local
-                       * rearrangement                                      */
+#define NLRSAVES 5      /* number of views saved during local rearrangement */
 
 /* Used in Proml, Promlk, Dnaml, Dnamlk and in the parsimony programs
  * for undefined bestyet value */
@@ -320,7 +319,7 @@ typedef enum { bottom, nonbottom, hslength, tip, iter, length,
                  hsnolength, treewt, unittrwt } initops ;
 
 typedef struct node** pointarray; /* type is an array of pointers to nodes
-                                  * and is the type of array nodep */
+                                   * and is the type of array nodep */
 
 typedef struct tree tree;                            /* forward declaration */
 
