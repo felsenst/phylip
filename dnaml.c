@@ -112,7 +112,7 @@ void   dnaml(char * infilename, char * intreename, char * wgtsfilename,
 /* function prototypes */
 #endif
 
-double fracchange;
+double fracchange;      /* debug: should this be external, defined in, say, bl.h? */
 extern boolean interleaved, printdata, outgropt, treeprint, dotdiff;
 extern long rcategs;
 boolean haslengths;
@@ -244,12 +244,12 @@ void getoptions(void)
   treeprint = true;
   interleaved = true;
   loopcount = 0;
-  for (;;)
+  for (;;)                       /* keep trying to get the options selected */
   {
-    cleerhome();
+    cleerhome();                            /* clear the screen if possible */
     printf("Nucleic acid sequence Maximum Likelihood");
     printf(" method, version %s\n\n", VERSION);
-    printf("Settings for this run:\n");
+    printf("Settings for this run:\n"); /* print menu with current settings */
     if ( reusertree ) string = "Yes, rearrange on user tree";
     else if ( usertree ) string = "No, use user trees in input file";
     else string = "Yes";
@@ -330,13 +330,14 @@ void getoptions(void)
             (hypstate ? "Yes" : "No"));
     printf("\n  Y to accept these or type the letter for one to change\n");
     phyFillScreenColor();
-    if(scanf("%c%*[^\n]", &ch)) {}      // Read char and scan to EOL.
+    if(scanf("%c%*[^\n]", &ch)) {}             /* Read char and scan to EOL */
     (void)getchar();
     if (ch == '\n')
       ch = ' ';
     uppercase(&ch);
     if (ch == 'Y')
       break;
+    /* if a character us typed in check if it is legal and choose case */
     if (((!usertree) && (strchr("UTFCRAWSGJVOMI012345", ch) != NULL))
         || (usertree && ((strchr("ULTFCRAWSVOMI012345", ch) != NULL))))
     {
@@ -457,7 +458,7 @@ void getoptions(void)
             loopcount2 = 0;
             do {
               printf(" (type D or W)\n");
-              if(scanf("%c%*[^\n]", &ch2)) {} // Read char and scan to EOL.
+              if(scanf("%c%*[^\n]", &ch2)) {}  /* Read char and scan to EOL */
               (void)getchar();
               if (ch2 == '\n')
                 ch2 = ' ';
@@ -508,7 +509,7 @@ void getoptions(void)
     }
     else
       printf("Not a possible option!\n");
-    countup(&loopcount, 100);
+    countup(&loopcount, 100);              /* try 100 times before aborting */
   }
   if (gama || invar)
   {
@@ -551,7 +552,7 @@ void getoptions(void)
         loopcount = 0;
         do {
           printf("Fraction of invariant sites?\n");
-          if(scanf("%lf%*[^\n]", &invarfrac)) {} // Read number and scan to EOL.
+          if(scanf("%lf%*[^\n]", &invarfrac)) {} /* Get number, scan to EOL */
           (void)getchar();
           countup (&loopcount, 10);
         } while ((invarfrac <= 0.0) || (invarfrac >= 1.0));
@@ -584,7 +585,8 @@ void getoptions(void)
 
 
 void reallocsites(void)
-{
+{   /* for this set of data, free arrays for categories
+     * and for aliasing bookkeeping */
   long i;
 
   for (i=0; i < spp; i++)
@@ -644,7 +646,7 @@ void doinit(void)
 
 
 void inputoptions(void)
-{
+{ /* get weights and categories for the sites */
   long i;
 
   if (!firstset && !justwts)
@@ -1071,7 +1073,7 @@ void dnaml_tree_nuview(struct tree* t, struct node *p)
     else
       lw = 0.0;
     for (i = 0; i < rcategs; i++) { /* table of terms for transition probs */
-      for (j = 0; j < categs; j++)
+      for (j = 0; j < categs; j++) /* ... for all categories and all rates */
       {
         tbl[i][j]->ww[sib_index]   = exp(tbl[i][j]->ratxi * lw);
         tbl[i][j]->zz[sib_index]   = exp(tbl[i][j]->ratxv * lw);
@@ -1211,8 +1213,8 @@ void slopecurv(struct node *p, double y, double *like,
   q = ((struct node*)p)->back;
   sum = 0.0;
   lz = -y;
-  for (i = 0; i < rcategs; i++)
-    for (j = 0; j < categs; j++)
+  for (i = 0; i < rcategs; i++)  /* tabulate  exp(-r t)  for all rates ...  */
+    for (j = 0; j < categs; j++)          /* ... for all categories of site */
     {
       tbl[i][j]->orig_zz = exp(tbl[i][j]->rat * lz);
       tbl[i][j]->z1 = exp(tbl[i][j]->ratxv * lz);
@@ -1382,13 +1384,13 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
       }	  
     else {                                  /* when can't do Newton-Raphson */
       delta = yold/2.0;
-      if (slope > 0.0)
+      if (slope > 0.0)                     /* go upslope by an amount delta */
         y = y + delta;
       else
         y = y - delta;
       }
     if (y <= epsilon) {
-      y = epsilon;                          /* do not allow to go negative */
+      y = epsilon;                      /* do not allow to go near negative */
     }
     done = false;
     it = 0;
@@ -1415,7 +1417,7 @@ void dnaml_tree_makenewv(struct tree* t, struct node* p)
 	yold = y;                                   /* update branch length */
         posslope = slope >= 0.0;
 /* debug        printf("Better! next delta now %10.8f\n", delta); */
-      } else {                                       /* if not better ... */
+      } else {                                         /* if not better ... */
         delta = (y - yold)/2.0;                /* next time, a smaller step */
 /* debug:  printf("Not better. y, yold now %10.8f, %10.8f, next delta now %10.8f\n", y, yold, delta); */
         }
@@ -1603,7 +1605,7 @@ void reconstr(struct node *p, long n)
   struct node *q;
 
   j = location[ally[n]-1] - 1;
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 4; i++)       /* get conditional likelihoods at that site */
   {
     f = ((mldna_node*)p)->x[j][mx-1][i];
     num_sibs = count_sibs(p);
@@ -1613,18 +1615,18 @@ void reconstr(struct node *p, long n)
       q = q->next;
       f *= ((mldna_node*)q)->x[j][mx-1][i];
     }
-    if (f > 0.0)   /* correct for overcounting of conditional likelihoods */
+    if (f > 0.0)     /* correct for overcounting of conditional likelihoods */
       f = exp(log(f)/num_sibs);
     xx[i] = f;
   }
-  xx[0] *= freqa;
-  xx[1] *= freqc;
+  xx[0] *= freqa;         /* multiply conditional likeelihoods by prior ... */
+  xx[1] *= freqc;       /* ... probabilities of the bases to get posteriors */
   xx[2] *= freqg;
   xx[3] *= freqt;
   sum = xx[0]+xx[1]+xx[2]+xx[3];
   for (i = 0; i < 4; i++)
     xx[i] /= sum;
-  first = 0;
+  first = 0;    /* find the bases that are best and next-best by likelihood */
   for (i = 1; i < 4; i++)
     if (xx [i] > xx[first])
       first = i;
@@ -1635,14 +1637,14 @@ void reconstr(struct node *p, long n)
   for (i = 0; i < 4; i++)
     if ((i != first) && (xx[i] > xx[second]))
       second = i;
-  m = 1 << first;
+  m = 1 << first;            /* choose best if accounts for more than half */
   if (xx[first] < 0.4999995)
-    m = m + (1 << second);
-  if (xx[first] > 0.95)
+    m = m + (1 << second);          /* ... otherwise choose best two bases */
+  if (xx[first] > 0.95)  /* capitalize the base character if more than 95% */
     putc(toupper(basechar[m - 1]), outfile);
   else
     putc(basechar[m - 1], outfile);
-  if (rctgry && rcategs > 1)
+  if (rctgry && (rcategs > 1))
     mx = mp[n][mx - 1];
   else
     mx = 1;
@@ -1992,7 +1994,7 @@ void maketree(void)
     {
       /* These initializations required each time through the loop since
        * multiple trees require re-initialization */
-      haslengths = true;
+      haslengths       = true;
       nextnode         = 0;
       dummy_first      = true;
       goteof           = false;
@@ -2034,8 +2036,10 @@ void maketree(void)
       else if ( reusertree )
         continue;
 
-      bl_printree(curtree);
-      summarize();
+      if (treeprint) {
+        bl_printree(curtree);
+        summarize();
+      }
 
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);

@@ -20,7 +20,7 @@ extern boolean inserting, smoothit, polishing;
 extern boolean smoothed;
 typedef void (*tree_restore_lr_nodes_t)(struct tree*, struct node*);
 
-typedef struct bl_tree {
+typedef struct bl_tree {                      /* a tree with branch lengths */
   struct tree treepart;
   tree_save_lr_nodes_t save_lr_nodes;
   tree_restore_lr_nodes_t restore_lr_nodes;
@@ -92,9 +92,9 @@ void    bl_treevaluate(struct tree*, boolean, boolean, boolean,
 		         boolean, struct tree*, 
                          struct tree*, initialvtrav_t);
 void    bl_initialvtrav(struct tree*, bl_node *);
-void    bl_coordinates(tree *, struct node *, double, long *, double *);
-void    bl_printree(tree *);
-
+void    bl_coordinates(tree *t, struct node *, double, long *, double *);
+void    bl_drawline(long, double, struct node *, struct tree *);
+void    bl_printree(struct tree *);
 #endif
 
 #endif

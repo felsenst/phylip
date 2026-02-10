@@ -26,6 +26,7 @@ const double MIN_ROOT_TYME = -10;
 extern long endsite;
 extern sequence inputSequences;
 extern boolean lngths;
+extern FILE *outfile;
 extern FILE *outtree;
 boolean inserting;
 
@@ -1259,7 +1260,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p,
         c = '_';
       putc(c, outtree);
     }
-    (*col) += n;                  /* ... and update where on is in the line */
+    (*col) += n;                 /* ... and update where one is in the line */
   }
   else {                                           /* if this is a fork ... */
     qfirst = p;                       /* save node where you entered circle */
@@ -1312,7 +1313,7 @@ void bl_treeoutrecurs(FILE* outtreefile, struct tree* t, struct node* p,
 void bl_treeout(FILE* outtreefile, struct tree* t, struct node* p, 
                   double bl_scale)
 {
-  /* write out file with representation of final tree2 */
+  /* write out file with Newick representation of final tree */
   int col;
   boolean found;
   struct node *q;
@@ -1352,10 +1353,11 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     q = q0->next;      /* unless at root node, starts at next one in circle */
   else
     q = q0;
-  do {                /* go around ring, recursing into descendant subtrees */
+  do {  /* go around internal node ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {                     /* dodo is "do if not at end of circle" */
-      xx = fracchange * ((struct bl_node*)q)->v;
+/* debug:       xx = fracchange * ((struct bl_node*)q)->v;   debug: maybe use instead? */
+      xx = ((struct bl_node*)q)->v;
       if (xx > 100.0)
         xx = 100.0;
       bl_coordinates(t, q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
@@ -1384,27 +1386,129 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
 }  /* bl_coordinates */
 
 
+<<<<<<< HEAD
 void bl_printree(tree *t)
 {
   /* prints out diagram of the tree */
+=======
+void bl_drawline(long i, double scale, struct node *p, struct tree* t)
+{
+  /* draws one row of the tree diagram by moving up tree
+   * the argument  i  is the vertical number (y) of the row we draw,
+   * numbered from top (1) to bottom
+   * used in Dnaml, Proml, & Restml */
+
+  struct node *r, *q;
+  long n, j;
+  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean printedbar, done;
+
+  itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
+  iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
+  q = t->root;
+  if (q->tip)
+    q = t->root->back;
+  if (p->tip)                    {                       /* if now at a tip */
+    if (iequal) {
+      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
+        putc(nayme[p->index-1][j], outfile);
+    }
+    return;                /* exit: all done if after printing species name */
+  }
+  if (iequal) {                           /* if at an interior node instead */
+    if (p->index - spp >= 100)           /* print out a number for the node */
+      fprintf(outfile, "%3ld", p->index - spp);
+    else {  
+      if (p->index - spp >= 10)
+        fprintf(outfile, "-%2ld", p->index - spp);
+      else
+        fprintf(outfile, "--%ld", p->index - spp);
+    }
+  }
+  else {
+      fprintf(outfile, "  "); /* if not at a nontip node, indent two spaces */
+  }
+  if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
+     r = p;
+  else                                /* otherwise move to first descendant */
+     r = p->next;
+  done = false;
+  printedbar = false;         /* not (yet) printed a vertical bar character */
+  do {  /* now check for each of  p's  descendants if  i  is in subtree ... */
+    n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
+    iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
+    if (iinsubtree) {
+      iatitsroot = (i == (long)r->back->ycoord);
+      if (iatitsroot) {
+        if (itoleft)                    /* print any turn-corner characters */
+          putc(',', outfile);
+        else {
+          if (!iequal) {                   /* i.e., "itoright", so to speak */
+            putc('\'', outfile);           /* "quoting" a single apostrophe */
+          }
+        }
+      } 
+    }
+    if (itoleft && (i > (long)r->back->ycoord)) {
+        putc('|', outfile);           /* if branch to left crosses this row */
+	printedbar = true;
+    } else {
+      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+        putc('|', outfile);          /* if branch to right crosses this row */
+        printedbar = true;
+      } else {
+        if (iinsubtree && (!iatitsroot) && (!printedbar) && (!iequal)) {
+          putc(' ', outfile);
+          printedbar = false;
+        }
+      }
+    }
+    if (iinsubtree) {
+      if (iatitsroot) {
+        for (j = 1; j <= n - 3; j++)    /* ...  print dashes out to subtree */
+          putc('-', outfile);
+      }
+      else {                           /* if in subtree but not at its root */
+        for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
+          putc(' ', outfile);
+      }
+      if (r->back != 0) {                     /* if branch is not empty ... */
+        bl_drawline(i, scale, r->back, t);              /* ... start out it */
+      }
+    }
+    r = r->next;                         /* move to next descendant, if any */
+    if (!done) {
+      if (r->back == 0) {              /* making sure not at bottom of tree */
+        done = true;
+      } else {
+        if (r == p)        /* done if finished with all descendant branches */
+          done = true;
+	}
+    }
+  } while (!done);
+}  /* bl_drawline */
+
+
+void bl_printree(tree *t)
+{
+  /* prints out diagram of the tree using characters */
   long tipy;
   double scale, tipmax;
   long i;
 
-  if (!treeprint)
-    return;
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  if (t->root->tip)
+  if (t->root->tip)   /* make sure root pointer is to nearest interal node */
     t->root = t->root->back;
-  bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
+  bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
+  scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
-    drawline2(i, scale, curtree->root, curtree);
-    putc('\n', outfile);
+    bl_drawline(i, scale, t->root, t); /* draw one horizontal printed line */
+    putc('\n', outfile);                           /* then go to next line */
   }
 }  /* bl_printree */
+
 
 /* End. */
 
