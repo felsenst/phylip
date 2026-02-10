@@ -75,8 +75,6 @@ void   slopecurv(struct node *, double, double *, double *, double *);
 void   dnaml_tree_makenewv(struct tree*, struct node *);
 void   initdnamlnode(struct tree *, struct node *, long, long, long *,
                        long *, initops, pointarray, Char *, Char *, FILE *);
-void   dnaml_coordinates(struct node *, double, long *, double *);
-void   dnaml_printree(void);
 void   sigma(struct node *, double *, double *, double *);
 void   describe(struct node *);
 void   reconstr(struct node *, long);
@@ -1496,86 +1494,6 @@ void initdnamlnode(struct tree *treep, struct node *p, long len,
 } /* initdnamlnode */
 
 
-void dnaml_coordinates(struct node *p, double lengthsum, 
-		        long *tipy, double *tipmax)
-{
-  /* establishes coordinates of nodes */
-  struct node *q0, *q, *qprev, *first, *last;
-  double xx;
-  boolean atroot, dodo;
-
-  if (p->tip)                             /* for tips, set ycoord, min, max */
-  {
-    p->xcoord = (long)(over * lengthsum + 0.5);
-    p->ycoord = (*tipy);
-    p->ymin = (*tipy);
-    p->ymax = (*tipy);
-    (*tipy) += down;
-    if (lengthsum > (*tipmax))
-      (*tipmax) = lengthsum;
-    return;                            /* then bail if tip coordinates call */
-  }
-  atroot = (p == curtree->root);                       /* for interior node */
-  q0 = p;                                        /* q0 starts at the node p */
-  if (!atroot)
-    q = q0->next;      /* unless at root node, starts at next one in circle */
-  else
-    q = q0;
-  do {                /* go around ring, recursing into descendant subtrees */
-    dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
-    if (dodo) {                     /* dodo is "do if not at end of circle" */
-      xx = fracchange * ((struct bl_node*)q)->v;
-      if (xx > 100.0)
-        xx = 100.0;
-      dnaml_coordinates(q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
-    }
-    q = q->next;
-  } while (dodo);
-  if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
-    first = p->back;
-  else
-    first = p->next->back;
-  q = p;                    /* find last immediate descendant and set "last"*/
-  while (q->next != p) {      /* if we're all way around this interior node */
-    qprev = q;
-    q = q->next;
-  }
-  if (q->back == 0)                /* if we're at a node with an empty back */
-    q = qprev;
-  last = q->back;
-  p->xcoord = (long)(over * lengthsum + 0.5);      /* how far our from root */
-  if (p == curtree->root)     /* debug:  why this? */
-    p->ycoord = p->next->back->ycoord;
-  else
-    p->ycoord = (first->ycoord + last->ycoord) / 2;
-  p->ymin = first->ymin;              /* get leftmost descendant value of y */
-  p->ymax = last->ymax;                        /* ... and rightmost one too */
-}  /* dnaml_coordinates */
-
-
-void dnaml_printree(void)
-{
-  /* prints out diagram of the tree2 */
-  long tipy;
-  double scale, tipmax;
-  long i;
-
-  if (!treeprint)
-    return;
-  putc('\n', outfile);
-  tipy = 1;
-  tipmax = 0.0;
-  if (curtree->root->tip)
-    curtree->root = curtree->root->back;
-  dnaml_coordinates(curtree->root, 0.0, &tipy, &tipmax);
-  scale = 1.0 / (long)(tipmax + 1.000);
-  for (i = 1; i <= (tipy - down); i++)  {
-    drawline2(i, scale, curtree->root, curtree);
-    putc('\n', outfile);
-  }
-}  /* dnaml_printree */
-
-
 void sigma(struct node *p, double *sumlr, double *s1, double *s2)
 {
   /* compute standard deviation */
@@ -2116,7 +2034,7 @@ void maketree(void)
       else if ( reusertree )
         continue;
 
-      dnaml_printree();
+      bl_printree(curtree);
       summarize();
 
       if (trout) {
@@ -2244,7 +2162,7 @@ void maketree(void)
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
       bestree->copy(bestree, curtree);
-      dnaml_printree();
+      bl_printree(curtree);
       summarize();
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);

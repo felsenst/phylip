@@ -1326,5 +1326,85 @@ void bl_treeout(FILE* outtreefile, struct tree* t, struct node* p,
   bl_treeoutrecurs(outtreefile, t, p, bl_scale, &col);
 }  /* bl_treeout */
 
+
+void bl_coordinates(tree *t, struct node *p, double lengthsum, 
+		      long *tipy, double *tipmax)
+{
+  /* establishes coordinates of nodes for printing tree */
+  struct node *q0, *q, *qprev, *first, *last;
+  double xx;
+  boolean atroot, dodo;
+
+  if (p->tip)                             /* for tips, set ycoord, min, max */
+  {
+    p->xcoord = (long)(over * lengthsum + 0.5);
+    p->ycoord = (*tipy);
+    p->ymin = (*tipy);
+    p->ymax = (*tipy);
+    (*tipy) += down;
+    if (lengthsum > (*tipmax))
+      (*tipmax) = lengthsum;
+    return;                            /* then bail if tip coordinates call */
+  }
+  atroot = (p == t->root);                             /* for interior node */
+  q0 = p;                                        /* q0 starts at the node p */
+  if (!atroot)
+    q = q0->next;      /* unless at root node, starts at next one in circle */
+  else
+    q = q0;
+  do {                /* go around ring, recursing into descendant subtrees */
+    dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
+    if (dodo) {                     /* dodo is "do if not at end of circle" */
+      xx = fracchange * ((struct bl_node*)q)->v;
+      if (xx > 100.0)
+        xx = 100.0;
+      bl_coordinates(t, q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
+    }
+    q = q->next;
+  } while (dodo);
+  if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
+    first = p->back;
+  else
+    first = p->next->back;
+  q = p;                    /* find last immediate descendant and set "last"*/
+  while (q->next != p) {      /* if we're all way around this interior node */
+    qprev = q;
+    q = q->next;
+  }
+  if (q->back == 0)                /* if we're at a node with an empty back */
+    q = qprev;
+  last = q->back;
+  p->xcoord = (long)(over * lengthsum + 0.5);      /* how far our from root */
+  if (p == t->root)     /* debug:  why this? */
+    p->ycoord = p->next->back->ycoord;
+  else
+    p->ycoord = (first->ycoord + last->ycoord) / 2;
+  p->ymin = first->ymin;              /* get leftmost descendant value of y */
+  p->ymax = last->ymax;                        /* ... and rightmost one too */
+}  /* bl_coordinates */
+
+
+void bl_printree(tree *t)
+{
+  /* prints out diagram of the tree */
+  long tipy;
+  double scale, tipmax;
+  long i;
+
+  if (!treeprint)
+    return;
+  putc('\n', outfile);
+  tipy = 1;
+  tipmax = 0.0;
+  if (t->root->tip)
+    t->root = t->root->back;
+  bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);
+  scale = 1.0 / (long)(tipmax + 1.000);
+  for (i = 1; i <= (tipy - down); i++)  {
+    drawline2(i, scale, curtree->root, curtree);
+    putc('\n', outfile);
+  }
+}  /* bl_printree */
+
 /* End. */
 
