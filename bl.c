@@ -424,36 +424,39 @@ void bl_tree_do_branchl_on_re_move(struct tree* t, struct node* p,
 
 void bl_reroot(struct tree* t) 
 {
-  /* move root of tree to branch connecting to outgroup species */
+  /* move root of tree to branch connecting to outgroup species 
+   * this version is not yet quite generic */
   struct node *q;
   double newl;
   struct node *r = t->root;
   struct bl_node *rn, *rnn, *rnb, *rnnb;
-  long numsibs = count_sibs(r);
+  long numsibs;
 
+  if (r->tip)  {
+    r = r->back;  n /* make sure  r  points to root-connected interior node */
+    t->root = r;                        /* ... and so does the root pointer */
+  }
+  if (r->back->index == t->outgrno)     /* if already at node near outgroup */
+    return;
+  numsibs = count_sibs(r);
   if (numsibs > 2)
-  {
-    q = r;
-    while ( q->next != r )
-      q = q->next;
-    q->next = r->next;
-    t->release_forknode(t, r);
-    t->nodep[spp] = q;
+  {         /* r is at a multifurcation, so remove any node with empty back */
+    if (r->back == 0) {
+      q = r;
+      while ( q->next != r )    /* go around ring looking for one before  r */
+        q = q->next;
+      q->next = r->next;
+      t->release_forknode(t, r);       /* ... and toss the node that is  r  */
+    }
   }
   else
   {
-    while (r->back != NULL) /* if bifurcating, set root pointer to bottom */
-      r = r->next;
-
-    rn = (struct bl_node*)(r->next);
+    while (r->back != NULL)   /* if bifurcating, set root pointer to bottom */
+      r = r->next;                                 /* assumes there is one! */
+    rn = (struct bl_node*)(r->next);            /* get ready to remove fork */
     rnb = (struct bl_node*)(r->next->back);
-    rnnb = (struct bl_node*)(r->next->next->back);
     rnn = (struct bl_node*)(r->next->next);
-
-    newl = rnb->oldlen + rnn->oldlen;
-    rnb->oldlen = newl;
-    rnnb->oldlen = newl;
-
+    rnnb = (struct bl_node*)(r->next->next->back);
     newl = rn->v + rnn->v;
     rnb->v = newl;
     rnnb->v = newl;
@@ -463,9 +466,9 @@ void bl_reroot(struct tree* t)
 
    t->release_fork(t, r->index-1);
   }
-
-  t->root = t->nodep[0]->back;
-                // Reset root; moved from line after dnaml_reroot call.
+/* debug: now insert new fork on line from outgrno tip and set up lengths */
+  
+  t->root = t->nodep[(t->outgrno)-1]]->back;
 } /* bl_reroot */
 
 
