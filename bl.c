@@ -436,7 +436,7 @@ void bl_reroot(struct tree* t)
   long numsibs;
 
   if (r->tip)  {
-    r = r->back;  n /* make sure  r  points to root-connected interior node */
+    r = r->back;    /* make sure  r  points to root-connected interior node */
     t->root = r;                        /* ... and so does the root pointer */
   }
   if (r->back->index == t->outgrno)     /* if already at node near outgroup */
@@ -471,14 +471,19 @@ void bl_reroot(struct tree* t)
    t->release_fork(t, r->index-1);  /* works even if ring has only 2 nodes? */
   }
 /* debug: now insert new fork on line from outgrno tip and set up lengths */
-  
-  t->root = t->nodep[(t->outgrno)-1]]->back;
+  generic_root_insert(t, t->nodep[(t->outgrno)-1]);  
+  t->root = t->nodep[(t->outgrno)-1]->back;
+  newl = ((struct bl_node*)(t->root))->v;
+  ((struct bl_node*)(t->root->next))->v = 0.0;   /* zero branch length here */
+  ((struct bl_node*)(t->root->next->back))->v = 0.0;
+  ((struct bl_node*)(t->root->next->next))->v = newl;    /* previous length */
+  ((struct bl_node*)(t->root->next->next->back))->v = newl;
 } /* bl_reroot */
 
 
 void bl_tree_re_move(struct tree *t, struct node *p, 
                        struct node **q, boolean do_newbl)
-{
+
   /* remove  p  and record in  q  where it was
    * assumes bifurcations
    * do_newbl is boolean which tells whether branch lengths get redone   */
