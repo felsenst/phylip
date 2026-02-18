@@ -382,7 +382,7 @@ void setupnode (node *p, long i)
 
 
 long count_sibs (node *p)
-{ /* Count the number of nodes in a ring, return the total number of */
+{ /* Count the number of nodes in a ring, return the total number of
    * nodes excluding the one passed into the function (siblings).
    * If the one passed in has a NULL back, and there are two other 
    * sibs, count 1 sib, not  2.

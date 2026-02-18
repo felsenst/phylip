@@ -11,6 +11,11 @@
 
 #include <assert.h>
 
+#ifndef PHYLIP_H
+#include "phylip.h"
+#define PHYLIP_H
+#endif
+
 #ifndef BL_H
 #include "bl.h"
 #define BL_H
@@ -482,7 +487,7 @@ void bl_reroot(struct tree* t)
 
 
 void bl_tree_re_move(struct tree *t, struct node *p, 
-                       struct node **q, boolean do_newbl)
+                       struct node **q, boolean do_newbl) {
 
   /* remove  p  and record in  q  where it was
    * assumes bifurcations
@@ -1398,11 +1403,6 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
 }  /* bl_coordinates */
 
 
-<<<<<<< HEAD
-void bl_printree(tree *t)
-{
-  /* prints out diagram of the tree */
-=======
 void bl_drawline(long i, double scale, struct node *p, struct tree* t)
 {
   /* draws one row of the tree diagram by moving up tree
