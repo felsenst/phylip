@@ -425,7 +425,10 @@ void bl_tree_do_branchl_on_re_move(struct tree* t, struct node* p,
 void bl_reroot(struct tree* t) 
 {
   /* move root of tree to branch connecting to outgroup species 
-   * this version is not yet quite generic */
+   * this version is generic, and has branch lengths */
+/* debug: in the longer run, make this a generic version in
+   phylip.c, but have it called from a wrapper in bl.c that
+   also includes summing of branch lengths  debug */
   struct node *q;
   double newl;
   struct node *r = t->root;
@@ -441,7 +444,7 @@ void bl_reroot(struct tree* t)
   numsibs = count_sibs(r);
   if (numsibs > 2)
   {         /* r is at a multifurcation, so remove any node with empty back */
-    if (r->back == 0) {
+    if (r->back == 0) {   /* debug:  or NULL? */
       q = r;
       while ( q->next != r )    /* go around ring looking for one before  r */
         q = q->next;
@@ -451,8 +454,9 @@ void bl_reroot(struct tree* t)
   }
   else
   {
-    while (r->back != NULL)   /* if bifurcating, set root pointer to bottom */
-      r = r->next;                                 /* assumes there is one! */
+    q = r;                                 /* record where this ring starts */
+    while ((r->back != NULL) && (r->next != q)) /* any node with NULL back? */
+      r = r->next;
     rn = (struct bl_node*)(r->next);            /* get ready to remove fork */
     rnb = (struct bl_node*)(r->next->back);
     rnn = (struct bl_node*)(r->next->next);
@@ -464,7 +468,7 @@ void bl_reroot(struct tree* t)
     r->next->back->back = r->next->next->back;
     r->next->next->back->back = r->next->back;
 
-   t->release_fork(t, r->index-1);
+   t->release_fork(t, r->index-1);  /* works even if ring has only 2 nodes? */
   }
 /* debug: now insert new fork on line from outgrno tip and set up lengths */
   

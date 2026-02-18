@@ -383,7 +383,10 @@ void setupnode (node *p, long i)
 
 long count_sibs (node *p)
 { /* Count the number of nodes in a ring, return the total number of */
-  /* nodes excluding the one passed into the function (siblings)     */
+   * nodes excluding the one passed into the function (siblings).
+   * If the one passed in has a NULL back, and there are two other 
+   * sibs, count 1 sib, not  2.
+   */
   node *q;
   long return_int = 0;
   boolean done;
@@ -400,13 +403,6 @@ long count_sibs (node *p)
     q = p->next;
     done = false;
     while ((!done) && (q != p)) {   /* go around the circle and ... */
-#if 0
-      if (q == NULL) {
-        sprintf (progbuf, "Error: a loop of nodes was not closed.\n");
-        print_progress(progbuf);
-        exxit (-1);
-      }
-#endif
       if (q == NULL)  {
         done = true;
       } else {     /* count them */
@@ -414,6 +410,8 @@ long count_sibs (node *p)
         q = q->next;
       }
     }
+    if (p->back == NULL) /* if count is 2 but NULL back of p, count 1 */
+      return_int--;
   }
   return return_int;
 }  /* count_sibs */
@@ -4400,7 +4398,8 @@ node* generic_tree_get_fork(tree* t, long k)
 
 void generic_tree_release_fork(tree* t, long i)
 { /* release the fork nodes in the ring at fork  i,
-   * and put all those nodes back on the free list */
+   * and put all those nodes back on the free list.
+   * Note: works no matter how many nodes in ring. */
   node *p, *q ,*n;
   boolean done;
 
