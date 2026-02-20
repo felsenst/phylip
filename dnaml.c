@@ -2148,7 +2148,6 @@ void maketree(void)
         bestree2->copy(bestree2, curtree);
       else
 	bestree->copy(bestree, curtree);
-      curtree->root = curtree->nodep[outgrno - 1]->back;
       for (i = 0; i < nonodes2; i++)
       {
         if (i < spp)
