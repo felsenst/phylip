@@ -2029,13 +2029,13 @@ void maketree(void)
       if ( reusertree && which == numtrees )
       {
         bestree2->copy(bestree2, curtree);
-        curtree->root = curtree->nodep[0]->back;
-        if ( outgropt )
-          curtree->root = curtree->nodep[outgrno - 1]->back;
       }
       else if ( reusertree )
         continue;
 
+      curtree->root = curtree->nodep[0]->back;
+      if ( outgropt )
+        curtree->root = curtree->nodep[outgrno - 1]->back;
       if (treeprint) {
         bl_printree(curtree);
         summarize();
