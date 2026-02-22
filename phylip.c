@@ -411,8 +411,10 @@ long count_sibs (node *p)
         q = q->next;
       }
     }
+#if 0
     if (p->back == NULL) /* if count is 2 but NULL back of p, count 1 */
       return_int--;
+#endif
   }
   return return_int;
 }  /* count_sibs */
