@@ -2161,10 +2161,10 @@ void maketree(void)
           }
         }
       }
+      bestree->copy(bestree, curtree);
       bl_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
-      bestree->copy(bestree, curtree);
       bl_printree(curtree);
       summarize();
       if (trout) {
