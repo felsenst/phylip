@@ -1703,7 +1703,7 @@ void summarize(void)
   if (outgropt)
     fprintf(outfile, "(although rooted by outgroup) ");
   fprintf(outfile, "this is an unrooted tree!\n\n");
-  fprintf(outfile, "Ln Likelihood = %11.5f\n", curtree->score);
+  fprintf(outfile, "Ln Likelihood = %11.5f\n", bestree->score);
   fprintf(outfile, "\n Between        And             Length");
   if (!(!reusertree && usertree && lngths && haslengths))
     fprintf(outfile, "       Approx. Confidence Limits");
@@ -1715,7 +1715,7 @@ void summarize(void)
   for (i = spp; i < nonodes2; i++)
   {
     /* So this works with arbitrary multifurcations */
-    if (curtree->nodep[i])
+    if (bestree->nodep[i])
     {
       num_sibs = count_sibs (curtree->nodep[i]);
       sib_ptr  = curtree->nodep[i];
@@ -1727,7 +1727,7 @@ void summarize(void)
     }
   }
 
-  describe(curtree->root->back);
+  describe(bestree->root->back);
 
   /* So this works with arbitrary multifurcations */
   num_sibs = count_sibs (curtree->root);
@@ -1744,7 +1744,7 @@ void summarize(void)
     fprintf(outfile, "     *  = significantly positive, P < 0.05\n");
     fprintf(outfile, "     ** = significantly positive, P < 0.01\n\n");
   }
-  dummy = curtree->evaluate(curtree, curtree->root, false);
+  dummy = bestree->evaluate(curtree, curtree->root, false);
   if (rctgry && rcategs > 1)
   {
     for (i = 0; i < rcategs; i++)
@@ -1931,8 +1931,8 @@ void summarize(void)
       k = i + 59;
       if (k >= sites)
         k = sites - 1;
-      rectrav(curtree->root, i, k);
-      rectrav(curtree->root->back, i, k);
+      rectrav(bestree->root, i, k);
+      rectrav(bestree->root->back, i, k);
       putc('\n', outfile);
     }
   }
@@ -2148,6 +2148,7 @@ void maketree(void)
         bestree2->copy(bestree2, curtree);
       else
 	bestree->copy(bestree, curtree);
+#if 0
       for (i = 0; i < nonodes2; i++)
       {
         if (i < spp)
@@ -2161,11 +2162,11 @@ void maketree(void)
           }
         }
       }
-      bestree->copy(bestree, curtree);
+#endif
       bl_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
-      bl_printree(curtree);
+      bl_printree(bestree);
       summarize();
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);
