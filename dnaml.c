@@ -2166,7 +2166,7 @@ void maketree(void)
       bl_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
-      bl_printree(bestree);
+      bl_printree( curtree);
       summarize();
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);

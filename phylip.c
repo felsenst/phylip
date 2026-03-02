@@ -3890,9 +3890,9 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
       for ( sib_ptr = q->next ; sib_ptr != q ; sib_ptr = sib_ptr->next)
       {
         if ( sib_ptr != NULL )
-/*  debug printf("addtraverse: seeing whether can traverse out from sib_ptr = %p, %ld\n", sib_ptr, sib_ptr->index);*/ 
+/*  debug */ printf("addtraverse: seeing whether can traverse out from sib_ptr = %p, %ld\n", sib_ptr, sib_ptr->index);
           if ( !(sib_ptr->back == NULL)) {   /* don't go out nil root pointer */
-/*  debug printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);*/ 
+/*  debug */ printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);
             succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                             contin, qwherein, bestyet, bestree, 
                             thorough, storing, &atstart, bestfound) || succeeded;
@@ -3907,10 +3907,10 @@ boolean generic_tree_addtraverse(tree* t, node* p, node* q,
           for ( sib_ptr = q->back->next; sib_ptr != q->back;
                                            sib_ptr = sib_ptr->next)
           {
-/* debug printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug debug */printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); 
             if ( !(sib_ptr->back == NULL)) { /* not go out nil root pointer */
-/* debug printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);  debug */
-/* debug printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); debug */
+/* debug debug */printf("addtraverse: sib_ptr not nil, addtraverse1 via %p\n", sib_ptr->back);  
+/* debug debug */printf("addtraverse: seeing whether can traverse out from sib_ptr = %p\n", sib_ptr); 
               succeeded = generic_tree_addtraverse_1way(t, p, sib_ptr->back,
                                  contin, qwherein, bestyet, bestree, thorough,
                                  storing, &atstart, bestfound) || succeeded;
