@@ -2145,12 +2145,14 @@ void maketree(void)
     if (jumb == njumble)
     {
       if (njumble > 1)
-        bestree2->copy(bestree2, curtree);
+        bestree2->copy(bestree2, bestree);
       else
 	bestree->copy(bestree, curtree);
-      bl_reroot(curtree);
-      bl_treevaluate(curtree, improve, reusertree, global, progress,
+      bl_reroot(bestree);
+#if 0
+      bl_treevaluate(bestree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
+#endif
       bl_printree(bestree);
       summarize();
       if (trout) {
@@ -2158,7 +2160,8 @@ void maketree(void)
       }
     }
   }
-
+  if (jumb < njumble)      /* debug: where is this supposed to be?  */
+    return;
   if (usertree)
   {
     free(l0gl);
@@ -2166,8 +2169,6 @@ void maketree(void)
       free(l0gf[i]);
     free(l0gf);
   }
-  if (jumb < njumble)
-    return;
   freetable();
   free(contribution);
   free(mp);
