@@ -2148,25 +2148,10 @@ void maketree(void)
         bestree2->copy(bestree2, curtree);
       else
 	bestree->copy(bestree, curtree);
-#if 0
-      for (i = 0; i < nonodes2; i++)
-      {
-        if (i < spp)
-          curtree->nodep[i]->initialized = false;
-        else
-        {
-          if (curtree->nodep[i] != NULL) {
-            curtree->nodep[i]->initialized = false;
-            curtree->nodep[i]->next->initialized = false;
-            curtree->nodep[i]->next->next->initialized = false;
-          }
-        }
-      }
-#endif
       bl_reroot(curtree);
       bl_treevaluate(curtree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
-      bl_printree( curtree);
+      bl_printree(bestree);
       summarize();
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);
@@ -2181,9 +2166,9 @@ void maketree(void)
       free(l0gf[i]);
     free(l0gf);
   }
-  freetable();
   if (jumb < njumble)
     return;
+  freetable();
   free(contribution);
   free(mp);
   for (i=0; i < endsite; i++)
