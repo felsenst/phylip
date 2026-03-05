@@ -2155,7 +2155,7 @@ void maketree(void)
       bl_printree(bestree);
       summarize(bestree);
       if (trout) {
-        dnaml_treeout(outtree, curtree, curtree->root);
+        dnaml_treeout(outtree, bestree, bestree->root);
       }
     }
   }
@@ -2178,9 +2178,9 @@ void maketree(void)
     free(slopeterm[i]);
   free(slopeterm);
   for (i=0; i < endsite; i++)
-    free(curveterm[i]);
-  free(curveterm);
-  freex(nonodes2, curtree->nodep);
+    free(besveterm[i]);
+  free(besveterm);
+  freex(nonodes2, bestree->nodep);
   if (!usertree)
   {
     freex(nonodes2, bestree->nodep);
