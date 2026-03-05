@@ -79,7 +79,7 @@ void   sigma(struct node *, double *, double *, double *);
 void   describe(struct node *);
 void   reconstr(struct node *, long);
 void   rectrav(struct node *, long, long);
-void   summarize(void);
+void   summarize(struct tree*);
 void   treevaluate(struct tree*);
 void   maketree(void);
 void   clean_up(void);
@@ -1687,7 +1687,7 @@ void rectrav(struct node *p, long m, long n)
 }  /* rectrav */
 
 
-void summarize(void)
+void summarize(struct tree* t)
 {
   /* print out branch length information and node numbers */
   long i, j, num_sibs;
@@ -1715,10 +1715,10 @@ void summarize(void)
   for (i = spp; i < nonodes2; i++)
   {
     /* So this works with arbitrary multifurcations */
-    if (bestree->nodep[i])
+    if (t->nodep[i])
     {
-      num_sibs = count_sibs (curtree->nodep[i]);
-      sib_ptr  = curtree->nodep[i];
+      num_sibs = count_sibs (bestree->nodep[i]);
+      sib_ptr  = t->nodep[i];
       for (j = 0; j < num_sibs; j++)
       {
         sib_ptr->initialized = false;
@@ -1727,11 +1727,11 @@ void summarize(void)
     }
   }
 
-  describe(bestree->root->back);
+  describe(t->root->back);
 
   /* So this works with arbitrary multifurcations */
-  num_sibs = count_sibs (curtree->root);
-  sib_ptr  = curtree->root;
+  num_sibs = count_sibs (t->root);
+  sib_ptr  = t->root;
   for (i=0; i < num_sibs; i++)
   {
     sib_ptr = sib_ptr->next;
@@ -1744,7 +1744,7 @@ void summarize(void)
     fprintf(outfile, "     *  = significantly positive, P < 0.05\n");
     fprintf(outfile, "     ** = significantly positive, P < 0.01\n\n");
   }
-  dummy = bestree->evaluate(curtree, curtree->root, false);
+  dummy = t->evaluate(t, t->root, false);
   if (rctgry && rcategs > 1)
   {
     for (i = 0; i < rcategs; i++)
@@ -1931,15 +1931,15 @@ void summarize(void)
       k = i + 59;
       if (k >= sites)
         k = sites - 1;
-      rectrav(bestree->root, i, k);
-      rectrav(bestree->root->back, i, k);
+      rectrav(t->root, i, k);
+      rectrav(t->root->back, i, k);
       putc('\n', outfile);
     }
   }
 }  /* summarize */
 
 
-void dnaml_treeout(FILE  *outtree, struct tree* t, struct node* p) {
+void dnaml_treeout(FILE *outtree, struct tree* t, struct node* p) {
 /* call bl_treeout to write tree out to tree output file */
   double bl_scale;
 
@@ -2038,7 +2038,7 @@ void maketree(void)
         curtree->root = curtree->nodep[outgrno - 1]->back;
       if (treeprint) {
         bl_printree(curtree);
-        summarize();
+        summarize(curtree);
       }
 
       if (trout) {
@@ -2148,13 +2148,12 @@ void maketree(void)
         bestree2->copy(bestree2, bestree);
       else
 	bestree->copy(bestree, curtree);
-      bl_reroot(bestree);
 #if 0
       bl_treevaluate(bestree, improve, reusertree, global, progress,
                       priortree, bestree, (initialvtrav_t)bl_initialvtrav );
 #endif
       bl_printree(bestree);
-      summarize();
+      summarize(bestree);
       if (trout) {
         dnaml_treeout(outtree, curtree, curtree->root);
       }

@@ -1513,6 +1513,7 @@ void bl_printree(tree *t)
   tipmax = 0.0;
   if (t->root->tip)   /* make sure root pointer is to nearest interal node */
     t->root = t->root->back;
+  bl_reroot(t);
   bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
   scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
