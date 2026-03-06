@@ -2178,8 +2178,8 @@ void maketree(void)
     free(slopeterm[i]);
   free(slopeterm);
   for (i=0; i < endsite; i++)
-    free(besveterm[i]);
-  free(besveterm);
+    free(curveterm[i]);
+  free(curveterm);
   freex(nonodes2, bestree->nodep);
   if (!usertree)
   {
