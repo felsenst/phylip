@@ -226,7 +226,7 @@ void generic_tree_copy (tree* src, tree* dst)
     }
   }
   maxcircles = maxsrcnodes;
-  destruct_tree(dst); /* release fork circles, make tips connect to nothing */
+  destruct_tree(dst);    /* release dst forks, make tips connect to nothing */
   for (i = spp; i < maxcircles; i++) {  /* insert needed nodes in dst forks */
     src_sibs = count_sibs(src->nodep[i]);   /* how many nodes in src circle */
     src_num = src_sibs + 1;
