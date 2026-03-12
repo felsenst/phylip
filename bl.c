@@ -544,9 +544,10 @@ boolean bl_tree_try_insert_thorough(struct tree *t, struct node *pp,
                                      boolean atstart)
 {
  /* Temporarily inserts  p  at  q  and evaluates. If the rearrangement is
-  * better than bestyet, updates bestyet and returns true.  If this is the
-  * first place to insert, set  bestyet  to the current likelihood and set
-  * qwhere  to the current place  q  */
+  * better than bestyet, updates bestyet and bestree and returns true. 
+  * If this is the first place to insert, set  bestyet  to the current 
+  * likelihood, set  qwhere  to the current place  q, and set bestree 
+  * to the current tree.  */
   double like;
   boolean succeeded, bettertree;
 /* debug:   struct node** whereRemoved;   debug */

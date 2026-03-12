@@ -286,10 +286,8 @@ void generic_tree_copy (tree* src, tree* dst)
   }
   dst->score = src->score;                           /* copy score and root */
   if (src->root != NULL) {
-    if (src->root->back != NULL) {
-      dst->root = where_in_dest(src, dst, src->root);
+    dst->root = where_in_dest(src, dst, src->root);
     }
-  }
   dst->outgrno = src->outgrno;       /* even if root is not yet set to this */
 } /* generic_tree_copy */
 
