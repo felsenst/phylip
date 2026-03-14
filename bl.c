@@ -1512,8 +1512,9 @@ void bl_printree(tree *t)
   putc('\n', outfile);
   tipy = 1;
   tipmax = 0.0;
-  if (t->root->tip)   /* make sure root pointer is to nearest interal node */
+  if (t->root->tip == true) { /* set root pointer to nearest internal node */
     t->root = t->root->back;
+  }
   bl_reroot(t);
   bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
   scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */

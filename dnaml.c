@@ -2180,7 +2180,7 @@ void maketree(void)
   for (i=0; i < endsite; i++)
     free(curveterm[i]);
   free(curveterm);
-  freex(nonodes2, bestree->nodep);
+  freex(nonodes2, curtree->nodep);
   if (!usertree)
   {
     freex(nonodes2, bestree->nodep);
