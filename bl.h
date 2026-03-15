@@ -9,6 +9,8 @@
  * where it not only does that, it has molecular sequences
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
+#include <stdio.h>
+
 #ifndef BL_H
 #define BL_H
 

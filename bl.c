@@ -444,6 +444,8 @@ void bl_reroot(struct tree* t)
     r = r->back;    /* make sure  r  points to root-connected interior node */
     t->root = r;                        /* ... and so does the root pointer */
   }
+  if (r->back == 0)                  /* if already at interior node at root */
+    return;
   if (r->back->index == t->outgrno)     /* if already at node near outgroup */
     return;
   numsibs = count_sibs(r);
