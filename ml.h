@@ -12,6 +12,10 @@
 #ifndef ML_H
 #define ML_H
 
+#ifndef PHYLIP_H
+#include "phylip.h"
+#endif
+
 #ifndef BL_H
 #include "bl.h"
 #endif
