@@ -11,10 +11,8 @@
 
 #include <assert.h>
 
-#ifndef PHYLIP_H
 #include "phylip.h"
 #define PHYLIP_H
-#endif
 
 #ifndef BL_H
 #include "bl.h"

@@ -10,13 +10,10 @@
  * maybe call these  iterate.c / iterate.h  and  sequence.c / sequence.h ? */ 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef BL_H
 #define BL_H
-
-#ifndef PHYLIP_H
-#include "phylip.h"
-#endif
 
 extern boolean inserting, smoothit, polishing;
 extern boolean smoothed;
