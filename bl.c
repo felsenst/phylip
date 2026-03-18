@@ -1354,7 +1354,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
   /* establishes coordinates of nodes for printing tree */
   struct node *q0, *q, *qprev, *first, *last;
   double xx;
-  boolean atroot, dodo;
+  boolean atroot, atstart, dodo;
 
   if (p->tip)                             /* for tips, set ycoord, min, max */
   {
@@ -1368,8 +1368,9 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     return;                            /* then bail if tip coordinates call */
   }
   atroot = (p == t->root);                             /* for interior node */
+  atstart = true;
   q0 = p;                                        /* q0 starts at the node p */
-  if (!atroot)
+  if ((p->back == 0) || (!atroot))
     q = q0->next;      /* unless at root node, starts at next one in circle */
   else
     q = q0;
@@ -1382,8 +1383,9 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
         xx = 100.0;
       bl_coordinates(t, q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
     }
+    atstart = false;
     q = q->next;
-  } while (dodo);
+  } while ((!atstart) || dodo);                        /* debug: more work here? */
   if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
     first = p->back;
   else
