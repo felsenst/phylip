@@ -1365,7 +1365,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     (*tipy) += down;
     if (lengthsum > (*tipmax))
       (*tipmax) = lengthsum;
-    return;                            /* then bail if tip coordinates call */
+    return;                     /* then bail if it's a tip-coordinates call */
   }
   atroot = (p == t->root);                             /* for interior node */
   atstart = true;
@@ -1373,7 +1373,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
   if ((p->back == 0) || (!atroot))
     q = q0->next;      /* unless at root node, starts at next one in circle */
   else
-    q = q0;
+    q = q0;     /* if at root node, starts at current node if back nonempty */
   do {  /* go around internal node ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {                     /* dodo is "do if not at end of circle" */
@@ -1385,7 +1385,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     }
     atstart = false;
     q = q->next;
-  } while ((!atstart) || dodo);                        /* debug: more work here? */
+  } while ((!atstart) && (q != q0));                        /* debug: more work here? */
   if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
     first = p->back;
   else
