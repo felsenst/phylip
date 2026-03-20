@@ -1352,7 +1352,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
 		      long *tipy, double *tipmax)
 {
   /* establishes coordinates of nodes for printing tree */
-  struct node *q0, *q, *qprev, *first, *last;
+  struct node *q0, *q, *first, *last;
   double xx;
   boolean atroot, atstart, dodo;
 
@@ -1373,7 +1373,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
   if ((p->back == 0) || (!atroot))
     q = q0->next;      /* unless at root node, starts at next one in circle */
   else
-    q = q0;     /* if at root node, starts at current node if back nonempty */
+    q = q0;  /* if at root node, starts at current node if back is nonempty */
   do {  /* go around internal node ring, recursing into descendant subtrees */
     dodo = (atroot && (q->back != 0)) || (!atroot && (q != q0));
     if (dodo) {                     /* dodo is "do if not at end of circle" */
@@ -1382,27 +1382,17 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
       if (xx > 100.0)
         xx = 100.0;
       bl_coordinates(t, q->back,  lengthsum + xx, tipy, tipmax); /* recurse */
+      last = q->back;
     }
     atstart = false;
     q = q->next;
   } while ((!atstart) && (q != q0));                        /* debug: more work here? */
-  if (atroot && (p->back != 0))  /* set first, last pointers to descendants */
+  if (atroot && (p->back != 0))       /* set "first" pointer to descendants */
     first = p->back;
   else
     first = p->next->back;
-  q = p;                    /* find last immediate descendant and set "last"*/
-  while (q->next != p) {      /* if we're all way around this interior node */
-    qprev = q;
-    q = q->next;
-  }
-  if (q->back == 0)                /* if we're at a node with an empty back */
-    q = qprev;
-  last = q->back;
   p->xcoord = (long)(over * lengthsum + 0.5);      /* how far our from root */
-  if (p == t->root)     /* debug:  why this? */
-    p->ycoord = p->next->back->ycoord;
-  else
-    p->ycoord = (first->ycoord + last->ycoord) / 2;
+  p->ycoord = (first->ycoord + last->ycoord) / 2;
   p->ymin = first->ymin;              /* get leftmost descendant value of y */
   p->ymax = last->ymax;                        /* ... and rightmost one too */
 }  /* bl_coordinates */
