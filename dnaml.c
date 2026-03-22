@@ -2116,7 +2116,7 @@ void maketree(void)
         writename(nextsp - 1, 1, enterorder);
         phyFillScreenColor();
       }
-      if (global && nextsp == spp)
+      if (global && (nextsp == spp))
       {
         curtree->globrearrange(curtree, bestree, progress,
                                 smoothit, &bestyet);

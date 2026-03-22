@@ -3777,7 +3777,7 @@ void generic_globrearrange(tree* curtree, tree* bestree, boolean progress,
         }
         else
         {
-          if ( qwhere && where != qwhere && bestyet > globtree->score)
+          if ( qwhere && (where != qwhere) && (bestyet > globtree->score))
           {
             bestree->copy(bestree, globtree);
             success = true;
