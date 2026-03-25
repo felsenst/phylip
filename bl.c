@@ -1390,15 +1390,15 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
     first = p->back;
   else
     first = p->next->back;
-  q = p;                    /* find last immediate descendant and set "last"*/
-  while (q->next != p) {      /* if we're all way around this interior node */
+  q = p;                   /* find last immediate descendant and set "last" */
+  while (q->next != p) {  /* if we're not all way around this interior node */
     qprev = q;
     q = q->next;
   }
-  if (q->back == 0)                /* if we're at a node with an empty back */
-    q = qprev;
+  if (q->back == 0)            /* if we're at a node with an empty back ... */
+    q = qprev;                    /* ... set  q  to previous node in circle */
   last = q->back;
-  p->xcoord = (long)(over * lengthsum + 0.5);      /* how far our from root */
+  p->xcoord = (long)(over * lengthsum + 0.5);      /* how far out from root */
   if (p == t->root)     /* debug:  why this? */
     p->ycoord = p->next->back->ycoord;
   else
