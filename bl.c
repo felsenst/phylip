@@ -1456,20 +1456,6 @@ void bl_drawline(long i, double scale, struct node *p, struct tree* t)
         }
       } 
     }
-    if (itoleft && (i > (long)r->back->ycoord)) {
-        putc('|', outfile);           /* if branch to left crosses this row */
-	printedbar = true;
-    } else {
-      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
-        putc('|', outfile);          /* if branch to right crosses this row */
-        printedbar = true;
-      } else {
-        if (iinsubtree && (!iatitsroot) && (!printedbar) && (!iequal)) {
-          putc(' ', outfile);
-          printedbar = false;
-        }
-      }
-    }
     if (iinsubtree) {
       if (iatitsroot) {
         for (j = 1; j <= n - 3; j++)    /* ...  print dashes out to subtree */
@@ -1479,6 +1465,20 @@ void bl_drawline(long i, double scale, struct node *p, struct tree* t)
         for (j = 1; j <= n - 3; j++)    /* ...  print spaces out to subtree */
           putc(' ', outfile);
       }
+    if (itoleft && (i > (long)r->back->ycoord)) {
+        putc('|', outfile);           /* if branch to left crosses this row */
+	printedbar = true;
+    } else {
+      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+        putc('|', outfile);          /* if branch to right crosses this row */
+        printedbar = true;
+      } else {
+        if (iinsubtree && (!iatitsroot) && (!iequal)) {
+          putc(' ', outfile);
+          printedbar = false;
+        }
+      }
+    }
       if (r->back != 0) {                     /* if branch is not empty ... */
         bl_drawline(i, scale, r->back, t);              /* ... start out it */
       }
