@@ -1398,6 +1398,7 @@ void bl_coordinates(tree *t, struct node *p, double lengthsum,
 }  /* bl_coordinates */
 
 
+#if 0
 void bl_drawline(long i, double scale, struct node *p, struct tree* t)
 {
   /* draws one row of the tree diagram by moving up tree
@@ -1484,6 +1485,103 @@ void bl_drawline(long i, double scale, struct node *p, struct tree* t)
       }
     }
     r = r->next;                         /* move to next descendant, if any */
+    if (!done) {
+      if (r->back == 0) {              /* making sure not at bottom of tree */
+        done = true;
+      } else {
+        if (r == p)        /* done if finished with all descendant branches */
+          done = true;
+	}
+    }
+  } while (!done);
+}  /* bl_drawline */
+#endif
+
+
+void bl_drawline(long i, double scale, struct node *p, struct tree* t)
+{
+  /* draws one row of the tree diagram by moving up tree
+   * the argument  i  is the vertical number (y) of the row we draw,
+   * numbered from top (1) to bottom
+   * used in Dnaml, Proml, & Restml */
+
+  struct node *r, *q;
+  long n, j;
+  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean done, doner;
+
+  itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
+  iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
+  q = t->root;
+  if (q->tip)
+    q = t->root->back;
+  if (p->tip)                    {                       /* if now at a tip */
+    if (iequal) {
+      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
+        putc(nayme[p->index-1][j], outfile);
+    }
+    return;                /* exit: all done if after printing species name */
+  }
+  if (iequal) {                           /* if at an interior node instead */
+    if (p->index - spp >= 100)           /* print out a number for the node */
+      fprintf(outfile, "%3ld", p->index - spp);
+    else {  
+      if (p->index - spp >= 10)
+        fprintf(outfile, "-%2ld", p->index - spp);
+      else
+        fprintf(outfile, "--%ld", p->index - spp);
+    }
+  }
+  else {
+      fprintf(outfile, "  "); /* if not at a nontip node, indent two spaces */
+  }
+  if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
+     r = p;
+  else                                /* otherwise move to first descendant */
+     r = p->next;
+  done = false;
+  do {      /* outer of two loops: move out tree node by node until no more */
+    doner = false;           /* pronounced "done R" not like the yummy meat */
+    do {  /* loop: check for each of  r's  descendants if  i  is in subtree */
+      iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
+      n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
+      if (iinsubtree) {                /* then we're going out to next node */
+        iatitsroot = (i == (long)r->back->ycoord);
+        if (iatitsroot) {       /* in subtree and at same level as its root */
+          if (itoleft)                  /* print any turn-corner characters */
+            putc(',', outfile);
+          else {
+            if (!iequal) {                 /* i.e., "itoright", so to speak */
+              putc('\'', outfile);         /* "quoting" a single apostrophe */
+            }
+          }
+          for (j = 1; j <= n - 3; j++)  /* ...  print dashes out to subtree */
+            putc('-', outfile);
+        }
+        else {           /* if in subtree but not at same level as its root */
+          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
+            putc(' ', outfile);
+        }
+      if (itoleft && (i > (long)r->back->ycoord)) {
+        putc('|', outfile);           /* if branch to left crosses this row */
+	printedbar = true;
+      } else {
+      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+        putc('|', outfile);          /* if branch to right crosses this row */
+        printedbar = true;
+      } else {
+        if (iinsubtree && (!iatitsroot) && (!iequal)) {
+          putc(' ', outfile);
+          printedbar = false;
+        }
+      }
+    }
+                if (r->back != 0) {                     /* if branch is not empty ... */
+                  bl_drawline(i, scale, r->back, t);              /* ... start out it */
+                }
+      r = r->next;                         /* move to next descendant, if any */
+      doner = (r == p);                  /* did all descendant branches of  r */
+    } while (!doner)
     if (!done) {
       if (r->back == 0) {              /* making sure not at bottom of tree */
         done = true;
