@@ -1498,51 +1498,48 @@ void bl_drawline(long i, double scale, struct node *p, struct tree* t)
 #endif
 
 
-void bl_drawline(long i, double scale, struct node *p, struct tree* t)
+void bl_drawline(long i, double scale, struct tree* t)
 {
-  /* draws one row of the tree diagram by moving up tree
-   * the argument  i  is the vertical number (y) of the row we draw,
+  /* draws one row of the tree diagram by moving up tree from the root.
+   * The argument  i  is the vertical number (y) of the row we draw,
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 
-  struct node *r, *q;
+  struct node *p, *r;
   long n, j;
   boolean itoleft, iequal, iinsubtree, iatitsroot;
   boolean done, doner;
 
-  itoleft = i < (long)p->ycoord;         /* Is  i  to left, right or at ... */
-  iequal = i == (long)p->ycoord;               /* ... the coordinate of  p  */                
-  q = t->root;
-  if (q->tip)
-    q = t->root->back;
-  if (p->tip)                    {                       /* if now at a tip */
-    if (iequal) {
-      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
-        putc(nayme[p->index-1][j], outfile);
-    }
-    return;                /* exit: all done if after printing species name */
-  }
-  if (iequal) {                           /* if at an interior node instead */
-    if (p->index - spp >= 100)           /* print out a number for the node */
-      fprintf(outfile, "%3ld", p->index - spp);
-    else {  
-      if (p->index - spp >= 10)
-        fprintf(outfile, "-%2ld", p->index - spp);
-      else
-        fprintf(outfile, "--%ld", p->index - spp);
-    }
-  }
-  else {
-      fprintf(outfile, "  "); /* if not at a nontip node, indent two spaces */
-  }
-  if ((p->back != 0) && (p == q))     /* if at root and nonempty descendant */
-     r = p;
-  else                                /* otherwise move to first descendant */
-     r = p->next;
+  p = t->root;
+  if (p->tip)
+    p = p->back;
   done = false;
   do {      /* outer of two loops: move out tree node by node until no more */
-    doner = false;           /* pronounced "done R" not like the yummy meat */
-    do {  /* loop: check for each of  r's  descendants if  i  is in subtree */
+    iequal = i == (long)p->ycoord;        /* is  i  the coordinate of  p ?  */                
+    itoleft = i < (long)p->ycoord;                /* is  i  to left of it? */
+    if (iequal) {
+      if (p->tip) {                                      /* if now at a tip */
+        for (j = 0; j < nmlngth; j++)             /* ... write the name ... */
+          putc(nayme[p->index-1][j], outfile);
+        return;            /* exit: all done if after printing species name */
+      }
+      else {                              /* if at an interior node instead */
+        if (p->index - spp >= 100)       /* print out a number for the node */
+          fprintf(outfile, "%3ld", p->index - spp);
+        else {  
+          if (p->index - spp >= 10)
+            fprintf(outfile, "-%2ld", p->index - spp);
+          else
+            fprintf(outfile, "--%ld", p->index - spp);
+        }
+      }
+    }
+    if ((p->back != 0) && (p == t->root))   /* at root, nonempty descendant */
+       r = p;                                            /* ... start there */
+    else              /* otherwise start from next to find first descendant */
+      r = p->next;
+    doner = false;           /* pronounced "done R" not like the tasty meat */
+    do {   /* loop: check for each of  r's  descendants: is  i  in subtree? */
       iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
       n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
       if (iinsubtree) {                /* then we're going out to next node */
@@ -1562,34 +1559,23 @@ void bl_drawline(long i, double scale, struct node *p, struct tree* t)
           for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
             putc(' ', outfile);
         }
-      if (itoleft && (i > (long)r->back->ycoord)) {
-        putc('|', outfile);           /* if branch to left crosses this row */
-	printedbar = true;
-      } else {
-      if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
-        putc('|', outfile);          /* if branch to right crosses this row */
-        printedbar = true;
-      } else {
-        if (iinsubtree && (!iatitsroot) && (!iequal)) {
-          putc(' ', outfile);
-          printedbar = false;
+        if (itoleft && (i > (long)r->back->ycoord)) {
+          fprintf(outfile, "  "); 
+          putc('|', outfile);         /* if branch to left crosses this row */
+        } else {
+          fprintf(outfile, "  "); 
+          if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+            putc('|', outfile);       /* if branch to right crosses this row */
+          } else {
+            if (iinsubtree && (!iatitsroot) && (!iequal)) {
+              putc(' ', outfile);
+            }
+          }
         }
       }
-    }
-                if (r->back != 0) {                     /* if branch is not empty ... */
-                  bl_drawline(i, scale, r->back, t);              /* ... start out it */
-                }
       r = r->next;                         /* move to next descendant, if any */
       doner = (r == p);                  /* did all descendant branches of  r */
-    } while (!doner)
-    if (!done) {
-      if (r->back == 0) {              /* making sure not at bottom of tree */
-        done = true;
-      } else {
-        if (r == p)        /* done if finished with all descendant branches */
-          done = true;
-	}
-    }
+    } while (!doner);
   } while (!done);
 }  /* bl_drawline */
 
@@ -1611,7 +1597,7 @@ void bl_printree(tree *t)
   bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
   scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
-    bl_drawline(i, scale, t->root, t); /* draw one horizontal printed line */
+    bl_drawline(i, scale, t);          /* draw one horizontal printed line */
     putc('\n', outfile);                           /* then go to next line */
   }
 }  /* bl_printree */
