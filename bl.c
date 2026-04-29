@@ -1513,36 +1513,21 @@ void bl_drawline(long i, double scale, struct tree* t)
   p = t->root;
   if (p->tip)
     p = p->back;
+  if (p->back != 0) {                      /* at root, nonempty descendant */
+     r = p;                                              /* ... start there */
+  } else {          /* otherwise start from next to find first descendant */
+     r = p->next;
+  }
   done = false;
-  do {      /* outer of two loops: move out tree node by node until no more */
-    if ((p->back != 0) && (p == t->root))   /* at root, nonempty descendant */
-       r = p;                                            /* ... start there */
-    else              /* otherwise start from next to find first descendant */
-      r = p->next;
+  while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;           /* pronounced "done R" not like the tasty meat */
-    do {   /* loop: check for each of  r's  descendants: is  i  in subtree? */
+    while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequal = i == (long)r->back->ycoord; /* is  i  the coordinate of  p?  */                
       itoleft = i < (long)r->back->ycoord;         /* is  i  to left of it? */
-      if (iequal) {
-        if (r->back->tip) {                              /* if now at a tip */
-          for (j = 0; j < nmlngth; j++)           /* ... write the name ... */
-            putc(nayme[r->back->index-1][j], outfile);
-          return;          /* exit: all done if after printing species name */
-        }
-        else {                            /* if at an interior node instead */
-          if (p->index - spp >= 100)       /* print out number for the node */
-            fprintf(outfile, "%3ld", r->index - spp);
-          else {  
-            if (p->index - spp >= 10)
-              fprintf(outfile, "-%2ld", p->index - spp);
-            else
-              fprintf(outfile, "--%ld", p->index - spp);
-          }
-        }
-      }
       iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
       n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
       if (iinsubtree) {                /* then we're going out to next node */
+        fprintf(outfile, "  "); 
         iatitsroot = (i == (long)r->back->ycoord);
         if (iatitsroot) {       /* in subtree and at same level as its root */
           if (itoleft)                  /* print any turn-corner characters */
@@ -1554,12 +1539,26 @@ void bl_drawline(long i, double scale, struct tree* t)
           }
           for (j = 1; j <= n - 3; j++)  /* ...  print dashes out to subtree */
             putc('-', outfile);
+          if (r->back->tip) {                            /* if now at a tip */
+            for (j = 0; j < nmlngth; j++)         /* ... write the name ... */
+              putc(nayme[r->back->index-1][j], outfile);
+            return;        /* exit: all done if after printing species name */
+          }
+          if (iequal) {
+            if (p->index - spp >= 100)     /* print out number for the node */
+              fprintf(outfile, "%3ld", r->index - spp);
+            else {  
+              if (p->index - spp >= 10)
+                fprintf(outfile, "-%2ld", p->index - spp);
+              else
+                fprintf(outfile, "--%ld", p->index - spp);
+            }
+          }
         }
         else {           /* if in subtree but not at same level as its root */
           for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
             putc(' ', outfile);
         }
-        fprintf(outfile, "  "); 
         if (itoleft && (i > (long)r->back->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         } else {
@@ -1576,9 +1575,9 @@ void bl_drawline(long i, double scale, struct tree* t)
 	done = true;
       }
       else doner = false;
-      r = r->next;                         /* move to next descendant, if any */
-    } while (!doner);
-  } while (!done);
+      r = r->next;                        /* move to next descendant, if any */
+    };                                      /* end of inner of the two loops */
+  };                                    /* end of the outer of the two loops */
 }  /* bl_drawline */
 
 
