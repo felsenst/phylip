@@ -1530,6 +1530,8 @@ void bl_drawline(long i, double scale, struct tree* t)
         fprintf(outfile, "  "); 
         iatitsroot = (i == (long)r->back->ycoord);
         if (iatitsroot) {       /* in subtree and at same level as its root */
+          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
+            putc(' ', outfile);
           if (itoleft)                  /* print any turn-corner characters */
             putc(',', outfile);
           else {
@@ -1555,10 +1557,6 @@ void bl_drawline(long i, double scale, struct tree* t)
             }
           }
         }
-        else {           /* if in subtree but not at same level as its root */
-          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
-            putc(' ', outfile);
-        }
         if (itoleft && (i > (long)r->back->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         } else {
@@ -1570,13 +1568,13 @@ void bl_drawline(long i, double scale, struct tree* t)
             }
           }
         }
-	p = r->back;
+        r = r->next;                      /* move to next descendant, if any */
 	doner = true;
 	done = true;
       }
       else doner = false;
-      r = r->next;                        /* move to next descendant, if any */
     };                                      /* end of inner of the two loops */
+    p = r->back;
   };                                    /* end of the outer of the two loops */
 }  /* bl_drawline */
 
