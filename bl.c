@@ -1507,7 +1507,7 @@ void bl_drawline(long i, double scale, struct tree* t)
 
   struct node *p, *r;
   long n, j;
-  boolean itoleft, iequal, iinsubtree, iatitsroot;
+  boolean itoleft, iequal, iinpssubtree, iinrssubtree, iatpsroot, iatrsroot;
   boolean done, doner;
 
   p = t->root;
@@ -1522,30 +1522,16 @@ void bl_drawline(long i, double scale, struct tree* t)
   while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;           /* pronounced "done R" not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
-      iequal = i == (long)r->back->ycoord; /* is  i  the coordinate of  p?  */                
-      itoleft = i < (long)r->back->ycoord;         /* is  i  to left of it? */
-      iinsubtree = (i >= r->back->ymin) && (i <= r->back->ymax);
-      n = (long)(scale * ((long)r->back->xcoord - (long)p->xcoord) + 0.5);
-      if (iinsubtree) {                /* then we're going out to next node */
-        fprintf(outfile, "  "); 
-        iatitsroot = (i == (long)r->back->ycoord);
+      iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */                
+      itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
+      iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
+      n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
+      if (iinpsubtree) {                /* then we're going out to next node */
+        iatpsroot = (i == (long)p->ycoord);
+	if (!iatpsroot)
+          fprintf(outfile, "  "); 
+          }
         if (iatitsroot) {       /* in subtree and at same level as its root */
-          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
-            putc(' ', outfile);
-          if (itoleft)                  /* print any turn-corner characters */
-            putc(',', outfile);
-          else {
-            if (!iequal) {                 /* i.e., "itoright", so to speak */
-              putc('\'', outfile);         /* "quoting" a single apostrophe */
-            }
-          }
-          for (j = 1; j <= n - 3; j++)  /* ...  print dashes out to subtree */
-            putc('-', outfile);
-          if (r->back->tip) {                            /* if now at a tip */
-            for (j = 0; j < nmlngth; j++)         /* ... write the name ... */
-              putc(nayme[r->back->index-1][j], outfile);
-            return;        /* exit: all done if after printing species name */
-          }
           if (iequal) {
             if (p->index - spp >= 100)     /* print out number for the node */
               fprintf(outfile, "%3ld", r->index - spp);
@@ -1555,6 +1541,22 @@ void bl_drawline(long i, double scale, struct tree* t)
               else
                 fprintf(outfile, "--%ld", p->index - spp);
             }
+          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
+            putc(' ', outfile);
+          if (itoleft)                  /* print any turn-corner characters */
+            putc(',', outfile);
+          else {
+            if (!iequal) {                 /* i.e., "itoright", so to speak */
+              putc('\'', outfile);         /* "quoting" a single apostrophe */
+            }
+	  }
+          for (j = 1; j <= n - 3; j++)  /* ...  print dashes out to subtree */
+            putc('-', outfile);
+          if (r->back->tip) {                            /* if now at a tip */
+            for (j = 0; j < nmlngth; j++)         /* ... write the name ... */
+              putc(nayme[r->back->index-1][j], outfile);
+            return;        /* exit: all done if after printing species name */
+          }
           }
         }
         if (itoleft && (i > (long)r->back->ycoord)) {
