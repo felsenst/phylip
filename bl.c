@@ -1505,7 +1505,7 @@ void bl_drawline(long i, double scale, struct tree* t)
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 
-  struct node *p, *r;
+  struct node *p, *r, *rback;
   long n, j;
   boolean itoleft, iequal, iinpssubtree, iinrssubtree, iatpsroot, iatrsroot;
   boolean done, doner;
@@ -1516,11 +1516,12 @@ void bl_drawline(long i, double scale, struct tree* t)
   if (p->back != 0) {                      /* at root, nonempty descendant */
      r = p;                                              /* ... start there */
   } else {          /* otherwise start from next to find first descendant */
-     r = p->next;
+     p = p->next;
+     r = p;
   }
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
-    doner = false;           /* pronounced "done R" not like the tasty meat */
+    doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */                
       itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
