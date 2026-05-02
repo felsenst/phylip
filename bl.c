@@ -1523,11 +1523,12 @@ void bl_drawline(long i, double scale, struct tree* t)
   while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
+      rback -> r->back;
       iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */                
       itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
       iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
-      n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
-      if (iinpsubtree) {                /* then we're going out to next node */
+      n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);               /* debug: ? */
+      if (iinpssubtree) {               /* then we're going out to next node */
         iatpsroot = (i == (long)p->ycoord);
 	if (!iatpsroot)
           fprintf(outfile, "  "); 
@@ -1560,10 +1561,10 @@ void bl_drawline(long i, double scale, struct tree* t)
           }
           }
         }
-        if (itoleft && (i > (long)r->back->ycoord)) {
+        if (itoleft && (i > (long)rback->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         } else {
-          if ((!iequal) && (!itoleft) && (i < (long)r->back->ycoord)) {
+          if ((!iequal) && (!itoleft) && (i < (long)rback->ycoord)) {
             putc('|', outfile);       /* if branch to right crosses this row */
           } else {
             if (iinsubtree && (!iatitsroot) && (!iequal)) {
@@ -1572,12 +1573,15 @@ void bl_drawline(long i, double scale, struct tree* t)
           }
         }
         r = r->next;                      /* move to next descendant, if any */
-	doner = true;
 	done = true;
       }
-      else doner = false;
+      else
+        if (r == p) {       /* if gone around all of r's immediate descendants */
+          doner = true;
+	  /* debug:   check if go no further out? */
+	}
     };                                      /* end of inner of the two loops */
-    p = r->back;
+    p = rback;                                    /* move  p  out one branch */
   };                                    /* end of the outer of the two loops */
 }  /* bl_drawline */
 
