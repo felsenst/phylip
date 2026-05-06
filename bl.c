@@ -1413,21 +1413,21 @@ void bl_drawline(long i, double scale, struct tree* t)
   p = t->root;
   if (p->tip)
     p = p->back;
-  if (p->back == 0)                         /* at root, nonempty descendant */
-     p = p->next;
-  r = p;
+/* debug:  if (p->back == 0)                         at root, nonempty descendant */
+/* debug:    p = p->next;  */
+  r = p->next;
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       rback = r->back;
-      iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */                
+      iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */
       itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
-      itoright = (!iequal) && (!itoright);
+      itoright = (!iequal) && (!itoleft);
       n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
       iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
       if (iinpssubtree) {              /* then we're going out to next node */
-        iequal  = (i == (long)p->ycoord);
+        iequal  = (i == (long)rback->ycoord);
 	if (!iequal) {
           fprintf(outfile, "  "); 
           }
@@ -1491,7 +1491,7 @@ void bl_printree(tree *t)
   if (t->root->tip == true) { /* set root pointer to nearest internal node */
     t->root = t->root->back;
   }
-  bl_reroot(t);
+/*  bl_reroot(t);    debug:  needed, helpful or hurtful? */
   bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
   scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
