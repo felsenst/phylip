@@ -1407,7 +1407,7 @@ void bl_drawline(long i, double scale, struct tree* t)
 
   struct node *p, *r, *rback;
   long n, j;
-  boolean itoleft, iequal, itoright, iinpssubtree;
+  boolean itoleft, iequal, itoright, iequalrback, iinpssubtree;
   boolean done, doner;
 
   p = t->root;
@@ -1427,15 +1427,15 @@ void bl_drawline(long i, double scale, struct tree* t)
       n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
       iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
       if (iinpssubtree) {              /* then we're going out to next node */
-        iequal  = (i == (long)rback->ycoord);
-	if (!iequal) {
+        iequalrback = (i == (long)rback->ycoord);
+	if (!iequalrback) {
           fprintf(outfile, "  "); 
           }
-        if (iequal) {           /* in subtree and at same level as its root */
-          if (itoleft)                /* print any turn-corner characters */
+        if (iequalrback) {      /* in subtree and at same level as its root */
+          if (itoleft)                  /* print any turn-corner characters */
             putc(',', outfile);
-          else                                       /* i.e., if to right */
-            putc('\'', outfile);         /* "quoting" a single apostrophe */
+          else                                         /* i.e., if to right */
+            putc('\'', outfile);           /* "quoting" a single apostrophe */
           for (j = 1; j <= n - 3; j++)       /* print dashes out to subtree */
             putc('-', outfile);
           if (rback->tip) {                              /* if now at a tip */
@@ -1491,7 +1491,7 @@ void bl_printree(tree *t)
   if (t->root->tip == true) { /* set root pointer to nearest internal node */
     t->root = t->root->back;
   }
-/*  bl_reroot(t);    debug:  needed, helpful or hurtful? */
+  bl_reroot(t);   /* debug:  needed, helpful or hurtful? */
   bl_coordinates(t, t->root, 0.0, &tipy, &tipmax);  /* get x,y coordinates */
   scale = 1.0 / (long)(tipmax + 1.000);         /* keep tree within bounds */
   for (i = 1; i <= (tipy - down); i++)  {
