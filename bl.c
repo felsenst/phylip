@@ -1452,29 +1452,30 @@ void bl_drawline(long i, double scale, struct tree* t)
                 fprintf(outfile, "--%ld", p->index - spp);
             }
 	  }
+	}
+      } else {
+        for (j = 1; j <= n - 3; j++)         /* print spaces out to subtree */
+          putc(' ', outfile);
+        if (itoleft && (i > (long)rback->ycoord)) {
+          putc('|', outfile);         /* if branch to left crosses this row */
         } else {
-          for (j = 1; j <= n - 3; j++)  /* ...  print spaces out to subtree */
-            putc(' ', outfile);
-	  }
-          if (itoleft && (i > (long)rback->ycoord)) {
-            putc('|', outfile);       /* if branch to left crosses this row */
+          if (itoright && (i < (long)rback->ycoord)) {
+            putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-              if (itoright && (i < (long)rback->ycoord)) {
-                putc('|', outfile);   /* if branch to right crosses this row */
-            } else {
-              if (iinpssubtree && (!iequal)) {
-                putc(' ', outfile);
-              }
+            if (iinpssubtree && (!iequal)) {
+              putc(' ', outfile);
             }
-	  }
-	  p = rback;
-          r = p->next;                     /* move to next descendant, if any */
+          }
         }
-      if (r == p) {       /* if gone around all of r's immediate descendants */
-        doner = true;
       }
-    };                                      /* end of inner of the two loops */
-  };                                    /* end of the outer of the two loops */
+      if (r == p) {      /* if gone around all of r's immediate descendants */
+        doner = true;
+      } else {
+        p = rback;
+        r = p->next;                     /* move to next descendant, if any */
+      }
+    };                                     /* end of inner of the two loops */
+  };                                   /* end of the outer of the two loops */
 }  /* bl_drawline */
 
 
