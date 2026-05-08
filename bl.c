@@ -1413,8 +1413,6 @@ void bl_drawline(long i, double scale, struct tree* t)
   p = t->root;
   if (p->tip)
     p = p->back;
-/* debug:  if (p->back == 0)                         at root, nonempty descendant */
-/* debug:    p = p->next;  */
   r = p->next;
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
@@ -1468,6 +1466,7 @@ void bl_drawline(long i, double scale, struct tree* t)
           }
         }
       }
+      r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
       } else {
