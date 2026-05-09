@@ -1405,10 +1405,10 @@ void bl_drawline(long i, double scale, struct tree* t)
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 
-  struct node *p, *r, *rback;
+  struct node *p, *q, *r, *rback;
   long n, j;
   boolean itoleft, iequal, itoright, iequalrback, iinpssubtree;
-  boolean done, doner;
+  boolean done, doner, foundsubtree;
 
   p = t->root;
   if (p->tip)
@@ -1417,6 +1417,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;          /* pronounced "done R", not like the tasty meat */
+    foundsubtree = false;          /* keep track of whether go into subtree */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       rback = r->back;
       iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */
@@ -1425,6 +1426,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
       iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
       if (iinpssubtree) {              /* then we're going out to next node */
+        foundsubtree = true;
         iequalrback = (i == (long)rback->ycoord);
 	if (!iequalrback) {
           fprintf(outfile, "  "); 
@@ -1451,6 +1453,7 @@ void bl_drawline(long i, double scale, struct tree* t)
             }
 	  }
 	}
+	q = rback;
       } else {
         for (j = 1; j <= n - 3; j++)         /* print spaces out to subtree */
           putc(' ', outfile);
@@ -1470,8 +1473,10 @@ void bl_drawline(long i, double scale, struct tree* t)
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
       } else {
-        p = rback;
-        r = p->next;                     /* move to next descendant, if any */
+        if(foundsubtree) {
+          p = q;
+          r = p->next;                   /* move to next descendant, if any */
+	}
       }
     };                                     /* end of inner of the two loops */
   };                                   /* end of the outer of the two loops */
