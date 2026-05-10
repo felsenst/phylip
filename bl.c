@@ -1472,13 +1472,14 @@ void bl_drawline(long i, double scale, struct tree* t)
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
-      } else {
-        if(foundsubtree) {
-          p = q;
-          r = p->next;                   /* move to next descendant, if any */
-	}
-      }
+      } 
     };                                     /* end of inner of the two loops */
+    if(foundsubtree) {
+      p = q;
+      r = p->next;                   /* move to next descendant, if any */
+    }
+    else
+      done = true;
   };                                   /* end of the outer of the two loops */
 }  /* bl_drawline */
 
