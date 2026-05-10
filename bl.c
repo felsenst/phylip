@@ -1407,7 +1407,7 @@ void bl_drawline(long i, double scale, struct tree* t)
 
   struct node *p, *q, *r, *rback;
   long n, j;
-  boolean itoleft, iequal, itoright, iequalrback, iinpssubtree;
+  boolean itoleft, iequal, itoright, iequalrback, iinrssubtree;
   boolean done, doner, foundsubtree;
 
   p = t->root;
@@ -1424,8 +1424,8 @@ void bl_drawline(long i, double scale, struct tree* t)
       itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
       itoright = (!iequal) && (!itoleft);
       n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
-      iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
-      if (iinpssubtree) {              /* then we're going out to next node */
+      iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
+      if (iinrssubtree) {              /* then we're going out to next node */
         foundsubtree = true;
         iequalrback = (i == (long)rback->ycoord);
 	if (!iequalrback) {
@@ -1463,7 +1463,7 @@ void bl_drawline(long i, double scale, struct tree* t)
           if (itoright && (i < (long)rback->ycoord)) {
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-            if (iinpssubtree && (!iequal)) {
+            if (iinrssubtree && (!iequal)) {
               putc(' ', outfile);
             }
           }
@@ -1476,7 +1476,7 @@ void bl_drawline(long i, double scale, struct tree* t)
     };                                     /* end of inner of the two loops */
     if(foundsubtree) {
       p = q;
-      r = p->next;                   /* move to next descendant, if any */
+      r = p->next;                       /* move to next descendant, if any */
     }
     else
       done = true;
