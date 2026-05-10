@@ -1423,7 +1423,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */
       itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
       itoright = (!iequal) && (!itoleft);
-      n = (long)(scale * ((long)r->xcoord - (long)p->xcoord) + 0.5);
+      n = (long)(scale * ((long)rback->xcoord - (long)p->xcoord) + 0.5);
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) {              /* then we're going out to next node */
         foundsubtree = true;
