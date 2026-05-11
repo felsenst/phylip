@@ -1443,13 +1443,13 @@ void bl_drawline(long i, double scale, struct tree* t)
               putc(nayme[r->back->index-1][j], outfile);
             return;        /* exit: all done if after printing species name */
           } else {      /* get here only if  p  an internal node, not a tip */
-            if (p->index - spp >= 100)     /* print out number for the node */
-              fprintf(outfile, "%3ld", p->index - spp);
+            if (rback->index - spp >= 100) /* print out number for the node */
+              fprintf(outfile, "%3ld", rback->index - spp);
             else {  
-              if (p->index - spp >= 10)
-                fprintf(outfile, "-%2ld", p->index - spp);
+              if (rback->index - spp >= 10)
+                fprintf(outfile, "-%2ld", rback->index - spp);
               else
-                fprintf(outfile, "--%ld", p->index - spp);
+                fprintf(outfile, "--%ld", rback->index - spp);
             }
 	  }
 	}
