@@ -1407,7 +1407,8 @@ void bl_drawline(long i, double scale, struct tree* t)
 
   struct node *p, *pold, *q, *r, *rback;
   long n, j;
-  boolean itoleft, iequal, itoright, iequalrback, iinrssubtree;
+  boolean itoleft, iequal, itoright, iequalrback, 
+	  iinpssubtree, iinrssubtree;
   boolean done, doner, foundsubtree;
 
   p = t->root;
@@ -1419,6 +1420,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   while (!done) {         /* outer of two loops: move out tree node by node */
     doner = false;          /* pronounced "done R", not like the tasty meat */
     foundsubtree = false;          /* keep track of whether go into subtree */
+    iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       rback = r->back;
       iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */
@@ -1427,7 +1429,15 @@ void bl_drawline(long i, double scale, struct tree* t)
       if (!iequal) {
         fprintf(outfile, "  "); 
       }
-      n = (long)(scale * ((long)pold->xcoord - (long)p->xcoord) + 0.5);
+      if (iinpssubtree) {
+        n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
+        for (j = 1; j <= n - 3; j++) {   /* print dashes out to p's subtree */
+          if (iequal)
+            putc('-', outfile);
+          else
+            putc(' ', outfile);
+        }
+      }
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) {              /* then we're going out to next node */
         foundsubtree = true;
@@ -1437,13 +1447,11 @@ void bl_drawline(long i, double scale, struct tree* t)
             putc(',', outfile);
           else                                         /* i.e., if to right */
             putc('\'', outfile);           /* "quoting" a single apostrophe */
-          for (j = 1; j <= n - 3; j++)       /* print dashes out to subtree */
-            putc('-', outfile);
           if (rback->tip) {                              /* if now at a tip */
             for (j = 0; j < nmlngth; j++)         /* ... write the name ... */
               putc(nayme[r->back->index-1][j], outfile);
             return;        /* exit: all done if after printing species name */
-          } else {      /* get here only if  p  an internal node, not a tip */
+          } else {  /* get here only if  rback  an internal node, not a tip */
             if (rback->index - spp >= 100) /* print out number for the node */
               fprintf(outfile, "%3ld", rback->index - spp);
             else {  
@@ -1456,15 +1464,13 @@ void bl_drawline(long i, double scale, struct tree* t)
 	}
 	q = rback;
       } else {
-        for (j = 1; j <= n - 3; j++)         /* print spaces out to subtree */
-          putc(' ', outfile);
         if (itoleft && (i > (long)rback->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         } else {
           if (itoright && (i < (long)rback->ycoord)) {
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-            if (iinrssubtree && (!iequal)) {
+            if (!iequal) {
               putc(' ', outfile);
             }
           }
@@ -1482,7 +1488,7 @@ void bl_drawline(long i, double scale, struct tree* t)
     }
     else
       done = true;
-  };                                   /* end of the outer of the two loops */
+  }
 }  /* bl_drawline */
 
 
