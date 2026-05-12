@@ -1405,7 +1405,7 @@ void bl_drawline(long i, double scale, struct tree* t)
    * numbered from top (1) to bottom
    * used in Dnaml, Proml, & Restml */
 
-  struct node *p, *q, *r, *rback;
+  struct node *p, *pold, *q, *r, *rback;
   long n, j;
   boolean itoleft, iequal, itoright, iequalrback, iinrssubtree;
   boolean done, doner, foundsubtree;
@@ -1413,6 +1413,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   p = t->root;
   if (p->tip)
     p = p->back;
+  pold = p;
   r = p->next;
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
@@ -1426,7 +1427,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       if (!iequal) {
         fprintf(outfile, "  "); 
       }
-      n = (long)(scale * ((long)rback->xcoord - (long)p->xcoord) + 0.5);
+      n = (long)(scale * ((long)pold->xcoord - (long)p->xcoord) + 0.5);
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) {              /* then we're going out to next node */
         foundsubtree = true;
@@ -1475,6 +1476,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       } 
     };                                     /* end of inner of the two loops */
     if(foundsubtree) {
+      pold = p;
       p = q;
       r = p->next;                       /* move to next descendant, if any */
     }
