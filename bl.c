@@ -1415,29 +1415,37 @@ void bl_drawline(long i, double scale, struct tree* t)
   if (p->tip)
     p = p->back;
   pold = p;
-  r = p->next;
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
-    doner = false;          /* pronounced "done R", not like the tasty meat */
     foundsubtree = false;          /* keep track of whether go into subtree */
     iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
-    while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
-      rback = r->back;
-      iequal = i == (long)p->ycoord;       /* is  i  the coordinate of  p?  */
-      itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
-      itoright = (!iequal) && (!itoleft);
-      if (!iequal) {
-        fprintf(outfile, "  "); 
+    iequal = i == (long)p->ycoord;         /* is  i  the coordinate of  p?  */
+    itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
+    itoright = (!iequal) && (!itoleft);
+    if (iinpssubtree) {
+      fprintf(outfile, "  "); 
+      n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
+      for (j = 1; j <= n - 3; j++)     { /* print dashes out to p's subtree */
+        if (iequal)
+          putc('-', outfile);
+        else
+          putc(' ', outfile);
       }
-      if (iinpssubtree) {
-        n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
-        for (j = 1; j <= n - 3; j++) {   /* print dashes out to p's subtree */
-          if (iequal)
-            putc('-', outfile);
+      if (iequal) {
+        if (p->index - spp >= 100)         /* print out number for the node */
+          fprintf(outfile, "%3ld", p->index - spp);
+        else {  
+          if (p->index - spp >= 10)
+            fprintf(outfile, "-%2ld", p->index - spp);
           else
-            putc(' ', outfile);
+            fprintf(outfile, "--%ld", p->index - spp);
         }
       }
+    }
+    r = p->next;
+    rback = r->back;
+    doner = false;          /* pronounced "done R", not like the tasty meat */
+    while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) {              /* then we're going out to next node */
         foundsubtree = true;
@@ -1447,20 +1455,6 @@ void bl_drawline(long i, double scale, struct tree* t)
             putc(',', outfile);
           else                                         /* i.e., if to right */
             putc('\'', outfile);           /* "quoting" a single apostrophe */
-          if (rback->tip) {                              /* if now at a tip */
-            for (j = 0; j < nmlngth; j++)         /* ... write the name ... */
-              putc(nayme[r->back->index-1][j], outfile);
-            return;        /* exit: all done if after printing species name */
-          } else {  /* get here only if  rback  an internal node, not a tip */
-            if (rback->index - spp >= 100) /* print out number for the node */
-              fprintf(outfile, "%3ld", rback->index - spp);
-            else {  
-              if (rback->index - spp >= 10)
-                fprintf(outfile, "-%2ld", rback->index - spp);
-              else
-                fprintf(outfile, "--%ld", rback->index - spp);
-            }
-	  }
 	}
 	q = rback;
       } else {
@@ -1477,14 +1471,23 @@ void bl_drawline(long i, double scale, struct tree* t)
         }
       }
       r = r->next;
+      rback = r->back;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
       } 
     };                                     /* end of inner of the two loops */
+    if (p->tip) {                                        /* if now at a tip */
+      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
+        putc(nayme[p->index-1][j], outfile);
+      return;              /* exit: all done if after printing species name */
+    }
     if(foundsubtree) {
       pold = p;
       p = q;
-      r = p->next;                       /* move to next descendant, if any */
+      if (!p->back->tip) {
+        r = p->next;                     /* move to next descendant, if any */
+        rback = r->back;
+      }
     }
     else
       done = true;
