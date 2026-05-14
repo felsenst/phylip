@@ -1431,7 +1431,7 @@ void bl_drawline(long i, double scale, struct tree* t)
         else
           putc(' ', outfile);
       }
-      if (iequal) {
+      if ((iequal) && (!p->tip)) {
         if (p->index - spp >= 100)         /* print out number for the node */
           fprintf(outfile, "%3ld", p->index - spp);
         else {  
@@ -1446,18 +1446,17 @@ void bl_drawline(long i, double scale, struct tree* t)
     rback = r->back;
     doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
+      iequalrback = (i == (long)rback->ycoord);
+      if (iequalrback && itoleft)
+        putc(',', outfile);              /* printing turn-corner characters */
+      if (iequalrback && itoright)
+        putc('\'', outfile);       /* ... and "quoting" a single apostrophe */
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
-      if (iinrssubtree) {              /* then we're going out to next node */
+      if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
-        iequalrback = (i == (long)rback->ycoord);
-        if (iequalrback) {      /* in subtree and at same level as its root */
-          if (itoleft)                  /* print any turn-corner characters */
-            putc(',', outfile);
-          else                                         /* i.e., if to right */
-            putc('\'', outfile);           /* "quoting" a single apostrophe */
-	}
 	q = rback;
-      } else {
+	}
+      else {
         if (itoleft && (i > (long)rback->ycoord)) {
           putc('|', outfile);         /* if branch to left crosses this row */
         } else {
@@ -1471,10 +1470,11 @@ void bl_drawline(long i, double scale, struct tree* t)
         }
       }
       r = r->next;
-      rback = r->back;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
       } 
+      else
+        rback = r->back;
     };                                     /* end of inner of the two loops */
     if (p->tip) {                                        /* if now at a tip */
       for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
@@ -1484,7 +1484,7 @@ void bl_drawline(long i, double scale, struct tree* t)
     if(foundsubtree) {
       pold = p;
       p = q;
-      if (!p->back->tip) {
+      if (!p->tip) {
         r = p->next;                     /* move to next descendant, if any */
         rback = r->back;
       }
