@@ -1465,7 +1465,7 @@ void bl_drawline(long i, double scale, struct tree* t)
           if (itoright && (i < (long)rback->ycoord)) {
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-            if (!iequal) {
+            if ((!iequal) && (!iequalrback)) {
               putc(' ', outfile);
             }
           }
@@ -1478,17 +1478,17 @@ void bl_drawline(long i, double scale, struct tree* t)
       else
         rback = r->back;
     };                                     /* end of inner of the two loops */
-    if (p->tip) {                                        /* if now at a tip */
-      for (j = 0; j < nmlngth; j++)               /* ... write the name ... */
-        putc(nayme[p->index-1][j], outfile);
-      return;              /* exit: all done if after printing species name */
-    }
     if(foundsubtree) {
       pold = p;
       p = q;
       if (!p->tip) {
         r = p->next;                     /* move to next descendant, if any */
         rback = r->back;
+      }
+      if (p->tip) {                                      /* if now at a tip */
+        for (j = 0; j < nmlngth; j++)             /* ... write the name ... */
+          putc(nayme[p->index-1][j], outfile);
+        return;            /* exit: all done if after printing species name */
       }
     }
     else
