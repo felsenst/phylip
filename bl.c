@@ -1415,6 +1415,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   if (p->tip)
     p = p->back;
   pold = p;
+  fprintf(outfile, "  ");         /* two spaces to left of tree on all rows */
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
     foundsubtree = false;          /* keep track of whether go into subtree */
@@ -1423,7 +1424,6 @@ void bl_drawline(long i, double scale, struct tree* t)
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
     itoright = (!iequal) && (!itoleft);
     if (iinpssubtree) {
-      fprintf(outfile, "  "); 
       n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
       for (j = 1; j <= n - 3; j++)     { /* print dashes out to p's subtree */
         if (iequal)
@@ -1442,8 +1442,10 @@ void bl_drawline(long i, double scale, struct tree* t)
         }
       }
     }
-    r = p->next;
-    rback = r->back;
+    if (!p->tip) {
+      r = p->next;
+      rback = r->back;
+    }
     doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequalrback = (i == (long)rback->ycoord);
