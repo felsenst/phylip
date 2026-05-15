@@ -1431,15 +1431,24 @@ void bl_drawline(long i, double scale, struct tree* t)
         else
           putc(' ', outfile);
       }
-      if ((iequal) && (!p->tip)) {
-        if (p->index - spp >= 100)         /* print out number for the node */
-          fprintf(outfile, "%3ld", p->index - spp);
-        else {  
-          if (p->index - spp >= 10)
-            fprintf(outfile, "-%2ld", p->index - spp);
-          else
-            fprintf(outfile, "--%ld", p->index - spp);
-        }
+      if (iequal) {
+        if (!p->tip) {
+          if (p->index - spp >= 100)         /* print out number for the node */
+            fprintf(outfile, "%3ld", p->index - spp);
+          else {  
+            if (p->index - spp >= 10)
+              fprintf(outfile, "-%2ld", p->index - spp);
+            else
+              fprintf(outfile, "--%ld", p->index - spp);
+          }
+	}
+	else {
+      if (p->tip) {                                      /* if now at a tip */
+        for (j = 0; j < nmlngth; j++)             /* ... write the name ... */
+          putc(nayme[p->index-1][j], outfile);
+        return;            /* exit: all done if after printing species name */
+      }
+	}
       }
     }
     if (!p->tip) {
@@ -1449,27 +1458,31 @@ void bl_drawline(long i, double scale, struct tree* t)
     doner = false;          /* pronounced "done R", not like the tasty meat */
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequalrback = (i == (long)rback->ycoord);
-      if (iequalrback && itoleft)
-        putc(',', outfile);              /* printing turn-corner characters */
-      if (iequalrback && itoright)
-        putc('\'', outfile);       /* ... and "quoting" a single apostrophe */
+      fprintf(outfile, "  ");    
+      if (iequalrback) {
+        if (itoleft)
+          putc(',', outfile);            /* printing turn-corner characters */
+        if (itoright)
+          putc('\'', outfile);     /* ... and "quoting" a single apostrophe */
+      }
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
 	q = rback;
 	}
-      else {
-        if (itoleft && (i > (long)rback->ycoord)) {
-          putc('|', outfile);         /* if branch to left crosses this row */
+      if (itoleft && (i > (long)rback->ycoord)) {
+        fprintf(outfile, "  ");    
+        putc('|', outfile);         /* if branch to left crosses this row */
+      } else {
+        if (itoright && (i < (long)rback->ycoord)) {
+          fprintf(outfile, "  ");    
+          putc('|', outfile);      /* if branch to right crosses this row */
         } else {
-          if (itoright && (i < (long)rback->ycoord)) {
-            putc('|', outfile);      /* if branch to right crosses this row */
-          } else {
-            if ((!iequal) && (!iequalrback)) {
-              putc(' ', outfile);
-            }
+          if (iequalrback) {
+            fprintf(outfile, "  ");    
+            putc(' ', outfile);
           }
-        }
+	}
       }
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
@@ -1484,11 +1497,6 @@ void bl_drawline(long i, double scale, struct tree* t)
       if (!p->tip) {
         r = p->next;                     /* move to next descendant, if any */
         rback = r->back;
-      }
-      if (p->tip) {                                      /* if now at a tip */
-        for (j = 0; j < nmlngth; j++)             /* ... write the name ... */
-          putc(nayme[p->index-1][j], outfile);
-        return;            /* exit: all done if after printing species name */
       }
     }
     else
