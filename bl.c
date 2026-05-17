@@ -1471,13 +1471,19 @@ void bl_drawline(long i, double scale, struct tree* t)
         foundsubtree = true;
 	q = rback;
 	}
-      if (itoleft && (i > (long)rback->ycoord)) {
+      if (itoleft) {
         fprintf(outfile, "  ");    
-        putc('|', outfile);         /* if branch to left crosses this row */
+	if (i > (long)rback->ycoord)
+          putc('|', outfile);       /* if branch to left crosses this row */
+	else if (i < (long)rback->ycoord)
+          putc(' ', outfile);
       } else {
-        if (itoright && (i < (long)rback->ycoord)) {
+        if (itoright) {
           fprintf(outfile, "  ");    
-          putc('|', outfile);      /* if branch to right crosses this row */
+	  if (i < (long)rback->ycoord)
+            putc('|', outfile);    /* if branch to right crosses this row */
+	  else if (i > (long)rback->ycoord)
+            putc(' ', outfile);
         }
       }
       r = r->next;
