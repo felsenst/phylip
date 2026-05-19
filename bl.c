@@ -1429,7 +1429,7 @@ void bl_drawline(long i, double scale, struct tree* t)
         if (iequal)
           putc('-', outfile);
         else
-          putc(' ', outfile);
+          putc(' ', outfile);           /* ... or blanks if not on p's line */
       }
       if (iequal) {
         if (!p->tip) {
