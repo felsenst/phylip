@@ -1454,6 +1454,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       rback = r->back;
     }
     doner = false;          /* pronounced "done R", not like the tasty meat */
+    foundsubtree = false;
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequalrback = (i == (long)rback->ycoord);
       if (iequalrback) {
@@ -1469,22 +1470,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
       if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
-	q = rback;
-	}
-      if (itoleft) {
-        fprintf(outfile, "  ");    
-	if (i > (long)rback->ycoord)
-          putc('|', outfile);       /* if branch to left crosses this row */
-	else if (i < (long)rback->ycoord)
-          putc(' ', outfile);
-      } else {
-        if (itoright) {
-          fprintf(outfile, "  ");    
-	  if (i < (long)rback->ycoord)
-            putc('|', outfile);    /* if branch to right crosses this row */
-	  else if (i > (long)rback->ycoord)
-            putc(' ', outfile);
-        }
+        q = rback;
       }
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
@@ -1493,6 +1479,25 @@ void bl_drawline(long i, double scale, struct tree* t)
       else
         rback = r->back;
     };                                     /* end of inner of the two loops */
+    if (itoleft) {
+      if (i > (long)q->ycoord) {
+        fprintf(outfile, "  ");    
+        putc('|', outfile);       /* if branch to left crosses this row */
+      } else if (i < (long)q->ycoord) {
+          fprintf(outfile, "  ");    
+          putc(' ', outfile);
+        }
+    } else {
+      if (itoright) {
+        if (i < (long)q->ycoord) {
+          fprintf(outfile, "  ");    
+          putc('|', outfile);    /* if branch to right crosses this row */
+        } else if (i > (long)q->ycoord) {
+          fprintf(outfile, "  ");    
+          putc(' ', outfile);
+        }
+      }
+    }
     if(foundsubtree) {
       pold = p;
       p = q;
@@ -1503,7 +1508,7 @@ void bl_drawline(long i, double scale, struct tree* t)
     }
     else
       done = true;
-  }
+  }                                        /* end of outer of the two loops */
 }  /* bl_drawline */
 
 
