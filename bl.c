@@ -1479,22 +1479,24 @@ void bl_drawline(long i, double scale, struct tree* t)
       else
         rback = r->back;
     };                                     /* end of inner of the two loops */
-    if (itoleft) {
-      if (i > (long)q->ycoord) {
-        fprintf(outfile, "  ");    
-        putc('|', outfile);       /* if branch to left crosses this row */
-      } else if (i < (long)q->ycoord) {
+    if (foundsubtree) {
+      if (itoleft) {
+        if (i > (long)q->ycoord) {
           fprintf(outfile, "  ");    
-          putc(' ', outfile);
-        }
-    } else {
-      if (itoright) {
-        if (i < (long)q->ycoord) {
-          fprintf(outfile, "  ");    
-          putc('|', outfile);    /* if branch to right crosses this row */
-        } else if (i > (long)q->ycoord) {
-          fprintf(outfile, "  ");    
-          putc(' ', outfile);
+          putc('|', outfile);       /* if branch to left crosses this row */
+        } else if (i < (long)q->ycoord) {
+            fprintf(outfile, "  ");    
+            putc(' ', outfile);
+          }
+      } else {
+        if (itoright) {
+          if (i < (long)q->ycoord) {
+            fprintf(outfile, "  ");    
+            putc('|', outfile);    /* if branch to right crosses this row */
+          } else if (i > (long)q->ycoord) {
+            fprintf(outfile, "  ");    
+            putc(' ', outfile);
+          }
         }
       }
     }
