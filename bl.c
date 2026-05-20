@@ -1422,7 +1422,7 @@ void bl_drawline(long i, double scale, struct tree* t)
     iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
     iequal = i == (long)p->ycoord;         /* is  i  the coordinate of  p?  */
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
-    itoright = (!iequal) && (!itoleft);
+    itoright = (!iequal) && (!itoleft);       /* is  i  to the right of it? */
     if (iinpssubtree) {
       n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
       for (j = 1; j <= n - 3; j++) {     /* print dashes out to p's subtree */
@@ -1483,7 +1483,7 @@ void bl_drawline(long i, double scale, struct tree* t)
       if (itoleft) {
         if (i > (long)q->ycoord) {
           fprintf(outfile, "  ");    
-          putc('|', outfile);       /* if branch to left crosses this row */
+          putc('|', outfile);         /* if branch to left crosses this row */
         } else if (i < (long)q->ycoord) {
             fprintf(outfile, "  ");    
             putc(' ', outfile);
@@ -1492,12 +1492,17 @@ void bl_drawline(long i, double scale, struct tree* t)
         if (itoright) {
           if (i < (long)q->ycoord) {
             fprintf(outfile, "  ");    
-            putc('|', outfile);    /* if branch to right crosses this row */
+            putc('|', outfile);      /* if branch to right crosses this row */
           } else if (i > (long)q->ycoord) {
             fprintf(outfile, "  ");    
             putc(' ', outfile);
           }
         }
+      }
+    } else {
+      if (!iequal) {
+        fprintf(outfile, "  ");    
+        putc('|', outfile);                       /* if in between subtrees */
       }
     }
     if(foundsubtree) {
