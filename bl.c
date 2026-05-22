@@ -1472,39 +1472,26 @@ void bl_drawline(long i, double scale, struct tree* t)
         foundsubtree = true;
         q = rback;
       }
-      r = r->next;
-      if (r == p) {      /* if gone around all of r's immediate descendants */
-        doner = true;
-      } 
-      else
-        rback = r->back;
-    };                                     /* end of inner of the two loops */
-    if (foundsubtree) {
       if (itoleft) {
-        if (i > (long)q->ycoord) {
-          fprintf(outfile, "  ");    
-          putc('|', outfile);         /* if branch to left crosses this row */
-        } else if (i < (long)q->ycoord) {
+        if ((i > (long)rback->ycoord) && (i < (long)p->ycoord)) {
             fprintf(outfile, "  ");    
-            putc(' ', outfile);
+            putc('|', outfile);       /* if branch to left crosses this row */
           }
       } else {
         if (itoright) {
-          if (i < (long)q->ycoord) {
+          if ((i < (long)rback->ycoord) && (i > (long)p->ycoord)) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
-          } else if (i > (long)q->ycoord) {
-            fprintf(outfile, "  ");    
-            putc(' ', outfile);
           }
         }
       }
-    } else {
-      if (!iequal) {
-        fprintf(outfile, "  ");    
-        putc('|', outfile);                       /* if in between subtrees */
+      r = r->next;
+      if (r == p) {      /* if gone around all of r's immediate descendants */
+        doner = true;
+      } else {
+      rback = r->back;
       }
-    }
+    };                                     /* end of inner of the two loops */
     if(foundsubtree) {
       pold = p;
       p = q;
