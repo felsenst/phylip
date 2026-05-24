@@ -1483,20 +1483,24 @@ debug: */
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
+#if 0
           } else {
             if (i < (long)rback->ycoord) {
               fprintf(outfile, "   ");
 	  }
+#endif
         }
       } else {
         if (itoright) {
           if (i < (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
+#if 0
           } else {
             if (i > (long)rback->ycoord) {
               fprintf(outfile, "   ");
 	    }
+#endif
 	  }
         }
       }
