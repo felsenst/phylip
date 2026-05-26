@@ -1485,7 +1485,7 @@ debug: */
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
           } else {
-            if (i < (long)rback->ycoord) {
+            if ((i < (long)rback->ycoord) && (i >= rback->ymin)) {
               fprintf(outfile, "   ");
 	  }
         }
@@ -1495,7 +1495,7 @@ debug: */
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-            if (i > (long)rback->ycoord) {
+            if ((i > (long)rback->ycoord) && (i <= rback->ymax)) {
               fprintf(outfile, "   ");
 	    }
 	  }
