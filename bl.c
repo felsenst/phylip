@@ -1424,7 +1424,7 @@ debug: */
   while (!done) {         /* outer of two loops: move out tree node by node */
     foundsubtree = false;          /* keep track of whether go into subtree */
     iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
-    iequal = i == (long)p->ycoord;         /* is  i  the coordinate of  p?  */
+    iequal = i == (long)p->ycoord;          /* is  i  the coordinate of  p? */
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
     itoright = (!iequal) && (!itoleft);       /* is  i  to the right of it? */
     if (iinpssubtree) {
@@ -1481,21 +1481,21 @@ debug: */
         q = rback;
       }
       if (itoleft) {
-        if (i > (long)rback->ycoord) {
+        if ((i > (long)rback->ycoord) && (i >= rback->ymin)) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
           } else {
-            if ((i < (long)rback->ycoord) && (i >= rback->ymin)) {
+            if ((i < (long)rback->ycoord) && (i <= rback->ymax)) {
               fprintf(outfile, "   ");
 	  }
         }
       } else {
         if (itoright) {
-          if (i < (long)rback->ycoord) {
+          if ((i < (long)rback->ycoord) && (i >= rback->ymin)) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
-            if ((i > (long)rback->ycoord) && (i <= rback->ymax)) {
+            if ((i > (long)rback->ycoord) && (i <= rback->ymin)) {
               fprintf(outfile, "   ");
 	    }
 	  }
