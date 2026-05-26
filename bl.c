@@ -1474,7 +1474,8 @@ debug: */
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
 /* debug: 
       itoleftofrssubtree = i < rback->ymin;
-      itorightofrssubtree = i > rback->ymax;   debug: */
+      itorightofrssubtree = i > rback->ymax;
+   debug: */
       if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
         q = rback;
@@ -1483,24 +1484,20 @@ debug: */
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
-#if 0
           } else {
             if (i < (long)rback->ycoord) {
               fprintf(outfile, "   ");
 	  }
-#endif
         }
       } else {
         if (itoright) {
           if (i < (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
-#if 0
           } else {
             if (i > (long)rback->ycoord) {
               fprintf(outfile, "   ");
 	    }
-#endif
 	  }
         }
       }
