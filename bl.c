@@ -1491,7 +1491,7 @@ debug: */
         }
       } else {
         if (itoright) {
-          if ((i < (long)rback->ycoord) && (i >= rback->ymin)) {
+          if ((i < (long)rback->ycoord) && (i <= rback->ymax)) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
           } else {
