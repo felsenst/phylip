@@ -1409,6 +1409,10 @@ void bl_drawline(long i, double scale, struct tree* t)
   long n, j;
   boolean itoleft, iequal, itoright, iequalrback, 
 	  iinpssubtree, iinrssubtree;
+  /* debug: 
+  , itoleftofrssubtree, 
+	  itorightofrssubtree;
+debug: */
   boolean done, doner, foundsubtree;
 
   p = t->root;
@@ -1420,7 +1424,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   while (!done) {         /* outer of two loops: move out tree node by node */
     foundsubtree = false;          /* keep track of whether go into subtree */
     iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
-    iequal = i == (long)p->ycoord;         /* is  i  the coordinate of  p?  */
+    iequal = i == (long)p->ycoord;          /* is  i  the coordinate of  p? */
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
     itoright = (!iequal) && (!itoleft);       /* is  i  to the right of it? */
     if (iinpssubtree) {
@@ -1468,36 +1472,43 @@ void bl_drawline(long i, double scale, struct tree* t)
         }
       }
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
+/* debug: 
+      itoleftofrssubtree = i < rback->ymin;
+      itorightofrssubtree = i > rback->ymax;
+   debug: */
       if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
         q = rback;
       }
       if (itoleft) {
-        if (((long)rback->ycoord < p->ycoord) && (i > (long)rback->ycoord)) {
-          fprintf(outfile, "  ");    
-          putc('|', outfile);         /* if branch to left crosses this row */
-        } else if (i < (long)rback->ycoord) {
+        if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
-            putc(' ', outfile);
-            }
+            putc('|', outfile);       /* if branch to left crosses this row */
+          } else {
+            if (i < (long)rback->ycoord) {
+              fprintf(outfile, "   ");
+	  }
+        }
       } else {
         if (itoright) {
-          if (((long)rback->ycoord > p->ycoord) 
-              && (i < (long)rback->ycoord)) {
+          if (i < (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
-          } else if (i > (long)rback->ycoord) {
-            fprintf(outfile, "  ");    
-            putc(' ', outfile);
-          }
+          } else {
+            if (i > (long)rback->ycoord) {
+              fprintf(outfile, "   ");
+	    }
+	  }
         }
-    }
-    r = r->next;
-    if (r == p) {      /* if gone around all of r's immediate descendants */
-      doner = true;
-    } 
-    else
-      rback = r->back;
+      }
+      r = r->next;
+      if (r == p) {      /* if gone around all of r's immediate descendants */
+        doner = true;
+      } else {
+        rback = r->back;
+	if (i < rback->ymin)
+          doner = true;
+      }
     };                                     /* end of inner of the two loops */
     if(foundsubtree) {
       pold = p;
