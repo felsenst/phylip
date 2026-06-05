@@ -1476,31 +1476,25 @@ debug: */
         foundsubtree = true;
         q = rback;
       }
-    if ((!doner) && itoleft) {
+    if (itoleft) {
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
-#if 0    
-          } else {
-            if (i < (long)rback->ycoord) {
-              fprintf(outfile, "   ");
 	  }
-#endif
-        }
       } else {
-        if ((!doner) && (itoright)) {
+        if (itoright) {
           if (i < (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
-#if 0    
-          } else {
-            if (i > (long)rback->ycoord) {
-              fprintf(outfile, "   ");
-	    }
-#endif
 	  }
         }
       }
+      if (i < (long)rback->ycoord) {
+        fprintf(outfile, "   ");
+        }
+      if (i > (long)rback->ycoord) {
+        fprintf(outfile, "   ");
+        }
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
