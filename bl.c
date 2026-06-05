@@ -1472,15 +1472,20 @@ debug: */
         }
       }
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
-/* debug: 
-      itoleftofrssubtree = i < rback->ymin;
-      itorightofrssubtree = i > rback->ymax;
-   debug: */
       if (iinrssubtree) { /* then after r loop we're going out to next node */
         foundsubtree = true;
         q = rback;
       }
-      if (itoleft) {
+      r = r->next;
+      if (r == p) {      /* if gone around all of r's immediate descendants */
+        doner = true;
+      } else {
+        rback = r->back;
+	if (i < rback->ymin)
+          doner = true;
+      }
+    };                                     /* end of inner of the two loops */
+    if (itoleft) {
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
@@ -1501,15 +1506,7 @@ debug: */
 	  }
         }
       }
-      r = r->next;
-      if (r == p) {      /* if gone around all of r's immediate descendants */
-        doner = true;
-      } else {
-        rback = r->back;
-	if (i < rback->ymin)
-          doner = true;
-      }
-    };                                     /* end of inner of the two loops */
+  }                                        /* end of outer of the two loops */
     if(foundsubtree) {
       pold = p;
       p = q;
@@ -1520,7 +1517,6 @@ debug: */
     }
     else
       done = true;
-  }                                        /* end of outer of the two loops */
 }  /* bl_drawline */
 
 
