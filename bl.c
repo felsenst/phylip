@@ -1476,6 +1476,31 @@ debug: */
         foundsubtree = true;
         q = rback;
       }
+    if ((!doner) && itoleft) {
+        if (i > (long)rback->ycoord) {
+            fprintf(outfile, "  ");    
+            putc('|', outfile);       /* if branch to left crosses this row */
+#if 0    
+          } else {
+            if (i < (long)rback->ycoord) {
+              fprintf(outfile, "   ");
+	  }
+#endif
+        }
+      } else {
+        if ((!doner) && (itoright)) {
+          if (i < (long)rback->ycoord) {
+            fprintf(outfile, "  ");    
+            putc('|', outfile);      /* if branch to right crosses this row */
+#if 0    
+          } else {
+            if (i > (long)rback->ycoord) {
+              fprintf(outfile, "   ");
+	    }
+#endif
+	  }
+        }
+      }
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
@@ -1484,30 +1509,8 @@ debug: */
 	if (i < rback->ymin)
           doner = true;
       }
-    };                                     /* end of inner of the two loops */
-    if (itoleft) {
-        if (i > (long)rback->ycoord) {
-            fprintf(outfile, "  ");    
-            putc('|', outfile);       /* if branch to left crosses this row */
-          } else {
-            if (i < (long)rback->ycoord) {
-              fprintf(outfile, "   ");
-	  }
-        }
-      } else {
-        if (itoright) {
-          if (i < (long)rback->ycoord) {
-            fprintf(outfile, "  ");    
-            putc('|', outfile);      /* if branch to right crosses this row */
-          } else {
-            if (i > (long)rback->ycoord) {
-              fprintf(outfile, "   ");
-	    }
-	  }
-        }
-      }
-  }                                        /* end of outer of the two loops */
-    if(foundsubtree) {
+    }                               /* end of first interior loop at node p */
+    if (foundsubtree) {
       pold = p;
       p = q;
       if (!p->tip) {
@@ -1517,6 +1520,7 @@ debug: */
     }
     else
       done = true;
+  }                                                    /* end of outer loop */
 }  /* bl_drawline */
 
 
