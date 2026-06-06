@@ -1500,9 +1500,14 @@ debug: */
           doner = true;
       }
     }                                     /* end of interior loop at node p */
-    if ((i < (long)rbackfirst->ycoord) || (i > (long)rbacklast->ycoord)) {
+    if (!foundsubtree) {
+      fprintf(outfile, "  |");
+      } else {
+	if (((itoleft) && (i < (long)rbackfirst->ycoord))
+	  || ((itoright) && (i > (long)rbacklast->ycoord))) {
       fprintf(outfile, "   ");
       }
+    }
     if (foundsubtree) {
       pold = p;
       p = q;
