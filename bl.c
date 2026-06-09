@@ -1423,10 +1423,10 @@ debug: */
   done = false;
   while (!done) {         /* outer of two loops: move out tree node by node */
     foundsubtree = false;          /* keep track of whether go into subtree */
-    iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
     iequal = i == (long)p->ycoord;          /* is  i  the coordinate of  p? */
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
     itoright = (!iequal) && (!itoleft);       /* is  i  to the right of it? */
+    iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
     if (iinpssubtree) {
       n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
       for (j = 1; j <= n - 3; j++) {     /* print dashes out to p's subtree */
@@ -1477,7 +1477,10 @@ debug: */
         foundsubtree = true;
         q = rback;
       }
-    if (itoleft) {
+      iequal = i == (long)p->ycoord;        /* is  i  the coordinate of  p? */
+      itoleft = i < (long)p->ycoord;               /* is  i  to left of it? */
+      itoright = (!iequal) && (!itoleft);     /* is  i  to the right of it? */
+      if (itoleft) {
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
@@ -1500,13 +1503,13 @@ debug: */
           doner = true;
       }
     }                                     /* end of interior loop at node p */
-    if (!foundsubtree) {
-      fprintf(outfile, "  |");
-      } else {
-	if (((itoleft) && (i < (long)rbackfirst->ycoord))
-	  || ((itoright) && (i > (long)rbacklast->ycoord))) {
-      fprintf(outfile, "   ");
-      }
+    if (foundsubtree) {
+      if (((itoleft) && (i < (long)rbackfirst->ycoord) 
+           && (i > rbackfirst->ymin)) 
+        || ((itoright) && (i < (long)rbacklast->ycoord) 
+		&& (i < rbacklast->ymax))) {
+          fprintf(outfile, "   ");
+	} 
     }
     if (foundsubtree) {
       pold = p;
