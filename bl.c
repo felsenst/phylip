@@ -1504,20 +1504,16 @@ debug: */
       }
     }                                     /* end of interior loop at node p */
     if (foundsubtree) {
-      if (((itoleft) && (i < (long)rbackfirst->ycoord) 
+      if ((itoleft && (i < (long)rbackfirst->ycoord) 
            && (i >= rbackfirst->ymin)) 
-        || ((itoright) && (i > (long)rbacklast->ycoord) 
-		&& (i <= rbacklast->ymax))) {
-          fprintf(outfile, "   ");
-        }
-      } 
-      else {
-        if (((itoleft) && (i < rbacklast->ymin) 
-           && (i >= rbackfirst->ymax)) 
-          || ((itoright) && (i > rbackfirst->ymax) 
-		&& (i <= rbacklast->ymin))) {
+          || (itoright && (i > (long)rbackfirst->ycoord) 
+             && (i <= rbackfirst->ymax)))
+        fprintf(outfile, "   ");
+      if ((itoleft && (i > (long)rbacklast->ycoord) 
+           && (i <= rbacklast->ymax)) 
+          || (itoright && (i < (long)rbackfirst->ycoord) 
+		&& (i <= rbacklast->ymax))) 
 	  fprintf(outfile, "  |");
-          }
       }
     if (foundsubtree) {
       pold = p;
