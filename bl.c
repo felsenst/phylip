@@ -1408,7 +1408,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   struct node *p, *pold, *q, *r, *rback, *rbackfirst, *rbacklast;
   long n, j;
   boolean itoleft, iequal, itoright, iequalrback, 
-	  iinpssubtree, iinrssubtree;
+	  iinpssubtree, iinrssubtree, inbetween;
   /* debug: 
   , itoleftofrssubtree, 
 	  itorightofrssubtree;
@@ -1460,6 +1460,7 @@ debug: */
     rbackfirst = r->back;
     doner = false;          /* pronounced "done R", not like the tasty meat */
     foundsubtree = false;
+    inbetween = false;
     while (!doner) {   /* loop: check  r's  descendants: is  i  in subtree? */
       iequalrback = (i == (long)rback->ycoord);
       if (iequalrback) {
@@ -1493,11 +1494,11 @@ debug: */
 	  }
         }
       }
-      rbacklast = r->back;
       r = r->next;
       if (r == p) {      /* if gone around all of r's immediate descendants */
         doner = true;
       } else {
+        rbacklast = r->back;
         rback = r->back;
 	if (i < rback->ymin)
           doner = true;
@@ -1506,17 +1507,19 @@ debug: */
 #if 0
     if (foundsubtree) {
 #endif
-      if ((itoleft && (i < (long)rbackfirst->ycoord) 
-           && (i >= rbackfirst->ymin)) 
-          || (itoright && (i > (long)rbacklast->ycoord) 
-             && (i <= rbacklast->ymax)))
-        fprintf(outfile, "   ");
+    if ((itoleft && (i < (long)rbackfirst->ycoord) 
+         && (i >= rbackfirst->ymin)) 
+        || (itoright && (i > (long)rbacklast->ycoord) 
+           && (i <= rbacklast->ymax)))
+      fprintf(outfile, "   ");
+    inbetween = (i > rbackfirst->ymax) && (i < rbacklast->ymin);
+    if (inbetween)
+      fprintf(outfile, "  |");
 #if 0
       if ((itoleft && (i > (long)rbackfirst->ycoord) 
            && (i <= rbackfirst->ymax)) 
           || (itoright && (i < (long)rbacklast->ycoord) 
 		&& (i <= rbacklast->ymax))) 
-	  fprintf(outfile, "  |");
      }
 #endif
     if (foundsubtree) {
