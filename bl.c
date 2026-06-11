@@ -1408,7 +1408,7 @@ void bl_drawline(long i, double scale, struct tree* t)
   struct node *p, *pold, *q, *r, *rback, *rbackfirst, *rbacklast;
   long n, j;
   boolean itoleft, iequal, itoright, iequalrback, 
-	  iinpssubtree, iinrssubtree, inbetween;
+	  iinpssubtree, iinrssubtree, inbetween, printed;
   /* debug: 
   , itoleftofrssubtree, 
 	  itorightofrssubtree;
@@ -1427,6 +1427,7 @@ debug: */
     itoleft = i < (long)p->ycoord;                 /* is  i  to left of it? */
     itoright = (!iequal) && (!itoleft);       /* is  i  to the right of it? */
     iinpssubtree = (i >= p->ymin) && (i <= p->ymax);
+    printed = false;
     if (iinpssubtree) {
       n = (long)(scale * ((long)p->xcoord - (long)pold->xcoord) + 0.5);
       for (j = 1; j <= n - 3; j++) {     /* print dashes out to p's subtree */
@@ -1445,6 +1446,7 @@ debug: */
             else
               fprintf(outfile, "--%ld", p->index - spp);
           }
+	  printed = true;
 	}
 	else {
           for (j = 0; j < nmlngth; j++)           /* ... write the name ... */
@@ -1467,10 +1469,12 @@ debug: */
         if (itoleft) {
           fprintf(outfile, "  ");
           putc(',', outfile);            /* printing turn-corner characters */
+	  printed = true;
         }
         if (itoright) {
           fprintf(outfile, "  ");
           putc('\'', outfile);     /* ... and "quoting" a single apostrophe */
+	  printed = true;
         }
       }
       iinrssubtree = (i >= rback->ymin) && (i <= rback->ymax);
@@ -1485,12 +1489,14 @@ debug: */
         if (i > (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);       /* if branch to left crosses this row */
+	    printed = true;
 	  }
       } else {
         if (itoright) {
           if (i < (long)rback->ycoord) {
             fprintf(outfile, "  ");    
             putc('|', outfile);      /* if branch to right crosses this row */
+	    printed = true;
 	  }
         }
       }
@@ -1507,14 +1513,16 @@ debug: */
 #if 0
     if (foundsubtree) {
 #endif
-    if ((itoleft && (i < (long)rbackfirst->ycoord) 
-         && (i >= rbackfirst->ymin)) 
-        || (itoright && (i > (long)rbacklast->ycoord) 
-           && (i <= rbacklast->ymax)))
-      fprintf(outfile, "   ");
-    inbetween = (i > rbackfirst->ymax) && (i < rbacklast->ymin);
-    if (inbetween)
-      fprintf(outfile, "  |");
+    if (!printed) {
+      if ((itoleft && (i < (long)rbackfirst->ycoord) 
+           && (i >= rbackfirst->ymin)) 
+          || (itoright && (i > (long)rbacklast->ycoord) 
+             && (i <= rbacklast->ymax)))
+        fprintf(outfile, "   ");
+      inbetween = (i > rbackfirst->ymax) && (i < rbacklast->ymin);
+      if (inbetween)
+        fprintf(outfile, "  |");
+    }
 #if 0
       if ((itoleft && (i > (long)rbackfirst->ycoord) 
            && (i <= rbackfirst->ymax)) 
