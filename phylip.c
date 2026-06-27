@@ -3237,7 +3237,6 @@ void exxit(int exitcode)
 #else
   exit(exitcode);
 #endif
-
 } /* exxit */
 
 

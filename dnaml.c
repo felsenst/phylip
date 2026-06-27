@@ -1932,7 +1932,8 @@ void summarize(struct tree* t)
       if (k >= sites)
         k = sites - 1;
       rectrav(t->root, i, k);
-      rectrav(t->root->back, i, k);
+      if (t->root->back != NULL)
+        rectrav(t->root->back, i, k);
       putc('\n', outfile);
     }
   }
