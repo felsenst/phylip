@@ -2000,6 +2000,8 @@ void maketree(void)
       dummy_first      = true;
       goteof           = false;
 /* debug:        preparetree(curtree);   needed? */
+      if (curtree->root->tip)
+        curtree->root = curtree->root->back;
       treeread(curtree, intree, &curtree->root, curtree->nodep, &goteof,
                 &dummy_first, &nextnode, &haslengths, whichinit,
                 false, nonodes2);
