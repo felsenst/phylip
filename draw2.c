@@ -468,12 +468,12 @@ void plot(pensttstype pen, double xabs, double yabs)
 
       case pov:
         /* Default to writing out tree texture... */
-        strcpy (texture_string, TREE_TEXTURE);
+        strcpy_s (texture_string, sizeof(texture_string), TREE_TEXTURE);
 
         if (pen == pendown) {
           if (linewidth != treeline) {
             /* Change the texture to name texture */
-            strcpy (texture_string, NAME_TEXTURE);
+            strcpy_s (texture_string, sizeof(texture_string), NAME_TEXTURE);
 
             if (raylinewidth > labelline) {
               raylinewidth = labelline;
