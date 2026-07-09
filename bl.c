@@ -1173,7 +1173,7 @@ void addelement2(tree* t, struct node *qq, Char *ch, long *parens,
   else if ((*ch) == ';') {
     (*trweight) = 1.0 ;
     if (!eoln(treefile))
-      sprintf(progbuf, "WARNING:  Tree weight set to 1.0\n");
+      sprintf(progbuf, "NOTE:  Tree weight set to 1.0\n");
     print_progress(progbuf);
   }
   else
@@ -1240,13 +1240,13 @@ void treeread2 (tree* t, FILE *treefile, node **root, boolean lngths,
 
   addelement2(t, NULL, &ch, &parens, treefile, lngths, trweight, goteof,
               &nextnode, &ntips, (*no_species), haslengths, unifok, maxnodes);
-  (*root) = t->nodep[*no_species];
+  (*root) = t->nodep[*no_species];   /* DEBUG: change this to insert root-neighboring node */
 
   /*eat blank lines */
   while (eoln(treefile) && !eoff(treefile))
     scan_eoln(treefile);
 
-  (*root)->oldlen = 0.0;
+  (*root)->oldlen = 0.0;   /* DEBUG: check this to see if needs to be changed */
 
   if (parens != 0) {
     sprintf(progbuf, "\n\nERROR in tree file:  unmatched parentheses.\n\n");
