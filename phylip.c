@@ -3070,7 +3070,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 
     /* do what needs to be done at bottom */
     type = FORK_NODE;
-    *p = funcs.node_new(type, nodei, 0);
+    *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
     funcs.node_init(*p, type, nodei);
 /* debug:    (*initptr)(treep, p, len, nodei, ntips, parens,
                   bottom, nodep, str, ch, treefile);  */
