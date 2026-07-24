@@ -3045,7 +3045,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
   node_type type;
   long i, nodei = 0;
 /* debug: needed only to call *initptr  long len;  */
-  boolean notlast;
+  boolean first, notlast;
   Char str[MAXNCH+1];
   struct node *r;
   long furcs = 0;
@@ -3070,18 +3070,21 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 
     /* do what needs to be done at bottom */
     type = FORK_NODE;
-    *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
-    funcs.node_init(*p, type, nodei);
 /* debug:    (*initptr)(treep, p, len, nodei, ntips, parens,
                   bottom, nodep, str, ch, treefile);  */
-    pfirst = (*p);
+    first = true;
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
+      *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
       furcs++;
       funcs.node_init(*p, type, nodei);
 /* debug:      (*initptr)(treep, &(*p)->next, len, nodei,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);  */
       /* ... doing what is done before each */
+      if (first) {
+        pfirst = (*p);
+	first = false;
+      }
       r = (*p)->next;
       getch(ch, parens, treefile);               /* look for next character */
 
