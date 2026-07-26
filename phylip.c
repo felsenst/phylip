@@ -3047,7 +3047,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 /* debug: needed only to call *initptr  long len;  */
   boolean notlast;
   Char str[MAXNCH+1];
-/* debug:   struct node *r;   needed? */
+/* debug:   struct node *r;    Necessary? */
   long furcs = 0;
 
   if ((*ch) == '(') {   /* if see a left-paren, start to make interior node */
@@ -3100,7 +3100,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         (*parens)++;
         *ch = 0;
       }
-      addelement(treep, p, (*p)->next, ch, parens, treefile,
+      addelement(treep, &((*p)->next), (*p)->next, ch, parens, treefile,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 /*  debug:      *p = r;                                     make r point back to p */
