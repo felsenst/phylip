@@ -3053,6 +3053,9 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
   if ((*ch) == '(') {   /* if see a left-paren, start to make interior node */
     (*nextnode)++;                    /* get ready to use new interior node */
     nodei = *nextnode;
+    /* debug: what type of node to create? */
+    *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
+    funcs.node_init(*p, type, nodei);
     if ( (maxnodes != -1) && (nodei > maxnodes)) {
       sprintf(progbuf,
                "ERROR in input tree file: Attempting to allocate too\n");
@@ -3070,8 +3073,6 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 
     /* do what needs to be done at bottom */
     type = FORK_NODE;
-    *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
-    funcs.node_init(*p, type, nodei);
 /* debug:    (*initptr)(treep, p, len, nodei, ntips, parens,
                   bottom, nodep, str, ch, treefile);  */
     *first = true;
@@ -3100,7 +3101,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         (*parens)++;
         *ch = 0;
       }
-      addelement(treep, &((*p)->next), *p, ch, parens, treefile,
+      addelement(treep, &((*p)->back), (*p)->next, ch, parens, treefile,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 /*  debug:      *p = r;                                     make r point back to p */
