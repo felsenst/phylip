@@ -3081,7 +3081,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 /* debug:      (*initptr)(treep, &(*p)->next, len, nodei,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);  */
       /* ... doing what is done before each */
-      if (first) {
+      if (*first) {
         pfirst = (*p);
 	first = false;
       }
@@ -3100,7 +3100,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         (*parens)++;
         *ch = 0;
       }
-      addelement(treep, &((*p)->next), (*p)->next, ch, parens, treefile,
+      addelement(treep, &((*p)->next), *p, ch, parens, treefile,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 /*  debug:      *p = r;                                     make r point back to p */
@@ -3196,7 +3196,7 @@ void treeread (struct tree * treep, FILE *treefile, node **root,
     getch(&ch, &parens, treefile);
   }
   (*haslengths) = true;
-  addelement(treep, &(treep->root), NULL, &ch, &parens, treefile,
+  addelement(treep, &(treep->root), treep->root, &ch, &parens, treefile,
              nodep, goteof, first, nextnode, &ntips,
              haslengths, initnode, unifok, maxnodes);
 
