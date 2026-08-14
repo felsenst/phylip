@@ -3101,6 +3101,8 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         (*parens)++;
         *ch = 0;
       }
+      *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
+      funcs.node_init(*p, type, nodei);
       addelement(treep, &((*p)->back), (*p)->next, ch, parens, treefile,
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
