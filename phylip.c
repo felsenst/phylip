@@ -3140,9 +3140,8 @@ void addelement(struct tree * treep, struct node **p, Char *ch, long *parens,
 
     if ((*ch) == ')')
       (*parens)--;                   /* decrement count of open parentheses */
-/* debug:    (*initptr)(treep, p, len, nodei, ntips,
-                parens, tip, nodep, str, ch, treefile); */
-    /* do what needs to be done at a tip */
+    (*initptr)(treep, p, len, nodei, ntips,   /* do what is needed at a tip */
+                parens, tip, nodep, str, ch, treefile);
   } else
     getch(ch, parens, treefile);
   if (q != NULL)
@@ -3155,9 +3154,8 @@ void addelement(struct tree * treep, struct node **p, Char *ch, long *parens,
                 parens, length, nodep, str, ch, treefile); */
           /* do what needs to be done with length */ {}
   else if ((*ch) != ';' && (*ch) != '[')
-/* debug:    (*initptr)(treep, p, len, nodei, ntips,
-                parens, hsnolength, nodep, str, ch, treefile); */ {}
-          /* ... or what needs to be done when no length */
+    (*initptr)(treep, p, len, nodei, ntips,        /* ... or when no length */
+                parens, hsnolength, nodep, str, ch, treefile);
   if ((*ch) == '[')
 /* debug:    (*initptr)(treep, p, len, nodei, ntips,
                 parens, treewt, nodep, str, ch, treefile);  */ {}
