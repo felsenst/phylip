@@ -3031,18 +3031,18 @@ void match_names_to_data (Char *str, pointarray treenode, node **p, long spp)
 }  /* match_names_to_data */
 
 
-void addelement(struct tree * treep, struct node **p, struct node *q,
-                 Char *ch, long *parens, FILE *treefile, pointarray nodep,
-                 boolean *goteof, boolean *first, long *nextnode,
-                 long *ntips, boolean *haslengths, initops initnode,
-                 boolean unifok, long maxnodes)
+void addelement(struct tree * treep, struct node **p, Char *ch, long *parens,
+	       	FILE *treefile, pointarray nodep, boolean *goteof, 
+		boolean *first, long *nextnode, long *ntips, 
+		boolean *haslengths, initops initnode, boolean unifok, 
+		long maxnodes)
 {
   /* Recursive procedure adds nodes to user-defined tree
      This is the main (new) tree-reading procedure */
 /* debug:  Now using  generic_node_new, rest needs simplifying */
 
-  struct node *pfirst;
-  node_type type;
+  struct node *pfirst, *q;
+  node_type type = FORK_NODE;
   long i, nodei = 0;
 /* debug: needed only to call *initptr  long len;  */
   boolean notlast;
@@ -3075,6 +3075,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     type = FORK_NODE;
 /* debug:    (*initptr)(treep, p, len, nodei, ntips, parens,
                   bottom, nodep, str, ch, treefile);  */
+    q = (*p)->next;    /* debug: OK? */
     *first = true;
     notlast = true;
     while (notlast) {                 /* loop through immediate descendants */
@@ -3083,7 +3084,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
                    ntips, parens, nonbottom, nodep, str, ch, treefile);  */
       /* ... doing what is done before each */
       if (*first) {
-        pfirst = (*p);
+        pfirst = q;
 	first = false;
       }
 /* debug:       r = (*p)->next;         needed? */
@@ -3101,9 +3102,9 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
         (*parens)++;
         *ch = 0;
       }
-      *p = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
-      funcs.node_init(*p, type, nodei);
-      addelement(treep, &((*p)->back), (*p)->next, ch, parens, treefile,
+      q = funcs.node_new(type, nodei, 0);    /* debug: get this working !! */
+      funcs.node_init(q, type, nodei);
+      addelement(treep, &(q->back), ch, parens, treefile,   /* debug: third argument NULL? */
                  nodep, goteof, first, nextnode, ntips,
                  haslengths, initnode, unifok, maxnodes);
 /*  debug:      *p = r;                                     make r point back to p */
@@ -3129,7 +3130,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
     }
 
     (*p)->next = pfirst;
-    (*p)       = pfirst;
+    (*p)       = pfirst;             /* debug: OK? */
 
   } else if ((*ch) != ')') {                  /* if it's a species name ... */
     for (i = 0; i < MAXNCH+1; i++)            /* ... fill string with nulls */
@@ -3145,7 +3146,7 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
   } else
     getch(ch, parens, treefile);
   if (q != NULL)
-    hookup(q, (*p));                                         /* now hook up */
+    q->next = *p;                                      /* now hook up */
 /* debug:   (*initptr)(treep, p, len, nodei, ntips,
               parens, iter, nodep, str, ch, treefile);    */
           /* do what needs to be done to variable iter */
@@ -3161,7 +3162,8 @@ void addelement(struct tree * treep, struct node **p, struct node *q,
 /* debug:    (*initptr)(treep, p, len, nodei, ntips,
                 parens, treewt, nodep, str, ch, treefile);  */ {}
           /* ... for processing a tree weight */
-  else if ((*ch) == ';')                          /* ... and at end of tree */
+	  /* if at bottom of tree, do what?    
+  else if ((*ch) == ';')                             ... and at end of tree */
 /* debug:     (*initptr)(treep, p, len, nodei, ntips,
                 parens, unittrwt, nodep, str, ch, treefile); */ {}
 }  /* addelement */
@@ -3199,7 +3201,7 @@ void treeread (struct tree * treep, FILE *treefile, node **root,
     getch(&ch, &parens, treefile);
   }
   (*haslengths) = true;
-  addelement(treep, &(treep->root), treep->root, &ch, &parens, treefile,
+  addelement(treep, &(treep->root), &ch, &parens, treefile,
              nodep, goteof, first, nextnode, &ntips,
              haslengths, initnode, unifok, maxnodes);
 
