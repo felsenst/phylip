@@ -834,7 +834,7 @@ void            link_trees(long, long, long, pointarray);
 void            allocate_nodep(pointarray*, FILE*, long*);
 void            take_name_from_tree (Char*, Char*, FILE*);
 void            match_names_to_data (Char*, pointarray, struct node**, long);
-void            addelement(struct tree*, struct node**, struct node*, Char*, 
+void            addelement(struct tree*, struct node**, Char*, 
                             long*, FILE*, pointarray, boolean*, boolean*, 
                             long*, long*, boolean*, initops, boolean, long);
 void            treeread (struct tree*, FILE*, struct node**, pointarray, 
