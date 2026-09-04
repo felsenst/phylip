@@ -3136,7 +3136,8 @@ void addelement(struct tree * treep, struct node **p, Char *ch, long *parens,
     for (i = 0; i < MAXNCH+1; i++)            /* ... fill string with nulls */
       str[i] = '\0';
 
-    take_name_from_tree (ch, str, treefile);          /* get the name */
+    take_name_from_tree (ch, str, treefile);                /* get the name */
+    match_names_to_data (str, treep->nodep, p, spp);    /* which one is it? */
 
     if ((*ch) == ')')
       (*parens)--;                   /* decrement count of open parentheses */
